@@ -38,8 +38,8 @@ describe('core/service/api/message-queue.api.service', () => {
         expect(clientMock.history.post).toHaveLength(0);
     });
 
-    // @deprecated tag:v6.9.0 - Remove together with the CancelToken shim.
-    it.deprecated('v6.9.0.0')('should still cancel the consume request through a CancelToken', async () => {
+    // @deprecated tag:v6.8.0 - Remove together with the CancelToken shim.
+    it.deprecated('v6.8.0.0')('should still cancel the consume request through a CancelToken', async () => {
         const { client, clientMock, messageQueueService } = createMessageQueueService();
         const source = client.CancelToken.source();
         source.cancel();

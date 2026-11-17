@@ -34,7 +34,10 @@ The release notes and the upgrade guide state this.
 
 All legacy runtime code lives in one module, `http-legacy-compat.ts`, registered by a single call in the HTTP factory.
 Removing it deletes that file, the call and the `CancelToken` export in the factory, and the deprecated type declarations.
-They are kept for one more major and guarded with `Shopware.Feature.triggerDeprecationOrThrow('V6_9_0_0', …)`: the `useAxiosV1` request option, `httpClient.CancelToken` and the `cancelToken` request option, and `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1`, which all alias the single client, its interceptors and its defaults.
+Each is guarded with `Shopware.Feature.triggerDeprecationOrThrow()` for the major that removes it.
+`httpClient.CancelToken` and the `cancelToken` request option go with 6.8, because `AbortController` replaces them one to one.
+The `useAxiosV1` request option and `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1`, which all alias the single client, its interceptors and its defaults, stay until 6.9.
+`useAxiosV1: false` is the opt-out from the Axios 1.x default that 6.8 activates, so it has to outlive 6.8.
 
 The Administration does not migrate to `fetch` or `ofetch` now. Upload progress needs XHR, which Axios selects in the browser, and the facade obligations (`.data`, `.status`, `.headers`, `error.response.*`, `responseType`, `timeout`, `signal`, interceptors) cost the same regardless of the engine. If the engine is ever swapped, it happens behind this facade.
 

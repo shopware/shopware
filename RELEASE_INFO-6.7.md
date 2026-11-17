@@ -669,8 +669,9 @@ Request interceptors now run on Axios 1.x on 6.7 too, and no opt-out restores ho
 `config.headers` is one flat `AxiosHeaders` instance, so an interceptor that writes `config.headers.common[...]` or `config.headers.post[...]` fails with a `TypeError`.
 Set such headers on `config.headers` directly.
 `Repository.assign()`, `mergeVersion()` and `deleteVersion()` return plain response headers again on 6.7, as they did before 6.7.14.
-`useAxiosV1`, `httpClient.CancelToken`, the `cancelToken` option and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases keep working until 6.9.
-They are deprecated and log a development-mode warning on first use.
+`httpClient.CancelToken`, the `cancelToken` option and passing a `CancelToken` to `messageQueueService.consume()` are deprecated and removed in 6.8.
+`useAxiosV1` and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases are deprecated and keep working until 6.9.
+All of them log a development-mode warning on first use.
 Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations.
 Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 

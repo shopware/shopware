@@ -5,7 +5,8 @@
  *
  * Everything the single Axios 1.x client keeps for extensions written against the removed Axios 0.x transport:
  * the legacy compatibility mode selected by `useAxiosV1`, the `CancelToken` shim and the version-specific aliases.
- * Removing it means deleting this file, its call and the `CancelToken` export in `http.factory.js`, and the
+ * The `CancelToken` shim goes with 6.8, together with the `CancelToken` export in `http.factory.js` and the declarations
+ * tagged `v6.8.0` in `http-client.types.ts`. The rest goes with 6.9: this file, its call in `http.factory.js` and the
  * declarations tagged `v6.9.0` in `http-client.types.ts` and `global.types.ts`.
  *
  * @deprecated tag:v6.9.0 - Will be removed together with the `useAxiosV1` request option.
@@ -28,6 +29,7 @@ type LegacyConfig = {
 };
 
 const REMOVED_IN = 'V6_9_0_0';
+const CANCEL_TOKEN_REMOVED_IN = 'V6_8_0_0';
 
 /**
  * Axios 0.x encoded query keys and values like Axios 1.x does, but kept `[` and `]` literal.
@@ -61,7 +63,7 @@ function guardLegacyOptions(config: LegacyConfig): void {
 
 function triggerCancelTokenDeprecation(): void {
     Shopware.Feature.triggerDeprecationOrThrow(
-        REMOVED_IN,
+        CANCEL_TOKEN_REMOVED_IN,
         '"httpClient.CancelToken" and the "cancelToken" request option are deprecated. Pass the "signal" of an AbortController instead.',
     );
 }

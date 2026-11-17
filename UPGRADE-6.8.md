@@ -1916,7 +1916,8 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 
 The Administration HTTP client (`httpClient`) became a single Axios 1.x instance.
 The legacy Axios 0.x dependency and the `axios-v1` package alias were removed.
-The deprecated members below kept working until 6.9 and logged a deprecation warning in development mode.
+`CancelToken` was removed.
+`useAxiosV1` and the version-specific aliases below keep working until 6.9 and log a deprecation warning in development mode.
 
 ### `useAxiosV1` request option
 
@@ -1966,7 +1967,7 @@ httpClient.interceptors.request.use((config) => {
 
 ### `CancelToken` replaced by `AbortController`
 
-`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` were deprecated and are removed in 6.9.
+`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` were removed.
 Use `AbortController`:
 
 ```javascript
@@ -1983,7 +1984,7 @@ controller.abort();
 
 Detect cancellations with `httpClient.isCancel(error)`. It recognises both mechanisms.
 
-`Shopware.Service('messageQueueService').consume(receiver, signal)` accepts an `AbortSignal` as second argument. Passing a `CancelToken` is deprecated.
+`Shopware.Service('messageQueueService').consume(receiver, signal)` accepts only an `AbortSignal` as second argument.
 
 ### Version-specific escape hatches
 

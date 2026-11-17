@@ -16,8 +16,9 @@ Extension code continues to use the injected `httpClient`. Axios stays an implem
 | `axiosV0`, `interceptorsV0`, `defaultsV0` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 | `axiosV1`, `interceptorsV1`, `defaultsV1` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 
-All deprecated members stay functional until the next major.
-The first use of each logs a deprecation warning in development mode, and once the `V6_9_0_0` flag is active the use throws.
+`CancelToken` and the `cancelToken` option are removed in 6.8.
+`useAxiosV1` and the version-specific aliases stay functional until 6.9.
+The first use of each deprecated member logs a deprecation warning in development mode, and the use throws once the major that removes it is active.
 
 ## The opt-out still works
 

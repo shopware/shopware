@@ -116,7 +116,8 @@ describe('core/factory/http-legacy-compat.ts', () => {
     });
 
     describe('deprecated members', () => {
-        it.deprecated('v6.9.0.0')('should still cancel requests through the CancelToken shim', async () => {
+        // @deprecated tag:v6.8.0 - Remove together with the CancelToken shim.
+        it.deprecated('v6.8.0.0')('should still cancel requests through the CancelToken shim', async () => {
             const source = httpClient.CancelToken.source();
             source.cancel('Operation cancelled');
 

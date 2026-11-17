@@ -25,7 +25,7 @@ export interface HttpRequestConfig<Data = HttpClientValue> {
     timeout?: number;
     signal?: HttpClientValue;
     /**
-     * @deprecated tag:v6.9.0 - Will be removed. Use `signal` with an `AbortController` instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use `signal` with an `AbortController` instead.
      */
     cancelToken?: HttpClientValue;
     responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata';
@@ -62,7 +62,7 @@ export interface HttpError<Data = HttpClientValue> extends Error {
 }
 
 /**
- * @deprecated tag:v6.9.0 - Will be removed. Use `AbortController` and `AbortSignal` instead.
+ * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and `AbortSignal` instead.
  * @public
  */
 export interface HttpCancelToken {
@@ -72,7 +72,7 @@ export interface HttpCancelToken {
 }
 
 /**
- * @deprecated tag:v6.9.0 - Will be removed. Use `AbortController` instead.
+ * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` instead.
  */
 interface HttpCancelTokenSource {
     token: HttpCancelToken;
@@ -80,7 +80,7 @@ interface HttpCancelTokenSource {
 }
 
 /**
- * @deprecated tag:v6.9.0 - Will be removed. Use `AbortController` instead.
+ * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` instead.
  */
 interface HttpCancelTokenFactory {
     new (executor: (cancel: (message?: string) => void) => void): HttpCancelToken;
@@ -182,7 +182,7 @@ export interface HttpClient {
     getUri: (config?: HttpRequestConfig) => string;
     isCancel: (value: unknown) => boolean;
     /**
-     * @deprecated tag:v6.9.0 - Will be removed. Use `AbortController` and the `signal` request option instead.
+     * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and the `signal` request option instead.
      */
     CancelToken: HttpCancelTokenFactory;
     defaults: HttpClientDefaults;

@@ -19,7 +19,7 @@ class MessageQueueApiService extends ApiService {
      *
      * @param receiver - Name of the transport to consume
      * @param signal - `AbortSignal` that cancels the long-running consume request.
-     *   Passing a `CancelToken` is deprecated and will be removed with v6.9.0.
+     *   Passing a `CancelToken` is deprecated and will be removed with v6.8.0.
      * @returns {Promise<T>}
      */
     consume(receiver: string, signal?: AbortSignal | HttpCancelToken): Promise<{ handledMessages: number }> {

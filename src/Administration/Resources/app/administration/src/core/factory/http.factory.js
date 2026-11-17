@@ -29,7 +29,7 @@ export default function createHTTPClient(context) {
 export const { isCancel } = Axios;
 
 /**
- * @deprecated tag:v6.9.0 - `CancelToken` and `Cancel` will be removed. Create an `AbortController`, pass its
+ * @deprecated tag:v6.8.0 - `CancelToken` and `Cancel` will be removed. Create an `AbortController`, pass its
  * `signal` in the request config and detect cancellations with `httpClient.isCancel(error)`.
  * @public
  */

@@ -692,6 +692,11 @@ Use the new `customFieldRepository` computed property instead.
 
 The `mediaDefaultFolderRepository` and `mediaDefaultFolderCriteria` computed properties of `sw-product-detail-base` and `sw-bulk-edit-product-media` are deprecated and will be removed.
 Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
+### Faster default sorting for products, customers and orders
+
+Product, customer and order lists now default to newest database entries first using their indexed insertion order.
+Imported records with historical creation or order dates can appear ahead of records with newer dates.
+Select a date column to restore chronological ordering.
 
 ### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
 

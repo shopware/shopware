@@ -19,7 +19,7 @@ export default {
     data() {
         return {
             customers: null,
-            sortBy: 'createdAt',
+            sortBy: 'autoIncrement',
             naturalSorting: false,
             sortDirection: 'DESC',
             isLoading: false,

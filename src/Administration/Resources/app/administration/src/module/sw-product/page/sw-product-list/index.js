@@ -27,9 +27,9 @@ export default {
         const data = {
             products: null,
             currencies: [],
-            sortBy: 'createdAt',
+            sortBy: 'autoIncrement',
             sortDirection: 'DESC',
-            naturalSorting: true,
+            naturalSorting: false,
             isLoading: false,
             isBulkLoading: false,
             total: 0,
@@ -118,7 +118,7 @@ export default {
             productCriteria.setTerm(this.term);
             productCriteria.addSorting(sorting);
 
-            if (!productCriteria.sortings.some((existing) => existing.field === 'id')) {
+            if (!productCriteria.sortings.some((existing) => ['id', 'autoIncrement'].includes(existing.field))) {
                 productCriteria.addSorting(Criteria.sort('id'));
             }
 
@@ -468,7 +468,7 @@ export default {
                 },
                 {
                     property: 'productNumber',
-                    naturalSorting: this.naturalSorting,
+                    naturalSorting: true,
                     label: this.$t('sw-product.list.columnProductNumber'),
                     align: 'right',
                     allowResize: true,

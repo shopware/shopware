@@ -9,6 +9,16 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Cart deliveries and transactions carry a payload into the order
+
+Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Their payload methods work like the ones of line items.
+`setPayloadValue($key, $value, protected: true)` keeps a key out of the Store API cart response, but Store API order responses still contain it.
+Unlike a line item payload, it does not survive the next cart calculation.
+Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
+At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.
+Any other extension sets it on the converted order data in the `CartConvertedEvent`.
+
 ### Attribute entities can generate the reverse side of a many-to-many association
 
 `Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
@@ -50,6 +60,17 @@ The Administration doesn't offer rules using it for payment methods or promotion
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
+
+### Mails and documents list every shipment
+
+`OrderDeliveryCollection::getShipments()` returns the deliveries that are not shipping discounts, in the order the Administration lists them: the primary delivery first when its id is passed, then by shipping costs.
+The cart's `DeliveryCollection::getShipments()` returns the cart deliveries that are not shipping discounts, highest shipping costs first.
+When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
+The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
+A migration updates these mail templates unless they were changed in the Administration.
+Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
+The invoice shows the shipping address of the primary delivery.
+Orders with one shipment render as before.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -355,6 +376,14 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Order deliveries keep the order of the cart deliveries
+
+Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
+Extensions that build several cart deliveries in a deliberate order, for example by priority or release date, no longer need to persist that order themselves.
+Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
+Recalculating an order numbers the deliveries from 1 again in the order of their stored positions, like line items, with deliveries added by the recalculation, such as shipping discounts, last.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
 ### Cart guards cover every cart delivery
 
 A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
@@ -457,6 +486,11 @@ It accepts a criteria, sorts by `position` by default, and returns each document
 A variant without documents of its own returns the documents of its parent; documents with a private file are left out.
 Extensions can change the result through the `product-document-route.load` extension event (`ProductDocumentRouteExtension`).
 
+### Order deliveries and order transactions have a `payload` field
+
+Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
+It is an object, or an empty array when nothing is set.
+
 ### Plain JSON becomes the default Admin API response format in 6.8
 
 Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
@@ -533,6 +567,14 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Reset a SEO URL to its template
+
+`PATCH /api/_action/seo-url/canonical` accepts an empty or missing `seoPathInfo`, unless the request sets `isModified` to `true`.
+It replaces the canonical SEO URL of that entity, sales channel and language with the URL generated from the SEO URL template, and removes its write protection (`isModified`).
+Before, the request was rejected with `400`.
+When the template generates no URL there, for example for an inactive sales channel or a language without a domain, the request is rejected with `400` and the error code `CONTENT__SEO_URL_RESET_NOT_POSSIBLE`, and the SEO URL stays unchanged.
+In the Administration, clearing the SEO URL field of a product or category and saving does this.
+
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
@@ -559,6 +601,11 @@ Clients can compare these hashes to find out which cookies were added or changed
 The Admin API has the new entities `product_document` and `product_document_translation`.
 `GET /api/_info/config` returns the document settings in `settings.productDocuments`.
 In the Store API, `documents.translations` of a product only contains the translations of the requested language and its fallbacks that have a public file.
+### Order deliveries have a `position` field
+
+Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
 ### Price definitions are validated so that they can be read again
 
 A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
@@ -599,6 +646,15 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+### Open a product in the Storefront from the Administration
+
+The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
+It opens a modal to select one of the Storefront sales channels the product is assigned to.
+For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
+Sales channels in maintenance mode get a hint.
+If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
+The `product.viewer` role now includes the `sales_channel_domain:read` privilege, which the modal needs to load the domains; a migration adds it to existing roles.
+
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported
@@ -624,8 +680,10 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ### Product list filters by product documents
 
-The product list has a new "Documents" filter, registered as `product-documents-filter`. It finds the products with or without product documents; variants count the documents they inherit from their parent.
+The product list has a new "Documents" filter, registered as `product-documents-filter`.
+It finds the products with or without product documents; variants count the documents they inherit from their parent.
 With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
@@ -899,7 +957,8 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 ### Dynamic product groups filter by product documents
 
-Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No". It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No".
+It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
 With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
 
 ### Meteor Component Library updated to 5.10.0
@@ -940,6 +999,16 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Checkout and account pages list every shipment
+
+When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.
+Deliveries with negative shipping costs are shipping discounts and are not listed as shipments.
+`AccountOrderPageLoader` and `AccountOverviewPageLoader` now load the shipping address and the state of every delivery, independent of the `v6.8.0.0` feature flag.
+`CheckoutFinishPageLoader` and `AccountEditOrderPageLoader` load the shipping method and the shipping address of every delivery, also with the flag active.
+Carts and orders with one shipment render as before.
+The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
+The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
 
 ### New shipping method blocks added
 
@@ -1212,8 +1281,13 @@ Each document carries its file in the shopper's language in `media`.
 ### Admin search reindexes products after queued inheritance updates
 
 With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin search index also reindexes the products whose inherited data the product indexer updates in the message queue.
-This covers the variants of product families with 50 or more products and every product during `bin/console dal:refresh:index`.
-Each batch of 50 products queues one admin search indexing message.
+This covers the variants of product families with 50 or more products.
+A full `bin/console dal:refresh:index` leaves the products to the admin search index rebuild that runs after it.
+`ProductIndexerEvent::$isFullIndexing` tells whether the event comes from such a full indexing run.
+
+### Password recovery is rate limited per IP
+
+Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

@@ -47,6 +47,16 @@ class ProductInheritanceSubscriberTest extends TestCase
         });
     }
 
+    public function testProductsOfAFullIndexingRunAreLeftToTheAdminIndexRebuild(): void
+    {
+        $registry = $this->createMock(AdminSearchRegistry::class);
+        $registry->expects($this->never())->method('updateIds');
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], static function () use ($registry): void {
+            (new ProductInheritanceSubscriber($registry))->update(new ProductIndexerEvent(['product-1'], Context::createDefaultContext(), [], true));
+        });
+    }
+
     public function testProductsWhoseInheritanceWasSkippedAreNotIndexedAgain(): void
     {
         $registry = $this->createMock(AdminSearchRegistry::class);

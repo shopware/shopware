@@ -1,0 +1,146 @@
+{% block sw_product_open_in_storefront_modal %}
+<mt-modal-root
+    :is-open="true"
+    @change="onModalRootChange"
+>
+    <mt-modal
+        :title="$t('sw-product.openInStorefrontModal.title')"
+        :subtitle="modalSubtitle"
+    >
+        <div class="sw-product-open-in-storefront-modal">
+            <mt-loader v-if="isLoading" />
+
+            {% block sw_product_open_in_storefront_modal_banners %}
+            <mt-banner
+                v-if="hasUnsavedChanges"
+                class="sw-product-open-in-storefront-modal__unsaved-changes"
+                variant="attention"
+            >
+                {{ $t('sw-product.openInStorefrontModal.infoUnsavedChanges') }}
+            </mt-banner>
+
+            <mt-banner
+                v-if="salesChannels.length === 0"
+                class="sw-product-open-in-storefront-modal__no-sales-channels"
+                variant="info"
+            >
+                {{ $t('sw-product.openInStorefrontModal.infoNoSalesChannels') }}
+            </mt-banner>
+            {% endblock %}
+
+            {% block sw_product_open_in_storefront_modal_description %}
+            <p
+                v-if="salesChannels.length > 0"
+                class="sw-product-open-in-storefront-modal__description"
+            >
+                {{ $t('sw-product.openInStorefrontModal.description') }}
+            </p>
+            {% endblock %}
+
+            {% block sw_product_open_in_storefront_modal_sales_channel_select %}
+            <mt-select
+                v-if="salesChannels.length > 0"
+                v-model="selectedSalesChannelId"
+                class="sw-product-open-in-storefront-modal__sales-channel-select"
+                :options="salesChannelOptions"
+                hide-clearable-button
+                :label="$t('sw-product.openInStorefrontModal.labelSalesChannel')"
+                :placeholder="$t('sw-product.openInStorefrontModal.placeholderSalesChannel')"
+            />
+            {% endblock %}
+
+            {% block sw_product_open_in_storefront_modal_result %}
+            <div
+                v-if="result"
+                class="sw-product-open-in-storefront-modal__result"
+            >
+                {% block sw_product_open_in_storefront_modal_maintenance %}
+                <mt-banner
+                    v-if="result.maintenance"
+                    class="sw-product-open-in-storefront-modal__maintenance"
+                    variant="info"
+                >
+                    {{ $t('sw-product.openInStorefrontModal.maintenanceHint') }}
+                </mt-banner>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_domains %}
+                <h3
+                    v-if="result.domains.length > 0"
+                    class="sw-product-open-in-storefront-modal__domains-headline"
+                >
+                    {{ $t('sw-product.openInStorefrontModal.labelDomains') }}
+                </h3>
+
+                <component
+                    :is="domain.productUrl ? 'a' : 'div'"
+                    v-for="domain in result.domains"
+                    :key="domain.id"
+                    class="sw-product-open-in-storefront-modal__domain mt-link--external"
+                    :class="{ 'is--disabled': !domain.productUrl }"
+                    :href="domain.productUrl ?? undefined"
+                    :target="domain.productUrl ? '_blank' : undefined"
+                    :rel="domain.productUrl ? 'noopener' : undefined"
+                    :aria-disabled="domain.productUrl ? undefined : 'true'"
+                >
+                    <span class="sw-product-open-in-storefront-modal__domain-text">
+                        <span
+                            v-if="result.languageNames[domain.languageId]"
+                            class="sw-product-open-in-storefront-modal__domain-header"
+                        >
+                            {{ result.languageNames[domain.languageId] }}
+                        </span>
+                        <span class="sw-product-open-in-storefront-modal__domain-url">
+                            {{ domain.productUrl ?? domain.url }}
+                        </span>
+                    </span>
+
+                    <mt-icon
+                        v-if="domain.productUrl"
+                        name="regular-external-link-s"
+                        size="14px"
+                        aria-hidden="true"
+                    />
+                </component>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_invalid_domains %}
+                <mt-banner
+                    v-if="invalidDomainUrls.length > 0"
+                    class="sw-product-open-in-storefront-modal__invalid-domains"
+                    variant="attention"
+                >
+                    {{ $t('sw-product.openInStorefrontModal.infoDomainsWithoutValidUrl', { urls: invalidDomainUrls.join(', '), count: invalidDomainUrls.length }, invalidDomainUrls.length) }}
+                </mt-banner>
+                {% endblock %}
+
+                {% block sw_product_open_in_storefront_modal_checks %}
+                <mt-banner
+                    v-for="reason in result.failingReasons"
+                    :key="reason"
+                    class="sw-product-open-in-storefront-modal__check"
+                    variant="attention"
+                >
+                    {{ $t(`sw-product.openInStorefrontModal.checks.${reason}`) }}
+                </mt-banner>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+
+        {% block sw_product_open_in_storefront_modal_footer %}
+        <template #footer>
+            <div class="sw-product-open-in-storefront-modal__footer">
+                <mt-modal-close
+                    as="mt-button"
+                    size="small"
+                    variant="secondary"
+                >
+                    {{ $t('global.default.close') }}
+                </mt-modal-close>
+            </div>
+        </template>
+        {% endblock %}
+    </mt-modal>
+</mt-modal-root>
+{% endblock %}

@@ -63,6 +63,7 @@ class AdminSearchRegistry implements EventSubscriberInterface
         private readonly array $mapping,
         private readonly string $environment,
         private readonly ClockInterface $clock,
+        private readonly int $indexingBatchSize = 1000,
     ) {
         if (isset($config['settings']['index'])) {
             if (\array_key_exists('number_of_shards', $config['settings']['index']) && $config['settings']['index']['number_of_shards'] === null) {
@@ -208,7 +209,9 @@ class AdminSearchRegistry implements EventSubscriberInterface
 
         $indexer = $this->getIndexer($entity);
 
-        $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $ids, []));
+        foreach (array_chunk($ids, max(1, $this->indexingBatchSize)) as $chunk) {
+            $this->queue->dispatch(new AdminSearchIndexingMessage($indexer->getEntity(), $indexer->getName(), $indices, $chunk, []));
+        }
     }
 
     /**

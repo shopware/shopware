@@ -642,6 +642,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('elasticsearch.administration.index.mapping'),
             param('kernel.environment'),
             service(ClockInterface::class),
+            param('elasticsearch.administration.indexing_batch_size'),
         ])
         ->tag('kernel.event_subscriber')
         ->tag('messenger.message_handler');

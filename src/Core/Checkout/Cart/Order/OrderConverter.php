@@ -129,6 +129,12 @@ class OrderConverter
 
                 throw OrderException::deliveryWithoutAddress();
             }
+
+            self::validateUniqueIdentifiers($cart->getDeliveries(), OrderException::duplicateDeliveryIdentifier(...));
+        }
+
+        if ($conversionContext->shouldIncludeTransactions()) {
+            self::validateUniqueIdentifiers($cart->getTransactions(), OrderException::duplicateTransactionIdentifier(...));
         }
 
         $data = CartTransformer::transform(
@@ -595,6 +601,38 @@ class OrderConverter
         }
 
         return $cartTransactions;
+    }
+
+    /**
+     * @param iterable<Delivery|Transaction> $elements
+     * @param \Closure(string): OrderException $duplicateIdentifier
+     */
+    private static function validateUniqueIdentifiers(iterable $elements, \Closure $duplicateIdentifier): void
+    {
+        $identifiers = [];
+        foreach ($elements as $element) {
+            $identifier = $element->getIdentifier();
+            if ($identifier === null) {
+                continue;
+            }
+
+            if (!isset($identifiers[$identifier])) {
+                $identifiers[$identifier] = true;
+
+                continue;
+            }
+
+            $exception = $duplicateIdentifier($identifier);
+
+            // @deprecated tag:v6.8.0 - Remove the feature check and the deprecation, always throw the exception
+            if (!Feature::isActive('v6.8.0.0')) {
+                Feature::triggerDeprecationOrThrow('v6.8.0.0', $exception->getMessage() . ' Converting it to an order will throw in v6.8.0.0.');
+
+                return;
+            }
+
+            throw $exception;
+        }
     }
 
     /**

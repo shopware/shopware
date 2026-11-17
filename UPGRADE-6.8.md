@@ -1627,6 +1627,9 @@ new Transaction($amount, $paymentMethodId, $giftCardId);
 
 Subclasses that override `getIdentifier()` declare the `string` return type.
 
+Converting a cart to an order throws `OrderException::duplicateDeliveryIdentifier()` or `OrderException::duplicateTransactionIdentifier()` when two of its deliveries or two of its transactions share an identifier.
+A cloned delivery or transaction keeps the identifier of the original, so build the new part with its own identifier instead.
+
 # Administration
 
 ## Sales channel detail components load fewer visibilities and sales channels

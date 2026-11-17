@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -78,6 +79,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
@@ -323,8 +325,8 @@ class OrderConverterTest extends TestCase
     public function testConvertToOrderNumbersTheDeliveriesInCartOrderBeforeTheMostExpensiveOneBecomesPrimary(): void
     {
         $deliveries = new DeliveryCollection();
-        foreach ([1.0, 5.0, -1.0] as $shippingCosts) {
-            $delivery = $this->getDeliveryCollection()->first();
+        foreach ([1.0, 5.0, -1.0] as $index => $shippingCosts) {
+            $delivery = $this->getDeliveryCollection(identifier: 'delivery-' . $index)->first();
             static::assertInstanceOf(Delivery::class, $delivery);
             $delivery->setShippingCosts(new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()));
             $deliveries->add($delivery);
@@ -346,7 +348,8 @@ class OrderConverterTest extends TestCase
         static::assertInstanceOf(Delivery::class, $shipment);
         $shipment->setShippingCosts(new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
-        $shippingDiscount = clone $shipment;
+        $shippingDiscount = $this->getDeliveryCollection(identifier: 'default-discount')->first();
+        static::assertInstanceOf(Delivery::class, $shippingDiscount);
         $shippingDiscount->setShippingCosts(new CalculatedPrice(-5, -5, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
         $cart = $this->getCart();
@@ -364,6 +367,48 @@ class OrderConverterTest extends TestCase
         $shippingCosts = $primaryDeliveries[0]['shippingCosts'];
         static::assertInstanceOf(CalculatedPrice::class, $shippingCosts);
         static::assertSame(10.0, $shippingCosts->getTotalPrice());
+    }
+
+    public function testConvertToOrderRejectsTwoDeliveriesWithTheSameIdentifier(): void
+    {
+        $cart = $this->getCart();
+        $cart->setDeliveries(new DeliveryCollection([
+            ...$this->getDeliveryCollection(identifier: 'warehouse-1'),
+            ...$this->getDeliveryCollection(identifier: 'warehouse-1'),
+        ]));
+
+        $this->expectExceptionObject(OrderException::duplicateDeliveryIdentifier('warehouse-1'));
+
+        $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+    }
+
+    public function testConvertToOrderRejectsTwoTransactionsWithTheSameIdentifier(): void
+    {
+        $amount = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $cart = $this->getCart();
+        $cart->setTransactions(new TransactionCollection([
+            new Transaction($amount, 'payment-method-id', 'gift-card'),
+            new Transaction($amount, 'payment-method-id', 'gift-card'),
+        ]));
+
+        $this->expectExceptionObject(OrderException::duplicateTransactionIdentifier('gift-card'));
+
+        $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testConvertToOrderKeepsDeliveriesWithTheSameIdentifierBeforeV68(): void
+    {
+        $cart = $this->getCart();
+        $cart->setDeliveries(new DeliveryCollection([
+            ...$this->getDeliveryCollection(identifier: 'warehouse-1'),
+            ...$this->getDeliveryCollection(identifier: 'warehouse-1'),
+        ]));
+
+        $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), new OrderConversionContext());
+
+        static::assertIsArray($result['deliveries']);
+        static::assertCount(2, $result['deliveries']);
     }
 
     /**
@@ -1231,7 +1276,7 @@ class OrderConverterTest extends TestCase
         return $address;
     }
 
-    private function getDeliveryCollection(bool $withoutAddress = false): DeliveryCollection
+    private function getDeliveryCollection(bool $withoutAddress = false, string $identifier = Delivery::DEFAULT_IDENTIFIER): DeliveryCollection
     {
         $country = new CountryEntity();
         $country->setId('country-id');
@@ -1256,7 +1301,7 @@ class OrderConverterTest extends TestCase
             $shippingMethod,
             $shippingLocation,
             new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()),
-            Delivery::DEFAULT_IDENTIFIER
+            $identifier
         );
         $deliveryCollection->add($delivery);
 

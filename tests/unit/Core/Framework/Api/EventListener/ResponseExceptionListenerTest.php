@@ -22,9 +22,54 @@ class ResponseExceptionListenerTest extends TestCase
 {
     private const DRIVER_MESSAGE = 'SQLSTATE[HY000] [1045] Access denied for user \'dbuser\'@\'10.0.0.5\' (using password: YES)';
 
-    public function testConnectionErrorIsHiddenWithoutDebugMode(): void
+    public function testConnectionErrorRendersGenericErrorPageForHtmlRequestsWithoutDebugMode(): void
+    {
+        $event = $this->createEvent($this->createConnectionException(), 'text/html');
+
+        (new ResponseExceptionListener(false))->onKernelException($event);
+
+        $response = $event->getResponse();
+        static::assertNotNull($response);
+        static::assertSame(500, $response->getStatusCode());
+        static::assertSame('text/html; charset=UTF-8', $response->headers->get('Content-Type'));
+        static::assertStringContainsString('<h1>Oops! An Error Occurred</h1>', (string) $response->getContent());
+        static::assertStringNotContainsString('dbuser', (string) $response->getContent());
+        static::assertStringNotContainsString('10.0.0.5', (string) $response->getContent());
+    }
+
+    public function testConnectionErrorRendersGenericErrorPageWithoutAcceptHeader(): void
     {
         $event = $this->createEvent($this->createConnectionException());
+
+        (new ResponseExceptionListener(false))->onKernelException($event);
+
+        static::assertStringContainsString('<h1>Oops! An Error Occurred</h1>', (string) $event->getResponse()?->getContent());
+    }
+
+    public function testConnectionErrorIsHiddenForJsonRequestsWithoutDebugMode(): void
+    {
+        $event = $this->createEvent($this->createConnectionException(), 'application/json');
+
+        (new ResponseExceptionListener(false))->onKernelException($event);
+
+        $response = $event->getResponse();
+        static::assertNotNull($response);
+        static::assertSame(500, $response->getStatusCode());
+        static::assertSame([
+            'errors' => [
+                [
+                    'code' => '0',
+                    'status' => '500',
+                    'title' => 'Internal Server Error',
+                    'detail' => 'Internal Server Error',
+                ],
+            ],
+        ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+    }
+
+    public function testConnectionErrorIsHiddenForJsonApiRequestsWithoutDebugMode(): void
+    {
+        $event = $this->createEvent($this->createConnectionException(), 'application/vnd.api+json');
 
         (new ResponseExceptionListener(false))->onKernelException($event);
 
@@ -122,8 +167,13 @@ class ResponseExceptionListenerTest extends TestCase
         return new ConnectionException(new PDOException(self::DRIVER_MESSAGE, null, 1045), null);
     }
 
-    private function createEvent(\Throwable $exception): ExceptionEvent
+    private function createEvent(\Throwable $exception, ?string $accept = null): ExceptionEvent
     {
-        return new ExceptionEvent(static::createStub(HttpKernelInterface::class), new Request(), HttpKernelInterface::MAIN_REQUEST, $exception);
+        $request = new Request();
+        if ($accept !== null) {
+            $request->headers->set('Accept', $accept);
+        }
+
+        return new ExceptionEvent(static::createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $exception);
     }
 }

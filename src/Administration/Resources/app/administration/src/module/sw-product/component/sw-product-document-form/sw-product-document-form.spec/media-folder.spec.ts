@@ -3,7 +3,15 @@
  */
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addDocuments,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 describe('sw-product-document-form media folder', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -22,13 +30,13 @@ describe('sw-product-document-form media folder', () => {
         cleanupWrappers();
     });
 
-    it.each([false, true])('starts in the document folder when selecting media (replacement: %s)', async (replacement) => {
+    it.each([false, true])('opens the document folder for media selection (replacement: %s)', async (replacement) => {
         const folderId = repositoryFactory.create('media_folder').create().id;
         const getDefaultFolderId = jest.fn().mockResolvedValue(folderId);
         const wrapper = await createWrapper(undefined, undefined, undefined, { getDefaultFolderId });
         expect(getDefaultFolderId).toHaveBeenCalledWith('product_document');
         if (replacement) {
-            await addMedia(wrapper, [createMedia('original')]);
+            await addDocuments(wrapper, [createMedia('original')]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         } else {

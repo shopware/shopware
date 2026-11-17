@@ -32,7 +32,7 @@ describe('sw-product-document-empty-state', () => {
         Shopware.Context.api.languageId = originalLanguage;
     });
 
-    it('keeps the default-language Add action without loading a language', async () => {
+    it('shows Add documents in the default language without loading a language name', async () => {
         const get = jest.fn();
         wrapper = await createWrapper(true, get);
         await wrapper.get('button').trigger('click');
@@ -46,7 +46,7 @@ describe('sw-product-document-empty-state', () => {
         expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
     });
 
-    it('offers the configured default language instead of an Add action in another language', async () => {
+    it('offers a switch to the default language when another language is active', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         const get = jest.fn().mockResolvedValue({ name: 'Français' });
         wrapper = await createWrapper(false, get);

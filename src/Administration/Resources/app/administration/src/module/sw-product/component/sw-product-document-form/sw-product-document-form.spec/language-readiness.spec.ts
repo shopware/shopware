@@ -19,7 +19,7 @@ describe('sw-product-document-form delayed language metadata', () => {
     });
 
     it.each(['remove version', 'clear name', 'clear file'])(
-        'waits for the active language before %s and uses its parent fallback',
+        'waits for language metadata before "%s" and uses the parent-language fallback',
         async (operation) => {
             Object.assign(global, { activeAclRoles: ['product.editor', 'media.viewer'] });
             const language = repositoryFactory.create('language').create();

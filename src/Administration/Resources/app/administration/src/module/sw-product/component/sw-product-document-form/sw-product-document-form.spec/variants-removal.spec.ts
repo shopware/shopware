@@ -37,7 +37,7 @@ function createVariant(media: Entity<'media'>, other?: Entity<'media'>) {
     return variant;
 }
 
-describe('sw-product-document-form removal', () => {
+describe('sw-product-document-form variant removal', () => {
     const originalLanguage = Shopware.Context.api.languageId;
 
     beforeEach(() => {

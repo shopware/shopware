@@ -48,7 +48,7 @@ async function createWrapper(props = {}) {
 
 describe('sw-product-document-edit-modal', () => {
     afterEach(() => mountedWrapper?.unmount());
-    it('emits edited names, Save and Cancel without mutating the supplied media', async () => {
+    it('emits name updates and forwards Apply and Cancel without changing the supplied media', async () => {
         const media = createMedia();
         const wrapper = await createWrapper({ editingMedia: media });
         const originalFileName = media.fileName;
@@ -77,7 +77,7 @@ describe('sw-product-document-edit-modal', () => {
         expect(wrapper.emitted('update:documentTitle')).toEqual([[name]]);
     });
 
-    it('forwards uploaded files and media-library selection to the draft owner', async () => {
+    it('forwards upload completion and requests to open the media library', async () => {
         const wrapper = await createWrapper();
         const upload = { targetId: createMedia().id };
         wrapper.getComponent<ComponentPublicInstance>('sw-upload-listener-stub').vm.$emit('media-upload-finish', upload);
@@ -87,7 +87,7 @@ describe('sw-product-document-edit-modal', () => {
         expect(wrapper.emitted('media-select')).toHaveLength(1);
     });
 
-    it('shows the selected file and emits removal without deleting media', async () => {
+    it('shows the selected file and emits a request to remove it', async () => {
         const media = createMedia('manual');
         const wrapper = await createWrapper({ editingMedia: media });
         expect(wrapper.get('.sw-media-upload-v2__file-headline').text()).toBe('manual.pdf');
@@ -101,7 +101,7 @@ describe('sw-product-document-edit-modal', () => {
         expect(media.fileName).toBe('manual');
     });
 
-    it.each([{ canEdit: false }, { isSavingDocument: true }])('disables editing when %o', async (props) => {
+    it.each([{ canEdit: false }, { isApplyingDocumentEdit: true }])('disables editing when %o', async (props) => {
         const wrapper = await createWrapper({ ...props, editingMedia: createMedia() });
         expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input').element.disabled).toBe(true);
         expect(wrapper.find('.sw-media-upload-v2__remove-icon').exists()).toBe(false);

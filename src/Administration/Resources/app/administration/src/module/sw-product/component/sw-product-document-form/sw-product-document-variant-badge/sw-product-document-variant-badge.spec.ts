@@ -8,13 +8,13 @@ import {
     cleanupWrappers,
     createWrapper,
     createMedia,
-    addMedia,
+    addDocuments,
     clickButton,
     selectMedia,
     getDocuments,
 } from '../sw-product-document-form.spec/helpers';
 
-describe('sw-product-document-form variant badges', () => {
+describe('sw-product-document-variant-badge', () => {
     let wrapper: VueWrapper;
     const originalLanguage = Shopware.Context.api.languageId;
 
@@ -49,10 +49,10 @@ describe('sw-product-document-form variant badges', () => {
         return media;
     }
 
-    it('marks newly added files beside their names and leaves inherited copies unbadged', async () => {
+    it('shows a variant badge for newly added documents and leaves inherited copies without a badge', async () => {
         await unlinkDocuments();
         // A different media entity can have the same filename as a parent file.
-        await addMedia(wrapper, [createMedia('parent-manual')]);
+        await addDocuments(wrapper, [createMedia('parent-manual')]);
         const rows = wrapper.findAll('.document-row');
         expect(rows[0].find('.sw-product-document-variant-badge').exists()).toBe(false);
         expect(rows[1].findAll('.sw-product-document-variant-badge')).toHaveLength(1);
@@ -66,7 +66,7 @@ describe('sw-product-document-form variant badges', () => {
         await clickButton(wrapper, 'global.default.remove');
         expect(getDocuments()).toHaveLength(0);
 
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
 
         expect(getDocuments()).toHaveLength(1);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
@@ -102,14 +102,14 @@ describe('sw-product-document-form variant badges', () => {
     it('does not mark documents added to a parent product', async () => {
         Shopware.Store.get('swProductDetail').product.parentId = undefined;
         wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         expect(getDocuments()).toHaveLength(1);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 
     it('keeps the unsaved badge when returning to the form after a tab remount', async () => {
         await unlinkDocuments();
-        await addMedia(wrapper, [createMedia('variant-manual')]);
+        await addDocuments(wrapper, [createMedia('variant-manual')]);
         const document = getDocuments()![1];
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
         wrapper.unmount();
@@ -119,10 +119,10 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.text()).toContain('variant-manual.pdf');
     });
 
-    it('keeps the variant badge after reloading new entities and reopening the form', async () => {
+    it('keeps the variant badge after reloading product data and reopening the form', async () => {
         await unlinkDocuments();
         const media = createMedia('variant-manual');
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
         const store = Shopware.Store.get('swProductDetail');
         const reloaded = createProduct(store.product.id);
@@ -143,7 +143,7 @@ describe('sw-product-document-form variant badges', () => {
     it('removes the variant badge when the file is also used by a parent translation', async () => {
         await unlinkDocuments();
         const media = createMedia('variant-manual');
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
 
         const parentDocument = Shopware.Store.get('swProductDetail').parentProduct.documents![0];
@@ -154,9 +154,9 @@ describe('sw-product-document-form variant badges', () => {
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(false);
     });
 
-    it('drops badges when inheritance is restored and does not mark newly copied documents', async () => {
+    it('removes variant badges when inheritance is restored and leaves parent document copies without a badge', async () => {
         await unlinkDocuments();
-        await addMedia(wrapper, [createMedia('variant-manual')]);
+        await addDocuments(wrapper, [createMedia('variant-manual')]);
         expect(wrapper.find('.sw-product-document-variant-badge').exists()).toBe(true);
 
         await wrapper.get('.sw-inheritance-switch--is-not-inherited .mt-icon').trigger('click');

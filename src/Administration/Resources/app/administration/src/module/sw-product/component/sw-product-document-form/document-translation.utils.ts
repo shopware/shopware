@@ -3,13 +3,13 @@
  */
 
 /** @private */
-export function resetDocumentTranslation(
+export function getDocumentTranslationResetChanges(
     document: Entity<'product_document'>,
     language: { parentId?: string | null } | null,
     systemLanguageId: string | null,
 ) {
-    const fallbackLanguages = [language?.parentId, systemLanguageId];
-    const translations = fallbackLanguages.flatMap(
+    const fallbackLanguageIds = [language?.parentId, systemLanguageId];
+    const translations = fallbackLanguageIds.flatMap(
         (languageId) => document.translations?.filter((translation) => translation.languageId === languageId) || [],
     );
     return {
@@ -27,7 +27,7 @@ export function resetDocumentTranslation(
 export type DocumentChanges = {
     title?: string | null;
     mediaId?: EntityKey<'media'> | null;
-    translated?: Partial<ReturnType<typeof resetDocumentTranslation>['translated']>;
+    translated?: Partial<ReturnType<typeof getDocumentTranslationResetChanges>['translated']>;
 };
 
 /** @private */
@@ -52,7 +52,7 @@ export function getDocumentTranslationChanges(
     }
     const resetFields = (['title', 'mediaId'] as const).filter((field) => result[field] === null);
     if (resetFields.length) {
-        const fallback = resetDocumentTranslation(document, context.language, context.systemLanguageId).translated;
+        const fallback = getDocumentTranslationResetChanges(document, context.language, context.systemLanguageId).translated;
         result.translated = {
             ...document.translated,
             ...Object.fromEntries(resetFields.map((field) => [field, fallback[field]])),
@@ -62,25 +62,25 @@ export function getDocumentTranslationChanges(
 }
 
 /** @private */
-export function getEditChanges(
+export function getDocumentEditChanges(
     document: Entity<'product_document'>,
     editor: {
         documentTitle: string;
         replacementMedia: Pick<Entity<'media'>, 'id'> | null;
         editingMedia?: Pick<Entity<'media'>, 'id'>;
-        documentFileRemoved: boolean;
+        isDocumentFileRemoved: boolean;
         isDefaultLanguage: boolean;
     },
     displayTitle: string,
     context: Pick<typeof Shopware.Context.api, 'language' | 'systemLanguageId'>,
 ) {
     const title = editor.documentTitle.trim();
-    const titleChanged = !editor.isDefaultLanguage || title !== displayTitle.trim();
+    const shouldUpdateTitle = !editor.isDefaultLanguage || title !== displayTitle.trim();
     const changes = getDocumentTranslationChanges(
         document,
         {
-            title: titleChanged ? title || null : undefined,
-            mediaId: editor.replacementMedia?.id ?? (editor.documentFileRemoved ? null : undefined),
+            title: shouldUpdateTitle ? title || null : undefined,
+            mediaId: editor.replacementMedia?.id ?? (editor.isDocumentFileRemoved ? null : undefined),
         },
         context,
     );

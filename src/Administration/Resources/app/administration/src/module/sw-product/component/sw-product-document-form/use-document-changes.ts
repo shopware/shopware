@@ -3,7 +3,11 @@
  */
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import { getDocumentTranslationChanges, resetDocumentTranslation, type DocumentChanges } from './document-translation.utils';
+import {
+    getDocumentTranslationChanges,
+    getDocumentTranslationResetChanges,
+    type DocumentChanges,
+} from './document-translation.utils';
 import { getDocumentVariantCandidates } from './document-variant.helper';
 import { updateDocumentPositions } from './document-position.helper';
 
@@ -34,7 +38,7 @@ function applyDocumentChanges(document: Entity<'product_document'>, changes: Doc
 function resetDocumentLanguageVersion(document: Entity<'product_document'>): void {
     const { systemLanguageId } = Shopware.Context.api;
     const language = Shopware.Store.get('swProductDetail').documentLanguage;
-    applyDocumentChanges(document, resetDocumentTranslation(document, language, systemLanguageId));
+    applyDocumentChanges(document, getDocumentTranslationResetChanges(document, language, systemLanguageId));
 }
 
 /** @private */
@@ -57,16 +61,16 @@ export default function useDocumentChanges() {
         const updatedVariantIds: string[] = [];
         const context = documentContext.value;
         candidates.forEach(({ variant, matching }) => {
-            let changed = false;
+            let hasChanges = false;
             matching.forEach((copy) => {
                 const update = getDocumentTranslationChanges(copy, changes, context, isDefaultLanguage.value);
                 const { title, mediaId } = copy;
                 applyDocumentChanges(copy, update);
                 if (title !== copy.title || mediaId !== copy.mediaId) {
-                    changed = true;
+                    hasChanges = true;
                 }
             });
-            if (changed) {
+            if (hasChanges) {
                 if (!children.has(variant.id)) {
                     children.add(variant);
                 }

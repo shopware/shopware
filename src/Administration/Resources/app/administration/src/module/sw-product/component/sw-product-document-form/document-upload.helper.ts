@@ -12,7 +12,7 @@ export function isInvalidDocumentFile(media: Entity<'media'>, extensions: string
 }
 
 /** @private */
-export function getFileAccept(extensionByType: Record<string, string[]>, allowedExtensions: string[]): string {
+export function getAcceptedMimeTypes(extensionByType: Record<string, string[]>, allowedExtensions: string[]): string {
     return Object.entries(extensionByType)
         .filter(([, extensions]) => extensions.some((extension) => allowedExtensions.includes(extension)))
         .map(([mimeType]) => mimeType)
@@ -20,7 +20,7 @@ export function getFileAccept(extensionByType: Record<string, string[]>, allowed
 }
 
 /** @private */
-export function getHintParams(allowedExtensions: string[], maxFileSize: number) {
+export function getUploadHintParams(allowedExtensions: string[], maxFileSize: number) {
     const extensions = allowedExtensions.filter((extension) => extension !== 'jpeg');
     return {
         extensions: extensions.slice(0, -1).join(', ').toUpperCase(),

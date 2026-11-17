@@ -28,14 +28,14 @@ describe('sw-product-document-language-hint', () => {
         return wrapper;
     }
 
-    it('displays the supplied default language name and switches to its ID when clicked', async () => {
+    it('shows the default language name and requests a language switch when its link is clicked', async () => {
         await createWrapper('English');
         expect(wrapper.text()).toContain('English');
         await wrapper.get('button').trigger('click');
         expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
-    it('keeps the language switch available when the name cannot be loaded', async () => {
+    it('keeps the language switch available when no language name is provided', async () => {
         await createWrapper();
         expect(wrapper.text()).toContain('sw-product.documentForm.defaultLanguage');
         await wrapper.get('button').trigger('click');

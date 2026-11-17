@@ -71,7 +71,7 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        isSavingDocument: {
+        isApplyingDocumentEdit: {
             type: Boolean,
             required: false,
             default: false,
@@ -118,7 +118,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isDisabled(): boolean {
-            return !this.canEdit || this.isSavingDocument;
+            return !this.canEdit || this.isApplyingDocumentEdit;
         },
     },
 });

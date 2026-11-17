@@ -10,7 +10,7 @@ import {
     cleanupWrappers,
     createWrapper,
     createMedia,
-    addMedia,
+    addDocuments,
     getDocuments,
 } from './helpers';
 
@@ -33,7 +33,7 @@ describe('sw-product-document-form ordering', () => {
 
     it('moves documents up and down and disables movement beyond the list boundaries', async () => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia('first'), createMedia('second')]);
+        await addDocuments(wrapper, [createMedia('first'), createMedia('second')]);
         await wrapper.findAll('.document-row')[1].findAll('.sw-product-document-form__position button')[1].trigger('click');
 
         expect(Array.from(getDocuments() ?? [], (document) => document.title)).toEqual(['second', 'first']);

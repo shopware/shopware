@@ -55,7 +55,7 @@ describe('sw-product-document-form language editor', () => {
         cleanupWrappers();
     });
 
-    it('offers Add language version and opens an optional name/file editor showing the fallback explanation', async () => {
+    it('opens the language-version editor with optional name and file fields and a fallback hint', async () => {
         wrapper = await createWrapper();
         const menu = wrapper.findAll('sw-context-menu-item-stub');
         expect(menu).toHaveLength(2);
@@ -177,7 +177,7 @@ describe('sw-product-document-form language editor', () => {
     });
 
     it.each(['name', 'file', 'both'])(
-        'keeps the cleared %s out of the save payload after unlinking inheritance',
+        'omits cleared translation values from the save payload after removing inheritance (%s)',
         async (field) => {
             const store = Shopware.Store.get('swProductDetail');
             const germanMedia = createMedia('german-manual');

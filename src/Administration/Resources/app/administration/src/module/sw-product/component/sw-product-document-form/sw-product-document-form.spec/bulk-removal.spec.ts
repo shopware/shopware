@@ -4,7 +4,15 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addDocuments,
+    clickButton,
+    getDocuments,
+} from './helpers';
 
 async function selectDocuments(wrapper: VueWrapper, documents: Entity<'product_document'>[]) {
     const grid = wrapper.getComponent<ComponentPublicInstance>({ ref: 'documentGrid' });
@@ -37,7 +45,7 @@ describe('sw-product-document-form bulk removal', () => {
         const repository = repositoryFactory.create('product');
         const save = jest.spyOn(repository, 'save');
         const wrapper = await createWrapper(undefined, undefined, repository);
-        await addMedia(wrapper, [createMedia('first'), createMedia('keep'), createMedia('last')]);
+        await addDocuments(wrapper, [createMedia('first'), createMedia('keep'), createMedia('last')]);
         const documents = [...getDocuments()!];
 
         await selectDocuments(wrapper, [documents[0], documents[2]]);
@@ -61,7 +69,7 @@ describe('sw-product-document-form bulk removal', () => {
         const search = jest.spyOn(repository, 'search');
         const wrapper = await createWrapper(undefined, undefined, repository);
         const media = [createMedia('first'), createMedia('second')];
-        await addMedia(wrapper, media);
+        await addDocuments(wrapper, media);
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
         const variant = createProduct();
@@ -101,7 +109,7 @@ describe('sw-product-document-form bulk removal', () => {
 
     it('clears only the selected language versions and keeps the assignments', async () => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia('first'), createMedia('second')]);
+        await addDocuments(wrapper, [createMedia('first'), createMedia('second')]);
         const documents = [...getDocuments()!];
         const language = repositoryFactory.create('language').create();
         Object.assign(language, { name: 'German' });

@@ -185,7 +185,7 @@ export async function selectMedia(wrapper: VueWrapper, media: Entity<'media'>[])
 }
 
 /** @private */
-export async function addMedia(wrapper: VueWrapper, media: Entity<'media'>[]) {
+export async function addDocuments(wrapper: VueWrapper, media: Entity<'media'>[]) {
     await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
     await selectMedia(wrapper, media);
 }

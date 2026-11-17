@@ -14,7 +14,7 @@ import {
     createMedia,
     clickButton,
     selectMedia,
-    addMedia,
+    addDocuments,
     getDocuments,
 } from './helpers';
 
@@ -85,7 +85,7 @@ describe('sw-product-document-form variant editing', () => {
             const searchSpy = jest.spyOn(productRepository, 'search').mockResolvedValue(variants);
             const saveSpy = jest.spyOn(productRepository, 'save');
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [original]);
+            await addDocuments(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [replacement]);
@@ -165,7 +165,7 @@ describe('sw-product-document-form variant editing', () => {
                 new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
             );
             const wrapper = await createWrapper(undefined, undefined, repository);
-            await addMedia(wrapper, [media]);
+            await addDocuments(wrapper, [media]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
@@ -180,7 +180,7 @@ describe('sw-product-document-form variant editing', () => {
             const productRepository = repositoryFactory.create('product');
             const searchSpy = jest.spyOn(productRepository, 'search');
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [createMedia()]);
+            await addDocuments(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Parent only');
             await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(false);
@@ -196,7 +196,7 @@ describe('sw-product-document-form variant editing', () => {
         it('resets the variant option to checked on reopening without applying cancelled edits', async () => {
             Shopware.Store.get('swProductDetail').product.childCount = 1;
             const wrapper = await createWrapper();
-            await addMedia(wrapper, [createMedia()]);
+            await addDocuments(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(false);
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Cancelled title');
@@ -226,7 +226,7 @@ describe('sw-product-document-form variant editing', () => {
                 )
                 .mockResolvedValueOnce(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api));
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [original]);
+            await addDocuments(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [createMedia('replacement')]);
@@ -279,7 +279,7 @@ describe('sw-product-document-form variant editing', () => {
                     new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [last]),
                 );
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [media]);
+            await addDocuments(wrapper, [media]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New title');
             wrapper
@@ -318,7 +318,7 @@ describe('sw-product-document-form variant editing', () => {
                         }),
                 );
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [original]);
+            await addDocuments(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Cancelled title');
             wrapper
@@ -350,7 +350,7 @@ describe('sw-product-document-form variant editing', () => {
             const productRepository = repositoryFactory.create('product');
             jest.spyOn(productRepository, 'search').mockRejectedValue(new Error('Load failed'));
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [createMedia()]);
+            await addDocuments(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New title');
             wrapper

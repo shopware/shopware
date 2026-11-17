@@ -3,7 +3,7 @@
  */
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { resetDocumentTranslation } from './document-translation.utils';
+import { getDocumentTranslationResetChanges } from './document-translation.utils';
 
 describe('document translation reset', () => {
     it('previews parent-language fallback per field and preserves unrelated translation data', () => {
@@ -37,7 +37,7 @@ describe('document translation reset', () => {
             mediaId: 'current-file',
             translated: { customFields: { note: 'Keep' } },
         });
-        expect(resetDocumentTranslation(document, language, Shopware.Context.api.systemLanguageId)).toEqual({
+        expect(getDocumentTranslationResetChanges(document, language, Shopware.Context.api.systemLanguageId)).toEqual({
             title: null,
             mediaId: null,
             translated: { title: 'Parent name', mediaId: 'system-file', customFields: { note: 'Keep' } },

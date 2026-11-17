@@ -134,7 +134,7 @@ describe('sw-product-document-form variant persistence', () => {
         return withProductStates((await repositoryFactory.create('product').get(productId, Shopware.Context.api))!);
     }
 
-    it.each(['title', 'file'])('saves and reloads a German %s edit without pinning the other fallback', async (field) => {
+    it.each(['title', 'file'])('saves and reloads a German %s edit while preserving the other fallback', async (field) => {
         const repository = repositoryFactory.create('product', '', { useSync: true });
         const productId = createProduct().id;
         const variantId = createProduct().id;
@@ -185,7 +185,11 @@ describe('sw-product-document-form variant persistence', () => {
                         versionId,
                         documents: [{ id: documentId, versionId, ...changedField }],
                         children: [
-                            { id: variantId, versionId, documents: [{ id: variantDocumentId, versionId, ...changedField }] },
+                            {
+                                id: variantId,
+                                versionId,
+                                documents: [{ id: variantDocumentId, versionId, ...changedField }],
+                            },
                         ],
                     },
                 ],

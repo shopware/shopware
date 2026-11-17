@@ -28,7 +28,7 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        isRemovingDocument: {
+        isRemovingDocuments: {
             type: Boolean,
             required: false,
             default: false,
@@ -82,7 +82,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$t('sw-product.documentForm.removeDescription');
         },
         isDisabled(): boolean {
-            return !this.canEdit || this.isRemovingDocument;
+            return !this.canEdit || this.isRemovingDocuments;
         },
     },
 });

@@ -64,7 +64,7 @@ describe('sw-product-document-remove-modal', () => {
         expect(wrapper.emitted('remove')).toBeUndefined();
     });
 
-    it.each([{ canEdit: false }, { isRemovingDocument: true }])('disables confirmation when %o', async (props) => {
+    it.each([{ canEdit: false }, { isRemovingDocuments: true }])('disables confirmation when %o', async (props) => {
         const wrapper = await createWrapper(props);
         const remove = wrapper.get('.sw-product-document-form__confirm-remove');
         expect(remove.attributes('disabled')).toBeDefined();

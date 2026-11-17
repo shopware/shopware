@@ -11,8 +11,8 @@ describe('sw-product-document-add-button', () => {
     let wrapper: VueWrapper;
     const getLanguage = jest.fn();
 
-    async function createWrapper(disabled = false, realFloatingUi = false, isInherited = false) {
-        return (realFloatingUi ? mount : shallowMount)(
+    async function createWrapper(disabled = false, useRealFloatingUi = false, isInherited = false) {
+        return (useRealFloatingUi ? mount : shallowMount)(
             await wrapTestComponent('sw-product-document-add-button', { sync: true }),
             {
                 attachTo: document.body,
@@ -26,7 +26,7 @@ describe('sw-product-document-add-button', () => {
                             sync: true,
                         }),
                         'i18n-t': { template: '<span><slot name="language"/></span>' },
-                        'mt-floating-ui': realFloatingUi
+                        'mt-floating-ui': useRealFloatingUi
                             ? config.global.stubs['mt-floating-ui']
                             : {
                                   props: ['isOpened'],
@@ -50,7 +50,7 @@ describe('sw-product-document-add-button', () => {
         Shopware.Store.get('context').api.systemLanguageId = originalSystemLanguage;
     });
 
-    it('adds documents in the default language without opening a language hint', async () => {
+    it('requests document upload in the default language without showing the language hint', async () => {
         wrapper = await createWrapper();
         await wrapper.get('button').trigger('click');
         await wrapper.get('button').trigger('mouseenter');
@@ -59,7 +59,7 @@ describe('sw-product-document-add-button', () => {
         expect(getLanguage).not.toHaveBeenCalled();
     });
 
-    it('keeps the default-language action disabled when adding is not allowed', async () => {
+    it('disables the Add documents button when adding is not allowed', async () => {
         wrapper = await createWrapper(true);
         expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
     });
@@ -79,7 +79,7 @@ describe('sw-product-document-add-button', () => {
         expect(wrapper.get('[role="dialog"]').text()).toContain("'English'");
     });
 
-    it('opens with the resolved language name and reuses it on subsequent hovers', async () => {
+    it('shows the language hint after the language name loads and reuses it on later hovers', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         let resolveLanguage!: (language: { name: string }) => void;
         getLanguage.mockReturnValue(
@@ -148,7 +148,7 @@ describe('sw-product-document-add-button', () => {
         expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
     });
 
-    it('waits before showing the hover hint and cancels brief pointer passes', async () => {
+    it('shows the hint after the hover delay and ignores brief hovers', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         wrapper = await createWrapper();
         jest.useFakeTimers();
@@ -178,9 +178,9 @@ describe('sw-product-document-add-button', () => {
     });
 
     it.each([true, false])(
-        'explains inherited documents instead of offering an upload or language switch (default: %s)',
-        async (isDefault) => {
-            if (!isDefault) {
+        'explains that inheritance must be removed before adding documents (default language: %s)',
+        async (isDefaultLanguage) => {
+            if (!isDefaultLanguage) {
                 Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
             }
             wrapper = await createWrapper(false, false, true);
@@ -270,7 +270,7 @@ describe('sw-product-document-add-button', () => {
         expect(trigger.attributes('aria-label')).toContain('sw-product.documentForm.switchContentLanguage');
     });
 
-    it('keeps a focused link open when the pointer leaves, then closes after focus leaves', async () => {
+    it('keeps the hint open while its link is focused and closes it after focus leaves', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         wrapper = await createWrapper();
         jest.useFakeTimers();

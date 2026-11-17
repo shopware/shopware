@@ -9,7 +9,7 @@ import {
     cleanupWrappers,
     createWrapper,
     createMedia,
-    addMedia,
+    addDocuments,
     clickButton,
     getDocuments,
 } from './helpers';
@@ -38,7 +38,7 @@ describe('sw-product-document-form dialog sessions', () => {
         [1, 2, true],
         [2, 2, false],
     ] as const)(
-        'keeps the upload modal open: %s of %s successful uploads → %s',
+        'after %s of %s successful uploads, keeps the upload dialog open: %s',
         async (successAmount, totalAmount, staysOpen) => {
             const repository = repositoryFactory.create('media');
             const media = createMedia();
@@ -58,31 +58,34 @@ describe('sw-product-document-form dialog sessions', () => {
         },
     );
 
-    it.each([false, true])('ignores a media lookup after leaving the tab (reject: %s)', async (reject) => {
-        const repository = repositoryFactory.create('media');
-        const media = createMedia();
-        let settle!: () => void;
-        jest.spyOn(repository, 'get').mockImplementationOnce(
-            () =>
-                new Promise((resolve, rejectRequest) => {
-                    settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
-                }),
-        );
-        const wrapper = await createWrapper(repository);
-        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-        wrapper
-            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
-            .vm.$emit('media-upload-finish', { targetId: media.id });
-        await flushPromises();
-        wrapper.unmount();
-        settle();
-        await flushPromises();
-        expect(getDocuments()).toHaveLength(0);
-        expect(notification).not.toHaveBeenCalled();
-        expect(mockSnackbar).not.toHaveBeenCalled();
-    });
+    it.each([false, true])(
+        'ignores a media request that settles after leaving the tab (request rejects: %s)',
+        async (reject) => {
+            const repository = repositoryFactory.create('media');
+            const media = createMedia();
+            let settle!: () => void;
+            jest.spyOn(repository, 'get').mockImplementationOnce(
+                () =>
+                    new Promise((resolve, rejectRequest) => {
+                        settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
+                    }),
+            );
+            const wrapper = await createWrapper(repository);
+            const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+            wrapper
+                .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
+                .vm.$emit('media-upload-finish', { targetId: media.id });
+            await flushPromises();
+            wrapper.unmount();
+            settle();
+            await flushPromises();
+            expect(getDocuments()).toHaveLength(0);
+            expect(notification).not.toHaveBeenCalled();
+            expect(mockSnackbar).not.toHaveBeenCalled();
+        },
+    );
 
-    it('keeps a pending add upload when an unrelated editor is opened and cancelled', async () => {
+    it('adds the uploaded document after another document editor is opened and cancelled', async () => {
         const repository = repositoryFactory.create('media');
         const media = createMedia('new-file');
         let resolveMedia!: (value: Entity<'media'>) => void;
@@ -93,7 +96,7 @@ describe('sw-product-document-form dialog sessions', () => {
                 }),
         );
         const wrapper = await createWrapper(repository);
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         wrapper
             .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
             .vm.$emit('media-upload-finish', { targetId: media.id });
@@ -116,7 +119,7 @@ describe('sw-product-document-form dialog sessions', () => {
                     }),
             );
             const wrapper = await createWrapper(undefined, undefined, repository);
-            await addMedia(wrapper, [createMedia()]);
+            await addDocuments(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[action === 'edit' ? 0 : 2].trigger('click');
             if (action === 'edit') {
                 wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Stale title');
@@ -133,7 +136,7 @@ describe('sw-product-document-form dialog sessions', () => {
             expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(['manual']);
         });
 
-        it.each([false, true])('allows a new request while a cancelled request settles (reject: %s)', async (rejectOld) => {
+        it.each([false, true])('ignores cancelled requests during a new request (rejects: %s)', async (rejectOld) => {
             const repository = repositoryFactory.create('product');
             const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
             let settleOld!: () => void;
@@ -152,7 +155,7 @@ describe('sw-product-document-form dialog sessions', () => {
                     }),
             );
             const wrapper = await createWrapper(undefined, undefined, repository);
-            await addMedia(wrapper, [createMedia()]);
+            await addDocuments(wrapper, [createMedia()]);
             const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
             const actionIndex = action === 'edit' ? 0 : 2;
             const button =

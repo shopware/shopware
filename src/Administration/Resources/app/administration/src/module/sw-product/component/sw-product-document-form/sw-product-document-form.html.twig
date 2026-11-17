@@ -7,7 +7,7 @@
     :inherited-value="parentProduct.documents"
     :has-parent="!!product.parentId"
     :disabled="!canEdit"
-    :custom-remove-inheritance-function="documentRemoveInheritanceFunction"
+    :custom-remove-inheritance-function="removeDocumentInheritance"
     is-association
 >
     <template #content="{ currentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
@@ -225,7 +225,7 @@
             <sw-upload-listener
                 :upload-tag="uploadTag"
                 auto-upload
-                @media-upload-finish="successfulUpload"
+                @media-upload-finish="onUploadFinished"
             />
         {% endblock %}
 
@@ -299,7 +299,7 @@
                 v-model:apply-to-variants="applyToVariants"
                 :allow-fallback="!isDefaultLanguage"
                 :language-name="contentLanguageName"
-                :is-adding-language-version="isAddingLanguageVersion(editingDocument)"
+                :is-adding-language-version="isMissingLanguageVersion(editingDocument)"
                 :document-title-placeholder="documentTitlePlaceholder"
                 :editing-media="editingMedia"
                 :document-name-error="documentNameError"
@@ -309,11 +309,11 @@
                 :allowed-extensions="allowedExtensions"
                 :max-file-size="maxFileSize"
                 :can-edit="canEdit"
-                :is-saving-document="isSavingDocument"
+                :is-applying-document-edit="isApplyingDocumentEdit"
                 :has-variants="hasVariants"
                 @close="closeDocumentEditor"
                 @save="applyDocumentEdit"
-                @upload="successfulUpload($event, editingDocument)"
+                @upload="onUploadFinished($event, editingDocument)"
                 @file-remove="removeEditingFile"
                 @media-select="showMediaModal = true"
             />
@@ -321,16 +321,16 @@
 
         {% block sw_product_document_form_remove_modal %}
             <sw-product-document-remove-modal
-                v-if="removingDocuments.length"
+                v-if="documentsToRemove.length"
                 v-model:remove-from-variants="removeFromVariants"
-                :document-title="getTitle(removingDocuments[0])"
-                :document-count="removingDocuments.length"
+                :document-title="getTitle(documentsToRemove[0])"
+                :document-count="documentsToRemove.length"
                 :language-name="isDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
-                :is-removing-document="isRemovingDocument"
+                :is-removing-documents="isRemovingDocuments"
                 :has-variants="hasVariants"
                 @close="closeRemoveDocumentModal"
-                @remove="removeDocument"
+                @remove="removeDocuments"
             />
         {% endblock %}
 

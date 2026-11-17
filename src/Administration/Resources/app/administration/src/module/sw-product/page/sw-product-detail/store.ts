@@ -280,9 +280,9 @@ const swProductDetail = Shopware.Store.register({
         },
 
         cacheDocumentMedia(media: Entity<'media'>): void {
-            const files = this.documentMedia.get(this.product) || {};
-            files[media.id] = media;
-            this.documentMedia.set(this.product, files);
+            const mediaById = this.documentMedia.get(this.product) || {};
+            mediaById[media.id] = media;
+            this.documentMedia.set(this.product, mediaById);
         },
     },
 });

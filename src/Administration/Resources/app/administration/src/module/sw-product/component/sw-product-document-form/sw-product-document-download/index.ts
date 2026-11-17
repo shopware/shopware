@@ -31,12 +31,12 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                const data = (await this.mediaService.downloadMedia(media.id)) as Blob;
-                const url = URL.createObjectURL(data);
+                const fileBlob = (await this.mediaService.downloadMedia(media.id)) as Blob;
+                const objectUrl = URL.createObjectURL(fileBlob);
                 try {
-                    this.triggerDownload(url, [media.fileName, media.fileExtension].filter(Boolean).join('.'));
+                    this.triggerDownload(objectUrl, [media.fileName, media.fileExtension].filter(Boolean).join('.'));
                 } finally {
-                    URL.revokeObjectURL(url);
+                    URL.revokeObjectURL(objectUrl);
                 }
             } catch {
                 useNotification().createNotificationError({

@@ -35,7 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             isHintRequested: false,
-            focusRequested: false,
+            isHintFocusRequested: false,
             hintTimer: null as ReturnType<typeof setTimeout> | null,
         };
     },
@@ -63,21 +63,21 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async focusHint(event: KeyboardEvent): Promise<void> {
             event.preventDefault();
-            this.focusRequested = true;
+            this.isHintFocusRequested = true;
             this.openHint();
             await this.$nextTick();
             this.focusHintContent();
         },
 
         focusHintContent(): void {
-            if (!this.focusRequested) {
+            if (!this.isHintFocusRequested) {
                 return;
             }
             const hint = this.$refs.languageHint as { $el: HTMLElement } | undefined;
             const target = this.isInherited ? hint?.$el : hint?.$el.querySelector('button');
             if (target) {
                 target.focus();
-                this.focusRequested = false;
+                this.isHintFocusRequested = false;
             }
         },
 
@@ -119,7 +119,7 @@ export default Shopware.Component.wrapComponentConfig({
                 clearTimeout(this.hintTimer);
             }
             this.hintTimer = null;
-            this.focusRequested = false;
+            this.isHintFocusRequested = false;
             this.isHintRequested = false;
         },
     },

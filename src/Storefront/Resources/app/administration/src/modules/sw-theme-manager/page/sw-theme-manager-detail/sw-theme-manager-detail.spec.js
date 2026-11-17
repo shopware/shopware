@@ -46,11 +46,8 @@ describe('sw-theme-manager-detail', () => {
         };
 
         const salesChannelRepository = {
-            search: jest.fn(() =>
-                Promise.resolve({
-                    getIds: () => ['sc-1'],
-                }),
-            ),
+            search: jest.fn(() => Promise.resolve([])),
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: ['sc-1'] })),
         };
 
         const themeService = {
@@ -552,12 +549,13 @@ describe('sw-theme-manager-detail', () => {
 
     it('returns field labels with fallback to field name', async () => {
         const wrapper = await createWrapper();
-        wrapper.vm.getSnippet = jest.fn(() => 'Name');
+        const vm = wrapper.vm;
+        vm.getSnippet = jest.fn(() => 'Name');
 
-        expect(wrapper.vm.getFieldLabel({ labelSnippetKey: 'foo', label: 'Label' }, 'field')).toBe('Name');
+        expect(vm.getFieldLabel({ labelSnippetKey: 'foo', label: 'Label' }, 'field')).toBe('Name');
 
-        wrapper.vm.getSnippet = jest.fn(() => '');
-        expect(wrapper.vm.getFieldLabel({ labelSnippetKey: 'foo', label: '' }, 'field')).toBe('field');
+        vm.getSnippet = jest.fn(() => '');
+        expect(vm.getFieldLabel({ labelSnippetKey: 'foo', label: '' }, 'field')).toBe('field');
     });
 
     it('returns help text from snippets or locale map', async () => {
@@ -576,6 +574,19 @@ describe('sw-theme-manager-detail', () => {
         wrapper.vm.$t = jest.fn(() => 'Default');
 
         expect(wrapper.vm.getTabLabel('tab.key', '')).toBe('Default');
+    });
+
+    it('loads the ids of theme compatible sales channels without loading the entities', async () => {
+        const wrapper = await createWrapper();
+        const { salesChannelRepository, getThemeCompatibleSalesChannels } = wrapper.vm;
+
+        expect(await getThemeCompatibleSalesChannels()).toEqual(['sc-1']);
+        expect(salesChannelRepository.search).not.toHaveBeenCalled();
+        expect(salesChannelRepository.searchIds).toHaveBeenCalledWith(
+            expect.objectContaining({
+                filters: [expect.objectContaining({ type: 'equalsAny', field: 'type.name', value: 'Storefront|Headless' })],
+            }),
+        );
     });
 
     it('disables selection when default theme and sales channel already assigned', async () => {

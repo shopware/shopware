@@ -60,6 +60,66 @@ ruleTester.run('private-feature-declarations', rule, {
                     });
                 };
             `,
+        },
+        {
+            name: 'Default exports with public declaration',
+            code: `
+                /**
+                 * @public
+                 */
+                export default function testFunction() {}
+            `,
+        },
+        {
+            name: 'Named export with public declaration',
+            code: `
+                /**
+                 * @public
+                 */
+                export const testFunction = () => {};
+            `,
+        },
+        {
+            name: 'Named exports with public declaration',
+            code: `
+                function testFunction() {}
+                class TestClass {}
+
+                /**
+                 * @public
+                 */
+                export { testFunction, TestClass }
+            `,
+        },
+        {
+            name: 'Type export with public declaration',
+            code: `
+                /**
+                 * @public
+                 */
+                export type TestType = string;
+            `,
+        },
+        {
+            name: 'Public declaration inside a longer doc block',
+            code: `
+                /**
+                 * Formats a value.
+                 *
+                 * @public
+                 * @param value
+                 */
+                export function format(value) {}
+            `,
+        },
+        {
+            name: 'Register calls with public declaration',
+            code: `
+                /**
+                 * @public
+                 */
+                Shopware.Component.register('my-component', {})
+            `,
         }
     ],
     invalid: [
@@ -104,6 +164,32 @@ ruleTester.run('private-feature-declarations', rule, {
                 };
             `,
             errors: [{ message: 'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',}]
+        },
+        {
+            name: 'Named export with public declaration in a non-JSDoc block comment',
+            code: `
+                /* @public */
+                export const testFunction = () => {};
+            `,
+            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+        },
+        {
+            name: 'Named export with public declaration not directly above the export',
+            code: `
+                /**
+                 * @public
+                 */
+                // some comment
+                export const testFunction = () => {};
+            `,
+            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+        },
+        {
+            name: 'Type export without declaration',
+            code: `
+                export type TestType = string;
+            `,
+            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
         }
     ]
 });

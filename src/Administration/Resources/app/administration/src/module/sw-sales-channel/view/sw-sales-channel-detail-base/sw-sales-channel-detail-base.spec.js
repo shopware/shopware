@@ -1583,7 +1583,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         await flushPromises();
 
         wrapper.vm.onClickCreateDomainForUnservedLanguage();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(openCreateDomainModal).toHaveBeenCalledWith({
             languageId: 'language-1',

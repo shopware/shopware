@@ -26,8 +26,7 @@ class UpdateProductStreamMappingTaskHandlerTest extends TestCase
     {
         $streamIds = ['stream-until', 'stream-since'];
 
-        /** @var StaticEntityRepository<ProductStreamCollection> $productStreamRepository */
-        $productStreamRepository = new StaticEntityRepository([$streamIds]);
+        $productStreamRepository = StaticEntityRepository::of(ProductStreamCollection::class, [$streamIds]);
 
         $dispatched = [];
         $messageBus = $this->createMock(MessageBusInterface::class);
@@ -65,8 +64,7 @@ class UpdateProductStreamMappingTaskHandlerTest extends TestCase
 
     public function testRunDoesNothingWhenNoStreamsMatch(): void
     {
-        /** @var StaticEntityRepository<ProductStreamCollection> $productStreamRepository */
-        $productStreamRepository = new StaticEntityRepository([[]]);
+        $productStreamRepository = StaticEntityRepository::of(ProductStreamCollection::class, [[]]);
 
         $messageBus = $this->createMock(MessageBusInterface::class);
         $messageBus->expects($this->never())->method('dispatch');

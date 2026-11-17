@@ -6,10 +6,14 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HttpClientValue = any;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export type HttpHeaders = Record<string, HttpClientValue>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export interface HttpRequestConfig<Data = HttpClientValue> {
     [key: string]: HttpClientValue;
     url?: string;
@@ -38,7 +42,9 @@ export interface HttpResponse<Data = HttpClientValue> {
     request?: HttpClientValue;
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export interface HttpCancelToken {
     promise: Promise<unknown>;
     reason?: unknown;

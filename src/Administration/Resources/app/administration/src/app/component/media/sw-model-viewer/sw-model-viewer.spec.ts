@@ -93,16 +93,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
             expect(mockQuickView).toHaveBeenCalled();
         });
-
-        it('should handle missing canvas element gracefully', async () => {
-            const wrapper = await createWrapper();
-            // Manually set canvas to null to simulate missing element
-            await wrapper.setData({ canvas: null });
-            await flushPromises();
-
-            // Component should still exist and not crash
-            expect(wrapper.exists()).toBe(true);
-        });
     });
 
     describe('QuickView Integration', () => {

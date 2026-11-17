@@ -2,8 +2,8 @@ import type { Plugin } from 'vite';
 import path from 'path';
 import deprecatedList from './deprecated-list';
 
-// @deprecated tag:v6.8.0
-// After v6.8.0 all these images in `./deprecated-list` should be removed. Maybe consider leaving this plugin in here for a bit and adjust the warning.
+// @deprecated tag:v6.8.0 - The images in `./deprecated-list` will be removed
+// Maybe consider leaving this plugin in here for a bit after v6.8.0 and adjust the warning.
 
 /**
  * @sw-package framework

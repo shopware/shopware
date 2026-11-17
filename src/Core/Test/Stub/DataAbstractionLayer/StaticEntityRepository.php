@@ -159,6 +159,14 @@ class StaticEntityRepository extends EntityRepository
             $result = $callable($criteria, $context);
         }
 
+        if (\is_array($result) && ($result[0] ?? null) instanceof Entity) {
+            $result = new EntityCollection($result);
+        }
+
+        if ($result instanceof EntityCollection) {
+            $result = array_values($result->getIds());
+        }
+
         if ($result instanceof IdSearchResult) {
             return $result;
         }
@@ -178,6 +186,23 @@ class StaticEntityRepository extends EntityRepository
 
         /** @phpstan-ignore return.type (Somehow does not get the generic type correct) */
         return new IdSearchResult(\count($result), $result, $criteria, $context);
+    }
+
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
+    {
+        $this->searchedCriteria[] = clone $criteria;
+        $result = \array_shift($this->searches);
+
+        if (\is_callable($result)) {
+            /** @var SearchCallable $result */
+            $result = $result($criteria, $context, $this);
+        }
+
+        if (!$result instanceof AggregationResultCollection) {
+            throw new \RuntimeException('Invalid mock repository configuration');
+        }
+
+        return $result;
     }
 
     public function create(array $data, Context $context): EntityWrittenContainerEvent

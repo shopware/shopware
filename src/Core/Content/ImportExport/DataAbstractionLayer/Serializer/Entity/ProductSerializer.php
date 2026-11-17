@@ -17,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -105,7 +105,7 @@ class ProductSerializer extends EntitySerializer
             yield 'type' => ProductDefinition::TYPE_PHYSICAL;
         }
 
-        $productId = $entity['id'] ?? null;
+        $productId = $deserialized['id'] ?? null;
 
         $mapping = array_flip(self::VISIBILITY_MAPPING);
 
@@ -113,16 +113,28 @@ class ProductSerializer extends EntitySerializer
 
         $context = Context::createDefaultContext();
 
+        $valuesByType = [];
+        $salesChannelNames = [];
+
         foreach ($mapping as $key => $type) {
             if (!isset($entity['visibilities'][$key])) {
                 continue;
             }
 
-            $ids = array_filter(explode('|', (string) $entity['visibilities'][$key]));
+            $values = array_filter(explode('|', (string) $entity['visibilities'][$key]));
+            $valuesByType[$type] = $values;
 
-            $ids = $this->convertSalesChannelNamesToIds($ids, $context);
+            foreach ($values as $value) {
+                if (!Uuid::isValid($value)) {
+                    $salesChannelNames[] = $value;
+                }
+            }
+        }
 
-            foreach ($ids as $salesChannelId) {
+        $idsByName = $this->mapSalesChannelNamesToIds($salesChannelNames, $context);
+
+        foreach ($valuesByType as $type => $values) {
+            foreach ($this->toSalesChannelIds($values, $idsByName) as $salesChannelId) {
                 $visibility = [
                     'salesChannelId' => $salesChannelId,
                     'visibility' => $type,
@@ -136,7 +148,7 @@ class ProductSerializer extends EntitySerializer
         }
 
         if ($visibilities !== []) {
-            yield 'visibilities' => $this->findVisibilityIds($visibilities, $context);
+            yield 'visibilities' => $this->findVisibilityIds($productId, $visibilities, $context);
         }
 
         try {
@@ -149,7 +161,7 @@ class ProductSerializer extends EntitySerializer
             yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover'], $context);
         }
 
-        if (!empty($deserialized['parentId']) && !empty($deserialized['options'])) {
+        if (($deserialized['parentId'] ?? '') !== '' && ($deserialized['options'] ?? []) !== []) {
             yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options'], $context);
         }
     }
@@ -164,65 +176,85 @@ class ProductSerializer extends EntitySerializer
      *
      * @return array<array<string, mixed>>
      */
-    private function findVisibilityIds(array $visibilities, Context $context): array
+    private function findVisibilityIds(?string $productId, array $visibilities, Context $context): array
     {
+        if ($productId === null || $productId === '') {
+            return $visibilities;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsAnyFilter('salesChannelId', array_column($visibilities, 'salesChannelId')));
+
+        $existingIds = [];
+        foreach ($this->visibilityRepository->search($criteria, $context)->getEntities() as $existing) {
+            $existingIds[$existing->getSalesChannelId()] = $existing->getId();
+        }
+
         foreach ($visibilities as $i => $visibility) {
-            if (!isset($visibility['productId'])) {
-                continue;
+            if (isset($existingIds[$visibility['salesChannelId']])) {
+                $visibilities[$i]['id'] = $existingIds[$visibility['salesChannelId']];
             }
-
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $visibility['productId']));
-            $criteria->addFilter(new EqualsFilter('salesChannelId', $visibility['salesChannelId']));
-
-            $id = $this->visibilityRepository->searchIds($criteria, $context)->firstId();
-
-            if ($id) {
-                $visibility['id'] = $id;
-            }
-
-            $visibilities[$i] = $visibility;
         }
 
         return $visibilities;
     }
 
     /**
-     * @param array<string> $ids
+     * @param list<string> $names
      *
-     * @return array<string>
+     * @return array<string, list<string>>
      */
-    private function convertSalesChannelNamesToIds(array $ids, Context $context): array
+    private function mapSalesChannelNamesToIds(array $names, Context $context): array
     {
-        $salesChannelNames = [];
+        $names = array_values(array_unique($names));
 
-        foreach ($ids as $key => $id) {
-            if (!Uuid::isValid($id)) {
-                $salesChannelNames[] = $id;
-                unset($ids[$key]);
-            }
-        }
-
-        if ($salesChannelNames === []) {
-            return $ids;
-        }
-
-        $salesChannelNames = array_unique($salesChannelNames);
-        $filters = [];
-
-        foreach ($salesChannelNames as $salesChannelName) {
-            $filters[] = new EqualsFilter('name', $salesChannelName);
+        if ($names === []) {
+            return [];
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+        $criteria->addFilter(new EqualsAnyFilter('name', $names));
 
-        $additionalIds = $this->salesChannelRepository->searchIds(
-            $criteria,
-            $context
-        )->getIds();
+        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
 
-        return array_unique(array_merge($ids, $additionalIds));
+        $idsByName = [];
+
+        foreach ($names as $name) {
+            foreach ($salesChannels as $salesChannel) {
+                if (mb_strtolower((string) $salesChannel->getName()) === mb_strtolower($name)) {
+                    $idsByName[$name][] = $salesChannel->getId();
+                }
+            }
+        }
+
+        return $idsByName;
+    }
+
+    /**
+     * @param array<string> $values
+     * @param array<string, list<string>> $idsByName
+     *
+     * @return array<string>
+     */
+    private function toSalesChannelIds(array $values, array $idsByName): array
+    {
+        $ids = [];
+        $resolved = [];
+
+        foreach ($values as $value) {
+            if (Uuid::isValid($value)) {
+                $ids[] = $value;
+
+                continue;
+            }
+
+            foreach ($idsByName[$value] ?? [] as $id) {
+                $resolved[] = $id;
+            }
+        }
+
+        return array_unique(array_merge($ids, $resolved));
     }
 
     /**
@@ -252,28 +284,39 @@ class ProductSerializer extends EntitySerializer
      */
     private function findConfiguratorSettings(string $parentId, array $options, Context $context): array
     {
-        $configuratorSettings = [];
+        $optionIds = [];
 
         foreach ($options as $option) {
-            if (empty($option['id'])) {
-                continue;
+            if (($option['id'] ?? '') !== '') {
+                $optionIds[] = $option['id'];
             }
+        }
 
+        if ($optionIds === []) {
+            return [];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $parentId));
+        $criteria->addFilter(new EqualsAnyFilter('optionId', $optionIds));
+
+        $existingIds = [];
+        foreach ($this->productConfiguratorSettingRepository->search($criteria, $context)->getEntities() as $existing) {
+            $existingIds[$existing->getOptionId()] = $existing->getId();
+        }
+
+        $configuratorSettings = [];
+
+        foreach ($optionIds as $optionId) {
             $configuratorSetting = [
-                'optionId' => $option['id'],
+                'optionId' => $optionId,
                 'product' => [
                     'id' => $parentId,
                 ],
             ];
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $parentId));
-            $criteria->addFilter(new EqualsFilter('optionId', $option['id']));
-
-            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, $context)->firstId();
-
-            if ($id) {
-                $configuratorSetting['id'] = $id;
+            if (isset($existingIds[$optionId])) {
+                $configuratorSetting['id'] = $existingIds[$optionId];
             }
 
             $configuratorSettings[] = $configuratorSetting;
@@ -295,7 +338,7 @@ class ProductSerializer extends EntitySerializer
         array $deserialized,
         Context $context
     ): array {
-        if (empty($entity['media'])) {
+        if (($entity['media'] ?? '') === '' || $entity['media'] === []) {
             return [];
         }
 
@@ -317,6 +360,8 @@ class ProductSerializer extends EntitySerializer
         $mediaDefinition = $mediaField->getReferenceDefinition();
         $mediaSerializer = $this->serializerRegistry->getEntity($mediaDefinition->getEntityName());
 
+        $mediaIds = [];
+
         foreach ($urls as $url) {
             $deserializedMedia = $mediaSerializer->deserialize($config, $mediaDefinition, [
                 'url' => $url,
@@ -327,27 +372,35 @@ class ProductSerializer extends EntitySerializer
                 throw $deserializedMedia['_error'];
             }
 
-            $productMedia = [
-                'media' => $deserializedMedia,
-            ];
+            $productMedias[] = ['media' => $deserializedMedia];
 
-            if (!isset($deserialized['id'])) {
-                $productMedias[] = $productMedia;
-
-                continue;
+            if (isset($deserializedMedia['id'])) {
+                $mediaIds[] = $deserializedMedia['id'];
             }
+        }
 
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
-            $criteria->addFilter(new EqualsFilter('media.id', $deserializedMedia['id']));
+        $productId = $deserialized['id'] ?? null;
 
-            $productMediaId = $this->productMediaRepository->searchIds($criteria, $context)->firstId();
+        if ($productId === null || $productId === '' || $mediaIds === []) {
+            return $productMedias;
+        }
 
-            if ($productMediaId) {
-                $productMedia['id'] = $productMediaId;
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsAnyFilter('media.id', $mediaIds));
+
+        $existingIds = [];
+
+        foreach ($this->productMediaRepository->search($criteria, $context)->getEntities() as $existing) {
+            $existingIds[$existing->getMediaId()] = $existing->getId();
+        }
+
+        foreach ($productMedias as $i => $productMedia) {
+            $mediaId = $productMedia['media']['id'] ?? null;
+
+            if ($mediaId !== null && isset($existingIds[$mediaId])) {
+                $productMedias[$i]['id'] = $existingIds[$mediaId];
             }
-
-            $productMedias[] = $productMedia;
         }
 
         return $productMedias;
@@ -372,7 +425,7 @@ class ProductSerializer extends EntitySerializer
         $urls = [];
         $coverUrl = null;
 
-        if ($productMedias !== [] && !empty($entity['cover'])) {
+        if ($productMedias !== [] && ($entity['cover'] ?? null) !== null && $entity['cover'] !== []) {
             $coverMedia = $entity['cover'] instanceof ProductMediaEntity
                 ? $entity['cover']->jsonSerialize()
                 : $entity['cover'];
@@ -386,7 +439,7 @@ class ProductSerializer extends EntitySerializer
                 ? $productMedia->jsonSerialize()
                 : $productMedia;
 
-            if (empty($productMedia['media'])) {
+            if (($productMedia['media'] ?? []) === []) {
                 continue;
             }
 

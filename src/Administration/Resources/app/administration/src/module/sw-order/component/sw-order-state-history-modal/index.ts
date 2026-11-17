@@ -40,6 +40,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'stateStyleDataProviderService'],
 
+    emits: ['modal-close'],
+
     mixins: [Mixin.getByName('notification')],
 
     props: {

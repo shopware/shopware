@@ -83,6 +83,23 @@ class OpenApi3GeneratorTest extends TestCase
         static::assertArrayHasKey('post', $paths['/_action/order_delivery/{orderDeliveryId}/state/{transition}']);
     }
 
+    public function testSchemaListsJsonResponseFirst(): void
+    {
+        $schema = $this->generator->generate(
+            $this->definitionRegistry->getDefinitions(),
+            DefinitionService::API
+        );
+
+        foreach ([
+            $schema['paths']['/simple']['get']['responses']['200'],
+            $schema['paths']['/simple/{id}']['get']['responses']['200'],
+            $schema['paths']['/search/simple']['post']['responses']['200'],
+            $schema['components']['responses']['400'],
+        ] as $response) {
+            static::assertSame(['application/json', 'application/vnd.api+json'], array_keys($response['content']));
+        }
+    }
+
     public function testSchemaContainsCorrectEntities(): void
     {
         $schema = $this->generator->generate(

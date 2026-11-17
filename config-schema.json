@@ -576,7 +576,13 @@
                 "reset_password": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
+                "reset_password_client": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
                 "user_recovery": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "user_recovery_client": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "contact_form": {
@@ -1520,6 +1526,15 @@
                     "type": "number",
                     "minimum": 0,
                     "title": "Maximum duration in seconds for checking an external media link. Set to 0 to disable the timeout."
+                },
+                "allowed_protocols": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": ["http", "https", "ftp"]
+                    },
+                    "title": "URL schemes accepted for media upload by URL."
                 },
                 "remote_thumbnails": {
                     "type": "object",

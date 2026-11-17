@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtectio
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -80,8 +79,10 @@ class WebhookDefinition extends EntityDefinition
             (new BoolField('active', 'active'))->setDescription('When `false`, the webhook is not sent. It is switched off automatically after too many failed deliveries.'),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('The app that registered the webhook in its manifest. Such webhooks cannot be changed through the API, except for `active` by an admin.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
-            (new FkField('owner_user_id', 'ownerUserId', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
-            (new FkField('owner_integration_id', 'ownerIntegrationId', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->removeFlag(ApiAware::class),
+            (new FkField('owner_user_id', 'ownerUserId', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('The user that created the webhook through the API. It is set automatically and cannot be changed.'),
+            (new ManyToOneAssociationField('ownerUser', 'owner_user_id', UserDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new FkField('owner_integration_id', 'ownerIntegrationId', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))->setDescription('The integration that created the webhook through the API. It is set automatically and cannot be changed.'),
+            (new ManyToOneAssociationField('ownerIntegration', 'owner_integration_id', IntegrationDefinition::class))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new ListField('acl_role_ids', 'aclRoleIds', IdField::class))->setDescription('IDs of ACL roles the webhook is limited to. It only receives events whose required permissions are covered by these roles. Each role must be one its owner has. Leave it out to use all of the owner\'s roles. An empty list is not allowed.'),
         ]);
 

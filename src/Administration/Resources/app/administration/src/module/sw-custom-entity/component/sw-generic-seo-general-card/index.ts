@@ -13,6 +13,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory'],
 
+    emits: ['update:seo-meta-title', 'update:seo-meta-description', 'update:seo-url'],
+
     props: {
         seoMetaTitle: {
             type: String as PropType<string | null>,

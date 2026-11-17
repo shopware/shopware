@@ -28,27 +28,24 @@ class PluginZipImportCommandTest extends TestCase
 
     private MockObject&PluginService $pluginService;
 
-    private MockObject&CacheClearer $cacheClearer;
-
     private CommandTester $commandTester;
 
     protected function setUp(): void
     {
         $this->pluginManagementService = $this->createMock(PluginManagementService::class);
         $this->pluginService = $this->createMock(PluginService::class);
-        $this->cacheClearer = $this->createMock(CacheClearer::class);
 
         $command = new PluginZipImportCommand(
             $this->pluginManagementService,
             $this->pluginService,
-            $this->cacheClearer
+            static::createStub(CacheClearer::class)
         );
         $command->setHelperSet(new HelperSet());
 
         $this->commandTester = new CommandTester($command);
     }
 
-    #[TestDox('Importing a plugin zip clears the container cache and refreshes the plugin list')]
+    #[TestDox('Importing a plugin zip refreshes the plugin list')]
     public function testImportsPluginZipAndRefreshesPluginList(): void
     {
         $this->pluginManagementService
@@ -56,7 +53,6 @@ class PluginZipImportCommandTest extends TestCase
             ->method('extractPluginZip')
             ->with('/tmp/SwagExample.zip', false)
             ->willReturn(PluginManagementService::PLUGIN);
-        $this->cacheClearer->expects($this->once())->method('clearContainerCache');
         $this->pluginService
             ->expects($this->once())
             ->method('refreshPlugins')
@@ -71,7 +67,7 @@ class PluginZipImportCommandTest extends TestCase
         static::assertStringContainsString('Plugin list refreshed', $display);
     }
 
-    #[TestDox('Importing an app zip skips the container cache clear, the no-refresh option skips the plugin list refresh')]
+    #[TestDox('Importing an app zip with the no-refresh option skips the plugin list refresh')]
     public function testImportsAppZipWithoutRefresh(): void
     {
         $this->pluginManagementService
@@ -79,7 +75,6 @@ class PluginZipImportCommandTest extends TestCase
             ->method('extractPluginZip')
             ->with('/tmp/SwagApp.zip', true)
             ->willReturn(PluginManagementService::APP);
-        $this->cacheClearer->expects($this->never())->method('clearContainerCache');
         $this->pluginService->expects($this->never())->method('refreshPlugins');
 
         static::assertSame(Command::SUCCESS, $this->commandTester->execute([
@@ -97,7 +92,6 @@ class PluginZipImportCommandTest extends TestCase
             ->expects($this->once())
             ->method('extractPluginZip')
             ->willThrowException(new NoPluginFoundInZipException('/tmp/empty.zip'));
-        $this->cacheClearer->expects($this->never())->method('clearContainerCache');
         $this->pluginService->expects($this->never())->method('refreshPlugins');
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute([

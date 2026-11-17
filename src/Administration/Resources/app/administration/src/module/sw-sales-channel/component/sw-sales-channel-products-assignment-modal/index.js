@@ -50,6 +50,11 @@ export default {
             singleProducts: [],
             categoryProducts: [],
             groupProducts: [],
+            selections: {
+                singleProducts: { ids: [], total: 0 },
+                categoryProducts: { ids: [], total: 0 },
+                groupProducts: { ids: [], total: 0 },
+            },
             isProductLoading: false,
             tabContentHeight: '600px',
             productContainerStyle: {
@@ -69,11 +74,35 @@ export default {
 
     computed: {
         productCount() {
-            return this.products.length;
+            const serverSideTotal = Object.values(this.selections)
+                .filter(({ ids }) => ids.length > 0)
+                .reduce((sum, { total }) => sum + total, 0);
+
+            return this.localProducts.length + serverSideTotal;
         },
 
         products() {
             return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
+        },
+
+        /**
+         * Tabs that report category or product group ids are resolved on the server,
+         * so only the products of the remaining tabs are handled by id.
+         */
+        localProducts() {
+            const products = Object.keys(this.selections)
+                .filter((type) => this.selections[type].ids.length <= 0)
+                .flatMap((type) => this[type]);
+
+            return uniqBy(products, 'id');
+        },
+
+        selection() {
+            return {
+                productIds: this.localProducts.map(({ id }) => id),
+                categoryIds: this.selections.categoryProducts.ids,
+                productStreamIds: this.selections.groupProducts.ids,
+            };
         },
 
         productAssignmentTabs() {
@@ -134,8 +163,9 @@ export default {
                 }))`;
         },
 
-        onChangeSelection(products, type) {
+        onChangeSelection(products, type, selection = null) {
             this[type] = products;
+            this.selections[type] = selection ?? { ids: [], total: 0 };
         },
 
         onCloseModal() {
@@ -143,7 +173,7 @@ export default {
         },
 
         onAddProducts() {
-            this.$emit('products-add', this.products);
+            this.$emit('products-add', this.products, this.selection);
         },
 
         setProductLoading(isProductLoading) {

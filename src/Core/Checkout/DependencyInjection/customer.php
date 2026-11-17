@@ -68,6 +68,7 @@ use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupPriceBasisSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupRegistrationSeoUrlSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLogoutSubscriber;
@@ -92,6 +93,7 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
@@ -262,7 +264,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('customer_group.repository'),
             service('seo_url.repository'),
-            service('language.repository'),
             service(SeoUrlPersister::class),
             service('slugify'),
         ])
@@ -673,8 +674,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(CustomerEmailUniqueSubscriber::class)
         ->args([
-            service(Connection::class),
             service(CustomerEmailUniqueChecker::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -691,6 +692,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerGroupPriceBasisSubscriber::class)
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(CustomerAddressSubscriber::class)
         ->tag('kernel.event_subscriber');

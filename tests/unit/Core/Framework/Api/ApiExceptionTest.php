@@ -85,6 +85,15 @@ class ApiExceptionTest extends TestCase
         static::assertSame('The Content-Type "jpeg" is unsupported.', $exception->getMessage());
     }
 
+    public function testUnsupportedResponseMediaTypes(): void
+    {
+        $exception = ApiException::unsupportedResponseMediaTypes(['text/plain', 'application/xml']);
+
+        static::assertSame(0, $exception->getCode());
+        static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
+        static::assertSame('All provided media types are unsupported. (text/plain, application/xml)', $exception->getMessage());
+    }
+
     public function testNotExistingRelation(): void
     {
         $exception = ApiException::notExistingRelation('demo');

@@ -1,6 +1,14 @@
 ---
 name: shopware-release-docs
-description: Decide and write Shopware developer-facing release documentation (RELEASE_INFO / UPGRADE / changelog entries). Use when a change may affect extension authors, API consumers, operators, or storefront/theme developers — public APIs, deprecations, removals, configuration, or upgrade steps.
+description: >
+  Decide and write Shopware developer-facing release documentation (RELEASE_INFO /
+  UPGRADE / changelog entries). Use when a change may affect extension authors, API
+  consumers, operators, or storefront/theme developers — public APIs, deprecations,
+  removals, configuration, or upgrade steps. Also use for issue-style fix or feature
+  requests where it must be decided whether a release entry is needed, such as
+  "deprecate this method", "add a config option for X", "change the Store API response",
+  or "does this fix need a changelog entry?", even when no docs are mentioned.
+  Not for PR descriptions or for writing the code and tests of a change.
 license: MIT
 ---
 

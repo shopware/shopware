@@ -95,6 +95,20 @@ class OpenApiPathBuilder
                     'response' => Response::HTTP_OK,
                     'description' => 'List of ' . $humanReadableName . ' resources.',
                     'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'total' => ['type' => 'integer'],
+                                    'data' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            '$ref' => '#/components/schemas/' . $schemaName,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                         'application/vnd.api+json' => [
                             'schema' => [
                                 'allOf' => [
@@ -127,20 +141,6 @@ class OpenApiPathBuilder
                                                     ],
                                                 ],
                                             ],
-                                        ],
-                                    ],
-                                ],
-                            ],
-                        ],
-                        'application/json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'total' => ['type' => 'integer'],
-                                    'data' => [
-                                        'type' => 'array',
-                                        'items' => [
-                                            '$ref' => '#/components/schemas/' . $schemaName,
                                         ],
                                     ],
                                 ],
@@ -421,6 +421,17 @@ class OpenApiPathBuilder
             'response' => Response::HTTP_OK,
             'description' => 'Detail of ' . $schemaName,
             'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'required' => ['data'],
+                        'properties' => [
+                            'data' => [
+                                '$ref' => '#/components/schemas/' . $schemaName,
+                            ],
+                        ],
+                    ],
+                ],
                 'application/vnd.api+json' => [
                     'schema' => [
                         'allOf' => [
@@ -436,17 +447,6 @@ class OpenApiPathBuilder
                         ],
                     ],
                 ],
-                'application/json' => [
-                    'schema' => [
-                        'type' => 'object',
-                        'required' => ['data'],
-                        'properties' => [
-                            'data' => [
-                                '$ref' => '#/components/schemas/' . $schemaName,
-                            ],
-                        ],
-                    ],
-                ],
             ],
         ]);
     }
@@ -457,6 +457,20 @@ class OpenApiPathBuilder
             'response' => Response::HTTP_OK,
             'description' => 'List of ' . $schemaName,
             'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'total' => ['type' => 'integer'],
+                            'data' => [
+                                'type' => 'array',
+                                'items' => [
+                                    '$ref' => '#/components/schemas/' . $schemaName,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
                 'application/vnd.api+json' => [
                     'schema' => [
                         'allOf' => [
@@ -470,20 +484,6 @@ class OpenApiPathBuilder
                                             '$ref' => '#/components/schemas/' . $schemaName,
                                         ],
                                     ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'application/json' => [
-                    'schema' => [
-                        'type' => 'object',
-                        'properties' => [
-                            'total' => ['type' => 'integer'],
-                            'data' => [
-                                'type' => 'array',
-                                'items' => [
-                                    '$ref' => '#/components/schemas/' . $schemaName,
                                 ],
                             ],
                         ],

@@ -7,10 +7,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Api\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator;
@@ -38,6 +41,7 @@ use Shopware\Tests\Unit\Core\Framework\Api\Controller\Fixtures\ApiController\Par
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -160,7 +164,8 @@ class ApiControllerTest extends TestCase
             static::createStub(DecoderInterface::class),
             static::createStub(RequestCriteriaBuilder::class),
             static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(AclVersionMergeValidator::class),
         );
 
         $controller->deleteVersion(Context::createDefaultContext(), 'parent-entity', $entityId, $versionId);
@@ -205,6 +210,85 @@ class ApiControllerTest extends TestCase
         $controller->deleteVersion(Context::createDefaultContext(), 'parent-entity', $entityId, $versionId);
     }
 
+    public function testCreateVersionRequiresReadPrivilege(): void
+    {
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->never())->method('createVersion');
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class]);
+
+        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:read']));
+
+        $controller->createVersion(new Request(), $this->createAdminApiContext([]), 'parent-entity', Uuid::randomHex());
+    }
+
+    public function testDeleteVersionRequiresDeletePrivilegeBeforeAnythingIsRemoved(): void
+    {
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->never())->method('delete');
+
+        $commitRepository = $this->createMock(EntityRepository::class);
+        $commitRepository->expects($this->never())->method('delete');
+
+        $versionRepository = $this->createMock(EntityRepository::class);
+        $versionRepository->expects($this->never())->method('delete');
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+        $container->set(VersionCommitDefinition::ENTITY_NAME . '.repository', $commitRepository);
+        $container->set(VersionDefinition::ENTITY_NAME . '.repository', $versionRepository);
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class, VersionDefinition::class, VersionCommitDefinition::class]);
+
+        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:delete']));
+
+        $controller->deleteVersion($this->createAdminApiContext(['parent_entity:read', 'version:delete']), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
+    }
+
+    public function testMergeVersionWithMissingPrivilegesDoesNotMerge(): void
+    {
+        $versionId = Uuid::randomHex();
+        $context = $this->createAdminApiContext([]);
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->never())->method('merge');
+
+        $versionMergeValidator = $this->createMock(AclVersionMergeValidator::class);
+        $versionMergeValidator->expects($this->once())->method('getMissingPrivileges')
+            ->with($versionId, static::isInstanceOf(ParentDefinition::class), static::identicalTo($context))
+            ->willReturn(['parent_entity:update', 'child_entity:create']);
+
+        $controller = $this->createMergeController($entityRepository, $versionMergeValidator);
+
+        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:update', 'child_entity:create']));
+
+        $controller->mergeVersion($context, 'parent-entity', $versionId);
+    }
+
+    public function testMergeVersionWithoutMissingPrivilegesMergesInSystemScope(): void
+    {
+        $versionId = Uuid::randomHex();
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())->method('merge')
+            ->willReturnCallback(static function (string $mergedVersionId, Context $context) use ($versionId): void {
+                static::assertSame($versionId, $mergedVersionId);
+                static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+            });
+
+        $versionMergeValidator = static::createStub(AclVersionMergeValidator::class);
+        $versionMergeValidator->method('getMissingPrivileges')->willReturn([]);
+
+        $controller = $this->createMergeController($entityRepository, $versionMergeValidator);
+
+        $response = $controller->mergeVersion($this->createAdminApiContext(['parent_entity:update']), 'parent-entity', $versionId);
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
     public function testCreateWithAnIdInThePathIsNotAllowed(): void
     {
         $entityId = Uuid::randomHex();
@@ -233,9 +317,31 @@ class ApiControllerTest extends TestCase
     }
 
     /**
+     * @param list<string> $permissions
+     */
+    private function createAdminApiContext(array $permissions): Context
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions($permissions);
+
+        return Context::createDefaultContext($source);
+    }
+
+    /**
+     * @param EntityRepository<EntityCollection<Entity>> $entityRepository
+     */
+    private function createMergeController(EntityRepository $entityRepository, AclVersionMergeValidator $versionMergeValidator): ApiController
+    {
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+
+        return $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class], $versionMergeValidator);
+    }
+
+    /**
      * @param list<class-string<EntityDefinition>> $definitions
      */
-    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions): ApiController
+    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions, ?AclVersionMergeValidator $versionMergeValidator = null): ApiController
     {
         $registry = new StaticDefinitionInstanceRegistry(
             $definitions,
@@ -249,7 +355,8 @@ class ApiControllerTest extends TestCase
             static::createStub(DecoderInterface::class),
             static::createStub(RequestCriteriaBuilder::class),
             static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
+            static::createStub(AclCriteriaValidator::class),
+            $versionMergeValidator ?? static::createStub(AclVersionMergeValidator::class),
         );
     }
 
@@ -280,7 +387,8 @@ class ApiControllerTest extends TestCase
             static::createStub(DecoderInterface::class),
             $requestCriteriaBuilder,
             static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
+            static::createStub(AclCriteriaValidator::class),
+            static::createStub(AclVersionMergeValidator::class),
         );
     }
 

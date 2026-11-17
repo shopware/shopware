@@ -517,8 +517,3 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 });
-
-/**
- * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
- */
-export type { HistoryDateRange };

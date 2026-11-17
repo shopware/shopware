@@ -49,7 +49,7 @@ describe('components/sw-sidebar-filter-panel', () => {
         await flushPromises();
 
         wrapper.vm.filterSidebarItem.isActive = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const resetAllSpy = jest.fn();
         wrapper.vm.$refs.filterPanel.resetAll = resetAllSpy;

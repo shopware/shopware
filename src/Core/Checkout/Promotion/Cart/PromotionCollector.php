@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedGlobalCodePromoti
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedIndividualCodePromotions;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
@@ -159,9 +161,11 @@ class PromotionCollector implements CartDataCollectorInterface
             // codes excluded because their redemption limit was reached
             $redeemedCodes = [];
 
+            $customerRedemptions = $this->getCustomerRedemptions($allPromotions, $context->getCustomerId());
+
             foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
-                if (!$this->isEligible($tuple->getPromotion(), $context->getCustomerId(), $currentOrderId)) {
-                    if ($this->isRedemptionLimitReached($tuple->getPromotion(), $context->getCustomerId())) {
+                if (!$this->isEligible($tuple->getPromotion(), $customerRedemptions, $currentOrderId)) {
+                    if ($this->isRedemptionLimitReached($tuple->getPromotion(), $customerRedemptions)) {
                         $redeemedCodes[$tuple->getCode()] = true;
                     }
 
@@ -396,8 +400,10 @@ class PromotionCollector implements CartDataCollectorInterface
     /**
      * Check if max allowed redemption of promotion have been reached or not.
      * If max redemption has been reached, promotion will not be added
+     *
+     * @param array<string, int> $customerRedemptions
      */
-    private function isEligible(PromotionEntity $promotion, ?string $customerId, ?string $currentOrderId): bool
+    private function isEligible(PromotionEntity $promotion, array $customerRedemptions, ?string $currentOrderId): bool
     {
         // code is already applied to this order, so it's should be valid
         if ($currentOrderId && $this->isUsedInCurrentOrder($promotion->getId(), $currentOrderId)) {
@@ -410,7 +416,7 @@ class PromotionCollector implements CartDataCollectorInterface
         }
 
         // order count for this customer invalid
-        if ($customerId !== null && !$promotion->isOrderCountPerCustomerCountValid($customerId)) {
+        if ($this->isCustomerRedemptionLimitReached($promotion, $customerRedemptions)) {
             return false;
         }
 
@@ -421,14 +427,76 @@ class PromotionCollector implements CartDataCollectorInterface
     /**
      * Whether an ineligible promotion was excluded because its global or per-customer redemption
      * limit was reached. Only valid after {@see isEligible} returned false (promotion not in the current order).
+     *
+     * @param array<string, int> $customerRedemptions
      */
-    private function isRedemptionLimitReached(PromotionEntity $promotion, ?string $customerId): bool
+    private function isRedemptionLimitReached(PromotionEntity $promotion, array $customerRedemptions): bool
     {
         if (!$promotion->isOrderCountValid()) {
             return true;
         }
 
-        return $customerId !== null && !$promotion->isOrderCountPerCustomerCountValid($customerId);
+        return $this->isCustomerRedemptionLimitReached($promotion, $customerRedemptions);
+    }
+
+    /**
+     * @param array<string, int> $customerRedemptions
+     */
+    private function isCustomerRedemptionLimitReached(PromotionEntity $promotion, array $customerRedemptions): bool
+    {
+        $maxRedemptionsPerCustomer = $promotion->getMaxRedemptionsPerCustomer() ?? 0;
+
+        return $maxRedemptionsPerCustomer > 0
+            && ($customerRedemptions[$promotion->getId()] ?? 0) >= $maxRedemptionsPerCustomer;
+    }
+
+    /**
+     * Counts the orders of the customer that redeemed a promotion with a per-customer limit.
+     *
+     * @return array<string, int> keyed by promotion id
+     */
+    private function getCustomerRedemptions(CartPromotionsDataDefinition $promotions, ?string $customerId): array
+    {
+        if ($customerId === null) {
+            return [];
+        }
+
+        $promotionIds = [];
+        foreach ($promotions->getPromotionCodeTuples() as $tuple) {
+            if (($tuple->getPromotion()->getMaxRedemptionsPerCustomer() ?? 0) > 0) {
+                $promotionIds[] = $tuple->getPromotion()->getId();
+            }
+        }
+
+        if ($promotionIds === []) {
+            return [];
+        }
+
+        $sql = <<<'SQL'
+            SELECT LOWER(HEX(order_line_item.promotion_id)) as promotion_id,
+                   COUNT(DISTINCT order_line_item.order_id) as total
+            FROM order_customer
+                     INNER JOIN order_line_item
+                                ON (order_line_item.order_id = order_customer.order_id
+                                    AND order_line_item.order_version_id = order_customer.order_version_id)
+            WHERE order_customer.customer_id = :customerId
+              AND order_line_item.promotion_id IN (:promotionIds)
+              AND order_line_item.version_id = :versionId
+            GROUP BY order_line_item.promotion_id
+        SQL;
+
+        /** @var array<string, numeric-string> $redemptions */
+        $redemptions = $this->connection->fetchAllKeyValue(
+            $sql,
+            [
+                'customerId' => Uuid::fromHexToBytes($customerId),
+                'promotionIds' => Uuid::fromHexToBytesList(array_values(array_unique($promotionIds))),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            ['promotionIds' => ArrayParameterType::BINARY]
+        );
+
+        return array_map(intval(...), $redemptions);
     }
 
     private function isUsedInCurrentOrder(string $promotionId, string $orderId): bool

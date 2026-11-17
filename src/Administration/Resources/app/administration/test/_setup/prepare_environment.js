@@ -20,6 +20,10 @@ import {
     MtButton,
     MtCard,
     MtCheckbox,
+    MtRadioGroupCustomItem,
+    MtRadioGroupIndicator,
+    MtRadioGroupItem,
+    MtRadioGroupRoot,
     MtColorpicker,
     MtDataTable,
     MtDatepicker,
@@ -97,6 +101,7 @@ import '../../src/app/store/main-module.store';
 import '../../src/app/store/marketing.store';
 import '../../src/app/store/sdk-location.store';
 import '../../src/app/store/rule-conditions-config.store';
+import '../../src/app/store/whats-new.store';
 import '../../src/app/store/settings-item.store';
 import '../../src/app/store/shopware-apps.store';
 import '../../src/app/store/system.store';
@@ -311,6 +316,10 @@ config.global.stubs = {
     'mt-button': MtButton,
     'mt-card': MtCard,
     'mt-checkbox': MtCheckbox,
+    'mt-radio-group-root': MtRadioGroupRoot,
+    'mt-radio-group-item': MtRadioGroupItem,
+    'mt-radio-group-custom-item': MtRadioGroupCustomItem,
+    'mt-radio-group-indicator': MtRadioGroupIndicator,
     'mt-colorpicker': MtColorpicker,
     'mt-data-table': MtDataTable,
     'mt-datepicker': MtDatepicker,

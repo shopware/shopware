@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -104,6 +105,7 @@ use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Sso\UserService\UserService;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -162,6 +164,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('api.request_criteria_builder'),
             service(EntityProtectionValidator::class),
             service(AclCriteriaValidator::class),
+            service(AclVersionMergeValidator::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -338,6 +341,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
+            service(VersionHistory::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

@@ -208,8 +208,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
         expect(wrapper.vm.disabledAutoPromotions).toBeTruthy();
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.disabledAutoPromotions).toBeFalsy();
         expect(wrapper.vm.hasAutomaticPromotions).toBeTruthy();
@@ -314,7 +313,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             },
         ];
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.promotionsRemoved).toEqual([wrapper.vm.promotionUpdates[0]]);
         expect(wrapper.vm.promotionsAdded).toEqual([wrapper.vm.promotionUpdates[1]]);
@@ -327,7 +326,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         expect(modal.text()).toContain('New Auto promo');
 
         wrapper.vm.dismissPromotionUpdates();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-modal__content').exists()).toBe(false);
     });

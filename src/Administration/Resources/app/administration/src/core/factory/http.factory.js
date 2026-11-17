@@ -26,8 +26,8 @@ export default function createHTTPClient(context) {
  * Provides CancelToken so a request's promise from Http Client could be canceled.
  *
  * @returns { CancelToken, isCancel, Cancel}
+ * @public
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const { CancelToken, isCancel, Cancel } = Axios;
 
 /**

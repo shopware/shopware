@@ -219,8 +219,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
         await wrapper
             .find('.mt-switch input[aria-label="sw-promotion.detail.main.discounts.flagProductScopeLabel"]')
             .setChecked(true);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeTruthy();
     });

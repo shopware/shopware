@@ -6,7 +6,7 @@
  * This module provides a compatibility layer that allows Options API component overrides
  * to work transparently when the target component uses Composition API with createExtendableSetup().
  *
- * @experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
+ * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
  */
 
 import {

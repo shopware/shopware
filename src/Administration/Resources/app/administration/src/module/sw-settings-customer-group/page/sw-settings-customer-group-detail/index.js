@@ -135,6 +135,36 @@ export default {
             return criteria;
         },
 
+        taxDisplayOptions() {
+            return [
+                {
+                    value: true,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.grossDescription'),
+                },
+                {
+                    value: false,
+                    name: this.$t('sw-settings-customer-group.detail.taxDisplay.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.taxDisplay.netDescription'),
+                },
+            ];
+        },
+
+        priceBasisOptions() {
+            return [
+                {
+                    value: 'gross',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.grossDescription'),
+                },
+                {
+                    value: 'net',
+                    name: this.$t('sw-settings-customer-group.detail.priceBasis.netLabel'),
+                    description: this.$t('sw-settings-customer-group.detail.priceBasis.netDescription'),
+                },
+            ];
+        },
+
         entityDescription() {
             return this.placeholder(
                 this.customerGroup,

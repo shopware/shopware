@@ -23,6 +23,14 @@
                         "description": "If boolean value is `true` gross value is displayed else, net value will be displayed to the customer.",
                         "type": "boolean"
                     },
+                    "priceBasis": {
+                        "description": "Defines which stored price value is authoritative when the tax display shows the other one. With `net` the gross is derived from the stored net value, with `gross` the net is derived from the stored gross value. Added since version: 6.7.17.0.",
+                        "enum": [
+                            "net",
+                            "gross"
+                        ],
+                        "type": "string"
+                    },
                     "customFields": {
                         "type": "object"
                     },

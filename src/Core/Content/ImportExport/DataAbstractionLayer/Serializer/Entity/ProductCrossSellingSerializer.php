@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -66,14 +67,16 @@ class ProductCrossSellingSerializer extends EntitySerializer
         $deserialized = parent::deserialize($config, $definition, $entity);
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
-        if (empty($deserialized['assignedProducts'])) {
+        $productIds = $deserialized['assignedProducts'] ?? null;
+
+        if (!\is_array($productIds) || $productIds === []) {
             return $deserialized;
         }
 
         $crossSellingId = $deserialized['id'] ?? null;
         $assignedProducts = [];
 
-        foreach ($deserialized['assignedProducts'] as $position => $productId) {
+        foreach ($productIds as $position => $productId) {
             $assignedProduct = [
                 'productId' => $productId,
                 'crossSellingId' => $crossSellingId,
@@ -84,7 +87,7 @@ class ProductCrossSellingSerializer extends EntitySerializer
         }
 
         if ($crossSellingId) {
-            $assignedProducts = $this->findAssignedProductsIds($assignedProducts);
+            $assignedProducts = $this->findAssignedProductsIds($crossSellingId, $assignedProducts);
         }
 
         $deserialized['assignedProducts'] = $assignedProducts;
@@ -102,22 +105,21 @@ class ProductCrossSellingSerializer extends EntitySerializer
      *
      * @return array<array{productId: string, crossSellingId: string, position: int, id?: string}>
      */
-    private function findAssignedProductsIds(array $assignedProducts): array
+    private function findAssignedProductsIds(string $crossSellingId, array $assignedProducts): array
     {
-        $context = Context::createDefaultContext();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('crossSellingId', $crossSellingId));
+        $criteria->addFilter(new EqualsAnyFilter('productId', array_column($assignedProducts, 'productId')));
+
+        $existingIds = [];
+        foreach ($this->assignedProductsRepository->search($criteria, Context::createDefaultContext())->getEntities() as $existing) {
+            $existingIds[$existing->getProductId()] = $existing->getId();
+        }
 
         foreach ($assignedProducts as $i => $assignedProduct) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('crossSellingId', $assignedProduct['crossSellingId']));
-            $criteria->addFilter(new EqualsFilter('productId', $assignedProduct['productId']));
-
-            $id = $this->assignedProductsRepository->searchIds($criteria, $context)->firstId();
-
-            if ($id) {
-                $assignedProduct['id'] = $id;
+            if (isset($existingIds[$assignedProduct['productId']])) {
+                $assignedProducts[$i]['id'] = $existingIds[$assignedProduct['productId']];
             }
-
-            $assignedProducts[$i] = $assignedProduct;
         }
 
         return $assignedProducts;

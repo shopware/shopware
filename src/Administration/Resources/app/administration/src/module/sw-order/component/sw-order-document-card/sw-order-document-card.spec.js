@@ -3,7 +3,7 @@
 /**
  * @sw-package after-sales
  */
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
@@ -164,6 +164,7 @@ let getDocumentV2Mock;
 let getDocumentLegacyMock;
 let getDocumentArchiveV2Mock;
 let getDocumentPreviewV2Mock;
+let documentServiceListener;
 
 async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.details', additionalStubs = {}) {
     documentSearchMock = jest.fn().mockResolvedValue(getCollection('document_type', documentTypeFixture));
@@ -232,7 +233,9 @@ async function createWrapper(props = defaultProps, routeName = 'sw.order.detail.
             },
             provide: {
                 documentService: {
-                    setListener: () => ({}),
+                    setListener: (listener) => {
+                        documentServiceListener = listener;
+                    },
                     getDocument: (...args) => getDocumentLegacyMock(...args),
                     createDocument: (...args) => createDocumentMock(...args),
                 },
@@ -354,28 +357,38 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(createNewButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should show the error of document number already exists', async () => {
-        wrapper = await createWrapper();
-        wrapper.vm.createNotificationError = jest.fn();
+    it.each([
+        {
+            parameters: { number: '1001', documentType: 'invoice' },
+            expected:
+                'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS {"number":"1001","documentType":"invoice--type-snippet"}',
+        },
+        {
+            parameters: [],
+            expected: 'server message',
+        },
+    ])('should show the document number already exists error for $parameters', async ({ parameters, expected }) => {
+        const translate = jest
+            .spyOn(config.global.mocks, '$t')
+            .mockImplementation((key, values) => (values ? `${key} ${JSON.stringify(values)}` : key));
 
-        await wrapper.vm.convertStoreEventToVueEvent({
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+
+        wrapper = await createWrapper();
+
+        documentServiceListener({
             action: 'create-document-fail',
             payload: {
                 code: 'DOCUMENT__NUMBER_ALREADY_EXISTS',
-                detail: 'error message',
-                meta: {
-                    parameters: [],
-                },
+                detail: 'server message',
+                meta: { parameters },
             },
         });
 
-        await flushPromises();
+        expect(notificationSpy).toHaveBeenCalledWith(expect.objectContaining({ variant: 'error', message: expected }));
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS',
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
+        translate.mockRestore();
+        notificationSpy.mockRestore();
     });
 
     it('should save document when the event return finished', async () => {

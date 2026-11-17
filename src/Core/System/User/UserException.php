@@ -12,6 +12,18 @@ class UserException extends HttpException
     public const MISSING_REQUEST_PARAMETER_CODE = 'SYSTEM_USER__MISSING_REQUEST_PARAMETER';
     final public const SALES_CHANNEL_NOT_FOUND = 'USER__SALES_CHANNEL_NOT_FOUND';
     final public const INVALID_APP_URL = 'USER__INVALID_APP_URL';
+    final public const USERNAME_NOT_UNIQUE = 'USER__USERNAME_NOT_UNIQUE';
+
+    public static function usernameNotUnique(?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::USERNAME_NOT_UNIQUE,
+            'The username is already in use.',
+            [],
+            $previous,
+        );
+    }
 
     public static function missingRequestParameter(string $name, string $path = ''): self
     {

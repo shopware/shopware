@@ -14,6 +14,7 @@ interface Field {
     type: string;
     config: {
         name: string;
+        componentName?: string;
         criteria: Criteria;
         options: unknown[];
         placeholder: string;
@@ -116,7 +117,7 @@ export default Mixin.register(
                             // @ts-expect-error
                             this.ensureValueExist();
 
-                            if (['multi-entity-id-select', 'multi-select'].includes(type)) {
+                            if (['multi-entity-id-select', 'multi-select', 'tagged'].includes(type)) {
                                 // @ts-expect-error
                                 return this.condition.value[name] || [];
                             }
@@ -201,6 +202,10 @@ export default Mixin.register(
                 if (fieldClone.type === 'bool') {
                     fieldClone.type = 'single-select';
                     fieldClone.config.options = this.boolOptions;
+                }
+
+                if (fieldClone.type === 'tagged') {
+                    fieldClone.config.componentName ??= 'sw-multi-tag-select';
                 }
 
                 if (this.$te(placeholderPath)) {

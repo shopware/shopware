@@ -8,11 +8,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -30,6 +32,7 @@ readonly class SalesChannelDomainUtil
         private KernelInterface $kernel,
         private LoggerInterface $logger,
         private ClockInterface $clock,
+        private ServicesResetterInterface $servicesResetter,
     ) {
     }
 
@@ -111,14 +114,22 @@ readonly class SalesChannelDomainUtil
         $response = null;
 
         while ($redirectCount <= self::MAX_REDIRECTS) {
+            // The probe is rendered as an anonymous main request, but with the context of the outer request
+            // (e.g. storefront redirects like the maintenance mode are resolved against the outer main request).
+            // Its response must never end up in the HTTP cache, where it would be served to real visitors.
+            $currentRequest->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
+
             $requestStart = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             try {
+                $this->servicesResetter->reset();
                 // don't let the kernel catch errors, so we can handle them ourselves
                 $response = $this->kernel->handle($currentRequest, catch: false);
             } catch (\Exception $e) {
                 $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 
                 return $this->createExceptionResult($currentRequest->getUri(), $e, $responseTime, $currentRequest);
+            } finally {
+                $this->servicesResetter->reset();
             }
             $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 

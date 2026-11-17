@@ -116,7 +116,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should enable the edit context menu item', async () => {
         wrapper = await createWrapper(['users_and_permissions.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setData({
             roles: [{}, {}],
         });
@@ -130,7 +130,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should enable the delete context menu item', async () => {
         wrapper = await createWrapper(['users_and_permissions.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.setData({
             roles: [{}, {}],
         });

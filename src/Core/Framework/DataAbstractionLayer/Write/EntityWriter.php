@@ -236,6 +236,10 @@ class EntityWriter implements EntityWriterInterface
 
                 $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $key, $writeContext->getContext());
 
+                if ($this->isDeletedInQueue($queue, $affectedDefinition, $primary)) {
+                    continue;
+                }
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
                 $command = new UpdateCommand($affectedDefinition, [], $primary, $existence, '');

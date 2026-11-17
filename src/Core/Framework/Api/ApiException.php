@@ -180,6 +180,14 @@ class ApiException extends HttpException
         return new UnsupportedMediaTypeHttpException(\sprintf('The Content-Type "%s" is unsupported.', $contentType));
     }
 
+    /**
+     * @param array<string> $contentTypes
+     */
+    public static function unsupportedResponseMediaTypes(array $contentTypes): UnsupportedMediaTypeHttpException
+    {
+        return new UnsupportedMediaTypeHttpException(\sprintf('All provided media types are unsupported. (%s)', implode(', ', $contentTypes)));
+    }
+
     public static function badRequest(string $message): SymfonyHttpException
     {
         return new BadRequestHttpException($message);

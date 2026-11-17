@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
-class AppNameError extends Error
+class AppNameError implements Error
 {
-    private const KEY = 'invalid-app-name';
+    private readonly string $message;
 
     public function __construct(string $appName)
     {
@@ -18,12 +21,20 @@ class AppNameError extends Error
             'The technical app name "%s" in the "manifest.xml" and the folder name must be equal.',
             $appName
         );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
     }
 }

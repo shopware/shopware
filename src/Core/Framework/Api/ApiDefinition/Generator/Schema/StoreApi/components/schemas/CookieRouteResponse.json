@@ -29,9 +29,20 @@
             "pattern": "^[0-9a-f]{32}$",
             "description": "The language ID for which the cookie configuration was generated. Used to store hashes per language.",
             "example": "2fbb5fe2e29a4d70aa5854ce7ce3e20b"
+          },
+          "cookieHashes": {
+            "type": "object",
+            "description": "Hash of the configuration of each cookie, keyed by cookie name. Includes the data of every group listing the cookie. Can be used to detect which cookies were added or changed.",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "example": {
+              "cookie-preference": "0d1d3c4d4a2e5f1b7c9a8e6f5d4c3b2a",
+              "google-analytics-enabled": "7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d"
+            }
           }
         },
-        "required": ["elements", "hash", "languageId", "apiAlias"],
+        "required": ["elements", "hash", "languageId", "cookieHashes", "apiAlias"],
         "example": {
           "apiAlias": "cookie_groups_hash",
           "elements": [
@@ -112,7 +123,15 @@
             }
           ],
           "hash": "f86b6a872cb83dbd22d838ceda1aa3d4",
-          "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b"
+          "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
+          "cookieHashes": {
+            "session-": "3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f",
+            "timezone": "9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c",
+            "cookie-preference": "0d1d3c4d4a2e5f1b7c9a8e6f5d4c3b2a",
+            "google-analytics-enabled": "7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d",
+            "google-ads-enabled": "5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b",
+            "youtube-video": "1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e"
+          }
         }
       }
     }

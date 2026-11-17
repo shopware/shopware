@@ -72,6 +72,36 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
+const deliveryCardSelector = '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"]';
+
+function createShipment(id, shippingOrderAddressId, trackingCodes = []) {
+    return {
+        id,
+        shippingOrderAddress: { id: shippingOrderAddressId },
+        shippingCosts: { calculatedTaxes: [], totalPrice: 4.99 },
+        stateMachineState: { translated: { name: 'Open' } },
+        trackingCodes,
+    };
+}
+
+function setMultiShipmentOrder() {
+    const primaryShipment = createShipment('primary-shipment', 'address-primary');
+
+    Shopware.Store.get('swOrderDetail').order = {
+        ...orderMock,
+        primaryOrderDeliveryId: 'primary-shipment',
+        primaryOrderDelivery: primaryShipment,
+        deliveries: [
+            createShipment('first-shipment', 'address-first', ['FIRST-1']),
+            primaryShipment,
+            {
+                ...createShipment('discount-delivery', 'address-primary'),
+                shippingCosts: { calculatedTaxes: [], totalPrice: -5 },
+            },
+        ],
+    };
+}
+
 async function createWrapper() {
     orderMock.transactions.last = () => ({
         stateMachineState: {
@@ -106,11 +136,22 @@ async function createWrapper() {
                 'sw-order-address-selection': true,
                 'sw-entity-single-select': true,
                 'sw-datepicker': true,
-                'sw-multi-tag-select': true,
+                'sw-multi-tag-select': {
+                    props: ['validate'],
+                    template: '<div class="sw-multi-tag-select"></div>',
+                },
                 'sw-textarea-field': true,
                 'sw-extension-component-section': true,
                 'sw-custom-field-set-renderer': true,
                 'sw-order-state-history-modal': true,
+            },
+            mocks: {
+                $t: (key, value) => {
+                    if (!value) {
+                        return key;
+                    }
+                    return key + JSON.stringify(value);
+                },
             },
             provide: {
                 customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
@@ -133,6 +174,11 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeAll(() => {
         setActivePinia(createPinia());
         Shopware.Store.get('swOrderDetail').order = orderMock;
+    });
+
+    afterEach(() => {
+        Shopware.Store.get('swOrderDetail').order = orderMock;
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
     });
 
     it('should have a disabled on transaction card', async () => {
@@ -251,6 +297,107 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
         expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
         expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
+    });
+
+    it('should render a single delivery card for an order with one shipment', async () => {
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+
+        const deliveryCards = wrapper.findAll(deliveryCardSelector);
+
+        expect(deliveryCards).toHaveLength(1);
+        expect(deliveryCards[0].attributes('title')).toBe('sw-order.detailsTab.labelDeliveryCard');
+        expect(deliveryCards[0].find('.sw-order-detail-details__shipping-address').attributes('address-id')).toBe(
+            'address1',
+        );
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render one delivery card per shipment, the primary one first', async () => {
+        global.activeAclRoles = ['order.editor'];
+        setMultiShipmentOrder();
+        wrapper = await createWrapper();
+
+        const deliveryCards = wrapper.findAll(deliveryCardSelector);
+
+        expect(deliveryCards.map((card) => card.attributes('title'))).toEqual([
+            'sw-order.detailDeliveries.cardTitleItems{"count":1}',
+            'sw-order.detailDeliveries.cardTitleItems{"count":2}',
+        ]);
+        expect(
+            deliveryCards.map((card) => card.find('.sw-order-detail-details__shipping-address').attributes('address-id')),
+        ).toEqual([
+            'address-primary',
+            'address-first',
+        ]);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should keep the shipping address selections of the shipments apart', async () => {
+        global.activeAclRoles = ['order.editor'];
+        setMultiShipmentOrder();
+        wrapper = await createWrapper();
+
+        const secondCard = wrapper.findAll(deliveryCardSelector)[1];
+        await secondCard.findComponent('.sw-order-detail-details__shipping-address').vm.$emit('change-address', {
+            orderAddressId: 'address-first',
+            customerAddressId: 'customer-address-new',
+            type: 'shipping',
+            edited: false,
+        });
+        await flushPromises();
+
+        expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([
+            {
+                orderAddressId: 'address-first',
+                customerAddressId: 'customer-address-new',
+                type: 'shipping',
+                edited: false,
+                deliveryId: 'first-shipment',
+            },
+        ]);
+        expect(
+            wrapper
+                .findAll(deliveryCardSelector)
+                .map((card) => card.find('.sw-order-detail-details__shipping-address').attributes('address-id')),
+        ).toEqual([
+            'address-primary',
+            'customer-address-new',
+        ]);
+    });
+
+    it('should show a shipping address change without a delivery id on the primary delivery card', async () => {
+        global.activeAclRoles = ['order.editor'];
+        const primaryShipment = createShipment('primary-shipment', 'address-primary');
+        Shopware.Store.get('swOrderDetail').order = {
+            ...orderMock,
+            primaryOrderDeliveryId: 'primary-shipment',
+            primaryOrderDelivery: primaryShipment,
+            deliveries: [primaryShipment],
+        };
+        Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+            orderAddressId: 'address-primary',
+            customerAddressId: 'customer-address-new',
+            type: 'shipping',
+            edited: false,
+        });
+        wrapper = await createWrapper();
+
+        expect(
+            wrapper.find(`${deliveryCardSelector} .sw-order-detail-details__shipping-address`).attributes('address-id'),
+        ).toBe('customer-address-new');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should validate tracking codes against the shipment they belong to', async () => {
+        global.activeAclRoles = ['order.editor'];
+        setMultiShipmentOrder();
+        wrapper = await createWrapper();
+
+        const validators = wrapper
+            .findAll(deliveryCardSelector)
+            .map((card) => card.findComponent('.sw-order-user-card__tracking-code-select').props('validate'));
+
+        expect(validators[0]('FIRST-1')).toBe(true);
+        expect(validators[1]('FIRST-1')).toBe(false);
+        expect(validators[1]('FIRST-2')).toBe(true);
     });
 
     it('should be able to edit internal comment', async () => {

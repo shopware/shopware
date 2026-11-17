@@ -659,6 +659,13 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Selects open from the keyboard instead of on focus
+
+Selects built on `sw-select-base`, such as `sw-entity-single-select` and `sw-multi-select`, no longer open when they get the focus.
+They open on ArrowDown, ArrowUp, Enter, Space, Backspace, Delete or a typed character, and TAB moves on to the next field.
+Closing a select returns the focus to it.
+Automated tests that open a select by focusing it must click it or press one of these keys instead.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

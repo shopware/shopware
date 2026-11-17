@@ -93,7 +93,9 @@ class ProductListingRoute extends AbstractProductListingRoute
             throw ProductException::categoryNotFound($categoryId);
         }
 
-        $streamSubcategories = $this->loadStreamSubcategories($categoryId, $context);
+        $streamSubcategories = $this->hasChildren($category)
+            ? $this->loadStreamSubcategories($categoryId, $context)
+            : new EntityCollection();
 
         $this->addCacheTags($category, $streamSubcategories);
 
@@ -121,7 +123,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     {
         $criteria = new Criteria([$categoryId]);
         $criteria->setTitle('product-listing-route::category-loading');
-        $criteria->addFields(['productAssignmentType', 'productStreamId']);
+        $criteria->addFields(['productAssignmentType', 'productStreamId', 'childCount']);
         $criteria->setLimit(1);
 
         return $this->categoryRepository->search($criteria, $context->getContext())->getEntities()->first();
@@ -188,10 +190,10 @@ class ProductListingRoute extends AbstractProductListingRoute
             $filters[] = $this->getStreamFilter($streamCriteria);
 
             // a group category does not show its own manual assignments, but those of the manual categories below it
-            $manualCategoryIds = $this->loadManualChildCategoryIds(
+            $manualCategoryIds = $this->hasChildren($category) ? $this->loadManualChildCategoryIds(
                 [$category->getId(), ...array_values($streamSubcategories->getIds())],
                 $context
-            );
+            ) : [];
         }
 
         $streamFilters = [];
@@ -311,6 +313,11 @@ class ProductListingRoute extends AbstractProductListingRoute
         }
 
         return $productStreamId;
+    }
+
+    private function hasChildren(PartialEntity $category): bool
+    {
+        return $category->get('childCount') !== 0;
     }
 
     /**

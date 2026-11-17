@@ -475,6 +475,25 @@ class ProductListingRouteTest extends TestCase
         );
     }
 
+    #[DataProvider('leafCategoryProvider')]
+    public function testLeafCategoryOnlyLoadsItself(PartialEntity $category): void
+    {
+        $categoryRepository = self::categoryRepository($category);
+
+        self::loadCriteria($this->createRoute($categoryRepository), 'leaf-category');
+
+        static::assertSame(
+            ['product-listing-route::category-loading'],
+            array_map(static fn (Criteria $criteria) => $criteria->getTitle(), $categoryRepository->searchedCriteria)
+        );
+    }
+
+    public static function leafCategoryProvider(): \Generator
+    {
+        yield 'manual category' => [self::manualCategory('leaf-category', childCount: 0)];
+        yield 'group category' => [self::groupCategory('leaf-category', 'streamId', childCount: 0)];
+    }
+
     private function loadProductStreamListing(\Throwable $streamException, LoggerInterface $logger): Criteria
     {
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
@@ -527,21 +546,23 @@ class ProductListingRouteTest extends TestCase
         ]);
     }
 
-    private static function manualCategory(string $id): PartialEntity
+    private static function manualCategory(string $id, int $childCount = 1): PartialEntity
     {
         return new PartialEntity([
             'id' => $id,
             'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
+            'childCount' => $childCount,
         ]);
     }
 
-    private static function groupCategory(string $id, string $productStreamId, string $path = ''): PartialEntity
+    private static function groupCategory(string $id, string $productStreamId, string $path = '', int $childCount = 1): PartialEntity
     {
         return new PartialEntity([
             'id' => $id,
             'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
             'productStreamId' => $productStreamId,
             'path' => $path,
+            'childCount' => $childCount,
         ]);
     }
 

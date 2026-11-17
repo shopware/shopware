@@ -74,6 +74,16 @@ class SeoExceptionTest extends TestCase
         static::assertSame($salesChannelId, $exception->getParameters()['value']);
     }
 
+    public function testSeoUrlResetNotPossible(): void
+    {
+        $exception = SeoException::seoUrlResetNotPossible('product-id', 'sales-channel-id');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SeoException::SEO_URL_RESET_NOT_POSSIBLE, $exception->getErrorCode());
+        static::assertSame('The SEO URL of "product-id" cannot be reset to its template, because the template generates no URL for it in sales channel "sales-channel-id" and this language.', $exception->getMessage());
+        static::assertSame(['foreignKey' => 'product-id', 'salesChannelId' => 'sales-channel-id'], $exception->getParameters());
+    }
+
     public function testAppSeoUrlPathInvalid(): void
     {
         $exception = SeoException::appSeoUrlPathInvalid('imprint', 'legal#notice');

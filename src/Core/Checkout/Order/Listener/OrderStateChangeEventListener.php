@@ -3,9 +3,13 @@
 namespace Shopware\Core\Checkout\Order\Listener;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Event\OrderTransactionStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -74,9 +78,21 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         }
 
         $context = $this->getContext($orderDelivery->getOrderId(), $event->getContext());
-        $order = $this->getOrder($orderDelivery->getOrderId(), $context);
+        $order = $this->getOrder(
+            $orderDelivery->getOrderId(),
+            $context,
+            ['deliveries.stateMachineState', 'deliveries.positions.orderLineItem']
+        );
 
-        $this->dispatchEvent($event->getStateEventName(), $order, $context);
+        $changedDelivery = $order->getDeliveries()?->get($orderDeliveryId);
+        if (!$changedDelivery) {
+            throw OrderException::orderDeliveryNotFound($orderDeliveryId);
+        }
+
+        $this->eventDispatcher->dispatch(
+            new OrderDeliveryStateMachineStateChangeEvent($event->getStateEventName(), $order, $changedDelivery, $context),
+            $event->getStateEventName()
+        );
     }
 
     /**
@@ -101,7 +117,15 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $context = $this->getContext($orderTransaction->getOrderId(), $event->getContext());
         $order = $this->getOrder($orderTransaction->getOrderId(), $context);
 
-        $this->dispatchEvent($event->getStateEventName(), $order, $context);
+        $changedTransaction = $order->getTransactions()?->get($orderTransactionId);
+        if (!$changedTransaction) {
+            throw OrderException::orderTransactionNotFound($orderTransactionId);
+        }
+
+        $this->eventDispatcher->dispatch(
+            new OrderTransactionStateMachineStateChangeEvent($event->getStateEventName(), $order, $changedTransaction, $context),
+            $event->getStateEventName()
+        );
     }
 
     /**
@@ -178,6 +202,12 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 continue;
             }
 
+            $eventClass = match ($machine->getTechnicalName()) {
+                OrderDeliveryStates::STATE_MACHINE => OrderDeliveryStateMachineStateChangeEvent::class,
+                OrderTransactionStates::STATE_MACHINE => OrderTransactionStateMachineStateChangeEvent::class,
+                default => OrderStateMachineStateChangeEvent::class,
+            };
+
             foreach ($sides as $side) {
                 $name = implode('.', [
                     $side,
@@ -185,7 +215,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                     $state->getTechnicalName(),
                 ]);
 
-                $definition = $this->businessEventCollector->define(OrderStateMachineStateChangeEvent::class, $name);
+                $definition = $this->businessEventCollector->define($eventClass, $name);
 
                 if (!$definition) {
                     continue;
@@ -236,11 +266,13 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
+     * @param list<string> $associations
+     *
      * @throws OrderException
      */
-    private function getOrder(string $orderId, Context $context): OrderEntity
+    private function getOrder(string $orderId, Context $context, array $associations = []): OrderEntity
     {
-        $orderCriteria = $this->getOrderCriteria($orderId, $context);
+        $orderCriteria = $this->getOrderCriteria($orderId, $context, $associations);
 
         $order = $this->orderRepository->search($orderCriteria, $context)->getEntities()->first();
         if (!$order) {
@@ -250,7 +282,10 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         return $order;
     }
 
-    private function getOrderCriteria(string $orderId, Context $context): Criteria
+    /**
+     * @param list<string> $associations
+     */
+    private function getOrderCriteria(string $orderId, Context $context, array $associations): Criteria
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations([
@@ -271,6 +306,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 'addresses.country',
                 'addresses.countryState',
                 'tags',
+                ...$associations,
             ]);
 
         $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));

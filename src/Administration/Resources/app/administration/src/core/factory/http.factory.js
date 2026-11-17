@@ -5,7 +5,7 @@
  */
 import Axios from 'axios';
 import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
-import { legacyCompatInterceptor } from 'src/core/factory/http-legacy-compat';
+import registerLegacyCompat from 'src/core/factory/http-legacy-compat';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -22,14 +22,18 @@ export default function createHTTPClient(context) {
 }
 
 /**
- * Provides CancelToken so a request's promise from Http Client could be canceled.
+ * Detects cancelled requests, from an `AbortController` or a `CancelToken`.
  *
- * @deprecated tag:v6.8.0 - `CancelToken` and `Cancel` will be removed. Create an `AbortController`, pass its
- * `signal` in the request config and detect cancellations with `httpClient.isCancel(error)`.
- * @returns { CancelToken, isCancel, Cancel}
  * @public
  */
-export const { CancelToken, isCancel, Cancel } = Axios;
+export const { isCancel } = Axios;
+
+/**
+ * @deprecated tag:v6.9.0 - `CancelToken` and `Cancel` will be removed. Create an `AbortController`, pass its
+ * `signal` in the request config and detect cancellations with `httpClient.isCancel(error)`.
+ * @public
+ */
+export const { CancelToken, Cancel } = Axios;
 
 /**
  * Creates the HTTP client with the provided context.
@@ -49,12 +53,11 @@ function createClient() {
         timeout: 30000, // 30 second timeout
     });
 
-    legacyCompatInterceptor(client);
+    registerLegacyCompat(client);
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
     storeSessionExpiredInterceptor(client);
     tracingInterceptor(client);
-    legacyRequestOptionsInterceptor(client);
 
     /**
      * Don´t use cache in unit tests because it is possible
@@ -67,45 +70,10 @@ function createClient() {
         requestCacheAdapterInterceptor(client);
     }
 
-    client.isCancel = isCancelledRequest;
-
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and the `signal` request option instead.
-     */
-    client.CancelToken = Axios.CancelToken;
-
-    /**
-     * @deprecated tag:v6.9.0 - The version-specific runtime escape hatches will be removed. There is only one
-     * transport left, so they all point at the same client; use `httpClient`, `httpClient.interceptors` and
-     * `httpClient.defaults` directly.
-     */
-    client.axiosV0 = client;
-    client.axiosV1 = client;
-    client.interceptorsV0 = client.interceptors;
-    client.interceptorsV1 = client.interceptors;
-    client.defaultsV0 = client.defaults;
-    client.defaultsV1 = client.defaults;
+    // Matches `AbortController` and `CancelToken` cancellations alike.
+    client.isCancel = Axios.isCancel;
 
     return client;
-}
-
-/**
- * Checks whether the given error was caused by a cancelled request. Detects the `CanceledError` thrown by
- * `AbortController` cancellations as well as errors produced by the deprecated `CancelToken`.
- *
- * @param {unknown} value
- * @returns {boolean}
- */
-function isCancelledRequest(value) {
-    if (Axios.isCancel(value)) {
-        return true;
-    }
-
-    if (!value || typeof value !== 'object') {
-        return false;
-    }
-
-    return value.name === 'CanceledError' || value.code === 'ERR_CANCELED';
 }
 
 /**
@@ -126,51 +94,6 @@ function requestCacheAdapterInterceptor(client) {
 
         return config;
     });
-
-    return client;
-}
-
-/**
- * Sets up an interceptor that warns once per client about the request options that are kept for compatibility with
- * the removed dual-transport facade.
- *
- * The interceptor runs synchronously so the request pipeline keeps its synchronous fast path.
- *
- * @deprecated tag:v6.9.0 - Will be removed together with the `useAxiosV1` and `cancelToken` request options.
- * @param {AxiosInstance} client
- * @returns {AxiosInstance}
- */
-function legacyRequestOptionsInterceptor(client) {
-    let warnedTransportFlag = false;
-    let warnedCancelToken = false;
-
-    client.interceptors.request.use(
-        (config) => {
-            if (config.useAxiosV1 !== undefined && !warnedTransportFlag) {
-                warnedTransportFlag = true;
-                Shopware.Utils.debug.warn(
-                    'http.factory',
-                    'The "useAxiosV1" request option is deprecated and will be removed. ' +
-                        'The Administration HTTP client only ships Axios 1.x; the option now selects the legacy ' +
-                        'compatibility mode instead of a second Axios copy. Migrate to Axios 1.x behaviour and ' +
-                        'remove the option from your requests.',
-                );
-            }
-
-            if (config.cancelToken && !warnedCancelToken) {
-                warnedCancelToken = true;
-                Shopware.Utils.debug.warn(
-                    'http.factory',
-                    'The "cancelToken" request option and "httpClient.CancelToken" are deprecated. ' +
-                        'Use an AbortController and pass its "signal" in the request config instead.',
-                );
-            }
-
-            return config;
-        },
-        null,
-        { synchronous: true },
-    );
 
     return client;
 }

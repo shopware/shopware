@@ -16,7 +16,8 @@ Extension code continues to use the injected `httpClient`. Axios stays an implem
 | `axiosV0`, `interceptorsV0`, `defaultsV0` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 | `axiosV1`, `interceptorsV1`, `defaultsV1` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 
-All deprecated members stay functional until the next major and log a deprecation warning in development mode the first time they are used.
+All deprecated members stay functional until the next major.
+The first use of each logs a deprecation warning in development mode, and once the `V6_9_0_0` flag is active the use throws.
 
 ## The opt-out still works
 
@@ -30,14 +31,30 @@ The defaults are unchanged:
 | Shopware 6.8 (`V6_8_0_0` active) | Axios 1.x | `useAxiosV1: false` |
 | Repository requests | Follows the same defaults; the option is not part of the repository contract | None |
 
-Two behaviours differ between the legacy transport and plain Axios 1.x, and the compatibility mode restores both:
+The raw responses of `Repository.assign()`, `mergeVersion()` and `deleteVersion()` follow these defaults too.
+On 6.7.14 to 6.7.16 they returned `AxiosHeaders`; on 6.7 they now return plain headers again.
 
-1. **Query encoding.** The legacy transport decoded `[`, `]`, `:`, `$` and `,` back to their literal form, so `{ ids: [1, 2] }` became `?ids[]=1&ids[]=2`. Axios 1.x leaves them percent-encoded: `?ids%5B%5D=1&ids%5B%5D=2`. Both are equivalent for a correct server, but signature checks, log filters and strict route matchers can depend on the literal form.
-2. **Response headers.** The legacy transport returned `response.headers` as a plain object. Axios 1.x returns an `AxiosHeaders` instance. Lower-case property access such as `response.headers['content-type']` works with both.
+The compatibility mode restores two behaviours of the legacy transport:
 
-Everything else, including the error class and its codes, `FormData` handling, JSON parsing and `CancelToken`, is already identical in both. If your extension breaks on something outside this list, it depends on an Axios internal that was never part of the contract; please report it.
+1. **Query encoding.** The legacy transport kept `[` and `]` literal, so `{ ids: [1, 2] }` became `?ids[]=1&ids[]=2`.
+   Axios 1.x percent-encodes them: `?ids%5B%5D=1&ids%5B%5D=2`.
+   Both are equivalent for a correct server, but signature checks, log filters and strict route matchers can depend on the literal form.
+   The mode applies to requests and to `httpClient.getUri()`.
+2. **Response headers.** The legacy transport returned `response.headers` as a plain object, on success and on error responses.
+   Axios 1.x returns an `AxiosHeaders` instance.
+   Lower-case property access such as `response.headers['content-type']` works with both.
 
-An explicit `paramsSerializer` in the request configuration always wins over the compatibility mode.
+An own `paramsSerializer.serialize` function wins over the compatibility mode.
+Serializer options such as `indexes` keep the legacy encoding.
+`URLSearchParams` are sent unchanged, as before.
+
+One difference cannot be restored, because Axios 1.x prepares the headers before the request interceptors run:
+a request interceptor sees one flat `AxiosHeaders` instance instead of a plain object with `common`, `get`, `post` and the other method groups.
+An interceptor that writes `config.headers.common[...]` or `config.headers.post[...]` now fails with a `TypeError`, with or without `useAxiosV1: false`.
+Set the header on `config.headers` directly, or on `httpClient.defaults.headers.common` for every request.
+
+Error classes and codes, `FormData` handling, JSON parsing and `CancelToken` behave the same in both versions.
+Axios 1.x additionally sets `error.status`.
 
 ## Migrating direct HTTP requests
 
@@ -168,7 +185,13 @@ The option still works, but it will be removed. Check whether the request also w
 
 ### A query string looks different than before
 
-Axios 1.x percent-encodes `[`, `]`, `:`, `$` and `,`. Set `useAxiosV1: false` on the request to get the literal form back, or pass your own `paramsSerializer`.
+Axios 1.x percent-encodes `[` and `]`.
+Set `useAxiosV1: false` on the request to get the literal form back, or pass your own `paramsSerializer`.
+
+### A request interceptor fails with `Cannot set properties of undefined`
+
+The interceptor writes into `config.headers.common` or a method group such as `config.headers.post`.
+Axios 1.x has already merged those groups before the interceptor runs; set the header on `config.headers` directly.
 
 ### `response.headers` is no longer a plain object
 

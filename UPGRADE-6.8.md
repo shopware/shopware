@@ -1904,16 +1904,19 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 
 ## Administration HTTP client ships only Axios 1.x
 
-The Administration HTTP client (`httpClient`) is a single Axios 1.x instance. The legacy Axios 0.x dependency and the `axios-v1` package alias were removed. Most extensions need no change; the members below keep working and log a deprecation warning in development mode.
+The Administration HTTP client (`httpClient`) became a single Axios 1.x instance.
+The legacy Axios 0.x dependency and the `axios-v1` package alias were removed.
+The deprecated members below kept working until 6.9 and logged a deprecation warning in development mode.
 
 ### `useAxiosV1` request option
 
-The option still works and still defaults the same way: legacy behaviour on 6.7, Axios 1.x once `V6_8_0_0` is active. It no longer selects a second Axios copy, it selects a compatibility mode on the single client that restores the two behaviours which actually differ between the two versions:
+The option kept its defaults: legacy behaviour on 6.7, Axios 1.x once `V6_8_0_0` is active.
+It selected a compatibility mode on the single client instead of a second Axios copy, which restored two behaviours:
 
-- **Query encoding.** Axios 0.x decoded `[`, `]`, `:`, `$` and `,` back to their literal form (`?ids[]=1&ids[]=2`), Axios 1.x leaves them percent-encoded (`?ids%5B%5D=1&ids%5B%5D=2`).
-- **Response headers.** Axios 0.x returned `response.headers` as a plain object, Axios 1.x returns an `AxiosHeaders` instance. Lower-case property access works with both.
-
-Error classes and codes, `FormData` handling, JSON parsing and `CancelToken` are identical in both versions and need no opt-out.
+- **Query encoding.** Axios 0.x kept `[` and `]` literal (`?ids[]=1&ids[]=2`), Axios 1.x percent-encodes them (`?ids%5B%5D=1&ids%5B%5D=2`).
+  This applies to requests and to `httpClient.getUri()`.
+- **Response headers.** Axios 0.x returned `response.headers` as a plain object, Axios 1.x returns an `AxiosHeaders` instance.
+  Lower-case property access works with both.
 
 If a request breaks on Axios 1.x, keep it working with the opt-out and migrate later:
 
@@ -1931,9 +1934,30 @@ this.httpClient.get('/api/endpoint', { useAxiosV1: true });
 this.httpClient.get('/api/endpoint');
 ```
 
+### Request interceptors and header groups
+
+Request interceptors see the headers after Axios 1.x merged the `common` and method groups, also in the compatibility mode.
+An interceptor that wrote `config.headers.common[...]` or `config.headers.post[...]` failed with a `TypeError`.
+Set the header on `config.headers` directly:
+
+```javascript
+// Before
+httpClient.interceptors.request.use((config) => {
+    config.headers.common['x-my-header'] = 'value';
+    return config;
+});
+
+// After
+httpClient.interceptors.request.use((config) => {
+    config.headers['x-my-header'] = 'value';
+    return config;
+});
+```
+
 ### `CancelToken` replaced by `AbortController`
 
-`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` are deprecated and will be removed. Use `AbortController`:
+`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` were deprecated and are removed in 6.9.
+Use `AbortController`:
 
 ```javascript
 // Before

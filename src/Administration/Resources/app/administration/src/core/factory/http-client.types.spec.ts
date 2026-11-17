@@ -18,7 +18,7 @@ describe('core/factory/http-client.types.ts', () => {
             };
             const interceptorId = httpClient.interceptors.response.use((response) => response);
             const responsePromise: Promise<AxiosResponse> = httpClient.get('/test', requestConfig);
-            // @deprecated tag:v6.8.0 - CancelToken stays typed until the shim is removed.
+            // @deprecated tag:v6.9.0 - CancelToken stays typed until the shim is removed.
             const cancelToken = new httpClient.CancelToken(() => {});
 
             httpClient.defaults.headers.common['x-extension-header'] = 'value';

@@ -635,9 +635,7 @@ declare module 'axios' {
         // adds the shopware API version to the RequestConfig
         version?: number;
         /**
-         * Selects the legacy compatibility mode for a single request.
-         *
-         * @deprecated tag:v6.9.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
+         * @deprecated tag:v6.9.0 - See `HttpRequestConfig.useAxiosV1`.
          */
         useAxiosV1?: boolean;
     }

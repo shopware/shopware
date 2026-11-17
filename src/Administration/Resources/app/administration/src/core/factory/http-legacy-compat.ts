@@ -3,133 +3,178 @@
  *
  * @module core/factory/http-legacy-compat
  *
- * Reproduces the observable behaviour of the removed legacy Axios 0.x transport on top of the single Axios 1.x
- * client, so `useAxiosV1: false` keeps working without shipping a second Axios copy.
+ * Everything the single Axios 1.x client keeps for extensions written against the removed Axios 0.x transport:
+ * the legacy compatibility mode selected by `useAxiosV1`, the `CancelToken` shim and the version-specific aliases.
+ * Removing it means deleting this file, its call and the `CancelToken` export in `http.factory.js`, and the
+ * declarations tagged `v6.9.0` in `http-client.types.ts` and `global.types.ts`.
  *
- * Only two behaviours actually differ between the Axios version Shopware shipped before and Axios 1.x:
- *
- * 1. Query parameter encoding. Axios 0.x decoded `[`, `]`, `:`, `$` and `,` back to their literal form after
- *    `encodeURIComponent`, Axios 1.x leaves them percent-encoded. Both are equivalent for a correct server, but
- *    signature checks, log greps and strict route matchers can depend on the literal form.
- * 2. Response headers. Axios 0.x returned a plain object, Axios 1.x returns an `AxiosHeaders` instance.
- *
- * Everything else (error class and codes, `FormData` handling, JSON parsing, `CancelToken`) is already identical.
- *
- * @deprecated tag:v6.9.0 - The legacy compatibility mode and the `useAxiosV1` request option will be removed.
+ * @deprecated tag:v6.9.0 - Will be removed together with the `useAxiosV1` request option.
  */
 
 import Axios from 'axios';
-import type { AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type {
+    AxiosError,
+    AxiosInstance,
+    AxiosResponse,
+    CustomParamsSerializer,
+    InternalAxiosRequestConfig,
+    ParamsSerializerOptions,
+} from 'axios';
 
-/**
- * Characters that Axios 0.x decoded again after `encodeURIComponent`.
- */
-const LEGACY_LITERAL_CHARACTERS: [RegExp, string][] = [
-    [/%5B/gi, '['],
-    [/%5D/gi, ']'],
-    [/%3A/gi, ':'],
-    [/%24/g, '$'],
-    [/%2C/gi, ','],
-];
-
-type LegacyParamsSerializerOptions = {
-    indexes?: boolean | null;
-    serialize?: unknown;
+type LegacyConfig = {
+    useAxiosV1?: boolean;
+    cancelToken?: unknown;
+    paramsSerializer?: ParamsSerializerOptions | CustomParamsSerializer;
 };
 
+const REMOVED_IN = 'V6_9_0_0';
+
 /**
- * Applies the Axios 0.x character map to an already serialized query string.
- *
- * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
+ * Axios 0.x encoded query keys and values like Axios 1.x does, but kept `[` and `]` literal.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
-export function toLegacyQueryString(serializedParams: string): string {
-    return LEGACY_LITERAL_CHARACTERS.reduce(
-        (params, [pattern, replacement]) => params.replace(pattern, replacement),
-        serializedParams,
+function legacyEncode(value: string): string {
+    return encodeURIComponent(value)
+        .replace(/%3A/gi, ':')
+        .replace(/%24/g, '$')
+        .replace(/%2C/gi, ',')
+        .replace(/%20/g, '+')
+        .replace(/%5B/gi, '[')
+        .replace(/%5D/gi, ']');
+}
+
+function isLegacy(config: LegacyConfig | undefined): boolean {
+    return !(config?.useAxiosV1 ?? Shopware.Feature.isActive('V6_8_0_0'));
+}
+
+function guardLegacyOptions(config: LegacyConfig): void {
+    if (config.useAxiosV1 !== undefined) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            REMOVED_IN,
+            'The "useAxiosV1" request option is deprecated. Remove it once the request works with Axios 1.x.',
+        );
+    }
+
+    if (config.cancelToken) {
+        triggerCancelTokenDeprecation();
+    }
+}
+
+function triggerCancelTokenDeprecation(): void {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        REMOVED_IN,
+        '"httpClient.CancelToken" and the "cancelToken" request option are deprecated. Pass the "signal" of an AbortController instead.',
     );
 }
 
 /**
- * Serializes request parameters the way the legacy Axios 0.x transport did.
- *
- * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
+ * An own `serialize` function still wins, and serializer options such as `indexes` keep the legacy encoding.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
-export function legacyParamsSerializer(params: unknown, options?: LegacyParamsSerializerOptions): string {
-    const serialized = Axios.getUri({
-        url: '',
-        params,
-        paramsSerializer: { indexes: options?.indexes, serialize: undefined },
-    });
-
-    return toLegacyQueryString(serialized.replace(/^\?/, ''));
-}
-
-/**
- * Resolves whether a request runs in legacy compatibility mode.
- *
- * The resolution order matches the one the removed dual-transport facade used:
- * an explicit `useAxiosV1` in the request config wins, otherwise the `V6_8_0_0` feature flag decides.
- *
- * @deprecated tag:v6.9.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
- */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
-export function isLegacyCompatRequest(config: { useAxiosV1?: boolean }): boolean {
-    return !(config.useAxiosV1 ?? Shopware?.Feature?.isActive('V6_8_0_0') ?? false);
-}
-
-/**
- * Converts the `AxiosHeaders` instance of a response back into the plain object Axios 0.x returned.
- */
-function toPlainHeaders(response: AxiosResponse | undefined): void {
-    if (!response?.headers || typeof response.headers !== 'object') {
-        return;
+function withLegacyParams<Config extends LegacyConfig>(config: Config): Config {
+    if (!isLegacy(config)) {
+        return config;
     }
 
-    // `Object.assign` rather than a spread because `AxiosHeaders` is iterable, and rather than its `toJSON()`
-    // because that returns a null-prototype object while Axios 0.x returned an ordinary one.
-    response.headers = Object.assign({}, response.headers) as AxiosResponse['headers'];
+    const own =
+        typeof config.paramsSerializer === 'function' ? { serialize: config.paramsSerializer } : config.paramsSerializer;
+
+    return { ...config, paramsSerializer: { encode: legacyEncode, ...own } };
+}
+
+function toPlainHeaders(response: AxiosResponse | undefined): void {
+    if (response && isLegacy(response.config)) {
+        // Not `toJSON()`, which returns a null-prototype object while Axios 0.x returned an ordinary one.
+        response.headers = Object.assign({}, response.headers) as AxiosResponse['headers'];
+    }
+}
+
+function registerDeprecatedMembers(client: AxiosInstance): void {
+    const aliases = {
+        axiosV0: client,
+        axiosV1: client,
+        interceptorsV0: client.interceptors,
+        interceptorsV1: client.interceptors,
+        defaultsV0: client.defaults,
+        defaultsV1: client.defaults,
+    };
+
+    Object.entries(aliases).forEach(([name, target]) => {
+        Object.defineProperty(client, name, {
+            get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    REMOVED_IN,
+                    `"httpClient.${name}" is deprecated. Use "httpClient", "httpClient.interceptors" or "httpClient.defaults" instead.`,
+                );
+
+                return target;
+            },
+        });
+    });
+
+    Object.defineProperty(client, 'CancelToken', {
+        get() {
+            triggerCancelTokenDeprecation();
+
+            return Axios.CancelToken;
+        },
+    });
 }
 
 /**
- * Registers the interceptors that restore the legacy Axios 0.x behaviour for requests that opt into it.
- *
- * The request interceptor runs synchronously so the request pipeline keeps its synchronous fast path.
- *
- * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
+ * Services that took a `CancelToken` before now take an `AbortSignal` in the same parameter and pass it on as
+ * `signal`, so a `CancelToken` can still arrive there.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Internal helper of the deprecated legacy compatibility mode, not a public API.
-export function legacyCompatInterceptor(client: AxiosInstance): AxiosInstance {
-    client.interceptors.request.use(
-        (config: InternalAxiosRequestConfig) => {
-            // An explicit serializer always wins, exactly as it did with the legacy transport.
-            if (isLegacyCompatRequest(config) && !config.paramsSerializer) {
-                config.paramsSerializer = { serialize: legacyParamsSerializer };
-            }
+function moveCancelTokenOutOfSignal(config: InternalAxiosRequestConfig & LegacyConfig): void {
+    const { signal } = config;
 
-            return config;
+    if (isCancelToken(signal)) {
+        config.cancelToken = signal;
+        delete config.signal;
+    }
+}
+
+function isCancelToken(value: unknown): value is NonNullable<InternalAxiosRequestConfig['cancelToken']> {
+    return typeof value === 'object' && value !== null && 'throwIfRequested' in value;
+}
+
+/**
+ * Registers the legacy compatibility mode and the deprecated members on the HTTP client.
+ *
+ * @private
+ */
+export default function registerLegacyCompat(client: AxiosInstance): void {
+    client.interceptors.request.use(
+        (config: InternalAxiosRequestConfig & LegacyConfig) => {
+            moveCancelTokenOutOfSignal(config);
+            guardLegacyOptions(config);
+
+            return Object.assign(config, withLegacyParams(config));
         },
         null,
+        // Production also registers asynchronous interceptors, but specs without them expect the request to reach
+        // the adapter in the same tick.
         { synchronous: true },
     );
 
     client.interceptors.response.use(
         (response: AxiosResponse) => {
-            if (isLegacyCompatRequest(response.config ?? {})) {
-                toPlainHeaders(response);
-            }
+            toPlainHeaders(response);
 
             return response;
         },
         (error: AxiosError) => {
-            if (isLegacyCompatRequest(error?.config ?? {})) {
-                toPlainHeaders(error?.response);
-            }
+            toPlainHeaders(error?.response);
 
             return Promise.reject(error);
         },
     );
 
-    return client;
+    // Interceptors do not run for `getUri`, so it applies the query encoding on its own.
+    const getUri = client.getUri.bind(client);
+    client.getUri = (config = {}) => {
+        guardLegacyOptions(config);
+
+        return getUri(withLegacyParams(config));
+    };
+
+    registerDeprecatedMembers(client);
 }

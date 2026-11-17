@@ -269,7 +269,7 @@ class ProductIndexer extends EntityIndexer
         });
 
         Profiler::trace('product:indexer:event', function () use ($ids, $context, $message): void {
-            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
+            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip(), $message->isFullIndexing));
         });
 
         $this->eventDispatcher->dispatch(new InvalidateProductCache($ids, false));

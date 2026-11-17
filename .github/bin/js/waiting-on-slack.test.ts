@@ -49,7 +49,15 @@ test('calendarDaysSince counts UTC dates, so a late schedule neither skips nor r
 test('a reminder is due on day 14 and then weekly', () => {
     const due = Array.from({ length: 40 }, (_, days) => days).filter(isReminderDue);
 
-    assert.deepEqual(due, [14, 21, 28, 35]);
+    assert.deepEqual(
+        due,
+        [
+            14,
+            21,
+            28,
+            35,
+        ],
+    );
 });
 
 test('planReminders only reminds about external pull requests that wait on us', () => {
@@ -68,19 +76,36 @@ test('planReminders only reminds about external pull requests that wait on us', 
     );
 
     assert.deepEqual(
-        reminders.map((reminder) => ({ channel: reminder.channel, rows: reminder.rows.map(({ number, waitingDays }) => [number, waitingDays]) })),
-        [{ channel: 'C_AFTER_SALES', rows: [[6, 21], [1, 14]] }],
+        reminders.map((reminder) => ({
+            channel: reminder.channel,
+            rows: reminder.rows.map(({ number, waitingDays }) => [number, waitingDays]),
+        })),
+        [
+            {
+                channel: 'C_AFTER_SALES',
+                rows: [
+                    [6, 21],
+                    [1, 14],
+                ],
+            },
+        ],
     );
 });
 
 test('nothing to remind about means no message at all', () => {
-    assert.deepEqual(planReminders([row({ since: '2026-09-10T00:00:00Z' })], channels, new Date('2026-09-15T06:00:00Z')), []);
+    assert.deepEqual(
+        planReminders([row({ since: '2026-09-10T00:00:00Z' })], channels, new Date('2026-09-15T06:00:00Z')),
+        [],
+    );
 });
 
 test('titles are escaped, since Slack reads angle brackets as links', () => {
     assert.equal(escapeSlack('fix <b> & <i>'), 'fix &lt;b&gt; &amp; &lt;i&gt;');
 
-    const text = renderReminder({ channel: 'C', rows: [{ ...row({ title: 'Use <Foo> & bar' }), waitingDays: 14 }] }, 'https://github.com/orgs/shopware/projects/69');
+    const text = renderReminder(
+        { channel: 'C', rows: [{ ...row({ title: 'Use <Foo> & bar' }), waitingDays: 14 }] },
+        'https://github.com/orgs/shopware/projects/69',
+    );
     assert.match(text, /<https:\/\/github.com\/shopware\/shopware\/pull\/1\|#1 Use &lt;Foo&gt; &amp; bar>/);
     assert.match(text, /<https:\/\/github.com\/orgs\/shopware\/projects\/69\|waiting-on board>/);
 });

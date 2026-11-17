@@ -148,8 +148,11 @@ describe('components/sw-select-base', () => {
                 {
                     attachTo: container,
                     slots: {
-                        'sw-select-selection':
-                            '<input class="search-input" tabindex="-1"><button class="inner-button">+3</button>',
+                        'sw-select-selection': `
+                            <span class="selected-value" @click.stop>Red</span>
+                            <input class="search-input" tabindex="-1">
+                            <button class="inner-button">+3</button>
+                        `,
                     },
                 },
             );
@@ -209,31 +212,84 @@ describe('components/sw-select-base', () => {
             ['a plain character', { key: 'a' }],
             ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }],
             ['an Option character', { key: '@', altKey: true }],
-        ])('should expand on %s and let it reach the search', async (_, init) => {
+        ])('should expand on %s and type it into the search', async (_, init) => {
             const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.value = 'Previous selection';
+            searchInput.select();
+            const onInput = jest.fn();
+            searchInput.addEventListener('input', onInput);
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
 
-            const event = dispatchKey('keypress', selection.element, init);
+            dispatchKeydown(selection.element, init);
+            await flushPromises();
+            searchInput.removeEventListener('input', onInput);
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(searchInput.value).toBe(init.key);
+            expect(onInput).toHaveBeenCalledTimes(1);
+        });
+
+        it('should leave a read-only search untouched when typing opens the select', async () => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.readOnly = true;
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
+
+            dispatchKeydown(selection.element, { key: 'a' });
             await flushPromises();
 
             expect(selection.attributes('aria-expanded')).toBe('true');
-            expect(event.defaultPrevented).toBe(false);
+            expect(searchInput.value).toBe('');
         });
 
         it.each([
-            ['keydown', ' '],
-            ['keydown', 'Enter'],
-            ['keydown', 'ArrowDown'],
-            ['keypress', ' '],
-        ])('should leave a %s of "%s" on a button inside the select to that button', async (type, key) => {
+            ['CTRL+S', { key: 's', ctrlKey: true }],
+            ['CMD+S', { key: 's', metaKey: true }],
+            ['Shift', { key: 'Shift' }],
+            ['a composing key', { key: 'a', isComposing: true }],
+        ])('should stay collapsed on %s', async (_, init) => {
+            const selection = await createFocusedSelection();
+
+            dispatchKeydown(selection.element, init);
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+        });
+
+        it.each([
+            ' ',
+            'Enter',
+            'ArrowDown',
+            'a',
+        ])('should leave a keydown of "%s" on a button inside the select to that button', async (key) => {
             await createFocusedSelection();
             const innerButton = wrapper.find('.inner-button');
             innerButton.element.focus();
 
-            const event = dispatchKey(type, innerButton.element, { key });
+            const event = dispatchKeydown(innerButton.element, { key });
             await flushPromises();
 
             expect(wrapper.find('.sw-select__selection').attributes('aria-expanded')).toBe('false');
             expect(event.defaultPrevented).toBe(false);
+        });
+
+        it('should expand on a click on a selected value that stops its click from bubbling', async () => {
+            const selection = await createFocusedSelection();
+
+            wrapper.find('.selected-value').element.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+        });
+
+        it('should stay collapsed on a click on a button inside the select', async () => {
+            const selection = await createFocusedSelection();
+
+            wrapper.find('.inner-button').element.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
         });
 
         it('should keep the focus on the selection when ESC collapses the select', async () => {

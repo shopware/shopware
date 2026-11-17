@@ -2,8 +2,8 @@ import template from './sw-select-base.html.twig';
 import './sw-select-base.scss';
 
 /**
- * Keys that open a focused, closed select, the same ones that open a native select.
- * Printable characters open it too, see `expandByTyping`.
+ * Keys that open a focused, closed select, as in the WAI-ARIA APG select-only combobox.
+ * Printable characters open it too, see `expandByKeyboard`.
  */
 const OPENING_KEYS = [
     'ArrowDown',
@@ -133,39 +133,80 @@ export default {
         },
 
         /**
-         * Opens the select from ArrowDown, ArrowUp, Enter or Space, like a native select.
-         * Only keys on the select itself count, so buttons inside it keep their own keys.
+         * Opens the select on a click anywhere in the field, except on buttons inside it.
+         * Listens in the capture phase, because selected values stop their clicks from bubbling.
+         *
+         * @example <div @click.capture="expandByClick">
          */
-        expandByKeyboard(event) {
-            if (this.expanded || event.target !== this.$refs.selectWrapper) {
+        expandByClick(event) {
+            const button = event.target instanceof Element ? event.target.closest('button') : null;
+
+            if (button && this.$refs.selectWrapper.contains(button)) {
                 return;
             }
 
-            if (!OPENING_KEYS.includes(event.key) || event.ctrlKey || event.metaKey) {
-                return;
-            }
-
-            // The result list mounts before this event reaches the document, where it would pick an item
-            event.preventDefault();
-            event.stopPropagation();
             this.expand();
         },
 
         /**
-         * Opens the select when a key types a character, so the character starts the search.
-         * `keypress` fires only for keys that produce text, AltGr and Option characters included,
-         * and never for shortcuts like CTRL+S.
-         *
-         * @example <div @keypress="expandByTyping">
+         * Opens the select from ArrowDown, ArrowUp, Enter or Space, and from a key that types a character.
+         * Only keys on the select itself count, so buttons inside it keep their own keys.
          */
-        expandByTyping(event) {
-            if (this.expanded || event.target !== this.$refs.selectWrapper) {
+        expandByKeyboard(event) {
+            if (this.expanded || event.target !== this.$refs.selectWrapper || event.isComposing) {
                 return;
             }
 
-            if (event.key.length === 1) {
+            if (OPENING_KEYS.includes(event.key) && !event.ctrlKey && !event.metaKey) {
+                // The result list mounts before this event reaches the document, where it would pick an item
+                event.preventDefault();
+                event.stopPropagation();
                 this.expand();
+                return;
             }
+
+            if (this.typesCharacter(event)) {
+                // Firefox inserts a typed character only into the element focused during keydown,
+                // and the search input gets the focus later, after the select renders open
+                event.preventDefault();
+                this.expand();
+                this.$nextTick(() => this.typeIntoSearch(event.key));
+            }
+        },
+
+        /**
+         * Types a character into the focused search input of this select, as if the user typed it.
+         * Runs after the select opened, once the variant moved the focus into its search.
+         *
+         * @example this.$nextTick(() => this.typeIntoSearch('a'));
+         */
+        typeIntoSearch(character) {
+            const search = document.activeElement;
+
+            if (!(search instanceof HTMLInputElement) || !this.$refs.selectWrapper?.contains(search)) {
+                return;
+            }
+
+            if (search.readOnly || search.disabled) {
+                return;
+            }
+
+            search.setRangeText(character, search.selectionStart ?? 0, search.selectionEnd ?? 0, 'end');
+            search.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+
+        /**
+         * Tells a key that types a character apart from a shortcut.
+         * AltGr reports CTRL+ALT on Windows and Option reports ALT on macOS, both still type.
+         *
+         * @example this.typesCharacter(new KeyboardEvent('keydown', { key: 'a' })) // true
+         */
+        typesCharacter(event) {
+            if (event.key.length !== 1 || event.metaKey) {
+                return false;
+            }
+
+            return !event.ctrlKey || event.altKey;
         },
 
         collapse(event) {

@@ -13,11 +13,10 @@
             class="sw-select__selection"
             :tabindex="disabled ? '-1' : '0'"
             :aria-expanded="expanded ? 'true' : 'false'"
-            @click="expand"
+            @click.capture="expandByClick"
             @focus="setFocusClass"
             @blur="removeFocusClass"
             @keydown="expandByKeyboard"
-            @keypress="expandByTyping"
             @keydown.tab="collapse"
             @keydown.esc="collapse"
         >

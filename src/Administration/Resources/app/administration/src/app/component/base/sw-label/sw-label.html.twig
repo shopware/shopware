@@ -22,9 +22,11 @@
     {% endblock %}
 
     {% block sw_label_dismiss %}
+    <!-- Shown only on hover, so it stays out of the tab order -->
     <button
         v-if="showDismissable"
         class="sw-label__dismiss"
+        tabindex="-1"
         :title="$t('global.default.remove')"
         @mousedown.prevent
         @click.prevent.stop="$emit('dismiss')"

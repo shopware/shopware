@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Adapter\AbstractSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
@@ -45,6 +46,7 @@ class DefaultBindingRootSourcesTest extends TestCase
      * @param list<string>|null $expected
      */
     #[DataProvider('forTypeProvider')]
+    #[TestDox('resolves the root sources of the default specification of a type: $_dataName')]
     public function testForType(array $specifications, ?array $expected): void
     {
         static::assertSame($expected, $this->defaultBindingRootSources($specifications)->forType(self::TYPE));
@@ -134,6 +136,7 @@ class DefaultBindingRootSourcesTest extends TestCase
      * @param list<string>|null $expected
      */
     #[DataProvider('forElementsProvider')]
+    #[TestDox('resolves the root sources of a list of elements from their restrictions: $_dataName')]
     public function testForElements(array $elements, ?array $expected): void
     {
         $specifications = [
@@ -160,8 +163,6 @@ class DefaultBindingRootSourcesTest extends TestCase
     public static function forElementsProvider(): iterable
     {
         yield 'an empty list' => [[], null];
-
-        yield 'one element of an unrestricted type' => [[self::element(self::UNRESTRICTED)], null];
 
         yield 'a restricted element in a slot below an unrestricted root' => [
             [self::element(self::UNRESTRICTED, slots: ['content' => [self::element(self::UNRESTRICTED), self::element(self::RESTRICTED)]])],
@@ -202,6 +203,11 @@ class DefaultBindingRootSourcesTest extends TestCase
 
         yield 'an element whose type has two defaults beside an unrestricted element' => [
             [self::element(self::UNRESTRICTED), self::element(self::AMBIGUOUS)],
+            [],
+        ];
+
+        yield 'an element whose type has two defaults fails even when it wires every key' => [
+            [self::element(self::AMBIGUOUS, wiredKeys: ['media'])],
             [],
         ];
     }

@@ -142,6 +142,7 @@ class InfoControllerTest extends TestCase
         $this->assertMatchesResponseSchema('content-system-element-types', $content);
     }
 
+    #[TestDox('includes the picker metadata of each layout preset, defaulting the fields a preset without them omits')]
     public function testContentSystemLayoutPresetsIncludesPickerMetadata(): void
     {
         $this->shopIdProvider->expects($this->never())->method('getShopId');

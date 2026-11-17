@@ -16,6 +16,7 @@ Shopware.Service('privileges')
                     'seo_url:read',
                     'tag:read',
                     'sales_channel:read',
+                    'sales_channel_domain:read',
                     'product:read',
                     'property_group_option:read',
                     'property_group:read',

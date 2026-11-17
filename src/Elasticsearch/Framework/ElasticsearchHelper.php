@@ -39,7 +39,8 @@ class ElasticsearchHelper
         private readonly CriteriaParser $parser,
         private readonly LoggerInterface $logger,
         private readonly SystemConfigService $systemConfigService,
-        private readonly int $termMaxWords = 10,
+        private readonly int $termMaxWords,
+        private readonly ElasticsearchTokenizer $tokenizer,
     ) {
     }
 
@@ -276,7 +277,7 @@ class ElasticsearchHelper
 
     private function limitTermWords(Criteria $criteria): Criteria
     {
-        $words = (new ElasticsearchTokenizer())->tokenize((string) $criteria->getTerm());
+        $words = $this->tokenizer->tokenize((string) $criteria->getTerm());
 
         if (\count($words) <= $this->termMaxWords) {
             return $criteria;

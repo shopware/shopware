@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
@@ -48,6 +49,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             $logger,
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::expectException(\RuntimeException::class);
@@ -70,6 +73,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             $logger,
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $helper->logAndThrowException(new \RuntimeException('test'));
@@ -94,6 +99,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             $logger,
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::assertFalse($helper->allowIndexing());
@@ -115,6 +122,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::expectException(\RuntimeException::class);
@@ -134,6 +143,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::assertSame('prefix_product', $helper->getIndexName(new ProductDefinition()));
@@ -158,6 +169,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $criteria = new Criteria();
@@ -209,6 +222,8 @@ class ElasticsearchHelperTest extends TestCase
             $parser,
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);
@@ -249,6 +264,8 @@ class ElasticsearchHelperTest extends TestCase
             $parser,
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);
@@ -290,6 +307,7 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
             $termMaxWords,
+            new ElasticsearchTokenizer(),
         );
 
         $criteria = new Criteria();

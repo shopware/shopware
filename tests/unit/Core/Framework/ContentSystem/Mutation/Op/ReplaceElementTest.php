@@ -650,8 +650,9 @@ class ReplaceElementTest extends TestCase
         $replace->apply(new StoredTree([new StoredElement('el', 'Sw:Old')]));
     }
 
-    #[TestDox('rejects a new type whose default scopes a key by root sources that do not include the tree root source, naming the replaced element')]
-    public function testReplaceRejectsScopedDefaultWithUnnamedRootSource(): void
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('rejects a new type whose default scopes a key by root sources that do not include the tree root source, naming the replaced element: $_dataName')]
+    public function testReplaceRejectsScopedDefaultWithUnnamedRootSource(?string $rootSource): void
     {
         $default = ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:New', 'New');
         $replace = new ReplaceElement(
@@ -663,8 +664,17 @@ class ReplaceElementTest extends TestCase
             mappingInspector: $this->mappingInspector($this->registry()),
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:New', 'media', 'el', 'category'));
-        $replace->apply(new StoredTree([new StoredElement('el', 'Sw:Old')], 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:New', 'media', 'el', $rootSource));
+        $replace->apply(new StoredTree([new StoredElement('el', 'Sw:Old')], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source outside the scope' => ['category'];
+        yield 'no root source' => [null];
     }
 
     #[TestDox('rejects an unregistered new type with a 400')]

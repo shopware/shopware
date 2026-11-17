@@ -386,14 +386,24 @@ class InsertElementTest extends TestCase
         ];
     }
 
-    #[TestDox('rejects a default-only scoped key whose root source is unnamed even when a named specification wires the other keys, naming the default and no element')]
-    public function testInsertNamedSpecificationStillRejectsDefaultOnlyScopedKeyWithUnnamedRootSource(): void
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('rejects a default-only scoped key whose root source is unnamed even when a named specification wires the other keys, naming the default and no element: $_dataName')]
+    public function testInsertNamedSpecificationStillRejectsDefaultOnlyScopedKeyWithUnnamedRootSource(?string $rootSource): void
     {
         $insert = $this->insertWithProductScopedGalleryDefault();
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'gallery', null, 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Media:Image', 'gallery', null, $rootSource));
 
-        $insert->apply(new StoredTree([], 'category'));
+        $insert->apply(new StoredTree([], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source outside the scope' => ['category'];
+        yield 'no root source' => [null];
     }
 
     /**
@@ -401,7 +411,7 @@ class InsertElementTest extends TestCase
      */
     #[DataProvider('unresolvableScopedSpecificationProvider')]
     #[TestDox('rejects a specification whose scoped key has no entry for the tree root source, naming that specification and no element: $_dataName')]
-    public function testInsertRejectsSpecificationWhoseScopedKeyCannotResolve(array $specifications, ?string $bindingSpecificationId, string $expectedSpecificationId, string $expectedKey): void
+    public function testInsertRejectsSpecificationWhoseScopedKeyCannotResolve(array $specifications, ?string $bindingSpecificationId, string $expectedSpecificationId, string $expectedKey, ?string $rootSource): void
     {
         $insert = new InsertElement(
             $this->registryWith('Sw:Media:Image'),
@@ -411,13 +421,13 @@ class InsertElementTest extends TestCase
             $bindingSpecificationId,
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped($expectedSpecificationId, $expectedKey, null, 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped($expectedSpecificationId, $expectedKey, null, $rootSource));
 
-        $insert->apply(new StoredTree([], 'category'));
+        $insert->apply(new StoredTree([], $rootSource));
     }
 
     /**
-     * @return iterable<string, array{array<string, BindingSpecification>, ?string, string, string}>
+     * @return iterable<string, array{array<string, BindingSpecification>, ?string, string, string, ?string}>
      */
     public static function unresolvableScopedSpecificationProvider(): iterable
     {
@@ -426,6 +436,7 @@ class InsertElementTest extends TestCase
             null,
             'core:Sw:Media:Image',
             'media',
+            'category',
         ];
 
         yield 'a named specification' => [
@@ -440,6 +451,15 @@ class InsertElementTest extends TestCase
             'core:gallery-pick',
             'core:gallery-pick',
             'cover',
+            'category',
+        ];
+
+        yield 'the type default when the tree has no root source' => [
+            ['core:Sw:Media:Image' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Media:Image', 'Image')],
+            null,
+            'core:Sw:Media:Image',
+            'media',
+            null,
         ];
     }
 

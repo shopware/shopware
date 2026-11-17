@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
@@ -120,8 +121,9 @@ class BindElementTest extends TestCase
         $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Other')]));
     }
 
-    #[TestDox('rejects a specification that scopes a wired key by root sources that do not include the tree root source, naming the bound element')]
-    public function testBindRejectsScopedWiringWithUnnamedRootSource(): void
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('rejects a specification that scopes a wired key by root sources that do not include the tree root source, naming the bound element: $_dataName')]
+    public function testBindRejectsScopedWiringWithUnnamedRootSource(?string $rootSource): void
     {
         $specification = new BindingSpecification(
             'spec-1',
@@ -135,8 +137,17 @@ class BindElementTest extends TestCase
         $registry->method('all')->willReturn(['spec-1' => $specification]);
         $bind = new BindElement($registry, 'spec-1', 'el', $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)));
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('spec-1', 'product', 'el', 'category'));
-        $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')], 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('spec-1', 'product', 'el', $rootSource));
+        $bind->apply(new StoredTree([new StoredElement('el', 'Sw:Product')], $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        yield 'a root source outside the scope' => ['category'];
+        yield 'no root source' => [null];
     }
 
     #[TestDox('rejects an unknown binding specification id with a 400')]

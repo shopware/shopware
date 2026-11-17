@@ -192,20 +192,21 @@ class AttachElementTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{StoredElement, bool, string}>
+     * @return iterable<string, array{StoredElement, bool, string, ?string}>
      */
     public static function rejectionElementIdProvider(): iterable
     {
-        yield 'attach-element names the supplied element' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming'];
+        yield 'attach-element names the supplied element' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming', 'category'];
 
         $nested = new StoredElement('incoming', 'Sw:Block', [], [], ['content' => [new StoredElement('incoming-child', 'Sw:Card')]]);
-        yield 'attach-element names the supplied nested element' => [$nested, false, 'incoming-child'];
-        yield 'a preset insertion names the payload id of the nested element' => [$nested, true, 'incoming-child'];
+        yield 'attach-element names the supplied nested element' => [$nested, false, 'incoming-child', 'category'];
+        yield 'a preset insertion names the payload id of the nested element' => [$nested, true, 'incoming-child', 'category'];
+        yield 'attach-element names the supplied element when the tree has no root source' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming', null];
     }
 
     #[DataProvider('rejectionElementIdProvider')]
     #[TestDox('names the element id the caller supplied when the type default of that element rejects the root source: $_dataName')]
-    public function testAttachRejectionNamesTheSuppliedElementId(StoredElement $incoming, bool $isNewScaffold, string $expectedElementId): void
+    public function testAttachRejectionNamesTheSuppliedElementId(StoredElement $incoming, bool $isNewScaffold, string $expectedElementId, ?string $rootSource): void
     {
         $attach = new AttachElement(
             $this->registry(),
@@ -215,8 +216,8 @@ class AttachElementTest extends TestCase
             isNewScaffold: $isNewScaffold,
         );
 
-        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, 'category'));
-        $attach->apply(new StoredTree([], 'category'));
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, $rootSource));
+        $attach->apply(new StoredTree([], $rootSource));
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]

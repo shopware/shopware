@@ -6,17 +6,9 @@ import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import fileValidationService from 'src/app/service/file-validation.service';
 
-import {
-    createProduct,
-    cleanupWrappers,
-    createWrapper,
-    createMedia,
-    addMedia,
-    clickButton,
-    getDocuments,
-} from './sw-product-document-form.spec/helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
 
-describe('sw-product-document-form', () => {
+describe('sw-product-document-form media assignment', () => {
     const originalLanguage = Shopware.Context.api.languageId;
 
     beforeEach(() => {

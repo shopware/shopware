@@ -31,10 +31,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: '',
         },
-        documentId: {
-            type: String,
-            required: true,
-        },
         documentTitle: {
             type: String,
             required: true,
@@ -103,6 +99,24 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        modalTitle(): string {
+            return this.isAddingLanguageVersion
+                ? this.$t('sw-product.documentForm.addLanguageVersion', { language: this.languageName })
+                : this.$t('sw-product.documentForm.editTitle');
+        },
+
+        documentNameHint(): string | undefined {
+            return this.allowFallback ? undefined : this.$t('sw-product.documentForm.nameHint');
+        },
+
+        documentFileHint(): string {
+            return this.allowFallback ? this.$t('sw-product.documentForm.fileFallbackHint') : this.uploadHint;
+        },
+
+        extensionAccept(): string {
+            return this.allowedExtensions.join(',');
+        },
+
         isDisabled(): boolean {
             return !this.canEdit || this.isSavingDocument;
         },

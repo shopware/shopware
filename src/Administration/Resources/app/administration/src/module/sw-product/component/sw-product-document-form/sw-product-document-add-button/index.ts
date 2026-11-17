@@ -41,6 +41,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        triggerLabel(): string {
+            return `${this.$t('sw-product.documentForm.buttonAdd')}. ${this.hintLabel}`;
+        },
+
         isHintOpen(): boolean {
             return this.isHintRequested && (this.isInherited || this.defaultLanguageName !== null);
         },

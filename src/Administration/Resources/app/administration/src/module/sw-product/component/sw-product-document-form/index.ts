@@ -5,13 +5,9 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
-import {
-    resetDocumentTranslation,
-    getDocumentTranslationChanges,
-    getEditChanges,
-    type DocumentChanges,
-} from './document-translation.utils';
-import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.helper';
+import { getDocumentTranslationChanges, getEditChanges } from './document-translation.utils';
+import { loadDocumentVariants } from './document-variant.helper';
+import useDocumentChanges from './use-document-changes';
 import { copyInheritedDocuments } from './document-inheritance.helper';
 import { updateDocumentPositions } from './document-position.helper';
 import { getHintParams, getFileAccept, isInvalidDocumentFile } from './document-upload.helper';
@@ -35,11 +31,15 @@ export default Shopware.Component.wrapComponentConfig({
         'entityFactory',
         'acl',
         'fileValidationService',
-        'mediaService',
+        'mediaDefaultFolderService',
     ],
 
     props: {
         disabled: { type: Boolean, required: false, default: false },
+    },
+
+    setup() {
+        return useDocumentChanges();
     },
 
     data() {
@@ -69,24 +69,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        product(): Entity<'product'> {
-            return Shopware.Store.get('swProductDetail').product;
-        },
-
         parentProduct(): Entity<'product'> {
             return Shopware.Store.get('swProductDetail').parentProduct;
-        },
-
-        languageId() {
-            return Shopware.Store.get('context').api.languageId;
-        },
-
-        systemLanguageId() {
-            return Shopware.Store.get('context').api.systemLanguageId;
-        },
-
-        documentContext() {
-            return { ...Shopware.Context.api, language: Shopware.Store.get('swProductDetail').documentLanguage };
         },
 
         documents(): EntityCollection<'product_document'> {
@@ -120,10 +104,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         canAddDocuments(): boolean {
             return this.canEdit && this.isDefaultLanguage;
-        },
-
-        isDefaultLanguage(): boolean {
-            return this.languageId === this.systemLanguageId;
         },
 
         contentLanguageName(): string {
@@ -202,11 +182,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     async created() {
-        try {
-            this.mediaFolderId = await this.mediaService.getDefaultFolderId('product_document');
-        } catch {
-            this.mediaFolderId = null;
-        }
+        await this.createdComponent();
     },
 
     beforeUnmount() {
@@ -215,13 +191,20 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        async createdComponent() {
+            try {
+                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
+            } catch {
+                this.mediaFolderId = null;
+            }
+        },
+
         getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
             return documents.slice(this.pageOffset, this.pageOffset + this.limit);
         },
 
         getDocumentSelectionFilter(isInherited: boolean): (document: Entity<'product_document'>) => boolean {
-            return (document) =>
-                this.canEdit && !isInherited && (this.isDefaultLanguage || !!document.title || !!document.mediaId);
+            return (document) => this.canEdit && !isInherited && !this.isAddingLanguageVersion(document);
         },
 
         canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
@@ -238,15 +221,6 @@ export default Shopware.Component.wrapComponentConfig({
         canChangeDocuments(): boolean {
             const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
             return this.canEdit && inheritance?.isInherited === false;
-        },
-
-        getMedia(document: Entity<'product_document'> | null): Entity<'media'> | undefined {
-            const mediaId = document?.mediaId || document?.translated?.mediaId;
-
-            return mediaId
-                ? Shopware.Store.get('swProductDetail').getDocumentMedia(mediaId) ||
-                      document?.translations?.find((item) => item.mediaId === mediaId)?.media
-                : undefined;
         },
 
         getTitle(document: Entity<'product_document'>): string {
@@ -458,7 +432,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             this.removingDocuments = (Array.isArray(document) ? document : [document]).filter(
-                (item) => this.isDefaultLanguage || item.title || item.mediaId,
+                (item) => !this.isAddingLanguageVersion(item),
             );
             this.removeFromVariants = this.hasVariants;
             this.removeModalVersion += 1;
@@ -548,84 +522,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        applyDocumentChanges(document: Entity<'product_document'>, changes: DocumentChanges): void {
-            Object.assign(document, changes);
-            const translation = document.translations?.find((entry) => entry.languageId === this.languageId);
-            if (!translation?.isNew()) {
-                return;
-            }
-            if (changes.title !== undefined) {
-                Object.assign(translation, { title: changes.title });
-            }
-            if (changes.mediaId !== undefined) {
-                const media = changes.mediaId ? this.getMedia(document) : null;
-                Object.assign(translation, { mediaId: changes.mediaId, media });
-            }
-        },
-
-        resetDocumentLanguageVersion(document: Entity<'product_document'>): void {
-            const { language, systemLanguageId } = this.documentContext;
-            this.applyDocumentChanges(document, resetDocumentTranslation(document, language, systemLanguageId));
-        },
-
-        stageVariantDocumentChanges(
-            variants: Entity<'product'>[],
-            original: Entity<'product_document'>,
-            changes: DocumentChanges,
-        ): string[] {
-            const children =
-                this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const candidates = getDocumentVariantCandidates(variants, children, original);
-            const updatedVariantIds: string[] = [];
-            const context = this.documentContext;
-            candidates.forEach(({ variant, matching }) => {
-                let changed = false;
-                matching.forEach((copy) => {
-                    const update = getDocumentTranslationChanges(copy, changes, context, this.isDefaultLanguage);
-                    const { title, mediaId } = copy;
-                    this.applyDocumentChanges(copy, update);
-                    if (title !== copy.title || mediaId !== copy.mediaId) {
-                        changed = true;
-                    }
-                });
-                if (changed) {
-                    if (!children.has(variant.id)) {
-                        children.add(variant);
-                    }
-                    updatedVariantIds.push(variant.id);
-                }
-            });
-            this.product.children = children;
-            return updatedVariantIds;
-        },
-
-        stageVariantDocumentRemovals(variants: Entity<'product'>[], original: Entity<'product_document'>): string[] {
-            const children =
-                this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const origin = this.product.getOrigin();
-            const originChildren =
-                origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            const candidates = getDocumentVariantCandidates(variants, children, original);
-            candidates.forEach(({ variant, documents, matching }) => {
-                // Register loaded children in the origin so the changeset includes nested document deletions.
-                if (!variant.isNew() && !originChildren.has(variant.id)) {
-                    originChildren.add(variant);
-                }
-                if (!children.has(variant.id)) {
-                    children.add(variant);
-                }
-                if (this.isDefaultLanguage) {
-                    matching.forEach((copy) => documents.remove(copy.id));
-                    updateDocumentPositions(documents);
-                } else {
-                    matching.forEach((copy) => this.resetDocumentLanguageVersion(copy));
-                }
-            });
-            this.product.children = children;
-            origin.children = originChildren;
-            return candidates.map(({ variant }) => variant.id);
-        },
-
         documentRemoveInheritanceFunction(
             inheritedDocuments: EntityCollection<'product_document'>,
         ): EntityCollection<'product_document'> {
@@ -663,8 +559,12 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
+        isAddingLanguageVersion(document: Entity<'product_document'>): boolean {
+            return !this.isDefaultLanguage && !document.title && !document.mediaId;
+        },
+
         getEditActionLabel(document: Entity<'product_document'>): string {
-            if (!this.isDefaultLanguage && !document.title && !document.mediaId) {
+            if (this.isAddingLanguageVersion(document)) {
                 return this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName });
             }
 

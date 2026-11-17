@@ -68,6 +68,19 @@ export default Shopware.Component.wrapComponentConfig({
                   })
                 : this.$t('sw-product.documentForm.removeTitle', { name: this.documentTitle });
         },
+        modalDescription(): string {
+            if (this.languageName) {
+                return this.$t('sw-product.documentForm.removeLanguageVersionDescription', {
+                    language: this.languageName,
+                });
+            }
+
+            if (this.documentCount > 1) {
+                return this.$t('sw-product.documentForm.bulkRemoveDescription');
+            }
+
+            return this.$t('sw-product.documentForm.removeDescription');
+        },
         isDisabled(): boolean {
             return !this.canEdit || this.isRemovingDocument;
         },

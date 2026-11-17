@@ -10,7 +10,6 @@ let mountedWrapper: VueWrapper;
 async function createWrapper(props = {}) {
     mountedWrapper = shallowMount(await wrapTestComponent('sw-product-document-edit-modal', { sync: true }), {
         props: {
-            documentId: 'document',
             documentTitle: 'Manual',
             uploadTag: 'replace-document',
             uploadHint: 'PDF, up to 20 MB',
@@ -35,10 +34,8 @@ async function createWrapper(props = {}) {
                 'mt-modal-root': { template: '<div><slot /></div>' },
                 'mt-modal': { template: '<div><slot /><slot name="footer" /></div>' },
                 'mt-icon': true,
-                'mt-text-field': {
-                    props: ['modelValue', 'error', 'disabled'],
-                    template: '<input :value="modelValue" :disabled="disabled" />',
-                },
+                'mt-base-field': false,
+                'mt-field-error': false,
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': await wrapTestComponent('sw-media-upload-v2', { sync: true }),
                 'sw-media-preview-v2': { props: ['source'], template: '<div class="document-preview" />' },
@@ -69,6 +66,17 @@ describe('sw-product-document-edit-modal', () => {
         expect(media.fileName).toBe(originalFileName);
     });
 
+    it('limits the native name input to 255 characters and accepts a name at that limit', async () => {
+        const wrapper = await createWrapper();
+        const input = wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input');
+        const name = 'a'.repeat(255);
+
+        expect(input.element.maxLength).toBe(255);
+        await input.setValue(name);
+
+        expect(wrapper.emitted('update:documentTitle')).toEqual([[name]]);
+    });
+
     it('forwards uploaded files and media-library selection to the draft owner', async () => {
         const wrapper = await createWrapper();
         const upload = { targetId: createMedia().id };
@@ -95,7 +103,7 @@ describe('sw-product-document-edit-modal', () => {
 
     it.each([{ canEdit: false }, { isSavingDocument: true }])('disables editing when %o', async (props) => {
         const wrapper = await createWrapper({ ...props, editingMedia: createMedia() });
-        expect(wrapper.get('.sw-product-document-form__name-input').attributes('disabled')).toBeDefined();
+        expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input').element.disabled).toBe(true);
         expect(wrapper.find('.sw-media-upload-v2__remove-icon').exists()).toBe(false);
         expect(wrapper.get('.sw-product-document-form__save-document').attributes('disabled')).toBeDefined();
 

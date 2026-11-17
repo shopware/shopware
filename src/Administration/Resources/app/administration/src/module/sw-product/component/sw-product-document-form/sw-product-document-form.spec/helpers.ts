@@ -64,13 +64,13 @@ export async function createWrapper(
             directives: { droppable: {} },
             provide: {
                 mediaDefaultFolderService: {
-                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
+                    getDefaultFolderId: options.getDefaultFolderId ?? jest.fn().mockResolvedValue(null),
                 },
                 mediaService: {
                     addListener: jest.fn(),
                     removeListener: jest.fn(),
                     removeByTag: jest.fn(),
-                    getDefaultFolderId: options.getDefaultFolderId ?? jest.fn().mockResolvedValue(null),
+                    getDefaultFolderId: jest.fn().mockResolvedValue(null),
                     ...mediaService,
                 },
                 mediaPresignedUploadService: {},

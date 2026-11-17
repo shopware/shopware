@@ -4,7 +4,7 @@
     @change="!$event && $emit('close')"
 >
     <mt-modal
-        :title="isAddingLanguageVersion ? $t('sw-product.documentForm.addLanguageVersion', { language: languageName }) : $t('sw-product.documentForm.editTitle')"
+        :title="modalTitle"
         width="m"
     >
         <div class="sw-product-document-form__edit-content">
@@ -13,12 +13,12 @@
                 :model-value="documentTitle"
                 class="sw-product-document-form__name-input"
                 :label="$t('sw-product.documentForm.columnTitle')"
-                :hint="allowFallback ? undefined : $t('sw-product.documentForm.nameHint')"
+                :hint="documentNameHint"
                 :placeholder="documentTitlePlaceholder"
                 :error="documentNameError"
                 :disabled="isDisabled"
                 :required="!allowFallback"
-                :maxlength="255"
+                :max-length="255"
                 @update:model-value="$emit('update:documentTitle', $event)"
             />
         {% endblock %}
@@ -39,7 +39,7 @@
                     :required="!allowFallback"
                     default-folder="product_document"
                     :allow-multi-select="false"
-                    :extension-accept="allowedExtensions.join(',')"
+                    :extension-accept="extensionAccept"
                     :max-file-size="maxFileSize"
                     :disabled="isDisabled"
                     @media-upload-sidebar-open="$emit('media-select')"
@@ -63,7 +63,7 @@
                         name="solid-info-circle"
                         size="var(--scale-size-12)"
                     />
-                    {{ allowFallback ? $t('sw-product.documentForm.fileFallbackHint') : uploadHint }}
+                    {{ documentFileHint }}
                 </mt-text>
             </div>
         {% endblock %}

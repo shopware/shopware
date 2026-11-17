@@ -6,6 +6,10 @@
     lastname, and birthday fields for address forms (e.g. registering a user, creating or updating an address)
 #}
 {% block component_address_personal_fields %}
+    {% types {
+        data: 'Shopware\\Core\\Framework\\Validation\\DataBag\\DataBag|Shopware\\Core\\Checkout\\Customer\\CustomerEntity|Shopware\\Core\\Checkout\\Customer\\Aggregate\\CustomerAddress\\CustomerAddressEntity'
+    } %}
+
     {% set prefix = prefix ?? null %}
     {% set idPrefix = idPrefix ?? '' %}
     {% set accountType = accountType ?? null %}
@@ -30,11 +34,13 @@
                 {% endif %}
 
                 {% set isCompany = false %}
+                {# Customer/address entities expose getCompany(); submitted form data uses RequestDataBag::get('company'). #}
+                {% set company = data.company is defined ? data.company : data.get('company') %}
 
                 {% if accountType %}
                     {# An explicitly provided account type (e.g. the stored customer account type on the profile page) always wins over inferring the type from a populated company field. #}
                     {% set isCompany = accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
-                {% elseif page.address.company or data.company is not empty %}
+                {% elseif (page.address.company ?? null) or company is not empty %}
                     {% set isCompany = true %}
                 {% endif %}
 

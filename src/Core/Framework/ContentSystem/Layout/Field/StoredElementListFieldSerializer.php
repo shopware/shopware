@@ -230,7 +230,10 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             return $data['rootSource'];
         }
 
-        return $this->rootSourceReader->read($data['id'] ?? null, [], $parameters->getContext()->getContext());
+        $id = $data['id'] ?? null;
+        $memoized = \is_string($id) ? $this->memo($parameters)->rootSource($parameters->getDefinition()->getEntityName(), $id) : null;
+
+        return $memoized ?? $this->rootSourceReader->read($id, [], $parameters->getContext()->getContext());
     }
 
     /**
@@ -281,6 +284,11 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::invalidFieldValueType('id', 'string', get_debug_type($id));
         }
 
+        $this->memo($parameters)->remember($parameters->getDefinition()->getEntityName(), $id, $tree);
+    }
+
+    private function memo(WriteParameterBag $parameters): LayoutWriteContext
+    {
         $writeContext = $parameters->getContext();
         $context = $writeContext->getContext();
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
@@ -290,6 +298,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
         }
 
-        $memo->remember($parameters->getDefinition()->getEntityName(), $id, $tree);
+        return $memo;
     }
 }

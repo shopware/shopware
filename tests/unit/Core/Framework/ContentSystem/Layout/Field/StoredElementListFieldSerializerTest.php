@@ -274,6 +274,48 @@ class StoredElementListFieldSerializerTest extends TestCase
         static::assertSame('Hi', $tree->roots[0]->property('headline')?->asString());
     }
 
+    /**
+     * @param list<array<string, mixed>> $earlierRows
+     * @param array<string, mixed> $row
+     */
+    #[TestDox('resolves the root source from the payload, then from an earlier row of the same write, then from the stored layout')]
+    #[DataProvider('rootSourceOrigins')]
+    public function testNormalizeResolvesTheRootSource(array $earlierRows, array $row, string $expected): void
+    {
+        $context = Context::createDefaultContext();
+        $parameters = $this->parametersFor($context);
+        $field = $this->createField();
+        $elements = ['elements' => [['id' => 'el', 'component' => 'Sw:Block', 'properties' => []]]];
+
+        $reader = static::createStub(LayoutRootSourceReader::class);
+        $reader->method('read')->willReturn('category');
+
+        $serializer = $this->serializer($reader);
+
+        foreach ([...$earlierRows, $row] as $data) {
+            $serializer->normalize($field, ['id' => 'layout-1', ...$data, ...$elements], $parameters);
+        }
+
+        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+        static::assertInstanceOf(LayoutWriteContext::class, $memo);
+
+        foreach ($earlierRows as $_) {
+            $memo->consume('content_layout', 'layout-1');
+        }
+
+        static::assertSame($expected, $memo->consume('content_layout', 'layout-1')?->rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{list<array<string, mixed>>, array<string, mixed>, string}>
+     */
+    public static function rootSourceOrigins(): iterable
+    {
+        yield 'payload' => [[], ['rootSource' => 'product'], 'product'];
+        yield 'earlier row of the same write' => [[['rootSource' => 'product']], [], 'product'];
+        yield 'stored layout' => [[], [], 'category'];
+    }
+
     #[TestDox('encodes a single StoredElement wrapped to a list as a JSON string')]
     public function testEncodeWithSingleStoredElementWrapsAndEncodesAsJson(): void
     {
@@ -710,7 +752,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             ->getValidator();
     }
 
-    private function serializer(): StoredElementListFieldSerializer
+    private function serializer(?LayoutRootSourceReader $reader = null): StoredElementListFieldSerializer
     {
         $validator = $this->validator();
 
@@ -721,7 +763,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             new ViolationConstraintMapper(),
             $this->boundary($this->passthroughSeeder()),
             $this->treeConstraints(),
-            static::createStub(LayoutRootSourceReader::class),
+            $reader ?? static::createStub(LayoutRootSourceReader::class),
         );
     }
 

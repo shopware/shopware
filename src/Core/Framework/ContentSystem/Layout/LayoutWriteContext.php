@@ -101,6 +101,17 @@ final class LayoutWriteContext extends Struct
         return $tree;
     }
 
+    public function rootSource(string $entityName, string $primaryKey): ?string
+    {
+        foreach ($this->trees[$this->key($entityName, $primaryKey)] ?? [] as $tree) {
+            if ($tree->rootSource !== null) {
+                return $tree->rootSource;
+            }
+        }
+
+        return null;
+    }
+
     public function isEmpty(): bool
     {
         return $this->trees === [];

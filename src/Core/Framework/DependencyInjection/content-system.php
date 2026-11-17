@@ -852,7 +852,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LayoutGate::class),
             service(ViolationConstraintMapper::class),
             service(RootSourceRegistry::class),
-            service(LayoutRootSourceReader::class),
             service(StoredMappingValidator::class),
         ])
         ->tag('kernel.event_subscriber');

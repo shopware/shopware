@@ -191,6 +191,28 @@ class BindingAttributionPersistenceTest extends TestCase
         static::assertSame($expected, $this->reload($layoutId)->getLayout()[0]->attributedSpecifications);
     }
 
+    #[TestDox('keeps a scoped binding\'s attribution on an update that shares one write with the layout\'s insert')]
+    public function testReconciliationResolvesTheRootSourceOfAnInsertInTheSameWrite(): void
+    {
+        $layoutId = $this->ids->get('layout');
+        $element = [
+            'id' => $this->ids->get('element'),
+            'component' => 'Sw:Navigation:Breadcrumb',
+            'properties' => [],
+            'dataRequirements' => [
+                'breadcrumb' => ['source' => 'breadcrumb', 'config' => ['property' => '{{productId}}', 'type' => 'product', 'referrerCategoryProperty' => '{{referrerCategoryId}}']],
+            ],
+            'attributedSpecifications' => ['breadcrumb' => self::CORE_BREADCRUMB_BINDING_ID],
+        ];
+
+        $this->repository()->upsert([
+            ['id' => $layoutId, 'name' => 'reconcile-batch-' . $layoutId, 'version' => '1.0.0', 'rootSource' => 'product', 'layout' => [$element]],
+            ['id' => $layoutId, 'layout' => [$element]],
+        ], Context::createDefaultContext());
+
+        static::assertSame(['breadcrumb' => self::CORE_BREADCRUMB_BINDING_ID], $this->reload($layoutId)->getLayout()[0]->attributedSpecifications);
+    }
+
     /**
      * @return iterable<string, array{string, array<string, string>}>
      */

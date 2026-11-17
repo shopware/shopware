@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
@@ -219,7 +220,7 @@ class InsertElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
     }
 
-    #[TestDox('fill-applies the type default first, then applies the explicit binding specification on top, attributing the shared key to the explicit choice')]
+    #[TestDox('applies the explicit binding specification and fills the type default into the keys it leaves unset, attributing the shared key to the explicit choice')]
     public function testInsertExplicitBindingAppliesOnTopOfDefault(): void
     {
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
@@ -246,6 +247,31 @@ class InsertElementTest extends TestCase
         $result = $insert->apply(new StoredTree([]));
 
         static::assertSame(['media' => 'core:gallery-pick', 'gallery' => 'core:Sw:Media:Image'], $result->roots[0]->attributedSpecifications);
+    }
+
+    #[TestDox('leaves a scoped default key without an entry for the root source alone when the explicit binding specification resolves it')]
+    public function testInsertExplicitBindingSkipsScopedDefaultKeyItResolves(): void
+    {
+        $default = new BindingSpecification(
+            'Sw:Media:Image',
+            'Sw:Media:Image',
+            'Image',
+            ['media' => new LoaderBinding('entity', ['property' => [RootSourceConfigMap::MARKER => ['product' => 'productMediaId']]])],
+            [],
+            'core',
+        );
+        $explicit = new BindingSpecification('gallery-pick', 'Sw:Media:Image', 'Gallery pick', ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'galleryPickId'])], [], 'core');
+
+        $insert = new InsertElement(
+            $this->registryWith('Sw:Media:Image'),
+            'Sw:Media:Image',
+            $this->bindingRegistry(['core:Sw:Media:Image' => $default, 'core:gallery-pick' => $explicit]),
+            $this->applicator(static::createStub(AbstractContentDataLoaderConfig::class)),
+            'core:gallery-pick',
+        );
+        $result = $insert->apply(new StoredTree([], 'landing_page'));
+
+        static::assertSame(['media' => 'core:gallery-pick'], $result->roots[0]->attributedSpecifications);
     }
 
     /**

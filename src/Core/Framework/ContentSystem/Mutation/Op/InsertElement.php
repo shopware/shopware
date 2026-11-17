@@ -19,9 +19,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The type's default binding specification, when it has exactly one, is fill-applied onto the fresh element via
  * {@see BindingApplicator::applyFillOnly()} before insertion (zero defaults is a no-op; more than one throws).
- * When $bindingSpecificationId is also given, the named specification's wiring is then applied on top,
- * atomically after scaffold, via {@see BindingApplicator::apply()} (overwrite), so shared keys belong to the
- * explicit choice.
+ * When $bindingSpecificationId is also given, the named specification's wiring is applied first via
+ * {@see BindingApplicator::apply()}, and the default then fills only what it leaves unset, so shared keys belong
+ * to the explicit choice.
  *
  * @internal
  */
@@ -83,9 +83,14 @@ final class InsertElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type, null);
         }
 
-        // The explicit path scaffolds with the default underneath too, so a key the explicit specification leaves
-        // unset keeps the default's wiring; apply() (overwrite) only replaces the keys they share.
-        return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type, $rootSource), $specification, $bindingSpecificationId, $rootSource);
+        // The explicit specification wires first and the default fills only the keys it leaves unset, so a scoped
+        // default key the explicit specification resolves is never checked against the root source.
+        return $this->applyDefaultBinding(
+            $this->bindingRegistry,
+            $this->bindingApplicator,
+            $this->bindingApplicator->apply($this->scaffoldElement($this->registry, $this->type), $specification, $bindingSpecificationId, $rootSource),
+            $rootSource,
+        );
     }
 
     /**

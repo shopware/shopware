@@ -99,8 +99,21 @@ class RootSourceConfigMapTest extends TestCase
         static::assertSame(['entity' => 'media'], RootSourceConfigMap::collapse($config, null));
     }
 
+    /**
+     * @param array<string, mixed> $config
+     * @param list<string> $expected
+     */
     #[TestDox('names the scoped keys without an entry for the root source, and every scoped key without a root source')]
-    public function testUnresolvedKeys(): void
+    #[DataProvider('unresolvedKeysCases')]
+    public function testUnresolvedKeys(array $config, ?string $rootSource, array $expected): void
+    {
+        static::assertSame($expected, RootSourceConfigMap::unresolvedKeys($config, $rootSource));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string|null, list<string>}>
+     */
+    public static function unresolvedKeysCases(): iterable
     {
         $config = [
             'entity' => 'media',
@@ -108,10 +121,10 @@ class RootSourceConfigMapTest extends TestCase
             'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
         ];
 
-        static::assertSame([], RootSourceConfigMap::unresolvedKeys($config, 'product'));
-        static::assertSame(['type'], RootSourceConfigMap::unresolvedKeys($config, 'category'));
-        static::assertSame(['property', 'type'], RootSourceConfigMap::unresolvedKeys($config, 'none'));
-        static::assertSame(['property', 'type'], RootSourceConfigMap::unresolvedKeys($config, null));
-        static::assertSame([], RootSourceConfigMap::unresolvedKeys(['entity' => 'media'], null));
+        yield 'every scoped key has an entry' => [$config, 'product', []];
+        yield 'one scoped key has no entry' => [$config, 'category', ['type']];
+        yield 'no scoped key has an entry' => [$config, 'none', ['property', 'type']];
+        yield 'no root source' => [$config, null, ['property', 'type']];
+        yield 'unscoped config without a root source' => [['entity' => 'media'], null, []];
     }
 }

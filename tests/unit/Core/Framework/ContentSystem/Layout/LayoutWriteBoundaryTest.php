@@ -93,6 +93,19 @@ class LayoutWriteBoundaryTest extends TestCase
         static::assertSame([self::BREAKPOINT_AWARE => ['xs' => false]], $tree->roots[0]->style->toArray());
     }
 
+    #[TestDox('hands the root source of the tree to the attribution reconciler')]
+    public function testApplyPassesTheRootSourceToTheReconciler(): void
+    {
+        $seeder = static::createStub(LayoutDefaultSeeder::class);
+        $seeder->method('seed')->willReturnArgument(0);
+
+        $reconciler = $this->createMock(AttributionReconciler::class);
+        $reconciler->expects($this->once())->method('reconcile')->with(static::anything(), 'category')->willReturnArgument(0);
+
+        (new LayoutWriteBoundary($seeder, new StoredTreeStyleNormalizer($this->styleNormalizer()), $reconciler))
+            ->apply(new StoredTree([StoredElementBuilder::create('Sw:Block', 'el-1')->build()], 'category'));
+    }
+
     #[TestDox('rejects a collaborator that hands back something other than a stored element')]
     public function testApplyRejectsANonElementNode(): void
     {

@@ -23,7 +23,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
@@ -78,7 +77,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[TestDox('re-validates a layout-only edit against the committed root source read by the reader after gating its membership')]
+    #[TestDox('re-validates a layout-only edit against the root source the serializer resolved onto the tree after gating its membership')]
     public function testLayoutOnlyEditResolvesAgainstCommittedRootSource(): void
     {
         $gate = static::createStub(LayoutGate::class);
@@ -89,28 +88,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $registry->method('knownRootSources')->willReturn(['category', 'none']);
         $registry->method('resolve')->willReturn([]);
 
-        $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn('category');
-
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
-        $validator->preValidate($event);
-
-        static::assertCount(0, $event->getExceptions()->getExceptions());
-    }
-
-    #[TestDox('re-validates a layout-only edit against the root source the serializer stored on the tree, without reading it again')]
-    public function testLayoutOnlyEditResolvesAgainstMemoizedRootSource(): void
-    {
-        $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->method('knownRootSources')->willReturn(['category', 'none']);
-        $registry->expects($this->once())->method('resolve')->with('category')->willReturn([]);
-
-        $reader = $this->createMock(LayoutRootSourceReader::class);
-        $reader->expects($this->never())->method('read');
-
-        $validator = $this->validator(registry: $registry, reader: $reader);
+        $validator = $this->validator($gate, $registry);
 
         $command = $this->layoutUpdate(['layout' => []]);
         $event = new PreWriteValidationEvent($this->writeWithMemoFor([$command], 'category'), [$command]);
@@ -316,12 +294,10 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $registry->method('knownRootSources')->willReturn(['product', 'none']);
         $registry->expects($this->never())->method('resolve');
 
-        $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn('category');
+        $validator = $this->validator($gate, $registry);
 
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        $command = $this->layoutUpdate(['layout' => []]);
+        $event = new PreWriteValidationEvent($this->writeWithMemoFor([$command], 'category'), [$command]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
@@ -331,13 +307,11 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function validator(
         ?LayoutGate $gate = null,
         ?RootSourceRegistry $registry = null,
-        ?LayoutRootSourceReader $reader = null,
     ): ContentLayoutWriteValidator {
         return new ContentLayoutWriteValidator(
             $gate ?? $this->cleanGate(),
             new ViolationConstraintMapper(),
             $registry ?? $this->registryKnowing(['product', 'category', 'none']),
-            $reader ?? static::createStub(LayoutRootSourceReader::class),
             $this->cleanMappingValidator(),
         );
     }

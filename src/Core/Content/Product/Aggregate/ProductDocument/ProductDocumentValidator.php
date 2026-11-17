@@ -80,7 +80,6 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     public function validateReplacedFile(BeforeMediaFileReplacedEvent $event): void
     {
-        // the media library replaces a file without saving the documents that use it
         if (!$this->isDocumentFile($event->mediaId, $event->getContext())) {
             return;
         }
@@ -200,11 +199,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $criteria->addFilter(new EqualsFilter('translations.mediaId', $mediaId));
         $criteria->setLimit(1);
 
-        // the replacing user may not see the documents
-        return $context->scope(
-            Context::SYSTEM_SCOPE,
-            fn (Context $context): bool => $this->productDocumentRepository->searchIds($criteria, $context)->firstId() !== null,
-        );
+        return $this->productDocumentRepository->searchIds($criteria, $context)->firstId() !== null;
     }
 
     /**

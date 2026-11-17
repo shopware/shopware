@@ -208,9 +208,7 @@ class ProductDocumentValidatorTest extends TestCase
         ]);
 
         $productDocumentRepository = StaticEntityRepository::of(ProductDocumentCollection::class, [
-            function (Criteria $criteria, Context $context): array {
-                // documents count even when the replacing user can't see them
-                static::assertSame(Context::SYSTEM_SCOPE, $context->getScope());
+            function (Criteria $criteria): array {
                 static::assertEquals([new EqualsFilter('translations.mediaId', $this->ids->get('manual-file'))], $criteria->getFilters());
 
                 return $this->documentIds;

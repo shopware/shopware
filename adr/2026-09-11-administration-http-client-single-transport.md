@@ -17,7 +17,7 @@ A proposal to replace Axios with `fetch` or `ofetch` was raised at the same time
 
 The Administration HTTP client is a single Axios 1.x instance. Axios 0.x, the `axios-v1` package alias, the per-request transport selection and the mirrored interceptor and defaults machinery are removed. The Administration follows the current Axios 1.x release line.
 
-The facade remains the extension boundary. `createHTTPClient()` returns the Axios instance extended with the Shopware additions that are part of the contract (`isCancel` and, for one major, the deprecated `CancelToken` shim). Shopware's `HttpClient`, `HttpRequestConfig`, `HttpResponse` and `HttpError` types describe the supported surface; Axios types are not part of it. `HttpClient` stays structurally compatible with `AxiosInstance` so `axios-mock-adapter` keeps working without casts.
+The facade remains the extension boundary. `createHTTPClient()` returns the Axios instance extended with the Shopware additions that are part of the contract (`isCancel` and, until 6.8, the deprecated `CancelToken` shim). Shopware's `HttpClient`, `HttpRequestConfig`, `HttpResponse` and `HttpError` types describe the supported surface; Axios types are not part of it. `HttpClient` stays structurally compatible with `AxiosInstance` so `axios-mock-adapter` keeps working without casts.
 
 `AbortController` is the only supported cancellation mechanism. `httpClient.isCancel()` recognises both `AbortController` cancellations and errors produced by the deprecated `CancelToken`.
 
@@ -34,20 +34,18 @@ The release notes and the upgrade guide state this.
 
 All legacy runtime code lives in one module, `http-legacy-compat.ts`, registered by a single call in the HTTP factory.
 Removing it deletes that file, the call and the `CancelToken` export in the factory, and the deprecated type declarations.
-Each is guarded with `Shopware.Feature.triggerDeprecationOrThrow()` for the major that removes it.
-`httpClient.CancelToken` and the `cancelToken` request option go with 6.8, because `AbortController` replaces them one to one.
-The `useAxiosV1` request option and `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1`, which all alias the single client, its interceptors and its defaults, stay until 6.9.
-`useAxiosV1: false` is the opt-out from the Axios 1.x default that 6.8 activates, so it has to outlive 6.8.
+All of them are removed with 6.8 and guarded with `Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', …)`: the `useAxiosV1` request option, `httpClient.CancelToken` and the `cancelToken` request option, and `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1`, which all alias the single client, its interceptors and its defaults.
+The opt-out therefore covers the rest of 6.7; from 6.8 on every request behaves like Axios 1.x.
 
 The Administration does not migrate to `fetch` or `ofetch` now. Upload progress needs XHR, which Axios selects in the browser, and the facade obligations (`.data`, `.status`, `.headers`, `error.response.*`, `responseType`, `timeout`, `signal`, interceptors) cost the same regardless of the engine. If the engine is ever swapped, it happens behind this facade.
 
 ## Consequences
 
-Extensions keep using `httpClient`, and the documented opt-out stays available for query encoding and response headers.
+Extensions keep using `httpClient`, and on 6.7 the documented opt-out stays available for query encoding and response headers.
 Extensions whose request interceptors write into the header groups have to set the header on `config.headers` directly, already on 6.7. Code that used `CancelToken` or read the version-specific escape hatches also keeps working and receives a development-mode deprecation warning that names the replacement. The `UPGRADE-6.8.md` entry and the migration guide describe the required changes.
 
 The client bundle carries one Axios copy instead of two, and the factory loses the adapter layer, the `Proxy` mirroring and the dual cache interceptor. Tests exercise one transport; `axios-mock-adapter` attaches to the Axios instance directly.
 
-The compatibility mode restores the two differences it can, not the legacy implementation. An extension that depended on an Axios 0.x internal the comparison did not surface has to migrate; `httpClient.isCancel()` and the documented response and error properties are the supported surface. Because the mode is a small, enumerable set of interceptors rather than a second dependency, it can be carried until the next major at negligible cost.
+The compatibility mode restores the two differences it can, not the legacy implementation. An extension that depended on an Axios 0.x internal the comparison did not surface has to migrate; `httpClient.isCancel()` and the documented response and error properties are the supported surface. Because the mode is a small, enumerable set of interceptors rather than a second dependency, it can be carried until 6.8 at negligible cost.
 
 A later transport change stays possible, but is a separate decision with its own ADR.

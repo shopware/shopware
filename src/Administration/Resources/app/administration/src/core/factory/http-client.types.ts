@@ -36,7 +36,7 @@ export interface HttpRequestConfig<Data = HttpClientValue> {
      * response headers of the removed Axios 0.x transport, `true` uses plain Axios 1.x behaviour. Without the
      * option the `V6_8_0_0` feature flag decides.
      *
-     * @deprecated tag:v6.9.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
+     * @deprecated tag:v6.8.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
      */
     useAxiosV1?: boolean;
 }

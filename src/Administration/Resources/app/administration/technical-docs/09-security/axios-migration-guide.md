@@ -16,20 +16,21 @@ Extension code continues to use the injected `httpClient`. Axios stays an implem
 | `axiosV0`, `interceptorsV0`, `defaultsV0` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 | `axiosV1`, `interceptorsV1`, `defaultsV1` escape hatches | Deprecated aliases of `httpClient`, `httpClient.interceptors`, `httpClient.defaults` |
 
-`CancelToken` and the `cancelToken` option are removed in 6.8.
-`useAxiosV1` and the version-specific aliases stay functional until 6.9.
-The first use of each deprecated member logs a deprecation warning in development mode, and the use throws once the major that removes it is active.
+All deprecated members are removed in 6.8.
+The first use of each logs a deprecation warning in development mode, and the use throws once `V6_8_0_0` is active.
 
-## The opt-out still works
+## The opt-out on 6.7
 
-Removing the second Axios copy does not force you to migrate. `useAxiosV1: false` still restores the behaviour of the legacy transport, it is just implemented as a compatibility mode on the single Axios 1.x client instead of a second dependency.
+Removing the second Axios copy does not force you to migrate during 6.7.
+`useAxiosV1: false` still restores the behaviour of the legacy transport, implemented as a compatibility mode on the single Axios 1.x client instead of a second dependency.
+The option is removed in 6.8.
 
 The defaults are unchanged:
 
 | Context | Default behaviour | Override |
 | --- | --- | --- |
 | Shopware 6.7 | Legacy compatibility mode | `useAxiosV1: true` |
-| Shopware 6.8 (`V6_8_0_0` active) | Axios 1.x | `useAxiosV1: false` |
+| Shopware 6.8 (`V6_8_0_0` active) | Axios 1.x | None, `useAxiosV1` throws |
 | Repository requests | Follows the same defaults; the option is not part of the repository contract | None |
 
 The raw responses of `Repository.assign()`, `mergeVersion()` and `deleteVersion()` follow these defaults too.

@@ -637,7 +637,7 @@ declare module 'axios' {
         // adds the shopware API version to the RequestConfig
         version?: number;
         /**
-         * @deprecated tag:v6.9.0 - See `HttpRequestConfig.useAxiosV1`.
+         * @deprecated tag:v6.8.0 - See `HttpRequestConfig.useAxiosV1`.
          */
         useAxiosV1?: boolean;
     }

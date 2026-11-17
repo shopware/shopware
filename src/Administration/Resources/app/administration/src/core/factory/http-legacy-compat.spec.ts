@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * @deprecated tag:v6.9.0 - Will be removed together with the legacy compatibility mode.
+ * @deprecated tag:v6.8.0 - Will be removed together with the legacy compatibility mode.
  */
 
 import Axios from 'axios';
@@ -43,7 +43,7 @@ describe('core/factory/http-legacy-compat.ts', () => {
             expect(httpClient.getUri({ url: '/q', params })).toBe(modernUrl);
         });
 
-        it.deprecated('v6.9.0.0').each([
+        it.deprecated('v6.8.0.0').each([
             [false, legacyUrl],
             [true, modernUrl],
         ])('should let useAxiosV1: %s decide over the default', async (useAxiosV1, expected) => {
@@ -53,7 +53,7 @@ describe('core/factory/http-legacy-compat.ts', () => {
         });
 
         // Expected values are what Axios 0.31.1 produced.
-        it.deprecated('v6.9.0.0').each([
+        it.deprecated('v6.8.0.0').each([
             ['characters it left literal', { q: 'a,b:c$d[e]f' }, 'q=a,b:c$d[e]f'],
             ['characters it encoded', { q: 'a b&c=d/e' }, 'q=a+b%26c%3Dd%2Fe'],
             ['empty values', { a: null, b: undefined, c: '' }, 'c='],
@@ -64,21 +64,21 @@ describe('core/factory/http-legacy-compat.ts', () => {
             expect(deprecations).toHaveTriggered('"useAxiosV1" request option is deprecated');
         });
 
-        it.deprecated('v6.9.0.0')('should send URLSearchParams exactly as Axios 0.x did', async () => {
+        it.deprecated('v6.8.0.0')('should send URLSearchParams exactly as Axios 0.x did', async () => {
             const searchParams = new URLSearchParams({ 'a[b]': 'c,d' });
 
             expect(await sentUrl({ params: searchParams, useAxiosV1: false })).toBe(`${api}/q?a%5Bb%5D=c%2Cd`);
             expect(deprecations).toHaveTriggered('"useAxiosV1" request option is deprecated');
         });
 
-        it.deprecated('v6.9.0.0')('should keep the legacy encoding when only serializer options are passed', async () => {
+        it.deprecated('v6.8.0.0')('should keep the legacy encoding when only serializer options are passed', async () => {
             const config = { params: { a: { b: [1] } }, paramsSerializer: { indexes: null }, useAxiosV1: false };
 
             expect(await sentUrl(config)).toBe(`${api}/q?a[b][0]=1`);
             expect(deprecations).toHaveTriggered('"useAxiosV1" request option is deprecated');
         });
 
-        it.deprecated('v6.9.0.0')('should let an own serialize function win', async () => {
+        it.deprecated('v6.8.0.0')('should let an own serialize function win', async () => {
             expect(await sentUrl({ params, paramsSerializer: () => 'custom=1', useAxiosV1: false })).toBe(
                 `${api}/q?custom=1`,
             );
@@ -87,7 +87,7 @@ describe('core/factory/http-legacy-compat.ts', () => {
     });
 
     describe('response headers', () => {
-        it.deprecated('v6.9.0.0')('should hand out plain headers in the legacy mode only', async () => {
+        it.deprecated('v6.8.0.0')('should hand out plain headers in the legacy mode only', async () => {
             const { headers: legacy } = await httpClient.get<unknown, { headers: Record<string, string> }>('/headers', {
                 useAxiosV1: false,
             });
@@ -102,7 +102,7 @@ describe('core/factory/http-legacy-compat.ts', () => {
             expect(deprecations).toHaveTriggered('"useAxiosV1" request option is deprecated');
         });
 
-        it.deprecated('v6.9.0.0')('should hand out plain headers on error responses in the legacy mode', async () => {
+        it.deprecated('v6.8.0.0')('should hand out plain headers on error responses in the legacy mode', async () => {
             mock.resetHandlers();
             mock.onGet('/missing').reply(404, {}, { 'x-custom': 'no' });
 
@@ -116,7 +116,6 @@ describe('core/factory/http-legacy-compat.ts', () => {
     });
 
     describe('deprecated members', () => {
-        // @deprecated tag:v6.8.0 - Remove together with the CancelToken shim.
         it.deprecated('v6.8.0.0')('should still cancel requests through the CancelToken shim', async () => {
             const source = httpClient.CancelToken.source();
             source.cancel('Operation cancelled');
@@ -128,7 +127,7 @@ describe('core/factory/http-legacy-compat.ts', () => {
             expect(deprecations).toHaveTriggered('"httpClient.CancelToken" and the "cancelToken" request option');
         });
 
-        it.deprecated('v6.9.0.0').each([
+        it.deprecated('v6.8.0.0').each([
             ['axiosV0', () => httpClient],
             ['axiosV1', () => httpClient],
             ['interceptorsV0', () => httpClient.interceptors],

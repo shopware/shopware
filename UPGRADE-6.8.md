@@ -1916,30 +1916,24 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 
 The Administration HTTP client (`httpClient`) became a single Axios 1.x instance.
 The legacy Axios 0.x dependency and the `axios-v1` package alias were removed.
-`CancelToken` was removed.
-`useAxiosV1` and the version-specific aliases below keep working until 6.9 and log a deprecation warning in development mode.
+The compatibility mode for Axios 0.x behaviour, the `CancelToken` shim and the version-specific aliases were removed with 6.8.
 
-### `useAxiosV1` request option
+### Axios 1.x behaviour for every request
 
-The option kept its defaults: legacy behaviour on 6.7, Axios 1.x once `V6_8_0_0` is active.
-It selected a compatibility mode on the single client instead of a second Axios copy, which restored two behaviours:
+The `useAxiosV1` request option was removed.
+Every request now behaves like Axios 1.x:
 
-- **Query encoding.** Axios 0.x kept `[` and `]` literal (`?ids[]=1&ids[]=2`), Axios 1.x percent-encodes them (`?ids%5B%5D=1&ids%5B%5D=2`).
-  This applies to requests and to `httpClient.getUri()`.
-- **Response headers.** Axios 0.x returned `response.headers` as a plain object, Axios 1.x returns an `AxiosHeaders` instance.
-  Lower-case property access works with both.
+- **Query encoding.** `[` and `]` are percent-encoded (`?ids%5B%5D=1&ids%5B%5D=2`), Axios 0.x kept them literal (`?ids[]=1&ids[]=2`).
+  This also applies to `httpClient.getUri()`.
+  Pass an own `paramsSerializer` if a request depends on the literal form.
+- **Response headers.** `response.headers` is an `AxiosHeaders` instance instead of a plain object.
+  Lower-case property access such as `response.headers['content-type']` works as before.
 
-If a request breaks on Axios 1.x, keep it working with the opt-out and migrate later:
-
-```javascript
-this.httpClient.get('/api/endpoint', { useAxiosV1: false });
-```
-
-The option is deprecated and will be removed in the next major. Drop it once the request works without it:
+Remove the option from your requests:
 
 ```javascript
 // Before
-this.httpClient.get('/api/endpoint', { useAxiosV1: true });
+this.httpClient.get('/api/endpoint', { useAxiosV1: false });
 
 // After
 this.httpClient.get('/api/endpoint');
@@ -1947,8 +1941,8 @@ this.httpClient.get('/api/endpoint');
 
 ### Request interceptors and header groups
 
-Request interceptors see the headers after Axios 1.x merged the `common` and method groups, also in the compatibility mode.
-An interceptor that wrote `config.headers.common[...]` or `config.headers.post[...]` failed with a `TypeError`.
+Request interceptors see the headers after Axios 1.x merged the `common` and method groups.
+An interceptor that wrote `config.headers.common[...]` or `config.headers.post[...]` failed with a `TypeError`, already on 6.7.
 Set the header on `config.headers` directly:
 
 ```javascript
@@ -1982,13 +1976,14 @@ httpClient.get('/api/endpoint', { signal: controller.signal });
 controller.abort();
 ```
 
-Detect cancellations with `httpClient.isCancel(error)`. It recognises both mechanisms.
+Detect cancellations with `httpClient.isCancel(error)`.
 
 `Shopware.Service('messageQueueService').consume(receiver, signal)` accepts only an `AbortSignal` as second argument.
 
 ### Version-specific escape hatches
 
-`httpClient.axiosV0`, `httpClient.axiosV1`, `httpClient.interceptorsV0`, `httpClient.interceptorsV1`, `httpClient.defaultsV0` and `httpClient.defaultsV1` now all point at the same client. They are deprecated aliases and will be removed. Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
+`httpClient.axiosV0`, `httpClient.axiosV1`, `httpClient.interceptorsV0`, `httpClient.interceptorsV1`, `httpClient.defaultsV0` and `httpClient.defaultsV1` were removed.
+Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
 
 ```javascript
 // Before
@@ -2000,7 +1995,8 @@ httpClient.interceptors.request.use(handler);
 
 ### TypeScript
 
-Import types from `axios-v1` no longer resolve. Use Shopware's HTTP types instead of Axios types:
+Type imports from `axios-v1` no longer resolve.
+Use Shopware's HTTP types instead of Axios types:
 
 ```typescript
 import type { HttpClient, HttpError, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';

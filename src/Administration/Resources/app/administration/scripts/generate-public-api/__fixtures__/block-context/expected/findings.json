@@ -1,0 +1,38 @@
+[
+    {
+        "group": "Break",
+        "rule": "block_if_context_lost",
+        "element": "component:sw-example-card/block:sw_example_card_header_label_default",
+        "states": ["current", "major"],
+        "explanation": "The block no longer follows an open v-if chain, so plugin overrides that start with v-else-if or v-else no longer compile.",
+        "fix": "keep the v-if element directly before the block.",
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:28"
+    },
+    {
+        "group": "Break",
+        "rule": "block_scope_missing",
+        "element": "component:sw-example-card/block:sw_example_card_list_item/scope:item",
+        "states": ["current", "major"],
+        "explanation": "The template variable item from a v-for is no longer available in block sw_example_card_list_item, so plugin overrides that use item fail at render time.",
+        "fix": "pattern \"Scope variable removal\". Keep item available in the block while v6.8.0.0 is off, and mark the block {# @bc-change ScopeVariableRemoval version:v6.8.0 variable:item #}.",
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:38"
+    },
+    {
+        "group": "Break",
+        "rule": "if_chain_crosses_block",
+        "element": "component:sw-example-card/crossing:v-if@sw_example_card_header_title>sw_example_card_header_label_manual",
+        "states": ["current", "major"],
+        "explanation": "The v-if chain of block sw_example_card_header_title continues in block sw_example_card_header_label_manual, so overriding sw_example_card_header_title without {% parent %} leaves the v-else-if without its v-if.",
+        "fix": "keep the whole chain inside one block.",
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:18"
+    },
+    {
+        "group": "Info",
+        "rule": "class_missing",
+        "element": "component:sw-example-card/class:sw-example-card__list",
+        "states": ["current", "major"],
+        "explanation": "The CSS class sw-example-card__list is no longer in the template, so plugin styles and selectors that use it stop matching.",
+        "fix": "mention it in the upgrade notes if plugins are likely to style it.",
+        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:36"
+    }
+]

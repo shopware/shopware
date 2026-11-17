@@ -18,6 +18,7 @@ interface OrderAddressId {
     customerAddressId: EntityKey<'customer_address'>;
     type: string;
     edited: boolean;
+    deliveryId?: EntityKey<'order_delivery'>;
 }
 
 const swOrderDetailStore = Shopware.Store.register({
@@ -107,21 +108,19 @@ const swOrderDetailStore = Shopware.Store.register({
                 return;
             }
 
-            const { orderAddressId, customerAddressId, type, edited } = value;
+            const { orderAddressId, customerAddressId, type, edited, deliveryId } = value;
+            const isSameSelection = (ids: OrderAddressId) =>
+                ids.orderAddressId === orderAddressId && ids.type === type && ids.deliveryId === deliveryId;
 
             // Handle deletion scenario where orderAddressId matches customerAddressId
             if (String(orderAddressId) === String(customerAddressId) && !edited) {
-                this.orderAddressIds = this.orderAddressIds.filter(
-                    (ids) => !(ids.orderAddressId === orderAddressId && ids.type === type),
-                );
+                this.orderAddressIds = this.orderAddressIds.filter((ids) => !isSameSelection(ids));
 
                 return;
             }
 
             // Find index of the existing item
-            const index = this.orderAddressIds.findIndex(
-                (ids) => ids.orderAddressId === orderAddressId && ids.type === type,
-            );
+            const index = this.orderAddressIds.findIndex(isSameSelection);
 
             // If found, update the existing item
             if (index !== -1) {

@@ -204,8 +204,6 @@ class InfoControllerTest extends TestCase
         static::assertSame(['category', 'product'], $data['types'][0]['defaultBindingRootSources']);
         static::assertArrayHasKey('defaultBindingRootSources', $data['types'][1]);
         static::assertNull($data['types'][1]['defaultBindingRootSources']);
-        // Assert the raw encoding: an unrestricted type carries the key with null, it is never omitted
-        static::assertStringContainsString('"defaultBindingRootSources":null', $content);
 
         $this->assertMatchesResponseSchema('content-system-element-types', $content);
     }

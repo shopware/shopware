@@ -16,7 +16,7 @@ Actions the AI client can invoke. Tools execute logic and return results. Think 
 - **Can have side effects**: yes (writes, deletes, command execution)
 - **Examples**: `shopware-entity-search`, `shopware-entity-upsert`, `shopware-order-state`
 - **Attribute**: `#[McpTool(name: '...', description: '...')]`
-- **Implementation**: `__invoke()` returns a JSON string
+- **Implementation**: `__invoke()` returns an `McpToolResult` (`Shopware\Core\Framework\Mcp\Result\McpToolResult`)
 
 ### Prompts
 Pre-written instructions the AI client can request to get context. Prompts help the AI understand the system before it starts working.
@@ -133,7 +133,7 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0` annotation
 - All classes use `#[Package('framework')]` attribute
-- Tools return JSON strings; the MCP protocol handles transport encoding
+- Tools return an `McpToolResult`; a string result is deprecated and reported by the `shopware.mcpToolLegacyStringResult` PHPStan rule
 - Write tools default to `dryRun=true` for safety. Dry-run adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions during preview
 - Entity tools validate entity existence with `registry->has()` before ACL checks to provide clear error messages
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery

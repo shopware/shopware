@@ -675,9 +675,17 @@ class OrderRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
-        static::assertArrayNotHasKey('orders', $response);
-        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertArrayNotHasKey('orders', $response);
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        static::assertCount(1, $response['orders']['elements']);
+        static::assertArrayNotHasKey('orders', $response['orders']['elements'][0]['stateMachineState']);
     }
 
     protected function getValidPaymentMethods(): PaymentMethodCollection

@@ -6,6 +6,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
  * @internal
  */
 #[Group('store-api')]
+#[Package('discovery')]
 class LanguageRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -155,9 +158,17 @@ class LanguageRouteTest extends TestCase
 
         $response = $this->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
-        static::assertArrayNotHasKey('elements', $response);
-        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertArrayNotHasKey('elements', $response);
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        static::assertCount(1, $response['elements']);
+        static::assertArrayNotHasKey('users', $response['elements'][0]['locale']);
     }
 
     private function createData(): void

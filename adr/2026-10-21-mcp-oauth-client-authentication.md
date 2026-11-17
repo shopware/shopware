@@ -258,6 +258,10 @@ A read-only token reaches a tool only when the tool is classified as safe to rea
 A tool that declares nothing is refused, because an empty privilege list cannot tell a harmless tool from a write tool.
 Unannotated plugin tools and app tools without `requiredPrivileges` are such tools today.
 
+For app tools the declaration alone is not enough.
+An app script runs with the full ACL role of the app, so an app could declare only `:read` privileges for a tool that writes.
+Under a read-only token the script context therefore refuses writes as well, instead of trusting the declaration of the app.
+
 C needs storage and UI per token family and is not planned.
 
 ### 5. Rate-limit key
@@ -366,8 +370,8 @@ The set of clients is small and configured by the operator, and a password chang
   `RefreshTokenRepository::revokeRefreshTokensForUser()` runs on a password change, a deactivation or deletion of the user (`UserCredentialsChangedSubscriber`), and revokes every client of that user.
   Reuse detection deletes one refresh token family, but nothing lets a user or administrator target one on purpose: there is no RFC 7009 revocation endpoint and no Administration action.
   `league/oauth2-server` has no revocation support either; [thephpleague/oauth2-server#1473](https://github.com/thephpleague/oauth2-server/pull/1473) adds it but is not released.
-- **Administration logout with SSO configured ends every session of the user.**
-  The logout calls `POST /api/_action/user/logout`, which runs `SsoService::revokeUserTokens()` and also disconnects all MCP clients of that user.
+- **Administration logout ends every session of the user.**
+  The Administration calls `POST /api/_action/user/logout` on every logout, which runs `SsoService::revokeUserTokens()` and also disconnects all MCP clients of that user.
 - **No maximum lifetime for a session.**
   Every rotation issues a refresh token valid for a fresh `refresh_token_ttl` (`P1W`), so a client that refreshes at least once a week stays connected until one of the user-wide triggers above.
 - **Access tokens of a single session cannot be revoked.**
@@ -380,15 +384,15 @@ per-session revocation in the Administration and an RFC 7009 endpoint, a logout 
 
 These replace the proposed sub-issues of [#20866](https://github.com/shopware/shopware/issues/20866):
 
-1. **Session binding** to the principal, `404` on mismatch (6).
+1. **Session binding** to the principal, `404` on mismatch (6), tracked in [#22701](https://github.com/shopware/shopware/issues/22701).
    Can ship first.
-2. **Rate-limit key** on the principal for every authentication mode (5).
-3. **Discovery:** protected resource metadata, authorization server metadata at the path-suffixed URI, `WWW-Authenticate` on `401`, `iss` in the authorization response (RFC 9207), `RequestTransformer` exemption, documentation for subdirectory installs (7, error answers).
-4. **Audience-bound tokens:** `resource` on authorize and token requests, `aud` entry, rejection outside `/api/_mcp`, including subrequests the MCP request did not mark, refresh keeps the resource (2).
-5. **Consent text** for MCP clients, including the administrator notice and the MCP-only notice (4).
+2. **Rate-limit key** on the principal for every authentication mode (5), tracked in [#22701](https://github.com/shopware/shopware/issues/22701).
+3. **Discovery:** protected resource metadata, authorization server metadata at the path-suffixed URI, `WWW-Authenticate` on `401`, `iss` in the authorization response (RFC 9207), `RequestTransformer` exemption, documentation for subdirectory installs (7, error answers), tracked in [#22700](https://github.com/shopware/shopware/issues/22700).
+4. **Audience-bound tokens:** `resource` on authorize and token requests, `aud` entry, rejection outside `/api/_mcp`, including subrequests the MCP request did not mark, refresh keeps the resource (2), tracked in [#22700](https://github.com/shopware/shopware/issues/22700).
+5. **Consent text** for MCP clients, including the administrator notice and the MCP-only notice (4), tracked in [#22700](https://github.com/shopware/shopware/issues/22700).
 6. **Client ID Metadata Documents** behind a flag, with SSRF review (3), tracked in [#22047](https://github.com/shopware/shopware/issues/22047).
-7. **`shopware-mcp-evals`:** an OAuth login path next to integration keys.
-8. **Read-only consent** on the consent page, enforced centrally by the privileges a tool declares (4).
+7. **`shopware-mcp-evals`:** an OAuth login path next to integration keys, tracked in [shopware-mcp-evals#114](https://github.com/shopware/shopware-mcp-evals/issues/114).
+8. **Read-only consent** on the consent page, enforced centrally by the privileges a tool declares (4), tracked in [#21918](https://github.com/shopware/shopware/issues/21918).
 9. **Session revocation:** per-session revoke, RFC 7009 endpoint, logout of the own session only, maximum session lifetime (known limitations), tracked in [#22048](https://github.com/shopware/shopware/issues/22048).
 
 ### For extension developers

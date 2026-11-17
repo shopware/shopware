@@ -5,12 +5,15 @@
  * The feature flags of `feature.yaml`, the registry the PHP side resolves the flags from. The Jest setup and the
  * `scripts/generate-*` generators read the flags through this file, so they agree on names and versions.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 
 // Not `ADMIN_PATH`: an exported shell value may point it at another checkout.
-const featureRegistryPath = resolve(__dirname, '..', '../../../../Core/Framework/Resources/config/packages/feature.yaml');
+// The Core bundle sits in `src/Core` in a platform checkout and in `vendor/shopware/core` in a Composer install.
+const featureRegistryCandidates = ['Core', 'core'].map((coreFolder) =>
+    resolve(__dirname, '..', '../../../..', coreFolder, 'Framework/Resources/config/packages/feature.yaml'),
+);
 
 const VERSION_FLAG = /^V(\d+)_(\d+)_0_0$/;
 
@@ -42,6 +45,12 @@ export type FeatureConfig = {
  * @private
  */
 export function loadFeatureConfig(): FeatureConfig {
+    const featureRegistryPath = featureRegistryCandidates.find((candidate) => existsSync(candidate));
+
+    if (!featureRegistryPath) {
+        throw new Error(`Cannot find the feature flag config, looked at:\n${featureRegistryCandidates.join('\n')}`);
+    }
+
     return parse(readFileSync(featureRegistryPath, 'utf8')) as FeatureConfig;
 }
 

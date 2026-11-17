@@ -1619,12 +1619,19 @@ The unused property was removed.
 
 ## Jest helper `test/_helper_/majorFeatureFlags` removed
 
-Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` must import `getMajorFeatureFlags`, `isMajorRun` and `loadFeatureConfig` from `src/Administration/Resources/app/administration/scripts/feature-flags` instead.
-`getMajorFeatureFlags` is a named export there, not the default export.
+Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.
+It registers the feature flags of the installed Shopware version, including the major flags of a major run.
 
 ```js
-const { getMajorFeatureFlags } = require(resolve(adminPath, 'scripts/feature-flags'));
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
 ```
+
+`composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
+See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
 
 ## Sales channel detail components load fewer visibilities and sales channels
 

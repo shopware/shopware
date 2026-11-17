@@ -100,6 +100,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingR
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\AbstractGaranLabelRoute;
 use Shopware\Core\Content\Product\SalesChannel\Garan\GaranLabelRoute;
@@ -250,6 +251,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             param('shopware.product_documents.allowed_extensions'),
             param('shopware.product_documents.max_file_size'),
+            param('shopware.filesystem.allowed_extensions'),
         ]);
 
     $services->set(ProductDocumentValidator::class)
@@ -522,6 +524,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewLoader::class),
             service(ScriptExecutor::class),
             service(SystemConfigService::class),
+            service(ProductDocumentRoute::class),
         ])
         ->tag('shopware.cms.data_resolver');
 
@@ -814,6 +817,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductReviewRoute::class),
             service(SystemConfigService::class),
             service('event_dispatcher'),
+        ]);
+
+    $services->set(ProductDocumentRoute::class)
+        ->public()
+        ->args([
+            service('sales_channel.product.repository'),
+            service('product_document.repository'),
+            service('media.repository'),
+            service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductReviewRoute::class)

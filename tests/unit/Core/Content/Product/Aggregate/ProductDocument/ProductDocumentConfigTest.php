@@ -34,10 +34,19 @@ class ProductDocumentConfigTest extends TestCase
     public function testFileTypesAreCleanedUp(): void
     {
         $context = Context::createDefaultContext();
-        $config = new ProductDocumentConfig(new EventDispatcher(), ['PDF', ' .docx', 'pdf', ''], maxFileSize: 1024);
+        $config = self::config(['PDF', ' .docx', 'pdf', '']);
 
         static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
         static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension($context)));
+    }
+
+    public function testNumericFileTypesStayStrings(): void
+    {
+        $context = Context::createDefaultContext();
+        $config = self::config(['pdf', 264, '7z']);
+
+        static::assertSame(['pdf', '264', '7z'], $config->getAllowedExtensions($context));
+        static::assertCount(3, $config->getMimeTypesByExtension($context));
     }
 
     public function testExtensionsCanChangeTheFileTypes(): void
@@ -50,11 +59,21 @@ class ProductDocumentConfigTest extends TestCase
             $event->setAllowedExtensions(['pdf', '.XLSX']);
         });
 
-        $config = new ProductDocumentConfig($dispatcher, ['pdf', 'docx'], maxFileSize: 1024);
+        $config = self::config(['pdf', 'docx'], dispatcher: $dispatcher);
 
         static::assertSame(['pdf', 'xlsx'], $config->getAllowedExtensions($context));
         static::assertCount(1, $events);
         static::assertSame($context, $events[0]->getContext());
+    }
+
+    public function testOnlyFileTypesThatPublicMediaAcceptsAreAllowed(): void
+    {
+        $context = Context::createDefaultContext();
+        $config = self::config(['pdf', 'zip', 'docx'], publicMediaExtensions: ['pdf', 'docx']);
+
+        static::assertSame(['pdf', 'docx'], $config->getAllowedExtensions($context));
+        static::assertSame(['pdf', 'docx'], array_keys($config->getMimeTypesByExtension($context)));
+        static::assertContains('application/pdf', $config->getMimeTypesByExtension($context)['pdf']);
     }
 
     public static function uploadLimitProvider(): iterable
@@ -68,8 +87,20 @@ class ProductDocumentConfigTest extends TestCase
     {
         IniMock::withIniMock(['upload_max_filesize' => '8M', 'post_max_size' => '16M']);
 
-        $config = new ProductDocumentConfig(new EventDispatcher(), ['pdf'], maxFileSize: $maxFileSize);
+        $config = self::config(['pdf'], maxFileSize: $maxFileSize);
 
         static::assertSame($expected, $config->getMaxUploadFileSize());
+    }
+
+    /**
+     * @param list<string|int> $allowedExtensions
+     * @param list<string> $publicMediaExtensions
+     */
+    private static function config(array $allowedExtensions, int $maxFileSize = 1024, ?EventDispatcher $dispatcher = null, array $publicMediaExtensions = ['pdf', 'docx', 'xlsx', '264', '7z']): ProductDocumentConfig
+    {
+        $dispatcher ??= new EventDispatcher();
+
+        /** @phpstan-ignore argument.type */
+        return new ProductDocumentConfig($dispatcher, $allowedExtensions, $maxFileSize, $publicMediaExtensions);
     }
 }

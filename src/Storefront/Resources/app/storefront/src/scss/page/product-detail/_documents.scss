@@ -1,0 +1,34 @@
+.product-detail-documents-list {
+    column-gap: $spacer-lg;
+    margin-bottom: 0;
+}
+
+.product-detail-documents-item {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacer-sm;
+    margin-bottom: $spacer-sm;
+    break-inside: avoid;
+
+    .icon {
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+}
+
+.product-detail-documents-link {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+@include media-breakpoint-up(md) {
+    .product-detail-documents-list {
+        columns: 2;
+    }
+}
+
+@include media-breakpoint-up(lg) {
+    .product-detail-documents-list {
+        columns: 3;
+    }
+}

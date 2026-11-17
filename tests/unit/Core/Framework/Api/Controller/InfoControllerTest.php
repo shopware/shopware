@@ -212,6 +212,19 @@ class InfoControllerTest extends TestCase
         static::assertSame(['pdf'], array_keys($data['settings']['productDocuments']['allowedMimeTypesByExtension']));
     }
 
+    public function testConfigReturnsNumericProductDocumentFileTypesAsStrings(): void
+    {
+        $this->shopIdProvider->expects($this->atLeastOnce())->method('getShopId');
+        $this->eventDispatcher->addListener(ProductDocumentAllowedExtensionsEvent::class, static function (ProductDocumentAllowedExtensionsEvent $event): void {
+            $event->setAllowedExtensions(['pdf', '264']);
+        });
+
+        $response = $this->createController()->config(Context::createDefaultContext(), Request::create('http://localhost'));
+
+        $data = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame(['pdf', '264'], $data['settings']['productDocuments']['allowedExtensions']);
+    }
+
     public function testReturnsCurrentShopIdIfShopIdFingerprintsHaveChanged(): void
     {
         $this->shopIdProvider
@@ -474,7 +487,7 @@ class InfoControllerTest extends TestCase
             $presignedMediaUploadService,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
             $this->versionHistory,
-            new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], maxFileSize: 1024),
+            new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], 1024, ['pdf', 'docx', '264']),
         );
     }
 }

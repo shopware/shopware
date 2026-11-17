@@ -1,8 +1,8 @@
-import { marked } from "npm:marked";
-import { baseUrl } from "npm:marked-base-url";
+import { marked } from 'npm:marked';
+import { baseUrl } from 'npm:marked-base-url';
 
 // Polyfill: the pinned Deno runtime's URL lacks the static canParse() that marked-base-url calls for every relative link.
-if (typeof URL.canParse !== "function") {
+if (typeof URL.canParse !== 'function') {
     URL.canParse = (url: string, base?: string) => {
         try {
             new URL(url, base);
@@ -14,22 +14,25 @@ if (typeof URL.canParse !== "function") {
 }
 
 type Vulnerability = {
-    severity: string,
-    summary: string,
-    link: string,
-}
+    severity: string;
+    summary: string;
+    link: string;
+};
 
 marked.setOptions({
     gfm: true,
     breaks: true,
 });
 
-async function fetchGithub(url: string, { headers = {}, method = "GET", body }: { headers?: Record<string, string>, body?: string, method?: string } = {}) {
-    const ghToken = Deno.env.get("GITHUB_TOKEN");
+async function fetchGithub(
+    url: string,
+    { headers = {}, method = 'GET', body }: { headers?: Record<string, string>; body?: string; method?: string } = {},
+) {
+    const ghToken = Deno.env.get('GITHUB_TOKEN');
     headers['User-Agent'] = 'Shopware Release Info Generator';
 
     if (ghToken) {
-        headers["Authorization"] = `token ${ghToken}`;
+        headers['Authorization'] = `token ${ghToken}`;
     }
 
     return fetch(url, {
@@ -45,11 +48,11 @@ async function fetchMitreCve(cveID: string) {
         headers: {
             'Content-Type': 'application/json',
         },
-    })
+    });
 }
 
 async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, body: string) {
-    const ghsaRegex = /GHSA-\w{4}-\w{4}-\w{4}/mg
+    const ghsaRegex = /GHSA-\w{4}-\w{4}-\w{4}/gm;
 
     const matches = body.match(ghsaRegex);
 
@@ -59,8 +62,10 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
 
     const unique = matches.filter((value, index, array) => array.indexOf(value) === index);
 
-    for (let match of unique) {
-        const json = await (await fetchGithub(`https://api.github.com/repos/shopware/shopware/security-advisories/${match}`)).json();
+    for (const match of unique) {
+        const json = await (
+            await fetchGithub(`https://api.github.com/repos/shopware/shopware/security-advisories/${match}`)
+        ).json();
 
         if (json.severity === undefined) {
             continue;
@@ -73,21 +78,21 @@ async function fetchVulnerabilitiesByDescription(list: Array<Vulnerability>, bod
         } as Vulnerability);
     }
 
-    return list
+    return list;
 }
 
 async function fetchCveVulnerabilitiesByDescription(list: Array<Vulnerability>, body: string) {
-    const cveRegex = /CVE-\d{4}-\d{4,7}/mg
+    const cveRegex = /CVE-\d{4}-\d{4,7}/gm;
 
     const cveMatches = body.match(cveRegex);
     const cveList = cveMatches || [];
     const cveUnique = cveList.filter((value, index, array) => array.indexOf(value) === index);
 
-    for (let match of cveUnique) {
+    for (const match of cveUnique) {
         const response = await fetchMitreCve(match);
         const json = await response.json();
 
-        if (json === undefined || json.dataType !== "CVE_RECORD") {
+        if (json === undefined || json.dataType !== 'CVE_RECORD') {
             continue;
         }
 
@@ -103,6 +108,7 @@ async function fetchCveVulnerabilitiesByDescription(list: Array<Vulnerability>, 
     return list;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- untyped MITRE API response
 function parseMitreCve(cve: any) {
     const severity = cve?.containers?.cna?.metrics[0]?.cvssV3_1?.baseSeverity;
     const summary = cve?.containers?.cna?.title;
@@ -122,7 +128,7 @@ function parseMitreCve(cve: any) {
 }
 
 async function generateVersionInfo() {
-    const json = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/releases")).json();
+    const json = await (await fetchGithub('https://api.github.com/repos/shopware/shopware/releases')).json();
     const vulnerabilities = await fetchVulnerabilities();
 
     for (const release of json) {
@@ -136,26 +142,37 @@ async function generateVersionInfo() {
 
         const body = marked.parse(detail.body);
 
-        const ghsaVulns = await fetchVulnerabilitiesByDescription(vulnerabilities[release.tag_name.substring(1)] || [], body);
-        const cveVulns = await fetchCveVulnerabilitiesByDescription(vulnerabilities[release.tag_name.substring(1)] || [], body);
-
-        Deno.writeTextFileSync(`${release.tag_name.substring(1)}.json`, JSON.stringify({
-            title: release.name,
+        const ghsaVulns = await fetchVulnerabilitiesByDescription(
+            vulnerabilities[release.tag_name.substring(1)] || [],
             body,
-            date: release.published_at,
-            version: release.tag_name.substring(1),
-            fixedVulnerabilities: [...ghsaVulns, ...cveVulns],
-        }));
+        );
+        const cveVulns = await fetchCveVulnerabilitiesByDescription(
+            vulnerabilities[release.tag_name.substring(1)] || [],
+            body,
+        );
+
+        Deno.writeTextFileSync(
+            `${release.tag_name.substring(1)}.json`,
+            JSON.stringify({
+                title: release.name,
+                body,
+                date: release.published_at,
+                version: release.tag_name.substring(1),
+                fixedVulnerabilities: [...ghsaVulns, ...cveVulns],
+            }),
+        );
     }
 }
 
 async function generateVersionListing() {
-    let currentPage = 1
-    const latestRelease = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/releases/latest")).json();
+    let currentPage = 1;
+    const latestRelease = await (await fetchGithub('https://api.github.com/repos/shopware/shopware/releases/latest')).json();
     const versions = [];
 
     while (true) {
-        const releases = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/releases?per_page=100&page=" + currentPage)).json();
+        const releases = await (
+            await fetchGithub('https://api.github.com/repos/shopware/shopware/releases?per_page=100&page=' + currentPage)
+        ).json();
 
         for (const release of releases) {
             if (release.draft) {
@@ -170,20 +187,22 @@ async function generateVersionListing() {
         }
 
         if (releases.length !== 100) {
-            break
+            break;
         }
 
-        currentPage++
+        currentPage++;
     }
 
     // put the release marked as latest always to the top
-    const allVersions = [latestRelease.tag_name.substring(1), ...versions]
+    const allVersions = [latestRelease.tag_name.substring(1), ...versions];
 
     Deno.writeTextFileSync(`index.json`, JSON.stringify(allVersions));
 }
 
 async function fetchVulnerabilities() {
-    const json = await (await fetchGithub("https://api.github.com/repos/shopware/shopware/security-advisories?per_page=100&state=published")).json();
+    const json = await (
+        await fetchGithub('https://api.github.com/repos/shopware/shopware/security-advisories?per_page=100&state=published')
+    ).json();
 
     const formatted = {};
 

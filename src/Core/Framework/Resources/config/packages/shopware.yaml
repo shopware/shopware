@@ -311,6 +311,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            reset_password_client:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 5
+                      interval: '5 minutes'
+                    - limit: 10
+                      interval: '15 minutes'
+                    - limit: 20
+                      interval: '30 minutes'
             user_recovery:
                 enabled: true
                 policy: 'time_backoff'
@@ -322,6 +333,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            user_recovery_client:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 5
+                      interval: '5 minutes'
+                    - limit: 10
+                      interval: '15 minutes'
+                    - limit: 20
+                      interval: '30 minutes'
             contact_form:
                 enabled: true
                 policy: 'time_backoff'
@@ -761,7 +783,7 @@ shopware:
             relevant_keyword_count: 8
     product_documents:
         allowed_extensions: ["pdf", "docx", "jpg", "jpeg", "png"]
-        max_file_size: 20971520 # 20 MB
+        max_file_size: 20M
 
     webhook:
         #@experimental stableVersion:v6.8.0 feature:WEBHOOK_FAILURE_STRATEGY this is a temporary solution until webhooks are refactored with a circuit breaker implementation

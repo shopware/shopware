@@ -48,7 +48,7 @@ class ProductIndexer extends EntityIndexer
      * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
      */
     final public const STATES_UPDATER = 'product.states';
-    private const UPDATE_IDS_CHUNK_SIZE = 50;
+    final public const UPDATE_IDS_CHUNK_SIZE = 50;
 
     /**
      * @internal
@@ -269,7 +269,7 @@ class ProductIndexer extends EntityIndexer
         });
 
         Profiler::trace('product:indexer:event', function () use ($ids, $context, $message): void {
-            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip()));
+            $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $context, $message->getSkip(), $message->isFullIndexing));
         });
 
         $this->eventDispatcher->dispatch(new InvalidateProductCache($ids, false));

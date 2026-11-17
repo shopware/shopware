@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -73,6 +74,19 @@ class ProductDocumentValidatorTest extends TestCase
         // the Admin API user can't see the private file, so it counts as not found
         static::assertSame([
             ['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/documents/0/translations/' . $germanId . '/mediaId'],
+        ], $errors);
+    }
+
+    public function testADocumentWithoutAFileDoesNotGetTheFileOfAnotherRecordOfTheWrite(): void
+    {
+        $errors = $this->errorsOf(fn () => $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'cover' => ['media' => ['id' => $this->createMedia('cover')]],
+            'documents' => [['translations' => [Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual']]]],
+        ]], $this->context));
+
+        static::assertSame([
+            ['code' => NotBlank::IS_BLANK_ERROR, 'pointer' => '/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/mediaId'],
         ], $errors);
     }
 

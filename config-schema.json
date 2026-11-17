@@ -317,8 +317,10 @@
                     }
                 },
                 "max_file_size": {
-                    "type": "integer",
-                    "minimum": 1
+                    "type": [
+                        "integer",
+                        "string"
+                    ]
                 }
             },
             "title": "Product Documents"
@@ -596,7 +598,13 @@
                 "reset_password": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
+                "reset_password_client": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
                 "user_recovery": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "user_recovery_client": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "contact_form": {

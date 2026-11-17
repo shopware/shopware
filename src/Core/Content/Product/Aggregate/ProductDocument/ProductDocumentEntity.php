@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -31,6 +32,8 @@ class ProductDocumentEntity extends Entity
     protected ?ProductEntity $product = null;
 
     protected ?ProductDocumentTranslationCollection $translations = null;
+
+    protected ?MediaEntity $media = null;
 
     public function getProductId(): string
     {
@@ -100,5 +103,15 @@ class ProductDocumentEntity extends Entity
     public function setTranslations(ProductDocumentTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    public function getMedia(): ?MediaEntity
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?MediaEntity $media): void
+    {
+        $this->media = $media;
     }
 }

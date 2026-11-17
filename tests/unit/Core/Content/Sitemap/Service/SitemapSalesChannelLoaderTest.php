@@ -46,7 +46,7 @@ class SitemapSalesChannelLoaderTest extends TestCase
         static::assertInstanceOf(Criteria::class, $capturedCriteria);
 
         $filters = $capturedCriteria->getFilters();
-        static::assertCount(2, $filters);
+        static::assertCount(3, $filters);
         static::assertInstanceOf(NotEqualsFilter::class, $filters[0]);
 
         $typeFilter = $filters[1];
@@ -63,6 +63,23 @@ class SitemapSalesChannelLoaderTest extends TestCase
         static::assertInstanceOf(EqualsFilter::class, $externalDomainFilter);
         static::assertSame('domains.isExternalStorefront', $externalDomainFilter->getField());
         static::assertTrue($externalDomainFilter->getValue());
+    }
+
+    public function testLoadSalesChannelsSkipsInactiveSalesChannels(): void
+    {
+        $searchedFilters = [];
+        $repository = StaticEntityRepository::of(SalesChannelCollection::class, [
+            static function (Criteria $criteria) use (&$searchedFilters): SalesChannelCollection {
+                $searchedFilters = $criteria->getFilters();
+
+                return new SalesChannelCollection();
+            },
+        ]);
+
+        $loader = new SitemapSalesChannelLoader($repository, new EventDispatcher());
+        $loader->loadSalesChannels(Context::createDefaultContext());
+
+        static::assertContainsEquals(new EqualsFilter('active', true), $searchedFilters);
     }
 
     /**

@@ -23,9 +23,10 @@ use Shopware\Core\Framework\Log\Package;
  * directly; one that returns the legacy `{"success": …}` string is parsed first. Anything else, and
  * every prompt and resource, is passed through unchanged.
  *
- * The legacy string is deprecated for PHP tools, whether built with McpToolResponse::success() and the
- * other string helpers or by hand, so this is where a deprecation is reported for it. App tools keep the
- * envelope as their response format and are not reported. Wired onto both MCP servers by
+ * Every string result of a PHP tool is deprecated, the legacy envelope, whether built with
+ * McpToolResponse::success() and the other string helpers or by hand, as well as plain text, which
+ * McpToolResult::text() replaces. This is where the deprecation is reported. App tools keep the envelope
+ * as their response format and are not reported. Wired onto both MCP servers by
  * McpToolResultRendererCompilerPass.
  */
 #[Package('framework')]
@@ -72,6 +73,17 @@ class McpToolResultReferenceHandler implements ReferenceHandlerInterface
             }
 
             return $this->renderer->render($parsed, $this->protocolVersion($arguments), $result, $call, $hasOutputSchema);
+        }
+
+        if (\is_string($result) && $this->isClassTool($reference)) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                \sprintf(
+                    'MCP tool "%s" returned a string, which is deprecated and will be removed in v6.8.0.0. Return "%s::text()" for plain text instead.',
+                    $reference->tool->name,
+                    McpToolResult::class,
+                ),
+            );
         }
 
         return $result;

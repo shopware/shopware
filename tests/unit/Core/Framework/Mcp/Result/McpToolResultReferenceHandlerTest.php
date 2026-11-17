@@ -203,13 +203,38 @@ class McpToolResultReferenceHandlerTest extends TestCase
         $this->handler('{"success":true,"data":{"id":"a"}}')->handle($this->classToolReference(), []);
     }
 
+    #[TestDox('A PHP tool returning plain text reports a deprecation, and the text is still passed through')]
+    public function testReportsThePlainTextOfAPhpTool(): void
+    {
+        $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_8_0_0' => false]);
+        $triggerer = $this->createMock(Triggerer::class);
+        $triggerer->expects($this->once())->method('deprecation')
+            ->with('', '', \sprintf('MCP tool "t" returned a string, which is deprecated and will be removed in v6.8.0.0. Return "%s::text()" for plain text instead.', McpToolResult::class));
+        Feature::$triggerer = $triggerer;
+
+        static::assertSame('plain text', $this->handler('plain text')->handle($this->classToolReference(), []));
+    }
+
+    #[TestDox('A PHP tool returning plain text throws once v6.8.0.0 is active')]
+    public function testThrowsForThePlainTextOfAPhpToolWithTheMajorFlag(): void
+    {
+        $this->setEnvVars(['V6_8_0_0' => true]);
+
+        $this->expectExceptionObject(FeatureException::error(\sprintf(
+            'Tried to access deprecated functionality: MCP tool "t" returned a string, which is deprecated and will be removed in v6.8.0.0. Return "%s::text()" for plain text instead.',
+            McpToolResult::class,
+        )));
+
+        $this->handler('plain text')->handle($this->classToolReference(), []);
+    }
+
     /**
      * @return iterable<string, array{mixed, bool}>
      */
     public static function notReportedProvider(): iterable
     {
         yield 'result object of a PHP tool' => [McpToolResult::success(['id' => 'a']), true];
-        yield 'plain text of a PHP tool' => ['plain text', true];
+        yield 'plain text of an app tool' => ['plain text', false];
         yield 'legacy string of an app tool' => ['{"success":true,"data":{"id":"a"}}', false];
     }
 

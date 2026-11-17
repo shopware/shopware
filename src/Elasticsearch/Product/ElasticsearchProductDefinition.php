@@ -538,47 +538,62 @@ SQL;
      */
     private function fetchDocuments(array $productIds): array
     {
+        $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+
+        /** @var array<string, string> $ownerIds */
+        $ownerIds = $this->connection->fetchAllKeyValue(
+            'SELECT LOWER(HEX(id)), LOWER(HEX(documents)) FROM product WHERE id IN (:ids) AND version_id = :liveVersionId AND documents IS NOT NULL',
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'liveVersionId' => $liveVersionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        if ($ownerIds === []) {
+            return [];
+        }
+
         $sql = <<<'SQL'
 SELECT
-       LOWER(HEX(p.id)) AS productId,
+       LOWER(HEX(pd.product_id)) AS ownerId,
        LOWER(HEX(pd.id)) AS id,
        LOWER(HEX(pdt.language_id)) AS languageId
-FROM product p
-         INNER JOIN product_document pd
-            ON pd.product_id = p.documents
-            AND pd.product_version_id = p.version_id
-            AND pd.version_id = p.version_id
+FROM product_document pd
          LEFT JOIN product_document_translation pdt
             ON pdt.product_document_id = pd.id
             AND pdt.product_document_version_id = pd.version_id
-WHERE p.id IN (:ids)
-  AND p.version_id = :liveVersionId
-ORDER BY pd.position, pd.id
+WHERE pd.product_id IN (:ownerIds)
+  AND pd.product_version_id = :liveVersionId
+  AND pd.version_id = :liveVersionId
 SQL;
 
-        /** @var list<array{productId: string, id: string, languageId: string|null}> $rows */
+        /** @var list<array{ownerId: string, id: string, languageId: string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
             $sql,
             [
-                'ids' => Uuid::fromHexToBytesList($productIds),
-                'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'ownerIds' => Uuid::fromHexToBytesList(array_values(array_unique($ownerIds))),
+                'liveVersionId' => $liveVersionId,
             ],
             [
-                'ids' => ArrayParameterType::BINARY,
+                'ownerIds' => ArrayParameterType::BINARY,
             ]
         );
 
-        $documents = [];
-
+        $documentsByOwner = [];
         foreach ($rows as $row) {
-            $documents[$row['productId']][$row['id']] ??= ['id' => $row['id'], '_count' => 1, 'translations' => []];
+            $documentsByOwner[$row['ownerId']][$row['id']] ??= ['id' => $row['id'], '_count' => 1, 'translations' => []];
 
             if ($row['languageId'] !== null) {
-                $documents[$row['productId']][$row['id']]['translations'][] = ['languageId' => $row['languageId'], '_count' => 1];
+                $documentsByOwner[$row['ownerId']][$row['id']]['translations'][] = ['languageId' => $row['languageId'], '_count' => 1];
             }
         }
 
-        return array_map(array_values(...), $documents);
+        $documents = [];
+        foreach ($ownerIds as $productId => $ownerId) {
+            if (isset($documentsByOwner[$ownerId])) {
+                $documents[$productId] = array_values($documentsByOwner[$ownerId]);
+            }
+        }
+
+        return $documents;
     }
 
     /**

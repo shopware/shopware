@@ -33,8 +33,8 @@ The defaults are unchanged:
 | Shopware 6.8 (`V6_8_0_0` active) | Axios 1.x | None, `useAxiosV1` throws |
 | Repository requests | Follows the same defaults; the option is not part of the repository contract | None |
 
-The raw responses of `Repository.assign()`, `mergeVersion()` and `deleteVersion()` follow these defaults too.
-On 6.7.14 to 6.7.16 they returned `AxiosHeaders`; on 6.7 they now return plain headers again.
+Repository responses and errors follow these defaults too, for example the responses of `save()`, `delete()`, `assign()`, `mergeVersion()` and `deleteVersion()` and `error.response` of a failed repository request.
+On 6.7.14 to 6.7.16 their headers were `AxiosHeaders`; on 6.7 they are plain objects again.
 
 The compatibility mode restores two behaviours of the legacy transport:
 

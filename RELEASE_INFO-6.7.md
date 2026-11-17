@@ -668,7 +668,8 @@ The defaults are unchanged, legacy behaviour on 6.7 and Axios 1.x once `V6_8_0_0
 Request interceptors now run on Axios 1.x on 6.7 too, and no opt-out restores how they see headers.
 `config.headers` is one flat `AxiosHeaders` instance, so an interceptor that writes `config.headers.common[...]` or `config.headers.post[...]` fails with a `TypeError`.
 Set such headers on `config.headers` directly.
-`Repository.assign()`, `mergeVersion()` and `deleteVersion()` return plain response headers again on 6.7, as they did before 6.7.14.
+Repository requests return plain response headers again on 6.7, as they did before 6.7.14.
+This applies to every response a `Repository` method returns, for example from `save()`, `delete()`, `assign()`, `mergeVersion()` and `deleteVersion()`, and to `error.response.headers` of every failed repository request.
 `useAxiosV1`, `httpClient.CancelToken`, the `cancelToken` option, passing a `CancelToken` to `messageQueueService.consume()`, and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases are deprecated and removed in 6.8.
 They log a development-mode warning on first use.
 Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations.

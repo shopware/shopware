@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\NumberRange\NumberRangeCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -71,6 +72,7 @@ final class DocumentV2Controller extends AbstractController
         private readonly EntityRepository $mediaRepository,
         private readonly DocumentMediaGuard $documentMediaGuard,
         private readonly EntityRepository $numberRangeRepository,
+        private readonly Filesystem $filesystem = new Filesystem(),
     ) {
     }
 
@@ -336,21 +338,27 @@ final class DocumentV2Controller extends AbstractController
         return $context->scope(
             Context::SYSTEM_SCOPE,
             function (Context $scopedContext) use ($request, $payload): string {
-                $mediaFile = $this->mediaService->fetchFile($request);
+                $tempFile = $this->filesystem->tempnam(sys_get_temp_dir(), '');
 
-                $fileName = $this->fileNameProvider->provide(
-                    $this->resolveUploadedFileName($payload),
-                    $mediaFile->getFileExtension(),
-                    null,
-                    $scopedContext,
-                );
+                try {
+                    $mediaFile = $this->mediaService->fetchFile($request, $tempFile);
 
-                return $this->mediaService->saveMediaFile(
-                    $mediaFile,
-                    $fileName,
-                    $scopedContext,
-                    DocumentPersister::MEDIA_FOLDER,
-                );
+                    $fileName = $this->fileNameProvider->provide(
+                        $this->resolveUploadedFileName($payload),
+                        $mediaFile->getFileExtension(),
+                        null,
+                        $scopedContext,
+                    );
+
+                    return $this->mediaService->saveMediaFile(
+                        $mediaFile,
+                        $fileName,
+                        $scopedContext,
+                        DocumentPersister::MEDIA_FOLDER,
+                    );
+                } finally {
+                    $this->filesystem->remove($tempFile);
+                }
             },
         );
     }

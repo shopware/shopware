@@ -251,6 +251,38 @@ describe('app/plugins/shortcut.plugin', () => {
         expect(onSaveMock).not.toHaveBeenCalledWith();
     });
 
+    it('Object without active: should call the method and register the following shortcuts', async () => {
+        const onSaveMock = jest.fn();
+        const onCancelMock = jest.fn();
+
+        wrapper = await createWrapper({
+            shortcuts: {
+                s: {
+                    method: 'onSave',
+                },
+                ESCAPE: 'onCancel',
+            },
+            methods: {
+                onSave() {
+                    onSaveMock();
+                },
+                onCancel() {
+                    onCancelMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 's',
+        });
+        await wrapper.trigger('keydown', {
+            key: 'Escape',
+        });
+
+        expect(onSaveMock).toHaveBeenCalledTimes(1);
+        expect(onCancelMock).toHaveBeenCalledTimes(1);
+    });
+
     it('Object with function active: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 

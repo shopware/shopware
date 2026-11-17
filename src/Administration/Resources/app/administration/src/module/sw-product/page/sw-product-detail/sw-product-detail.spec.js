@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
     value: {
@@ -57,6 +58,8 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
+    const updateCanonicalUrlMock = jest.fn(() => Promise.resolve());
+
     async function createWrapper(
         searchFunction = () => Promise.resolve([]),
         getFunction = () => {
@@ -85,7 +88,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
-                    seoUrlService: {},
+                    seoUrlService: { updateCanonicalUrl: updateCanonicalUrlMock },
                     mediaService: {},
                     repositoryFactory: {
                         create: (entity) => ({
@@ -879,6 +882,60 @@ describe('module/sw-product/page/sw-product-detail', () => {
         // Previous units should not be updated on error
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    describe('saving SEO URLs', () => {
+        async function saveWithSeoUrl({ foreignKey = 'product-id', seoPathInfo, isModified }) {
+            updateCanonicalUrlMock.mockClear();
+
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, () => Promise.resolve({ id: 'product-id', variation: [] }));
+            await flushPromises();
+
+            const original = {
+                id: 'sc',
+                foreignKey,
+                salesChannelId: 'sc',
+                languageId: 'lang',
+                seoPathInfo: 'Custom/Path',
+                isModified,
+            };
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [original];
+            seoStore.seoUrlCollection = [{ ...original, seoPathInfo }];
+
+            // eslint-disable-next-line sw-test-rules/no-vm-access -- the save button sits inside the stubbed sw-button-group
+            await wrapper.vm.saveProduct();
+        }
+
+        afterEach(() => {
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [];
+            seoStore.seoUrlCollection = null;
+        });
+
+        it.each([
+            { state: 'cleared', seoPathInfo: '', originalIsModified: true, isModified: false },
+            { state: 'whitespace-only', seoPathInfo: '  ', originalIsModified: true, isModified: false },
+            { state: 'edited', seoPathInfo: 'New/Path', originalIsModified: false, isModified: true },
+        ])(
+            'should send a $state SEO URL with isModified=$isModified',
+            async ({ seoPathInfo, originalIsModified, isModified }) => {
+                await saveWithSeoUrl({ seoPathInfo, isModified: originalIsModified });
+
+                expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+                expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                    expect.objectContaining({ id: 'sc', seoPathInfo, isModified }),
+                    'lang',
+                );
+            },
+        );
+
+        it('should not send SEO URLs left over from another product', async () => {
+            await saveWithSeoUrl({ foreignKey: 'other-product-id', seoPathInfo: '', isModified: true });
+
+            expect(updateCanonicalUrlMock).not.toHaveBeenCalled();
+        });
     });
 
     it('should set isSaveSuccessful to true when no SEO promises exist', () => {

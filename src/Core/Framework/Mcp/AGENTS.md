@@ -133,7 +133,7 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0` annotation
 - All classes use `#[Package('framework')]` attribute
-- Tools return an `McpToolResult`; a string result is deprecated and reported by the `shopware.mcpToolLegacyStringResult` PHPStan rule
+- Tools return an `McpToolResult`; a string result is deprecated and reported by the `shopware.mcpToolLegacyStringResult` PHPStan rule; return plain text with `McpToolResult::text()`
 - Write tools default to `dryRun=true` for safety. Dry-run adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions during preview
 - Entity tools validate entity existence with `registry->has()` before ACL checks to provide clear error messages
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery

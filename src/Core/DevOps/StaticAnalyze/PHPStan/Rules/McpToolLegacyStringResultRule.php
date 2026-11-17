@@ -21,9 +21,9 @@ use PHPStan\Rules\RuleErrorBuilder;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Reports MCP tools that return a hand-built result string instead of `McpToolResult`. A string can only
- * carry the legacy `{"success": …}` envelope, which is removed in 6.8.0, and neither a summary nor error
- * details.
+ * Reports MCP tools that return a string instead of `McpToolResult`. A string carries the legacy
+ * `{"success": …}` envelope or plain text, both removed in 6.8.0, and neither a summary nor error details.
+ * Plain text is returned with `McpToolResult::text()`.
  *
  * The tool method is `__invoke()` for a `#[McpTool]` on the class, or the method that carries the attribute.
  * It is reported when its native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
@@ -83,13 +83,13 @@ class McpToolLegacyStringResultRule implements Rule
     private static function error(string $className, string $methodName, int $line): IdentifierRuleError
     {
         return RuleErrorBuilder::message(\sprintf(
-            'MCP tool method %s::%s() must return McpToolResult, built with successResult() or errorResult(), instead of a hand-built result string.',
+            'MCP tool method %s::%s() must return McpToolResult, built with successResult(), errorResult() or McpToolResult::text() for plain text, instead of a string.',
             $className,
             $methodName,
         ))
             ->identifier(self::IDENTIFIER)
             ->line($line)
-            ->tip('The legacy {"success": …} string is deprecated and no longer supported with 6.8.0.')
+            ->tip('A string result, the legacy {"success": …} envelope or plain text, is deprecated and no longer supported with 6.8.0.')
             ->build();
     }
 

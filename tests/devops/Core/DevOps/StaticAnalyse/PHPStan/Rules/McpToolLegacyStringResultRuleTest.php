@@ -22,7 +22,7 @@ use Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\data\McpToolLe
 #[Package('framework')]
 class McpToolLegacyStringResultRuleTest extends RuleTestCase
 {
-    private const TIP = 'The legacy {"success": …} string is deprecated and no longer supported with 6.8.0.';
+    private const TIP = 'A string result, the legacy {"success": …} envelope or plain text, is deprecated and no longer supported with 6.8.0.';
 
     public function testToolReturningTheResultObjectPasses(): void
     {
@@ -101,7 +101,7 @@ class McpToolLegacyStringResultRuleTest extends RuleTestCase
     private static function message(string $class, string $method): string
     {
         return \sprintf(
-            'MCP tool method %s::%s() must return McpToolResult, built with successResult() or errorResult(), instead of a hand-built result string.',
+            'MCP tool method %s::%s() must return McpToolResult, built with successResult(), errorResult() or McpToolResult::text() for plain text, instead of a string.',
             $class,
             $method,
         );

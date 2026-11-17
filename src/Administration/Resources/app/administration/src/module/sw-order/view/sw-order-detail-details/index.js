@@ -1,5 +1,6 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
+import { getShipments } from '../../order-delivery.helper';
 
 /**
  * @sw-package checkout
@@ -106,6 +107,10 @@ export default {
             return this.order.primaryOrderDelivery;
         },
 
+        shipments() {
+            return getShipments(this.order);
+        },
+
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
                 if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
@@ -172,8 +177,7 @@ export default {
         },
 
         selectedShippingAddressId() {
-            const currentAddress = this.orderAddressIds.find((item) => item.type === 'shipping');
-            return currentAddress?.customerAddressId || this.shippingAddress.id;
+            return this.getSelectedShippingAddressId(this.delivery);
         },
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
@@ -266,19 +270,39 @@ export default {
             Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
-        validateTrackingCode(searchTerm) {
+        validateTrackingCode(searchTerm, delivery = this.delivery) {
             const trackingCode = searchTerm.trim();
 
             if (trackingCode.length <= 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find((code) => code === trackingCode);
+            const isExist = delivery?.trackingCodes?.find((code) => code === trackingCode);
             return !isExist;
+        },
+
+        shipmentCardTitle(index) {
+            if (this.shipments.length === 1) {
+                return this.$t('sw-order.detailsTab.labelDeliveryCard');
+            }
+
+            return this.$t('sw-order.detailDeliveries.cardTitleItems', { count: index + 1 });
+        },
+
+        getSelectedShippingAddressId(delivery) {
+            const currentAddress = this.orderAddressIds.find(
+                (item) => item.type === 'shipping' && (item.deliveryId ?? this.delivery?.id) === delivery.id,
+            );
+
+            return currentAddress?.customerAddressId || delivery.shippingOrderAddress.id;
         },
 
         onChangeOrderAddress(value) {
             Store.get('swOrderDetail').setOrderAddressIds(value);
+        },
+
+        onChangeShipmentAddress(delivery, value) {
+            this.onChangeOrderAddress({ ...value, deliveryId: delivery.id });
         },
     },
 };

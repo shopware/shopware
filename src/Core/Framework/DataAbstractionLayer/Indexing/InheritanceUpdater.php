@@ -47,26 +47,34 @@ class InheritanceUpdater
 
         $inherited = $definition->getFields()->filter(static fn (Field $field) => $field->is(Inherited::class) && $field instanceof AssociationField);
 
+        if ($inherited->count() === 0) {
+            return;
+        }
+
+        $params = ['ids' => array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids)];
+
+        if ($definition->isVersionAware()) {
+            $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
+        }
+
         $associations = $inherited->filter(static fn (Field $field) => $field instanceof OneToManyAssociationField || $field instanceof ManyToManyAssociationField || $field instanceof OneToOneAssociationField);
 
         if ($associations->count() > 0) {
-            $this->updateToManyAssociations($definition, $ids, $associations, $context);
+            $this->updateToManyAssociations($definition, $associations, $params);
         }
 
         $associations = $inherited->filter(static fn (Field $field) => $field instanceof ManyToOneAssociationField);
 
         if ($associations->count() > 0) {
-            $this->updateToOneAssociations($definition, $ids, $associations, $context);
+            $this->updateToOneAssociations($definition, $associations, $params);
         }
     }
 
     /**
-     * @param array<string> $ids
+     * @param array{ids: array<string>, version?: string} $params
      */
-    private function updateToManyAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
+    private function updateToManyAssociations(EntityDefinition $definition, FieldCollection $associations, array $params): void
     {
-        $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
-
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
 
         $assignments = [];
@@ -122,28 +130,14 @@ class InheritanceUpdater
             $definition->isVersionAware() ? \sprintf('AND %s.version_id = :version', $root) : ''
         );
 
-        $params = ['ids' => $bytes];
-
-        if ($definition->isVersionAware()) {
-            $params['version'] = Uuid::fromHexToBytes($context->getVersionId());
-        }
-
-        RetryableQuery::retryable($this->connection, function () use ($params, $sql): void {
-            $this->connection->executeStatement(
-                $sql,
-                $params,
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        });
+        $this->execute($sql, $params);
     }
 
     /**
-     * @param array<string> $ids
+     * @param array{ids: array<string>, version?: string} $params
      */
-    private function updateToOneAssociations(EntityDefinition $definition, array $ids, FieldCollection $associations, Context $context): void
+    private function updateToOneAssociations(EntityDefinition $definition, FieldCollection $associations, array $params): void
     {
-        $bytes = array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids);
-
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
 
         $inherited = [];
@@ -162,12 +156,6 @@ class InheritanceUpdater
             $own[] = \sprintf('%s.%s = %s.%s', $root, $property, $root, $field);
         }
 
-        if ($inherited === []) {
-            return;
-        }
-
-        $versionId = $definition->isVersionAware() ? Uuid::fromHexToBytes($context->getVersionId()) : null;
-
         $sql = \sprintf(
             'UPDATE %s as %s, %s as parent
              SET %s
@@ -183,25 +171,16 @@ class InheritanceUpdater
             $root
         );
 
-        $params = ['ids' => $bytes];
-
-        if ($versionId !== null) {
+        if ($definition->isVersionAware()) {
             $sql .= \sprintf(
                 ' AND %s.version_id = parent.version_id
                   AND %s.version_id = :version',
                 $root,
                 $root
             );
-            $params['version'] = $versionId;
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
-            $this->connection->executeStatement(
-                $sql,
-                $params,
-                ['ids' => ArrayParameterType::BINARY]
-            );
-        });
+        $this->execute($sql, $params);
 
         $sql = \sprintf(
             'UPDATE %s AS %s
@@ -215,13 +194,18 @@ class InheritanceUpdater
             $root
         );
 
-        $params = ['ids' => $bytes];
-
-        if ($versionId !== null) {
+        if ($definition->isVersionAware()) {
             $sql .= \sprintf(' AND %s.version_id = :version', $root);
-            $params['version'] = $versionId;
         }
 
+        $this->execute($sql, $params);
+    }
+
+    /**
+     * @param array{ids: array<string>, version?: string} $params
+     */
+    private function execute(string $sql, array $params): void
+    {
         RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
             $this->connection->executeStatement(
                 $sql,

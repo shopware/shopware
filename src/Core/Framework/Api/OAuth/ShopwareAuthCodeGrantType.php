@@ -143,9 +143,6 @@ class ShopwareAuthCodeGrantType extends AuthCodeGrant
     }
 
     /**
-     * Reads the resource stored for the authorization code. The code itself is validated by the library afterwards.
-     */
-    /**
      * Runs from issueAccessToken(), after the library validated the client, the code and its PKCE verifier,
      * so a code that was already redeemed or revoked fails with `invalid_grant` before its missing
      * resource is reported.

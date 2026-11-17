@@ -233,16 +233,18 @@ describe('components/sw-select-base', () => {
         });
 
         it.each([
-            'Backspace',
-            'Delete',
-        ])('should expand on "%s" and hand it on to the search', async (key) => {
+            ['Backspace', {}],
+            ['Delete', {}],
+            ['Backspace', { ctrlKey: true }],
+            ['Backspace', { metaKey: true }],
+        ])('should expand on "%s" %o and hand it on to the search', async (key, modifiers) => {
             const selection = await createFocusedSelection();
             const searchInput = wrapper.find('.search-input').element;
             const onSearchKeydown = jest.fn();
             searchInput.addEventListener('keydown', onSearchKeydown);
             await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
 
-            const event = dispatchKeydown(selection.element, { key });
+            const event = dispatchKeydown(selection.element, { key, ...modifiers });
             await flushPromises();
             searchInput.removeEventListener('keydown', onSearchKeydown);
 

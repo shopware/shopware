@@ -175,7 +175,7 @@ export default {
                 return;
             }
 
-            if (DELETING_KEYS.includes(event.key) && !event.ctrlKey && !event.metaKey) {
+            if (DELETING_KEYS.includes(event.key)) {
                 event.preventDefault();
                 this.expand();
                 this.$nextTick(() => this.pressInSearch(event.key));

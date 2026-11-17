@@ -49,10 +49,9 @@ class ThemeService implements ResetInterface
     public const CONFIG_KEY_PENDING_THEME = 'storefront.pendingThemeAssignment';
 
     /**
-     * Context state that makes `updateTheme()` reset the theme config before writing the given values.
-     * The reset and the value write are committed together, so a failing save keeps the saved config.
+     * Context state that makes `updateTheme()` skip the theme compile, so a caller can compile after committing its transaction.
      */
-    public const STATE_RESET_CONFIG = 'theme-reset-config';
+    public const STATE_SKIP_COMPILE = 'theme-skip-compile';
 
     private bool $notified = false;
 
@@ -202,23 +201,67 @@ class ThemeService implements ResetInterface
      */
     public function updateTheme(string $themeId, ?array $config, ?string $parentThemeId, Context $context): void
     {
-        if ($context->hasState(self::STATE_RESET_CONFIG)) {
-            try {
-                RetryableTransaction::transactional($this->connection, function () use ($themeId, $config, $parentThemeId, $context): void {
-                    $this->resetTheme($themeId, $context);
-                    $this->writeThemeConfig($themeId, $config, $parentThemeId, $context);
-                });
-            } catch (\Throwable $e) {
-                // The rollback restores the stored runtime config, but not the copies the reset cached in memory.
-                $this->themeRuntimeConfigService->resetCaches();
+        $criteria = (new Criteria([$themeId]))
+            ->addAssociation('salesChannels');
 
-                throw $e;
-            }
-        } else {
-            $this->writeThemeConfig($themeId, $config, $parentThemeId, $context);
+        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->first();
+        if (!$theme) {
+            throw ThemeException::couldNotFindThemeById($themeId);
         }
 
-        $this->compileThemeById($themeId, $context, null, false);
+        $data = ['id' => $themeId];
+        if ($config) {
+            foreach ($config as $key => $value) {
+                $data['configValues'][$key] = $value;
+            }
+        }
+
+        if ($parentThemeId) {
+            $data['parentThemeId'] = $parentThemeId;
+        }
+
+        $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
+
+        $validFields = [];
+        if ($themeConfig && isset($themeConfig['fields'])) {
+            $validFields = array_keys($themeConfig['fields']);
+        }
+
+        // Cleanup the config values to only include the fields that are defined in the base config.
+        // This is necessary, because the theme config might change and fields could have been removed.
+        if (\array_key_exists('configValues', $data)) {
+            $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
+        }
+
+        if (\array_key_exists('configValues', $data)) {
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
+        }
+
+        // This part is not executed if the theme was reset before, because the config values are then empty.
+        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+            $submittedChanges = $data['configValues'];
+            $currentConfig = $theme->getConfigValues();
+            $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
+
+            // Cleaning up the config values also here, because there might be removed fields in the existing config values in the database.
+            $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
+
+            foreach ($submittedChanges as $key => $changes) {
+                if (isset($changes['value']) && \is_array($changes['value']) && isset($currentConfig[(string) $key]) && \is_array($currentConfig[(string) $key])) {
+                    $data['configValues'][$key]['value'] = array_unique($changes['value']);
+                }
+            }
+        }
+
+        $this->themeRepository->update([$data], $context);
+
+        // Administration resets inherited values before saving. Replace that intermediate
+        // runtime configuration even for unassigned themes and descendants compiled asynchronously.
+        $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
+
+        if (!$context->hasState(self::STATE_SKIP_COMPILE)) {
+            $this->compileThemeById($themeId, $context, null, false);
+        }
     }
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
@@ -432,70 +475,6 @@ class ThemeService implements ResetInterface
     public function reset(): void
     {
         $this->notified = false;
-    }
-
-    /**
-     * @param array<string, mixed>|null $config
-     */
-    private function writeThemeConfig(string $themeId, ?array $config, ?string $parentThemeId, Context $context): void
-    {
-        $criteria = (new Criteria([$themeId]))
-            ->addAssociation('salesChannels');
-
-        $theme = $this->themeRepository->search($criteria, $context)->getEntities()->first();
-        if (!$theme) {
-            throw ThemeException::couldNotFindThemeById($themeId);
-        }
-
-        $data = ['id' => $themeId];
-        if ($config) {
-            foreach ($config as $key => $value) {
-                $data['configValues'][$key] = $value;
-            }
-        }
-
-        if ($parentThemeId) {
-            $data['parentThemeId'] = $parentThemeId;
-        }
-
-        $themeConfig = $this->getPlainThemeConfiguration($themeId, $context);
-
-        $validFields = [];
-        if ($themeConfig && isset($themeConfig['fields'])) {
-            $validFields = array_keys($themeConfig['fields']);
-        }
-
-        // Cleanup the config values to only include the fields that are defined in the base config.
-        // This is necessary, because the theme config might change and fields could have been removed.
-        if (\array_key_exists('configValues', $data)) {
-            $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
-        }
-
-        if (\array_key_exists('configValues', $data)) {
-            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
-        }
-
-        // This part is not executed if the theme was reset before, because the config values are then empty.
-        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
-            $submittedChanges = $data['configValues'];
-            $currentConfig = $theme->getConfigValues();
-            $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
-
-            // Cleaning up the config values also here, because there might be removed fields in the existing config values in the database.
-            $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
-
-            foreach ($submittedChanges as $key => $changes) {
-                if (isset($changes['value']) && \is_array($changes['value']) && isset($currentConfig[(string) $key]) && \is_array($currentConfig[(string) $key])) {
-                    $data['configValues'][$key]['value'] = array_unique($changes['value']);
-                }
-            }
-        }
-
-        $this->themeRepository->update([$data], $context);
-
-        // Administration resets inherited values before saving. Replace that intermediate
-        // runtime configuration even for unassigned themes and descendants compiled asynchronously.
-        $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
     }
 
     private function handleAsync(

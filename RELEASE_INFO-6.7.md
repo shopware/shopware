@@ -11,7 +11,8 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 Saving a theme in the Administration (`PATCH /api/_action/theme/{themeId}?reset=1`) now resets the theme config and writes the new values in one transaction.
 Before, a failure between the two writes left the theme without any of its saved settings.
-`ThemeService::updateTheme()` does this reset itself when the context has the new state `ThemeService::STATE_RESET_CONFIG`.
+The theme is compiled after the commit.
+For that, `ThemeService::updateTheme()` skips the compile when the context has the new state `ThemeService::STATE_SKIP_COMPILE`.
 Classes overriding `updateTheme()` without calling the parent method should handle that state.
 
 ## Core

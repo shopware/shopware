@@ -22,6 +22,7 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
+use Shopware\Storefront\Theme\Controller\ThemeController;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
@@ -894,14 +895,16 @@ class ThemeTest extends TestCase
         );
 
         try {
-            $this->context->state(
-                static fn (Context $context) => $themeService->updateTheme(
-                    $theme->getId(),
-                    ['sw-color-brand-primary' => ['value' => '#123456']],
-                    null,
-                    $context,
-                ),
-                ThemeService::STATE_RESET_CONFIG,
+            $controller = new ThemeController(
+                $themeService,
+                static::createStub(ScssPhpCompiler::class),
+                static::getContainer()->get(Connection::class),
+                $runtimeConfigService,
+            );
+            $controller->updateTheme(
+                $theme->getId(),
+                new Request(['reset' => '1'], ['config' => ['sw-color-brand-primary' => ['value' => '#123456']]]),
+                $this->context,
             );
             static::fail('The failure must be passed on.');
         } catch (\RuntimeException $e) {

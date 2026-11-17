@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingS
 use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
@@ -63,19 +64,33 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
     #[TestDox('serves only loader bindings whose config decodes through their loader serializer')]
     public function testEveryRegisteredLoaderBindingConfigDecodesThroughItsSerializer(): void
     {
+        $map = $this->dataLoaderMap();
         $serializers = $this->configSerializers();
         $bindings = $this->registeredLoaderBindings();
 
-        $decoded = 0;
+        // One aggregate assertion over a runtime-dynamic set: each undecodable branch contributes a line, so the
+        // failure names every offender at once. Unregistered loaders are owned by the loader-registration test.
+        $problems = [];
+        $checked = 0;
 
-        foreach ($bindings as $binding) {
-            foreach (RootSourceConfigMap::branches($binding->config) ?? [] as $branchConfig) {
-                $serializers->decode($binding->loader, $branchConfig);
-                ++$decoded;
+        foreach ($bindings as $path => $binding) {
+            if (!isset($map->sourceToConfigSpecifications[$binding->loader])) {
+                continue;
+            }
+
+            foreach (RootSourceConfigMap::branches($binding->config) ?? [] as $branch => $branchConfig) {
+                ++$checked;
+
+                try {
+                    $serializers->decode($binding->loader, $branchConfig);
+                } catch (ContentSystemException $exception) {
+                    $problems[] = \sprintf('%s branch "%s": config does not decode through loader "%s": %s', $path, $branch, $binding->loader, $exception->getMessage());
+                }
             }
         }
 
-        static::assertGreaterThan(0, $decoded, 'At least one loader binding config branch must decode.');
+        static::assertSame([], $problems);
+        static::assertGreaterThan(0, $checked, 'At least one loader binding config branch must be checked.');
     }
 
     #[TestDox('the synthesized core:Sw:Media:Image default is served with its canonical entity wiring, no inputs, and is the type default')]

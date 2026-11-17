@@ -76,7 +76,7 @@ class DeliveryCollection extends Collection
     }
 
     /**
-     * Returns the deliveries that are not shipping discounts in collection order, which becomes their position when the order is placed
+     * Returns the deliveries that are not shipping discounts, in collection order
      */
     public function getShipments(): self
     {

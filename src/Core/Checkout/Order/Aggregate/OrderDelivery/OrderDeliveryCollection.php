@@ -70,8 +70,7 @@ class OrderDeliveryCollection extends EntityCollection
 
     /**
      * Returns the deliveries that are not shipping discounts, sorted by position.
-     * Deliveries with the same position, like every delivery of an order placed before positions existed,
-     * list the primary delivery first, then the highest shipping costs first.
+     * Deliveries with the same position list the primary delivery first, then the highest shipping costs first.
      */
     public function getShipments(?string $primaryOrderDeliveryId = null): self
     {

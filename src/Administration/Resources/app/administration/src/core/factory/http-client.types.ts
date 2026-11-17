@@ -111,8 +111,11 @@ interface HttpClientDefaults extends HttpRequestConfig {
     };
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export interface HttpClient {
+/**
+ * The Axios surface of the HTTP client without the Shopware additions `isCancel` and `CancelToken`.
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Shares the visibility of HttpClient, which extends it.
+export interface HttpClientBase {
     <Data = HttpClientValue, Response = HttpResponse<Data>, RequestData = HttpClientValue>(
         config: HttpRequestConfig<RequestData>,
     ): Promise<Response>;
@@ -177,18 +180,25 @@ export interface HttpClient {
     /**
      * Creates a derived client that inherits this client's defaults. Keeps the facade structurally compatible with
      * `AxiosInstance`, so extensions can still hand the client to `axios-mock-adapter` without a cast.
+     *
+     * The derived client has none of the interceptors of the Administration client, so no token refresh and no
+     * global error handling, and none of the Shopware additions.
      */
-    create: (config?: HttpRequestConfig) => HttpClient;
+    create: (config?: HttpRequestConfig) => HttpClientBase;
     getUri: (config?: HttpRequestConfig) => string;
-    isCancel: (value: unknown) => boolean;
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and the `signal` request option instead.
-     */
-    CancelToken: HttpCancelTokenFactory;
     defaults: HttpClientDefaults;
     interceptors: {
         // Request interceptors always receive the resolved request config, which carries the headers.
         request: HttpInterceptorManager<HttpRequestConfig & { headers: HttpClientValue }>;
         response: HttpInterceptorManager<HttpResponse>;
     };
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export interface HttpClient extends HttpClientBase {
+    isCancel: (value: unknown) => boolean;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and the `signal` request option instead.
+     */
+    CancelToken: HttpCancelTokenFactory;
 }

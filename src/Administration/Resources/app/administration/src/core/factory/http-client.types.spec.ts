@@ -32,4 +32,21 @@ describe('core/factory/http-client.types.ts', () => {
 
         expect(assertCompatibility).toBeDefined();
     });
+
+    it('types a derived client as an Axios instance without the Shopware additions', () => {
+        function assertDerivedClient(httpClient: HttpClient): void {
+            const derivedClient = httpClient.create({ timeout: 0 });
+            const axiosClient: AxiosInstance = derivedClient;
+
+            // @ts-expect-error - `create()` does not copy `isCancel` to the derived client
+            void derivedClient.isCancel;
+            // @ts-expect-error - `create()` does not copy `CancelToken` to the derived client
+            void derivedClient.CancelToken;
+            new MockAdapter(derivedClient);
+
+            expect(axiosClient).toBe(derivedClient);
+        }
+
+        expect(assertDerivedClient).toBeDefined();
+    });
 });

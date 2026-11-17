@@ -54,6 +54,12 @@
 }
 
 .sw-product-document-form-wrapper.is--disabled {
+    .sw-data-grid .sw-data-grid__cell-content .sw-product-document-form__edit-link.mt-link {
+        color: var(--color-text-primary-default);
+        text-decoration: none;
+        cursor: default;
+    }
+
     .mt-card__content {
         &::after {
             content: "";

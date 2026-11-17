@@ -4,6 +4,18 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
     const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
 
+    const pluginImageTypes = [{ name: 'Plugin:Image', label: 'Image', labelSnippet: 'plugin.element' }];
+    const textTypes = [
+        {
+            name: 'Sw:Content:Text',
+            label: 'Text',
+            icon: 'i',
+            illustration: 'content-text',
+            category: 'content',
+            priority: 100,
+        },
+    ];
+
     it('localizes picker text while keeping element and preset identifiers', () => {
         const translations: Record<string, string> = {
             'plugin.element': 'Bild',
@@ -14,10 +26,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
             $te: (key: string) => key in translations,
             $t: (key: string) => translations[key],
             pendingAddElementPayload: { parentElementId: null, slotName: null },
-            getAvailableTypesForPayload: () => [{ name: 'Plugin:Image', label: 'Image', labelSnippet: 'plugin.element' }],
-            getStructurallyAvailableTypesForPayload: () => [
-                { name: 'Plugin:Image', label: 'Image', labelSnippet: 'plugin.element' },
-            ],
+            getAvailableTypesForPayload: () => pluginImageTypes,
+            getStructurallyAvailableTypesForPayload: () => pluginImageTypes,
             layoutPresetStore: {
                 allPresets: [
                     {
@@ -97,28 +107,44 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
         }
 
         it.each([
-            ['root', rootPayload],
-            ['slot', slotPayload],
-        ])('rejects a restricted preset on a landing page layout for a %s payload', (_label, payload) => {
-            expect(
-                methods.isPresetAllowedForPayload.call(createContext('landing_page'), restrictedPreset, payload, allowed),
-            ).toBe(false);
-        });
-
-        it.each([
-            ['root', rootPayload],
-            ['slot', slotPayload],
-        ])('accepts a restricted preset on a category layout for a %s payload', (_label, payload) => {
-            expect(
-                methods.isPresetAllowedForPayload.call(createContext('category'), restrictedPreset, payload, allowed),
-            ).toBe(true);
-        });
-
-        it('rejects a restricted preset when the layout has no root source', () => {
-            expect(methods.isPresetAllowedForPayload.call(createContext(null), restrictedPreset, rootPayload, allowed)).toBe(
+            [
+                'landing_page',
+                'root',
+                rootPayload,
                 false,
-            );
-        });
+            ],
+            [
+                'landing_page',
+                'slot',
+                slotPayload,
+                false,
+            ],
+            [
+                'category',
+                'root',
+                rootPayload,
+                true,
+            ],
+            [
+                'category',
+                'slot',
+                slotPayload,
+                true,
+            ],
+            [
+                null,
+                'root',
+                rootPayload,
+                false,
+            ],
+        ])(
+            'on a layout with root source %s, a restricted preset for a %s payload is allowed: %s',
+            (rootSource, _label, payload, expected) => {
+                expect(
+                    methods.isPresetAllowedForPayload.call(createContext(rootSource), restrictedPreset, payload, allowed),
+                ).toBe(expected);
+            },
+        );
 
         it('rejects a preset with an empty list on a layout with a root source', () => {
             expect(
@@ -135,16 +161,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
     it('appends allowed presets to the picker elements and filters disallowed ones in slots', () => {
         const vm = {
             pendingAddElementPayload: { parentElementId: 'parent-1', slotName: 'content', anchorElement: null },
-            getStructurallyAvailableTypesForPayload: () => [
-                {
-                    name: 'Sw:Content:Text',
-                    label: 'Text',
-                    icon: 'i',
-                    illustration: 'content-text',
-                    category: 'content',
-                    priority: 100,
-                },
-            ],
+            getStructurallyAvailableTypesForPayload: () => textTypes,
             layoutPresetStore: {
                 allPresets: [
                     {
@@ -168,16 +185,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail presets',
                     },
                 ],
             },
-            getAvailableTypesForPayload: () => [
-                {
-                    name: 'Sw:Content:Text',
-                    label: 'Text',
-                    icon: 'i',
-                    illustration: 'content-text',
-                    category: 'content',
-                    priority: 100,
-                },
-            ],
+            getAvailableTypesForPayload: () => textTypes,
             isPresetAllowedForPayload: methods.isPresetAllowedForPayload,
             isOfferedOnRootSource: methods.isOfferedOnRootSource,
         };

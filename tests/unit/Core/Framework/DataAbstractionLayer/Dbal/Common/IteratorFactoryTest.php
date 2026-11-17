@@ -7,8 +7,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\OffsetQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
@@ -19,6 +22,28 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(IteratorFactory::class)]
 class IteratorFactoryTest extends TestCase
 {
+    public function testPrimaryKeyWithAnotherColumnNameKeepsOffsetPagination(): void
+    {
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $definition = new class extends EntityDefinition {
+            public function getEntityName(): string
+            {
+                return 'custom_entity';
+            }
+
+            protected function defineFields(): FieldCollection
+            {
+                return new FieldCollection([
+                    (new IdField('custom_id', 'customId'))->addFlags(new PrimaryKey()),
+                ]);
+            }
+        };
+        $definition->compile($registry);
+        $factory = new IteratorFactory(static::createStub(Connection::class), $registry);
+
+        static::assertInstanceOf(OffsetQuery::class, $factory->createIterator($definition));
+    }
+
     public function testCreateIteratorAddsVersionFilterWhenVersionAwareAndProvided(): void
     {
         $connection = static::createStub(Connection::class);

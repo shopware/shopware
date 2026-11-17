@@ -18,7 +18,7 @@ abstract class EntityIndexer
      * Called when a full entity index is required. This function should generate a list of message for all records which
      * are indexed by this indexer.
      *
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     abstract public function iterate(?array $offset): ?EntityIndexingMessage;
 

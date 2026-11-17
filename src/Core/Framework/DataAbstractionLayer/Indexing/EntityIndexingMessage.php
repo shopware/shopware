@@ -22,7 +22,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
 
     /**
      * @param array<string>|string $data
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     public function __construct(
         protected array|string $data,
@@ -43,7 +43,7 @@ class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMess
     }
 
     /**
-     * @return array{offset: int|null}|null
+     * @return array{offset: int|string|null}|null
      */
     public function getOffset(): ?array
     {

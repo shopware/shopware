@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Indexing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -53,7 +54,11 @@ class IndexerOffsetTest extends TestCase
         static::assertSame(['offset' => 42], $offset->getLastId());
     }
 
-    public function testSerialize(): void
+    /**
+     * @param array{offset: int|string|null}|null $lastId
+     */
+    #[DataProvider('cursorProvider')]
+    public function testSerialize(?array $lastId): void
     {
         $serialize = new Serializer(
             [
@@ -66,7 +71,8 @@ class IndexerOffsetTest extends TestCase
 
         $before = new IndexerOffset(
             ['product', 'product_manufacturer'],
-            (new \DateTime())->getTimestamp()
+            (new \DateTime())->getTimestamp(),
+            $lastId
         );
         $data = $serialize->serialize(
             $before,
@@ -80,5 +86,15 @@ class IndexerOffsetTest extends TestCase
         ]);
 
         static::assertEquals($before, $after);
+    }
+
+    /**
+     * @return iterable<string, array{array{offset: int|string|null}|null}>
+     */
+    public static function cursorProvider(): iterable
+    {
+        yield 'initial' => [null];
+        yield 'numeric' => [['offset' => 42]];
+        yield 'uuid' => [['offset' => '31323334353637383930313233343536']];
     }
 }

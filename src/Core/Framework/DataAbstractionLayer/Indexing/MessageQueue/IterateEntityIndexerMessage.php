@@ -13,7 +13,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
     /**
      * @internal
      *
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      * @param array<string> $skip
      */
     public function __construct(
@@ -29,7 +29,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
     }
 
     /**
-     * @return array{offset: int|null}|null
+     * @return array{offset: int|string|null}|null
      */
     public function getOffset(): ?array
     {
@@ -37,7 +37,7 @@ class IterateEntityIndexerMessage implements AsyncMessageInterface, Deduplicatab
     }
 
     /**
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|string|null}|null $offset
      */
     public function setOffset(?array $offset): void
     {

@@ -21,7 +21,7 @@ class IndexerOffset
 
     /**
      * @param iterable<string> $mappingDefinitions
-     * @param array{offset: int|null}|null $lastId
+     * @param array{offset: int|string|null}|null $lastId
      */
     public function __construct(
         iterable $mappingDefinitions,
@@ -70,7 +70,7 @@ class IndexerOffset
     }
 
     /**
-     * @return array{offset: int|null}|null
+     * @return array{offset: int|string|null}|null
      */
     public function getLastId(): ?array
     {
@@ -83,7 +83,7 @@ class IndexerOffset
     }
 
     /**
-     * @param array{offset: int|null}|null $lastId
+     * @param array{offset: int|string|null}|null $lastId
      */
     public function setLastId(?array $lastId): void
     {

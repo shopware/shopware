@@ -9,6 +9,13 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### UUID cursor pagination for entity indexing
+
+Indexing iterators now use UUID cursors for entities whose only primary key is `id`, avoiding increasing row offsets during large rebuilds such as the Administration media search index.
+Extensions consuming `IterableQuery::getOffset()` or entity indexing messages must treat the offset as an opaque cursor that can contain a hex UUID string as well as an integer.
+Previously queued row-offset cursors remain supported.
+Update all indexing workers before starting new indexing runs that produce UUID cursors.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

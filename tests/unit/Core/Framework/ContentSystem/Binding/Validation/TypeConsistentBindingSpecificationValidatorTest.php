@@ -812,40 +812,16 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         yield 'the first branch' => [['product' => 'broken', 'category' => 'narrow']];
     }
 
-    #[TestDox('flags a scoped map whose key is not a registered root source as a violation')]
-    public function testResolvesEntryScopedMapUnknownKeyIsViolation(): void
+    /**
+     * @param array<array-key, mixed> $scopedMap
+     */
+    #[DataProvider('rejectsMalformedScopedMapProvider')]
+    #[TestDox('flags a scoped map $_dataName as a violation')]
+    public function testResolvesEntryMalformedScopedMapIsViolation(array $scopedMap): void
     {
         $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
 
-        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => 'wide', 'bogus' => 'narrow']]]);
-
-        $violations = $this->validateWith($dto, $validator);
-
-        static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[media].config.variant', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('must be a map of root source to string', (string) $violations->get(0)->getMessage());
-    }
-
-    #[TestDox('flags a scoped map with a non-string value as a violation')]
-    public function testResolvesEntryScopedMapNonStringValueIsViolation(): void
-    {
-        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
-
-        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => ['product' => ['wide']]]]);
-
-        $violations = $this->validateWith($dto, $validator);
-
-        static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[media].config.variant', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('must be a map of root source to string', (string) $violations->get(0)->getMessage());
-    }
-
-    #[TestDox('flags a scoped map without any root-source entry as a violation')]
-    public function testResolvesEntryEmptyScopedMapIsViolation(): void
-    {
-        $validator = $this->validatorWithRootSources(['product', 'category', 'landing_page']);
-
-        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => []]]);
+        $dto = $this->entityLoaderDto(['entity' => 'media', 'property' => 'mediaId', 'variant' => [RootSourceConfigMap::MARKER => $scopedMap]]);
 
         $violations = $this->validateWith($dto, $validator);
 
@@ -855,6 +831,16 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
             'resolves entry "media" config key "variant" must be a map of root source to string, with keys limited to product, category, landing_page',
             (string) $violations->get(0)->getMessage()
         );
+    }
+
+    /**
+     * @return iterable<string, array{array<array-key, mixed>}>
+     */
+    public static function rejectsMalformedScopedMapProvider(): iterable
+    {
+        yield 'whose key is not a registered root source' => [['product' => 'wide', 'bogus' => 'narrow']];
+        yield 'with a non-string value' => [['product' => ['wide']]];
+        yield 'without any root-source entry' => [[]];
     }
 
     #[DataProvider('rejectsScopedMapOnNonLiteralKeyProvider')]

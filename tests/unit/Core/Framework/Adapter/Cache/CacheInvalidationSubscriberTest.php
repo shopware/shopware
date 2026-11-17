@@ -9,6 +9,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
@@ -172,6 +173,20 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber->invalidateProductListingRouteByCategoryIds(
             new CategoryIndexerEvent([$childId], Context::createDefaultContext())
         );
+    }
+
+    public function testIndexingWithoutTreeChangesInvalidatesNoListing(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        $this->connection->expects($this->never())->method('fetchFirstColumn');
+        $this->cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $subscriber->invalidateProductListingRouteByCategoryIds(new CategoryIndexerEvent(
+            [Uuid::randomHex()],
+            Context::createDefaultContext(),
+            [CategoryIndexer::CHILD_COUNT_UPDATER, CategoryIndexer::TREE_UPDATER],
+        ));
     }
 
     public function testInvalidateChangedCategoryListings(): void

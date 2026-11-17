@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
@@ -248,6 +249,10 @@ class CacheInvalidationSubscriber
 
     public function invalidateProductListingRouteByCategoryIds(CategoryIndexerEvent $event): void
     {
+        if (\in_array(CategoryIndexer::TREE_UPDATER, $event->getSkip(), true)) {
+            return;
+        }
+
         $this->invalidateCategoryListings($event->getIds(), $event->getContext()->getVersionId());
     }
 

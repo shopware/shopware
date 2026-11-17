@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Util;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,7 +32,7 @@ class VariantCombinationLoader
         $query = $this->connection->createQueryBuilder();
         $query->select(
             'LOWER(HEX(product.id)) AS id',
-            'LOWER(HEX(product_option.property_group_option_id)) AS optionId',
+            'GROUP_CONCAT(LOWER(HEX(product_option.property_group_option_id))) AS options',
             'product.product_number AS productNumber',
             'product.type AS type',
         );
@@ -49,26 +50,17 @@ class VariantCombinationLoader
         );
         $query->where('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
+        $query->groupBy('product.id');
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $combinations = [];
+        /** @var array<string, array{options: string, productNumber: string, type: string, productStates?: string|null}> $combinations */
+        $combinations = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
 
-        /** @var array{id: string, optionId: string, productNumber: string, type: string, productStates?: string|null} $row */
-        foreach ($query->executeQuery()->fetchAllAssociative() as $row) {
-            $id = $row['id'];
+        return array_map(static function (array $combination): array {
+            $combination['options'] = explode(',', $combination['options']);
 
-            if (!isset($combinations[$id])) {
-                $combinations[$id] = ['options' => [], 'productNumber' => $row['productNumber'], 'type' => $row['type']];
-
-                if (\array_key_exists('productStates', $row)) {
-                    $combinations[$id]['productStates'] = $row['productStates'];
-                }
-            }
-
-            $combinations[$id]['options'][] = $row['optionId'];
-        }
-
-        return $combinations;
+            return $combination;
+        }, $combinations);
     }
 }

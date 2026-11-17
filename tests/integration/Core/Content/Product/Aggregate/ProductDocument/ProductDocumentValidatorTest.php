@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Aggregate\ProductDocument;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\File\FileSaver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -11,11 +13,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -90,12 +94,37 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
+    public function testTheFileOfADocumentCanOnlyBeReplacedWithAFileThatFits(): void
+    {
+        $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [['title' => 'Manual', 'mediaId' => $this->createMedia('manual')]],
+        ]], $this->context);
+
+        try {
+            static::getContainer()->get(FileSaver::class)->persistFileToMedia(
+                new MediaFile('manual.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xlsx', 1024),
+                'manual',
+                $this->ids->get('manual'),
+                $this->context,
+            );
+
+            static::fail('The replace was not stopped.');
+        } catch (ConstraintViolationException $exception) {
+            static::assertSame([ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED], array_column(iterator_to_array($exception->getErrors(), false), 'code'));
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$this->ids->get('manual')]), $this->context)->getEntities()->get($this->ids->get('manual'));
+        static::assertSame('pdf', $media?->getFileExtension());
+    }
+
     private function createMedia(string $fileName, bool $private = false): string
     {
         $this->mediaRepository->create([[
             'id' => $this->ids->create($fileName),
             'fileName' => $fileName,
             'fileExtension' => 'pdf',
+            'mimeType' => 'application/pdf',
             'fileSize' => 1024,
             'private' => $private,
         ]], $this->context);

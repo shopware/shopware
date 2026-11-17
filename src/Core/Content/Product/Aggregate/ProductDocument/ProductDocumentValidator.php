@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
@@ -9,12 +10,14 @@ use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDo
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -38,11 +41,13 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
     /**
      * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
      */
     public function __construct(
         private readonly WriteOutcome $writeOutcome,
         private readonly EntityRepository $mediaRepository,
         private readonly ProductDocumentConfig $config,
+        private readonly EntityRepository $productDocumentRepository,
     ) {
     }
 
@@ -50,6 +55,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     {
         return [
             PreWriteValidationEvent::class => 'validate',
+            BeforeMediaFileReplacedEvent::class => 'validateReplacedFile',
         ];
     }
 
@@ -69,6 +75,21 @@ final class ProductDocumentValidator implements EventSubscriberInterface
 
         if ($violations->count() > 0) {
             $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
+    }
+
+    public function validateReplacedFile(BeforeMediaFileReplacedEvent $event): void
+    {
+        // the media library replaces a file without saving the documents that use it
+        if (!$this->isDocumentFile($event->mediaId, $event->getContext())) {
+            return;
+        }
+
+        $violations = new ConstraintViolationList();
+        $this->validateTypeAndSize($event->fileExtension, $event->fileSize, $this->config->getAllowedExtensions($event->getContext()), '', $violations);
+
+        if ($violations->count() > 0) {
+            throw new ConstraintViolationException($violations, ['fileExtension' => $event->fileExtension, 'fileSize' => $event->fileSize]);
         }
     }
 
@@ -144,25 +165,46 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $extension = (string) $file->getFileExtension();
-            if (!\in_array(mb_strtolower($extension), $allowedExtensions, true)) {
-                $violations->add($this->violation(
-                    code: self::VIOLATION_FILE_EXTENSION_NOT_ALLOWED,
-                    messageTemplate: 'The file type "{{ extension }}" is not allowed for product documents. Allowed are: {{ allowed }}.',
-                    parameters: ['{{ extension }}' => $extension, '{{ allowed }}' => implode(', ', $allowedExtensions)],
-                    path: $errorPath,
-                ));
-            }
-
-            if ($size > $this->config->maxFileSize) {
-                $violations->add($this->violation(
-                    code: self::VIOLATION_FILE_TOO_LARGE,
-                    messageTemplate: 'The file is {{ size }}, over the limit of {{ maxSize }}.',
-                    parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($size), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
-                    path: $errorPath,
-                ));
-            }
+            $this->validateTypeAndSize((string) $file->getFileExtension(), $size, $allowedExtensions, $errorPath, $violations);
         }
+    }
+
+    /**
+     * @param list<string> $allowedExtensions
+     */
+    private function validateTypeAndSize(string $extension, ?int $size, array $allowedExtensions, string $path, ConstraintViolationList $violations): void
+    {
+        if (!\in_array(mb_strtolower($extension), $allowedExtensions, true)) {
+            $violations->add($this->violation(
+                code: self::VIOLATION_FILE_EXTENSION_NOT_ALLOWED,
+                messageTemplate: 'The file type "{{ extension }}" is not allowed for product documents. Allowed are: {{ allowed }}.',
+                parameters: ['{{ extension }}' => $extension, '{{ allowed }}' => implode(', ', $allowedExtensions)],
+                path: $path,
+            ));
+        }
+
+        if ($size !== null && $size > $this->config->maxFileSize) {
+            $violations->add($this->violation(
+                code: self::VIOLATION_FILE_TOO_LARGE,
+                messageTemplate: 'The file is {{ size }}, over the limit of {{ maxSize }}.',
+                parameters: ['{{ size }}' => MemorySizeCalculator::formatToBytes($size), '{{ maxSize }}' => MemorySizeCalculator::formatToBytes($this->config->maxFileSize)],
+                path: $path,
+            ));
+        }
+    }
+
+    private function isDocumentFile(string $mediaId, Context $context): bool
+    {
+        $criteria = new Criteria();
+        $criteria->setTitle('product-document-validator::document-file');
+        $criteria->addFilter(new EqualsFilter('translations.mediaId', $mediaId));
+        $criteria->setLimit(1);
+
+        // the replacing user may not see the documents
+        return $context->scope(
+            Context::SYSTEM_SCOPE,
+            fn (Context $context): bool => $this->productDocumentRepository->searchIds($criteria, $context)->firstId() !== null,
+        );
     }
 
     /**

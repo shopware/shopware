@@ -68,6 +68,17 @@
             </div>
         {% endblock %}
 
+        {% block sw_product_document_form_apply_to_variants %}
+            <mt-checkbox
+                v-if="hasVariants"
+                :checked="applyToVariants"
+                class="sw-product-document-form__apply-to-variants"
+                :label="$t('sw-product.documentForm.applyToVariants')"
+                :help-text="$t('sw-product.documentForm.applyToVariantsHelp')"
+                :disabled="isDisabled"
+                @update:checked="$emit('update:applyToVariants', $event)"
+            />
+        {% endblock %}
             <mt-text
                 size="xs"
             >

@@ -283,7 +283,9 @@ declare global {
         localeHelper: $TSFixMe;
         localeToLanguageService: $TSFixMe;
         loginService: LoginService;
-        mediaDefaultFolderService: $TSFixMe;
+        mediaDefaultFolderService: {
+            getDefaultFolderId: (entityName: string) => Promise<string | null>;
+        };
         mediaService: MediaService;
         menuService: $TSFixMe;
         numberRangeService: $TSFixMe;

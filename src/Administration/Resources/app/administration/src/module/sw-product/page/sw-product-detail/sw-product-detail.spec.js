@@ -907,29 +907,36 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.loadProduct).not.toHaveBeenCalled();
     });
 
-    it.each(['success', 'empty'])('should announce a save that finished with "%s"', async (response) => {
-        wrapper.vm.loadProduct = jest.fn();
-        wrapper.vm.updateSeoPromises = [];
+    it.each(['success', 'empty'])(
+        'emits save success without repeating document Apply notifications for "%s"',
+        async (response) => {
+            const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+            wrapper.vm.loadProduct = jest.fn();
+            wrapper.vm.updateSeoPromises = [];
+            Shopware.Utils.EventBus.emit = jest.fn();
 
-        Shopware.Utils.EventBus.emit = jest.fn();
+            wrapper.vm.onSaveFinished(response);
+            await flushPromises();
 
-        wrapper.vm.onSaveFinished(response);
-        await flushPromises();
-
-        expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
-    });
+            expect(Shopware.Utils.EventBus.emit).toHaveBeenCalledWith('sw-product-detail-save-success');
+            expect(notificationSpy).not.toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.applySuccess' }),
+            );
+        },
+    );
 
     it('should not announce a save that failed', async () => {
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
         wrapper.vm.loadProduct = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
         wrapper.vm.updateSeoPromises = [];
-
         Shopware.Utils.EventBus.emit = jest.fn();
 
         wrapper.vm.onSaveFinished({ response: { data: { errors: [{ detail: 'nope' }] } } });
         await flushPromises();
 
         expect(Shopware.Utils.EventBus.emit).not.toHaveBeenCalledWith('sw-product-detail-save-success');
+        expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
     });
 
     it('loads document language metadata when opening a product', async () => {

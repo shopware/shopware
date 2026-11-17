@@ -50,6 +50,10 @@ Shopware.Component.register(
     'sw-product-document-add-button',
     () => import('./component/sw-product-document-form/sw-product-document-add-button'),
 );
+Shopware.Component.register(
+    'sw-product-document-variant-badge',
+    () => import('./component/sw-product-document-form/sw-product-document-variant-badge'),
+);
 Shopware.Component.register('sw-product-document-form', () => import('./component/sw-product-document-form'));
 Shopware.Component.register(
     'sw-product-document-download',

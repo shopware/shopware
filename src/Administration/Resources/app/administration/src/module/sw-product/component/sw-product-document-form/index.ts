@@ -1,21 +1,26 @@
 /**
  * @sw-package inventory
  */
+import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import documentColumns, { allowedExtensions, maxFileSize, maxDocuments } from './document-form.config';
+import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
 import {
     resetDocumentTranslation,
     getDocumentTranslationChanges,
     getEditChanges,
     type DocumentChanges,
 } from './document-translation.utils';
-
+import { loadDocumentVariants, getDocumentVariantCandidates } from './document-variant.helper';
+import { copyInheritedDocuments } from './document-inheritance.helper';
+import { updateDocumentPositions } from './document-position.helper';
 import { getHintParams, getFileAccept, isInvalidDocumentFile } from './document-upload.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
-type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean };
+type DocumentGrid = { resetSelection: () => void };
+
+type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean; restoreInheritance: () => void };
 
 /**
  * @private
@@ -30,32 +35,36 @@ export default Shopware.Component.wrapComponentConfig({
         'entityFactory',
         'acl',
         'fileValidationService',
-        'mediaService',
+        'mediaDefaultFolderService',
     ],
 
     props: {
-        disabled: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
+        disabled: { type: Boolean, required: false, default: false },
     },
 
     data() {
         return {
+            page: 1,
+            limit: 10,
             showUploadModal: false,
             showMediaModal: false,
+            showRestoreInheritanceModal: false,
             mediaFolderId: undefined as string | null | undefined,
             editingDocument: null as Entity<'product_document'> | null,
-            removingDocument: null as Entity<'product_document'> | null,
+            selectedDocuments: [] as Entity<'product_document'>[],
+            removingDocuments: [] as Entity<'product_document'>[],
+            removeFromVariants: false,
+            isRemovingDocument: false,
+            removeModalVersion: 0,
             documentTitle: '',
             documentEditSession: 0,
             replacementMedia: null as Entity<'media'> | null,
             documentFileRemoved: false,
+            applyToVariants: false,
+            isSavingDocument: false,
             documentValidationSubmitted: false,
             allowedExtensions: [...allowedExtensions],
             maxFileSize,
-            maxDocuments,
         };
     },
 
@@ -84,6 +93,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.product.documents as EntityCollection<'product_document'>;
         },
 
+        pageOffset(): number {
+            return (this.page - 1) * this.limit;
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
         documentRepository() {
             return this.repositoryFactory.create('product_document');
         },
@@ -97,13 +114,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            const language = this.documentContext.language;
-            const languageLoaded = this.isDefaultLanguage || language?.id === this.languageId;
+            const languageLoaded = this.isDefaultLanguage || this.documentContext.language?.id === this.languageId;
             return !this.disabled && this.acl.can('product.editor') && languageLoaded;
         },
 
         canAddDocuments(): boolean {
-            return this.canEdit && this.isDefaultLanguage && this.documents.length < this.maxDocuments;
+            return this.canEdit && this.isDefaultLanguage;
         },
 
         isDefaultLanguage(): boolean {
@@ -124,8 +140,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
             const changes = getDocumentTranslationChanges(document, { title: null }, this.documentContext);
-            const title = (changes.translated ?? document.translated)?.title;
-            return title || this.getMedia(document)?.fileName || '';
+            return (changes.translated ?? document.translated)?.title || this.getMedia(document)?.fileName || '';
         },
 
         editingMedia(): Entity<'media'> | undefined {
@@ -136,7 +151,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         canSaveDocument(): boolean {
             const hasRequiredFields = !!this.documentTitle.trim() && !!this.editingMedia;
-            return this.canEdit && (!this.isDefaultLanguage || hasRequiredFields);
+            return this.canEdit && !this.isSavingDocument && (!this.isDefaultLanguage || hasRequiredFields);
         },
 
         documentNameError(): { code: string; detail: string } | null {
@@ -149,6 +164,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.isDefaultLanguage && this.documentValidationSubmitted && !this.editingMedia
                 ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
                 : null;
+        },
+
+        hasVariants(): boolean {
+            return !this.product.parentId && !!this.product.childCount;
         },
 
         documentColumns() {
@@ -168,15 +187,22 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
+        'documents.length'() {
+            const lastPage = Math.max(1, Math.ceil(this.documents.length / this.limit));
+            this.page = Math.min(this.page, lastPage);
+        },
         product() {
+            this.page = 1;
             this.showUploadModal = false;
+            this.onCloseRestoreInheritanceModal();
             this.closeDocumentEditor();
             this.closeRemoveDocumentModal();
+            this.selectedDocuments = [];
         },
     },
 
-    created() {
-        void this.createdComponent();
+    async created() {
+        await this.createdComponent();
     },
 
     beforeUnmount() {
@@ -185,12 +211,32 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        async createdComponent(): Promise<void> {
+        async createdComponent() {
             try {
-                this.mediaFolderId = await this.mediaService.getDefaultFolderId('product_document');
+                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
             } catch {
                 this.mediaFolderId = null;
             }
+        },
+
+        getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
+            return documents.slice(this.pageOffset, this.pageOffset + this.limit);
+        },
+
+        getDocumentSelectionFilter(isInherited: boolean): (document: Entity<'product_document'>) => boolean {
+            return (document) =>
+                this.canEdit && !isInherited && (this.isDefaultLanguage || !!document.title || !!document.mediaId);
+        },
+
+        canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
+            const index = this.documents.indexOf(document);
+            const newIndex = index + offset;
+            return index >= 0 && newIndex >= 0 && newIndex < this.documents.length;
+        },
+
+        onPageChange({ page, limit }: { page: number; limit: number }): void {
+            this.page = page;
+            this.limit = limit;
         },
 
         canChangeDocuments(): boolean {
@@ -222,7 +268,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async successfulUpload(
-            { targetId }: { targetId: EntityKey<'media'> },
+            {
+                targetId,
+                successAmount = 1,
+                totalAmount = 1,
+            }: {
+                targetId: EntityKey<'media'>;
+                successAmount?: number;
+                totalAmount?: number;
+            },
             editingDocument: Entity<'product_document'> | null = null,
         ): Promise<void> {
             const product = this.product;
@@ -238,7 +292,11 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
                 if (isCurrentUpload() && media) {
+                    const documentCount = this.documents.length;
                     this.addDocuments([media], editingDocument);
+                    if (!editingDocument && this.documents.length > documentCount && successAmount === totalAmount) {
+                        this.showUploadModal = false;
+                    }
                 }
             } catch {
                 if (isCurrentUpload()) {
@@ -285,13 +343,6 @@ export default Shopware.Component.wrapComponentConfig({
                     continue;
                 }
 
-                if (this.documents.length >= this.maxDocuments) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorDocumentLimit', { count: this.maxDocuments }),
-                    });
-                    break;
-                }
-
                 const document = this.documentRepository.create(Shopware.Context.api);
                 document.productId = this.product.id;
                 document.mediaId = media.id;
@@ -304,18 +355,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         moveDocument(document: Entity<'product_document'>, offset: number): void {
-            if (!this.canChangeDocuments()) {
+            if (!this.canChangeDocuments() || !this.canMoveDocument(document, offset)) {
                 return;
             }
 
             const oldIndex = this.documents.indexOf(document);
             const newIndex = oldIndex + offset;
-            if (oldIndex < 0 || newIndex < 0 || newIndex >= this.documents.length) {
-                return;
-            }
 
             this.documents.moveItem(oldIndex, newIndex);
-            this.updatePositions();
+            updateDocumentPositions(this.documents);
         },
 
         openDocumentEditor(document: Entity<'product_document'>): void {
@@ -328,6 +376,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentTitle = this.isDefaultLanguage ? this.getTitle(document) : document.title || '';
             this.replacementMedia = null;
             this.documentFileRemoved = false;
+            this.applyToVariants = this.hasVariants;
             this.documentValidationSubmitted = false;
         },
 
@@ -336,41 +385,171 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentFileRemoved = true;
         },
 
-        applyDocumentEdit(): void {
+        async applyDocumentEdit(): Promise<void> {
             this.documentValidationSubmitted = true;
-            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) return;
+            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) {
+                return;
+            }
+
+            const product = this.product;
             const document = this.editingDocument;
-            if (this.replacementMedia) Shopware.Store.get('swProductDetail').cacheDocumentMedia(this.replacementMedia);
-            const { changes } = getEditChanges(document, this, this.getTitle(document), this.documentContext);
-            this.applyDocumentChanges(document, changes);
-            this.closeDocumentEditor();
+            const session = this.documentEditSession;
+            const replacementMedia = this.replacementMedia;
+            const context = { ...this.documentContext, inheritance: false };
+            const isCurrentEdit = () =>
+                session === this.documentEditSession &&
+                product === this.product &&
+                document === this.editingDocument &&
+                context.languageId === this.languageId;
+            const originalMediaId = document.mediaId || document.translated?.mediaId;
+            const { changes, variantChanges } = getEditChanges(document, this, this.getTitle(document), context);
+            const matchingMediaId = this.applyToVariants && this.hasVariants ? originalMediaId : null;
+            this.isSavingDocument = true;
+
+            try {
+                if (replacementMedia) {
+                    Shopware.Store.get('swProductDetail').cacheDocumentMedia(replacementMedia);
+                }
+                let updatedVariantIds: string[] = [];
+                if (matchingMediaId) {
+                    const variants = await loadDocumentVariants(
+                        this.productRepository,
+                        product.id,
+                        matchingMediaId,
+                        context,
+                    );
+                    if (!isCurrentEdit()) {
+                        return;
+                    }
+                    updatedVariantIds = this.stageVariantDocumentChanges(variants, document, variantChanges);
+                }
+                this.applyDocumentChanges(document, changes);
+                if (matchingMediaId) {
+                    useSnackbar().addSnackbar({
+                        variant: 'success',
+                        message: this.$t('sw-product.documentForm.applySuccess', {
+                            name: this.getTitle(document),
+                            count: updatedVariantIds.length,
+                        }),
+                    });
+                }
+                this.closeDocumentEditor();
+            } catch {
+                if (isCurrentEdit()) {
+                    this.isSavingDocument = false;
+                    useNotification().createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorLoadVariants'),
+                    });
+                }
+            }
         },
 
         closeDocumentEditor(): void {
             this.documentEditSession += 1;
+            this.isSavingDocument = false;
             this.editingDocument = null;
             this.replacementMedia = null;
             this.showMediaModal = false;
         },
 
-        openRemoveDocumentModal(document: Entity<'product_document'>): void {
-            if (!this.canChangeDocuments() || (!this.isDefaultLanguage && !document.title && !document.mediaId)) return;
-            this.removingDocument = document;
+        onDocumentSelectionChange(selection: Record<string, Entity<'product_document'>>): void {
+            this.selectedDocuments = Object.values(selection);
+        },
+
+        openRemoveDocumentModal(document: Entity<'product_document'> | Entity<'product_document'>[]): void {
+            if (!this.canChangeDocuments()) {
+                return;
+            }
+
+            this.removingDocuments = (Array.isArray(document) ? document : [document]).filter(
+                (item) => this.isDefaultLanguage || item.title || item.mediaId,
+            );
+            this.removeFromVariants = this.hasVariants;
+            this.removeModalVersion += 1;
         },
 
         closeRemoveDocumentModal(): void {
-            this.removingDocument = null;
+            this.removeModalVersion += 1;
+            this.removingDocuments = [];
+            this.isRemovingDocument = false;
         },
 
-        removeDocument(): void {
-            if (!this.canChangeDocuments() || !this.removingDocument) return;
-            if (this.isDefaultLanguage) {
-                this.documents.remove(this.removingDocument.id);
-                this.updatePositions();
-            } else {
-                this.resetDocumentLanguageVersion(this.removingDocument);
+        async removeDocument(): Promise<void> {
+            if (!this.canChangeDocuments() || !this.removingDocuments.length || this.isRemovingDocument) {
+                return;
             }
-            this.closeRemoveDocumentModal();
+
+            const product = this.product;
+            const documents = this.removingDocuments;
+            const modalVersion = this.removeModalVersion;
+            const context = { ...this.documentContext, inheritance: false };
+            const isCurrentRemoval = () =>
+                modalVersion === this.removeModalVersion &&
+                product === this.product &&
+                documents === this.removingDocuments &&
+                context.languageId === this.languageId;
+            const mediaIds =
+                this.removeFromVariants && this.hasVariants
+                    ? [
+                          ...new Set(
+                              documents
+                                  .map((document) => document.mediaId || document.translated?.mediaId)
+                                  .filter((id) => typeof id === 'string'),
+                          ),
+                      ]
+                    : [];
+            this.isRemovingDocument = true;
+            try {
+                const variants = mediaIds.length
+                    ? await loadDocumentVariants(this.productRepository, product.id, mediaIds, context)
+                    : [];
+                if (!isCurrentRemoval()) {
+                    return;
+                }
+                const name = this.getTitle(documents[0]);
+                const removedVariantIds = new Set<string>();
+                documents.forEach((document) => {
+                    if (mediaIds.length && (document.mediaId || document.translated?.mediaId)) {
+                        this.stageVariantDocumentRemovals(variants, document).forEach((id) => removedVariantIds.add(id));
+                    }
+                    if (this.isDefaultLanguage) {
+                        this.documents.remove(document.id);
+                    } else {
+                        this.resetDocumentLanguageVersion(document);
+                    }
+                });
+                if (this.isDefaultLanguage) {
+                    updateDocumentPositions(this.documents);
+                }
+                const message =
+                    documents.length > 1
+                        ? this.$t(
+                              this.isDefaultLanguage
+                                  ? 'sw-product.documentForm.bulkRemoveSuccess'
+                                  : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
+                              {
+                                  count: documents.length,
+                                  language: this.contentLanguageName,
+                              },
+                          )
+                        : this.isDefaultLanguage
+                          ? this.$t('sw-product.documentForm.removeSuccess', { name, count: removedVariantIds.size })
+                          : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', {
+                                language: this.contentLanguageName,
+                                name,
+                            });
+                useSnackbar().addSnackbar({ variant: 'success', message });
+                (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
+                this.selectedDocuments = [];
+                this.closeRemoveDocumentModal();
+            } catch {
+                if (isCurrentRemoval()) {
+                    this.isRemovingDocument = false;
+                    useNotification().createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorLoadVariants'),
+                    });
+                }
+            }
         },
 
         applyDocumentChanges(document: Entity<'product_document'>, changes: DocumentChanges): void {
@@ -393,6 +572,64 @@ export default Shopware.Component.wrapComponentConfig({
             this.applyDocumentChanges(document, resetDocumentTranslation(document, language, systemLanguageId));
         },
 
+        stageVariantDocumentChanges(
+            variants: Entity<'product'>[],
+            original: Entity<'product_document'>,
+            changes: DocumentChanges,
+        ): string[] {
+            const children =
+                this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const candidates = getDocumentVariantCandidates(variants, children, original);
+            const updatedVariantIds: string[] = [];
+            const context = this.documentContext;
+            candidates.forEach(({ variant, matching }) => {
+                let changed = false;
+                matching.forEach((copy) => {
+                    const update = getDocumentTranslationChanges(copy, changes, context, this.isDefaultLanguage);
+                    const { title, mediaId } = copy;
+                    this.applyDocumentChanges(copy, update);
+                    if (title !== copy.title || mediaId !== copy.mediaId) {
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    if (!children.has(variant.id)) {
+                        children.add(variant);
+                    }
+                    updatedVariantIds.push(variant.id);
+                }
+            });
+            this.product.children = children;
+            return updatedVariantIds;
+        },
+
+        stageVariantDocumentRemovals(variants: Entity<'product'>[], original: Entity<'product_document'>): string[] {
+            const children =
+                this.product.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const origin = this.product.getOrigin();
+            const originChildren =
+                origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
+            const candidates = getDocumentVariantCandidates(variants, children, original);
+            candidates.forEach(({ variant, documents, matching }) => {
+                // Register loaded children in the origin so the changeset includes nested document deletions.
+                if (!variant.isNew() && !originChildren.has(variant.id)) {
+                    originChildren.add(variant);
+                }
+                if (!children.has(variant.id)) {
+                    children.add(variant);
+                }
+                if (this.isDefaultLanguage) {
+                    matching.forEach((copy) => documents.remove(copy.id));
+                    updateDocumentPositions(documents);
+                } else {
+                    matching.forEach((copy) => this.resetDocumentLanguageVersion(copy));
+                }
+            });
+            this.product.children = children;
+            origin.children = originChildren;
+            return candidates.map(({ variant }) => variant.id);
+        },
+
         documentRemoveInheritanceFunction(
             inheritedDocuments: EntityCollection<'product_document'>,
         ): EntityCollection<'product_document'> {
@@ -401,38 +638,32 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             (this.$refs.documentInheritance as DocumentInheritance).forceInheritanceRemove = true;
-            inheritedDocuments.forEach((source) => {
-                const document = this.documentRepository.create(Shopware.Context.api);
-                document.productId = this.product.id;
-                document.position = source.position;
-                document.title = source.title;
-                document.mediaId = source.mediaId;
-                document.customFields = Shopware.Utils.object.cloneDeep(source.customFields);
-                document.translated = Shopware.Utils.object.cloneDeep(source.translated);
-
-                source.translations?.forEach((sourceTranslation) => {
-                    const translation = (this.entityFactory as EntityFactory).create(
-                        'product_document_translation',
-                        null,
-                        Shopware.Context.api,
-                    ) as Entity<'product_document_translation'>;
-                    translation.productDocumentId = document.id;
-                    translation.languageId = sourceTranslation.languageId;
-                    translation.mediaId = sourceTranslation.mediaId;
-                    translation.title = sourceTranslation.title;
-                    translation.customFields = Shopware.Utils.object.cloneDeep(sourceTranslation.customFields);
-                    document.translations.add(translation);
-                    translation.media = sourceTranslation.media;
-                });
-                this.documents.add(document);
-            });
+            copyInheritedDocuments(
+                inheritedDocuments,
+                this.product.id,
+                this.documentRepository,
+                this.entityFactory as EntityFactory,
+            ).forEach((document) => this.documents.add(document));
 
             return this.documents;
         },
 
-        updatePositions(): void {
-            this.documents.forEach((document, index) => {
-                document.position = index;
+        onShowRestoreInheritanceModal(): void {
+            this.showRestoreInheritanceModal = true;
+        },
+
+        onCloseRestoreInheritanceModal(): void {
+            this.showRestoreInheritanceModal = false;
+        },
+
+        onConfirmRestoreInheritance(): void {
+            this.onCloseRestoreInheritanceModal();
+            (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
+            this.selectedDocuments = [];
+            (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
+            useSnackbar().addSnackbar({
+                variant: 'success',
+                message: this.$t('sw-product.documentForm.restoreInheritanceSuccess'),
             });
         },
 

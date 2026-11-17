@@ -16,80 +16,76 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-
         languageName: {
             type: String,
             required: false,
             default: '',
         },
-
         isAddingLanguageVersion: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         documentTitlePlaceholder: {
             type: String,
             required: false,
             default: '',
         },
-
         documentId: {
             type: String,
             required: true,
         },
-
         documentTitle: {
             type: String,
             required: true,
         },
-
         editingMedia: {
             type: Object as PropType<Entity<'media'> | undefined>,
             required: false,
             default: undefined,
         },
-
         documentNameError: {
             type: Object as PropType<FieldError | null>,
             required: false,
             default: null,
         },
-
         documentFileError: {
             type: Object as PropType<FieldError | null>,
             required: false,
             default: null,
         },
-
         uploadTag: {
             type: String,
             required: true,
         },
-
         uploadHint: {
             type: String,
             required: true,
         },
-
         allowedExtensions: {
             type: Array as PropType<string[]>,
             required: true,
         },
-
         maxFileSize: {
             type: Number,
             required: true,
         },
-
         canEdit: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         isSavingDocument: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        hasVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        applyToVariants: {
             type: Boolean,
             required: false,
             default: false,
@@ -103,6 +99,7 @@ export default Shopware.Component.wrapComponentConfig({
         'file-remove',
         'media-select',
         'update:documentTitle',
+        'update:applyToVariants',
     ],
 
     computed: {

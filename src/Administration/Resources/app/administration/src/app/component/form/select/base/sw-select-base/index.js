@@ -13,7 +13,7 @@ const OPENING_KEYS = [
 ];
 
 /**
- * Keys that open a focused, closed select and then act in its search,
+ * Keys that open a focused, closed select and reach the key handlers of its search,
  * where multi selects remove their last value.
  */
 const DELETING_KEYS = [
@@ -224,40 +224,14 @@ export default {
         },
 
         /**
-         * Presses Backspace or Delete in the focused search input of this select, as if the user pressed it.
-         * Its own key handlers run first, then the key deletes text unless one of them prevented that.
+         * Hands Backspace or Delete on to the key handlers of the focused search input of this select,
+         * so multi selects remove their last value. The search text stays as it is.
          * Runs after the select opened, once the variant moved the focus into its search.
          *
          * @example this.$nextTick(() => this.pressInSearch('Backspace'));
          */
         pressInSearch(key) {
-            const search = this.getFocusedSearch();
-
-            if (!search) {
-                return;
-            }
-
-            const keydown = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-            search.dispatchEvent(keydown);
-
-            if (keydown.defaultPrevented || search.readOnly || search.disabled) {
-                return;
-            }
-
-            let start = search.selectionStart ?? 0;
-            let end = search.selectionEnd ?? 0;
-
-            if (start === end) {
-                start = key === 'Backspace' ? Math.max(start - 1, 0) : start;
-                end = key === 'Delete' ? Math.min(end + 1, search.value.length) : end;
-            }
-
-            if (start === end) {
-                return;
-            }
-
-            search.setRangeText('', start, end, 'end');
-            search.dispatchEvent(new Event('input', { bubbles: true }));
+            this.getFocusedSearch()?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
         },
 
         /**

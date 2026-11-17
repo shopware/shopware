@@ -254,61 +254,6 @@ describe('components/sw-select-base', () => {
             expect(onSearchKeydown.mock.calls[0][0].key).toBe(key);
         });
 
-        it.each([
-            [
-                'Backspace',
-                'Grimes Ltd',
-                [0, 10],
-                '',
-            ],
-            [
-                'Backspace',
-                'Grimes Ltd',
-                [10, 10],
-                'Grimes Lt',
-            ],
-            [
-                'Delete',
-                'Grimes Ltd',
-                [0, 0],
-                'rimes Ltd',
-            ],
-        ])('should let "%s" delete text in the search of "%s"', async (key, value, [start, end], expected) => {
-            const selection = await createFocusedSelection();
-            const searchInput = wrapper.find('.search-input').element;
-            searchInput.value = value;
-            const onInput = jest.fn();
-            searchInput.addEventListener('input', onInput);
-            await wrapper.setProps({
-                onSelectExpanded: () => {
-                    searchInput.focus();
-                    searchInput.setSelectionRange(start, end);
-                },
-            });
-
-            dispatchKeydown(selection.element, { key });
-            await flushPromises();
-            searchInput.removeEventListener('input', onInput);
-
-            expect(searchInput.value).toBe(expected);
-            expect(onInput).toHaveBeenCalledTimes(1);
-        });
-
-        it('should not delete text when a handler of the search prevents the key', async () => {
-            const selection = await createFocusedSelection();
-            const searchInput = wrapper.find('.search-input').element;
-            searchInput.value = 'Grimes Ltd';
-            const preventKey = (event) => event.preventDefault();
-            searchInput.addEventListener('keydown', preventKey);
-            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
-
-            dispatchKeydown(selection.element, { key: 'Backspace' });
-            await flushPromises();
-            searchInput.removeEventListener('keydown', preventKey);
-
-            expect(searchInput.value).toBe('Grimes Ltd');
-        });
-
         describe('where ALT is the system key', () => {
             it.each([
                 ['an ALT shortcut', { key: 's', altKey: true }, 'false'],

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -67,6 +68,56 @@ class ProductDetailRouteTest extends TestCase
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
+    }
+
+    public function testSeoCategoryIsUnchangedWhenRequestingMainCategories(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = $this->ids->get('sales-channel');
+        $salesChannel = static::getContainer()->get('sales_channel.repository')
+            ->search(new Criteria([$salesChannelId]), $context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        $categoryId = $this->ids->create('main-category');
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+            'name' => 'Main category',
+            'active' => true,
+            'seoUrls' => [[
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'frontend.navigation.page',
+                'pathInfo' => '/navigation/' . $categoryId,
+                'seoPathInfo' => 'main-category/',
+                'isCanonical' => true,
+                'isModified' => true,
+            ]],
+        ]], $context);
+        static::getContainer()->get('product.repository')->update([[
+            'id' => $this->ids->get('product'),
+            'categories' => [['id' => $categoryId]],
+            'mainCategories' => [['categoryId' => $categoryId, 'salesChannelId' => $salesChannelId]],
+        ]], $context);
+
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+        $this->browser->request('POST', $this->getUrl($this->ids->get('product')));
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        $withoutAssociation = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($categoryId, $withoutAssociation['product']['seoCategory']['id']);
+        static::assertSame('Main category', $withoutAssociation['product']['seoCategory']['translated']['name']);
+        static::assertCount(1, $withoutAssociation['product']['seoCategory']['seoUrls']);
+        static::assertSame('main-category/', $withoutAssociation['product']['seoCategory']['seoUrls'][0]['seoPathInfo']);
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('product')), [
+            'associations' => ['mainCategories' => []],
+        ]);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        $withAssociation = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $withAssociation['product']['mainCategories']);
+        static::assertSame($withoutAssociation['product']['seoCategory'], $withAssociation['product']['seoCategory']);
     }
 
     /**

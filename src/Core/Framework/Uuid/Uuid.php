@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Uuid;
 
-use Ramsey\Uuid\BinaryUtils;
 use Ramsey\Uuid\Generator\RandomGeneratorFactory;
 use Ramsey\Uuid\Generator\UnixTimeGenerator;
 use Shopware\Core\Framework\Log\Package;
@@ -41,19 +40,8 @@ class Uuid
         }
         $bytes = self::$generator->generate();
 
-        $unpackedTime = unpack('n*', substr($bytes, 6, 2));
-        \assert(\is_array($unpackedTime));
-        $timeHi = (int) $unpackedTime[1];
-        $timeHiAndVersion = pack('n*', BinaryUtils::applyVersion($timeHi, 7));
-
-        $unpackedClockSeq = unpack('n*', substr($bytes, 8, 2));
-        \assert(\is_array($unpackedClockSeq));
-        $clockSeqHi = (int) $unpackedClockSeq[1];
-        $clockSeqHiAndReserved = pack('n*', BinaryUtils::applyVariant($clockSeqHi));
-
-        $bytes = substr_replace($bytes, $timeHiAndVersion, 6, 2);
-        $bytes = substr_replace($bytes, $clockSeqHiAndReserved, 8, 2);
-        \assert($bytes !== '');
+        $bytes[6] = \chr((\ord($bytes[6]) & 0x0F) | 0x70);
+        $bytes[8] = \chr((\ord($bytes[8]) & 0x3F) | 0x80);
 
         return $bytes;
     }

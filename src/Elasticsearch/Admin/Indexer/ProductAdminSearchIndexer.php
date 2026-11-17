@@ -568,11 +568,12 @@ SQL,
         );
         $variantIds = array_values(array_filter($variantIds, '\is_string'));
 
-        if (\count($productIds) + \count($variantIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
+        $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
+        if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
             return $productIds;
         }
 
-        return array_merge($productIds, $variantIds);
+        return $familyIds;
     }
 
     /**

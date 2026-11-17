@@ -32,7 +32,7 @@ final readonly class ProductInheritanceSubscriber implements EventSubscriberInte
 
     public function update(ProductIndexerEvent $event): void
     {
-        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') || \in_array(ProductIndexer::INHERITANCE_UPDATER, $event->getSkip(), true)) {
+        if (!Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') || $event->isFullIndexing || \in_array(ProductIndexer::INHERITANCE_UPDATER, $event->getSkip(), true)) {
             return;
         }
 

@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressMissingError;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressSalutationMissingError;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartValidatorInterface;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
@@ -43,7 +44,6 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
     public function validate(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): void
     {
-        $country = $context->getShippingLocation()->getCountry();
         $customer = $context->getCustomer();
 
         $isPhysicalLineItem = $cart->getLineItems()->hasLineItemWithProductType(ProductDefinition::TYPE_PHYSICAL);
@@ -58,21 +58,7 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
         $validateShipping = $cart->getLineItems()->count() === 0 || $isPhysicalLineItem;
 
-        if (!$country->getActive() && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
-
-            return;
-        }
-
-        if (!$country->getShippingAvailable() && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
-
-            return;
-        }
-
-        if (!$this->isSalesChannelCountry($country->getId(), $context) && $validateShipping) {
-            $errors->add(new ShippingAddressBlockedError((string) $country->getTranslation('name'), $context->getShippingLocation()->getAddress()?->getId()));
-
+        if ($validateShipping && $this->addBlockedShippingLocationErrors($cart, $errors, $context)) {
             return;
         }
 
@@ -123,6 +109,37 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
     public function reset(): void
     {
         $this->available = [];
+    }
+
+    private function addBlockedShippingLocationErrors(Cart $cart, ErrorCollection $errors, SalesChannelContext $context): bool
+    {
+        $contextError = $this->getBlockedError($context->getShippingLocation(), $context);
+        if ($contextError !== null) {
+            $errors->add($contextError);
+        }
+
+        $blocked = $contextError !== null;
+        foreach ($cart->getDeliveries() as $delivery) {
+            $error = $this->getBlockedError($delivery->getLocation(), $context);
+            if ($error === null || $errors->has($error->getId())) {
+                continue;
+            }
+
+            $errors->add($error);
+            $blocked = true;
+        }
+
+        return $blocked;
+    }
+
+    private function getBlockedError(ShippingLocation $location, SalesChannelContext $context): ?ShippingAddressBlockedError
+    {
+        $country = $location->getCountry();
+        if ($country->getActive() && $country->getShippingAvailable() && $this->isSalesChannelCountry($country->getId(), $context)) {
+            return null;
+        }
+
+        return new ShippingAddressBlockedError((string) $country->getTranslation('name'), $location->getAddress()?->getId());
     }
 
     private function isSalesChannelCountry(string $countryId, SalesChannelContext $context): bool

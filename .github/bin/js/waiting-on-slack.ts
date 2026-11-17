@@ -36,7 +36,12 @@ export function parseChannels(json: string | undefined): Channels {
     }
 
     const parsed: unknown = JSON.parse(json);
-    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed) || !Object.values(parsed).every((value) => typeof value === 'string')) {
+    if (
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        Array.isArray(parsed) ||
+        !Object.values(parsed).every((value) => typeof value === 'string')
+    ) {
         throw new Error('WAITING_ON_SLACK_CHANNELS must be a JSON object from a label to a Slack channel id.');
     }
 
@@ -60,7 +65,10 @@ export function planReminders(rows: Row[], channels: Channels, now: Date): Remin
 
     for (const [teamLabel, channel] of channels) {
         const due = rows
-            .filter((row) => row.waitingOn === 'shopware' && row.labels.includes(EXTERNAL_LABEL) && row.labels.includes(teamLabel))
+            .filter(
+                (row) =>
+                    row.waitingOn === 'shopware' && row.labels.includes(EXTERNAL_LABEL) && row.labels.includes(teamLabel),
+            )
             .map((row) => ({ ...row, waitingDays: calendarDaysSince(row.since, now) }))
             .filter((row) => isReminderDue(row.waitingDays))
             .sort((left, right) => right.waitingDays - left.waitingDays);
@@ -83,7 +91,10 @@ const link = (url: string, text: string) => `<${url}|${escapeSlack(text)}>`;
 export function renderReminder(reminder: Reminder, boardUrl?: string): string {
     const lines = [
         `:hourglass_flowing_sand: ${reminder.rows.length} external pull request(s) have been waiting on us for ${REMINDER_AFTER_DAYS} days or more:`,
-        ...reminder.rows.map((row) => `• ${link(row.url, `#${row.number} ${row.title}`)} by ${escapeSlack(row.author)}: ${row.waitingDays} days, \`${row.reason}\``),
+        ...reminder.rows.map(
+            (row) =>
+                `• ${link(row.url, `#${row.number} ${row.title}`)} by ${escapeSlack(row.author)}: ${row.waitingDays} days, \`${row.reason}\``,
+        ),
     ];
 
     if (boardUrl !== undefined) {

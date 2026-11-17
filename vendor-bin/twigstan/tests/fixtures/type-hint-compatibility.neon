@@ -1,0 +1,8 @@
+parameters:
+    bootstrapFiles:
+        - ../../vendor/twigstan/twigstan/stubs/functions.php
+services:
+    -
+        class: TwigStan\PHPStan\DynamicReturnType\TypeHintReturnType
+        tags:
+            - phpstan.functionParameterOutTypeExtension

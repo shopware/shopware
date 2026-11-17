@@ -12,9 +12,15 @@ parameters:
         maximumNumberOfProcesses: 2
 services:
     -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TypeHintCompatibilityRule
+    -
         class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StructGetVarsReturnTypeExtension
         tags:
             - phpstan.broker.dynamicMethodReturnTypeExtension
     -
         class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventData
         factory: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventData::fromFile(@PHPStan\PhpDoc\TypeStringResolver, %currentWorkingDirectory%/var/cache/twigstan-listeners/context.json)
+
+conditionalTags:
+    Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TypeHintCompatibilityRule:
+        phpstan.rules.rule: %twigstan.phases.analysis%

@@ -42,7 +42,9 @@ import {
  * strictly; the worst a forged number can do is update another pull request correctly.
  */
 export function resolvePullRequestNumber(fromEvent: string | undefined, relayFile: string | undefined): number {
-    const raw = (relayFile !== undefined && existsSync(relayFile) ? readFileSync(relayFile, 'utf8') : fromEvent ?? '').trim();
+    const raw = (
+        relayFile !== undefined && existsSync(relayFile) ? readFileSync(relayFile, 'utf8') : (fromEvent ?? '')
+    ).trim();
     if (!/^[1-9]\d*$/.test(raw)) {
         throw new Error(`Not a pull request number: "${raw.slice(0, 40)}"`);
     }
@@ -105,7 +107,11 @@ export function toItemsOnProjects(nodes: ProjectItemNode[], pullRequestId: strin
  * open pull request is added again, which unarchives it. Without a row — the pull request is
  * closed, internal, or a bot opened it — the item is archived where the sweep would archive it.
  */
-export function planPullRequestSync(row: Row | undefined, item: ItemOnProject | undefined, archive: boolean): ProjectChange[] {
+export function planPullRequestSync(
+    row: Row | undefined,
+    item: ItemOnProject | undefined,
+    archive: boolean,
+): ProjectChange[] {
     if (row !== undefined) {
         return planProjectChanges([row], item !== undefined && !item.isArchived ? [item] : [], { archive: false });
     }
@@ -120,9 +126,15 @@ export type SyncOptions = {
     project?: { github: ProjectClient; number: number; teams?: string };
 };
 
-export async function syncPullRequest({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, { number, dryRun = false, project }: SyncOptions): Promise<void> {
+export async function syncPullRequest(
+    { github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context },
+    { number, dryRun = false, project }: SyncOptions,
+): Promise<void> {
     const { owner } = context.repo;
-    const result = await github.graphql<{ repository: { pullRequest: (PullRequestNode & { state: string }) | null } }>(PULL_REQUEST_QUERY, { ...context.repo, number });
+    const result = await github.graphql<{ repository: { pullRequest: (PullRequestNode & { state: string }) | null } }>(
+        PULL_REQUEST_QUERY,
+        { ...context.repo, number },
+    );
     const node = result.repository.pullRequest;
     if (node === null) {
         throw new Error(`#${number} is not a pull request in ${owner}/${context.repo.repo}.`);
@@ -135,7 +147,11 @@ export async function syncPullRequest({ github, core, context }: { github: Graph
     if (node.state === 'OPEN') {
         await resolveMergeability(github, core, context.repo, [node]);
         [row] = buildRows([node], new Date());
-        core.info(row !== undefined ? `#${number}: ${row.label} (${row.reason}) since ${row.since}` : `#${number}: no verdict, it is internal or a bot opened it`);
+        core.info(
+            row !== undefined
+                ? `#${number}: ${row.label} (${row.reason}) since ${row.since}`
+                : `#${number}: no verdict, it is internal or a bot opened it`,
+        );
 
         const changes = planLabelChanges([node], row !== undefined ? [row] : []);
         if (!dryRun && (await applyLabelChanges(github, core, context.repo, changes, 0)).length > 0) {
@@ -149,20 +165,30 @@ export async function syncPullRequest({ github, core, context }: { github: Graph
         const labels = node.labels.nodes.map((label) => label.name);
         const targets = [
             { number: project.number, archive: true },
-            ...[...parseTeamProjects(project.teams)].filter(([teamLabel]) => labels.includes(teamLabel)).map(([, teamProject]) => ({ number: teamProject, archive: false })),
+            ...[...parseTeamProjects(project.teams)]
+                .filter(([teamLabel]) => labels.includes(teamLabel))
+                .map(([, teamProject]) => ({ number: teamProject, archive: false })),
         ];
 
         const items = toItemsOnProjects(
-            (await project.github.graphql<{ node: { projectItems: { nodes: ProjectItemNode[] } } }>(PROJECT_ITEMS_QUERY, { id: node.id })).node.projectItems.nodes,
+            (
+                await project.github.graphql<{ node: { projectItems: { nodes: ProjectItemNode[] } } }>(PROJECT_ITEMS_QUERY, {
+                    id: node.id,
+                })
+            ).node.projectItems.nodes,
             node.id,
         );
 
         for (const target of targets) {
             // One project failing must not keep the others from their update.
             try {
-                const item = items.find((candidate) => candidate.owner === owner && candidate.projectNumber === target.number);
+                const item = items.find(
+                    (candidate) => candidate.owner === owner && candidate.projectNumber === target.number,
+                );
                 const changes = planPullRequestSync(row, item, target.archive);
-                core.info(`Project ${owner}/${target.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(changes)}.`);
+                core.info(
+                    `Project ${owner}/${target.number}${dryRun ? ' (dry run, nothing written)' : ''}: ${summarizeProjectChanges(changes)}.`,
+                );
 
                 if (!dryRun && changes.length > 0) {
                     const schema = await fetchSchema(project.github, owner, target.number);

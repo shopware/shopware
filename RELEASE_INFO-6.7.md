@@ -9,6 +9,16 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Cart deliveries and transactions carry a payload into the order
+
+Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Their payload methods work like the ones of line items.
+`setPayloadValue($key, $value, protected: true)` keeps a key out of the Store API cart response, but Store API order responses still contain it.
+Unlike a line item payload, it does not survive the next cart calculation.
+Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
+At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.
+Any other extension sets it on the converted order data in the `CartConvertedEvent`.
+
 ### Attribute entities can generate the reverse side of a many-to-many association
 
 `Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
@@ -36,9 +46,31 @@ In a `DeliveryRuleScope` the shipping address rules read only the delivery's add
 Custom rules that read `getShippingLocation()` or `getShippingMethod()` from the sales channel context should read them from `$scope->getDelivery()` when the scope is a `DeliveryRuleScope`, otherwise they decide by the context for every delivery.
 See `UPGRADE-6.8.md` for an example.
 
+### Rule conditions can apply to a single cart delivery
+
+The new container condition `deliveryContainer` (`Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule`) matches its conditions against the delivery of a `DeliveryRuleScope`.
+Inside it, the cart holds only the delivery's line items and the delivery itself, while the price and the cart data stay those of the whole cart.
+Core only matches rules for a single delivery with the `v6.8.0.0` feature flag active; until then, and in every other scope, its conditions read the whole cart.
+Custom conditions that read the cart's line items or deliveries work inside the container without changes.
+
+With the `v6.8.0.0` feature flag active, the rule builder offers "Whole cart" or "This delivery" on the cart weight, cart volume and free shipping item conditions.
+"This delivery" wraps the condition in the new container, "Whole cart" stays the default.
+The Administration doesn't offer rules using it for payment methods or promotions, because only shipping method availability and price rows evaluate a rule per delivery.
+
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
+
+### Mails and documents list every shipment
+
+`OrderDeliveryCollection::getShipments()` returns the deliveries that are not shipping discounts, in the order the Administration lists them: the primary delivery first when its id is passed, then by shipping costs.
+The cart's `DeliveryCollection::getShipments()` returns the cart deliveries that are not shipping discounts, highest shipping costs first.
+When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
+The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
+A migration updates these mail templates unless they were changed in the Administration.
+Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
+The invoice shows the shipping address of the primary delivery.
+Orders with one shipment render as before.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -375,11 +407,82 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Order deliveries keep the order of the cart deliveries
+
+Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
+Extensions that build several cart deliveries in a deliberate order, for example by priority or release date, no longer need to persist that order themselves.
+Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
+Recalculating an order numbers the deliveries from 1 again in the order of their stored positions, like line items, with deliveries added by the recalculation, such as shipping discounts, last.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
+### Cart guards cover every cart delivery
+
+A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
+Three checks that only looked at the context now cover every delivery of the cart:
+
+- `AddressValidator` validates the shipping address of every delivery against the sales channel countries and their shipping availability.
+  It adds one `ShippingAddressBlockedError` per blocked country, carrying the id of the first affected address.
+- The cart hash that `/store-api/checkout/order` compares with the submitted `hash` includes the shipping method, the address and the positions of every delivery.
+  Place the order with the `hash` of the latest cart response, a hash fetched before a delivery or the shipping address changed is rejected with `CHECKOUT__CART_HASH_MISMATCH`.
+- The Storefront switches the context shipping method only when the blocked shipping method is the context's one.
+  A `ShippingMethodBlockedError` for the shipping method of another delivery stays in the cart and blocks the order until the extension that created that delivery resolves it.
+  Errors created without a shipping method id switch the context shipping method as before.
+
+A cart with a single delivery is only affected by the hash: a shipping address changed after the confirm page was loaded is now detected.
+
+### "Assign status" flow action picks the delivery and transaction of the flow
+
+The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
+Otherwise it changes the delivery with the highest shipping costs and the newest transaction, as before.
+With `v6.8.0.0`, it changes the primary delivery and the primary transaction of the order (`primaryOrderDeliveryId`, `primaryOrderTransactionId`) before it falls back, like the Administration, documents and order status rules do.
+Orders placed through the checkout get the same delivery and transaction either way, because their primary delivery has the highest shipping costs and their primary transaction is the newest one.
+
+### Delivery notes of a single delivery
+
+A delivery note can be generated for one delivery of an order.
+Pass the delivery id as `custom.orderDeliveryId` in the config of a `delivery_note` document operation, or as `orderDeliveryId` to the experimental `/api/_action/order/document-v2/create` route.
+The legacy route takes one operation per order, so request the notes of several deliveries of one order separately.
+The note then lists only the line items with a position in that delivery, prints their position quantities and uses the shipping address and shipping method of that delivery.
+A line item inside a container is listed together with the container and all its children; children shipped by another delivery show the quantity 0.
+A delivery of another order fails the operation with `DOCUMENT__ORDER_DELIVERY_NOT_FOUND`, or `DOCUMENT_V2__ORDER_DELIVERY_NOT_FOUND` in Document V2.
+Without the id, the note lists the whole order as before.
+
+Templates extending `@Framework/documents/delivery_note.html.twig` find the delivery in `orderDelivery` and the printed quantity of each listed line item, keyed by its id, in `deliveryLineItemQuantities`, which is `null` for a note of the whole order.
+
+### Delivery and transaction state flows know what changed
+
+The `state_enter.order_delivery.state.*` and `state_leave.order_delivery.state.*` triggers now carry the delivery whose state changed, the `order_transaction` ones the transaction.
+Flows and mail templates of these triggers get an `orderDelivery` variable with its positions and their line items, shipping method, state and shipping address, or an `orderTransaction` variable, and the id as `orderDeliveryId` or `orderTransactionId`.
+Add associations to the delivery through `mail-flow.data.order_delivery.criteria.event`.
+Events can expose a delivery to flows by implementing `Shopware\Core\Content\Flow\Dispatching\Aware\OrderDeliveryAware`.
+
+Webhooks of these triggers only add the id, so apps find the changed delivery or transaction in `order.deliveries` or `order.transactions` of the payload, without a new permission.
+On delivery transitions, `order.deliveries` now also contains the state and positions of each delivery.
+
+The listener dispatches the new `OrderDeliveryStateMachineStateChangeEvent` and `OrderTransactionStateMachineStateChangeEvent` for these transitions.
+They extend `OrderStateMachineStateChangeEvent`, so existing subscribers keep working, and add `getOrderDelivery()` and `getOrderTransaction()` with their id getters.
+
+### Orders with several deliveries keep their shipping costs and addresses
+
+When the Administration recalculated an order with several deliveries, every delivery got the shipping costs of the primary delivery.
+Each delivery now keeps its own shipping costs and only their taxes are recalculated.
+`DeliveryProcessor::MANUAL_SHIPPING_COSTS` only replaces the shipping costs of the primary delivery on such a recalculation.
+Carts restored from an order behave the same, for example when a customer changes the payment method of an order.
+Changing the shipping address of one delivery no longer changes the address of the other deliveries that shared it.
+Orders with a single delivery, with or without promotion shipping discounts, behave as before.
+
 ### SEO URL routes can restrict the associations of the template
 
 `SeoUrlGenerator` now calls `SeoUrlRouteInterface::prepareCriteria()` after it added the associations the SEO URL template uses.
 A route can restrict these associations, for example with `$criteria->getAssociation('mainCategories')->addFilter(...)` when `$criteria->hasAssociation('mainCategories')`.
 `ProductPageSeoUrlRoute` uses this to load only the main category of the sales channel the URLs are generated for.
+
+### Guest cart extensions are kept on login
+
+When a guest logs in and their cart is merged into the customer's saved cart, the extensions of the guest cart are carried over.
+If both carts have an extension with the same name, the customer cart keeps its own value.
+To keep an extension out of the customer cart, remove it from the guest cart in a `BeforeCartMergeEvent` listener; to let the guest's value win, set it on the customer cart there.
+Decorating `CartRestorer` just to copy an extension over is no longer needed.
 
 ### Promotion line items store the discount value in the cart currency
 
@@ -387,7 +490,23 @@ A route can restrict these associations, for example with `$criteria->getAssocia
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Split cart delivery positions by quantity
+
+`Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter::split()` splits a cart delivery position into a part with the given quantity and a remainder, each with its own line item clone, price, taxes and delivery date.
+Extensions that regroup deliveries, for example in a `DeliveryBuilder` decorator, can use it instead of recalculating partial positions themselves.
+Part prices are split like line items of promotion set groups and can differ from the whole position by rounding.
+It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__CART_DELIVERY_POSITION_NOT_SPLITTABLE` for line items with children and `CHECKOUT__CART_DELIVERY_POSITION_NOT_STACKABLE`.
+`DeliveryBuilder::resolveDeliveryDate()` returns the delivery or restock date for a quantity of a line item.
+
+`DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
+For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
+
 ## API
+
+### Order deliveries and order transactions have a `payload` field
+
+Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
+It is an object, or an empty array when nothing is set.
 
 ### Plain JSON becomes the default Admin API response format in 6.8
 
@@ -403,6 +522,13 @@ The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE`
 Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
+
+### SSO logins can carry the `user-verified` scope
+
+The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
+The following code exchange puts the `user-verified` scope on the access token when that authentication is at most five minutes old.
+A token exchange without `auth_time`, or with an older one, gets no `user-verified` scope; identity providers that omit the claim after `max_age=0` do not follow OpenID Connect Core.
+The user and role endpoints keep accepting SSO sessions without the scope for now.
 
 ### HTTP method overrides restricted to form actions
 
@@ -458,6 +584,14 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Reset a SEO URL to its template
+
+`PATCH /api/_action/seo-url/canonical` accepts an empty or missing `seoPathInfo`, unless the request sets `isModified` to `true`.
+It replaces the canonical SEO URL of that entity, sales channel and language with the URL generated from the SEO URL template, and removes its write protection (`isModified`).
+Before, the request was rejected with `400`.
+When the template generates no URL there, for example for an inactive sales channel or a language without a domain, the request is rejected with `400` and the error code `CONTENT__SEO_URL_RESET_NOT_POSSIBLE`, and the SEO URL stays unchanged.
+In the Administration, clearing the SEO URL field of a product or category and saving does this.
+
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
@@ -478,6 +612,21 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Order deliveries have a `position` field
+
+Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
+### Price definitions are validated so that they can be read again
+
+A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
+
+- `quantity`: `taxRules` is missing or is not a list, or a tax rule is not an object or has no `percentage`. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+- `currency-price`: an entry of `price` is not an object, has no valid `currencyId`, or has no `net`, `gross` or `linked`.
+
+Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
+The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
 
 ## Features
 
@@ -509,6 +658,15 @@ Amounts that carry a single value instead of a net and gross pair, such as absol
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
 
+### Open a product in the Storefront from the Administration
+
+The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
+It opens a modal to select one of the Storefront sales channels the product is assigned to.
+For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
+Sales channels in maintenance mode get a hint.
+If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
+The `product.viewer` role now includes the `sales_channel_domain:read` privilege, which the modal needs to load the domains; a migration adds it to existing roles.
+
 ## App System
 
 ### Inline `<custom-fields>` in `manifest.xml` stay supported
@@ -526,8 +684,20 @@ Plain-text resource responses are no longer accepted; wrap the content in a JSON
 Resources use the URI declared in `mcp.xml`; a non-empty `mimeType` in the response takes precedence over the configured MIME type.
 Invalid JSON, malformed messages or resource contents, and `{"success":false,"error":"..."}` responses produce MCP errors with details for the client.
 
+### App module pages receive the `color-scheme` parameter
+
+Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
+
 ## Administration
 
+### Order viewers no longer receive delete privileges
+
+The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
+Existing viewer roles lose `order:delete` during the update unless they also have `order.editor` or `order.deleter`.
+Existing `version:delete` grants are preserved because other modules and extensions may require them.
+Editor roles still require both grants to discard working versions.
+Custom roles without the `order.viewer` marker are unchanged.
+Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
@@ -802,6 +972,14 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### Order detail shows every shipment in 6.8
+
+With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
+A delivery with negative shipping costs is a discount, every other delivery is a shipment.
+Until now, every delivery besides the primary one was shown as a shipping discount.
+The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, the primary delivery first.
+Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
+
 ## API
 
 To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
@@ -817,6 +995,23 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Checkout and account pages list every shipment
+
+When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.
+Deliveries with negative shipping costs are shipping discounts and are not listed as shipments.
+`AccountOrderPageLoader` and `AccountOverviewPageLoader` now load the shipping address and the state of every delivery, independent of the `v6.8.0.0` feature flag.
+`CheckoutFinishPageLoader` and `AccountEditOrderPageLoader` load the shipping method and the shipping address of every delivery, also with the flag active.
+Carts and orders with one shipment render as before.
+The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
+The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
+
+### New shipping method blocks added
+
+The following new blocks have been added to the shipping method template in `storefront/component/shipping/shipping-method.html.twig` to match the payment method template structure:
+
+- `component_shipping_method_name`
+- `component_shipping_method_description_text`
 
 ### Skip link for listing filters
 
@@ -1073,6 +1268,10 @@ Switching maintenance mode on again then sent every visitor not on the IP allowl
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
 ## Hosting & Configuration
+
+### Password recovery is rate limited per IP
+
+Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

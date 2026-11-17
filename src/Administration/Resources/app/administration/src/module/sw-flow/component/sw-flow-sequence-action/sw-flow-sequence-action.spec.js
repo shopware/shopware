@@ -97,7 +97,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                         </li>`,
                         methods: {
                             onClickResult() {
-                                this.$parent.$parent.$emit('item-select', this.item);
+                                Shopware.Utils.EventBus.emit('item-select', this.item);
                             },
                         },
                     },

@@ -24,22 +24,24 @@
     {% endblock %}
 
     {% block sw_context_button_menu %}
-    <sw-popover
-        v-if="showMenu"
-        class="sw-context-button__menu-position"
-        popover-class="sw-context-button__menu-popover"
-        :z-index="zIndex"
-    >
-        <sw-context-menu
-            ref="swContextMenu"
-            :class="contextMenuClass"
-            :style="menuStyles"
+    <sw-silence-deprecations flag="V6_8_0_0">
+        <sw-popover
+            v-if="showMenu"
+            class="sw-context-button__menu-position"
+            popover-class="sw-context-button__menu-popover"
+            :z-index="zIndex"
         >
-            <slot>
-            {% block sw_context_button_menu_slot_default %}{% endblock %}
-            </slot>
-        </sw-context-menu>
-    </sw-popover>
+            <sw-context-menu
+                ref="swContextMenu"
+                :class="contextMenuClass"
+                :style="menuStyles"
+            >
+                <slot>
+                {% block sw_context_button_menu_slot_default %}{% endblock %}
+                </slot>
+            </sw-context-menu>
+        </sw-popover>
+    </sw-silence-deprecations>
     {% endblock %}
 </button>
 {% endblock %}

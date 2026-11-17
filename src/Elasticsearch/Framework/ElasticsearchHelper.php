@@ -25,8 +25,6 @@ class ElasticsearchHelper
     // max for default configuration
     final public const MAX_SIZE_VALUE = 10000;
 
-    private const MAX_TERM_WORDS = 10;
-
     /**
      * @internal
      */
@@ -40,7 +38,8 @@ class ElasticsearchHelper
         private readonly ElasticsearchRegistry $registry,
         private readonly CriteriaParser $parser,
         private readonly LoggerInterface $logger,
-        private readonly SystemConfigService $systemConfigService
+        private readonly SystemConfigService $systemConfigService,
+        private readonly int $termMaxWords = 10,
     ) {
     }
 
@@ -279,12 +278,12 @@ class ElasticsearchHelper
     {
         $words = (new ElasticsearchTokenizer())->tokenize((string) $criteria->getTerm());
 
-        if (\count($words) <= self::MAX_TERM_WORDS) {
+        if (\count($words) <= $this->termMaxWords) {
             return $criteria;
         }
 
         $limited = clone $criteria;
-        $limited->setTerm(implode(' ', \array_slice($words, 0, self::MAX_TERM_WORDS)));
+        $limited->setTerm(implode(' ', \array_slice($words, 0, $this->termMaxWords)));
 
         return $limited;
     }

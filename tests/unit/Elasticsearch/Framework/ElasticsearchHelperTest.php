@@ -264,7 +264,7 @@ class ElasticsearchHelperTest extends TestCase
     }
 
     #[DataProvider('termWordLimitCases')]
-    public function testAddTermLimitsTheTermToTenDistinctWords(string $term, string $expectedTerm): void
+    public function testAddTermLimitsTheTermToTheConfiguredNumberOfDistinctWords(string $term, int $termMaxWords, string $expectedTerm): void
     {
         $termOfBuiltQuery = null;
         $esDefinition = static::createStub(AbstractElasticsearchDefinition::class);
@@ -289,6 +289,7 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            $termMaxWords,
         );
 
         $criteria = new Criteria();
@@ -301,28 +302,38 @@ class ElasticsearchHelperTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, string}>
+     * @return iterable<string, array{string, int, string}>
      */
     public static function termWordLimitCases(): iterable
     {
         yield 'term with 10 distinct words is kept as it is' => [
             'Red red  Shirt shirt chair table lamp shoes watch phone glass plate',
+            10,
             'Red red  Shirt shirt chair table lamp shoes watch phone glass plate',
         ];
 
         yield 'words after the tenth distinct word are dropped' => [
             'chair table lamp shirt shoes watch phone glass plate brush knife spoon',
+            10,
             'chair table lamp shirt shoes watch phone glass plate brush',
         ];
 
         yield 'repeated words count once' => [
             'Chair chair table lamp shirt shoes watch phone glass plate brush knife',
+            10,
             'chair table lamp shirt shoes watch phone glass plate brush',
         ];
 
         yield 'punctuation and one-letter words do not count towards the limit' => [
             'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
+            10,
             'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
+        ];
+
+        yield 'a configured limit keeps only that many distinct words' => [
+            'Red red shirt chair table',
+            2,
+            'red shirt',
         ];
     }
 }

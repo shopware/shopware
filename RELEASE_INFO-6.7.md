@@ -1311,6 +1311,20 @@ shopware:
 
 The option defaults to `true`, preserving the existing behavior for all existing installations.
 
+### Elasticsearch searches use at most 10 words of a search term
+
+Searches over Elasticsearch or OpenSearch now use only the first 10 distinct words of a search term, because longer terms made OpenSearch reject the query with `too_many_nested_clauses`.
+Punctuation and one-letter words do not count.
+Change the limit with `elasticsearch.search.term_max_words`:
+
+```yaml
+elasticsearch:
+    search:
+        term_max_words: 10
+```
+
+Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
+
 # 6.7.16.0
 
 ## Critical Fixes

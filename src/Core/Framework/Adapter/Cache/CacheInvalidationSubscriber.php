@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
@@ -244,6 +245,24 @@ class CacheInvalidationSubscriber
     {
         // invalidates the category route cache when a category changed
         $this->cacheInvalidator->invalidate(array_map(CategoryRoute::buildName(...), $event->getIds()));
+    }
+
+    public function invalidateProductListingRouteByCategoryIds(CategoryIndexerEvent $event): void
+    {
+        if (\in_array(CategoryIndexer::TREE_UPDATER, $event->getSkip(), true)) {
+            return;
+        }
+
+        $this->invalidateCategoryListings($event->getIds(), $event->getContext()->getVersionId());
+    }
+
+    public function invalidateChangedCategoryListings(EntityWrittenContainerEvent $event): void
+    {
+        // the category indexer skips updates that only change the product assignment, so no CategoryIndexerEvent covers them
+        $this->invalidateCategoryListings(
+            $event->getPrimaryKeysWithPropertyChange(CategoryDefinition::ENTITY_NAME, ['productAssignmentType', 'productStreamId']),
+            $event->getContext()->getVersionId()
+        );
     }
 
     public function invalidateIndexedLandingPages(LandingPageIndexerEvent $event): void
@@ -522,6 +541,37 @@ class CacheInvalidationSubscriber
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
             ['ids' => ArrayParameterType::BINARY]
         );
+    }
+
+    /**
+     * A category with a dynamic product group also invalidates the listings above it. They are tagged with every
+     * category on the way down to it, but the category may just have been created or moved there.
+     *
+     * @param list<string> $categoryIds
+     */
+    private function invalidateCategoryListings(array $categoryIds, string $versionId): void
+    {
+        if ($categoryIds === []) {
+            return;
+        }
+
+        $paths = $this->connection->fetchFirstColumn(
+            'SELECT path FROM category
+             WHERE id IN (:ids) AND version_id = :version AND path IS NOT NULL
+               AND product_assignment_type = :productStream AND product_stream_id IS NOT NULL',
+            [
+                'ids' => Uuid::fromHexToBytesList($categoryIds),
+                'version' => Uuid::fromHexToBytes($versionId),
+                'productStream' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        foreach ($paths as $path) {
+            array_push($categoryIds, ...array_filter(explode('|', $path)));
+        }
+
+        $this->cacheInvalidator->invalidate(array_map(ProductListingRoute::buildName(...), $categoryIds));
     }
 
     /**

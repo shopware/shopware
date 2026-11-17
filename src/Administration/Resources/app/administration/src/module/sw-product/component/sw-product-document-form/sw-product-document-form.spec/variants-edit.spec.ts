@@ -21,7 +21,7 @@ import {
 describe('sw-product-document-form variant editing', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     const notification = mockSnackbar;
-    const translate = jest.fn((key: string) => key);
+    const translate = jest.fn((key: unknown) => key);
 
     beforeEach(() => {
         notification.mockClear();

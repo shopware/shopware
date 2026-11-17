@@ -33,8 +33,7 @@ export async function loadDocumentVariants(
     return variants;
 }
 
-/** @private */
-export function getMatchingVariantDocuments(variant: Entity<'product'>, original: Entity<'product_document'>) {
+function getMatchingVariantDocuments(variant: Entity<'product'>, original: Entity<'product_document'>) {
     const mediaId = original.mediaId || original.translated?.mediaId;
     const title = original.title || original.translated?.title || '';
     return variant.documents?.filter(

@@ -107,7 +107,7 @@ describe('sw-product-document-form editing', () => {
             expect(wrapper.get('.document-row').text()).toContain(title);
 
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props('modelValue')).toBe(title);
+            expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input').element.value).toBe(title);
             await clickButton(wrapper, 'global.default.cancel');
         }
     });

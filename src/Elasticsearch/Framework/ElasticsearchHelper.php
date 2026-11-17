@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 
 #[Package('framework')]
 class ElasticsearchHelper
@@ -276,11 +277,7 @@ class ElasticsearchHelper
 
     private function limitTermWords(Criteria $criteria): Criteria
     {
-        $words = [];
-
-        foreach (preg_split('/\s+/u', (string) $criteria->getTerm(), -1, \PREG_SPLIT_NO_EMPTY) ?: [] as $word) {
-            $words[mb_strtolower($word)] ??= $word;
-        }
+        $words = (new ElasticsearchTokenizer())->tokenize((string) $criteria->getTerm());
 
         if (\count($words) <= self::MAX_TERM_WORDS) {
             return $criteria;

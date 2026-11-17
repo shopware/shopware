@@ -306,8 +306,8 @@ class ElasticsearchHelperTest extends TestCase
     public static function termWordLimitCases(): iterable
     {
         yield 'term with 10 distinct words is kept as it is' => [
-            'Red red  Shirt shirt a b c d e f g h',
-            'Red red  Shirt shirt a b c d e f g h',
+            'Red red  Shirt shirt chair table lamp shoes watch phone glass plate',
+            'Red red  Shirt shirt chair table lamp shoes watch phone glass plate',
         ];
 
         yield 'words after the tenth distinct word are dropped' => [
@@ -315,9 +315,14 @@ class ElasticsearchHelperTest extends TestCase
             'chair table lamp shirt shoes watch phone glass plate brush',
         ];
 
-        yield 'repeated words count once and keep their first spelling' => [
+        yield 'repeated words count once' => [
             'Chair chair table lamp shirt shoes watch phone glass plate brush knife',
-            'Chair table lamp shirt shoes watch phone glass plate brush',
+            'chair table lamp shirt shoes watch phone glass plate brush',
+        ];
+
+        yield 'punctuation and one-letter words do not count towards the limit' => [
+            'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
+            'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
         ];
     }
 }

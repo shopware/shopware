@@ -169,7 +169,7 @@ class IntraCommunityTaxResolver implements ResetInterface
         return $this->extensions->publish(
             name: ResolveVatIdsExtension::NAME,
             extension: new ResolveVatIdsExtension($salesChannelId, $deliveryCountry, $customer, $order),
-            function: $this->getVatIds(...),
+            function: fn (string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): array => $this->getVatIds($customer, $order),
         );
     }
 
@@ -178,7 +178,7 @@ class IntraCommunityTaxResolver implements ResetInterface
      *
      * @return list<string>
      */
-    private function getVatIds(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): array
+    private function getVatIds(?CustomerEntity $customer, ?OrderEntity $order): array
     {
         $vatIds = $order !== null ? $order->getOrderCustomer()?->getVatIds() : $customer?->getVatIds();
 
@@ -190,11 +190,11 @@ class IntraCommunityTaxResolver implements ResetInterface
         return strtolower($this->extensions->publish(
             name: ResolveDispatchCountryExtension::NAME,
             extension: new ResolveDispatchCountryExtension($salesChannelId, $deliveryCountry, $customer, $order),
-            function: $this->getSellerCountryId(...),
+            function: fn (string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): string => $this->getSellerCountryId($salesChannelId),
         ));
     }
 
-    private function getSellerCountryId(string $salesChannelId, CountryEntity $deliveryCountry, ?CustomerEntity $customer, ?OrderEntity $order): string
+    private function getSellerCountryId(string $salesChannelId): string
     {
         // Reading the config of an empty sales channel throws
         if ($salesChannelId === '') {

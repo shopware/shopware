@@ -1,5 +1,7 @@
 {% block component_line_item_children %}
     {% set nestingLevel = nestingLevel + 1 %}
+    {# Widen the recursive depth to int so TwigStan converges without accumulating literal values. #}
+    {% types { nestingLevel: 'int' } %}
     {% set childrenCollapseId = 'collapse-line-item-contains-' ~ lineItem.id ~ '-' ~ displayMode %}
 
     <div class="line-item-children nesting-level-{{ nestingLevel }}">

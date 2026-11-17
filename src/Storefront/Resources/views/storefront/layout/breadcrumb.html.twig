@@ -2,9 +2,9 @@
 
 {% block layout_breadcrumb_inner %}
     {% if feature('BREADCRUMB_REWORK') %}
-        {% if breadcrumb and breadcrumb|length > 0 %}
+        {% if (breadcrumb ?? null) and breadcrumb|length > 0 %}
             {% set breadcrumbCollection = breadcrumb %}
-        {% elseif not feature('v6.8.0.0') and breadcrumbCollection and breadcrumbCollection|length > 0 %}
+        {% elseif not feature('v6.8.0.0') and (breadcrumbCollection ?? null) and breadcrumbCollection|length > 0 %}
             {# @deprecated tag:v6.8.0 - Passing the breadcrumb entries as `breadcrumbCollection` will be removed, pass them as `breadcrumb` instead #}
         {% else %}
             {% return %}

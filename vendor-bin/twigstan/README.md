@@ -46,13 +46,13 @@ The address-manager controller uses `array_merge()` because PHPStan 2.3.5 drops 
 Object-valued fields retain their declared types; calling a setter does not narrow a `Page` property to a particular page subclass.
 `AddressEditorModalStruct::$page` temporarily uses PHPDoc to retain `AddressListingPage|null` until the announced native type narrowing in 6.8.
 TwigStan keeps unused loop-parent snapshots outside the context array to avoid exponential context growth.
-The analysis visitor widens `nestingLevel` to `int` at the recursive line-item include so analysis can converge without losing the other context types.
-The hint is injected during analysis because Ludtwig 0.14 does not recognize Twig's `types` tag.
+The recursive line-item template declares `nestingLevel` as `int` with Twig's `types` tag so analysis can converge without losing the other context types.
+This declaration only provides type information and does not change the runtime value.
 Findings require triage before becoming blocking checks.
 
 ## Analyzer versions
 
-- [TwigStan main](https://github.com/twigstan/twigstan/tree/main) is installed from upstream and pinned to a commit in `composer.lock`.
+- [TwigStan 0.2.8](https://github.com/twigstan/twigstan/releases/tag/0.2.8) is installed from upstream and pinned in `composer.lock`.
   It includes the loop-context fix for [issue #317](https://github.com/twigstan/twigstan/issues/317) and preserves block context through unrelated conditions as described in [issue #324](https://github.com/twigstan/twigstan/issues/324).
 - PHPStan 2.3.5 is installed from the official Composer package and pinned in `composer.lock`.
 

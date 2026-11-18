@@ -158,6 +158,10 @@ export default Shopware.Component.wrapComponentConfig({
         showInitialLoader(): boolean {
             return this.isPreviewLoading && !this.hasAnyPreviewFrame;
         },
+
+        showOutdatedPreviewError(): boolean {
+            return this.previewLoadError !== null && this.hasAnyPreviewFrame;
+        },
     },
 
     methods: {
@@ -220,6 +224,11 @@ export default Shopware.Component.wrapComponentConfig({
 
         schedulePreviewReload(): void {
             this.debouncedLoadPreview?.();
+        },
+
+        onRetryPreview(): void {
+            this.debouncedLoadPreview?.cancel();
+            void this.loadPreview();
         },
 
         resetPreviewFrames(): void {
@@ -453,7 +462,7 @@ export default Shopware.Component.wrapComponentConfig({
             const requestId = this.latestRequestId + 1;
             this.latestRequestId = requestId;
             this.isPreviewLoading = true;
-            this.previewLoadError = null;
+            // A previous error stays until a request succeeds, the shown preview is outdated until then.
 
             try {
                 // Working-tree layout data crossing an outbound boundary is cloned at the call site.
@@ -483,9 +492,7 @@ export default Shopware.Component.wrapComponentConfig({
                     return;
                 }
 
-                if (!this.hasAnyPreviewFrame) {
-                    this.previewLoadError = this.$t('sw-experience-studio.detail.preview.errorLoad');
-                }
+                this.previewLoadError = this.$t('sw-experience-studio.detail.preview.errorLoad');
             } finally {
                 if (requestId === this.latestRequestId) {
                     this.isPreviewLoading = false;

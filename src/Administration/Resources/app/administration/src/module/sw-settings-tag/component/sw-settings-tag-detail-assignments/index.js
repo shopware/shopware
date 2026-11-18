@@ -133,12 +133,11 @@ export default {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort('createdAt', 'DESC'));
 
-            if (this.selectedEntity === 'product') {
-                criteria.addAssociation('options.group');
-            }
-            if (this.selectedEntity === 'order') {
-                criteria.addAssociation('orderCustomer');
-            }
+            this.assignmentAreas
+                .find((area) => area.entity === this.selectedEntity)
+                ?.associations.forEach((association) => {
+                    criteria.addAssociation(association);
+                });
 
             if (this.isInheritable) {
                 this.addTagAggregations(criteria);

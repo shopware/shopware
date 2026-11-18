@@ -16,17 +16,28 @@ export type TagAssignmentArea = ReadableArea & {
      * Entity the tag is assigned to, for example `product`.
      */
     entity: string;
+
+    /**
+     * Associations the assignment list loads with the assigned entities.
+     */
+    associations: string[];
 };
 
 /**
- * Associations the assignment list loads in addition to the assigned entity itself.
+ * Associations the assignment list loads, with the entities they read.
  */
-const ADDITIONAL_ENTITIES: Record<string, string[]> = {
-    products: [
-        'property_group_option',
-        'property_group',
-    ],
-    orders: ['order_customer'],
+const ADDITIONAL_ASSOCIATIONS: Record<string, { associations: string[]; entities: string[] }> = {
+    products: {
+        associations: ['options.group'],
+        entities: [
+            'property_group_option',
+            'property_group',
+        ],
+    },
+    orders: {
+        associations: ['orderCustomer'],
+        entities: ['order_customer'],
+    },
 };
 
 /**
@@ -40,14 +51,17 @@ export function getTagAssignmentAreas(properties: TagDefinitionProperties): TagA
             return [];
         }
 
+        const additional = ADDITIONAL_ASSOCIATIONS[propertyName];
+
         return [
             {
                 key: propertyName,
                 label: `sw-settings-tag.detail.assignments.${propertyName}`,
                 entity: property.entity,
+                associations: additional?.associations ?? [],
                 entities: [
                     property.entity,
-                    ...(ADDITIONAL_ENTITIES[propertyName] ?? []),
+                    ...(additional?.entities ?? []),
                 ],
             },
         ];

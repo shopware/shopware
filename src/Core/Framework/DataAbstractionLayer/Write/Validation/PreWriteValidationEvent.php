@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -49,6 +51,21 @@ class PreWriteValidationEvent extends Event implements ShopwareEvent
         return array_values(array_filter(
             $this->commands,
             static fn (WriteCommand $command): bool => $command->getEntityName() === $entity
+        ));
+    }
+
+    /**
+     * Commands the caller issued directly against this entity. Writes the DAL emits as a side effect
+     * of deleting a related entity (cascade deletes and set-null-on-delete updates) are left out.
+     *
+     * @return list<WriteCommand>
+     */
+    public function getExplicitCommandsForEntity(string $entity): array
+    {
+        return array_values(array_filter(
+            $this->getCommandsForEntity($entity),
+            static fn (WriteCommand $command): bool => !$command instanceof CascadeDeleteCommand
+                && !$command instanceof SetNullOnDeleteCommand
         ));
     }
 

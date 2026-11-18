@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -54,6 +56,8 @@ class AppException extends HttpException
     public const APP_TAX_PROVIDER_RESPONSE_INVALID = 'FRAMEWORK__APP_TAX_PROVIDER_RESPONSE_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
+    final public const CMS_BLOCK_FILE_MISSING = 'FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING';
+    final public const CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY = 'FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
     public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
     final public const APP_UNALLOWED_HOST = 'APP__UNALLOWED_HOST';
@@ -418,6 +422,36 @@ class AppException extends HttpException
             self::CANNOT_READ_FILE,
             'Unable to read file: "{{ file }}"',
             ['file' => $file]
+        );
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function cmsBlockFileMissing(string $blockName, string $fileName): self|AppCmsExtensionException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AppCmsExtensionException(\sprintf('File "%s" for block "%s" is missing', $fileName, $blockName));
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CMS_BLOCK_FILE_MISSING,
+            'File "{{ fileName }}" for block "{{ blockName }}" is missing',
+            ['blockName' => $blockName, 'fileName' => $fileName]
+        );
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): self|AppCmsExtensionException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AppCmsExtensionException(\sprintf('Block "%s" is outside of the cms/blocks directory', $blockName));
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY,
+            'Block "{{ blockName }}" is outside of the cms/blocks directory',
+            ['blockName' => $blockName]
         );
     }
 

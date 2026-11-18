@@ -482,6 +482,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GenericPageLoader::class),
             service(LandingPageRoute::class),
             service('event_dispatcher'),
+            service(SeoUrlPlaceholderHandlerInterface::class),
         ]);
 
     $services->set(MenuOffcanvasPageletLoader::class)
@@ -548,6 +549,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDetailRoute::class),
             service('product_review.repository'),
             service(SystemConfigService::class),
+            service(SeoUrlPlaceholderHandlerInterface::class),
             service(CategoryBreadcrumbBuilder::class),
         ]);
 

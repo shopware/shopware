@@ -12,6 +12,8 @@ import {
     getFallbackTranslation,
     getDocumentTitle,
     getTranslated,
+    getDocumentMedia,
+    getDocumentMediaId,
     syncDocumentVariants,
     type DocumentChanges,
     type DocumentVariantOperation,
@@ -104,12 +106,12 @@ export default Shopware.Component.wrapComponentConfig({
                     ? getFallbackTranslation(this.document, 'title')?.title
                     : getTranslated(this.document).title;
 
-            return title || getTranslated(this.document).media?.fileName || '';
+            return title || getDocumentMedia(this.document)?.fileName || '';
         },
 
         editingMedia(): Entity<'media'> | undefined {
             const showSavedFile = !this.isFileRemoved && (this.isDefaultLanguage || this.document.mediaId);
-            return this.replacementMedia || (showSavedFile ? getTranslated(this.document).media || undefined : undefined);
+            return this.replacementMedia || (showSavedFile ? getDocumentMedia(this.document) || undefined : undefined);
         },
 
         nameError(): { code: string; detail: string } | null {
@@ -190,7 +192,8 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const changes = this.getChanges();
-            const { mediaId, title } = getTranslated(this.document);
+            const mediaId = getDocumentMediaId(this.document);
+            const { title } = getTranslated(this.document);
             const operation: DocumentVariantOperation | null =
                 this.applyToVariants && this.hasVariants && mediaId
                     ? { mediaId, title: this.document.title || title || null, changes }

@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import type { PropType } from 'vue';
-import { getDocumentTitle, getTranslated } from '../product-document.helper';
+import { getDocumentTitle, getDocumentMedia, getDocumentMediaId } from '../product-document.helper';
 import template from './sw-product-document-cell.html.twig';
 import './sw-product-document-cell.scss';
 
@@ -28,7 +28,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         media(): Entity<'media'> | null | undefined {
-            return getTranslated(this.document).media;
+            return getDocumentMedia(this.document);
         },
 
         value(): string {
@@ -65,14 +65,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         isVariantOnly(): boolean {
             const { product, parentProduct } = Shopware.Store.get('swProductDetail');
-            const mediaId = getTranslated(this.document).mediaId;
+            const mediaId = getDocumentMediaId(this.document);
             return (
                 this.showVariantBadge &&
                 !!product.parentId &&
                 !!mediaId &&
                 !parentProduct.documents?.some(
                     (document) =>
-                        getTranslated(document).mediaId === mediaId ||
+                        getDocumentMediaId(document) === mediaId ||
                         document.translations?.some((translation) => translation.mediaId === mediaId),
                 )
             );

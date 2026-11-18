@@ -1,6 +1,7 @@
 /**
  * @sw-package inventory
  */
+import { reactive } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 
 /** @private */
@@ -9,22 +10,38 @@ export type DocumentChanges = { title?: string | null; mediaId?: EntityKey<'medi
 /** @private */
 export type DocumentVariantOperation = { mediaId: string; title: string | null; changes?: DocumentChanges };
 
-/** @private */
-export type DocumentTranslated = {
-    title?: string | null;
-    mediaId?: EntityKey<'media'> | null;
-    media?: Entity<'media'> | null;
-};
+type DocumentTranslated = { title?: string | null; mediaId?: EntityKey<'media'> | null };
+
+const selectedMedia = reactive(new WeakMap<Entity<'product_document'>, Entity<'media'> | null>());
 
 /** @private */
 export function getTranslated(document: Entity<'product_document'>): DocumentTranslated {
-    return document.translated as DocumentTranslated;
+    return (document.translated ?? {}) as DocumentTranslated;
+}
+
+/** @private */
+export function getDocumentMediaId(document: Entity<'product_document'>): EntityKey<'media'> | null {
+    return document.mediaId || getTranslated(document).mediaId || null;
+}
+
+/** @private */
+export function getDocumentMedia(document: Entity<'product_document'>): Entity<'media'> | null | undefined {
+    if (selectedMedia.has(document)) {
+        return selectedMedia.get(document);
+    }
+
+    const mediaId = getDocumentMediaId(document);
+    return mediaId ? document.translations?.find((translation) => translation.mediaId === mediaId)?.media : undefined;
+}
+
+/** @private */
+export function setDocumentMedia(document: Entity<'product_document'>, media: Entity<'media'> | null): void {
+    selectedMedia.set(document, media);
 }
 
 /** @private */
 export function getDocumentTitle(document: Entity<'product_document'>): string {
-    const { title, media } = getTranslated(document);
-    return title || media?.fileName || '';
+    return document.title || getTranslated(document).title || getDocumentMedia(document)?.fileName || '';
 }
 
 /** @private */
@@ -72,7 +89,7 @@ export function isValidDocumentMedia(media: Entity<'media'>, exceptDocument: Ent
     }
 
     const documents = Shopware.Store.get('swProductDetail').product.documents ?? [];
-    if (documents.some((document) => document !== exceptDocument && getTranslated(document).mediaId === media.id)) {
+    if (documents.some((document) => document !== exceptDocument && getDocumentMediaId(document) === media.id)) {
         createNotificationError({
             message: Shopware.Snippet.t('sw-product.documentForm.errorDocumentDuplicated') as string,
         });

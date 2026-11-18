@@ -229,7 +229,7 @@
                                 {{ getEditActionLabel(item) }}
                             </sw-context-menu-item>
                             {% block sw_product_document_form_action_download %}
-                            <sw-product-document-download :media="item.translated.media" />
+                            <sw-product-document-download :document="item" />
                             {% endblock %}
                             {% block sw_product_document_form_action_remove %}
                             <sw-context-menu-item

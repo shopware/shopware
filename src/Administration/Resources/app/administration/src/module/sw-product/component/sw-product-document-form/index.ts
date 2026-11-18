@@ -12,9 +12,8 @@ import {
     isValidDocumentMedia,
     getFallbackTranslation,
     getDocumentTitle,
-    getTranslated,
+    setDocumentMedia,
     type DocumentChanges,
-    type DocumentTranslated,
     type DocumentVariantOperation,
 } from './product-document.helper';
 import template from './sw-product-document-form.html.twig';
@@ -167,22 +166,13 @@ export default Shopware.Component.wrapComponentConfig({
             this.page = Math.min(this.page, lastPage);
         },
 
-        product: {
-            immediate: true,
-            handler() {
-                [...(this.documents ?? []), ...(this.parentProduct.documents ?? [])].forEach((document) => {
-                    const translated = getTranslated(document);
-                    translated.media ??= document.translations?.find(
-                        (translation) => translation.mediaId === translated.mediaId,
-                    )?.media;
-                });
-                this.page = 1;
-                this.showUploadModal = false;
-                this.showRestoreInheritanceModal = false;
-                this.editingDocument = null;
-                this.documentsToRemove = [];
-                this.selectedDocuments = [];
-            },
+        product() {
+            this.page = 1;
+            this.showUploadModal = false;
+            this.showRestoreInheritanceModal = false;
+            this.editingDocument = null;
+            this.documentsToRemove = [];
+            this.selectedDocuments = [];
         },
 
         isDefaultLanguage: {
@@ -284,7 +274,7 @@ export default Shopware.Component.wrapComponentConfig({
                     document.mediaId = media.id;
                     document.title = media.fileName;
                     document.position = this.documents.length;
-                    document.translated = { title: media.fileName, mediaId: media.id, media };
+                    setDocumentMedia(document, media);
                     this.documents.add(document);
                 });
             this.showMediaModal = false;
@@ -306,26 +296,19 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        getTranslatedValues(
-            document: Entity<'product_document'>,
-            changes: DocumentChanges,
-            media: Entity<'media'> | null,
-        ): DocumentTranslated {
-            const translated: DocumentTranslated = {};
-            if (changes.title !== undefined) {
-                translated.title = changes.title ?? getFallbackTranslation(document, 'title')?.title ?? null;
+        setDocumentValues(document: Entity<'product_document'>, changes: DocumentChanges, media: Entity<'media'> | null) {
+            const resets = (['title', 'mediaId'] as const).filter((field) => changes[field] === null);
+            const fallbacks = Object.fromEntries(resets.map((field) => [field, getFallbackTranslation(document, field)]));
+            Object.assign(document, changes);
+            if (resets.length) {
+                document.translated = {
+                    ...document.translated,
+                    ...Object.fromEntries(resets.map((field) => [field, fallbacks[field]?.[field] ?? null])),
+                };
             }
             if (changes.mediaId !== undefined) {
-                const fallback = changes.mediaId ? undefined : getFallbackTranslation(document, 'mediaId');
-                translated.mediaId = changes.mediaId ?? fallback?.mediaId ?? null;
-                translated.media = media ?? fallback?.media ?? null;
+                setDocumentMedia(document, media ?? fallbacks.mediaId?.media ?? null);
             }
-            return translated;
-        },
-
-        setDocumentValues(document: Entity<'product_document'>, changes: DocumentChanges, media: Entity<'media'> | null) {
-            Object.assign(getTranslated(document), this.getTranslatedValues(document, changes, media));
-            Object.assign(document, changes);
 
             const translation = document.translations?.find((entry) => entry.languageId === this.languageId);
             if (translation?.isNew()) {
@@ -436,7 +419,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.title = source.title;
                 document.mediaId = source.mediaId;
                 document.customFields = Shopware.Utils.object.cloneDeep(source.customFields);
-                document.translated = { ...source.translated };
+                document.translated = Shopware.Utils.object.cloneDeep(source.translated);
 
                 source.translations?.forEach((sourceTranslation) => {
                     const translation = entityFactory.create(

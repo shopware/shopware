@@ -6,6 +6,7 @@ import useNotification from 'src/app/composables/use-notification';
 import {
     getDocumentTitle,
     getTranslated,
+    getDocumentMediaId,
     syncDocumentVariants,
     type DocumentVariantOperation,
 } from '../product-document.helper';
@@ -96,7 +97,8 @@ export default Shopware.Component.wrapComponentConfig({
             const operations: DocumentVariantOperation[] =
                 this.removeFromVariants && this.hasVariants
                     ? this.documents.flatMap((document) => {
-                          const { mediaId, title } = getTranslated(document);
+                          const mediaId = getDocumentMediaId(document);
+                          const { title } = getTranslated(document);
                           return mediaId ? [{ mediaId, title: document.title || title || null }] : [];
                       })
                     : [];

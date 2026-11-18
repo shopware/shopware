@@ -3,6 +3,7 @@
  */
 import type { PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
+import { getDocumentMedia } from '../product-document.helper';
 import template from './sw-product-document-download.html.twig';
 
 /** @private */
@@ -10,9 +11,14 @@ export default Shopware.Component.wrapComponentConfig({
     template,
     inject: ['acl', 'mediaService'],
     props: {
-        media: {
-            type: Object as PropType<Entity<'media'>>,
-            default: null,
+        document: {
+            type: Object as PropType<Entity<'product_document'>>,
+            required: true,
+        },
+    },
+    computed: {
+        media(): Entity<'media'> | null | undefined {
+            return getDocumentMedia(this.document);
         },
     },
     methods: {

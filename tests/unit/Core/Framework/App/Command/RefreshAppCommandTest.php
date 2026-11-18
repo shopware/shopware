@@ -81,7 +81,7 @@ class RefreshAppCommandTest extends TestCase
         $fails = [['manifest' => $manifest, 'exception' => new \RuntimeException('refused')]];
 
         $this->appService->method('getRefreshableAppInfo')->willReturn($this->createDryRunWithInstallableApp());
-        $this->appService->method('doRefreshApps')->willReturn($fails);
+        $this->appService->expects($this->once())->method('doRefreshApps')->willReturn($fails);
         $this->appPrinter->expects($this->once())->method('printIncompleteInstallations')->with(static::anything(), $fails);
 
         static::assertSame(Command::FAILURE, $this->commandTester->execute(['--force' => true]));

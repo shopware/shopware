@@ -510,6 +510,12 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Manifest validation runs on every app install and update
+
+Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
+Errors make the install or update fail, and all of them are reported at once.
+Notices no longer stop `app:install` and `app:refresh`, run `app:validate` to see them.
+
 ### Event once all line items of an add are in the cart
 
 `CartItemAddRoute` dispatches the new `Shopware\Core\Checkout\Cart\Event\LineItemsAddedBeforeCalculationEvent` once per add, after `BeforeLineItemAddedEvent` was dispatched for each line item and before the cart is calculated.
@@ -523,7 +529,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
+### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
+
+The constant is unused and will be removed in 6.8.
+The imitation token is signed by the internal `HmacSigner`.
 ### Order deliveries keep the order of the cart deliveries
 
 Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
@@ -626,6 +637,12 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
+
+### Default tax rules use the current VAT rates
+
+The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania, Romania and Slovakia to the current VAT rates, and adds a 5% rule for "Reduced rate 2" in Slovakia and Slovenia.
+Only rules of the default tax groups that still have their original rate and were never edited are changed.
+Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 
 ## API
 
@@ -864,6 +881,16 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### `blocks-list.json` is replaced by the public API snapshot
+
+The Administration no longer ships `blocks-list.json`.
+The block names are now in `public-api/index.json`, listed per component.
+All `blocks` arrays of that file together hold the names of the old list.
+Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
+
+Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
+The format of the files in `public-api/` can still change while the snapshot is being built.
+Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
 ### Administration HTTP client runs on a single Axios 1.x transport
 
 The Administration `httpClient` is now one Axios 1.x instance (1.20.0).

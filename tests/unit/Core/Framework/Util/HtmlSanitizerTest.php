@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\Util\NullRawDefinitionHtmlPurifierConfig;
 use Shopware\Core\Test\Stub\Framework\Util\StaticHtmlPurifierConfigProvider;
 
@@ -126,13 +127,52 @@ class HtmlSanitizerTest extends TestCase
         static::assertSame($expected, $sanitizer->sanitize($input, null, false, 'test.bootstrap'));
     }
 
-    #[TestDox('Decodes HTML entities (including double-encoded ones) back to their character form')]
+    #[TestDox('Decodes single-encoded entities but never turns escaped text into markup')]
     #[DataProvider('entityProvider')]
-    public function testDecodesHtmlEntities(string $input, string $expected): void
+    public function testHandlesHtmlEntities(string $input, string $expected): void
     {
         $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
 
         static::assertSame($expected, $sanitizer->sanitize($input));
+        static::assertSame($expected, $sanitizer->sanitize($expected), 'Sanitizing the output again, e.g. on render, must not change it');
+    }
+
+    #[TestDox('Keeps double-encoded entities as text, the sender has to send single-encoded HTML')]
+    #[DataProvider('doubleEncodedEntityProvider')]
+    public function testKeepsDoubleEncodedEntitiesAsText(string $input, string $repairedBefore68, string $expected): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        static::assertSame($expected, $sanitizer->sanitize($input));
+        static::assertSame($expected, $sanitizer->sanitize($expected), 'Sanitizing the output again, e.g. on render, must not change it');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the repair of double-encoded entities
+     */
+    #[TestDox('Without 6.8 behaviour, entity handling is the same')]
+    #[DataProvider('entityProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testHandlesHtmlEntitiesWithoutMajor(string $input, string $expected): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        static::assertSame($expected, $sanitizer->sanitize($input));
+        static::assertSame($expected, $sanitizer->sanitize($expected), 'Sanitizing the output again, e.g. on render, must not change it');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the repair of double-encoded entities
+     */
+    #[TestDox('Without 6.8 behaviour, repairs double-encoded entities but never into markup')]
+    #[DataProvider('doubleEncodedEntityProvider')]
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRepairsDoubleEncodedEntities(string $input, string $expected, string $keptAsTextSince68): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        static::assertSame($expected, $sanitizer->sanitize($input));
+        static::assertSame($expected, $sanitizer->sanitize($expected), 'Sanitizing the output again, e.g. on render, must not change it');
     }
 
     #[TestDox('Strips markup while keeping a lone "<", entities and line endings verbatim')]
@@ -317,11 +357,6 @@ class HtmlSanitizerTest extends TestCase
 
     public static function entityProvider(): \Generator
     {
-        yield 'double encoded umlaut' => [
-            'Luxuri&amp;ouml;ser Herrenmantel in Grau.',
-            'Luxuriöser Herrenmantel in Grau.',
-        ];
-
         yield 'single encoded umlaut' => [
             'Luxuri&ouml;ser Herrenmantel in Grau.',
             'Luxuriöser Herrenmantel in Grau.',
@@ -337,14 +372,87 @@ class HtmlSanitizerTest extends TestCase
             'String with "quotes"',
         ];
 
+        yield 'escaped tag stays text' => [
+            '&lt;b&gt;Bold&lt;/b&gt;',
+            '&lt;b&gt;Bold&lt;/b&gt;',
+        ];
+
+        yield 'escaped "<" in front of a word keeps the following text' => [
+            '<p>Price &lt;abc def</p>',
+            '<p>Price &lt;abc def</p>',
+        ];
+
+        yield 'escaped script stays text' => [
+            '&lt;script&gt;alert(1)&lt;/script&gt;',
+            '&lt;script&gt;alert(1)&lt;/script&gt;',
+        ];
+
+        yield 'numeric escaped event handler stays text' => [
+            '&#60;img src=x onerror=alert(1)&#62;',
+            '&lt;img src=x onerror=alert(1)&gt;',
+        ];
+
+        yield 'hex escaped tag stays text' => [
+            '&#x3c;svg onload=alert(1)&#x3e;',
+            '&lt;svg onload=alert(1)&gt;',
+        ];
+
+        yield 'plain ampersand is kept' => [
+            'Tom &amp; Jerry',
+            'Tom &amp; Jerry',
+        ];
+
+        yield 'unknown entity name is kept as text' => [
+            'AT&amp;T; and &amp;notanentity;',
+            'AT&amp;T; and &amp;notanentity;',
+        ];
+    }
+
+    /**
+     * Input, output before 6.8 (repaired), output since 6.8 (kept as text)
+     */
+    public static function doubleEncodedEntityProvider(): \Generator
+    {
+        yield 'double encoded umlaut' => [
+            'Luxuri&amp;ouml;ser Herrenmantel in Grau.',
+            'Luxuriöser Herrenmantel in Grau.',
+            'Luxuri&amp;ouml;ser Herrenmantel in Grau.',
+        ];
+
+        yield 'triple encoded umlaut' => [
+            'Luxuri&amp;amp;ouml;ser Herrenmantel in Grau.',
+            'Luxuriöser Herrenmantel in Grau.',
+            'Luxuri&amp;amp;ouml;ser Herrenmantel in Grau.',
+        ];
+
         yield 'double encoded quotes' => [
             'String with &amp;quot;quotes&amp;quot;',
             'String with "quotes"',
+            'String with &amp;quot;quotes&amp;quot;',
         ];
 
-        yield 'allowed tag' => [
-            '&lt;b&gt;Bold&lt;/b&gt;',
-            '<b>Bold</b>',
+        yield 'double encoded numeric entities' => [
+            'Luxuri&amp;#246;ser &amp;#x20AC; 5',
+            'Luxuriöser € 5',
+            'Luxuri&amp;#246;ser &amp;#x20AC; 5',
+        ];
+
+        yield 'double encoded "<" never becomes a tag' => [
+            '&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;',
+            '&lt;script&gt;alert(1)&lt;/script&gt;',
+            '&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;',
+        ];
+
+        yield 'double encoded numeric "<" never becomes a tag' => [
+            '&amp;#60;img src=x onerror=alert(1)&amp;#x3E;',
+            '&lt;img src=x onerror=alert(1)&gt;',
+            '&amp;#60;img src=x onerror=alert(1)&amp;#x3E;',
+        ];
+
+        yield 'double encoded quote in an attribute stays inside the attribute' => [
+            '<a href="#" title="&amp;quot; onclick=&amp;quot;alert(1)">Link</a>',
+            '<a href="#" title="&quot; onclick=&quot;alert(1)">Link</a>',
+            '<a href="#" title="&amp;quot; onclick=&amp;quot;alert(1)">Link</a>',
         ];
     }
 

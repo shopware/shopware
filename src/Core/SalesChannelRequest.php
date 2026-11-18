@@ -17,6 +17,10 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST = 'sw-maintenance-ip-allowlist';
 
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD = 'sw-maintenance-password';
+
+    public const ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD_GENERATION = 'sw-maintenance-password-generation';
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed, use ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST instead.
      */

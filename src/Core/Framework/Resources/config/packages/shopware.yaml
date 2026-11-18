@@ -267,6 +267,17 @@ shopware:
                       interval: '30 seconds'
                     - limit: 20
                       interval: '60 seconds'
+            maintenance_password:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 5
+                      interval: '60 seconds'
+                    - limit: 10
+                      interval: '300 seconds'
+                    - limit: 20
+                      interval: '3600 seconds'
             guest_login:
                 enabled: true
                 policy: 'time_backoff'

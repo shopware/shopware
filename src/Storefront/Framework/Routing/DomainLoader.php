@@ -68,6 +68,8 @@ class DomainLoader extends AbstractDomainLoader
             'sales_channel.maintenance maintenance',
             // @deprecated tag:v6.8.0 - remove the COALESCE fallback to the deprecated `maintenance_ip_whitelist` column
             'COALESCE(sales_channel.maintenance_ip_allowlist, sales_channel.maintenance_ip_whitelist) maintenanceIpAllowlist',
+            'sales_channel.maintenance_password maintenancePassword',
+            'sales_channel.maintenance_password_generation maintenancePasswordGeneration',
             'snippet_set.iso as locale',
             'theme.technical_name as themeName',
             'parentTheme.technical_name as parentThemeName',

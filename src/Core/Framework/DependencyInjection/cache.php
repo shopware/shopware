@@ -264,6 +264,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.stale_if_error'),
             service(CacheHeadersService::class),
             service(CachePolicyProvider::class),
+            service(CacheTagCollector::class),
         ])
         ->tag('kernel.event_subscriber');
 

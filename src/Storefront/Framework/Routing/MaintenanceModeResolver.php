@@ -29,7 +29,7 @@ class MaintenanceModeResolver
      */
     public function shouldRedirect(Request $request): bool
     {
-        return $this->isSalesChannelRequest()
+        return $this->isSalesChannelRequest($request)
             && !$request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE)
             && !$this->isXmlHttpRequest($request)
             && !$this->isErrorControllerRequest($request)
@@ -50,7 +50,7 @@ class MaintenanceModeResolver
 
     public function shouldBeCached(Request $request): bool
     {
-        return !$this->isMaintenanceModeActive() || !$this->isClientAllowed($request);
+        return !$this->isMaintenanceModeActive($request) || !$this->isClientAllowed($request);
     }
 
     /**
@@ -59,12 +59,12 @@ class MaintenanceModeResolver
      */
     public function isMaintenanceRequest(Request $request): bool
     {
-        return $this->isMaintenanceModeActive() && !$this->isClientAllowed($request);
+        return $this->isMaintenanceModeActive($request) && !$this->isClientAllowed($request);
     }
 
-    private function isSalesChannelRequest(): bool
+    private function isSalesChannelRequest(Request $request): bool
     {
-        $main = $this->requestStack->getMainRequest();
+        $main = $this->getSalesChannelRequest($request);
 
         return (bool) $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST);
     }
@@ -80,16 +80,25 @@ class MaintenanceModeResolver
             && $request->attributes->get('_controller') === 'error_controller';
     }
 
-    private function isMaintenanceModeActive(): bool
+    private function isMaintenanceModeActive(Request $request): bool
     {
-        $main = $this->requestStack->getMainRequest();
+        $main = $this->getSalesChannelRequest($request);
 
         return (bool) $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE);
     }
 
+    private function getSalesChannelRequest(Request $request): ?Request
+    {
+        if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE)) {
+            return $request;
+        }
+
+        return $this->requestStack->getMainRequest();
+    }
+
     private function isClientAllowed(Request $request): bool
     {
-        $main = $this->requestStack->getMainRequest();
+        $main = $this->getSalesChannelRequest($request);
         $allowlist = $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_ALLOWLIST)
             // @deprecated tag:v6.8.0 - remove the fallback to the deprecated attribute
             ?? $main?->attributes->get(SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST)
@@ -98,6 +107,7 @@ class MaintenanceModeResolver
         /** @var list<string> $allowedIps */
         $allowedIps = Json::decodeToList((string) $allowlist);
 
-        return $this->maintenanceModeResolver->isClientAllowed($request, $allowedIps);
+        // the sales channel request carries the attributes the maintenance password grant is checked against
+        return $this->maintenanceModeResolver->isClientAllowed($main ?? $request, $allowedIps);
     }
 }

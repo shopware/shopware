@@ -43,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyIdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
@@ -137,6 +138,8 @@ class SalesChannelDefinition extends EntityDefinition
             (new BoolField('hreflang_active', 'hreflangActive'))->addFlags(new ApiAware())->setDescription('When set to true, the sales channel pages are available in different languages.'),
             (new BoolField('maintenance', 'maintenance'))->addFlags(new ApiAware())->setDescription('When `true`, it indicates that the sales channel is undergoing maintenance, and shopping is temporarily unavailable during this period.'),
             (new ListField('maintenance_ip_allowlist', 'maintenanceIpAllowlist', StringField::class))->setDescription('List of IP addresses allowed to access the sales channel while the maintenance mode is active.'),
+            (new PasswordField('maintenance_password', 'maintenancePassword'))->removeFlag(ApiAware::class)->setDescription('Password used to access the sales channel while maintenance mode is active.'),
+            (new StringField('maintenance_password_generation', 'maintenancePasswordGeneration'))->removeFlag(ApiAware::class),
             // @deprecated tag:v6.8.0 - Will be removed, use `maintenanceIpAllowlist` instead.
             (new ListField('maintenance_ip_whitelist', 'maintenanceIpWhitelist', StringField::class))->addFlags(new Deprecated('v6.7.13.0', 'v6.8.0.0', 'maintenanceIpAllowlist'))->setDescription('List of IP addresses used when the maintenance mode is active.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),

@@ -51,6 +51,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\Sales
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
+use Shopware\Core\System\SalesChannel\Api\SalesChannelMaintenancePasswordController;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
@@ -95,6 +96,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelExceptionHandler;
 use Shopware\Core\System\SalesChannel\StoreApiCustomFieldMapper;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenanceIpAllowlistSyncSubscriber;
+use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenancePasswordAccessSubscriber;
+use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelMaintenancePasswordGenerationSubscriber;
 use Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
 use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
@@ -112,6 +115,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelDefinition::class)
         ->tag('shopware.entity.definition')
         ->tag('shopware.entity.hookable');
+
+    $services->set(SalesChannelMaintenancePasswordController::class)
+        ->public()
+        ->args([service('sales_channel.repository')])
+        ->call('setContainer', [service('service_container')]);
 
     $services->set(SalesChannelTranslationDefinition::class)
         ->tag('shopware.entity.definition');
@@ -546,6 +554,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelMaintenanceIpAllowlistSyncSubscriber::class)
         ->tag('kernel.event_subscriber')
         ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+
+    $services->set(SalesChannelMaintenancePasswordGenerationSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(SalesChannelMaintenancePasswordAccessSubscriber::class)
+        ->tag('kernel.event_subscriber');
 
     // Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics)
     $services->set(SalesChannelTypeResolver::class);

@@ -215,6 +215,16 @@ class RequestTransformer implements RequestTransformerInterface
             $salesChannel->maintenanceIpAllowlist
         );
 
+        $transformedRequest->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD,
+            $salesChannel->maintenancePassword
+        );
+
+        $transformedRequest->attributes->set(
+            SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_PASSWORD_GENERATION,
+            $salesChannel->maintenancePasswordGeneration
+        );
+
         // @deprecated tag:v6.8.0 - remove this block, the deprecated attribute is kept in sync for backwards compatibility only
         $transformedRequest->attributes->set(
             SalesChannelRequest::ATTRIBUTE_SALES_CHANNEL_MAINTENANCE_IP_WHITLELIST,

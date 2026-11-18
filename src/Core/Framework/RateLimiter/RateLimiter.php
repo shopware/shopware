@@ -14,6 +14,8 @@ class RateLimiter
 
     final public const LOGIN_CLIENT = 'login_client';
 
+    final public const MAINTENANCE_PASSWORD = 'maintenance_password';
+
     final public const GUEST_LOGIN = 'guest_login';
 
     final public const RESET_PASSWORD = 'reset_password';

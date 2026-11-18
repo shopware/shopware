@@ -26,6 +26,8 @@ class DomainStructTest extends TestCase
         $domain = DomainStruct::fromArray(self::row([
             'themeId' => 'theme-id',
             'maintenanceIpAllowlist' => '["127.0.0.1"]',
+            'maintenancePassword' => 'password-hash',
+            'maintenancePasswordGeneration' => 'generation-id',
             'themeName' => 'Storefront',
             'parentThemeName' => 'Base',
         ]));
@@ -39,6 +41,8 @@ class DomainStructTest extends TestCase
         static::assertSame('theme-id', $domain->themeId);
         static::assertSame('1', $domain->maintenance);
         static::assertSame('["127.0.0.1"]', $domain->maintenanceIpAllowlist);
+        static::assertSame('password-hash', $domain->maintenancePassword);
+        static::assertSame('generation-id', $domain->maintenancePasswordGeneration);
         static::assertSame('en-GB', $domain->locale);
         static::assertSame('Storefront', $domain->themeName);
         static::assertSame('Base', $domain->parentThemeName);
@@ -50,6 +54,8 @@ class DomainStructTest extends TestCase
 
         static::assertNull($domain->themeId);
         static::assertNull($domain->maintenanceIpAllowlist);
+        static::assertNull($domain->maintenancePassword);
+        static::assertNull($domain->maintenancePasswordGeneration);
         static::assertNull($domain->themeName);
         static::assertNull($domain->parentThemeName);
     }

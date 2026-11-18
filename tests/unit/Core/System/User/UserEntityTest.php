@@ -19,7 +19,6 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
-use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserDefinition;
 use Shopware\Core\System\User\UserEntity;
 
@@ -46,7 +45,6 @@ class UserEntityTest extends TestCase
         $media = new MediaCollection();
         $accessKeys = new UserAccessKeyCollection();
         $configs = new UserConfigCollection();
-        $recovery = new UserRecoveryEntity();
         $aclRoles = new AclRoleCollection();
         $createdOrders = new OrderCollection();
         $updatedOrders = new OrderCollection();
@@ -67,7 +65,6 @@ class UserEntityTest extends TestCase
         $user->setMedia($media);
         $user->setAccessKeys($accessKeys);
         $user->setConfigs($configs);
-        $user->setRecoveryUser($recovery);
         $user->setAdmin(true);
         $user->setMcpAllowlist(['tool-a' => true]);
         $user->setAclRoles($aclRoles);
@@ -92,7 +89,6 @@ class UserEntityTest extends TestCase
         static::assertSame($media, $user->getMedia());
         static::assertSame($accessKeys, $user->getAccessKeys());
         static::assertSame($configs, $user->getConfigs());
-        static::assertSame($recovery, $user->getRecoveryUser());
         static::assertTrue($user->isAdmin());
         static::assertSame(['tool-a' => true], $user->getMcpAllowlist());
         static::assertSame($aclRoles, $user->getAclRoles());

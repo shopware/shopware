@@ -98,6 +98,7 @@ class EntityReadTool extends McpToolResponse { ... }
 - The attribute is **repeatable** — add multiple `#[McpToolRequires]` lines when a tool needs more than one privilege.
 - Use `entityParam` + `operations` for entity tools where the privilege depends on the `$entity` parameter passed at runtime. The Admin UI renders this as `<entity>:read` with a tooltip.
 - Still call `$this->requirePrivilege($context, 'system_config:read')` (or the equivalent) inside `__invoke()` for actual runtime enforcement.
+- A tool that reads no shop data declares `#[McpToolRequiresNoPrivilege(reason: '...')]` instead; it grants nothing at runtime. PHPStan (`shopware.mcpAdminToolMissingRequires`) requires exactly one of the two attributes on every Admin API tool, see `../AGENTS.md`.
 
 ### Current privilege declarations (core tools)
 
@@ -113,6 +114,10 @@ class EntityReadTool extends McpToolResponse { ... }
 | `shopware-entity-upsert` | `<entity>:create`, `<entity>:update` (dynamic) |
 | `shopware-entity-delete` | `<entity>:delete` (dynamic) |
 | `shopware-theme-config` (Storefront) | `theme:read`, `theme:update` |
+| `shopware-entity-schema` | none, `#[McpToolRequiresNoPrivilege]` (reads entity definitions only) |
+| `shopware-tool-search` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolsets-list` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
+| `shopware-toolset-enable` | none, `#[McpToolRequiresNoPrivilege]` (discovery meta-tool) |
 
 ## Response format convention
 All tools must extend the `McpToolResponse` abstract class. It provides two helpers:
@@ -260,6 +265,65 @@ $this->applyDefaultIncludes($definition, $criteriaObj);
 
 All entity read tools use `JsonEntityEncoder` for serialization (not the Store API serializer), so `includes`/`excludes` filtering works consistently regardless of whether the data comes from a regular or sales channel repository.
 
+## Tool annotations (`readOnlyHint`, `destructiveHint`, ...)
+
+Every core tool declares the tool annotations of the MCP specification with the `annotations` argument of `#[McpTool]`:
+
+```php
+use Mcp\Schema\ToolAnnotations;
+
+#[McpTool(
+    name: 'shopware-entity-delete',
+    title: 'Entity Delete',
+    annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false),
+    description: '...',
+)]
+```
+
+Clients read them in `tools/list`, and in the tool definitions `shopware-tool-search` returns, to decide when to ask the user before a call.
+They are hints, not enforcement: ACL and `dryRun` still protect the shop.
+A tool without annotations gets the spec defaults, which describe a destructive tool that reaches outside the shop.
+`McpToolRegistrationTest::testEveryCoreToolDeclaresAnnotations()` fails for a core tool on either endpoint that leaves out a hint it needs, and `McpToolAnnotationsTest` pins the values below as clients receive them.
+
+How to choose:
+- `readOnlyHint: true` when the tool never changes its environment: no shop data, no configuration, no session state.
+  The spec says `destructiveHint` and `idempotentHint` are only meaningful when `readOnlyHint` is false, so read tools leave them out.
+- `readOnlyHint: false` as soon as one action of the tool writes, even if `dryRun` defaults to true.
+  The hints describe what the tool can do, not what one call with default arguments does.
+- `destructiveHint: true` when the tool can remove or overwrite existing data: records, record fields, configuration, theme settings, order states.
+  The spec reserves `destructiveHint: false` for tools that only make additive updates, so a tool that edits existing records is destructive.
+  `destructiveHint: false` when the tool only creates data or changes session state.
+- `idempotentHint: true` when repeating a call with the same arguments has no further effect.
+  Creating records without a caller-supplied id, or firing state transitions that can start flows and send mails, is not idempotent.
+- `openWorldHint: false` when the tool only acts on the shop itself.
+  `openWorldHint: true` when it reaches external systems, such as fetching a caller-supplied URL.
+- Leave out `title` in the annotations; the `title` argument of `#[McpTool]` already sets the display name.
+
+| Tool | readOnly | destructive | idempotent | openWorld |
+|---|---|---|---|---|
+| `shopware-entity-schema`, `shopware-entity-search`, `shopware-entity-read`, `shopware-entity-aggregate`, `shopware-system-config-read` | true | | | false |
+| `shopware-tool-search`, `shopware-toolsets-list` (Admin and Store API) | true | | | false |
+| `shopware-store-api-context` (Store API) | true | | | false |
+| `shopware-toolset-enable` (Admin and Store API) | false | false | true | false |
+| `shopware-entity-upsert` | false | true | false | false |
+| `shopware-media-upload` | false | true | false | true |
+| `shopware-entity-delete` | false | true | true | false |
+| `shopware-order-state` | false | true | false | false |
+| `shopware-system-config-write` | false | true | true | false |
+| `shopware-theme-config` (Storefront) | false | true | true | false |
+
+Notes on the less obvious rows:
+- `shopware-toolset-enable` changes which tools the session advertises, so it is not read-only.
+  It touches no shop data, and enabling a toolset twice changes nothing.
+- `shopware-entity-upsert` is destructive because an update overwrites existing fields, even though it removes no record.
+  It is not idempotent because a payload without ids creates new records on every call.
+- `shopware-entity-delete` is idempotent: deleting the same records again reports them as not found and changes nothing.
+- `shopware-media-upload` downloads the file from a caller-supplied URL, which makes it the only core tool reaching outside the shop.
+  It is destructive because a `productId` makes the new file the product cover and replaces the current one.
+- `shopware-theme-config` has a read action too, but the tool as a whole can overwrite theme settings.
+
+App tools from `mcp.xml` carry no annotations yet.
+
 ## Read tools
 - `EntitySchemaTool` (`shopware-entity-schema`) -- entity field/association introspection
 - `EntitySearchTool` (`shopware-entity-search`) -- criteria-based search; returns records only, **never aggregations** (see below)
@@ -300,7 +364,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 1. Create a class in this directory
 2. Add `#[McpTool(name: 'shopware-{tool-name}', description: '...')]` on the class
 3. If the tool only works after using another tool first, add `#[McpToolDependsOn('other-tool-name')]` (repeatable)
-4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement.
+4. If the tool requires specific ACL privileges, add `#[McpToolRequires('privilege:operation')]` (repeatable); for entity tools use `#[McpToolRequires(entityParam: 'entity', operations: ['read'])]`. Still call `$this->requirePrivilege()` inside `__invoke()` for actual runtime enforcement. If it needs no privilege, add `#[McpToolRequiresNoPrivilege(reason: '...')]` instead.
 5. Extend `McpToolResponse` and return via `$this->success()` / `$this->error()`
 6. For entity tools: validate with `$this->registry->has($entity)` before ACL checks
 7. Register in `src/Core/Framework/DependencyInjection/mcp.php` with the `mcp.tool` tag

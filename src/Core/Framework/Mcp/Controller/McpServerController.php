@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
+use Shopware\Core\Framework\Mcp\Session\McpSessionPrincipalBinding;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
@@ -72,6 +73,7 @@ class McpServerController
         private readonly ?LoggerInterface $logger = null,
         private readonly McpAllowlistFilter $allowlistFilter = new McpAllowlistFilter(),
         private readonly ?McpListChangedNotifier $listChangedNotifier = null,
+        private readonly ?McpSessionPrincipalBinding $sessionBinding = null,
     ) {
     }
 
@@ -89,6 +91,13 @@ class McpServerController
 
         $this->sessionIdValidator->validate($request);
         $this->rateLimiter->enforceForAdminApi($request);
+
+        // Before anything else answers, so a session of another principal looks like an unknown one.
+        if ($this->sessionBinding?->rejects($request)) {
+            return $this->transportFactory->createResponse(
+                $this->server->run($this->transportFactory->createTransport($request, sessionNotFound: true)),
+            );
+        }
 
         $this->logger?->debug('MCP request', [
             'method' => $request->getMethod(),
@@ -112,6 +121,7 @@ class McpServerController
         }
 
         $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
+        $this->bindNewSession($request, $psrResponse);
         $this->syncListVersions($request, $psrResponse);
         $this->flushPendingToolsListChanged($request);
 
@@ -150,6 +160,22 @@ class McpServerController
             $sessionId,
             new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
         );
+    }
+
+    /**
+     * Binds a session created by this request (initialize) to the request's principal. Runs after
+     * {@see Server::run()} for the same reason as flushPendingToolsListChanged().
+     */
+    private function bindNewSession(Request $request, PsrResponseInterface $psrResponse): void
+    {
+        if (($request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '') !== '') {
+            return;
+        }
+
+        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
+        if ($sessionId !== '') {
+            $this->sessionBinding?->bind($request, $sessionId);
+        }
     }
 
     /**

@@ -663,8 +663,10 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 Selects built on `sw-select-base`, such as `sw-entity-single-select` and `sw-multi-select`, no longer open when they get the focus.
 They open on ArrowDown, ArrowUp, Enter, Space, Backspace, Delete or a typed character, and TAB moves on to the next field.
-Closing a select returns the focus to it.
+Closing a select with the keyboard returns the focus to it.
+While a closed select has the focus, ESC no longer triggers the ESC shortcut of the page, like in a text field.
 Automated tests that open a select by focusing it must click it or press one of these keys instead.
+Inputs that extensions add inside a select need `tabindex="-1"`, so TAB moves on to the next field.
 
 ### Order viewers no longer receive delete privileges
 

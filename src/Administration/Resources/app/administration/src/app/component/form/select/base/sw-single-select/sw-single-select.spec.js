@@ -134,6 +134,13 @@ describe('components/sw-single-select', () => {
         expect(swSingleSelect.vm.searchTerm).toBe('Entry 3');
     });
 
+    it('should keep the search input out of the tab order', async () => {
+        const swSingleSelect = await createSingleSelect();
+        await flushPromises();
+
+        expect(swSingleSelect.find('.sw-single-select__selection-input').attributes('tabindex')).toBe('-1');
+    });
+
     it('should filter the entries from the search term', async () => {
         const swSingleSelect = await createSingleSelect();
         await flushPromises();

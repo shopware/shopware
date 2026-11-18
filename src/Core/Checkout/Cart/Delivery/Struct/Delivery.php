@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
+use Shopware\Core\Checkout\Cart\PayloadTrait;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -10,6 +11,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class Delivery extends Struct
 {
+    use PayloadTrait;
+
+    /**
+     * @var list<string>|null
+     */
+    private ?array $ruleIds = null;
+
     public function __construct(
         protected DeliveryPositionCollection $positions,
         protected DeliveryDate $deliveryDate,
@@ -52,6 +60,32 @@ class Delivery extends Struct
     public function setShippingCosts(CalculatedPrice $shippingCosts): void
     {
         $this->shippingCosts = $shippingCosts;
+    }
+
+    /**
+     * Ids of the rules that match this delivery, null while the delivery has not been matched
+     *
+     * @return list<string>|null
+     */
+    public function getRuleIds(): ?array
+    {
+        return $this->ruleIds;
+    }
+
+    /**
+     * @param list<string>|null $ruleIds
+     */
+    public function setRuleIds(?array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $data = parent::jsonSerialize();
+        $data['payload'] = $this->getUnprotectedPayload();
+
+        return $data;
     }
 
     public function getApiAlias(): string

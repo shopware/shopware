@@ -847,6 +847,10 @@
           "any": "At least one",
           "all": "All"
         },
+        "deliveryCondition": {
+          "cart": "Whole cart",
+          "delivery": "This delivery"
+        },
         "AddAndCondition": "Add AND condition",
         "AddOrCondition": "Add OR condition",
         "AddSubCondition": "Add subconditions",

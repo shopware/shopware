@@ -19,6 +19,7 @@ import type ExtensionSdkService from 'src/core/service/api/extension-sdk.service
 import type CartStoreService from 'src/core/service/api/cart-store-api.api.service';
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type MediaService from 'src/core/service/api/media.api.service';
+import type createMediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
 import type UserActivityService from 'src/app/service/user-activity.service';
 import type { FullState } from 'src/core/factory/state.factory';
@@ -284,9 +285,7 @@ declare global {
         localeHelper: $TSFixMe;
         localeToLanguageService: $TSFixMe;
         loginService: LoginService;
-        mediaDefaultFolderService: {
-            getDefaultFolderId: (entityName: string) => Promise<string | null>;
-        };
+        mediaDefaultFolderService: ReturnType<typeof createMediaDefaultFolderService>;
         mediaService: MediaService;
         menuService: $TSFixMe;
         numberRangeService: $TSFixMe;

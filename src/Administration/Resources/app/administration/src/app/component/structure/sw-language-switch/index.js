@@ -32,6 +32,11 @@ export default {
             required: false,
             default: true,
         },
+        checkChangesOnBusEvent: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
         abortChangeFunction: {
             type: Function,
             required: false,
@@ -91,11 +96,20 @@ export default {
             this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
 
-            Shopware.Utils.EventBus.on('on-change-language-clicked', this.onInput);
+            Shopware.Utils.EventBus.on('on-change-language-clicked', this.onChangeLanguageClicked);
         },
 
         destroyedComponent() {
-            Shopware.Utils.EventBus.off('on-change-language-clicked', this.onInput);
+            Shopware.Utils.EventBus.off('on-change-language-clicked', this.onChangeLanguageClicked);
+        },
+
+        onChangeLanguageClicked(languageId) {
+            if (this.checkChangesOnBusEvent) {
+                this.onInput(languageId);
+                return;
+            }
+
+            this.changeToNewLanguage(languageId);
         },
 
         onInput(newLanguageId) {

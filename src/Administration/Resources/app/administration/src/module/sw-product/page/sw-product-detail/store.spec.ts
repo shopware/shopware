@@ -3,6 +3,11 @@
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 
+function createProduct() {
+    const states: string[] = [];
+    return Object.assign(repositoryFactory.create('product').create(), { states });
+}
+
 describe('swProductDetail product document media', () => {
     const store = Shopware.Store.get('swProductDetail');
 
@@ -23,8 +28,8 @@ describe('swProductDetail product document media', () => {
     });
 
     it('keeps unsaved file details with their product when navigating between products', () => {
-        const firstProduct = repositoryFactory.create('product').create();
-        const secondProduct = repositoryFactory.create('product').create();
+        const firstProduct = createProduct();
+        const secondProduct = createProduct();
         const media = repositoryFactory.create('media').create();
         media.fileName = 'manual';
         store.product = firstProduct;

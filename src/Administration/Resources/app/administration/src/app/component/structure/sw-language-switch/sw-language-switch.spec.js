@@ -51,9 +51,22 @@ describe('src/app/component/structure/sw-language-switch', () => {
         expect(wrapper.emitted('on-change')).toEqual([['456']]);
     });
 
+    it.each([true, false])('keeps the existing bus behavior with changeGlobalLanguage=%s', async (changeGlobalLanguage) => {
+        const abortChangeFunction = jest.fn(() => true);
+        await wrapper.setProps({ abortChangeFunction, changeGlobalLanguage });
+
+        Shopware.Utils.EventBus.emit('on-change-language-clicked', '456');
+        await flushPromises();
+
+        expect(abortChangeFunction).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-modal-stub').exists()).toBe(false);
+        expect(wrapper.emitted('on-change')).toEqual([['456']]);
+        expect(Shopware.Context.api.languageId).toBe(changeGlobalLanguage ? '456' : '123456789');
+    });
+
     it('keeps the current language when a bus request with unsaved changes is cancelled', async () => {
         const abortChangeFunction = jest.fn(() => true);
-        await wrapper.setProps({ abortChangeFunction });
+        await wrapper.setProps({ abortChangeFunction, checkChangesOnBusEvent: true });
         Shopware.Utils.EventBus.emit('on-change-language-clicked', '456');
         await flushPromises();
         expect(abortChangeFunction).toHaveBeenCalledWith({ oldLanguageId: '123456789', newLanguageId: '456' });
@@ -69,7 +82,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
     it('switches after discarding changes requested through the bus without checking again', async () => {
         const abortChangeFunction = jest.fn(() => true);
-        await wrapper.setProps({ abortChangeFunction });
+        await wrapper.setProps({ abortChangeFunction, checkChangesOnBusEvent: true });
         Shopware.Utils.EventBus.emit('on-change-language-clicked', '456');
         await flushPromises();
         await wrapper.getComponent('#sw-language-switch-revert-changes-button').vm.$emit('click');
@@ -86,7 +99,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
                     finishSave = resolve;
                 }),
         );
-        await wrapper.setProps({ abortChangeFunction: () => true, saveChangesFunction });
+        await wrapper.setProps({ abortChangeFunction: () => true, saveChangesFunction, checkChangesOnBusEvent: true });
         Shopware.Utils.EventBus.emit('on-change-language-clicked', '456');
         await flushPromises();
         wrapper.getComponent('#sw-language-switch-save-changes-button').vm.$emit('click');

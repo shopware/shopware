@@ -122,6 +122,7 @@
     <template #language-switch>
         <sw-language-switch
             ref="languageSwitch"
+            check-changes-on-bus-event
             :save-changes-function="saveOnLanguageChange"
             :abort-change-function="abortOnLanguageChange"
             :disabled="!productId"

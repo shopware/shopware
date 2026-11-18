@@ -1,0 +1,491 @@
+import { MtCollapsible, MtCollapsibleContent, MtCollapsibleTrigger, MtText } from '@shopware-ag/meteor-component-library';
+import template from './sw-experience-studio-grid-editor.html.twig';
+import './sw-experience-studio-grid-editor.scss';
+
+type Column = { id: number; type: 'auto' | 'px' | 'percent' | 'fraction'; value: string | null };
+type Pattern = { columns: Column[]; cells: number[][] };
+type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+const breakpoints: Breakpoint[] = [
+    'xs',
+    'sm',
+    'md',
+    'lg',
+    'xl',
+];
+
+type LayoutColumn = { type: Column['type']; value?: number | string };
+type LayoutConfiguration = { columns: LayoutColumn[]; areas: string[][] };
+type GridLayout = Partial<Record<Breakpoint, LayoutConfiguration>>;
+type BreakpointPatterns = Partial<Record<Breakpoint, Pattern>> & { xs: Pattern };
+
+function initialPattern(value?: LayoutConfiguration): Pattern {
+    if (!value) return { columns: [{ id: 1, type: 'auto', value: null }], cells: [[1]] };
+    const ids = new Map<string, number>();
+    return {
+        columns: value.columns.map((column, index) => ({
+            id: index + 1,
+            type: column.type,
+            value: column.value === undefined ? null : String(column.value),
+        })),
+        cells: value.areas.map((row) =>
+            row.map((cell) => {
+                if (!ids.has(cell)) ids.set(cell, ids.size + 1);
+                return ids.get(cell) as number;
+            }),
+        ),
+    };
+}
+
+function encodePattern(pattern: Pattern): LayoutConfiguration {
+    return {
+        columns: pattern.columns.map((column) => {
+            if (column.type === 'auto') return { type: 'auto' };
+            const value = column.value ?? '';
+            return {
+                type: column.type,
+                value: /^[1-9][0-9]*$/.test(value) && Number.isSafeInteger(Number(value)) ? Number(value) : value,
+            };
+        }),
+        areas: pattern.cells.map((row) => row.map((id) => `a${id}`)),
+    };
+}
+
+function parsePatterns(value: GridLayout): BreakpointPatterns {
+    const patterns: BreakpointPatterns = { xs: initialPattern(value.xs) };
+    breakpoints.slice(1).forEach((breakpoint) => {
+        if (value[breakpoint]) patterns[breakpoint] = initialPattern(value[breakpoint]);
+    });
+    return patterns;
+}
+
+function encodePatterns(patterns: BreakpointPatterns): GridLayout {
+    const result: GridLayout = { xs: encodePattern(patterns.xs) };
+    breakpoints.slice(1).forEach((breakpoint) => {
+        const pattern = patterns[breakpoint];
+        if (pattern) result[breakpoint] = encodePattern(pattern);
+    });
+    return result;
+}
+
+function resolvePattern(patterns: BreakpointPatterns, breakpoint: Breakpoint): Pattern {
+    for (let current = breakpoints.indexOf(breakpoint); current > 0; current -= 1) {
+        const pattern = patterns[breakpoints[current]];
+        if (pattern) return pattern;
+    }
+
+    return patterns.xs;
+}
+
+function invalidWidth(column: Column): boolean {
+    if (column.type === 'auto') return false;
+    const value = column.value ?? '';
+    if (!/^[1-9][0-9]*$/.test(value)) return true;
+    const numeric = Number(value);
+    return (
+        !Number.isSafeInteger(numeric) ||
+        (column.type === 'percent' && numeric > 100) ||
+        (column.type === 'fraction' && numeric > 12)
+    );
+}
+
+function relativeWidthUnits(columns: Column[]): number {
+    return columns.reduce((sum, column) => {
+        if (invalidWidth(column)) return sum;
+        if (column.type === 'percent') return sum + Number(column.value) * 3;
+        if (column.type === 'fraction') return sum + Number(column.value) * 25;
+        return sum;
+    }, 0);
+}
+
+function invalidPattern(pattern: Pattern): boolean {
+    return (
+        pattern.columns.some(invalidWidth) ||
+        relativeWidthUnits(pattern.columns) > 300 ||
+        (pattern.columns.some((column) => column.type === 'px') && pattern.columns.every((column) => column.type === 'px'))
+    );
+}
+
+function isPastDragMidpoint(movingDown: boolean, y: number, previousY: number, midpoint: number): boolean {
+    return movingDown ? y >= midpoint && y > previousY : y <= midpoint && y < previousY;
+}
+
+function nextAreaId(pattern: Pattern): number {
+    return pattern.cells.reduce((max, row) => row.reduce((rowMax, id) => Math.max(rowMax, id), max), 0) + 1;
+}
+
+function copyPattern(pattern: Pattern): Pattern {
+    return { columns: pattern.columns.map((column) => ({ ...column })), cells: pattern.cells.map((row) => [...row]) };
+}
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+export default Shopware.Component.wrapComponentConfig({
+    template,
+
+    components: {
+        MtCollapsible,
+        MtCollapsibleContent,
+        MtCollapsibleTrigger,
+        MtText,
+    },
+
+    directives: {
+        numericInput: {
+            mounted(element: HTMLElement) {
+                element.querySelector('input')?.setAttribute('inputmode', 'numeric');
+            },
+        },
+    },
+
+    props: {
+        gridLayout: {
+            type: Object as () => GridLayout,
+            required: false,
+            default: () => ({ xs: { columns: [{ type: 'auto' }], areas: [['a1']] } }),
+        },
+        allowEdit: { type: Boolean, required: false, default: false },
+    },
+
+    emits: ['update:gridLayout'],
+
+    data() {
+        return {
+            breakpoint: 'xs' as Breakpoint,
+            patterns: parsePatterns(this.gridLayout),
+            selected: [] as number[],
+            nextId: nextAreaId(initialPattern(this.gridLayout.xs)),
+            nextColumnId: initialPattern(this.gridLayout.xs).columns.length + 1,
+            focusedColumnId: null as number | null,
+            draggingColumnId: null as number | null,
+            dragStartPattern: '',
+            lastDragY: null as number | null,
+            dragMoveListener: null as EventListener | null,
+            dragEndListener: null as EventListener | null,
+            showRestoreModal: false,
+            columnsOpen: true,
+            patternOpen: true,
+        };
+    },
+
+    computed: {
+        tabs(): { name: string; label: string }[] {
+            return breakpoints.map((name) => ({ name, label: name.toUpperCase() }));
+        },
+        inherited(): boolean {
+            return this.breakpoint !== 'xs' && !this.patterns[this.breakpoint];
+        },
+        pattern(): Pattern {
+            return resolvePattern(this.patterns, this.breakpoint);
+        },
+        editable(): boolean {
+            return this.allowEdit && !this.inherited;
+        },
+        areas(): { id: number; number: number; row: number; column: number; rowSpan: number; columnSpan: number }[] {
+            const bounds = new Map<
+                number,
+                { id: number; number: number; row: number; column: number; rowSpan: number; columnSpan: number }
+            >();
+            this.pattern.cells.forEach((row, y) =>
+                row.forEach((id, x) => {
+                    const area = bounds.get(id);
+                    if (!area) {
+                        bounds.set(id, { id, number: bounds.size + 1, row: y, column: x, rowSpan: 1, columnSpan: 1 });
+                        return;
+                    }
+                    const bottom = Math.max(area.row + area.rowSpan - 1, y);
+                    const right = Math.max(area.column + area.columnSpan - 1, x);
+                    area.row = Math.min(area.row, y);
+                    area.column = Math.min(area.column, x);
+                    area.rowSpan = bottom - area.row + 1;
+                    area.columnSpan = right - area.column + 1;
+                }),
+            );
+            return [...bounds.values()];
+        },
+        selectedArea() {
+            return this.selected.length === 1 ? this.areas.find((area) => area.id === this.selected[0]) : undefined;
+        },
+        canMerge(): boolean {
+            if (this.selected.length < 2) return false;
+            const selected = new Set(this.selected);
+            const bounds = this.areas.reduce(
+                (result, area) => {
+                    if (selected.has(area.id)) {
+                        result.top = Math.min(result.top, area.row);
+                        result.left = Math.min(result.left, area.column);
+                        result.bottom = Math.max(result.bottom, area.row + area.rowSpan);
+                        result.right = Math.max(result.right, area.column + area.columnSpan);
+                    }
+                    return result;
+                },
+                { top: Infinity, left: Infinity, bottom: -Infinity, right: -Infinity },
+            );
+            return this.pattern.cells
+                .slice(bounds.top, bounds.bottom)
+                .every((row) => row.slice(bounds.left, bounds.right).every((id) => selected.has(id)));
+        },
+        canMove(): boolean {
+            return this.editable && this.pattern.columns.length > 1;
+        },
+        fractionOptions(): { value: number; label: string }[] {
+            return Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: String(index + 1) }));
+        },
+        relativeUnits(): number {
+            return relativeWidthUnits(this.pattern.columns);
+        },
+        hasAuto(): boolean {
+            return this.pattern.columns.some((column) => column.type === 'auto');
+        },
+    },
+
+    watch: {
+        gridLayout(): void {
+            this.syncPattern();
+        },
+    },
+
+    beforeUnmount() {
+        this.removeDragListeners();
+    },
+
+    methods: {
+        syncPattern(): void {
+            const incoming = parsePatterns(this.gridLayout);
+            if (JSON.stringify(encodePatterns(this.patterns)) === JSON.stringify(encodePatterns(incoming))) return;
+            this.patterns = incoming;
+            const pattern = this.pattern;
+            this.nextId = nextAreaId(pattern);
+            this.nextColumnId = pattern.columns.length + 1;
+            this.selected = [];
+        },
+        commitPattern(): void {
+            const ids = new Map<number, number>();
+            this.pattern.cells = this.pattern.cells.map((row) =>
+                row.map((id) => {
+                    if (!ids.has(id)) ids.set(id, ids.size + 1);
+                    return ids.get(id) as number;
+                }),
+            );
+            this.selected = this.selected.map((id) => ids.get(id)).filter((id): id is number => id !== undefined);
+            this.nextId = ids.size + 1;
+            this.$emit('update:gridLayout', encodePatterns(this.patterns));
+        },
+        focusArea(id: number | undefined): void {
+            if (id === undefined) return;
+            void this.$nextTick(() => {
+                (this.$el as HTMLElement).querySelector<HTMLButtonElement>(`[data-area-id="${id}"]`)?.focus();
+            });
+        },
+        setBreakpoint(name: string): void {
+            this.breakpoint = name as Breakpoint;
+            this.selected = [];
+            this.focusedColumnId = null;
+            this.nextId = nextAreaId(this.pattern);
+            this.nextColumnId = Math.max(...this.pattern.columns.map((column) => column.id)) + 1;
+        },
+        breakInheritance(): void {
+            if (!this.allowEdit || !this.inherited || invalidPattern(this.pattern)) return;
+            this.patterns[this.breakpoint] = copyPattern(this.pattern);
+            this.$emit('update:gridLayout', encodePatterns(this.patterns));
+        },
+        restoreInheritance(): void {
+            if (!this.allowEdit || this.breakpoint === 'xs' || this.inherited) return;
+            delete this.patterns[this.breakpoint];
+            this.showRestoreModal = false;
+            this.selected = [];
+            this.nextId = nextAreaId(this.pattern);
+            this.nextColumnId = Math.max(...this.pattern.columns.map((column) => column.id)) + 1;
+            this.$emit('update:gridLayout', encodePatterns(this.patterns));
+            void this.$nextTick(() => {
+                (this.$el as HTMLElement)
+                    .querySelector<HTMLButtonElement>('.sw-experience-studio-grid-editor__inheritance')
+                    ?.focus();
+            });
+        },
+        breakpointInvalid(name: Breakpoint): boolean {
+            return invalidPattern(resolvePattern(this.patterns, name));
+        },
+        addColumn(): void {
+            if (!this.editable || this.pattern.columns.length >= 12) return;
+            this.pattern.columns.push({ id: this.nextColumnId++, type: 'auto', value: null });
+            this.pattern.cells.forEach((row) => row.push(this.nextId++));
+            this.selected = [];
+            this.commitPattern();
+            this.focusArea(this.pattern.cells[0]?.at(-1));
+        },
+        addRow(): void {
+            if (!this.editable || this.pattern.cells.length >= 12) return;
+            this.pattern.cells.push(this.pattern.columns.map(() => this.nextId++));
+            this.selected = [];
+            this.commitPattern();
+            this.focusArea(this.pattern.cells.at(-1)?.[0]);
+        },
+        removeRow(index: number): void {
+            if (!this.editable || this.pattern.cells.length <= 1) return;
+            this.pattern.cells.splice(index, 1);
+            this.selected = [];
+            this.commitPattern();
+            this.focusArea(this.pattern.cells[Math.min(index, this.pattern.cells.length - 1)]?.[0]);
+        },
+        canRemoveColumn(index: number): boolean {
+            const remaining = this.pattern.columns.filter((_, position) => position !== index);
+            return (
+                this.editable &&
+                remaining.length > 0 &&
+                (!remaining.some((column) => column.type === 'px') || remaining.some((column) => column.type !== 'px'))
+            );
+        },
+        typeOptions(index: number) {
+            const otherFlexible = this.pattern.columns.some(
+                (column, position) => position !== index && column.type !== 'px',
+            );
+            return [
+                { value: 'auto', label: 'Auto' },
+                { value: 'px', label: 'px', disabled: !otherFlexible },
+                { value: 'percent', label: '%' },
+                { value: 'fraction', label: '/12' },
+            ];
+        },
+        removeColumn(index: number): void {
+            if (!this.canRemoveColumn(index)) return;
+            this.pattern.columns.splice(index, 1);
+            this.pattern.cells.forEach((row) => row.splice(index, 1));
+            this.selected = [];
+            this.commitPattern();
+            this.focusArea(this.pattern.cells[0]?.[Math.min(index, this.pattern.columns.length - 1)]);
+        },
+        moveColumn(from: number, to: number): void {
+            if (!this.canMove || to < 0 || to >= this.pattern.columns.length || from === to) return;
+            const column = this.pattern.columns.splice(from, 1)[0];
+            this.pattern.columns.splice(to, 0, column);
+            if (this.draggingColumnId === null) this.commitPattern();
+        },
+        onColumnDragStart(config: { data: number }): void {
+            this.onColumnDragEnd();
+            this.draggingColumnId = config.data;
+            this.dragStartPattern = JSON.stringify(encodePattern(this.pattern));
+            this.lastDragY = null;
+            this.dragMoveListener = (event) => this.onColumnDragMove(event as MouseEvent | TouchEvent);
+            this.dragEndListener = () => this.onColumnDragEnd();
+            document.addEventListener('mousemove', this.dragMoveListener);
+            document.addEventListener('touchmove', this.dragMoveListener);
+            document.addEventListener('mouseup', this.dragEndListener, { once: true });
+            document.addEventListener('touchend', this.dragEndListener, { once: true });
+            document.addEventListener('touchcancel', this.dragEndListener, { once: true });
+        },
+        onColumnDragMove(event: MouseEvent | TouchEvent): void {
+            const pointer = event instanceof MouseEvent ? event : event.touches[0];
+            if (!pointer || this.draggingColumnId === null) return;
+            const previousY = this.lastDragY;
+            this.lastDragY = pointer.clientY;
+            if (previousY === null || previousY === pointer.clientY) return;
+
+            const row = document
+                .elementFromPoint(pointer.clientX, pointer.clientY)
+                ?.closest<HTMLElement>('.sw-experience-studio-grid-editor__column-entry[data-column-id]');
+            if (!row || !(this.$el as HTMLElement).contains(row)) return;
+            const from = this.pattern.columns.findIndex((column) => column.id === this.draggingColumnId);
+            const to = this.pattern.columns.findIndex((column) => column.id === Number(row.dataset.columnId));
+            if (from < 0 || to < 0 || from === to) return;
+            const bounds = row.getBoundingClientRect();
+            const midpoint = bounds.top + bounds.height / 2;
+            if (!isPastDragMidpoint(to > from, pointer.clientY, previousY, midpoint)) return;
+            this.moveColumn(from, to);
+        },
+        removeDragListeners(): void {
+            if (this.dragMoveListener) {
+                document.removeEventListener('mousemove', this.dragMoveListener);
+                document.removeEventListener('touchmove', this.dragMoveListener);
+            }
+            if (this.dragEndListener) {
+                document.removeEventListener('mouseup', this.dragEndListener);
+                document.removeEventListener('touchend', this.dragEndListener);
+                document.removeEventListener('touchcancel', this.dragEndListener);
+            }
+            this.dragMoveListener = null;
+            this.dragEndListener = null;
+        },
+        onColumnDragEnd(): void {
+            this.removeDragListeners();
+            if (this.draggingColumnId !== null) {
+                this.draggingColumnId = null;
+                if (this.dragStartPattern !== JSON.stringify(encodePattern(this.pattern))) this.commitPattern();
+            }
+        },
+        toggleArea(id: number): void {
+            if (!this.editable) return;
+            if (this.selected.includes(id)) {
+                this.selected = this.selected.filter((item) => item !== id);
+                return;
+            }
+
+            this.selected = [...this.selected, id];
+            if (this.selected.length > 1 && !this.canMerge) {
+                this.selected = [id];
+            }
+        },
+        merge(): void {
+            if (!this.editable || !this.canMerge) return;
+            const id = this.selected[0];
+            this.pattern.cells = this.pattern.cells.map((row) =>
+                row.map((value) => (this.selected.includes(value) ? id : value)),
+            );
+            this.selected = [id];
+            this.commitPattern();
+            this.focusArea(this.selected[0]);
+        },
+        split(direction: 'all' | 'columns' | 'rows'): void {
+            const area = this.selectedArea;
+            if (
+                !this.editable ||
+                !area ||
+                (direction === 'columns' && area.columnSpan < 2) ||
+                (direction === 'rows' && area.rowSpan < 2) ||
+                (direction === 'all' && area.columnSpan === 1 && area.rowSpan === 1)
+            )
+                return;
+            const ids = new Map<string, number>();
+            this.pattern.cells = this.pattern.cells.map((row, y) =>
+                row.map((value, x) => {
+                    if (value !== area.id) return value;
+                    const key = direction === 'all' ? `${x}:${y}` : String(direction === 'columns' ? x : y);
+                    if (!ids.has(key)) ids.set(key, this.nextId++);
+                    return ids.get(key) as number;
+                }),
+            );
+            this.selected = [...ids.values()];
+            this.commitPattern();
+            this.focusArea(this.selected[0]);
+        },
+        setColumnType(index: number, type: Column['type']): void {
+            const column = this.pattern.columns[index];
+            if (
+                this.editable &&
+                (type !== 'px' || this.pattern.columns.some((other, position) => position !== index && other.type !== 'px'))
+            ) {
+                column.type = type;
+                column.value = type === 'fraction' ? '1' : null;
+                this.focusedColumnId = type === 'px' || type === 'percent' ? column.id : null;
+                if (type === 'px' || type === 'percent') {
+                    void this.$nextTick(() => {
+                        const row = (this.$el as HTMLElement).querySelector(`[data-column-id="${column.id}"]`);
+                        row?.querySelector<HTMLInputElement>('.mt-text-field input')?.focus();
+                    });
+                }
+                this.commitPattern();
+            }
+        },
+        setColumnValue(index: number, value: string | number | null): void {
+            const column = this.pattern.columns[index];
+            if (this.editable) {
+                column.value = typeof value === 'number' ? String(value) : value;
+                this.commitPattern();
+            }
+        },
+        invalidColumn(column: Column): boolean {
+            return invalidWidth(column);
+        },
+    },
+});

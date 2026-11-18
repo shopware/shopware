@@ -346,6 +346,13 @@
                             @update:model-value="onUpdateField(field.key, $event)"
                         />
 
+                        <sw-experience-studio-grid-editor
+                            v-else-if="getControlType(field.property) === 'grid-editor'"
+                            :grid-layout="getRawPropertyValue(field.key)"
+                            :allow-edit="allowEdit"
+                            @update:grid-layout="onUpdateField(field.key, $event)"
+                        />
+
                         <div
                             v-else-if="getControlType(field.property) === 'radio-panel'"
                             class="sw-experience-studio-settings-fields__radio-panel-group mt-field"

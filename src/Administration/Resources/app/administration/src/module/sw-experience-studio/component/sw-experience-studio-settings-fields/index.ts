@@ -862,7 +862,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.getRadioPanelOptionId(key, selectedOption.value);
         },
 
-        onUpdateField(key: string, value: PrimitiveValue | string[]): void {
+        onUpdateField(key: string, value: unknown): void {
             if (!this.allowEdit) {
                 return;
             }

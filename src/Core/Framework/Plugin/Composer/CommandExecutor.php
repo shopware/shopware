@@ -10,11 +10,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-/**
- * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Integration\Core\Framework\Plugin\PluginLifecycleServiceTest
- */
 #[Package('framework')]
 class CommandExecutor
 {
@@ -23,9 +18,11 @@ class CommandExecutor
     /**
      * @internal
      */
-    public function __construct(private readonly string $projectDir)
-    {
-        $this->application = new Application();
+    public function __construct(
+        private readonly string $projectDir,
+        ?Application $application = null,
+    ) {
+        $this->application = $application ?? new Application();
         $this->application->setAutoExit(false);
     }
 
@@ -40,14 +37,19 @@ class CommandExecutor
                 'packages' => [$pluginComposerName],
                 '--working-dir' => $this->projectDir,
                 '--no-interaction' => null,
+                // without --minimal-changes, -w moves every locked non-root dependency of the plugin to its newest
+                // allowed version, which replaces packages the running request has already loaded
                 '--update-with-dependencies' => null,
+                '--minimal-changes' => null,
                 '--no-scripts' => null,
             ]
         );
 
-        $exitCode = $this->application->run($input, $output);
-
-        $this->unlockComposerPackage($lockState);
+        try {
+            $exitCode = $this->application->run($input, $output);
+        } finally {
+            $this->unlockComposerPackage($lockState);
+        }
 
         if ($exitCode === Command::SUCCESS) {
             // Composer reverts the files, when the require command fails. We don't need a reset on an error case
@@ -68,6 +70,7 @@ class CommandExecutor
                 'packages' => [$pluginComposerName],
                 '--working-dir' => $this->projectDir,
                 '--no-interaction' => null,
+                '--minimal-changes' => null,
                 '--no-scripts' => null,
             ]
         );

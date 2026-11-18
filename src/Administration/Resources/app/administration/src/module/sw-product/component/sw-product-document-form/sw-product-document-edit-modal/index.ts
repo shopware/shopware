@@ -97,7 +97,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            return getFallbackTranslation(this.document, 'title')?.title || getDocumentMedia(this.document)?.fileName || '';
+            return getFallbackTranslation(this.document, 'title')?.title || '';
         },
 
         editingMedia(): Entity<'media'> | undefined {

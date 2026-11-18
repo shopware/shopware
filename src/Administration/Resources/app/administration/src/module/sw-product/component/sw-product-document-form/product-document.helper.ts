@@ -64,7 +64,7 @@ export async function loadDocumentMedia(documents: Entity<'product_document'>[])
 
 /** @private */
 export function getDocumentTitle(document: Entity<'product_document'>): string {
-    return document.title || getTranslated(document).title || getDocumentMedia(document)?.fileName || '';
+    return document.title || getTranslated(document).title || '';
 }
 
 /** @private */

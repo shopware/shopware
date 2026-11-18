@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -65,6 +66,23 @@ class InstallAppCommandTest extends TestCase
             '--activate' => true,
         ]));
         static::assertStringContainsString('App test has been successfully installed.', $this->commandTester->getDisplay());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the `--no-validate` option
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[TestDox('The deprecated --no-validate option still installs the app')]
+    public function testNoValidateStillInstallsTheApp(): void
+    {
+        $this->appLoader->method('load')->willReturn(['test' => $this->createManifest()]);
+        $this->appLifecycle->expects($this->once())->method('install');
+
+        static::assertSame(Command::SUCCESS, $this->commandTester->execute([
+            'name' => ['test'],
+            '--force' => true,
+            '--no-validate' => true,
+        ]));
     }
 
     #[TestDox('An unknown app name reports that no app was found')]

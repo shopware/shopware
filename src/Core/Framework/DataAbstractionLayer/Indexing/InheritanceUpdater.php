@@ -21,6 +21,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdaterTest
+ */
 #[Package('framework')]
 class InheritanceUpdater
 {

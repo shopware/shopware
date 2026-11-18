@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -19,9 +20,9 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The type's default binding specification, when it has exactly one, is fill-applied onto the fresh element via
  * {@see BindingApplicator::applyFillOnly()} before insertion (zero defaults is a no-op; more than one throws).
- * When $bindingSpecificationId is also given, the named specification's wiring is then applied on top,
- * atomically after scaffold, via {@see BindingApplicator::apply()} (overwrite), so shared keys belong to the
- * explicit choice.
+ * When $bindingSpecificationId is also given, the named specification is applied first and the default fills after
+ * it, so shared keys belong to the explicit choice.
+ * A default key the named specification wires is never resolved against the root source.
  *
  * @internal
  */
@@ -44,11 +45,7 @@ final class InsertElement extends AbstractLayoutMutation
     {
         $this->requireRegistered($this->registry, $this->type);
 
-        $bindingSpecificationId = $this->bindingSpecificationId;
-
-        $element = $bindingSpecificationId === null
-            ? $this->scaffoldWithDefault($this->type, $tree->rootSource)
-            : $this->scaffoldBoundElement($bindingSpecificationId, $tree->rootSource);
+        $element = $this->scaffold($tree->rootSource);
 
         $this->affected = [$element->id];
         $this->created = [$element->id];
@@ -71,7 +68,24 @@ final class InsertElement extends AbstractLayoutMutation
         return $tree->insertIntoSlot($this->parentElementId, $slot, $this->index, [$element]);
     }
 
-    private function scaffoldBoundElement(string $bindingSpecificationId, ?string $rootSource): StoredElement
+    /**
+     * The default is resolved via {@see AbstractLayoutMutation::resolveDefaultSpecification()} and attributed to its
+     * own qualified id.
+     */
+    private function scaffold(?string $rootSource): StoredElement
+    {
+        $bindingSpecificationId = $this->bindingSpecificationId;
+        $specification = $bindingSpecificationId !== null ? $this->namedSpecification($bindingSpecificationId) : null;
+        $element = $this->scaffoldElement($this->registry, $this->type);
+
+        if ($bindingSpecificationId !== null && $specification !== null) {
+            $element = $this->bindingApplicator->apply($element, $specification, $bindingSpecificationId, null, $rootSource);
+        }
+
+        return $this->applyDefaultBinding($this->bindingRegistry, $this->bindingApplicator, $element, null, $rootSource);
+    }
+
+    private function namedSpecification(string $bindingSpecificationId): BindingSpecification
     {
         $specification = $this->bindingRegistry->get($bindingSpecificationId);
 
@@ -83,22 +97,6 @@ final class InsertElement extends AbstractLayoutMutation
             throw ContentSystemException::bindingTypeMismatch($bindingSpecificationId, $specification->type(), $this->type, null);
         }
 
-        // The explicit path scaffolds with the default underneath too, so a key the explicit specification leaves
-        // unset keeps the default's wiring; apply() (overwrite) only replaces the keys they share.
-        return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type, $rootSource), $specification, $bindingSpecificationId, $rootSource);
-    }
-
-    /**
-     * Scaffolds a fresh element of $type and fill-applies its default binding specification (resolved via
-     * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
-     */
-    private function scaffoldWithDefault(string $type, ?string $rootSource): StoredElement
-    {
-        return $this->applyDefaultBinding(
-            $this->bindingRegistry,
-            $this->bindingApplicator,
-            $this->scaffoldElement($this->registry, $type),
-            $rootSource,
-        );
+        return $specification;
     }
 }

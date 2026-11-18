@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -189,6 +191,35 @@ class AttachElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Card'], $child->attributedSpecifications);
     }
 
+    /**
+     * @return iterable<string, array{StoredElement, bool, string, ?string}>
+     */
+    public static function rejectionElementIdProvider(): iterable
+    {
+        yield 'attach-element names the supplied element' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming', 'category'];
+
+        $nested = new StoredElement('incoming', 'Sw:Block', [], [], ['content' => [new StoredElement('incoming-child', 'Sw:Card')]]);
+        yield 'attach-element names the supplied nested element' => [$nested, false, 'incoming-child', 'category'];
+        yield 'a preset insertion names the payload id of the nested element' => [$nested, true, 'incoming-child', 'category'];
+        yield 'attach-element names the supplied element when the tree has no root source' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming', null];
+    }
+
+    #[DataProvider('rejectionElementIdProvider')]
+    #[TestDox('names the element id the caller supplied when the type default of that element rejects the root source: $_dataName')]
+    public function testAttachRejectionNamesTheSuppliedElementId(StoredElement $incoming, bool $isNewScaffold, string $expectedElementId, ?string $rootSource): void
+    {
+        $attach = new AttachElement(
+            $this->registry(),
+            $incoming,
+            $this->scopedCardDefaultRegistry(),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+            isNewScaffold: $isNewScaffold,
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, $rootSource));
+        $attach->apply(new StoredTree([], $rootSource));
+    }
+
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
     public function testAttachDetachesNothing(): void
     {
@@ -238,6 +269,14 @@ class AttachElementTest extends TestCase
             $index,
             isNewScaffold: $isNewScaffold,
         );
+    }
+
+    private function scopedCardDefaultRegistry(): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:Sw:Card' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Card', 'Card')]);
+
+        return $registry;
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

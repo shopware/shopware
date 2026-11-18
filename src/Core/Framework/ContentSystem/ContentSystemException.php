@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
@@ -118,6 +119,7 @@ class ContentSystemException extends HttpException
     public const INLINE_MAPPING_PARSING_FAILED = 'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
+    public const BINDING_ROOT_SOURCE_NOT_SCOPED = 'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
     public const BOX_SPACING_INVALID_VALUE = 'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
@@ -1392,8 +1394,9 @@ class ContentSystemException extends HttpException
 
     // The load-time 500 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
     // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
-    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not in
-    // CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
+    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Also the write-time
+    // 500 of AttributionReconciler for a binding whose scoped config values name different root-source sets.
+    // Deliberately not in CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
     public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
     {
         return new self(
@@ -1433,7 +1436,7 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * A null element id means the element does not exist yet: InsertElement checks the type before it scaffolds.
+     * A null element id means the element is not in the layout yet and has no id the client holds: InsertElement checks the type before it inserts.
      */
     public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent, ?string $elementId): self
     {
@@ -1462,6 +1465,32 @@ class ContentSystemException extends HttpException
             self::BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS,
             'Element type "{{ type }}" has more than one default binding specification ({{ qualifiedIds }}), but at most one specification may be default per type.',
             ['type' => $type, 'qualifiedIds' => implode(', ', $qualifiedIds)]
+        );
+    }
+
+    /**
+     * The 400 for applying a binding whose `!scoped` config value has no entry for the layout's root source, or onto
+     * a layout with no root source. $elementId is the id the caller reports, null when the client knows no id (the
+     * insert-element scaffold, whose id is minted by the server). A null root source gets its own message, because
+     * `none` is the name of a real root source.
+     *
+     * Deliberately outside {@see CLIENT_DEFECT_CODES}: that list classifies defects in a stored or submitted layout,
+     * while this is thrown only by {@see BindingApplicator} when a mutation applies a binding, and is answered to the
+     * client as it is thrown.
+     */
+    public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
+    {
+        $subject = $elementId === null
+            ? 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}"'
+            : 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}" of element "{{ elementId }}"';
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_ROOT_SOURCE_NOT_SCOPED,
+            $subject . ($rootSource === null
+                ? ': its config is scoped by root source, but the layout has no root source.'
+                : ': its config is scoped by root source, but carries no value for root source "{{ rootSource }}".'),
+            ['bindingSpecificationId' => $bindingSpecificationId, 'key' => $key, 'elementId' => $elementId, 'rootSource' => $rootSource]
         );
     }
 

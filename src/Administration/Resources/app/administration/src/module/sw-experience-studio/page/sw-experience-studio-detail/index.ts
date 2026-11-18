@@ -67,6 +67,7 @@ const MUTATION_ERROR_SNIPPETS: Record<string, string> = {
     CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
     CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
     CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE: 'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED: 'sw-experience-studio.detail.mutationErrors.bindingRootSourceNotScoped',
 };
 
 type WorkspaceAction = { type: 'open'; id: string } | { type: 'create'; name: string } | { type: 'delete'; id: string };
@@ -497,7 +498,9 @@ export default Shopware.Component.wrapComponentConfig({
                 return elementItems;
             }
 
-            const allowedComponents = new Set(availableTypes.map((typeSpecification) => typeSpecification.name));
+            const allowedComponents = new Set(
+                this.getStructurallyAvailableTypesForPayload(payload).map((typeSpecification) => typeSpecification.name),
+            );
 
             const presetItems: ElementPickerItem[] = this.layoutPresetStore.allPresets
                 .filter((preset) => this.isPresetAllowedForPayload(preset, payload, allowedComponents))
@@ -2130,11 +2133,25 @@ export default Shopware.Component.wrapComponentConfig({
             await mutation;
         },
 
+        isOfferedOnRootSource(rootSources: string[] | null): boolean {
+            if (rootSources === null) {
+                return true;
+            }
+
+            const rootSource = this.resolveMutationRootSource();
+
+            return rootSource !== null && rootSources.includes(rootSource);
+        },
+
         isPresetAllowedForPayload(
             preset: ContentSystemLayoutPreset,
             payload: AddElementPayload,
             allowedComponents: Set<string>,
         ): boolean {
+            if (!this.isOfferedOnRootSource(preset.defaultBindingRootSources)) {
+                return false;
+            }
+
             if (payload.parentElementId === null) {
                 return true;
             }
@@ -2143,6 +2160,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
+            return this.getStructurallyAvailableTypesForPayload(payload).filter((type) =>
+                this.isOfferedOnRootSource(type.defaultBindingRootSources),
+            );
+        },
+
+        // Slot eligibility without the root source filter: a preset is judged on its own root sources, not its root type's.
+        getStructurallyAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
             const allTypes = this.elementTypeStore.allTypes;
 
             if (!payload) {

@@ -3,13 +3,16 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingInput;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
@@ -35,7 +38,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new StoredElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker', $element->id, null);
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->dataRequirements);
         static::assertSame(['media' => 'core:media-picker'], $result->attributedSpecifications);
@@ -47,7 +50,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new StoredElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker', $element->id, null);
 
         static::assertSame('seeded', $result->property('mediaId')?->jsonSerialize());
     }
@@ -57,7 +60,7 @@ class BindingApplicatorTest extends TestCase
     {
         $element = new StoredElement('text-1', 'Sw:Content:Text');
 
-        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $this->textSpecification(), 'core:text-seed');
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $this->textSpecification(), 'core:text-seed', $element->id, null);
 
         static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->property('text')?->jsonSerialize());
     }
@@ -67,7 +70,7 @@ class BindingApplicatorTest extends TestCase
     {
         $element = new StoredElement('text-1', 'Sw:Content:Text');
 
-        $result = $this->applicator($this->config(), $this->textRegistry())->applyFillOnly($element, $this->textSpecification(), 'core:text-seed');
+        $result = $this->applicator($this->config(), $this->textRegistry())->applyFillOnly($element, $this->textSpecification(), 'core:text-seed', $element->id, null);
 
         static::assertSame([Defaults::LANGUAGE_SYSTEM => 'Autumn sale'], $result->property('text')?->jsonSerialize());
     }
@@ -79,7 +82,7 @@ class BindingApplicatorTest extends TestCase
         $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = $this->boundImageElement($oldConfig);
 
-        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($newConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker', $element->id, null);
 
         static::assertSame(['media'], array_keys($result->dataRequirements));
         static::assertSame('media', $result->dataRequirements['media']->key);
@@ -98,7 +101,7 @@ class BindingApplicatorTest extends TestCase
             ->withAttributedSpecification('gallery', 'core:gallery-spec')
             ->build();
 
-        $result = $this->applicator($mediaConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($mediaConfig)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker', $element->id, null);
 
         static::assertSame(['gallery', 'media'], array_keys($result->dataRequirements));
         static::assertSame($galleryConfig, $result->dataRequirements['gallery']->config);
@@ -118,7 +121,7 @@ class BindingApplicatorTest extends TestCase
         ]);
         $element = new StoredElement('img-1', 'Sw:Media:Image');
 
-        $result = (new BindingApplicator($serializers, $this->imageRegistry()))->apply($element, $this->twoKeySpecification(), 'core:media-picker');
+        $result = (new BindingApplicator($serializers, $this->imageRegistry()))->apply($element, $this->twoKeySpecification(), 'core:media-picker', $element->id, null);
 
         static::assertSame($mediaConfig, $result->dataRequirements['media']->config);
         static::assertSame($galleryConfig, $result->dataRequirements['gallery']->config);
@@ -135,7 +138,7 @@ class BindingApplicatorTest extends TestCase
         $element = new StoredElement('text-1', 'Sw:Content:Text');
         $specification = new BindingSpecification('caption-seed', 'Sw:Content:Text', 'Caption seed', [], ['caption' => new BindingInput(true, 'Autumn sale', false)], 'core');
 
-        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:caption-seed');
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:caption-seed', $element->id, null);
 
         static::assertSame('Autumn sale', $result->property('caption')?->jsonSerialize());
     }
@@ -148,7 +151,7 @@ class BindingApplicatorTest extends TestCase
         $element = new StoredElement('text-1', 'Sw:Content:Text');
         $specification = new BindingSpecification('text-seed', 'Sw:Content:Text', 'Text seed', [], ['text' => new BindingInput(true, null, false)], 'core');
 
-        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:text-seed');
+        $result = $this->applicator($this->config(), $this->textRegistry())->apply($element, $specification, 'core:text-seed', $element->id, null);
 
         static::assertTrue($result->property('text')?->isNull());
     }
@@ -159,7 +162,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new StoredElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image');
+        $result = $this->applicator($config)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image', $element->id, null);
 
         static::assertEquals(['media' => new DataRequirement('media', 'entity', $config)], $result->dataRequirements);
         static::assertSame(['media' => 'core:Sw:Media:Image'], $result->attributedSpecifications);
@@ -172,7 +175,7 @@ class BindingApplicatorTest extends TestCase
         $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = $this->boundImageElement($oldConfig);
 
-        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image');
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:Sw:Media:Image', $element->id, null);
 
         static::assertSame(['media'], array_keys($result->dataRequirements));
         static::assertSame('media', $result->dataRequirements['media']->key);
@@ -188,7 +191,7 @@ class BindingApplicatorTest extends TestCase
         $newConfig = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = $this->boundImageElement($oldConfig);
 
-        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->twoKeySpecification(), 'core:Sw:Media:Image');
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->twoKeySpecification(), 'core:Sw:Media:Image', $element->id, null);
 
         static::assertSame(['media' => 'core:old-spec', 'gallery' => 'core:Sw:Media:Image'], $result->attributedSpecifications);
         static::assertSame('media', $result->dataRequirements['media']->key);
@@ -215,7 +218,7 @@ class BindingApplicatorTest extends TestCase
             ->withDataRequirement('media', 'entity', $oldConfig)
             ->build();
 
-        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($newConfig)->applyFillOnly($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker', $element->id, null);
 
         static::assertSame([], $result->attributedSpecifications);
     }
@@ -226,7 +229,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = new StoredElement('img-1', 'Sw:Media:Image');
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker', $element->id, null);
 
         static::assertNull($result->property('mediaId'));
     }
@@ -237,7 +240,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', 'authored')->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker', $element->id, null);
 
         static::assertSame('authored', $result->property('mediaId')?->jsonSerialize());
     }
@@ -248,7 +251,7 @@ class BindingApplicatorTest extends TestCase
         $config = static::createStub(AbstractContentDataLoaderConfig::class);
         $element = StoredElementBuilder::create('Sw:Media:Image', 'img-1')->withProperty('mediaId', null)->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(true, 'seeded', false)), 'core:media-picker', $element->id, null);
 
         static::assertTrue($result->property('mediaId')?->isNull());
     }
@@ -266,7 +269,7 @@ class BindingApplicatorTest extends TestCase
             'core',
         );
 
-        $result = $this->applicator($this->config())->apply($element, $specification, 'core:media-picker');
+        $result = $this->applicator($this->config())->apply($element, $specification, 'core:media-picker', $element->id, null);
 
         static::assertSame('seeded', $result->property('mediaId')?->jsonSerialize());
     }
@@ -284,7 +287,7 @@ class BindingApplicatorTest extends TestCase
             'core',
         );
 
-        $result = $this->applicator($this->config())->apply($element, $specification, 'core:media-picker');
+        $result = $this->applicator($this->config())->apply($element, $specification, 'core:media-picker', $element->id, null);
 
         static::assertSame('seeded', $result->property('mediaId')?->jsonSerialize());
     }
@@ -299,7 +302,7 @@ class BindingApplicatorTest extends TestCase
             ->withStyle($style)
             ->build();
 
-        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker');
+        $result = $this->applicator($config)->apply($element, $this->specification(new BindingInput(false, null, false)), 'core:media-picker', $element->id, null);
 
         static::assertSame('img-1', $result->id);
         static::assertSame('Sw:Media:Image', $result->component);
@@ -315,9 +318,65 @@ class BindingApplicatorTest extends TestCase
         // the registry lookup the seed cannot be told to be a language map, so the declared shape is unknowable.
         $element = new StoredElement('text-1', 'Sw:Content:Text');
 
-        $result = $this->applicator($this->config(), $this->typeRegistry([]))->apply($element, $this->textSpecification(), 'core:text-seed');
+        $result = $this->applicator($this->config(), $this->typeRegistry([]))->apply($element, $this->textSpecification(), 'core:text-seed', $element->id, null);
 
         static::assertSame('Autumn sale', $result->property('text')?->jsonSerialize());
+    }
+
+    #[TestDox('fill-only: never resolves the scoped config of a key the element already wires, so a root source the map does not name leaves the key untouched')]
+    public function testFillOnlyNeverResolvesTheScopedConfigOfAnAlreadyWiredKey(): void
+    {
+        $oldConfig = static::createStub(AbstractContentDataLoaderConfig::class);
+        $element = StoredElementBuilder::create('Sw:Navigation:Breadcrumb', 'crumb-1')
+            ->withDataRequirement('breadcrumb', 'breadcrumb', $oldConfig)
+            ->withAttributedSpecification('breadcrumb', 'core:old-spec')
+            ->build();
+
+        $result = $this->applicator($this->config())->applyFillOnly($element, $this->scopedSpecification(), 'core:Sw:Navigation:Breadcrumb', $element->id, 'landing_page');
+
+        static::assertSame(['breadcrumb'], array_keys($result->dataRequirements));
+        static::assertSame($oldConfig, $result->dataRequirements['breadcrumb']->config);
+        static::assertSame(['breadcrumb' => 'core:old-spec'], $result->attributedSpecifications);
+    }
+
+    /**
+     * @param \Closure(BindingApplicator, StoredElement, BindingSpecification, ?string): StoredElement $applyWith
+     */
+    #[DataProvider('unscopedRootSourceProvider')]
+    #[TestDox('throws bindingRootSourceNotScoped naming the element id the caller reports when the scoped config of a key it would wire has no entry for the root source: $_dataName')]
+    public function testThrowsWhenScopedConfigOfAKeyToWireHasNoRootSourceEntry(\Closure $applyWith, ?string $rootSource): void
+    {
+        $element = new StoredElement('crumb-1', 'Sw:Navigation:Breadcrumb');
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'reported-crumb', $rootSource));
+
+        $applyWith($this->applicator($this->config()), $element, $this->scopedSpecification(), $rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(BindingApplicator, StoredElement, BindingSpecification, ?string): StoredElement, string|null}>
+     */
+    public static function unscopedRootSourceProvider(): iterable
+    {
+        $apply = static fn (BindingApplicator $applicator, StoredElement $element, BindingSpecification $specification, ?string $rootSource): StoredElement => $applicator->apply($element, $specification, 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+        $applyFillOnly = static fn (BindingApplicator $applicator, StoredElement $element, BindingSpecification $specification, ?string $rootSource): StoredElement => $applicator->applyFillOnly($element, $specification, 'core:Sw:Navigation:Breadcrumb', 'reported-crumb', $rootSource);
+
+        yield 'apply with no root source' => [$apply, null];
+        yield 'apply with a root source the map does not name' => [$apply, 'landing_page'];
+        yield 'fill-only apply of an unwired key with no root source' => [$applyFillOnly, null];
+        yield 'fill-only apply of an unwired key with a root source the map does not name' => [$applyFillOnly, 'landing_page'];
+    }
+
+    private function scopedSpecification(): BindingSpecification
+    {
+        return new BindingSpecification(
+            'Sw:Navigation:Breadcrumb',
+            'Sw:Navigation:Breadcrumb',
+            'Breadcrumb',
+            ['breadcrumb' => new LoaderBinding('breadcrumb', ['type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']]])],
+            [],
+            'core',
+        );
     }
 
     private function boundImageElement(AbstractContentDataLoaderConfig $oldConfig): StoredElement

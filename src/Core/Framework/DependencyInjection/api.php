@@ -87,6 +87,8 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
@@ -360,6 +362,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
             service(VersionHistory::class),
+            service(DefaultBindingRootSources::class),
+            service(DraftLayoutDecoder::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

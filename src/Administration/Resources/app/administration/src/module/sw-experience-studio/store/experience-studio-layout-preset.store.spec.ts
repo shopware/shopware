@@ -17,6 +17,7 @@ describe('src/module/sw-experience-studio/store/experience-studio-layout-preset.
             category: 'content',
             priority: 100,
             payload: [],
+            defaultBindingRootSources: null,
         },
     ];
 

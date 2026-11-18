@@ -346,6 +346,26 @@ class ShopIdProviderTest extends TestCase
         static::assertCount(1, $eventDispatcher->getEvents());
     }
 
+    public function testDeletesUnreadableShopIdWithoutRetainingSecrets(): void
+    {
+        $systemConfigService = $this->createMock(SystemConfigService::class);
+        $systemConfigService->method('get')->willReturn(['value' => 'broken']);
+        $systemConfigService->expects($this->exactly(2))->method('delete');
+
+        $gateway = $this->createMock(AppRetainedSecretGateway::class);
+        $gateway->expects($this->never())->method('retainCandidates');
+
+        $provider = new ShopIdProvider(
+            $systemConfigService,
+            new CollectingEventDispatcher(),
+            static::createStub(Connection::class),
+            $this->fingerprintGeneratorMatching(true),
+            $gateway,
+        );
+
+        $provider->deleteShopId();
+    }
+
     private function fingerprintGeneratorMatching(bool $matching): FingerprintGenerator
     {
         $mismatches = $matching ? [] : [

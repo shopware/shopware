@@ -1,6 +1,7 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
 import { deprecatedComputed } from './deprecated-members';
+import { collectStatusTransitionFailures, toFailedStatusItems } from './status-transition-failures';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

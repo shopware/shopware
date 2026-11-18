@@ -66,6 +66,10 @@ What a test order changes, all keyed on `order.isTest`:
   Document number ranges stay untouched and the unique index on number and type still holds.
   Core prints no other marker; the number is the hint.
 * **Stock.** Stock and sales counters are not touched.
+* **Promotions.** A test order redeems nothing.
+  It does not count towards a promotion's global or per-customer limit and does not use up an individual code.
+  The cart still applies promotions and checks the limits against real orders, so a test checkout calculates like the live one.
+* **Customer statistics.** The customer's order count, order total and last order date ignore test orders, so rules on them keep matching.
 * **Payment.** Core only exposes the flag.
   Plugin handlers reach it through the transaction's order, apps through the order in the payment payload.
   Each provider decides what sandbox means for it.
@@ -87,6 +91,8 @@ Deferred to later iterations: a sales channel setting that marks every order in 
 * Test orders are never filtered out automatically.
   API consumers and integrations see them like any other order, flagged, because an ERP sync is part of what a test order is there to test.
   The places that leave them out are the ones named above, each with an explicit filter.
+* The redemption and customer counters are counted in SQL, so each gets its own condition on the column.
+  The promotion recount needs the order table for that, which has to be measured.
 * A new column and a migration, a new ACL permission, a storefront route for the exchange, a Store API header, a config parameter for the token lifetime, and a session attribute in the storefront.
 * Commercial follows in a companion PR, which also absorbs a changed converter or persister constructor.
   The GMV collectors and the B2B budget subscriber skip flagged orders.

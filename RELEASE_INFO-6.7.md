@@ -783,6 +783,7 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
 Without a resolvable title it shows only the icon, labelled "Go back".
 Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
+
 ### Administration HTTP client runs on a single Axios 1.x transport
 
 The Administration `httpClient` is now one Axios 1.x instance (1.20.0).

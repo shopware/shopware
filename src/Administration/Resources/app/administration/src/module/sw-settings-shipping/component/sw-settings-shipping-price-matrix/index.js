@@ -186,6 +186,14 @@ export default {
                 'sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.',
             );
 
+            return this.calculationRuleFilterCriteria;
+        },
+
+        /**
+         * @private
+         * Rules selectable per price row; until 6.8 they also include rules of the legacy `shipping` type.
+         */
+        calculationRuleFilterCriteria() {
             if (Shopware.Feature.isActive('v6.8.0.0')) {
                 return this.ruleFilterCriteria;
             }

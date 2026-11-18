@@ -25,11 +25,9 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection', () => {
-    it('filters the rules with its own criteria', async () => {
+    it('leaves the rule filter to sw-select-rule-create', async () => {
         const wrapper = await createWrapper();
 
-        const ruleFilter = wrapper.getComponent('.sw-select-rule-create').props('ruleFilter');
-
-        expect(ruleFilter.sortings).toEqual([{ field: 'name', order: 'ASC', naturalSorting: false }]);
+        expect(wrapper.getComponent('.sw-select-rule-create').props('ruleFilter')).toBeUndefined();
     });
 });

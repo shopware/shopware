@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\Framework\Webhook\Health\EndpointState;
 use Shopware\Core\Framework\Webhook\Webhook;
 
 /**
@@ -29,7 +31,7 @@ class WebhookLoader
      */
     public function getWebhooks(): array
     {
-        $sql = <<<'SQL'
+        $select = <<<'SQL'
             SELECT
                 LOWER(HEX(w.id)) as webhookId,
                 w.name as webhookName,
@@ -48,12 +50,22 @@ class WebhookLoader
             FROM webhook w
             LEFT JOIN app a ON (a.id = w.app_id)
             LEFT JOIN app owner_app ON (owner_app.integration_id = w.owner_integration_id)
-            WHERE w.active = 1
-              AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL
-              AND (owner_app.id IS NULL OR owner_app.active = 1)
         SQL;
 
-        $rows = $this->connection->fetchAllAssociative($sql);
+        // Health-managed inactive webhooks must still reach the dispatch gate.
+        $params = [];
+        $activeFilter = 'w.active = 1';
+        if (Feature::isActive('WEBHOOKS_REWORK')) {
+            $select .= "\n            LEFT JOIN webhook_health wh ON (wh.webhook_id = w.id)";
+            $activeFilter = '(w.active = 1 OR wh.endpoint_state = :suspended)';
+            $params = ['suspended' => EndpointState::Suspended->value];
+        }
+
+        $sql = $select . "\n            WHERE " . $activeFilter
+            . "\n              AND COALESCE(a.integration_id, w.owner_integration_id, w.owner_user_id) IS NOT NULL"
+            . "\n              AND (owner_app.id IS NULL OR owner_app.active = 1)";
+
+        $rows = $this->connection->fetchAllAssociative($sql, $params);
         $userRoles = $this->aclRoleLoader->getUserRoles(array_values(array_filter(array_column($rows, 'ownerUserId'))));
         $integrationRoles = $this->aclRoleLoader->getIntegrationRoles(array_values(array_filter(array_column($rows, 'ownerIntegrationId'))));
 

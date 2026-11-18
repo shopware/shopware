@@ -898,6 +898,26 @@ Beside it, one `.api.md` report per component shows its blocks with their nestin
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
 The format of the files in `public-api/` can still change while the snapshot is being built.
 Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
+### Experimental: `Feature.silence()` and `sw-silence-deprecations`
+
+Both silence the deprecations of a major on the pre-major side of a feature-flag branch, so an extension can support both sides of a major without warnings:
+
+```js
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
+}
+```
+
+```html
+<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
+    <sw-deprecated-component />
+</sw-silence-deprecations>
+```
+
+The component silences the first level of components inside of it, ignoring plain HTML, and everything they render themselves.
+Event handlers, watchers and code after an `await` need `Feature.silence()`.
+Once the major is active, both silence nothing.
+
 ### Administration HTTP client runs on a single Axios 1.x transport
 
 The Administration `httpClient` is now one Axios 1.x instance (1.20.0).
@@ -1011,29 +1031,6 @@ The new Twig blocks `sw_text_editor_toolbar_button_child_search` and `sw_text_ed
 The page type navigation of the Shopping Experiences overview (`sw-cms-list`) is no longer positioned absolutely left of the listing.
 Navigation and listing are grid columns inside `.sw-cms-list__content`, and below a page width of 800px the navigation renders horizontally above the listing with the modifier class `sw-cms-list--compact`.
 Extensions that offset or hide `.sw-cms-list__sidebar` through its former `position`, `left` or `width` values have to adjust their styles.
-### Experimental: `Feature.branch()` keeps the pre-major path of an extension quiet
-### Experimental: `Feature.silence()` and `v-silence-flag` keep the pre-major path of an extension quiet
-### Experimental: `Feature.silence()` and `v-silence-deprecations` keep the pre-major path of an extension quiet
-### Experimental: `Feature.silence()` and `sw-silence-deprecations` keep the pre-major path of an extension quiet
-### Experimental: `Feature.silence()` and `sw-silence-deprecations`
-
-Both silence the deprecations of a major on the pre-major side of a feature-flag branch, so an extension can support both sides of a major without warnings:
-
-```js
-if (!Shopware.Feature.isActive('V6_8_0_0')) {
-    Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
-}
-```
-
-```html
-<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
-    <sw-deprecated-component />
-</sw-silence-deprecations>
-```
-
-The component silences the first level of components inside of it, ignoring plain HTML, and everything they render themselves.
-Event handlers, watchers and code after an `await` need `Feature.silence()`.
-Once the major is active, both silence nothing.
 
 ### Extension tooling reports redundant code
 

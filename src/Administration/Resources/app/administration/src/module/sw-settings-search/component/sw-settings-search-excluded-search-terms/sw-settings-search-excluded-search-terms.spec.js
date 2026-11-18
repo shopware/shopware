@@ -92,7 +92,7 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-select-field': true,
                     'mt-floating-ui': {
                         template: `
-                    <div class="mt-floating-ui">
+                    <div>
                         <slot></slot>
                     </div>`,
                     },

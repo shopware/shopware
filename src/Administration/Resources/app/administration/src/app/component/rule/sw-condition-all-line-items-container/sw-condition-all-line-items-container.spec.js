@@ -211,7 +211,7 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
                 'sw-field-error': true,
                 'mt-floating-ui': {
                     template: `
-                            <div class="mt-floating-ui">
+                            <div>
                                 <slot></slot>
                             </div>
                         `,

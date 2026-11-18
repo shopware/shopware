@@ -148,7 +148,7 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'mt-floating-ui': {
-                    template: '<div class="mt-floating-ui"><slot></slot></div>',
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },

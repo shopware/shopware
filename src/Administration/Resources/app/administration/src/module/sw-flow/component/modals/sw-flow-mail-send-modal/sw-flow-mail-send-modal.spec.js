@@ -131,7 +131,7 @@ async function createWrapper(sequence = {}) {
                     },
                 },
                 'mt-floating-ui': {
-                    template: '<div class="mt-floating-ui"><slot></slot></div>',
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-context-menu-item': {
                     emits: ['click'],

@@ -11,7 +11,7 @@ async function createWrapper(customOptions = {}) {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'mt-floating-ui': {
                     template: `
-                        <div class="mt-floating-ui">
+                        <div>
                             <slot></slot>
                         </div>
                     `,

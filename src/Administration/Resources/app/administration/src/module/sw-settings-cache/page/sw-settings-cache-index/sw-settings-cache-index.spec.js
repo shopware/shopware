@@ -65,7 +65,7 @@ async function createWrapper(indexMock = jest.fn(() => Promise.resolve()), delay
                     template: '<div class="mt-popover-deprecated"><slot></slot></div>',
                 },
                 'mt-floating-ui': {
-                    template: '<div class="mt-floating-ui"><slot></slot></div>',
+                    template: '<div><slot></slot></div>',
                 },
             },
         },

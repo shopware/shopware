@@ -59,7 +59,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-modal': true,
                         'mt-floating-ui': {
                             template: `
-                    <div class="mt-floating-ui">
+                    <div>
                         <slot></slot>
                     </div>`,
                         },

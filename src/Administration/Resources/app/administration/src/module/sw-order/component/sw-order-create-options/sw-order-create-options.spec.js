@@ -134,7 +134,7 @@ async function createWrapper() {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
                 'mt-floating-ui': {
-                    template: '<div class="mt-floating-ui"><slot></slot></div>',
+                    template: '<div><slot></slot></div>',
                 },
                 'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),

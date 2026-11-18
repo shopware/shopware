@@ -1,0 +1,13 @@
+services:
+    -
+        class: Twig\Loader\ArrayLoader
+    -
+        class: Twig\Environment
+    -
+        class: TwigStan\PHPStan\DynamicReturnType\GetGlobalsReturnType
+        arguments:
+            appUserClass: null
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StorefrontGlobalsTypeResolver
+        tags:
+            - phpstan.broker.expressionTypeResolverExtension

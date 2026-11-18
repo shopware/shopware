@@ -8,6 +8,10 @@ parameters:
         - bin/report.php
         - ../../twigstan.php
         - ../../twigstan-loader.php
+    excludePaths:
+        analyse:
+            # Checked by its type-inference test with an isolated Twig environment.
+            - tests/fixtures/storefront-globals.php
     bootstrapFiles:
         - bootstrap.php
     symfony:

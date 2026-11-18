@@ -12,6 +12,10 @@ parameters:
         maximumNumberOfProcesses: 2
 services:
     -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StorefrontGlobalsTypeResolver
+        tags:
+            - phpstan.broker.expressionTypeResolverExtension
+    -
         class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\GuardedAttributeIgnoreExtension
     -
         class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StructGetVarsReturnTypeExtension

@@ -100,6 +100,30 @@ final class StorefrontRenderContextCollector implements TemplateContextCollector
     }
 
     /**
+     * @return array<string, Type>
+     */
+    public static function getGlobalTypes(): array
+    {
+        $shopware = ConstantArrayTypeBuilder::createEmpty();
+        $shopware->setOffsetValueType(new ConstantStringType('dateFormat'), new ConstantStringType(\DATE_ATOM));
+        $shopware->setOffsetValueType(new ConstantStringType('navigation'), new ObjectType(NavigationInfo::class));
+        $shopware->setOffsetValueType(new ConstantStringType('minSearchLength'), new IntegerType());
+        $shopware->setOffsetValueType(new ConstantStringType('showStagingBanner'), new BooleanType());
+
+        // Request attributes have no enforced value types.
+        return [
+            'shopware' => $shopware->getArray(),
+            'themeId' => new MixedType(),
+            'context' => new ObjectType(SalesChannelContext::class),
+            'activeRoute' => new MixedType(),
+            'formViolations' => new MixedType(),
+            'jsonLdFlags' => new ConstantIntegerType(\JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_HEX_TAG | \JSON_HEX_AMP),
+            'controllerName' => new StringType(),
+            'controllerAction' => new StringType(),
+        ];
+    }
+
+    /**
      * @return list<ConstantStringType>
      */
     private function getTemplates(Node\Expr $expression, Scope $scope): array
@@ -131,23 +155,7 @@ final class StorefrontRenderContextCollector implements TemplateContextCollector
             return $context;
         }
 
-        $shopware = ConstantArrayTypeBuilder::createEmpty();
-        $shopware->setOffsetValueType(new ConstantStringType('dateFormat'), new ConstantStringType(\DATE_ATOM));
-        $shopware->setOffsetValueType(new ConstantStringType('navigation'), new ObjectType(NavigationInfo::class));
-        $shopware->setOffsetValueType(new ConstantStringType('minSearchLength'), new IntegerType());
-        $shopware->setOffsetValueType(new ConstantStringType('showStagingBanner'), new BooleanType());
-
-        // Request attributes have no enforced value types.
-        $defaults = [
-            'shopware' => $shopware->getArray(),
-            'themeId' => new MixedType(),
-            'context' => new ObjectType(SalesChannelContext::class),
-            'activeRoute' => new MixedType(),
-            'formViolations' => new MixedType(),
-            'jsonLdFlags' => new ConstantIntegerType(\JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE | \JSON_HEX_TAG | \JSON_HEX_AMP),
-            'controllerName' => new StringType(),
-            'controllerAction' => new StringType(),
-        ];
+        $defaults = self::getGlobalTypes();
         if ($storefront) {
             $defaults['headerParameters'] = new ArrayType(new MixedType(), new MixedType());
             $defaults['footerParameters'] = new ArrayType(new MixedType(), new MixedType());

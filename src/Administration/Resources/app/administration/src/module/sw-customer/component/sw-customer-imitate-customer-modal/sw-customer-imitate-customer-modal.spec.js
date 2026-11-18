@@ -161,6 +161,19 @@ describe('module/sw-customer-imitate-customer-modal', () => {
         expect(redirectSalesChannelSpy).toHaveBeenCalledWith('http://localhost:8000', 'a-token', 'customer-id', undefined);
     });
 
+    it('should render each domain as a button, so it can be reached and selected with the keyboard', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const item = wrapper.find('.imitate-customer-modal-item');
+
+        expect(item.element.tagName).toBe('BUTTON');
+        expect(item.attributes('type')).toBe('button');
+        expect(item.find('.imitate-customer-modal-item-header').text()).toBe('Test sales channel');
+        expect(item.find('.imitate-customer-modal-item-url').text()).toBe('http://localhost:8000');
+        expect(item.find('.imitate-customer-modal-item-content div').exists()).toBe(false);
+    });
+
     it('should notify the user when no token could be generated', async () => {
         wrapper = await createWrapper({
             generateImitateCustomerToken: async () => {

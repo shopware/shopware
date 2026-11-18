@@ -20,8 +20,11 @@
         border: 1px solid var(--color-border-primary-default);
         border-radius: var(--border-radius-xs);
         padding: var(--scale-size-10) var(--scale-size-12);
+        font-family: inherit;
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+        text-align: left;
         cursor: pointer;
         width: 100%;
 
@@ -38,6 +41,12 @@
             align-items: center;
             justify-content: space-between;
             gap: var(--scale-size-10);
+        }
+
+        &-title {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
 
         &-header {

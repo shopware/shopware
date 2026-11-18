@@ -23,6 +23,7 @@
                                name="redirectTo"
                                value="{{ redirectTo }}">
 
+                        {% set redirectParameters = redirectParameters ?? null -%}
                         <input type="hidden"
                                name="redirectParameters"
                                value="{{ redirectParameters is iterable ? redirectParameters|json_encode : redirectParameters }}">

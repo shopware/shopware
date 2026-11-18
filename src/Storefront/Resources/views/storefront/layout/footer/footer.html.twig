@@ -342,7 +342,7 @@
             {% block layout_footer_vat %}
                 {% set cmsPath = 'frontend.cms.page.full' %}
 
-                {% if showVatNotice or showVatNotice is not defined %}
+                {% if showVatNotice is not defined or showVatNotice %}
                     <div class="footer-vat">
                         {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
 

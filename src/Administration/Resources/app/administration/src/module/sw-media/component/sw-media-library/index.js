@@ -238,7 +238,7 @@ export default {
                 });
             });
 
-            criteria.addAssociation('productDocumentTranslations').setLimit(1);
+            criteria.addAssociation('productDocumentTranslations');
 
             return criteria;
         },

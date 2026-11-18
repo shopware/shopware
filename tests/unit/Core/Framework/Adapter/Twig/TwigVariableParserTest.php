@@ -129,4 +129,20 @@ TWIG;
         static::assertNotContains('product.cover.product.cover.media.url', $variables);
         static::assertNotContains('product.options.group.product.options.group.name', $variables);
     }
+
+    public function testParserKeepsAllPathsOfFallbackSetValues(): void
+    {
+        $template = <<<TWIG
+{% set media = product.cover.media ?? product.manufacturer.media %}{{ media.mediaFolder.name }}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        static::assertContains('product.cover.media.mediaFolder.name', $variables);
+        static::assertContains('product.manufacturer.media.mediaFolder.name', $variables);
+        static::assertNotContains('product.cover.media.product.manufacturer.media.mediaFolder.name', $variables);
+    }
 }

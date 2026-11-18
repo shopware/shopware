@@ -66,7 +66,7 @@ class ProductDocumentVariantController extends AbstractController
             }
 
             $ids = array_map(static fn (string $id) => ['id' => $id], array_values($documents->getIds()));
-            $changes = $operation['changes'] ?? null;
+            $changes = isset($operation['changes']) ? array_intersect_key($operation['changes'], ['title' => true, 'mediaId' => true]) : null;
 
             if ($changes === null && $context->getLanguageId() === Defaults::LANGUAGE_SYSTEM) {
                 $this->productDocumentRepository->delete($ids, $context);

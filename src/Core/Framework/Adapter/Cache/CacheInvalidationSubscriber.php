@@ -360,32 +360,52 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
-        $productIds = $this->connection->fetchAllAssociative(
-            'SELECT
-                    LOWER(HEX(pm.product_id)) as product_id,
-                    IF(variant.id IS NULL,  NULL, LOWER(HEX(variant.id))) as variant_id
+        $lastProductId = '';
+        $lastVariantId = null;
+
+        do {
+            // Deduplicate cursor pairs across media assignments and product versions before limiting the batch.
+            /** @var list<array{product_id: string, variant_id: string|null}> $rows */
+            $rows = $this->connection->fetchAllAssociative(
+                'SELECT DISTINCT
+                    pm.product_id,
+                    variant.id as variant_id
                     FROM product_media AS pm
                     LEFT JOIN product as variant ON (pm.product_id = variant.parent_id)
-                    WHERE media_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds())],
-            ['ids' => ArrayParameterType::STRING]
-        );
+                    WHERE pm.media_id IN (:ids)
+                        AND (pm.product_id > :lastProductId
+                            OR (pm.product_id = :lastProductId AND variant.id > :lastVariantId))
+                    ORDER BY pm.product_id, variant.id
+                    LIMIT 100000',
+                [
+                    'ids' => Uuid::fromHexToBytesList($event->getIds()),
+                    'lastProductId' => $lastProductId,
+                    'lastVariantId' => $lastVariantId,
+                ],
+                ['ids' => ArrayParameterType::STRING]
+            );
 
-        $variantIds = array_filter(array_column($productIds, 'variant_id'));
-        $uniqueProductIds = array_unique(array_column($productIds, 'product_id'));
-        $productIds = array_merge(
-            $uniqueProductIds,
-            $variantIds,
-        );
+            if ($rows === []) {
+                break;
+            }
 
-        $tags = array_map(ProductDetailRoute::buildName(...), $productIds);
+            $lastRow = $rows[array_key_last($rows)];
+            $lastProductId = $lastRow['product_id'];
+            $lastVariantId = $lastRow['variant_id'];
+
+            $productIds = array_unique(array_column($rows, 'product_id'));
+            $variantIds = array_filter(array_column($rows, 'variant_id'));
+            $tags = array_map(
+                static fn (string $id) => ProductDetailRoute::buildName(Uuid::fromBytesToHex($id)),
+                array_merge($productIds, $variantIds)
+            );
+
+            $this->cacheInvalidator->invalidate($tags);
+        } while (\count($rows) === 100000);
 
         if (Feature::isActive('CACHE_REWORK')) {
-            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $event->getIds()));
+            $this->cacheInvalidator->invalidate(array_map(MediaRoute::buildName(...), $event->getIds()));
         }
-
-        $this->cacheInvalidator->invalidate($tags);
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void

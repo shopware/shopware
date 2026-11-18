@@ -17,6 +17,11 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### Media cache invalidation uses bounded batches
+
+Reindexing or updating media shared by many products invalidates affected product caches in batches of up to 100,000 product/variant pairs, reducing worker memory usage.
+Delayed invalidation still requires enough capacity to store and process the resulting tags.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

@@ -7,23 +7,8 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     key: 'tag',
     roles: {
         viewer: {
-            privileges: [
-                'tag:read',
-                'product:read',
-                'order:read',
-                'customer:read',
-                'media:read',
-                'newsletter_recipient:read',
-                'shipping_method:read',
-                'landing_page:read',
-                'product_tag:read',
-                'order_tag:read',
-                'customer_tag:read',
-                'media_tag:read',
-                'newsletter_recipient_tag:read',
-                'shipping_method_tag:read',
-                'landing_page_tag:read',
-            ],
+            // The list and the assignments only show areas the user can read through their own roles
+            privileges: ['tag:read'],
             dependencies: [],
         },
         editor: {

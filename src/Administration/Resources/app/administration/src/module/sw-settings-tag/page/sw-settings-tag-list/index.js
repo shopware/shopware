@@ -3,6 +3,8 @@
  */
 import template from './sw-settings-tag-list.html.twig';
 import './sw-settings-tag-list.scss';
+import { getReadableAreas, getUncheckedAreas } from 'src/core/helper/readable-areas.helper';
+import { getTagAssignmentAreas } from '../../helper/tag-assignment-areas';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -55,18 +57,26 @@ export default {
             return Shopware.EntityDefinition.get('tag');
         },
 
+        assignmentAreas() {
+            return getTagAssignmentAreas(this.tagDefinition.properties);
+        },
+
+        uncheckedAreaLabels() {
+            return getUncheckedAreas(this.acl, this.assignmentAreas).map((area) => area.label);
+        },
+
+        // Only areas the user may read, because the API rejects the whole search for a single unreadable one
         assignmentProperties() {
-            const properties = [];
+            return getReadableAreas(this.acl, this.assignmentAreas).map((area) => area.key);
+        },
 
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation !== 'many_to_many') {
-                    return;
-                }
+        hasMergePrivileges() {
+            return this.acl.can('tag.creator') && this.acl.can('tag.deleter');
+        },
 
-                properties.push(propertyName);
-            });
-
-            return properties;
+        // Merging moves every assignment and deletes the merged tags, so it needs all areas
+        canMergeTags() {
+            return this.hasMergePrivileges && this.uncheckedAreaLabels.length === 0;
         },
 
         tagCriteria() {
@@ -115,17 +125,11 @@ export default {
         },
 
         assignmentFilterOptions() {
-            const options = [];
-
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation !== 'many_to_many') {
-                    return;
-                }
-
-                options.push({
+            const options = this.assignmentProperties.map((propertyName) => {
+                return {
                     value: propertyName,
                     label: this.$t(`sw-settings-tag.list.assignments.filter.${propertyName}`),
-                });
+                };
             });
             options.sort((a, b) => {
                 if (a.label > b.label) {
@@ -161,11 +165,7 @@ export default {
 
     methods: {
         setAggregations(criteria) {
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation !== 'many_to_many') {
-                    return;
-                }
-
+            this.assignmentProperties.forEach((propertyName) => {
                 criteria.addAggregation(
                     Criteria.terms(propertyName, 'id', null, null, Criteria.count(propertyName, `tag.${propertyName}.id`)),
                 );
@@ -251,18 +251,16 @@ export default {
         getCounts(id) {
             const counts = {};
 
-            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
-                if (property.relation === 'many_to_many') {
-                    const countBucket = this.tags.aggregations[propertyName]?.buckets.filter((bucket) => {
-                        return bucket.key === id;
-                    })[0];
+            this.assignmentProperties.forEach((propertyName) => {
+                const countBucket = this.tags.aggregations[propertyName]?.buckets.filter((bucket) => {
+                    return bucket.key === id;
+                })[0];
 
-                    if (!countBucket?.[propertyName] || !countBucket?.[propertyName].count) {
-                        return;
-                    }
-
-                    counts[propertyName] = countBucket?.[propertyName].count;
+                if (!countBucket?.[propertyName] || !countBucket?.[propertyName].count) {
+                    return;
                 }
+
+                counts[propertyName] = countBucket?.[propertyName].count;
             });
 
             return counts;
@@ -355,6 +353,14 @@ export default {
             this.showDetailModal = false;
             this.detailProperty = null;
             this.detailEntity = null;
+        },
+
+        onOpenBulkMergeModal() {
+            if (!this.canMergeTags) {
+                return;
+            }
+
+            this.showBulkMergeModal = true;
         },
 
         onCloseBulkMergeModal() {

@@ -669,6 +669,21 @@ Roles that include `media.viewer`, such as the category, product, manufacturer, 
 Stored roles keep their privileges until an admin saves the role again.
 Extensions that rely on these reads through `media.viewer` must request them in their own privilege mapping.
 
+### Tag viewers no longer read other areas to show where tags are used
+
+The `tag.viewer` permission now grants only `tag:read`.
+It no longer grants reads on products, media, customers, orders, shipping methods, newsletter recipients and landing pages, or on their tag mapping tables.
+These reads existed only to count and list the assignments of a tag.
+The tag list counts, sorts and filters only the assignments in areas the user can read, and names the areas it skipped.
+Before, the list failed for a tag viewer without category and rule reads, because the search asked for every area at once.
+The *Assignments* tab of a tag offers only the readable areas.
+To assign tags to products, a user now also needs `product.viewer`, and the same applies to the other areas.
+Merging tags is only offered when the user can read every area, because a merge deletes the merged tags with all their assignments.
+Stored roles keep their privileges until an admin saves the role again.
+Extensions that rely on these reads through `tag.viewer` must request them in their own privilege mapping.
+`POST /api/_admin/tag-filter-ids` now checks the criteria like the generic search does.
+A filter, sorting or aggregation on an association the user cannot read returns 403 instead of a result.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

@@ -15,10 +15,26 @@ const connections = {
     landingPages: 3,
     rules: 0,
 };
+// Reads that make every assignment area of a tag readable
+const allAreaReads = [
+    'product:read',
+    'property_group_option:read',
+    'property_group:read',
+    'media:read',
+    'category:read',
+    'customer:read',
+    'order:read',
+    'order_customer:read',
+    'shipping_method:read',
+    'newsletter_recipient:read',
+    'landing_page:read',
+    'rule:read',
+];
 const deleteEndpoint = jest.fn(() => Promise.resolve());
 const cloneEndpoint = jest.fn(() => Promise.resolve());
+const searchEndpoint = jest.fn();
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], areaReads = allAreaReads) {
     const responseMock = [
         {
             id: '1',
@@ -32,6 +48,8 @@ async function createWrapper(privileges = []) {
 
     responseMock.aggregations = {};
     responseMock.total = 2;
+    searchEndpoint.mockReset();
+    searchEndpoint.mockResolvedValue(responseMock);
 
     Object.keys(connections).forEach((connection) => {
         responseMock.aggregations[connection] = {
@@ -69,9 +87,7 @@ async function createWrapper(privileges = []) {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
-                            search: () => {
-                                return Promise.resolve(responseMock);
-                            },
+                            search: searchEndpoint,
 
                             delete: deleteEndpoint,
 
@@ -84,7 +100,7 @@ async function createWrapper(privileges = []) {
                                 return true;
                             }
 
-                            return privileges.includes(identifier);
+                            return privileges.includes(identifier) || areaReads.includes(identifier);
                         },
                     },
                     searchRankingService: {
@@ -122,14 +138,17 @@ async function createWrapper(privileges = []) {
                     'mt-card': {
                         template: `
                     <div class="mt-card">
+                        <slot name="toolbar"></slot>
                         <slot name="grid"></slot>
                     </div>
                 `,
                     },
                     'sw-entity-listing': {
-                        props: ['items', 'dataSource'],
+                        props: ['items', 'dataSource', 'columns'],
                         template: `
                     <div>
+                        <slot name="bulk-additional" v-bind="{ selectionCount: 2 }"></slot>
+                        <slot name="bulk-modals-additional" v-bind="{ selection: {}, ids: [] }"></slot>
                         <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
@@ -144,10 +163,14 @@ async function createWrapper(privileges = []) {
                     'sw-card-filter': true,
                     'sw-context-menu-divider': true,
 
-                    'sw-multi-select': true,
+                    'sw-multi-select': {
+                        props: ['options'],
+                        template: '<div></div>',
+                    },
                     'sw-context-button': true,
 
                     'sw-label': true,
+                    'sw-unchecked-areas-hint': await wrapTestComponent('sw-unchecked-areas-hint', { sync: true }),
                     'sw-text-field': true,
                     'sw-settings-tag-detail-modal': true,
                 },
@@ -411,5 +434,65 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(wrapper.vm.filterCount).toBeGreaterThan(0);
         expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
+    it('should only count, sort and filter the areas the user can read', async () => {
+        const wrapper = await createWrapper(
+            [],
+            [
+                'product:read',
+                'property_group_option:read',
+                'property_group:read',
+                'media:read',
+            ],
+        );
+        await flushPromises();
+
+        const aggregationNames = searchEndpoint.mock.calls[0][0].aggregations.map(({ name }) => name);
+        expect(aggregationNames).toEqual(['products', 'media']);
+        const columns = wrapper.findComponent('.sw-settings-tag-list__grid').props('columns');
+        expect(columns.map(({ property }) => property)).toEqual(['name', 'products', 'media']);
+        const filterOptions = wrapper.findComponent('.sw-settings-tag-list__filter-assignment-select').props('options');
+        expect(filterOptions.map(({ value }) => value)).toEqual(['media', 'products']);
+
+        const hint = wrapper.findComponent('.sw-settings-tag-list__unchecked-areas-hint');
+        expect(hint.isVisible()).toBe(true);
+        expect(hint.props('textSnippet')).toBe('sw-settings-tag.list.textUncheckedAreas');
+        expect(hint.props('labels')).toEqual([
+            'sw-settings-tag.detail.assignments.categories',
+            'sw-settings-tag.detail.assignments.customers',
+            'sw-settings-tag.detail.assignments.orders',
+            'sw-settings-tag.detail.assignments.shippingMethods',
+            'sw-settings-tag.detail.assignments.newsletterRecipients',
+            'sw-settings-tag.detail.assignments.landingPages',
+            'sw-settings-tag.detail.assignments.rules',
+        ]);
+    });
+
+    it('should not show the unchecked areas hint when every area is readable', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-settings-tag-list__unchecked-areas-hint').exists()).toBe(false);
+    });
+
+    it.each([
+        ['every area is readable', allAreaReads, true],
+        ['one area is not readable', allAreaReads.filter((read) => read !== 'rule:read'), false],
+    ])('should enable merging tags only when %s', async (_name, areaReads, expected) => {
+        // Merging deletes the merged tags, which would drop their assignments in unreadable areas
+        const wrapper = await createWrapper(['tag.creator', 'tag.deleter'], areaReads);
+        await flushPromises();
+        const link = wrapper.find('.sw-settings-tag-list__bulk-merge-link');
+        expect(link.classes('is--disabled')).toBe(!expected);
+        expect(link.attributes('aria-disabled')).toBe(String(!expected));
+        await link.trigger('click');
+        expect(wrapper.find('sw-modal-stub').exists()).toBe(expected);
+    });
+
+    it('should hide merging tags without the privileges to create and delete tags', async () => {
+        const wrapper = await createWrapper(['tag.creator'], allAreaReads);
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-tag-list__bulk-merge-link').exists()).toBe(false);
     });
 });

@@ -5,7 +5,18 @@ import { mount } from '@vue/test-utils';
  */
 
 let parentComponent;
-async function createWrapper() {
+const searchSpy = jest.fn();
+
+function getOfferedEntities(wrapper) {
+    return wrapper
+        .findComponent('.sw-settings-tag-detail-assignments__associations-grid')
+        .props('dataSource')
+        .map(({ entity }) => entity);
+}
+
+async function createWrapper(acl = { can: () => true }) {
+    searchSpy.mockClear();
+
     const responseMockAll = [
         {
             id: '0',
@@ -134,8 +145,9 @@ async function createWrapper() {
                 renderStubDefaultSlot: true,
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
+                        create: (entity) => ({
                             search: (criteria, context) => {
+                                searchSpy(entity, criteria);
                                 const response = context && context.inheritance ? responseMockAll : responseMockSelected;
                                 response.aggregations =
                                     context && context.inheritance ? aggregationsInherited : aggregations;
@@ -151,16 +163,21 @@ async function createWrapper() {
                             return term && term.trim().length >= 1;
                         },
                     },
+                    acl,
                 },
                 stubs: {
                     'sw-card-section': true,
+                    'sw-unchecked-areas-hint': await wrapTestComponent('sw-unchecked-areas-hint', { sync: true }),
 
                     'sw-container': true,
                     'sw-text-field': true,
                     'sw-settings-tag-detail-assignments': true,
                     'sw-tabs-deprecated': true,
                     'sw-card-filter': true,
-                    'sw-data-grid': true,
+                    'sw-data-grid': {
+                        props: ['dataSource'],
+                        template: '<div></div>',
+                    },
                     'sw-checkbox-field': true,
                     'sw-inheritance-switch': true,
                     'sw-highlight-text': true,
@@ -389,5 +406,49 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         wrapper.vm.countDecrease('bar');
 
         expect(wrapper.vm.counts.bar).toBe(0);
+    });
+
+    it('should only offer the areas the user can read and name the others', async () => {
+        const wrapper = await createWrapper({
+            can: (privilege) => ['media:read', 'customer:read'].includes(privilege),
+        });
+        await flushPromises();
+
+        expect(getOfferedEntities(wrapper)).toEqual(['media', 'customer']);
+        // Products are not readable, so the tab opens the first readable area instead
+        expect(searchSpy).toHaveBeenLastCalledWith('media', expect.anything());
+
+        const hint = wrapper.findComponent('.sw-settings-tag-detail-assignments__unchecked-areas-hint');
+        expect(hint.props('textSnippet')).toBe('sw-settings-tag.detail.assignments.textUncheckedAreas');
+        expect(hint.props('labels')).toEqual([
+            'sw-settings-tag.detail.assignments.products',
+            'sw-settings-tag.detail.assignments.categories',
+            'sw-settings-tag.detail.assignments.orders',
+            'sw-settings-tag.detail.assignments.shippingMethods',
+            'sw-settings-tag.detail.assignments.newsletterRecipients',
+            'sw-settings-tag.detail.assignments.landingPages',
+            'sw-settings-tag.detail.assignments.rules',
+        ]);
+    });
+
+    it('should treat products as unreadable without the variant option reads', async () => {
+        // The product list loads `options.group`, which the API rejects without these reads
+        const wrapper = await createWrapper({
+            can: (privilege) => ['product:read', 'media:read'].includes(privilege),
+        });
+        await flushPromises();
+
+        expect(getOfferedEntities(wrapper)).toEqual(['media']);
+    });
+
+    it('should not search when the user can read no area', async () => {
+        const wrapper = await createWrapper({ can: () => false });
+        await flushPromises();
+
+        expect(searchSpy).not.toHaveBeenCalled();
+        expect(wrapper.find('sw-container-stub[columns="300px 1fr"]').exists()).toBe(false);
+        expect(
+            wrapper.findComponent('.sw-settings-tag-detail-assignments__unchecked-areas-hint').props('labels'),
+        ).toHaveLength(9);
     });
 });

@@ -159,7 +159,7 @@
 {% set repeatedPattern = mode == 'explicit' %}
 {% if repeatedPattern %}
     {% set gridPattern = this.gridPattern %}
-    {% set gridStyle = gridStyle ~ gridPattern.style ~ 'grid-template-columns: var(--sw-grid-columns); grid-auto-flow: row dense; justify-content: start; ' %}
+    {% set gridStyle = gridStyle ~ gridPattern.style ~ 'grid-template-columns: var(--sw-grid-columns); grid-auto-flow: row dense; ' ~ (justifyContent == 'normal' ? 'justify-content: start; ' : '') %}
     {% set attributeDefaults = attributeDefaults|merge({ class: attributeDefaults.class ~ ' repeated-pattern ' ~ gridPattern.class }) %}
 {% endif %}
 {% set gridStyle = gap ? gridStyle ~ 'gap: ' ~ gap ~ 'px; ' : gridStyle %}

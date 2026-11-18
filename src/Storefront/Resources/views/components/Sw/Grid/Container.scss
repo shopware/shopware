@@ -181,7 +181,16 @@
 
 /* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
 .sw-grid-container__item {
+    display: grid;
     min-width: 0;
+
+    @each $breakpoint, $value in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
+            &:has(> .grid-column.d-#{$breakpoint}-hidden) {
+                display: none;
+            }
+        }
+    }
 
     @each $value in (auto, start, center, end, stretch, baseline) {
         &.align-self-#{$value},

@@ -44,7 +44,7 @@ class ContainerTest extends TestCase
         static::assertStringContainsString('--sw-grid-item-column-xs:1 / span 2;--sw-grid-item-row-xs:span 1;', $result['rules']);
         static::assertStringContainsString('--sw-grid-item-column-xs:1 / span 1;--sw-grid-item-row-xs:span 2;', $result['rules']);
         static::assertStringContainsString('.display-md', $result['rules']);
-        static::assertStringContainsString('.d-md-hidden', $result['rules']);
+        static::assertStringContainsString(':not(.d-md-hidden):not(:has(> .grid-column.d-md-hidden))', $result['rules']);
         static::assertStringContainsString(':nth-child(2n + 1 of ', $result['rules']);
         static::assertStringContainsString('--sw-grid-columns-md: minmax(0, 1fr) minmax(0, 1fr);', $result['style']);
         static::assertStringContainsString('--sw-grid-columns-lg: min(200px', $result['style']);

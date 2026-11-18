@@ -46,8 +46,8 @@ Static data the AI client can read. Resources are identified by URIs and provide
 The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus anything the connection advertises up front or has enabled), not the full catalogue. There are three ways to reach a deferred tool, and they differ in what they demand of the client:
 
 - **Connect-time selection (works on every client).** Naming toolsets in the MCP URL as `?toolsets=order,media` or `?toolsets=all`, on `/api/_mcp` and `/store-api/_mcp` alike, advertises those tools from the first `tools/list` of the connection. The only client behaviour this relies on is posting to the URL it was configured with, which is the Streamable HTTP transport itself. `McpRequestedToolsetResolver` reads the parameter off the main request, and `McpToolsetRegistry::advertisedToolsForNames()` validates it and resolves `all`. The result is paginated like any other list (`shopware.mcp.pagination_limit`, 50), so a client that ignores `nextCursor` sees the first page only — a constraint `?toolsets=all` can reach once enough apps contribute toolsets.
-- **`shopware-toolset-enable` + `listChanged` (only for clients that re-read `tools/list`).** Enabling a toolset stores it on the session, advertises its tools, and emits a `tools/listChanged` notification. The notification is advisory: a client MAY refresh, and nothing obliges it to. claude.ai reads `tools/list` once per connection and ignores the notification, so an enable mid-conversation never becomes visible there. Claude Code re-lists but does not re-index its deferred-tool store ([claude-code#66084](https://github.com/anthropics/claude-code/issues/66084)). Treat this path as an optimisation for well-behaved clients.
-- **`shopware-tool-search` inline definitions (only for tool-search-capable clients).** Search returns full tool definitions inline. This requires the client to promote inline results into its callable set. Anthropic expands a `tool_reference` only for tools already present in the request's top-level `tools` array, so a tool that was never advertised cannot be promoted this way. `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends, though a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result carries a `_meta.usage` hint pointing at the enable path.
+- **`shopware-toolset-enable` + `listChanged` (only for clients that re-read `tools/list`).** Enabling a toolset stores it on the session, advertises its tools, and emits a `tools/listChanged` notification. The notification is advisory: a client MAY refresh, and nothing obliges it to. claude.ai reads `tools/list` once per connection and ignores the notification, so an enable mid-conversation never becomes visible there. Claude Code re-lists but does not re-index its deferred-tool store ([claude-code#66084](https://github.com/anthropics/claude-code/issues/66084)). Treat this path as an optimisation for well-behaved clients. On the stateless era (2026-07-28) there is no session to keep a toolset in, so `shopware-toolset-enable` and `shopware-toolsets-list` are not advertised there (`McpProtocolEra::HIDDEN_ON_STATELESS_ERA`, filtered in `McpAllowlistListRequestHandler` before paginating). A client that kept either name from a handshake connection and calls it directly gets `isError` pointing to `?toolsets=` and `shopware-tool-search`; both tools answer that way, because a tool the era does not list is not callable on it either. The stateless `server/discover` instructions (`McpServerInstructions`), the stateless `shopware-context` prompt and the stateless `shopware-tool-search` result name the same two ways instead, and the search result carries the `toolset` of every match. The SDK builds `server/discover` from the same configured instructions as `initialize`, so both controllers swap the shipped text for its stateless twin in non-streamed JSON `server/discover` answers; this is a workaround until mcp/sdk supports instructions per protocol era, and it leaves instructions a project configured itself alone. Removing toolset enable on both eras is tracked in [#22049](https://github.com/shopware/shopware/issues/22049).
+- **`shopware-tool-search` inline definitions (only for tool-search-capable clients).** Search returns full tool definitions inline. This requires the client to promote inline results into its callable set. Anthropic expands a `tool_reference` only for tools already present in the request's top-level `tools` array, so a tool that was never advertised cannot be promoted this way. `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends, though a client that treats `tools/list` as the immutable callable set will loop. The `shopware-tool-search` result of both endpoints carries a `_meta.usage` hint pointing at the enable path on the handshake era and at `?toolsets=` on the stateless era.
 
 Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list` of a connection without `?toolsets=`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
 
@@ -88,7 +88,7 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer
 - **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
-- **Tool results**: the wire format of a tool result is decided only in `McpToolResultRenderer`, never in a tool. See "What the client receives" in `Tool/AGENTS.md`
+- **Tool results**: the wire format of a tool result, including whether it is too large to send inline and is stored behind a `resource_link`, is decided only in `McpToolResultRenderer`, never in a tool. The negotiated protocol revision picks the format (`McpToolResultCapabilities`): the MCP format since 2025-06-18, the deprecated `{"success": …}` envelope before. See "What the client receives" in `Tool/AGENTS.md`
 - **Availability**: always enabled (no feature flag); services are present whenever `symfony/mcp-bundle` is installed
 
 ### List change notifications
@@ -96,9 +96,16 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. The notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
 
 - **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal calls `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
+- **Removals notify once the app is gone.** `AppManager` dispatches `AppDeactivatedEvent` and `AppDeletedEvent` before it switches the app off or deletes it. `AppMcpCapabilityLifecycleSubscriber` records the app's capabilities at that point and calls `notify()` only on the `app.written` event that stores `active: false` or on the `app.deleted` event. A client that refreshes its lists on the notification therefore no longer sees the app. Install, update and activation notify right away, because their events fire after the app is stored and active.
 - **Session-local changes are queued directly.** `shopware-toolset-enable` sets `McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE`, and the controller calls `notifySession()` for that session only.
 - **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
+- **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, `notify()` also publishes the changed lists to the SDK notification bus, which `subscriptions/listen` streams read. The bus is a PSR-16 view of `cache.app`, so it reaches every worker that shares that pool; on several hosts that needs a shared `cache.app`, for example Redis. A failing bus is logged and never fails the change. The Store API server has no bus: its lists only change per session.
+- **Each `subscriptions/listen` stream closes after 25 seconds, on both servers.**
+  A stream holds one PHP worker for its whole lifetime, and the SDK default of 30 seconds equals the common `max_execution_time`, which kills the worker before the stream closes.
+  `McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME` sets it for every server on `auto`, also the Store API server, which has nothing to publish but still answers `subscriptions/listen`.
+- **The capabilities are stated, not detected.** `McpServerBuilderCompilerPass::applyCapabilities()` sets them per server, because the SDK announces `resources.subscribe` for every server with resources and nothing in Shopware publishes `notifications/resources/updated`.
+  A server that gains a kind of capability, for example prompts on the Store API, has to be added there.
 - **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
   mcp/sdk 0.9 strips the flag from every `initialize` answer, because it delivers list changes only through `subscriptions/listen` of the stateless era.
   `McpHandshakeListChangedSubscriber` sets it again on the SDK's `ResponseEvent`.
@@ -107,6 +114,20 @@ Invariants:
 - No state per server and no list of session ids. Every server reads the same versions from the database and writes only to the session store the SDK already uses, so this works with any session store and any number of servers, without a shared lock. The registry of session ids that this replaced had to be shared exactly as widely as the session store, which a compiler pass could only guess (#21284).
 - A notification costs one write per change; checking costs one small read per request, plus a session write only when something changed.
 - Don't add a mechanism that pushes to all sessions. It needs the list of sessions again. On the stateless era, clients read the SDK notification bus through `subscriptions/listen`, and the versions feed that bus (see `adr/2026-09-24-mcp-stateless-era-degradation-policy.md`).
+
+### Request state on the stateless era
+
+On 2026-07-28 a tool that needs input returns `InputRequiredResult`, and the client repeats the whole call with the answer and an opaque `requestState`.
+mcp/sdk signs that state with one HMAC key (`request_state.key` of the bundle); it does not encrypt it, binds nothing to it and cannot rotate the key.
+Without a key, `RequestContext::mintRequestState()` throws and every incoming `requestState` is refused.
+
+- Shopware configures no key.
+  A handler that asks once needs none, so core tools ask at most once per call and never call `mintRequestState()`.
+- A one-time action (a confirmed delete, a state transition) is enforced by a stored record on the server, never by the state: signing does not make a state single-use.
+  URL elicitation is planned this way, with a confirmation record bound to principal, tool and an argument digest ([#19972](https://github.com/shopware/shopware/issues/19972)).
+- The first feature that needs state across rounds brings the key, as planned in [#22081](https://github.com/shopware/shopware/issues/22081): a dedicated `SHOPWARE_MCP_REQUEST_STATE_KEY`, one HKDF subkey per server, the binding of principal, method, tool and arguments, and features that switch off without the key.
+  Do not derive it from `APP_SECRET`, store it in the database or generate it per process: a retry can reach another worker or host.
+- The state is readable by the client, so it never carries personal data.
 
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):
@@ -264,7 +285,7 @@ Create the Twig script at `Resources/scripts/api-my-app-my-tool/script.twig`:
 - **`debug:mcp` entity visibility** — when `--integration SWIA...` is passed, add an "Entities" count column to the tools table (how many entities that integration can read for entity-tools). In the detail view (`debug:mcp shopware-entity-read --integration ...`), show the full sorted list of accessible entity names.
 
 ### Rate limiting
-The two MCP endpoints are rate-limited via the core `RateLimiter` through `McpRateLimiter` (`RateLimit/McpRateLimiter.php`), which owns the throttle/`McpException::throttled()` translation and the per-scope key derivation. Each scope has its own config route: `mcp_admin_api` (keyed per OAuth token, generous) and `mcp_store_api` (keyed per sales-channel context token, tighter because it is public and the key is rotatable). Both are defined in `shopware.yaml` under `shopware.api.rate_limiter`.
+The two MCP endpoints are rate-limited via the core `RateLimiter` through `McpRateLimiter` (`RateLimit/McpRateLimiter.php`), which owns the throttle/`McpException::throttled()` translation and the per-scope key derivation. Each scope has its own config route: `mcp_admin_api` (keyed per principal via `McpPrincipalResolver::resolveIgnoringActingUser()`, so a token refresh keeps the bucket and a caller-chosen `sw-app-user-id` cannot open a new one; client IP as fallback; generous) and `mcp_store_api` (keyed per sales-channel context token, tighter because it is public and the key is rotatable). Both are defined in `shopware.yaml` under `shopware.api.rate_limiter`.
 
 Open improvements:
 - **Per-tool rate limiting** — the current limit is per-endpoint: a cheap `tools/list` and an expensive `entity-upsert`/`entity-delete`/`media-upload`/`system-config-write` draw from the same bucket. The industry consensus for MCP servers is to bucket cheap reads (`entity-search`, `entity-schema`) high (~100-200/min) and expensive/mutating tools low (~5-30/min). This needs a per-tool key (e.g. derive the tool name from the JSON-RPC body, which `McpServerController` already parses into `ATTRIBUTE_JSONRPC_BODY`) and a route per cost class.
@@ -284,17 +305,103 @@ Open questions before implementing:
 ### SDK-ready features (no upstream changes needed)
 symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
-- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.
+- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change; until then `McpServerBuilderCompilerPass::applyCapabilities()` keeps `resources.subscribe` off, and wiring them up includes turning it on there.
 - **Protocol-level pagination** — `RegistryInterface::getTools(?int $limit, ?string $cursor)` etc. already support cursor-based pagination; bundle has a `mcp.pagination_limit` config param. Shopware doesn't configure or expose it — relevant once tool/resource counts grow large.
 - **Completion utility** — SDK has `CompletionCompleteHandler` + `CompletionProvider` interface with built-in `EnumCompletionProvider` / `ListCompletionProvider` (`vendor/mcp/sdk/src/Capability/Attribute/CompletionProvider.php`). Register providers on tool/prompt arguments to power autocomplete in MCP clients (e.g. entity name suggestions for the `entity` parameter on entity tools).
 
 ---
 
+## Authentication
+
+OAuth is an additional way in.
+Access keys, integration tokens, password grant tokens and authorization code tokens without `resource` keep working unchanged.
+The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
+
+### Discovery
+
+- An unauthenticated or rejected request to `/api/_mcp` gets `401` with the JSON-RPC `-32001` body and `WWW-Authenticate: Bearer resource_metadata="<base>/.well-known/oauth-protected-resource/api/_mcp"`.
+  When credentials were sent, the header adds `error="invalid_token"`.
+  `McpExceptionListener` sets it on the Admin API route `api.mcp.endpoint` only.
+- A query on the MCP URL (`?toolsets=`) is kept as sent: the challenge URL is `.../.well-known/oauth-protected-resource/api/_mcp?<query>` (RFC 9728 §3.1), and the metadata answers with `resource` `<base>/api/_mcp?<query>`.
+  RFC 9728 §3.3 makes clients reject a `resource` that differs from the URL they used.
+  The audience check (`OAuthResource::normalize()`) keeps ignoring the query, so the same token works with and without toolsets.
+- `McpOAuthMetadataController` serves the protected resource metadata (RFC 9728) at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
+  The issuer is `<base>/api`; the authorization response carries `iss` (RFC 9207).
+- `McpOAuthMetadata` builds the URLs and documents.
+  `<base>` keeps the installation base path.
+  It comes from the request when `McpAllowedHostsProvider` allows the host, otherwise from `APP_URL`.
+  The protected resource metadata is the `mcp/sdk` value object `ProtectedResourceMetadata`; the authorization server metadata (RFC 8414) stays ours, the SDK has no class for it.
+  Only the value object is used, not `ProtectedResourceMetadataHandler` or its middleware: the document depends on the request host, base path and query, and the routes stay Symfony routes.
+  Since `mcp/sdk` 0.9 the class rejects plain http outside loopback hosts (`localhost`, `127.0.0.1`, `::1`); the route then answers `404` with `MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE`.
+  Dev lanes on `http://<name>.localhost` are affected until the next `mcp/sdk` release after 0.9.0, which accepts `*.localhost` and `127.0.0.0/8` as loopback ([php-sdk#620](https://github.com/modelcontextprotocol/php-sdk/pull/620), merged); use `http://localhost:<port>` meanwhile.
+- The routes have no route scope (`McpOAuthMetadataRouteScopeWhitelist`) and are exempt from the sales channel lookup in `RequestTransformer`.
+- Well-known URIs sit at the host root with the path inserted.
+  An installation in a subdirectory (`https://shop.example/shop`) needs a web server rewrite, for example in nginx:
+
+  ```nginx
+  location = /.well-known/oauth-protected-resource/shop/api/_mcp { rewrite ^ /shop/.well-known/oauth-protected-resource/api/_mcp last; }
+  location = /.well-known/oauth-authorization-server/shop/api { rewrite ^ /shop/.well-known/oauth-authorization-server/api last; }
+  ```
+
+### Tokens bound to the MCP resource
+
+- `resource` (RFC 8707) is accepted on `GET`/`POST /api/oauth/authorize` and `POST /api/oauth/token`.
+  The only accepted value is this shop's MCP resource (`OAuthResource::normalize()` ignores case of scheme and host, default ports, a trailing slash and the query); a fragment or anything else is `invalid_target`.
+  The token request must name the same resource as the authorization request, and a refresh keeps it.
+  A token request without `resource` still gets a token bound to the granted resource, as RFC 8707 allows.
+- The resource is stored in `oauth_auth_code.resource` and `refresh_token.resource`.
+  The JWT keeps the client id as the first `aud` entry and lists the resource after it.
+- `SymfonyBearerTokenValidator` rejects a bound token with `401` unless the caller passes `acceptResourceBoundToken: true`.
+  Only `ApiAuthenticationListener` does, for the main request to `api.mcp.endpoint` and for subrequests carrying `OAuthResource::SUBREQUEST_ATTRIBUTE`.
+  `AppMcpCapabilityExecutor` sets that attribute on the app script subrequests of a request authenticated with a bound token.
+  Any other subrequest rejects the token, because ESI fragments copy the parent's `Authorization` header.
+  Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
+  `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
+- The binding separates the MCP endpoint from the rest of the Admin API, not one host from another.
+  A token issued for the MCP resource of one allowed host is accepted on the MCP endpoint of every other allowed host of the same installation, because it is the same user with the same permissions.
+  The validator does not compare the bound resource with the requested host; keep it that way unless hosts of one installation get separate principals.
+- The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
+  An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
+- A bound token authenticates its user like any other token of that user; MCP sessions and the rate limit treat it no differently.
+  Binding sessions to the principal and keying the rate limit on it are the subject of the related PRs https://github.com/shopware/shopware/pull/21860 and https://github.com/shopware/shopware/pull/21861.
+
+### Adding an OAuth client
+
+There is no dynamic client registration.
+`shopware-cli` is the only default client.
+Redirect URIs on the loopback IP literals `http://127.0.0.1` and `http://[::1]` match any port; every other redirect URI, including `http://localhost:<port>`, must match exactly.
+Web redirect URIs must use `https`.
+Plain `http` is accepted for `localhost` and the loopback IP literals only, or for every host when the kernel runs in the `dev` environment.
+Private-use schemes of native apps (`cursor://`) stay allowed and match exactly.
+`PublicClientRegistry::isTransportAllowed()` holds the rule; `ShopwareAuthCodeGrantType` rejects other redirect URIs on authorize with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI` (`400`, not sent to the redirect URI).
+The check runs on authorize and not on container build, because `oauth_clients` already shipped and a single bad entry must not break the whole Admin API.
+An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`.
+Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and pass it with `--callback-port`:
+
+```yaml
+shopware:
+    api:
+        oauth_clients:
+            claude-code:
+                name: 'Claude Code'
+                redirect_uris:
+                    - 'http://localhost:53682/callback'
+```
+
+```shell
+claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware https://shop.example/api/_mcp
+```
+
+Claude Code refuses plain `http` token endpoints on hosts other than `localhost`, `127.0.0.1` and `::1`, so a dev host such as `trunk.localhost` needs `https`.
+
+Known: the root `/.well-known/oauth-authorization-server` belongs to the UCP SDK (route `ucp_sdk_symfony_oauth_metadata`, `501` while identity linking is disabled).
+MCP clients use the path form `/.well-known/oauth-authorization-server/api` and are not affected.
+
 ## Security
 
 Every MCP request passes through three layers in order:
 
-1. **Authentication** — `sw-access-key` + `sw-secret-access-key` headers required on every request
+1. **Authentication**: every Admin API credential: integration or user access keys (`sw-access-key` + `sw-secret-access-key`), or a bearer token from any grant, including OAuth tokens bound to the MCP resource. See Authentication above.
 2. **Per-principal capability allowlist** — each integration and each user stores a `mcp_allowlist` JSON object with `tools`, `resources`, and `prompts` keys. Configured via Settings → Integrations → Edit MCP Allowlist, and on the user detail page. `tools/list`, `resources/list`, and `prompts/list` responses are filtered; `tools/call`, `resources/read`, and `prompts/get` are rejected early with a clear error. Tool allowlist auto-expands transitive `#[McpToolDependsOn]` dependencies.
    **The selection must be explicit.** `McpAllowlist::restrictedFromJson()` resolves every value that is not an explicit list to an empty list, i.e. deny all: an unset column, an empty column, unparseable JSON, JSON that is not an object, a missing per-type key, an explicit `null` per-type value, and a per-type value that is not a JSON list (a string, or an object — which `json_decode` would otherwise hand over as an associative array of names). The save endpoints reject the object shape outright rather than storing a selection that reads back empty. **The only bypass is an administrator user** (`user.admin = 1`), for whom `McpAllowlistProvider::forUserId()` returns `McpAllowlist::unrestricted()`. An integration never bypasses the allowlist, not even one flagged `admin`; the `admin` flag still bypasses layer 3 (ACL).
    Note that resources are allowlisted by **URI** (`shopware://currencies`) while `resources/list` reports the **name** (`shopware-currencies`). Tools and prompts use the name for both.
@@ -307,8 +414,8 @@ Additional safeguards:
 - **Rate limiting**: every request passes through `McpRateLimiter` before the protocol runs. Separate per-scope buckets (`mcp_admin_api`, `mcp_store_api`); exceeding the limit returns HTTP 429 via `McpException::throttled()`. See the Rate limiting section under "Future ideas / backlog" for the keying details and open improvements.
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
-- **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). Reuse it for any new short-lived signed token instead of calling `hash_hmac` directly; it already has an injected clock, a constant-time compare and validated fields. Sharing it outside MCP is tracked in #21520.
-- **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
+- **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). It builds on the shared `Shopware\Core\Framework\Util\HmacSigner` (injected clock, constant-time compare, expiry). Use that helper for any new short-lived token Shopware signs and reads back itself instead of calling `hash_hmac` directly; keep a purpose label in the signed data and validate the fields when parsing.
+- **XML parsing**: `mcp.xml` parsed with `XmlParserUtils::loadFile()`, which rejects document types before any DTD is resolved (XXE)
 - **Entity validation**: entity tools check `registry->has()` before ACL to give clear "entity not found" errors
 - **Global compile-time allowlist**: `shopware.mcp.allowed_tools` acts as an installation-wide safety switch (secondary to per-integration allowlists)
 - **Error visibility**: `McpExceptionListener` converts exceptions on the MCP route to JSON-RPC error responses instead of HTML. It also handles `POST /register` — some clients (e.g. Cursor) fall back to that path when the primary connection fails; without the listener they receive an HTML 404 or a storefront redirect that hides the real error. The gate is `POST` method (not `Accept: application/json`) since browser navigation to a register page uses GET.

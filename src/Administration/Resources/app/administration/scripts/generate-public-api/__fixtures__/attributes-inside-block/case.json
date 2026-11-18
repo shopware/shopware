@@ -1,0 +1,5 @@
+{
+    "description": "Attributes, text or new elements inside a block",
+    "headVersion": "6.7",
+    "majorFlags": ["v6.8.0.0"]
+}

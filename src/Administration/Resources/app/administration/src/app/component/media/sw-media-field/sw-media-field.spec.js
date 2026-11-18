@@ -129,6 +129,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
     });
 
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-media-field.popoverConfig.
     it.deprecated('v6.8.0.0')('returns empty config when picker is false', async () => {
         const wrapper = await createWrapper();
 
@@ -136,6 +137,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-media-field.popoverConfig.
     it.deprecated('v6.8.0.0')('returns empty config when not inside a modal', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
@@ -145,6 +147,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-media-field.popoverConfig.
     it.deprecated('v6.8.0.0')('returns modal targetSelector when picker open inside modal', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });

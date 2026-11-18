@@ -146,7 +146,6 @@ use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockStorage;
 use Shopware\Core\Content\Product\Subscriber\CustomFieldSearchableSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductDescriptionTeaserSubscriber;
-use Shopware\Core\Content\Product\Subscriber\ProductDocumentTitleSubscriber;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
 use Shopware\Core\Content\Product\Subscriber\RepairDigitalProductStatesSubscriber;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
@@ -417,12 +416,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductDescriptionTeaserBuilder::class),
         ])
         ->tag('shopware.entity_indexer');
-
-    $services->set(ProductDocumentTitleSubscriber::class)
-        ->args([
-            service(Connection::class),
-        ])
-        ->tag('kernel.event_subscriber');
 
     $services->set(OrderStockSubscriber::class)
         ->args([

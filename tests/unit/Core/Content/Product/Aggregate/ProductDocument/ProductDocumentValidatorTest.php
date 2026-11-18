@@ -22,7 +22,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
@@ -97,36 +96,6 @@ class ProductDocumentValidatorTest extends TestCase
         static::assertSame([], $this->validate());
     }
 
-    public static function titleProvider(): iterable
-    {
-        yield 'a new document without title' => [Defaults::LANGUAGE_SYSTEM, false, ['title' => null], [NotBlank::IS_BLANK_ERROR]];
-        yield 'a new document with a title' => [Defaults::LANGUAGE_SYSTEM, false, ['title' => 'Manual'], []];
-        yield 'a new translation in another language without title' => [self::GERMAN, false, ['title' => null], []];
-        yield 'removing the title of a stored document' => [Defaults::LANGUAGE_SYSTEM, true, ['title' => null], [NotBlank::IS_BLANK_ERROR]];
-        yield 'removing the title of a stored translation in another language' => [self::GERMAN, true, ['title' => null], []];
-        yield 'a write that leaves the title of a stored document without title out' => [Defaults::LANGUAGE_SYSTEM, true, ['custom_fields' => '{}'], []];
-    }
-
-    /**
-     * @param array<string, mixed> $payload
-     * @param list<string> $codes
-     */
-    #[DataProvider('titleProvider')]
-    public function testTheTitleIsRequiredInTheSystemLanguage(string $languageId, bool $isStored, array $payload, array $codes): void
-    {
-        $this->translations = [$this->translation(
-            'manual',
-            $languageId,
-            '/0',
-            file: 'manual-file',
-            storedFile: $isStored ? 'manual-file' : null,
-            payload: $payload,
-        )];
-
-        $expected = array_map(static fn (string $code): array => ['code' => $code, 'pointer' => '/0/title'], $codes);
-        static::assertSame($expected, $this->validate());
-    }
-
     public function testAWriteWithoutDocumentTranslationsPasses(): void
     {
         $this->translations = [];
@@ -191,10 +160,7 @@ class ProductDocumentValidatorTest extends TestCase
         return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], 1024, ['pdf', 'docx']));
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null, ?array $payload = null): OutcomeRow
+    private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow
     {
         return new OutcomeRow(
             primaryKey: [
@@ -205,11 +171,8 @@ class ProductDocumentValidatorTest extends TestCase
             path: $path,
             isNew: $storedFile === null,
             isDeleted: false,
-            payload: $payload ?? ['media_id' => $this->ids->getBytes($file), 'title' => 'Manual'],
-            state: [
-                'media_id' => $storedFile === null ? null : $this->ids->getBytes($storedFile),
-                'title' => null,
-            ],
+            payload: ['media_id' => $this->ids->getBytes($file)],
+            state: ['media_id' => $storedFile === null ? null : $this->ids->getBytes($storedFile)],
         );
     }
 }

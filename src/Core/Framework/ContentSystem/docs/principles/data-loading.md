@@ -57,8 +57,9 @@ In code:
 
 - `BindingApplicator::apply()` writes a typed `DataRequirement`.
 - `TypeConsistentBindingSpecificationValidator` checks property references.
-- `EntityLayoutResolver::resolvePlaceholders()` excludes query parameters configured in `shopware.http_cache.ignored_url_parameters`, so values absent from the cache key cannot vary rendered content.
-- `EntityLayoutResolverTest::testCacheIgnoredQueryParametersCannotBecomePlaceholders` pins that exclusion and preserves the original request.
+- A specification source derives its placeholder values from the route alone and declares its query parameters in `AbstractSpecificationSource::placeholderQueryParameters()`.
+- `RenderingSpecificationFactory` adds the declared scalar query parameters, except those configured in `shopware.http_cache.ignored_url_parameters`, and never replaces a value the source derived.
+- `RenderingSpecificationFactoryTest::testAddsDeclaredScalarQueryParameters`, `testQueryParameterCannotReplaceADerivedPlaceholder` and `testCacheIgnoredQueryParametersCannotBecomePlaceholders` pin the admission and preserve the original request.
 - `StoredTreePreparer` substitutes a token in a property string and in the string value of a `Literal` loader-config key.
 - See [applying.md](../../Binding/docs/applying.md).
 

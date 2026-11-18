@@ -78,6 +78,15 @@ class HeaderSpecificationSourceTest extends TestCase
         static::assertSame([], $result->dataRequirements);
     }
 
+    #[TestDox('turns no query parameter into a placeholder value')]
+    public function testResolveSpecificationDataIgnoresQueryParameters(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $result = $this->source->resolveSpecificationData('', new Request(['color' => 'red', '0' => 'x']), $context);
+
+        static::assertSame([], $result->placeholderValues->all());
+    }
+
     #[TestDox('resolves cache tags using header section tag')]
     public function testResolveCacheTagsUsesHeaderSectionTag(): void
     {

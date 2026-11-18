@@ -61,6 +61,18 @@ abstract class AbstractSpecificationSource
     }
 
     /**
+     * The query parameters a request may pass as placeholder values to a layout this source renders. A parameter
+     * this source does not declare, or one configured in `shopware.http_cache.ignored_url_parameters`, never
+     * becomes a placeholder value, and none replaces a placeholder value the source derives, such as the entity id.
+     *
+     * @return list<non-empty-string>
+     */
+    public function placeholderQueryParameters(): array
+    {
+        return [];
+    }
+
+    /**
      * The root-source id whose mapping catalogue applies to a layout this source renders, or null for a source
      * offering none. Entity sources override it with their content-layout entity type, which is the id
      * `Mapping\Registry\AbstractContentSystemMappingCandidateRegistry::forRootSource()` is keyed by.

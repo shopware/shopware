@@ -12,7 +12,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -28,36 +27,15 @@ class EntityLayoutResolverTest extends TestCase
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
-        $this->resolver = new EntityLayoutResolver(['utm_source', 'custom_tracking']);
+        $this->resolver = new EntityLayoutResolver();
     }
 
-    #[TestDox('builds placeholder values from entity id field and scalar query parameters, ignoring non-scalar parameters')]
-    public function testResolvePlaceholdersMergesEntityIdWithScalarQueryParameters(): void
+    #[TestDox('builds the entity id placeholder from the entity id field')]
+    public function testResolvePlaceholdersBuildsTheEntityIdPlaceholder(): void
     {
-        $request = new Request(['color' => 'red', 'tags' => ['a', 'b']]);
+        $result = $this->resolver->resolvePlaceholders('productId', 'product-id-1');
 
-        $result = $this->resolver->resolvePlaceholders('productId', 'product-id-1', $request);
-
-        static::assertSame(
-            ['productId' => 'product-id-1', 'color' => 'red'],
-            $result->all()
-        );
-    }
-
-    public function testCacheIgnoredQueryParametersCannotBecomePlaceholders(): void
-    {
-        $parameters = [
-            'utm_source' => '<a href="https://example.test/phishing">Campaign</a>',
-            'custom_tracking' => 'injected content',
-            'campaign' => 'summer',
-            'page' => 2,
-        ];
-        $request = new Request($parameters);
-
-        $result = $this->resolver->resolvePlaceholders('landingPageId', 'landing-page-id', $request);
-
-        static::assertSame(['landingPageId' => 'landing-page-id', 'campaign' => 'summer', 'page' => 2], $result->all());
-        static::assertSame($parameters, $request->query->all());
+        static::assertSame(['productId' => 'product-id-1'], $result->all());
     }
 
     #[TestDox('returns layout ID when assignment exists')]

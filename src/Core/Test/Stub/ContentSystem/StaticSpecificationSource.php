@@ -16,6 +16,7 @@ class StaticSpecificationSource extends AbstractSpecificationSource
 {
     /**
      * @param list<string> $cacheTags
+     * @param list<non-empty-string> $placeholderQueryParameters
      */
     public function __construct(
         private readonly bool $supports = true,
@@ -25,6 +26,7 @@ class StaticSpecificationSource extends AbstractSpecificationSource
         private readonly array $cacheTags = [],
         private readonly ?string $supportedEntityType = null,
         private readonly bool $failOnResolveLayoutId = false,
+        private readonly array $placeholderQueryParameters = [],
     ) {
     }
 
@@ -76,5 +78,10 @@ class StaticSpecificationSource extends AbstractSpecificationSource
     public function resolveCacheTags(string $path, Request $request, SalesChannelContext $context): array
     {
         return $this->cacheTags;
+    }
+
+    public function placeholderQueryParameters(): array
+    {
+        return $this->placeholderQueryParameters;
     }
 }

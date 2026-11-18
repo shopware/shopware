@@ -24,10 +24,11 @@
             ></slot>
         </div>
         <div class="sw-select__selection-indicators">
-            <sw-loader
+            <mt-loader
                 v-if="isLoading"
                 class="sw-select__select-indicator"
                 size="16px"
+                :backdrop="false"
             />
 
             <button

@@ -7,6 +7,9 @@
         :condition="conditionTree"
         :level="0"
     />
-    <sw-loader v-else />
+    <mt-loader
+        v-else
+        :backdrop="false"
+    />
 </div>
 {% endblock %}

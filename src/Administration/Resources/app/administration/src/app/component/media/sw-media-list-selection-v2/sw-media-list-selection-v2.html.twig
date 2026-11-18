@@ -17,7 +17,10 @@
         class="sw-media-list-selection-v2__grid"
         :style="gridAutoRows"
     >
-        <sw-loader v-if="entity.isLoading" />
+        <mt-loader
+            v-if="entity.isLoading"
+            :backdrop="false"
+        />
         {%  block sw_media_list_selection_v2_grid_items %}
         <sw-media-list-selection-item-v2
             v-for="({ mediaItem, key, dragData }, i) in listItems"

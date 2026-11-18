@@ -1,6 +1,9 @@
 {% block sw_first_run_wizard_mailer_local %}
 <div class="sw-first-run-wizard-mailer-local">
-    <sw-loader v-if="isLoading" />
+    <mt-loader
+        v-if="isLoading"
+        :backdrop="false"
+    />
 
     <h2 class="sw-first-run-wizard-mailer-local__headline">
         {{ $t('sw-first-run-wizard.mailerLocal.headline') }}

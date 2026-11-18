@@ -102,7 +102,7 @@ async function createWrapper(customPropsData = {}) {
                     'router-link': true,
                     'sw-inheritance-switch': true,
                     'sw-color-badge': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
                 },

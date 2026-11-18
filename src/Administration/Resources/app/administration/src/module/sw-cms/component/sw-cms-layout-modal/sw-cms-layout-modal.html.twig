@@ -68,7 +68,10 @@
     <div class="sw-cms-layout-modal__content">
 
         {% block sw_cms_layout_modal_loader %}
-        <sw-loader v-if="isLoading" />
+        <mt-loader
+            v-if="isLoading"
+            :backdrop="false"
+        />
         {% endblock %}
 
         {% block sw_cms_layout_modal_content_container %}

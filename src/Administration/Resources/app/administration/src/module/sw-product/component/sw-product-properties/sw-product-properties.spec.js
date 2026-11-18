@@ -186,7 +186,7 @@ async function createWrapper() {
                     `,
                 },
                 'sw-product-add-properties-modal': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-simple-search-field': true,
                 'sw-label': true,
                 'sw-help-text': true,

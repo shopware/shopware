@@ -50,10 +50,11 @@
         {% endblock %}
 
         {% block sw_notification_center_item_loader %}
-        <sw-loader
+        <mt-loader
             v-if="notification.isLoading"
             class="sw-notification-center-item__loader"
             size="12px"
+            :backdrop="false"
         />
         {% endblock %}
     </div>

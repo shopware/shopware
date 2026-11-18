@@ -83,13 +83,13 @@
         padding: var(--scale-size-12);
     }
 
-    &__loader.sw-loader {
+    &__loader.mt-loader {
         position: static;
         width: var(--scale-size-16);
         height: var(--scale-size-16);
         margin-right: var(--scale-size-10);
 
-        .sw-loader__container {
+        .mt-loader__container {
             transform: none;
             left: 0;
             top: 0;

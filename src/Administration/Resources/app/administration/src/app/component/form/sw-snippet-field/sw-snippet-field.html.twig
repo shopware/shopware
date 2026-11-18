@@ -20,9 +20,10 @@
             disabled
         />
 
-        <sw-loader
+        <mt-loader
             v-if="isLoading"
             size="16px"
+            :backdrop="false"
         />
         <mt-icon
             v-else

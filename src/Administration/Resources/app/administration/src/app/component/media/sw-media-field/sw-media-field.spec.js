@@ -23,7 +23,7 @@ describe('src/app/component/media/sw-media-field', () => {
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-simple-search-field': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-pagination': true,
                 },
                 mocks: {

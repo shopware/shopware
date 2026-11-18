@@ -22,7 +22,7 @@ async function createWrapper(props) {
                 'sw-help-center': true,
                 'sw-search-bar': true,
                 'sw-app-actions': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-app-topbar-button': true,
                 'sw-app-topbar-sidebar': true,
                 'sw-help-center-v2': true,
@@ -126,7 +126,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         await flushPromises();
 
         expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(true);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 
     it('shows a loader instead of the error page while apps are still loading', async () => {
@@ -139,7 +139,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         await flushPromises();
 
         expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(true);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(true);
     });
 
     it('shows error page if module can not load', async () => {
@@ -150,14 +150,14 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
             moduleName: 'standardModule',
         });
 
-        wrapper.get('sw-loader-stub');
+        wrapper.get('mt-loader-stub');
 
         // wait for timeout and refresh component
         jest.runAllTimers();
         await flushPromises();
 
         wrapper.get('.sw-extension-app-module-error-page');
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 
     it('shows removes loader if iframe is loaded', async () => {
@@ -168,7 +168,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
             moduleName: 'standardModule',
         });
 
-        wrapper.get('sw-loader-stub');
+        wrapper.get('mt-loader-stub');
 
         const event = new MessageEvent('message', {
             origin: 'https://shopware.apps',
@@ -182,7 +182,7 @@ describe('src/module/sw-extension/page/sw-extension-app-module-page/index.js', (
         await flushPromises();
 
         expect(wrapper.find('.sw-extension-app-module-error-page').exists()).toBe(false);
-        expect(wrapper.find('sw-loader-stub').exists()).toBe(false);
+        expect(wrapper.find('mt-loader-stub').exists()).toBe(false);
     });
 
     it('should be able to toggle the page smart bar', async () => {

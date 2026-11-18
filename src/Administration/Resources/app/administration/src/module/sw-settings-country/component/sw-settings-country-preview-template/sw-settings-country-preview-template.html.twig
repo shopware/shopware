@@ -4,10 +4,11 @@
     :class="{ 'is--loading': isLoading }"
     :aria-busy="isLoading ? 'true' : 'false'"
 >
-    <sw-loader
+    <mt-loader
         v-if="isLoading"
         class="sw-settings-country-preview-template__loader"
         size="16px"
+        :backdrop="false"
     />
 
     <div

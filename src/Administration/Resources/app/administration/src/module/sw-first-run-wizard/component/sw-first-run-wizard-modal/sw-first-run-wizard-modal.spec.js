@@ -25,7 +25,7 @@ async function createWrapper(routerViewComponent = 'sw-first-run-wizard-welcome'
                 'sw-first-run-wizard-mailer-local': await wrapTestComponent('sw-first-run-wizard-mailer-local'),
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-container': await wrapTestComponent('sw-container'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'router-view': {
                     template: '<div class="router-view"><slot v-bind="slotBindings"></slot></div>',
                     data() {

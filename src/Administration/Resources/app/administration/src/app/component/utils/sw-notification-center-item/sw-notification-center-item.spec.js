@@ -26,7 +26,7 @@ async function createWrapper(notificationData = {}, mocks = {}) {
         global: {
             stubs: {
                 'sw-time-ago': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'mt-icon': true,
                 'mt-button': true,
             },

@@ -19,7 +19,7 @@ async function createWrapper(systemLanguageIso = '', translations = [], customOp
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-field-error': await wrapTestComponent('sw-field-error'),
                 'sw-modal': true,
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-snippet-field-edit-modal': true,
                 'sw-help-text': true,
                 'sw-textarea-field': true,

@@ -1,10 +1,11 @@
 {% block sw_media_quickinfo_usage %}
 <div class="sw-media-quickinfo-usage">
     {% block sw_media_quickinfo_usage_loader %}
-    <sw-loader
+    <mt-loader
         v-if="isLoading"
         size="30px"
         class="sw-media-quickinfo-usage__loading-indicator"
+        :backdrop="false"
     />
     {% endblock %}
 

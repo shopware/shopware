@@ -94,7 +94,7 @@ describe('components/base/sw-product-variants-configurator-restrictions', () => 
                 },
                 stubs: {
                     'sw-simple-search-field': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-popover': await wrapTestComponent('sw-popover'),
                     'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),

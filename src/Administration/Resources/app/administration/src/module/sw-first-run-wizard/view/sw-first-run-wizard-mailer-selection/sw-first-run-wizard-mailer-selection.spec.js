@@ -14,8 +14,8 @@ async function createWrapper() {
                     'sw-help-text': {
                         template: '<div class="sw-help-text"></div>',
                     },
-                    'sw-loader': {
-                        template: '<div class="sw-loader"></div>',
+                    'mt-loader': {
+                        template: '<div class="mt-loader"></div>',
                     },
                 },
                 provide: {

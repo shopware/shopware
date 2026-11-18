@@ -86,11 +86,11 @@
         position: initial;
         width: var(--scale-size-14);
 
-        .sw-loader-element > div {
+        .mt-loader__element > div {
             border-color: var(--color-icon-brand-default) transparent transparent transparent;
         }
 
-        .sw-loader__container {
+        .mt-loader__container {
             top: 0;
             transform: translateX(-50%);
         }

@@ -1,6 +1,9 @@
 {% block sw_first_run_wizard_mailer_selection %}
 <div class="sw-first-run-wizard-mailer-selection">
-    <sw-loader v-if="isLoading" />
+    <mt-loader
+        v-if="isLoading"
+        :backdrop="false"
+    />
 
     <img
         class="sw-first-run-wizard-mailer-selection__illustration"

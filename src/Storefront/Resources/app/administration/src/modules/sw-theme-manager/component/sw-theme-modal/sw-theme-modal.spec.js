@@ -23,7 +23,7 @@ describe('sw-theme-modal', () => {
                     'sw-card-section': true,
                     'sw-container': true,
                     'sw-simple-search-field': true,
-                    'sw-loader': true,
+                    'mt-loader': true,
                     'sw-theme-list-item': true,
                     'sw-button': true,
                     'mt-checkbox': true,

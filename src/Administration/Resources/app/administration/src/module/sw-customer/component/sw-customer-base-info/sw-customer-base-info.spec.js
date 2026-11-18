@@ -42,7 +42,7 @@ async function createWrapper() {
                     sync: true,
                 }),
                 'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-entity-single-select': true,
                 'sw-checkbox-field': true,
                 'sw-help-text': true,

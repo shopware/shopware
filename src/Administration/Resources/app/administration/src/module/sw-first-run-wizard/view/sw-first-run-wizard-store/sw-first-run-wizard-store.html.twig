@@ -1,7 +1,7 @@
 {% block sw_first_run_wizard_store %}
 <div class="sw-first-run-wizard-store">
     <template v-if="loadStatus">
-        <sw-loader />
+        <mt-loader :backdrop="false" />
 
         <p class="message">
             <span>{{ $t('sw-first-run-wizard.store.loadStatusCollect') }}</span>
@@ -24,7 +24,7 @@
     </template>
 
     <template v-else-if="isActivating">
-        <sw-loader />
+        <mt-loader :backdrop="false" />
 
         <p class="message">
             <span>{{ $t('sw-first-run-wizard.store.enablingStore') }}</span>

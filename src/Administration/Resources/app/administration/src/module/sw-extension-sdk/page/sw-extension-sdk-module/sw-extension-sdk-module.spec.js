@@ -37,7 +37,7 @@ async function createWrapper(back = null, push = jest.fn()) {
         global: {
             stubs: {
                 'sw-page': await wrapTestComponent('sw-page'),
-                'sw-loader': true,
+                'mt-loader': true,
                 'sw-my-apps-error-page': true,
                 'sw-iframe-renderer': iframeRendererStub,
                 'sw-language-switch': true,

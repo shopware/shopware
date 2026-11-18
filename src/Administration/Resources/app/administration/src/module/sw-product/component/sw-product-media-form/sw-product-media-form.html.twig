@@ -77,7 +77,10 @@
             </template>
             {% endblock %}
         </div>
-        <sw-loader v-else />
+        <mt-loader
+            v-else
+            :backdrop="false"
+        />
     </div>
     {% endblock %}
 </div>

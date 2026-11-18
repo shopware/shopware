@@ -15,7 +15,7 @@ async function createWrapper(additionalSlots = null) {
                 },
             },
             stubs: {
-                'sw-loader': true,
+                'mt-loader': true,
             },
         },
         slots: {

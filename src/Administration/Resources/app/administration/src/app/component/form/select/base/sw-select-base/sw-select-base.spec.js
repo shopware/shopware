@@ -18,7 +18,6 @@ const createWrapper = async (props = {}, attrs = {}) => {
                 'sw-help-text': true,
                 'sw-ai-copilot-badge': true,
                 'sw-inheritance-switch': true,
-                'sw-loader': true,
             },
         },
     });
@@ -68,6 +67,21 @@ describe('components/sw-select-base', () => {
         const wrapper = await createWrapper({ disabled: true });
 
         expect(wrapper.find('.sw-select__selection').attributes('tabindex')).toBe('-1');
+    });
+
+    it('should show a small loader without backdrop while loading', async () => {
+        const wrapper = await createWrapper({ isLoading: true });
+
+        const loader = wrapper.find('.sw-select__selection-indicators .mt-loader');
+        expect(loader.exists()).toBe(true);
+        expect(loader.classes()).not.toContain('mt-loader--has-backdrop');
+        expect(loader.find('.mt-loader__element').attributes('style')).toContain('width: 16px');
+    });
+
+    it('should not show a loader when not loading', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.mt-loader').exists()).toBe(false);
     });
 
     it('should not emit a collapsed event when not expanded', async () => {

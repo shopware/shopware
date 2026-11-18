@@ -24,7 +24,14 @@ class ErrorResponseFactory
         );
 
         $response->setEncodingOptions($response->getEncodingOptions() | \JSON_INVALID_UTF8_SUBSTITUTE);
-        $response->setData(['errors' => $this->getErrorsFromException($exception, $debug)]);
+        $data = ['errors' => $this->getErrorsFromException($exception, $debug)];
+        if ($exception instanceof OAuthServerException) {
+            // The OAuth 2.0 error members (RFC 6749, section 5.2) next to `errors`: OAuth clients read `error`,
+            // existing clients keep reading `errors`.
+            $data += $exception->getPayload();
+        }
+
+        $response->setData($data);
 
         return $response;
     }

@@ -101,6 +101,19 @@ class QuantityPriceDefinitionTest extends TestCase
         static::assertCount(1, $definition->getTaxRules());
     }
 
+    public function testFromArrayAppliesDefaultsForNullValues(): void
+    {
+        $definition = QuantityPriceDefinition::fromArray([
+            'price' => 19.99,
+            'taxRules' => [],
+            'quantity' => null,
+            'isCalculated' => null,
+        ]);
+
+        static::assertSame(1, $definition->getQuantity());
+        static::assertFalse($definition->isCalculated());
+    }
+
     public function testFromArrayRestoresReferencePriceDefinition(): void
     {
         $definition = QuantityPriceDefinition::fromArray([
@@ -185,6 +198,7 @@ class QuantityPriceDefinitionTest extends TestCase
         $constraints = QuantityPriceDefinition::getConstraints();
 
         static::assertArrayHasKey('price', $constraints);
+        static::assertArrayHasKey('taxRules', $constraints);
         static::assertArrayHasKey('quantity', $constraints);
         static::assertArrayHasKey('isCalculated', $constraints);
     }

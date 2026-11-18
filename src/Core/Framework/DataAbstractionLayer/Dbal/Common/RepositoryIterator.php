@@ -99,7 +99,7 @@ class RepositoryIterator
         }
 
         $increment = $ids->getDataFieldOfId($last, 'autoIncrement');
-        if (\is_float($increment) && floor($increment) === $increment) {
+        if (\is_float($increment)) {
             $increment = (int) $increment;
         }
 

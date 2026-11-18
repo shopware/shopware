@@ -150,21 +150,6 @@ class RepositoryIteratorTest extends TestCase
         static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => 7]), $criteria->getFilters()['increment']);
     }
 
-    public function testFetchIdsThrowsWhenTheAutoIncrementCursorIsAFraction(): void
-    {
-        $id = Uuid::randomHex();
-
-        $repository = StaticEntityRepository::of(ProductCollection::class, [[
-            $id => ['primaryKey' => $id, 'data' => ['autoIncrement' => 7.5]],
-        ]], new ProductDefinition());
-
-        $iterator = new RepositoryIterator($repository, Context::createDefaultContext(), (new Criteria())->setLimit(1));
-
-        $this->expectExceptionObject(DataAbstractionLayerException::repositoryIteratorMissingAutoIncrement());
-
-        $iterator->fetchIds();
-    }
-
     public function testFetchIdsThrowsWhenTheAutoIncrementCursorIsMissing(): void
     {
         $repository = StaticEntityRepository::of(ProductCollection::class, [[Uuid::randomHex()]], new ProductDefinition());

@@ -110,20 +110,33 @@ class TwigVariableParser
             }
 
             if ($node instanceof ForNode) {
-                $targets = array_values($this->getVariables($node->getNode('seq'), $aliases));
-                $target = implode('.', $targets);
+                $seq = $node->getNode('seq');
                 $source = $node->getNode('value_target')->getAttribute('name');
+                $seqRoot = $this->getRootNode($seq);
+                $seqRootName = $seqRoot instanceof NameExpression ? $seqRoot->getAttribute('name') : null;
 
-                if ($target === '' && $node->getNode('seq')->hasAttribute('name')) {
-                    $in = $node->getNode('seq')->getAttribute('name');
-                    if (\is_string($in) && isset($aliases[$in])) {
-                        $target = $aliases[$in];
+                if ($seq instanceof GetAttrExpression && \is_string($seqRootName) && isset($aliases[$seqRootName]) && \is_array($aliases[$seqRootName])) {
+                    // the root variable may resolve to several paths: resolve the sequence against each of them
+                    $targets = [];
+                    foreach ($aliases[$seqRootName] as $aliasPath) {
+                        $path = implode('.', $this->getVariables($seq, [$seqRootName => $aliasPath] + $aliases));
+                        if ($path !== '') {
+                            $targets[$path] = $path;
+                        }
                     }
-                }
 
-                $aliases[$source] = $target;
-                if (\count($targets) > 1 && $node->getNode('seq') instanceof NameExpression) {
-                    $aliases[$source] = $targets;
+                    $aliases[$source] = array_values($targets);
+                } else {
+                    $target = implode('.', $this->getVariables($seq, $aliases));
+
+                    if ($target === '' && $seq->hasAttribute('name')) {
+                        $in = $seq->getAttribute('name');
+                        if (\is_string($in) && isset($aliases[$in])) {
+                            $target = $aliases[$in];
+                        }
+                    }
+
+                    $aliases[$source] = $target;
                 }
             }
 

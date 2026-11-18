@@ -145,4 +145,20 @@ TWIG;
         static::assertContains('product.manufacturer.media.mediaFolder.name', $variables);
         static::assertNotContains('product.cover.media.product.manufacturer.media.mediaFolder.name', $variables);
     }
+
+    public function testParserResolvesForLoopOverFallbackSetValuesAgainstEachPath(): void
+    {
+        $template = <<<TWIG
+{% set media = product.cover.media ?? product.manufacturer.media %}{% for f in media.thumbnails %}{{ f.url }}{% endfor %}
+
+TWIG;
+
+        $parser = new TwigVariableParser(new Environment(new ArrayLoader([])));
+
+        $variables = $parser->parse($template);
+
+        static::assertContains('product.cover.media.thumbnails.url', $variables);
+        static::assertContains('product.manufacturer.media.thumbnails.url', $variables);
+        static::assertNotContains('product.cover.media.product.manufacturer.media.thumbnails.url', $variables);
+    }
 }

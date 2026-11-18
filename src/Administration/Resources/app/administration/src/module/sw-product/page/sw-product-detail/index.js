@@ -88,6 +88,7 @@ export default {
             isProductNotFound: false,
             lastViewedProductId: null,
             showOpenInStorefrontModal: false,
+            // @deprecated tag:v6.8.0 - will be removed without replacement
             openInStorefrontHasUnsavedChanges: false,
         };
     },
@@ -375,7 +376,15 @@ export default {
             };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         visibleStorefrontSalesChannels() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.visibleStorefrontSalesChannels is deprecated. Will be removed without replacement.',
+            );
+
             const product = this.product?.id ? this.product.getOrigin() : null;
             const parentProduct = this.parentProduct?.id ? this.parentProduct.getOrigin() : null;
             const visibilities = product?.visibilities?.length ? product.visibilities : (parentProduct?.visibilities ?? []);

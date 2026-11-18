@@ -1785,6 +1785,11 @@ The component loads the product custom fields with the new `customFieldRepositor
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
 
+## Open in Storefront members removed from `sw-product-detail`
+
+The `visibleStorefrontSalesChannels` computed property and the `openInStorefrontHasUnsavedChanges` data property were removed from `sw-product-detail` without replacement.
+`sw-product-open-in-storefront-modal` loads the Storefront sales channels of the product and checks for unsaved changes itself.
+
 ## Product indexing members removed from `sw-category-tree`
 
 The `syncProducts()` and `indexProducts()` methods and the `productRepository` computed property were removed from `sw-category-tree` without replacement.

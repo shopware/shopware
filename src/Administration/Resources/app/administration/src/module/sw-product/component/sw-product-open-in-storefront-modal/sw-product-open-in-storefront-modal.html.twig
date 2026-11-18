@@ -20,7 +20,7 @@
             </mt-banner>
 
             <mt-banner
-                v-if="salesChannels.length === 0"
+                v-if="!isLoading && salesChannels.length === 0"
                 class="sw-product-open-in-storefront-modal__no-sales-channels"
                 variant="info"
             >

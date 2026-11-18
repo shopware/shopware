@@ -38,7 +38,7 @@ data
   isProductNotFound: any
   isSaveSuccessful: any
   lastViewedProductId: any
-  openInStorefrontHasUnsavedChanges: any
+  openInStorefrontHasUnsavedChanges: any  [deprecated tag:v6.8.0]
   previousLengthUnit: any
   previousWeightUnit: any
   productNumberPreview: any
@@ -93,7 +93,7 @@ computed
   tooltipCancel: any
   tooltipSave: any
   translateFields: any
-  visibleStorefrontSalesChannels: any
+  visibleStorefrontSalesChannels: any  [deprecated tag:v6.8.0]
   weightUnit: any
 
 methods

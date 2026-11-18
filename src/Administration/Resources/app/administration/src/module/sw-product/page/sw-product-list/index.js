@@ -36,6 +36,7 @@ export default {
             product: null,
             cloning: false,
             productEntityVariantModal: false,
+            openInStorefrontProduct: null,
             filterCriteria: [],
             // @deprecated tag:v6.8.0 - Will be removed
             productTypeOptions: [

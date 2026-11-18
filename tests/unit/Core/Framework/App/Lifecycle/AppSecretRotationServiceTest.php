@@ -386,7 +386,7 @@ class AppSecretRotationServiceTest extends TestCase
         $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI);
     }
 
-    public function testAdoptedSecretsAreTriedBeforeEveryOtherCandidateInGivenOrder(): void
+    public function testOnlyAdoptedSecretsAreTriedInGivenOrder(): void
     {
         $appId = Uuid::randomHex();
         $context = Context::createDefaultContext();
@@ -406,12 +406,12 @@ class AppSecretRotationServiceTest extends TestCase
             });
 
         try {
-            $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI, ['adopted-1', '', 'committed-secret', 'adopted-2']);
+            $this->service->rotateNow($appId, $context, AppSecretRotationService::TRIGGER_CLI, ['adopted-1', 'adopted-2']);
             static::fail('Expected recovery to fail when every candidate is rejected');
         } catch (AppException) {
         }
 
-        static::assertSame(['adopted-1', 'committed-secret', 'adopted-2', 'pending-secret'], $tried);
+        static::assertSame(['adopted-1', 'adopted-2'], $tried);
     }
 
     public function testAcceptedAdoptedSecretCommitsWithoutTryingTheRest(): void

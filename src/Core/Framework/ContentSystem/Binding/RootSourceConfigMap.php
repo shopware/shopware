@@ -37,7 +37,7 @@ final class RootSourceConfigMap
      * The config with each scoped value replaced by its entry for the root source, or null when a scoped value has
      * no entry for it. A config without a scoped value is returned unchanged for every root source, null included.
      * A null return leaves the reaction to the caller: there is no value to pick, and dropping the key would hand
-     * the loader a config nobody declared.
+     * the loader a config nobody declared. {@see DefaultBindingRootSources} keeps a copy of this rule.
      *
      * @param array<string, mixed> $config
      *
@@ -71,7 +71,7 @@ final class RootSourceConfigMap
      * root source, in the order the scoped values first name them. A config whose scoped values are all empty, or
      * that has none, is its own single branch. Null when the scoped values name different root-source sets, so that
      * some root source has no entry in one of them; a binding specification is validated to name one set per
-     * config, so a registered one never does.
+     * config, so a validated one never does.
      *
      * @param array<string, mixed> $config
      *

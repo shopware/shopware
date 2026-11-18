@@ -53,6 +53,7 @@ final class BindingApplicator
      * existing-wins idiom {@see LayoutDefaultSeeder} uses for property seeding: the element's own value always wins
      * over a wired/seeded one. Only the entries that get written are resolved against the root source, so a scoped
      * config value of a key the element already wires never reaches {@see RootSourceConfigMap::collapse()}.
+     * {@see DefaultBindingRootSources} keeps a copy of this rule.
      * $reportedElementId is the element id a rejection names, as in {@see self::apply()}.
      */
     public function applyFillOnly(StoredElement $element, BindingSpecification $specification, string $bindingSpecificationId, ?string $reportedElementId, ?string $rootSource): StoredElement

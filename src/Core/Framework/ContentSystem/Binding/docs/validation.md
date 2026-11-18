@@ -15,6 +15,7 @@ Every declaration passes its constraints at two levels:
   A translatable property passes the `isPrimitive()` gate and stays a valid `inputs` target.
   A `null` default on one is a violation, because `null` is no valid language-map entry and could never seed.
   A `!scoped` config value ([resolved-by.md](resolved-by.md)) must be the direct value of a Literal config key of the loader and map entity root sources (`RootSourceRegistry::entityRootSources()`) to strings, so a layout whose root source is `header`, `footer` or `none` cannot be scoped over.
+  `ScopedConfigNormalizer` converts the tag at any depth, but only a direct config value is validated and collapsed on application.
   A scoped map nested inside another config value is a violation at `bindings[<id>].resolves[<key>].config.<configKey>`.
   Every scoped value of one `resolves` entry's config must name the same root-source set, because applying the binding collapses the whole config for one root source.
   A differing set is a violation at `bindings[<id>].resolves[<key>].config`, checked only when none of that config's scoped or nesting values is itself a violation.

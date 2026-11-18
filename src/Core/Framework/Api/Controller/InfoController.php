@@ -411,8 +411,7 @@ class InfoController extends AbstractController
      * that stores nothing serializes {} (the OpenAPI type: object), not [].
      *
      * defaultBindingRootSources is folded in as the root sources on which inserting the type without a named binding
-     * specification succeeds: null without a default or for an unrestricting default, [] for more than one default or
-     * scoped entries sharing no root source.
+     * specification succeeds, see {@see DefaultBindingRootSources::forType()}.
      *
      * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications and
      *                              storageSchema objects and the defaultBindingRootSources list

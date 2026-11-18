@@ -711,7 +711,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderProvider::class),
         ]);
 
-    // The root sources on which a type's or preset's auto-applied default binding resolves: the picker introspection fold
+    // Default binding root sources: the picker introspection fold
     $services->set(DefaultBindingRootSources::class)
         ->args([
             service(ContentSystemBindingSpecificationRegistry::class),

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem;
 
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
@@ -1471,7 +1472,11 @@ class ContentSystemException extends HttpException
      * The 400 for applying a binding whose `!scoped` config value has no entry for the layout's root source, or onto
      * a layout with no root source. $elementId is the id the caller reports, null when the client knows no id (the
      * insert-element scaffold, whose id is minted by the server). A null root source gets its own message, because
-     * `none` is the name of a real root source. Deliberately outside {@see CLIENT_DEFECT_CODES}.
+     * `none` is the name of a real root source.
+     *
+     * Deliberately outside {@see CLIENT_DEFECT_CODES}: that list classifies defects in a stored or submitted layout,
+     * while this is thrown only by {@see BindingApplicator} when a mutation applies a binding, and is answered to the
+     * client as it is thrown.
      */
     public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
     {

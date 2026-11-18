@@ -92,3 +92,8 @@ A custom element type registered by a plugin or app ([Custom Element Types](cust
 A list holds root-source ids, the ids that key `mappingCandidates` in `GET /api/_info/content-system-mapping-candidates.json`, in the order the server lists known root sources.
 An empty list means such an insert fails on every root source, because the type has more than one default or the scoped entries of its default share no root source.
 The field does not describe an insert that names a binding specification, which can succeed on root sources the list excludes.
+
+On a preset, `GET /api/_info/content-system-layout-presets.json` carries the same field, derived over the compiled payload with nested presets expanded.
+It is the intersection over every element of the preset of the root sources on which that element's default resolves, with keys an element already wires excluded.
+It is `null` when no element's default carries a scoped value in an unwired entry and no element's type has more than one default, so nothing restricts the root source.
+It is `[]` when no root source satisfies all of them, or when an element's type has more than one default, even when no default is scoped.

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -15,10 +16,11 @@ use Shopware\Core\Framework\Log\Package;
  * `null` means no root-source restriction; a list holds the ids of {@see RootSourceRegistry::knownRootSources()}
  * in that order, and an empty list means the insert fails on every root source.
  *
- * It restates two request-path rules: a scoped value resolves only for a root source that is a key of its scoped
- * map ({@see RootSourceConfigMap::collapse()}), and the default fills only the keys an element does not wire yet
- * ({@see BindingApplicator::applyFillOnly()}). More than one default answers `[]`, because the insert then fails
- * with `bindingSpecificationDefaultAmbiguous` on every root source.
+ * It restates three request-path rules: a scoped value resolves only for a root source that is a key of its scoped
+ * map ({@see RootSourceConfigMap::collapse()}), the default fills only the keys an element does not wire yet
+ * ({@see BindingApplicator::applyFillOnly()}), and the default is the type's default specification, of which more
+ * than one fails ({@see AbstractLayoutMutation::resolveDefaultSpecification()}). More than one default answers `[]`,
+ * because the insert then fails with `bindingSpecificationDefaultAmbiguous` on every root source.
  *
  * @internal
  */

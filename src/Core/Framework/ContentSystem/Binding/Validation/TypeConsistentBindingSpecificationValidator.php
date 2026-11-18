@@ -166,8 +166,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
     }
 
     /**
-     * A scoped map is admitted only on a Literal config key of a registered loader. An unregistered loader leaves
-     * the kind unknown, so that check is skipped and `decodeConfig()` reports the loader instead. Whether the
+     * A scoped map is admitted only on a Literal config key of a registered loader. Whether the
      * scoped maps of one config name the same root sources is checked by the caller through
      * {@see RootSourceConfigMap::branches()}, only once every scoped map passed here.
      *

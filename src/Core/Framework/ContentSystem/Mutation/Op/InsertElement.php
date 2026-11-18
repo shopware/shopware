@@ -20,9 +20,8 @@ use Shopware\Core\Framework\Log\Package;
  *
  * The type's default binding specification, when it has exactly one, is fill-applied onto the fresh element via
  * {@see BindingApplicator::applyFillOnly()} before insertion (zero defaults is a no-op; more than one throws).
- * When $bindingSpecificationId is also given, the named specification is applied first via
- * {@see BindingApplicator::apply()} and the default is fill-applied after it, atomically after scaffold, so the
- * default sits underneath and shared keys (wiring, attribution and input defaults) belong to the explicit choice.
+ * When $bindingSpecificationId is also given, the named specification is applied first and the default fills after
+ * it, so shared keys belong to the explicit choice.
  * A default key the named specification wires is never resolved against the root source.
  *
  * @internal

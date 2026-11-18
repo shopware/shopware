@@ -2133,7 +2133,6 @@ export default Shopware.Component.wrapComponentConfig({
             await mutation;
         },
 
-        // A null list places no restriction; a list is offered only on a layout whose root source it contains.
         isOfferedOnRootSource(rootSources: string[] | null): boolean {
             if (rootSources === null) {
                 return true;

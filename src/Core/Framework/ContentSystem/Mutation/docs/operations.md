@@ -7,7 +7,7 @@ A [result channel](../README.md#result-channels) an operation's section omits st
 ## InsertElement
 
 Inserts a fresh element of `$type` (stored defaults seeded from the type, no wiring) into a parent slot at an index, or appended to the root.
-`requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the type's default binding specification, after the named one when `$bindingSpecificationId` is given (`resolveDefaultSpecification()`, `byType(type)` filtered by `isDefault()`).
+`requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the type's default binding specification (`resolveDefaultSpecification()`, `byType(type)` filtered by `isDefault()`).
 Zero is a no-op, one is fill-applied and attributed to its own qualified id via `BindingApplicator::applyFillOnly()`, more than one throws `bindingSpecificationDefaultAmbiguous` `409`.
 A `!scoped` config value of a key the default or the named specification writes, with no entry for the tree's root source or with no root source, throws `bindingRootSourceNotScoped` `400` with a null element id, because the scaffold's id is minted per request.
 With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotRequired`), the parent must exist (`mutationTargetNotFound`), then it inserts into the slot.

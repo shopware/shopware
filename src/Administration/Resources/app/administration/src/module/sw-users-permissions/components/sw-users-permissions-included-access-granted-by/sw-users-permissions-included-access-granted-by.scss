@@ -1,0 +1,79 @@
+.sw-users-permissions-included-access-granted-by {
+    .sw-users-permissions-included-access-granted-by__trigger {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 var(--scale-size-8);
+        border: 0;
+        border-radius: var(--border-radius-xs);
+        background: transparent;
+        color: var(--color-text-primary-default);
+        font: inherit;
+        text-decoration: underline dotted;
+        text-underline-offset: 3px;
+        cursor: pointer;
+        touch-action: manipulation;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-primary-default);
+            outline-offset: -2px;
+        }
+    }
+
+    .sw-users-permissions-included-access-granted-by__description {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+}
+
+.sw-users-permissions-included-access-granted-by__popover {
+    min-width: 200px;
+    max-width: 360px;
+    padding: var(--scale-size-12) var(--scale-size-16);
+    border-radius: var(--border-radius-xs);
+    background-color: var(--color-background-primary-default);
+    box-shadow:
+        0 0 0 1px var(--color-border-secondary-default),
+        0 2px 4px rgba(0, 0, 0, 4%),
+        0 8px 24px -4px rgba(0, 0, 0, 8%);
+    color: var(--color-text-primary-default);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-xs);
+    transform-origin: top left;
+    animation: sw-users-permissions-included-access-granted-by-in 150ms cubic-bezier(0.23, 1, 0.32, 1);
+
+    .sw-users-permissions-included-access-granted-by__list {
+        display: grid;
+        grid-template-columns: max-content minmax(0, 1fr);
+        gap: var(--scale-size-4) var(--scale-size-32);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+            display: contents;
+        }
+    }
+
+    .sw-users-permissions-included-access-granted-by__roles {
+        color: var(--color-text-secondary-default);
+    }
+}
+
+@keyframes sw-users-permissions-included-access-granted-by-in {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sw-users-permissions-included-access-granted-by__popover {
+        animation: none;
+    }
+}

@@ -1,0 +1,32 @@
+.sw-users-permissions-included-access-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--border-radius-xs);
+    color: var(--color-icon-primary-default);
+
+    &--partial,
+    &--muted {
+        color: var(--color-icon-secondary-default);
+    }
+
+    &--partial {
+        cursor: help;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-primary-default);
+            outline-offset: 0;
+        }
+    }
+
+    .sw-users-permissions-included-access-mark__label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+}

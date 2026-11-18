@@ -661,9 +661,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ### Roles show the access they grant on other modules
 
-The role permission grid in *Settings > Users & permissions* now shows the access a module grants on data of other modules through its ACL dependencies.
-Each row gets a button with the number of these areas, and the card offers a review of everything the selected permissions include beyond what the owning modules already grant.
-Both open a modal that lists the areas by sensitivity: personal data first, then changes, then plain reads.
+The role permission grid in *Settings > Users & permissions* can now show the indirect access a module grants on data of other modules through its ACL dependencies.
+The *Show indirect access* switch in the card header turns it on and is remembered per browser.
+Each row then gets a button with the number of these areas, and the card offers a review of everything the selected permissions grant beyond what the owning modules already grant.
+Both open a modal that shows the areas as a matrix of view, edit, create and delete access, grouped by sensitivity: personal data first, then changes, then plain reads.
+Each area expands to the data it covers and names the permissions that grant the access.
 Link tables that only connect two entities are left out.
 The *Detailed privileges* tab names the General tab selections a disabled privilege comes from.
 All of this is computed from the registered privilege mappings, so the mappings of plugins and apps are included without changes.

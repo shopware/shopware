@@ -1,0 +1,95 @@
+{% block sw_users_permissions_included_access_area %}
+<mt-collapsible
+    as="tbody"
+    class="sw-users-permissions-included-access-area"
+>
+    {% block sw_users_permissions_included_access_area_row %}
+    <tr class="sw-users-permissions-included-access-area__row">
+        <th
+            scope="row"
+            class="sw-users-permissions-included-access-area__label-cell"
+        >
+            <mt-collapsible-trigger
+                type="button"
+                class="sw-users-permissions-included-access-area__toggle"
+            >
+                <mt-icon
+                    class="sw-users-permissions-included-access-area__chevron"
+                    name="regular-chevron-right"
+                    size="10px"
+                />
+                <span class="sw-users-permissions-included-access-area__label">{{ area.label }}</span>
+            </mt-collapsible-trigger>
+        </th>
+
+        <td
+            v-for="column in columns"
+            :key="column.operation"
+            class="sw-users-permissions-included-access-area__cell"
+        >
+            <sw-users-permissions-included-access-mark
+                v-if="area.coverage[column.operation].level !== 'none'"
+                :variant="area.coverage[column.operation].level === 'some' ? 'partial' : 'full'"
+                :tooltip="markTooltip(column.operation)"
+                :label="markLabel(column.operation)"
+            />
+            <span
+                v-else
+                class="sw-users-permissions-included-access-area__visually-hidden"
+            >
+                {{ $t('sw-users-permissions.roles.included-access.noAccess') }}
+            </span>
+        </td>
+    </tr>
+    {% endblock %}
+
+    <tr class="sw-users-permissions-included-access-area__detail-row">
+        <td colspan="5">
+            <mt-collapsible-content class="sw-users-permissions-included-access-area__detail">
+                {% block sw_users_permissions_included_access_area_detail %}
+                <div class="sw-users-permissions-included-access-area__detail-inner">
+                    <p
+                        v-if="area.isShared"
+                        class="sw-users-permissions-included-access-area__shared-hint"
+                    >
+                        {{ $t('sw-users-permissions.roles.included-access.sharedDataDescription') }}
+                    </p>
+
+                    <ul
+                        class="sw-users-permissions-included-access-area__entities"
+                        :aria-label="$t('sw-users-permissions.roles.included-access.dataOf', { area: area.label })"
+                    >
+                        <li
+                            v-for="row in area.entityRows"
+                            :key="row.key"
+                            class="sw-users-permissions-included-access-area__entity"
+                        >
+                            <span class="sw-users-permissions-included-access-area__entity-label">{{ row.label }}</span>
+                            <span
+                                v-for="column in columns"
+                                :key="column.operation"
+                                class="sw-users-permissions-included-access-area__entity-cell"
+                            >
+                                <sw-users-permissions-included-access-mark
+                                    v-if="row.cells[column.operation]"
+                                    variant="muted"
+                                    :tooltip="sourcesTooltip(row.cells[column.operation])"
+                                    :label="columnLabel(column)"
+                                />
+                            </span>
+                        </li>
+                    </ul>
+
+                    <sw-users-permissions-included-access-granted-by
+                        v-if="showGrantedBy"
+                        class="sw-users-permissions-included-access-area__granted-by"
+                        :popover-id="area.key"
+                        :granted-by="area.grantedBy"
+                    />
+                </div>
+                {% endblock %}
+            </mt-collapsible-content>
+        </td>
+    </tr>
+</mt-collapsible>
+{% endblock %}

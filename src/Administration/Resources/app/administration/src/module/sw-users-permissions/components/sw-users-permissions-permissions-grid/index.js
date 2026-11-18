@@ -4,6 +4,16 @@
 import template from './sw-users-permissions-permissions-grid.html.twig';
 import './sw-users-permissions-permissions-grid.scss';
 
+const SHOW_INDIRECT_ACCESS_STORAGE_KEY = 'sw-users-permissions-permissions-grid.showIndirectAccess';
+
+function readShowIndirectAccess() {
+    try {
+        return window.localStorage.getItem(SHOW_INDIRECT_ACCESS_STORAGE_KEY) === 'true';
+    } catch {
+        return false;
+    }
+}
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -31,6 +41,7 @@ export default {
     data() {
         return {
             includedAccessModal: null,
+            showIndirectAccess: readShowIndirectAccess(),
         };
     },
 
@@ -187,11 +198,11 @@ export default {
             const count = this.hiddenAccess(permission.key).length;
 
             if (this.isRowSelected(permission)) {
-                return this.$t('sw-users-permissions.roles.grid.includedAccessTooltip', { count }, count);
+                return this.$t('sw-users-permissions.roles.grid.indirectAccessTooltip', { count }, count);
             }
 
             return this.$t(
-                'sw-users-permissions.roles.grid.includedAccessPreviewTooltip',
+                'sw-users-permissions.roles.grid.indirectAccessPreviewTooltip',
                 { count, role: this.rowPreviewRoleLabel(permission) },
                 count,
             );
@@ -206,26 +217,34 @@ export default {
             this.includedAccessModal = {
                 privilegeKeys: this.rowPreviewKeys(permission),
                 title: this.$t('sw-users-permissions.roles.grid.rowModalTitle', { area }),
-                subtitle:
+                description:
                     selectedRoles.length > 0
-                        ? this.$t('sw-users-permissions.roles.grid.rowModalSubtitleSelected', {
+                        ? this.$t('sw-users-permissions.roles.grid.rowModalDescriptionSelected', {
+                              area,
                               roles: selectedRoles.join(', '),
                           })
-                        : this.$t('sw-users-permissions.roles.grid.rowModalSubtitlePreview', {
+                        : this.$t('sw-users-permissions.roles.grid.rowModalDescriptionPreview', {
+                              area,
                               role: this.rowPreviewRoleLabel(permission),
                           }),
-                description: this.$t('sw-users-permissions.roles.grid.rowModalDescription', { area }),
                 withSources: false,
             };
         },
 
-        openRoleIncludedAccess() {
-            const count = this.selectedPrivilegeKeys.length;
+        onToggleIndirectAccess(isShown) {
+            this.showIndirectAccess = isShown;
 
+            try {
+                window.localStorage.setItem(SHOW_INDIRECT_ACCESS_STORAGE_KEY, String(isShown));
+            } catch {
+                // The switch still works for this visit when the storage is unavailable
+            }
+        },
+
+        openRoleIncludedAccess() {
             this.includedAccessModal = {
                 privilegeKeys: [...this.selectedPrivilegeKeys],
                 title: this.$t('sw-users-permissions.roles.grid.roleModalTitle'),
-                subtitle: this.$t('sw-users-permissions.roles.grid.roleModalSubtitle', { count }, count),
                 description: this.$t('sw-users-permissions.roles.grid.roleModalDescription'),
                 withSources: true,
             };

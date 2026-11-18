@@ -130,6 +130,10 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
             'tags' => ElasticsearchFieldBuilder::nested(),
         ];
 
+        if (Feature::isActive('v6.8.0.0')) {
+            $override['autoIncrement'] = AbstractElasticsearchDefinition::INT_FIELD;
+        }
+
         $mapping['properties'] ??= [];
         $mapping['properties'] = array_merge($mapping['properties'], $override);
 
@@ -177,7 +181,8 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
      *         id: string,
      *         _count: int
      *     }>,
-     *     createdAt?: string|null
+     *     createdAt?: string|null,
+     *     autoIncrement?: int
      * }>
      */
     public function fetch(array $ids): array
@@ -213,7 +218,8 @@ final class CustomerAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(default_billing_address.country_id)) AS defaultBillingAddressCountryId,
                    LOWER(HEX(customer.default_shipping_address_id)) AS defaultShippingAddressId,
                    LOWER(HEX(default_shipping_address.country_id)) AS defaultShippingAddressCountryId,
-                   customer.created_at as createdAt
+                   customer.created_at as createdAt,
+                   customer.auto_increment as autoIncrement
             FROM customer
                 LEFT JOIN (
                     SELECT customer_address.customer_id,
@@ -322,6 +328,10 @@ SQL,
                 'tags' => $this->parseTagIds($row),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $mapped[$id]['autoIncrement'] = (int) $row['autoIncrement'];
+            }
         }
 
         return $mapped;

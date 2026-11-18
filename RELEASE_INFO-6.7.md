@@ -659,6 +659,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Admin OpenSearch insertion-order sorting in 6.8
+
+With the `v6.8.0.0` and `ENABLE_OPENSEARCH_FOR_ADMIN_API` flags enabled, the product, customer and order Admin OpenSearch indexes include `autoIncrement` for insertion-order sorting.
+Rebuild these indexes with `bin/console es:admin:index` when enabling 6.8; see `UPGRADE-6.8.md`.
+
 ### Product listing count index
 
 Added `idx.product.parent_type` on `product(parent_id, parent_version_id, type)` to accelerate exact counts in the default product list.

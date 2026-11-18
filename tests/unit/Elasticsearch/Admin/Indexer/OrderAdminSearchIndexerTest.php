@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Admin\Indexer\OrderAdminSearchIndexer;
 
 /**
@@ -34,7 +35,7 @@ class OrderAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new OrderAdminSearchIndexer(
-            static::createStub(Connection::class),
+            $this->getConnection(),
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             100
@@ -93,6 +94,25 @@ class OrderAdminSearchIndexerTest extends TestCase
         static::assertSame($result['total'], $data['total']);
     }
 
+    public function testAutoIncrementMapping(): void
+    {
+        static::assertSame(['type' => 'long'], $this->searchIndexer->mapping([])['properties']['autoIncrement'] ?? null);
+        static::assertContains('autoIncrement', $this->searchIndexer->getSupportedSearchFields());
+        static::assertContains('order.autoIncrement', $this->searchIndexer->getSupportedSearchFields());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testAutoIncrementIsExcludedBefore68(): void
+    {
+        static::assertArrayNotHasKey('autoIncrement', $this->searchIndexer->mapping([])['properties'] ?? []);
+        static::assertNotContains('autoIncrement', $this->searchIndexer->getSupportedSearchFields());
+
+        $id = '809c1844f4734243b6aa04aba860cd45';
+        $documents = $this->searchIndexer->fetch([$id]);
+
+        static::assertArrayNotHasKey('autoIncrement', $documents[$id]);
+    }
+
     public function testFetching(): void
     {
         $connection = $this->getConnection();
@@ -113,6 +133,7 @@ class OrderAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
+        static::assertSame(3000000000, $document['autoIncrement']);
         static::assertSame('10001 test@example.com firstname lastname 12345 test tag viet nam da nang street 5000 123 test address 124 99.99 809c1844f4734243b6aa04aba860cd45', $document['text']);
         static::assertSame('10001', $document['orderNumber']);
         static::assertSame(99.99, $document['amountTotal']);
@@ -186,6 +207,7 @@ class OrderAdminSearchIndexerTest extends TestCase
             [
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
+                    'autoIncrement' => '3000000000',
                     'tags' => 'test Tag',
                     'tagIds' => 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
                     'country' => 'Viet Nam',

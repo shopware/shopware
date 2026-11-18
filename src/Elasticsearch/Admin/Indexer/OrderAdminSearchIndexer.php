@@ -161,6 +161,10 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
             'documents' => ElasticsearchFieldBuilder::nested(),
         ];
 
+        if (Feature::isActive('v6.8.0.0')) {
+            $override['autoIncrement'] = AbstractElasticsearchDefinition::INT_FIELD;
+        }
+
         $mapping['properties'] ??= [];
         $mapping['properties'] = array_merge($mapping['properties'], $override);
 
@@ -230,7 +234,8 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
      *         shippingOrderAddress: array{id: string, _count: int, countryId: string}
      *     }|null,
      *     documents?: list<array{id: string, _count: int}>,
-     *     createdAt?: string|null
+     *     createdAt?: string|null,
+     *     autoIncrement?: int
      * }>
      */
     public function fetch(array $ids): array
@@ -259,6 +264,7 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
                    LOWER(HEX(`order`.sales_channel_id)) AS salesChannelId,
                    `order`.affiliate_code AS affiliateCode,
                    `order`.campaign_code AS campaignCode,
+                   `order`.auto_increment as autoIncrement,
                    `order`.created_at as createdAt,
                    primary_delivery.tracking_codes,
                    document_agg.documentIds as documentIds,
@@ -430,6 +436,10 @@ SQL;
                 'documents' => $this->parseTagIds($row, 'documentIds'),
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $mapped[$id]['autoIncrement'] = (int) $row['autoIncrement'];
+            }
         }
 
         return $mapped;

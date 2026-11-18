@@ -1617,6 +1617,12 @@ The unused property was removed.
 
 # Administration
 
+## Rebuild Admin OpenSearch indexes for insertion-order sorting
+
+The product, customer and order Admin OpenSearch indexes gained the numeric `autoIncrement` field.
+If `ENABLE_OPENSEARCH_FOR_ADMIN_API` is enabled, rebuild the Admin OpenSearch indexes with `bin/console es:admin:index` after upgrading to 6.8 or enabling `v6.8.0.0`.
+Custom decorators that replace index mappings or documents must include this field to support insertion-order sorting.
+
 ## Sales channel detail components load fewer visibilities and sales channels
 
 - `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.

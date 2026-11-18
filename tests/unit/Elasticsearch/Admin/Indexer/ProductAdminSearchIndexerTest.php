@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
@@ -37,7 +38,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     protected function setUp(): void
     {
         $this->searchIndexer = new ProductAdminSearchIndexer(
-            static::createStub(Connection::class),
+            $this->getConnection(),
             static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             static::createStub(ElasticsearchFieldBuilder::class),
@@ -98,6 +99,25 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame($result['total'], $data['total']);
     }
 
+    public function testAutoIncrementMapping(): void
+    {
+        static::assertSame(['type' => 'long'], $this->searchIndexer->mapping([])['properties']['autoIncrement'] ?? null);
+        static::assertContains('autoIncrement', $this->searchIndexer->getSupportedSearchFields());
+        static::assertContains('product.autoIncrement', $this->searchIndexer->getSupportedSearchFields());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testAutoIncrementIsExcludedBefore68(): void
+    {
+        static::assertArrayNotHasKey('autoIncrement', $this->searchIndexer->mapping([])['properties'] ?? []);
+        static::assertNotContains('autoIncrement', $this->searchIndexer->getSupportedSearchFields());
+
+        $id = '809c1844f4734243b6aa04aba860cd45';
+        $documents = $this->searchIndexer->fetch([$id]);
+
+        static::assertArrayNotHasKey('autoIncrement', $documents[$id]);
+    }
+
     public function testFetching(): void
     {
         $connection = $this->getConnection();
@@ -119,6 +139,7 @@ class ProductAdminSearchIndexerTest extends TestCase
         $document = $documents[$id];
 
         static::assertSame($id, $document['id']);
+        static::assertSame(3000000000, $document['autoIncrement']);
         static::assertSame('tag sw1000299 4572324423421 m-100 809c1844f4734243b6aa04aba860cd45', $document['text']);
         static::assertSame('sw1000299 keywords', $document['textBoosted']);
         static::assertSame(['product'], $document['completion']);
@@ -258,6 +279,7 @@ class ProductAdminSearchIndexerTest extends TestCase
                 [
                     'id' => '809c1844f4734243b6aa04aba860cd45',
                     'name' => 'Product',
+                    'autoIncrement' => '3000000000',
                     'translatedNames' => json_encode([
                         ['languageId' => $languageId, 'name' => 'Product'],
                     ]),

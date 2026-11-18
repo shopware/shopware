@@ -187,6 +187,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             ]),
         ];
 
+        if (Feature::isActive('v6.8.0.0')) {
+            $override['autoIncrement'] = AbstractElasticsearchDefinition::INT_FIELD;
+        }
+
         $mapping['properties'] = array_merge($mapping['properties'] ?? [], $override);
 
         $mapping['dynamic_templates'][] = [
@@ -348,6 +352,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    IFNULL(product.price, parent.price) AS priceRaw,
                    IFNULL(product.release_date, parent.release_date) AS releaseDate,
                    LOWER(HEX(product.cover)) AS mediaId,
+                   product.auto_increment as autoIncrement,
                    product.created_at as createdAt,
                    product.updated_at as updatedAt
             FROM product
@@ -610,6 +615,10 @@ SQL,
                 'updatedAt' => $this->formatDateTime($row, 'updatedAt'),
                 'releaseDate' => $this->formatDateTime($row, 'releaseDate'),
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $mapped[$id]['autoIncrement'] = (int) $row['autoIncrement'];
+            }
         }
 
         return $mapped;

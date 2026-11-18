@@ -90,6 +90,30 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
+    public function testADocumentNeedsATitleInTheSystemLanguageWhenItsFileHasNoName(): void
+    {
+        $germanId = $this->getDeDeLanguageId();
+        $this->mediaRepository->create([[
+            'id' => $this->ids->create('nameless'),
+            'fileExtension' => 'pdf',
+            'fileSize' => 1024,
+        ]], $this->context);
+
+        $errors = $this->errorsOf(fn () => $this->productRepository->update([[
+            'id' => $this->ids->get('drill'),
+            'documents' => [[
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['mediaId' => $this->ids->get('nameless')],
+                    $germanId => ['title' => null, 'mediaId' => $this->createMedia('handbuch')],
+                ],
+            ]],
+        ]], $this->context));
+
+        static::assertSame([
+            ['code' => NotBlank::IS_BLANK_ERROR, 'pointer' => '/0/documents/0/translations/' . Defaults::LANGUAGE_SYSTEM . '/title'],
+        ], $errors);
+    }
+
     private function createMedia(string $fileName, bool $private = false): string
     {
         $this->mediaRepository->create([[

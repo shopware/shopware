@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Content\Product\Aggregate\ProductDocumentTranslation\ProductDocumentTranslationDefinition;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
@@ -57,7 +59,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     {
         $translations = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME),
-            ['media_id'],
+            ['media_id', 'title'],
         );
 
         if ($translations === []) {
@@ -65,10 +67,36 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         }
 
         $violations = new ConstraintViolationList();
+        $this->validateTitles($translations, $violations);
         $this->validateFiles($event, $translations, $violations);
 
         if ($violations->count() > 0) {
             $event->getExceptions()->add(new WriteConstraintViolationException($violations));
+        }
+    }
+
+    /**
+     * @param list<OutcomeRow> $translations
+     */
+    private function validateTitles(array $translations, ConstraintViolationList $violations): void
+    {
+        $systemLanguageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+
+        foreach ($translations as $translation) {
+            if ($translation->isDeleted
+                || $translation->primaryKey['language_id'] !== $systemLanguageId
+                || (!$translation->isNew && !$translation->payloadContainsAny('title'))
+                || $translation->getResultingValue('title') !== null
+            ) {
+                continue;
+            }
+
+            $violations->add($this->violation(
+                code: NotBlank::IS_BLANK_ERROR,
+                messageTemplate: 'This value should not be blank.',
+                parameters: [],
+                path: $translation->path . '/title',
+            ));
         }
     }
 

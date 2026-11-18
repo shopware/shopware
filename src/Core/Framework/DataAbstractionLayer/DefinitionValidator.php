@@ -714,6 +714,11 @@ class DefinitionValidator
         )->first();
 
         $definitionClass = $this->displayName($definition);
+        // Recovery records deliberately have no incoming association.
+        if ($reverseSide === null && \in_array($definition->getEntityName() . '.' . $association->getPropertyName(), ['user_recovery.user', 'customer_recovery.customer'], true)) {
+            return $associationViolations;
+        }
+
         if ($reverseSide === null) {
             $associationViolations[$definitionClass][] = \sprintf(
                 'Missing reverse one-to-one association for %s <-> %s (%s)',

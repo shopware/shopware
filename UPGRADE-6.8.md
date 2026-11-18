@@ -365,6 +365,14 @@ This header also works on earlier Shopware 6 versions.
 Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
 Listing responses contain `data`, `total`, and `aggregations`.
 
+## Non-visible API associations are rejected
+
+Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`, now reject associations in the `associations` parameter that are not visible in the caller's API scope with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+Selections in the `fields` parameter that traverse a non-visible association are also rejected.
+In 6.7, these requested associations and their nested criteria, and these field selections, were ignored with a deprecation notice in debug mode.
+Remove associations that are not exposed in the relevant API scope and field selections that traverse them from your criteria before upgrading.
+App permissions do not change association visibility through `services.store`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
@@ -461,6 +469,11 @@ Enable the `v6.8.0.0` feature flag in 6.7 to test your client against the new fo
 </details>
 
 # Core
+
+## Recovery entity accessors
+
+`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` were removed.
+Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations, which were removed in a security update.
 
 <details>
 
@@ -3211,6 +3224,12 @@ State-based invalidation is not supported anymore.
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
 ```
+
+## `AppCmsExtensionException` removed
+
+`Shopware\Core\Framework\App\Exception\AppCmsExtensionException` was removed.
+A missing CMS block file and a CMS block outside of the `cms/blocks` directory of the App are thrown as `Shopware\Core\Framework\App\AppException` instead.
+Catch `AppException` and check the error codes `FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING` and `FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY`.
 
 </details>
 

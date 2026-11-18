@@ -3,10 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Validation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\App\Validation\Error\WebhookNotPermittedError;
 use Shopware\Core\Framework\App\Validation\HookableValidator;
 use Shopware\Core\Framework\Context;
@@ -91,7 +91,8 @@ class HookableValidatorTest extends TestCase
 - commercial-license: ' . CommercialLicenseProvidedEvent::NAME,
             $validations[0]->getMessage()
         );
-        static::assertSame(AppException::VALIDATION_FAILED, $validations[0]->getErrorCode());
+        static::assertSame(WebhookNotPermittedError::CODE, $validations[0]->getErrorCode());
+        static::assertSame(Severity::Fail, $validations[0]->getSeverity());
     }
 
     public function testCommercialLicenseWebhookIsHookableForServices(): void

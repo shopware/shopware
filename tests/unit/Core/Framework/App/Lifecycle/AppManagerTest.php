@@ -28,18 +28,19 @@ use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\ManifestFactory;
+use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
-use Shopware\Core\Framework\App\Validation\AppRequirementsValidator;
+use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\App\Validation\CompatibilityValidator;
-use Shopware\Core\Framework\App\Validation\ConfigValidator;
 use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
-use Shopware\Core\Framework\App\Validation\Error\UnmetRequirementError;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
+use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Util\Result;
 use Shopware\Core\System\CustomEntity\CustomEntityLifecycleService;
 use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\Language\LanguageCollection;
@@ -89,7 +90,7 @@ class AppManagerTest extends TestCase
 
     private ConfigReader&MockObject $configReader;
 
-    private AppRequirementsValidator $requirementsValidator;
+    private AppValidator $appValidator;
 
     private DeletedAppsGateway $deletedAppsGateway;
 
@@ -108,71 +109,62 @@ class AppManagerTest extends TestCase
         $this->customEntityLifecycleService = $this->createDefaultCustomEntityLifecycleService();
         $this->sourceResolver = new StaticSourceResolver();
         $this->configReader = $this->createMock(ConfigReader::class);
-        $this->requirementsValidator = static::createStub(AppRequirementsValidator::class);
+        $this->appValidator = new AppValidator([]);
         $this->deletedAppsGateway = static::createStub(DeletedAppsGateway::class);
     }
 
-    public function testInstallThrowsIfAppIsNotCompatible(): void
+    public function testInstallIsRefusedWhenARequiredValidatorReportsAnError(): void
     {
         $manifest = ManifestFixture::empty();
-        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+
+        $refusal = AppException::validationFailedFromErrors([new IncompatibleAppError('test')]);
+
+        $appValidator = static::createStub(AppValidator::class);
+        $appValidator->method('validate')->willReturn(Result::failed([new IncompatibleAppError('test')]));
+        $this->appValidator = $appValidator;
 
         $this->expectNoLifecycleCollaboratorCalls();
 
-        $this->expectExceptionObject(AppException::validationFailedFromError(new IncompatibleAppError('test')));
+        $this->expectExceptionObject($refusal);
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
     }
 
-    public function testUpdateThrowsIfAppIsNotCompatible(): void
+    public function testInstallFailsWithEveryFailureButNoNotice(): void
     {
-        $manifest = ManifestFixture::empty();
-        $manifest->getMetadata()->assign(['compatibility' => '~7.0.0']);
+        $appValidator = static::createStub(AppValidator::class);
+        $appValidator->method('validate')->willReturn(Result::failed([
+            new IncompatibleAppError('test'),
+            new MissingTranslationError(Metadata::class, ['label' => ['de-DE']]),
+            new MissingPermissionError(['order:read']),
+        ]));
+        $this->appValidator = $appValidator;
 
         $this->expectNoLifecycleCollaboratorCalls();
 
-        $this->expectExceptionObject(AppException::validationFailedFromError(new IncompatibleAppError('test')));
+        $this->expectExceptionObject(AppException::validationFailedFromErrors([
+            new IncompatibleAppError('test'),
+            new MissingPermissionError(['order:read']),
+        ]));
 
         $this->createAppManager(AppFixture::createAppRepository())
-            ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
+            ->install(ManifestFixture::empty(), new AppInstallParameters(), Context::createDefaultContext());
     }
 
-    public function testInstallThrowsWhenRequirementsAreNotMet(): void
+    public function testUpdateIsRefusedWhenARequiredValidatorReportsAnError(): void
     {
         $manifest = ManifestFixture::empty();
-        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
 
-        $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
-        $requirementsValidator->expects($this->once())
-            ->method('validate')
-            ->with($manifest)
-            ->willReturn([new UnmetRequirementError($violation)]);
+        $refusal = AppException::validationFailedFromErrors([new IncompatibleAppError('test')]);
 
-        $this->expectExceptionObject(AppException::validationFailedFromError(new UnmetRequirementError($violation)));
+        $appValidator = static::createStub(AppValidator::class);
+        $appValidator->method('validate')->willReturn(Result::failed([new IncompatibleAppError('test')]));
+        $this->appValidator = $appValidator;
 
-        $this->requirementsValidator = $requirementsValidator;
         $this->expectNoLifecycleCollaboratorCalls();
 
-        $this->createAppManager(AppFixture::createAppRepository())
-            ->install($manifest, new AppInstallParameters(), Context::createDefaultContext());
-    }
-
-    public function testUpdateThrowsWhenRequirementsAreNotMet(): void
-    {
-        $manifest = ManifestFixture::empty();
-        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
-
-        $requirementsValidator = $this->createMock(AppRequirementsValidator::class);
-        $requirementsValidator->expects($this->once())
-            ->method('validate')
-            ->with($manifest)
-            ->willReturn([new UnmetRequirementError($violation)]);
-
-        $this->expectExceptionObject(AppException::validationFailedFromError(new UnmetRequirementError($violation)));
-
-        $this->requirementsValidator = $requirementsValidator;
-        $this->expectNoLifecycleCollaboratorCalls();
+        $this->expectExceptionObject($refusal);
 
         $this->createAppManager(AppFixture::createAppRepository())
             ->update($manifest, new AppUpdateParameters(), AppFixture::createAppEntity(active: false), Context::createDefaultContext());
@@ -361,8 +353,10 @@ class AppManagerTest extends TestCase
         $this->configReader->expects($this->never())->method('read');
         $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
         $this->manifestFactory->expects($this->never())->method('createFromApp');
-        $this->requirementsValidator = $this->createMock(AppRequirementsValidator::class);
-        $this->requirementsValidator->expects($this->never())->method('validate');
+
+        $appValidator = $this->createMock(AppValidator::class);
+        $appValidator->expects($this->never())->method('validate');
+        $this->appValidator = $appValidator;
 
         $this->createAppManager($appRepository, persisters: [$handler])->install(
             $manifest,
@@ -387,6 +381,8 @@ class AppManagerTest extends TestCase
         $appRepository = AppFixture::createAppRepository($pendingApp);
         $appRepository->addSearch(new AppCollection([$pendingApp]));
 
+        $this->appValidator = new AppValidator([new CompatibilityValidator('6.5.0.0')]);
+
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
         $this->permissionLifecycle->expects($this->never())->method('updatePrivileges');
@@ -398,7 +394,7 @@ class AppManagerTest extends TestCase
         $this->scriptExecutor->expects($this->never())->method('execute');
         $this->configReader->expects($this->never())->method('read');
 
-        $this->expectExceptionObject(AppException::validationFailedFromError(new IncompatibleAppError('test')));
+        $this->expectExceptionObject(AppException::validationFailedFromErrors([new IncompatibleAppError('test')]));
 
         $this->createAppManager($appRepository)->install(
             $manifest,
@@ -407,11 +403,10 @@ class AppManagerTest extends TestCase
         );
     }
 
-    public function testInstallValidatesInterruptedReinstallRequirementsBeforeRecovery(): void
+    public function testInstallValidatesInterruptedReinstallBeforeRecovery(): void
     {
         $context = Context::createDefaultContext();
         $manifest = ManifestFixture::empty()->withSetup();
-        $violation = new UnmetRequirement('test', 'https', 'Use HTTPS');
         $pendingApp = AppFixture::createAppEntity(name: 'test', id: 'test-app', active: false);
         $pendingApp->setAppSecret('deleted-app-secret');
         $pendingApp->setUnconfirmedAppSecrets(['pending-secret']);
@@ -425,11 +420,11 @@ class AppManagerTest extends TestCase
             ->with('test')
             ->willReturn('deleted-app-secret');
 
-        $this->requirementsValidator = $this->createMock(AppRequirementsValidator::class);
-        $this->requirementsValidator->expects($this->once())
-            ->method('validate')
-            ->with($manifest)
-            ->willReturn([new UnmetRequirementError($violation)]);
+        $refusal = AppException::validationFailedFromErrors([new IncompatibleAppError('test')]);
+
+        $appValidator = static::createStub(AppValidator::class);
+        $appValidator->method('validate')->willReturn(Result::failed([new IncompatibleAppError('test')]));
+        $this->appValidator = $appValidator;
 
         $this->appSecretRotationService->expects($this->never())->method('rotateNow');
 
@@ -442,7 +437,7 @@ class AppManagerTest extends TestCase
         $this->scriptExecutor->expects($this->never())->method('execute');
         $this->configReader->expects($this->never())->method('read');
 
-        $this->expectExceptionObject(AppException::validationFailedFromError(new UnmetRequirementError($violation)));
+        $this->expectExceptionObject($refusal);
 
         $this->createAppManager($appRepository)->install(
             $manifest,
@@ -1151,19 +1146,17 @@ XML,
             $this->activeAppsLoader,
             $languageRepository ?? AppFixture::createLanguageRepository(),
             $this->systemConfigService,
-            static::createStub(ConfigValidator::class),
             $this->integrationRepository,
             $aclRoleRepository,
             $this->assetService,
             $this->scriptExecutor,
             __DIR__,
             $this->customEntityLifecycleService,
-            new CompatibilityValidator('6.5.0.0'),
             static::createStub(AppFeatureValidator::class),
             $this->sourceResolver,
             $this->configReader,
             $this->deletedAppsGateway,
-            $this->requirementsValidator,
+            $this->appValidator,
             new NativeClock(),
         );
     }

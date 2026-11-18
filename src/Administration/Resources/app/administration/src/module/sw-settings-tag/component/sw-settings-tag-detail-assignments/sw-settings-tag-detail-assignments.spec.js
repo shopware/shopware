@@ -419,6 +419,7 @@ describe('module/sw-settings-tag/component/sw-settings-tag-detail-assignments', 
         expect(searchSpy).toHaveBeenLastCalledWith('media', expect.anything());
 
         const hint = wrapper.findComponent('.sw-settings-tag-detail-assignments__unchecked-areas-hint');
+        expect(hint.props('textSnippet')).toBe('sw-settings-tag.detail.assignments.textUncheckedAreas');
         expect(hint.props('labels')).toEqual([
             'sw-settings-tag.detail.assignments.products',
             'sw-settings-tag.detail.assignments.categories',

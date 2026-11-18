@@ -65,6 +65,7 @@
             <sw-unchecked-areas-hint
                 class="sw-settings-tag-list__unchecked-areas-hint"
                 :labels="uncheckedAreaLabels"
+                text-snippet="sw-settings-tag.list.textUncheckedAreas"
             />
             {% endblock %}
 
@@ -189,16 +190,26 @@
                     >
                         {% block sw_settings_tag_list_grid_bulk %}
                         <template #bulk-additional="{ selectionCount }">
-                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-                            <a
-                                v-if="selectionCount > 1 && canMergeTags"
-                                class="link"
-                                role="button"
-                                tabindex="0"
-                                @click="showBulkMergeModal = true"
+                            <span
+                                v-if="selectionCount > 1 && hasMergePrivileges"
+                                v-tooltip="{
+                                    message: $t('sw-settings-tag.list.bulkMergeDisabledTooltip'),
+                                    disabled: canMergeTags,
+                                }"
+                                class="sw-settings-tag-list__bulk-merge"
                             >
-                                {{ $t('sw-settings-tag.list.bulkMerge') }}
-                            </a>
+                                <a
+                                    class="link sw-settings-tag-list__bulk-merge-link"
+                                    :class="{ 'is--disabled': !canMergeTags }"
+                                    role="button"
+                                    tabindex="0"
+                                    :aria-disabled="!canMergeTags"
+                                    @click="onOpenBulkMergeModal"
+                                    @keydown.enter="onOpenBulkMergeModal"
+                                >
+                                    {{ $t('sw-settings-tag.list.bulkMerge') }}
+                                </a>
+                            </span>
                         </template>
                         {% endblock %}
 

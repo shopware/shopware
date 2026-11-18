@@ -72,6 +72,13 @@
         }
     }
 
+    // Outranks the bulk link style of the data grid
+    .sw-data-grid .bulk-link &__bulk-merge-link.is--disabled {
+        color: var(--color-text-secondary-default);
+        text-decoration: none;
+        cursor: default;
+    }
+
     &__confirm-bulk-merge-text {
         .confirm-bulk-merge-text__label {
             display: inline-block;

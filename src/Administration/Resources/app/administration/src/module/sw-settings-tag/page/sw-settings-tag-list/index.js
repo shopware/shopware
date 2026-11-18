@@ -70,9 +70,13 @@ export default {
             return getReadableAreas(this.acl, this.assignmentAreas).map((area) => area.key);
         },
 
+        hasMergePrivileges() {
+            return this.acl.can('tag.creator') && this.acl.can('tag.deleter');
+        },
+
         // Merging moves every assignment and deletes the merged tags, so it needs all areas
         canMergeTags() {
-            return this.acl.can('tag.creator') && this.acl.can('tag.deleter') && this.uncheckedAreaLabels.length === 0;
+            return this.hasMergePrivileges && this.uncheckedAreaLabels.length === 0;
         },
 
         tagCriteria() {
@@ -349,6 +353,14 @@ export default {
             this.showDetailModal = false;
             this.detailProperty = null;
             this.detailEntity = null;
+        },
+
+        onOpenBulkMergeModal() {
+            if (!this.canMergeTags) {
+                return;
+            }
+
+            this.showBulkMergeModal = true;
         },
 
         onCloseBulkMergeModal() {

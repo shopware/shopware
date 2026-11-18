@@ -148,6 +148,7 @@ async function createWrapper(privileges = [], areaReads = allAreaReads) {
                         template: `
                     <div>
                         <slot name="bulk-additional" v-bind="{ selectionCount: 2 }"></slot>
+                        <slot name="bulk-modals-additional" v-bind="{ selection: {}, ids: [] }"></slot>
                         <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
@@ -456,6 +457,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
 
         const hint = wrapper.findComponent('.sw-settings-tag-list__unchecked-areas-hint');
         expect(hint.isVisible()).toBe(true);
+        expect(hint.props('textSnippet')).toBe('sw-settings-tag.list.textUncheckedAreas');
         expect(hint.props('labels')).toEqual([
             'sw-settings-tag.detail.assignments.categories',
             'sw-settings-tag.detail.assignments.customers',
@@ -477,11 +479,20 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     it.each([
         ['every area is readable', allAreaReads, true],
         ['one area is not readable', allAreaReads.filter((read) => read !== 'rule:read'), false],
-    ])('should offer merging tags only when %s', async (_name, areaReads, expected) => {
+    ])('should enable merging tags only when %s', async (_name, areaReads, expected) => {
         // Merging deletes the merged tags, which would drop their assignments in unreadable areas
         const wrapper = await createWrapper(['tag.creator', 'tag.deleter'], areaReads);
         await flushPromises();
+        const link = wrapper.find('.sw-settings-tag-list__bulk-merge-link');
+        expect(link.classes('is--disabled')).toBe(!expected);
+        expect(link.attributes('aria-disabled')).toBe(String(!expected));
+        await link.trigger('click');
+        expect(wrapper.find('sw-modal-stub').exists()).toBe(expected);
+    });
 
-        expect(wrapper.find('.link[role="button"]').exists()).toBe(expected);
+    it('should hide merging tags without the privileges to create and delete tags', async () => {
+        const wrapper = await createWrapper(['tag.creator'], allAreaReads);
+        await flushPromises();
+        expect(wrapper.find('.sw-settings-tag-list__bulk-merge-link').exists()).toBe(false);
     });
 });

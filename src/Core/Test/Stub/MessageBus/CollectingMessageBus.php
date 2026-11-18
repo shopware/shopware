@@ -17,7 +17,7 @@ class CollectingMessageBus implements MessageBusInterface
 
     public function dispatch(object $message, array $stamps = []): Envelope
     {
-        $envelope = new Envelope($message);
+        $envelope = new Envelope($message, $stamps);
 
         $this->messages[] = $envelope;
 

@@ -74,6 +74,19 @@ class RefreshAppCommandTest extends TestCase
         ]));
     }
 
+    #[TestDox('The refresh fails when an app could not be refreshed')]
+    public function testFailsWhenAnAppCouldNotBeRefreshed(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $fails = [['manifest' => $manifest, 'exception' => new \RuntimeException('refused')]];
+
+        $this->appService->method('getRefreshableAppInfo')->willReturn($this->createDryRunWithInstallableApp());
+        $this->appService->method('doRefreshApps')->willReturn($fails);
+        $this->appPrinter->expects($this->once())->method('printIncompleteInstallations')->with(static::anything(), $fails);
+
+        static::assertSame(Command::FAILURE, $this->commandTester->execute(['--force' => true]));
+    }
+
     #[TestDox('Declining the permission summary aborts the refresh')]
     public function testAbortsWhenPermissionsAreDeclined(): void
     {

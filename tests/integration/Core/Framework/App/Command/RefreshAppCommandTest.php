@@ -276,7 +276,7 @@ class RefreshAppCommandTest extends TestCase
 
         $commandTester->execute([]);
 
-        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header
@@ -293,6 +293,7 @@ class RefreshAppCommandTest extends TestCase
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->execute(['-f' => true]);
 
+        static::assertSame(1, $commandTester->getStatusCode());
         $display = $commandTester->getDisplay();
 
         // header app list

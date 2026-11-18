@@ -91,7 +91,7 @@ class RefreshAppCommand extends Command
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);
 
-        return self::SUCCESS;
+        return $fails === [] ? self::SUCCESS : self::FAILURE;
     }
 
     private function grantPermissions(RefreshableAppDryRun $refreshableApps, SymfonyStyle $io): void

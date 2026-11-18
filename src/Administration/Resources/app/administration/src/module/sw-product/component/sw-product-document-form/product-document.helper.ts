@@ -116,6 +116,7 @@ export async function syncDocumentVariants(
     productId: string,
     operations: DocumentVariantOperation[],
     dryRun = false,
+    context = Shopware.Context.api,
 ): Promise<string[]> {
     if (!operations.length) {
         return [];
@@ -125,7 +126,7 @@ export async function syncDocumentVariants(
     const { data } = await Shopware.Application.getContainer('init').httpClient.post<{ variantIds: string[] }>(
         `/_action/product/${productId}/document-variants`,
         { operations, dryRun },
-        { headers: repository.buildHeaders() },
+        { headers: repository.buildHeaders(context) },
     );
 
     return data.variantIds;

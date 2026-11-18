@@ -1310,11 +1310,12 @@ export default {
                 const productWasActive = originalActive === null ? this.parentProduct.active : originalActive;
                 const productIsActive = this.product.active === null ? this.parentProduct.active : this.product.active;
                 const productWasActivated = !productIsNew && productWasActive === false && productIsActive === true;
+                const saveDocumentVariants = this.getDocumentVariantsSaver();
 
                 // save product
                 this.syncRepository
                     .save(this.product, this.productApiContext)
-                    .then(() => this.saveDocumentVariants())
+                    .then(saveDocumentVariants)
                     .then(() => {
                         updateSeoUrls();
 
@@ -1342,10 +1343,18 @@ export default {
             });
         },
 
-        async saveDocumentVariants() {
+        getDocumentVariantsSaver() {
             const store = Shopware.Store.get('swProductDetail');
-            await syncDocumentVariants(this.product.id, store.documentVariantOperations);
-            store.documentVariantOperations = [];
+            const operations = [...store.documentVariantOperations];
+            const productId = this.product.id;
+            const context = { ...this.productApiContext };
+
+            return async () => {
+                await syncDocumentVariants(productId, operations, false, context);
+                store.documentVariantOperations = store.documentVariantOperations.filter(
+                    (operation) => !operations.includes(operation),
+                );
+            };
         },
 
         trackProductSaveEvents(productType, productIsNew, productWasActivated) {

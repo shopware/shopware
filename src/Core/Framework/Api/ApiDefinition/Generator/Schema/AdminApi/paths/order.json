@@ -98,7 +98,7 @@
                       "pattern": "^[0-9a-f]{32}$"
                     },
                     "config": {
-                      "description": "Document specific configuration, like documentNumber, documentDate, documentComment.",
+                      "description": "Document specific configuration, like documentNumber, documentDate, documentComment. For a delivery note, `custom.orderDeliveryId` limits the note to one delivery of the order.",
                       "type": "object"
                     }
                   }
@@ -220,6 +220,11 @@
                   },
                   "referencedDocumentId": {
                     "description": "Optional identifier of the referenced document. When omitted, the order's latest invoice is used.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "orderDeliveryId": {
+                    "description": "Optional identifier of one delivery of the order. A `delivery_note` then lists only the line items of that delivery and its shipping address.",
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
                   }
@@ -692,6 +697,11 @@
                   },
                   "referencedDocumentId": {
                     "description": "Optional identifier of the referenced document. When omitted, the order's latest invoice is used.",
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{32}$"
+                  },
+                  "orderDeliveryId": {
+                    "description": "Optional identifier of one delivery of the order. A `delivery_note` then lists only the line items of that delivery and its shipping address.",
                     "type": "string",
                     "pattern": "^[0-9a-f]{32}$"
                   }

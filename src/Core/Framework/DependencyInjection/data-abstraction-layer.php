@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
@@ -130,6 +131,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionT
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
@@ -541,6 +543,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VersionCommitDataDefinition::class),
             service(VersionDefinition::class),
             service('lock.factory'),
+            service(ClockInterface::class),
+            service(ClonePayloadBuilder::class),
+            service(WriteCommandExtractor::class),
+            service(AclWriteValidator::class),
+            service(LanguageLoader::class),
+        ]);
+
+    $services->set(ClonePayloadBuilder::class)
+        ->args([
             service(ClockInterface::class),
         ]);
 

@@ -38,20 +38,29 @@ class MissingUnitTestsTest extends TestCase
     }
 
     #[TestDox('Passes when the matching unit test is added in the same pull request')]
-    public function testPassesWithMatchingUnitTest(): void
+    #[DataProvider('knownTestBaseClassProvider')]
+    public function testPassesWithMatchingUnitTest(string $baseClass): void
     {
         $context = $this->createContext([
             new StubFile('src/Core/Checkout/Cart/CartCalculator.php', File::STATUS_ADDED, "<?php\nclass CartCalculator\n{\n}"),
             new StubFile(
                 'tests/unit/Core/Checkout/Cart/CartCalculatorTest.php',
                 File::STATUS_ADDED,
-                "<?php\nclass CartCalculatorTest extends TestCase\n{\n}",
+                "<?php\nclass CartCalculatorTest extends " . $baseClass . "\n{\n}",
             ),
         ]);
 
         (new MissingUnitTests(self::FIXTURE_CONFIG))($context);
 
         static::assertFalse($context->hasReports());
+    }
+
+    public static function knownTestBaseClassProvider(): \Generator
+    {
+        yield 'PHPUnit test case' => ['TestCase'];
+        yield 'shared mail flow data provider test case' => ['AbstractProviderTestCase'];
+        yield 'shared import strategy test case' => ['ImportStrategyTestCase'];
+        yield 'Symfony constraint validator test case' => ['ConstraintValidatorTestCase'];
     }
 
     #[TestDox('Skips classes that need no unit test: data holders, non-instantiable types, migrations, DI wiring, coverage-excluded paths')]

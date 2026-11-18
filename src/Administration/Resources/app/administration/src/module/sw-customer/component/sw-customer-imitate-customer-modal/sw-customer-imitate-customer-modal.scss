@@ -49,3 +49,9 @@
         }
     }
 }
+
+.sw-customer-imitate-customer-modal__footer {
+    display: flex;
+    gap: var(--scale-size-8);
+    justify-content: flex-end;
+}

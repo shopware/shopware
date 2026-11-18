@@ -5,7 +5,10 @@ namespace Shopware\Core\Installer\Database;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
+use Shopware\Core\Framework\Update\Services\VersionHistoryEntryType;
 use Shopware\Core\Installer\Requirements\IniConfigReader;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 
@@ -70,11 +73,17 @@ class DatabaseMigrator
         }
 
         $total = $coreMigrations->getTotalMigrationCount() * 2;
+        $isFinished = $coreMigrations->getExecutableDestructiveMigrations() === [];
+
+        if ($isFinished) {
+            // The installer kernel has no core container, so VersionHistorySubscriber never sees an install event here.
+            (new VersionHistory(new MySQLKeyValueStorage($connection), $this->clock, $this->version))->record(VersionHistoryEntryType::INSTALL);
+        }
 
         return [
             'offset' => $executedMigrations,
             'total' => $total,
-            'isFinished' => $coreMigrations->getExecutableDestructiveMigrations() === [],
+            'isFinished' => $isFinished,
         ];
     }
 }

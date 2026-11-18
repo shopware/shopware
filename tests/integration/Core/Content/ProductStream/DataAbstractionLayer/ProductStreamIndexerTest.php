@@ -131,8 +131,8 @@ class ProductStreamIndexerTest extends TestCase
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         $this->indexer->handle($message);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(2, $entity->getApiFilter());
 
@@ -294,8 +294,8 @@ class ProductStreamIndexerTest extends TestCase
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         $this->indexer->handle($message);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('multi', $entity->getApiFilter()[0]['type']);
@@ -382,8 +382,8 @@ class ProductStreamIndexerTest extends TestCase
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         $this->indexer->handle($message);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -444,8 +444,8 @@ class ProductStreamIndexerTest extends TestCase
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         $this->indexer->handle($message);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertNull($entity->getApiFilter());
         static::assertTrue($entity->isInvalid());
     }
@@ -506,8 +506,8 @@ class ProductStreamIndexerTest extends TestCase
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         $this->indexer->handle($message);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertSame([], $entity->getApiFilter());
         static::assertFalse($entity->isInvalid());
     }
@@ -567,8 +567,8 @@ class ProductStreamIndexerTest extends TestCase
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         $this->indexer->handle($message);
 
-        /** @var ProductStreamEntity $entity */
         $entity = $this->productStreamRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id);
+        static::assertInstanceOf(ProductStreamEntity::class, $entity);
         static::assertNotNull($entity->getApiFilter());
         static::assertCount(1, $entity->getApiFilter());
         static::assertSame('range', $entity->getApiFilter()[0]['type']);

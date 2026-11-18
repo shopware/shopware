@@ -647,11 +647,14 @@ describe('app/plugins/shortcut.plugin', () => {
         document.body.removeChild(modal);
     });
 
-    it('should NOT call the onEsc method when Escape key is pressed on a focused select', async () => {
+    it.each([
+        'sw-select__selection',
+        'mt-select__selection',
+    ])('should NOT call the onEsc method when Escape key is pressed on a focused "%s"', async (selectClass) => {
         const onEscMock = jest.fn();
 
         wrapper = await createWrapper({
-            template: '<div class="sw-select__selection" tabindex="0"></div>',
+            template: `<div class="${selectClass}" tabindex="0"></div>`,
             shortcuts: {
                 Escape: 'onEsc',
             },

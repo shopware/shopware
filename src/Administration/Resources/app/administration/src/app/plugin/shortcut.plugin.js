@@ -42,8 +42,8 @@ export default {
             const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
             const restrictedTags = /INPUT|TEXTAREA|SELECT/;
             const isRestrictedTag = restrictedTags.test(event.target.tagName);
-            // A focused sw-select is a form field like a native SELECT, even while it is closed
-            const isSelect = event.target.classList?.contains('sw-select__selection') ?? false;
+            // A focused sw-select or mt-select is a form field like a native SELECT, even while it is closed
+            const isSelect = event.target.matches?.('.sw-select__selection, .mt-select__selection') ?? false;
 
             return isEditableDiv || isRestrictedTag || isSelect;
         }

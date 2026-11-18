@@ -72,6 +72,22 @@ class UserConfigControllerTest extends TestCase
         $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
     }
 
+    public function testGetConfigMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        $this->expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+        $this->userConfigController->getConfigMe($context, new Request());
+    }
+
+    public function testUpdateConfigMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        $this->expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+        $this->userConfigController->updateConfigMe($context, new Request([], ['some-key' => 'some-value']));
+    }
+
     public function testGetConfigMeReturnsDataWithKeys(): void
     {
         $userConfigEntity = new UserConfigEntity();

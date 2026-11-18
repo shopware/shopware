@@ -1623,6 +1623,22 @@ Use `'sha256'` directly if you computed the imitation token hash yourself.
 
 # Administration
 
+## Jest helper `test/_helper_/majorFeatureFlags` removed
+
+Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.
+It registers the feature flags of the installed Shopware version, including the major flags of a major run.
+
+```js
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
+See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
+
 ## Sales channel detail components load fewer visibilities and sales channels
 
 - `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.

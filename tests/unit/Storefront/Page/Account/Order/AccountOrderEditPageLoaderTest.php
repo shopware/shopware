@@ -270,6 +270,61 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $this->createPageLoader(orderRestorer: $orderRestorer)->load($request, Generator::generateSalesChannelContext());
     }
 
+    public function testLoadsTheShippingMethodAndAddressOfEveryDelivery(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        $orderRestorer = static::createStub(OrderRestorer::class);
+        $orderRestorer
+            ->method('addRequiredAssociations')
+            ->willReturnArgument(0);
+        $orderRestorer
+            ->method('restore')
+            ->willReturn(new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token')));
+
+        $criteria = null;
+        $this->orderRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with(
+                static::anything(),
+                static::anything(),
+                static::callback(static function (Criteria $loadedCriteria) use (&$criteria): bool {
+                    $criteria = $loadedCriteria;
+
+                    return true;
+                }),
+            )
+            ->willReturn(new OrderRouteResponse(
+                new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            ));
+
+        $this->expectPaymentMethods(new PaymentMethodCollection());
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $this->createPageLoader(orderRestorer: $orderRestorer)->load($request, Generator::generateSalesChannelContext());
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        foreach (['deliveries.shippingMethod', 'deliveries.shippingOrderAddress.salutation', 'deliveries.shippingOrderAddress.country', 'deliveries.shippingOrderAddress.countryState'] as $path) {
+            $association = $criteria;
+            foreach (explode('.', $path) as $part) {
+                static::assertTrue($association->hasAssociation($part), \sprintf('The criteria does not load "%s"', $path));
+                $association = $association->getAssociations()[$part];
+            }
+        }
+    }
+
     public function testLoadCancelled(): void
     {
         $order = new OrderEntity();

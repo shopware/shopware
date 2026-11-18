@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\App\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -138,13 +139,15 @@ class RecoverAppSecretsCommandTest extends TestCase
         ], $calls);
     }
 
-    public function testFinishRefusesInputThatIsNotTheHandoverJson(): void
+    #[TestWith(['[{"app": "TestApp"}]'])]
+    #[TestWith(['[{"app": "TestApp", "secret": ""}]'])]
+    public function testFinishRefusesInputThatIsNotTheHandoverJson(string $input): void
     {
         $rotationService = $this->createMock(AppSecretRotationService::class);
         $rotationService->expects($this->never())->method('rotateNow');
 
         $tester = new CommandTester($this->createCommand([], [], $rotationService));
-        $tester->setInputs(['[{"app": "TestApp"}]']);
+        $tester->setInputs([$input]);
 
         $tester->execute(['--finish' => true]);
 

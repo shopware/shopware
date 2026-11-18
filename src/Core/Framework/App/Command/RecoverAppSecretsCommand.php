@@ -248,7 +248,7 @@ class RecoverAppSecretsCommand extends Command
 
         $secretsByApp = [];
         foreach ($handover as $entry) {
-            if (!\is_array($entry) || !\is_string($entry['app'] ?? null) || !\is_string($entry['secret'] ?? null)) {
+            if (!\is_array($entry) || !\is_string($entry['app'] ?? null) || !\is_string($entry['secret'] ?? null) || $entry['secret'] === '') {
                 return null;
             }
 

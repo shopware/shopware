@@ -12,7 +12,7 @@
     {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
     {% if displayParent %}
-        {% set displayFromVariants = displayParent and real.unitPrice !== cheapest.unitPrice %}
+        {% set displayFromVariants = real.unitPrice !== cheapest.unitPrice %}
         {% set real = cheapest %}
         {% set totalVariants = product.cheapestPriceContainer.value %}
         {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}

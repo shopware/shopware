@@ -117,7 +117,7 @@
                                 {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
 
                                 {% if revocationRequestCmsPageId and showRevocationButton %}
-                                    {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
+                                    {% set revocationRequestUrl = path(cmsPath, { id: revocationRequestCmsPageId }) %}
 
                                     {# Check for seoUrl and use it if present #}
                                     {% for serviceMenuItem in footer.serviceMenu %}

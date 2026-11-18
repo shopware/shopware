@@ -19,9 +19,12 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
+use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
+use Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -101,6 +104,73 @@ class DeliveryRuleMatcherTest extends TestCase
         $error = $errors->first();
         static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
         static::assertSame($this->ids->get('express'), $error->getParameters()['id'], 'Only the express delivery to France is blocked by the availability rule.');
+    }
+
+    public function testDeliveryContainerMatchesTheWeightOfEachDelivery(): void
+    {
+        $this->createCountries();
+        static::getContainer()->get('rule.repository')->create([
+            [
+                'id' => $this->ids->get('heavy-delivery'),
+                'name' => 'Delivery heavier than 30 kg',
+                'priority' => 10,
+                'conditions' => [
+                    [
+                        'type' => DeliveryContainerRule::RULE_NAME,
+                        'children' => [
+                            [
+                                'type' => CartWeightRule::RULE_NAME,
+                                'value' => ['operator' => CartWeightRule::OPERATOR_GT, 'weight' => 30.0],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+        static::getContainer()->get('shipping_method.repository')->create([
+            [
+                'id' => $this->ids->get('parcel'),
+                'active' => true,
+                'name' => 'parcel',
+                'technicalName' => 'per_delivery_rules_parcel',
+                'deliveryTime' => [
+                    'id' => $this->ids->get('delivery-time-parcel'),
+                    'name' => '1-3 days',
+                    'min' => 1,
+                    'max' => 3,
+                    'unit' => DeliveryTimeEntity::DELIVERY_TIME_DAY,
+                ],
+                'prices' => [
+                    $this->priceData(5.0, ruleId: null),
+                    $this->priceData(25.0, ruleId: $this->ids->get('heavy-delivery')),
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $parcel = $this->getShippingMethod('parcel');
+        $lightDelivery = $this->createDelivery($parcel, $this->getCountry('germany'), weight: 10.0);
+        $heavyDelivery = $this->createDelivery($parcel, $this->getCountry('germany'), weight: 40.0);
+        $deliveries = new DeliveryCollection([$lightDelivery, $heavyDelivery]);
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->setPrice(new CartPrice(168.07, 200.0, 200.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS));
+        $cart->setLineItems(new LineItemCollection([
+            ...$lightDelivery->getPositions()->getLineItems(),
+            ...$heavyDelivery->getPositions()->getLineItems(),
+        ]));
+        $cart->setDeliveries($deliveries);
+
+        $data = new CartDataCollection();
+        static::getContainer()->get(DeliveryProcessor::class)->collect($data, $cart, $this->context, new CartBehavior());
+
+        static::getContainer()->get(DeliveryRuleMatcher::class)->match($data, $cart, $deliveries, $this->context);
+        static::getContainer()->get(DeliveryCalculator::class)->calculate($data, $cart, $deliveries, $this->context);
+
+        static::assertSame([], $lightDelivery->getRuleIds());
+        static::assertSame([$this->ids->get('heavy-delivery')], $heavyDelivery->getRuleIds());
+
+        static::assertSame(5.0, $lightDelivery->getShippingCosts()->getTotalPrice(), 'The whole cart weighs 50 kg, the light delivery only 10 kg.');
+        static::assertSame(25.0, $heavyDelivery->getShippingCosts()->getTotalPrice());
     }
 
     private function createCountries(): void
@@ -205,11 +275,11 @@ class DeliveryRuleMatcherTest extends TestCase
         return $country;
     }
 
-    private function createDelivery(ShippingMethodEntity $shippingMethod, CountryEntity $country): Delivery
+    private function createDelivery(ShippingMethodEntity $shippingMethod, CountryEntity $country, float $weight = 1.0): Delivery
     {
         $lineItem = new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE, null, 1);
         $lineItem->setShippingCostAware(true);
-        $lineItem->setDeliveryInformation(new DeliveryInformation(10, 1.0, false));
+        $lineItem->setDeliveryInformation(new DeliveryInformation(10, $weight, false));
         $price = new CalculatedPrice(
             100.0,
             100.0,

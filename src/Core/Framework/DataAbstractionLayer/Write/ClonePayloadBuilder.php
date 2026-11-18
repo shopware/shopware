@@ -115,6 +115,17 @@ final class ClonePayloadBuilder
 
         $this->validateOverwriteWriteProtection($definition, $overwrites, $context);
 
+        return $this->applyOverwrites($definition, $data, $overwrites);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $overwrites
+     *
+     * @return array<string, mixed>
+     */
+    public function applyOverwrites(EntityDefinition $definition, array $data, array $overwrites): array
+    {
         return Feature::isActive('v6.8.0.0')
             ? $this->mergeOverwrites($definition, $data, $overwrites)
             : array_replace_recursive($data, $overwrites);

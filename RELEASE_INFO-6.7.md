@@ -681,6 +681,8 @@ To assign tags to products, a user now also needs `product.viewer`, and the same
 Merging tags is only offered when the user can read every area, because a merge deletes the merged tags with all their assignments.
 Stored roles keep their privileges until an admin saves the role again.
 Extensions that rely on these reads through `tag.viewer` must request them in their own privilege mapping.
+`POST /api/_admin/tag-filter-ids` now checks the criteria like the generic search does.
+A filter, sorting or aggregation on an association the user cannot read returns 403 instead of a result.
 
 ### Order viewers no longer receive delete privileges
 

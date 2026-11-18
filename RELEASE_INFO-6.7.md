@@ -163,6 +163,17 @@ Webhooks created through the Admin API without an app now belong to the user or 
 * **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
   These entries are removed after the same lifetime as successful and failed ones.
 
+### MCP sessions on `/api/_mcp` are bound to the principal that opened them
+
+A session on the Admin API MCP endpoint now belongs to the user or integration that sent `initialize`.
+A request with the `Mcp-Session-Id` of a session opened by someone else gets the same `404` as an unknown session.
+The session stays valid when the client gets a new access token for the same user or integration.
+
+Sessions opened before the update have no owner and are answered with `404` once.
+MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era is not affected.
+On `/store-api/_mcp`, a `DELETE` of an unknown session now gets `404` instead of `200`.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
@@ -205,6 +216,14 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Opt-out attribute for MCP tools without privileges
+
+An Admin API MCP tool that reads no shop data can now declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead of `#[McpToolRequires]`.
+The new PHPStan rule `shopware.mcpAdminToolMissingRequires` reports an Admin API tool that declares neither attribute,
+and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool that uses Admin ACL privileges.
+Both rules are part of the rule set that extensions include.
+They only report when `parameters.symfony.containerXmlPath` points to a compiled container that registers the extension's tools.
 
 ### ZUGFeRD documents include `discount` line items
 
@@ -265,6 +284,20 @@ The order document card in the Administration names the document type as well.
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
+### MCP toolsets can carry a description
+
+`#[McpToolGroup]` takes an optional `description` that describes the whole toolset.
+`shopware-toolsets-list` and `shopware-toolset-enable` return it instead of the generated `Tools explicitly assigned to the "<group>" MCP tool group.`, so a model can tell which toolset fits a task.
+All core toolsets now have one.
+Plugins that add their own toolset should set it on one tool of the group:
+
+```php
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+```
+
+Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
+Plugins can add tools to a core toolset such as `entity`, but cannot change its description.
 
 ### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
 
@@ -1283,6 +1316,21 @@ The redirect is no longer cached. A shop that is already in this state gets out 
 ### Password recovery is rate limited per IP
 
 Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
+
+### Translations can be downloaded as one archive
+
+`bin/console translation:download` and `bin/console translation:install --all` download all locales as one archive when `shopware.translation.archive_manifest_url` is set.
+The translations repository publishes the manifest of its latest archive at `https://github.com/shopware/translations/releases/latest/download/manifest.json`.
+
+```yaml
+shopware:
+    translation:
+        archive_manifest_url: 'https://github.com/shopware/translations/releases/latest/download/manifest.json'
+```
+
+When the archive cannot be used, both commands download every file of each locale as before.
+`translation:install --all` also downloads every file when the archive is older than the translation metadata.
+Decorators of `AbstractTranslationLoader::download()` are not called for the locales that come from the archive.
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

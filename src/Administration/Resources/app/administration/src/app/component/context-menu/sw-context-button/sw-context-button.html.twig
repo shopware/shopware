@@ -23,6 +23,8 @@
     </slot>
     {% endblock %}
 
+    {# @bc-change OpenIfChainRemoval version:v6.8.0
+    The block will end with the popover. Overrides check showMenu themselves instead of adding a v-else. #}
     {% block sw_context_button_menu %}
     <mt-floating-ui
         class="sw-context-button__menu-position sw-context-button__menu-popover"

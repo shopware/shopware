@@ -52,6 +52,7 @@ onDeleteItem(item, itemIndex) {
 | `BecomesPrivate` | A public element becomes `@private` | none |
 | `BlockMoved` | A block moves under another parent block | `parent` |
 | `ScopeVariableRemoval` | A block loses a template variable from a `v-for` or a slot | `variable` |
+| `OpenIfChainRemoval` | A block stops ending in an open `v-if` chain, so overrides can no longer add a `v-else` after `{% parent %}` | none |
 | `PropBecomesRequired` | An optional prop becomes required | none |
 | `EmitPayloadChange` | The payload of an event changes | none |
 | `RouteParentChange` | A route moves under another parent route, or to the top level | `parent` |

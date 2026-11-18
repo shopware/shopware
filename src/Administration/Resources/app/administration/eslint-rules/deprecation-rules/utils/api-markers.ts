@@ -27,6 +27,7 @@ export const BC_CHANGE_KINDS = {
     BecomesPrivate: [],
     BlockMoved: ['parent'],
     ScopeVariableRemoval: ['variable'],
+    OpenIfChainRemoval: [],
     PropBecomesRequired: [],
     EmitPayloadChange: [],
     RouteParentChange: ['parent'],

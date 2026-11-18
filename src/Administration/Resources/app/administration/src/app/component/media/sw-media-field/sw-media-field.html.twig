@@ -44,6 +44,8 @@
             <mt-icon name="regular-image" />
             {% endblock %}
 
+            {# @bc-change OpenIfChainRemoval version:v6.8.0
+            The block will end with the popover. Overrides check showPicker themselves instead of adding a v-else. #}
             {% block sw_media_field_media_popover %}
             <mt-floating-ui
                 class="sw-media-field__popover sw-media-field__expanded-content"

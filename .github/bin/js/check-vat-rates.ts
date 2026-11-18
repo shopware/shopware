@@ -17,8 +17,7 @@ import { appendFileSync, readFileSync } from 'node:fs';
 export const TEDB_ENDPOINT = 'https://ec.europa.eu/taxation_customs/tedb/ws/';
 
 /** Without this header TEDB answers with a bare HTTP 404 instead of a SOAP fault. */
-export const TEDB_SOAP_ACTION =
-    'urn:ec.europa.eu:taxud:tedb:services:v1:VatRetrievalService/RetrieveVatRates';
+export const TEDB_SOAP_ACTION = 'urn:ec.europa.eu:taxud:tedb:services:v1:VatRetrievalService/RetrieveVatRates';
 
 const TEDB_SERVICE_NS = 'urn:ec.europa.eu:taxud:tedb:services:v1:IVatRetrievalService';
 
@@ -32,8 +31,33 @@ const TEDB_TYPES_NS = 'urn:ec.europa.eu:taxud:tedb:services:v1:IVatRetrievalServ
 const ISO_OVERRIDES: Record<string, string> = { EL: 'GR' };
 
 export const MEMBER_STATES = [
-    'AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES', 'FI', 'FR', 'HR', 'HU',
-    'IE', 'IT', 'LT', 'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI', 'SK',
+    'AT',
+    'BE',
+    'BG',
+    'CY',
+    'CZ',
+    'DE',
+    'DK',
+    'EE',
+    'EL',
+    'ES',
+    'FI',
+    'FR',
+    'HR',
+    'HU',
+    'IE',
+    'IT',
+    'LT',
+    'LU',
+    'LV',
+    'MT',
+    'NL',
+    'PL',
+    'PT',
+    'RO',
+    'SE',
+    'SI',
+    'SK',
 ];
 
 /**
@@ -299,9 +323,7 @@ export function parseTedbRates(xml: string, queriedOn: Date): Map<string, Countr
 
 function assertFresh(newestPeriod: Date | null, queriedOn: Date): void {
     if (newestPeriod === null) {
-        throw new SourceError(
-            `no TEDB rate period had started on ${queriedOn.toISOString().slice(0, 10)}`,
-        );
+        throw new SourceError(`no TEDB rate period had started on ${queriedOn.toISOString().slice(0, 10)}`);
     }
 
     if (newestPeriod < monthsBefore(queriedOn, MAX_PERIOD_AGE_IN_MONTHS)) {
@@ -338,13 +360,15 @@ export function parseGovUkRates(payload: string): CountryRates {
         throw new SourceError('the GOV.UK response carries no rate description');
     }
 
-    const standard = readRate(body, /standard\s+VAT\s+rate\s+is\s*(?:<[^>]+>\s*)*(\d+(?:\.\d+)?)\s*%/iu, 'the standard rate');
+    const standard = readRate(
+        body,
+        /standard\s+VAT\s+rate\s+is\s*(?:<[^>]+>\s*)*(\d+(?:\.\d+)?)\s*%/iu,
+        'the standard rate',
+    );
     const confirmation = readRate(summary, /standard\s+(\d+(?:\.\d+)?)\s*%/iu, 'the standard rate summary');
 
     if (standard !== confirmation) {
-        throw new SourceError(
-            `the GOV.UK page reports the standard rate as both ${standard}% and ${confirmation}%`,
-        );
+        throw new SourceError(`the GOV.UK page reports the standard rate as both ${standard}% and ${confirmation}%`);
     }
 
     const reduced = readRate(body, /Reduced\s+rate[\s\S]*?(\d+(?:\.\d+)?)\s*%/iu, 'the reduced rate');
@@ -401,10 +425,7 @@ export function parseCurrentRates(rows: CurrentRateRow[]): Map<string, CountryRa
     return rates;
 }
 
-export function diffRates(
-    current: Map<string, CountryRates>,
-    published: Map<string, CountryRates>,
-): Diff {
+export function diffRates(current: Map<string, CountryRates>, published: Map<string, CountryRates>): Diff {
     const standardDrift: StandardDrift[] = [];
     const reducedCandidates: ReducedCandidate[] = [];
 
@@ -497,10 +518,7 @@ export function planIssueAction(
     options: { title: string; marker: string; fingerprint?: string },
 ): IssuePlan {
     const existing = openIssues.find(
-        (issue) =>
-            issue.title === options.title &&
-            typeof issue.body === 'string' &&
-            issue.body.includes(options.marker),
+        (issue) => issue.title === options.title && typeof issue.body === 'string' && issue.body.includes(options.marker),
     );
 
     if (!existing) {
@@ -550,10 +568,10 @@ export function buildReducedReviewBody(findings: string, fingerprint: string): s
         findings,
         '```',
         '',
-        '**These are candidates, not verdicts.** TEDB cannot tell us which of a country\'s published',
-        'rates belong in Shopware\'s two reduced slots: Belgium\'s 12%, Greece\'s 13% and Portugal\'s',
+        "**These are candidates, not verdicts.** TEDB cannot tell us which of a country's published",
+        "rates belong in Shopware's two reduced slots: Belgium's 12%, Greece's 13% and Portugal's",
         '13% are each reported both as a parking rate and as a genuine reduced rate, while',
-        'Luxembourg\'s 14% is reported the same way and is only the intermediate rate Shopware has',
+        "Luxembourg's 14% is reported the same way and is only the intermediate rate Shopware has",
         'never shipped. Every line needs a tax-domain judgement before it becomes a migration.',
         '',
         'Some countries also now levy three reduced rates — Austria added 4.9% on foodstuffs in July',
@@ -738,7 +756,12 @@ function renderTable(diff: Diff): string {
     }
 
     if (diff.reducedCandidates.length > 0) {
-        lines.push('### Reduced rate differences (need review)', '', '| Country | Database | TEDB reports |', '| --- | --- | --- |');
+        lines.push(
+            '### Reduced rate differences (need review)',
+            '',
+            '| Country | Database | TEDB reports |',
+            '| --- | --- | --- |',
+        );
         for (const finding of diff.reducedCandidates) {
             lines.push(`| ${finding.iso} | ${finding.current.join(', ') || '—'} | ${finding.published.join(', ') || '—'} |`);
         }
@@ -779,7 +802,12 @@ async function main(): Promise<void> {
     setStepOutput('country_count', String(current.size));
     setStepOutput('standard_drift', diff.standardDrift.map((f) => `${f.iso}: ${f.current} -> ${f.published}`).join('\n'));
     setStepOutput('standard_fingerprint', fingerprint(diff.standardDrift));
-    setStepOutput('reduced_candidates', diff.reducedCandidates.map((f) => `${f.iso}: ${f.current.join(', ') || '—'} -> ${f.published.join(', ') || '—'}`).join('\n'));
+    setStepOutput(
+        'reduced_candidates',
+        diff.reducedCandidates
+            .map((f) => `${f.iso}: ${f.current.join(', ') || '—'} -> ${f.published.join(', ') || '—'}`)
+            .join('\n'),
+    );
     setStepOutput('reduced_fingerprint', fingerprint(diff.reducedCandidates));
 
     if (diff.standardDrift.length === 0 && diff.reducedCandidates.length === 0) {

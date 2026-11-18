@@ -46,9 +46,7 @@ function entry(options: {
 }): string {
     const value = options.value === undefined ? '' : `<value>${options.value}</value>`;
     const codes =
-        options.codes === undefined
-            ? ''
-            : `<${options.codes}Codes><code><value>0201</value></code></${options.codes}Codes>`;
+        options.codes === undefined ? '' : `<${options.codes}Codes><code><value>0201</value></code></${options.codes}Codes>`;
     const category = options.category ? `<category><identifier>${options.category}</identifier></category>` : '';
     const comment = options.comment === undefined ? '' : `<comment>${options.comment}</comment>`;
 
@@ -250,8 +248,7 @@ test('two unqualified standard rates for one country are a source failure', () =
     assert.throws(
         () =>
             parse(
-                entry({ iso: 'ES', type: 'DEFAULT', value: '7.0' }) +
-                    entry({ iso: 'ES', type: 'DEFAULT', value: '21.0' }),
+                entry({ iso: 'ES', type: 'DEFAULT', value: '7.0' }) + entry({ iso: 'ES', type: 'DEFAULT', value: '21.0' }),
             ),
         /more than one national standard VAT rate for "ES"/u,
     );
@@ -439,10 +436,7 @@ test('the fingerprint is stable across ordering and changes with the finding', (
     assert.equal(fingerprint(one), fingerprint(same));
     assert.notEqual(fingerprint(one), fingerprint([{ iso: 'EE', current: '20', published: '24' }]));
     assert.equal(fingerprint([]), '');
-    assert.equal(
-        fingerprint([{ iso: 'RO', current: ['5', '9'], published: ['11'] }]),
-        'RO:5/9>11',
-    );
+    assert.equal(fingerprint([{ iso: 'RO', current: ['5', '9'], published: ['11'] }]), 'RO:5/9>11');
 });
 
 // ── Reporting ────────────────────────────────────────────────────────────────────────────────
@@ -451,6 +445,11 @@ const DRIFT = 'EE: 20 -> 24\nFI: 24 -> 25.5';
 const FINGERPRINT = 'EE:20>24 FI:24>25.5';
 
 const RUN_URL = 'https://example.test/run/1';
+
+// Line-exact, because asserting a bare URL with `includes` reads as a URL check to code scanners.
+function rendersRunUrl(body: string, runUrl: string): boolean {
+    return body.split('\n').some((line) => line === `See the run log for the reason: ${runUrl}`);
+}
 
 function issue(overrides: Partial<OpenIssue> = {}): OpenIssue {
     return {
@@ -491,10 +490,9 @@ test('an issue is matched on title and marker together, never on one alone', () 
 });
 
 test('an issue without a body is not mistaken for a match', () => {
-    assert.deepEqual(
-        planIssueAction([issue({ body: null })], { ...STANDARD_DRIFT, fingerprint: FINGERPRINT }),
-        { action: 'create' },
-    );
+    assert.deepEqual(planIssueAction([issue({ body: null })], { ...STANDARD_DRIFT, fingerprint: FINGERPRINT }), {
+        action: 'create',
+    });
 });
 
 test('the standard-drift and reduced-review issues never collide', () => {
@@ -534,7 +532,7 @@ test('every body opens with its marker and carries its findings', () => {
 
     const failure = buildSourceFailureBody(RUN_URL);
     assert.ok(failure.startsWith(SOURCE_FAILURE.marker));
-    assert.ok(failure.includes(RUN_URL));
+    assert.ok(rendersRunUrl(failure, RUN_URL));
     assert.ok(!failure.includes('<!-- fingerprint:'));
 });
 
@@ -550,7 +548,10 @@ test('a verdict reports only the findings it has, as one issue each', () => {
     ] as const) {
         const reports = buildReports({ CHECK_STATUS: '1', ...outputs }, RUN_URL);
 
-        assert.deepEqual(reports.map((report) => report.marker), expected);
+        assert.deepEqual(
+            reports.map((report) => report.marker),
+            expected,
+        );
     }
 
     const [only] = buildReports({ CHECK_STATUS: '1', ...standard }, RUN_URL);
@@ -569,7 +570,7 @@ test('any status other than 1 reports a source failure instead of a rate change'
             [SOURCE_FAILURE.marker],
             `status "${status}" must report a source failure`,
         );
-        assert.ok(reports[0].body.includes(RUN_URL));
+        assert.equal(reports[0].body, buildSourceFailureBody(RUN_URL));
         assert.equal(reports[0].fingerprint, undefined);
     }
 });

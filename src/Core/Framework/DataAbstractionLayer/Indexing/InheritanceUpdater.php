@@ -51,7 +51,7 @@ class InheritanceUpdater
             return;
         }
 
-        $params = ['ids' => array_map(static fn ($id) => Uuid::fromHexToBytes($id), $ids)];
+        $params = ['ids' => Uuid::fromHexToBytesList($ids)];
 
         if ($definition->isVersionAware()) {
             $params['version'] = Uuid::fromHexToBytes($context->getVersionId());

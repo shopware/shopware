@@ -112,7 +112,7 @@ async function createWrapper(buttonConfig) {
                 'sw-checkbox-field': true,
                 'sw-tree-item': true,
                 'sw-field-copyable': true,
-                'mt-floating-ui': { template: '<div class="sw-popover"><slot></slot></div>' },
+                'mt-floating-ui': { template: '<div class="mt-floating-ui"><slot></slot></div>' },
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,

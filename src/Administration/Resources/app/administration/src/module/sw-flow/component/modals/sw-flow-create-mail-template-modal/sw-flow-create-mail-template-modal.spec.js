@@ -87,7 +87,7 @@ async function createWrapper(privileges = []) {
                         },
                     },
                     'mt-floating-ui': {
-                        template: '<div class="sw-popover"><slot></slot></div>',
+                        template: '<div class="mt-floating-ui"><slot></slot></div>',
                     },
                     'sw-loader': true,
                     'sw-product-variant-info': true,

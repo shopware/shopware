@@ -85,7 +85,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.find('.sw-media-field__label').text()).toBe('Media');
     });
 
-    it('should stop propagation when sw-popover content is clicked', async () => {
+    it('should stop propagation when the picker content is clicked', async () => {
         const wrapper = await createWrapper();
 
         await wrapper.setData({

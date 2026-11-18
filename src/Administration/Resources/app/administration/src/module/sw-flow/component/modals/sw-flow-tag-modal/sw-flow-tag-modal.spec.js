@@ -68,7 +68,7 @@ async function createWrapper() {
                 `,
                     },
                     'mt-floating-ui': {
-                        template: '<div class="sw-popover"><slot></slot></div>',
+                        template: '<div class="mt-floating-ui"><slot></slot></div>',
                     },
                     'sw-select-result': {
                         props: ['item', 'index'],

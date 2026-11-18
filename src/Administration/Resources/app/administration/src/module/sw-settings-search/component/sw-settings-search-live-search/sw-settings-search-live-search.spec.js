@@ -141,7 +141,7 @@ async function createWrapper(salesChannelList = salesChannels) {
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'mt-floating-ui': {
                         template: `
-                    <div class="sw-popover">
+                    <div class="mt-floating-ui">
                         <slot></slot>
                     </div>`,
                     },

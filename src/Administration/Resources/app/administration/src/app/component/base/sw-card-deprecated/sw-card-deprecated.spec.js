@@ -15,7 +15,7 @@ async function createWrapper(additionalOptions = {}) {
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
-                'mt-floating-ui': { template: '<div class="sw-popover"><slot></slot></div>' },
+                'mt-floating-ui': { template: '<div class="mt-floating-ui"><slot></slot></div>' },
             },
         },
         props: {

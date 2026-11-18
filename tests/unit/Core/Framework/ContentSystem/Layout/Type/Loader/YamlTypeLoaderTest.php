@@ -135,8 +135,7 @@ class YamlTypeLoaderTest extends TestCase
         $expectedPanels = [
             'mode' => 'general',
             'itemMinWidth' => 'general',
-            'columns' => 'general',
-            'rows' => 'general',
+            'gridLayout' => 'general',
             'fullWidth' => 'general',
             'gap' => 'spacing',
             'maxWidth' => 'spacing',

@@ -39,28 +39,9 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
     public function testBuiltInDefinitionsLoad(): void
     {
         static::assertSame(
-            ['align-self', 'col-span', 'display', 'justify-self', 'row-span'],
+            ['align-self', 'display', 'justify-self'],
             $this->sortedNames($this->builtIns),
         );
-    }
-
-    #[DataProvider('definesSpanOptionAsIntegerProvider')]
-    #[TestDox('defines $name as an integer bounded to the 1-12 grid range')]
-    public function testSpanOptionIsBoundedInteger(string $name): void
-    {
-        $option = $this->builtIns[$name];
-
-        static::assertSame(StyleOptionValueType::TYPE_INTEGER, $option->valueType()->type());
-        static::assertSame(['min' => 1, 'max' => 12], $option->valueType()->range());
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function definesSpanOptionAsIntegerProvider(): iterable
-    {
-        yield 'col-span' => ['col-span'];
-        yield 'row-span' => ['row-span'];
     }
 
     #[TestDox('defines display as a boolean defaulting to visible')]
@@ -113,8 +94,6 @@ class BuiltInStyleOptionDefinitionsTest extends TestCase
      */
     public static function allShippedOptionsProvider(): iterable
     {
-        yield 'col-span' => ['col-span'];
-        yield 'row-span' => ['row-span'];
         yield 'display' => ['display'];
         yield 'align-self' => ['align-self'];
         yield 'justify-self' => ['justify-self'];

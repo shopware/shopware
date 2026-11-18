@@ -246,40 +246,28 @@
         "itemMinWidth": {
           "title": "Item Min Width"
         },
-        "columns": {
-          "title": "Columns",
+        "gridLayout": {
+          "title": "Grid layout",
           "xs": {
-            "title": "Columns (XS)"
+            "title": "XS grid"
           },
           "sm": {
-            "title": "Columns (SM)"
+            "title": "SM grid"
           },
           "md": {
-            "title": "Columns (MD)"
+            "title": "MD grid"
           },
           "lg": {
-            "title": "Columns (LG)"
+            "title": "LG grid"
           },
           "xl": {
-            "title": "Columns (XL)"
-          }
-        },
-        "rows": {
-          "title": "Rows",
-          "xs": {
-            "title": "Rows (XS)"
+            "title": "XL grid"
           },
-          "sm": {
-            "title": "Rows (SM)"
+          "columns": {
+            "title": "Columns"
           },
-          "md": {
-            "title": "Rows (MD)"
-          },
-          "lg": {
-            "title": "Rows (LG)"
-          },
-          "xl": {
-            "title": "Rows (XL)"
+          "areas": {
+            "title": "Grid areas"
           }
         },
         "fullWidth": {
@@ -1203,10 +1191,6 @@
           }
         }
       },
-      "col-span": {
-        "label": "Column Span",
-        "description": "How many grid columns the element spans."
-      },
       "display": {
         "label": "Display",
         "description": "Whether the element is rendered at this breakpoint."
@@ -1231,11 +1215,37 @@
             "label": "Stretch"
           }
         }
-      },
-      "row-span": {
-        "label": "Row Span",
-        "description": "How many grid rows the element spans."
       }
+    },
+    "gridEditor": {
+      "breakpoints": "Breakpoints",
+      "breakpointInheritanceDescription": "Larger breakpoints inherit settings from smaller ones unless overridden.",
+      "invalidPercentWidth": "Enter a whole number from 1 to 100.",
+      "invalidPixelWidth": "Enter a whole number greater than 0.",
+      "tooMuch": "The total share exceeds 100%.",
+      "noAutoSpace": "The Auto column has no remaining space.",
+      "inherited": "Inherited",
+      "own": "Custom",
+      "breakInheritance": "Remove inheritance",
+      "restoreInheritance": "Restore inheritance",
+      "restoreConfirmation": "The configuration for this breakpoint will be discarded. Other breakpoints remain unchanged.",
+      "columns": "Columns",
+      "width": "Width",
+      "type": "Width type",
+      "columnActions": "Column actions",
+      "move": "Move column",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "addColumn": "Add column",
+      "pattern": "Repeated pattern",
+      "patternHelp": "Elements follow the numbered areas. Then the pattern repeats.",
+      "areaLabel": "Area {number}, row {row}, column {column}, spans {rows} rows and {columns} columns",
+      "removeRow": "Remove row {number}",
+      "addRow": "Add row",
+      "split": "Split",
+      "splitColumns": "Split only columns",
+      "splitRows": "Split only rows",
+      "merge": "Merge"
     }
   }
 }

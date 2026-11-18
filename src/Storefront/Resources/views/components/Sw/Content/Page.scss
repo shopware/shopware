@@ -15,16 +15,6 @@
 
     @each $breakpoint, $value in $grid-breakpoints {
         @include media-breakpoint-only($breakpoint) {
-            @for $i from 1 through 12 {
-                .col-span-#{$breakpoint}-#{$i} {
-                    grid-column: span $i;
-                }
-
-                .row-span-#{$breakpoint}-#{$i} {
-                    grid-row: span $i;
-                }
-            }
-
             $align-items: ('start', 'end', 'center', 'stretch');
             @each $align-item in $align-items {
                 .align-items-#{$breakpoint}-#{$align-item} {

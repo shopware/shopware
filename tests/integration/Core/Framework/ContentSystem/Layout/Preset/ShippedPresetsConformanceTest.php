@@ -37,6 +37,8 @@ class ShippedPresetsConformanceTest extends TestCase
 
         $presets = $registry->all();
         static::assertArrayHasKey('Sw:TabPanel', $presets, 'The shipped presets must be registered.');
+        static::assertArrayHasKey('Sw:CategoryPage', $presets);
+        static::assertArrayHasKey('Sw:ProductReviews', $presets);
 
         $decoder = static::getContainer()->get(DraftLayoutDecoder::class);
         $layoutRepository = static::getContainer()->get('content_layout.repository');

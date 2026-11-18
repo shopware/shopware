@@ -6,6 +6,7 @@
     name = null,
     elements = [],
     maxScopeDepth = 6,
+    gridItems = false,
 %}
 
 {% if elements is empty and name is not null %}
@@ -46,6 +47,8 @@
             {% endif %}
 
             {% set elementStyleClasses = '' %}
+            {% set gridItemDisplayClasses = '' %}
+            {% set gridItemAlignmentClasses = '' %}
 
             {% if element.style.values is not empty %}
                 {% for optionName, optionValue in element.style.values %}
@@ -53,14 +56,30 @@
                         {% for viewport, value in optionValue %}
                             {% if value is not empty and value is not null and value is not same as(false) %}
                                 {% if value is same as(true) %}
-                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
+                                    {% if optionName == 'display' %}
+                                        {% set gridItemDisplayClasses = gridItemDisplayClasses ~ ' display-' ~ viewport %}
+                                        {% if not gridItems %}
+                                            {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
+                                        {% if gridItems and optionName in ['align-self', 'justify-self'] %}
+                                            {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
+                                        {% endif %}
+                                    {% endif %}
                                 {% else %}
                                     {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
+                                    {% if gridItems and optionName in ['align-self', 'justify-self'] %}
+                                        {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
                     {% elseif optionValue is not empty %}
                         {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
+                        {% if gridItems and optionName in ['align-self', 'justify-self'] %}
+                            {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ optionValue %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             {% endif %}
@@ -69,7 +88,11 @@
                 {% set elementProperties = elementProperties|merge({ 'class': elementStyleClasses|trim }) %}
             {% endif %}
 
-            {{ component(element.component, elementProperties) }}
+            {% if gridItems %}
+                <div class="sw-grid-container__item{{ gridItemDisplayClasses }}{{ gridItemAlignmentClasses }}">{{ component(element.component, elementProperties) }}</div>
+            {% else %}
+                {{ component(element.component, elementProperties) }}
+            {% endif %}
         {% endfor %}
     {% endblock %}
 {% else %}

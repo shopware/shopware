@@ -246,40 +246,28 @@
         "itemMinWidth": {
           "title": "Mindestbreite der Elemente"
         },
-        "columns": {
-          "title": "Spalten",
+        "gridLayout": {
+          "title": "Grid-Layout",
           "xs": {
-            "title": "Spalten (XS)"
+            "title": "XS-Grid"
           },
           "sm": {
-            "title": "Spalten (SM)"
+            "title": "SM-Grid"
           },
           "md": {
-            "title": "Spalten (MD)"
+            "title": "MD-Grid"
           },
           "lg": {
-            "title": "Spalten (LG)"
+            "title": "LG-Grid"
           },
           "xl": {
-            "title": "Spalten (XL)"
-          }
-        },
-        "rows": {
-          "title": "Zeilen",
-          "xs": {
-            "title": "Zeilen (XS)"
+            "title": "XL-Grid"
           },
-          "sm": {
-            "title": "Zeilen (SM)"
+          "columns": {
+            "title": "Spalten"
           },
-          "md": {
-            "title": "Zeilen (MD)"
-          },
-          "lg": {
-            "title": "Zeilen (LG)"
-          },
-          "xl": {
-            "title": "Zeilen (XL)"
+          "areas": {
+            "title": "Grid-Bereiche"
           }
         },
         "fullWidth": {
@@ -1203,10 +1191,6 @@
           }
         }
       },
-      "col-span": {
-        "label": "Spaltenbreite",
-        "description": "Über wie viele Rasterspalten sich das Element erstreckt."
-      },
       "display": {
         "label": "Anzeige",
         "description": "Legt fest, ob das Element bei diesem Breakpoint angezeigt wird."
@@ -1231,11 +1215,37 @@
             "label": "Strecken"
           }
         }
-      },
-      "row-span": {
-        "label": "Zeilenhöhe",
-        "description": "Über wie viele Rasterzeilen sich das Element erstreckt."
       }
+    },
+    "gridEditor": {
+      "breakpoints": "Breakpoints",
+      "breakpointInheritanceDescription": "Größere Breakpoints erben die Einstellungen kleinerer Breakpoints, sofern du sie nicht anpasst.",
+      "invalidPercentWidth": "Gib eine ganze Zahl von 1 bis 100 ein.",
+      "invalidPixelWidth": "Gib eine ganze Zahl größer als 0 ein.",
+      "tooMuch": "Die Summe überschreitet 100 %.",
+      "noAutoSpace": "Für die Auto-Spalte bleibt kein Platz.",
+      "inherited": "Vererbt",
+      "own": "Eigene Konfiguration",
+      "breakInheritance": "Vererbung aufheben",
+      "restoreInheritance": "Vererbung wiederherstellen",
+      "restoreConfirmation": "Die Konfiguration dieses Breakpoints wird verworfen. Andere Breakpoints bleiben erhalten.",
+      "columns": "Spalten",
+      "width": "Breite",
+      "type": "Breitentyp",
+      "columnActions": "Spaltenaktionen",
+      "move": "Spalte verschieben",
+      "moveUp": "Nach oben verschieben",
+      "moveDown": "Nach unten verschieben",
+      "addColumn": "Spalte",
+      "pattern": "Wiederholtes Muster",
+      "patternHelp": "Elemente folgen den nummerierten Plätzen. Danach beginnt das Muster erneut.",
+      "areaLabel": "Platz {number}, Zeile {row}, Spalte {column}, umfasst {rows} Zeilen und {columns} Spalten",
+      "removeRow": "Zeile {number} entfernen",
+      "addRow": "Zeile",
+      "split": "Teilen",
+      "splitColumns": "Nur Spalten teilen",
+      "splitRows": "Nur Zeilen teilen",
+      "merge": "Verbinden"
     }
   }
 }

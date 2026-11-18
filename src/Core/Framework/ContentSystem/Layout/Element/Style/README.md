@@ -18,7 +18,7 @@ Universal style option system. A defined set of presentation attributes (alignme
 
 ## Subdirectories
 
-- **Definitions/** - Core YAML option definitions: `display` (boolean), `align-self` / `justify-self` (string enum), `col-span` / `row-span` (integer range)
+- **Definitions/** - Core YAML option definitions: `display` (boolean), `align-self` / `justify-self` (string enum)
 - **Loader/** - Option loading: `AbstractContentSystemStyleOptionLoader` (base), `YamlStyleOptionLoader` (filesystem), `DatabaseStyleOptionLoader` (app options in prod), `StyleOptionSourceDirectory` (source directory VO), `ResolvedStyleOptionSpecificationDto` (loading-to-spec bridge)
 - **Registry/** - `AbstractContentSystemStyleOptionRegistry` (decoration pattern contract), `ContentSystemStyleOptionRegistry` (stateless aggregator), `CachedContentSystemStyleOptionRegistry` (cross-request cache decorator)
 - **Serialization/** - `StyleOptionSpecificationSerializer` (YAML/array ↔ DTO)

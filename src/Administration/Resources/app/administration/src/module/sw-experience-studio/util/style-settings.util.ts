@@ -20,8 +20,6 @@ const STYLE_FIELD_ORDER = [
     'display',
     'align-self',
     'justify-self',
-    'col-span',
-    'row-span',
 ] as const;
 
 /**

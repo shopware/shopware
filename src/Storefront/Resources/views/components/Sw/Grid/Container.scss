@@ -43,6 +43,7 @@
     }
 
     &.border-full-width {
+        /* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
         & > .sw-grid-container__inner {
             border: none !important;
         }
@@ -62,6 +63,7 @@
     padding-right: 0;
 }
 
+/* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
 .sw-grid-container__inner {
     display: grid;
     width: 100%;
@@ -74,64 +76,6 @@
     &.max-content {
         grid-auto-flow: column;
         grid-auto-columns: max-content;
-    }
-
-    @for $i from 1 through 12 {
-        &.columns-#{$i} {
-            grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-        }
-
-        &.rows-#{$i} {
-            grid-template-rows: repeat(#{$i}, 1fr);
-        }
-    }
-
-    @include media-breakpoint-up(sm) {
-        @for $i from 1 through 12 {
-            &.columns-sm-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-sm-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-up(md) {
-        @for $i from 1 through 12 {
-            &.columns-md-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-md-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-up(lg) {
-        @for $i from 1 through 12 {
-            &.columns-lg-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-lg-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
-    }
-
-    @include media-breakpoint-up(xl) {
-        @for $i from 1 through 12 {
-            &.columns-xl-#{$i} {
-                grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
-            }
-
-            &.rows-xl-#{$i} {
-                grid-template-rows: repeat(#{$i}, 1fr);
-            }
-        }
     }
 
     &.align-start {
@@ -224,10 +168,73 @@
 
     @each $breakpoint, $value in $grid-breakpoints {
         @include media-breakpoint-only($breakpoint) {
-            padding: var(--sw-grid-container-padding-#{$breakpoint}, var(--sw-grid-container-padding));
+            padding: var(
+                --sw-grid-container-padding-#{$breakpoint},
+                var(--sw-grid-container-padding)
+            );
             margin: var(--sw-grid-container-margin-#{$breakpoint}, var(--sw-grid-container-margin));
             margin-top: 0 !important;
             margin-bottom: 0 !important;
         }
     }
 }
+
+/* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
+.sw-grid-container__item {
+    min-width: 0;
+
+    @each $value in (auto, start, center, end, stretch, baseline) {
+        &.align-self-#{$value},
+        &.align-self-xs-#{$value} {
+            align-self: $value;
+        }
+    }
+
+    @each $value in (auto, start, center, end, stretch) {
+        &.justify-self-#{$value},
+        &.justify-self-xs-#{$value} {
+            justify-self: $value;
+        }
+    }
+
+    @each $breakpoint in (sm, md, lg, xl, xxl) {
+        @include media-breakpoint-up($breakpoint) {
+            @each $value in (auto, start, center, end, stretch, baseline) {
+                &.align-self-#{$breakpoint}-#{$value} {
+                    align-self: $value;
+                }
+            }
+
+            @each $value in (auto, start, center, end, stretch) {
+                &.justify-self-#{$breakpoint}-#{$value} {
+                    justify-self: $value;
+                }
+            }
+        }
+    }
+}
+
+/* stylelint-disable selector-class-pattern -- Match the existing grid component's BEM classes. */
+.sw-grid-container__inner.repeated-pattern {
+    --sw-grid-columns: var(--sw-grid-columns-xs);
+
+    :where(& > *) {
+        --sw-grid-item-column: var(--sw-grid-item-column-xs);
+        --sw-grid-item-row: var(--sw-grid-item-row-xs);
+
+        grid-column: var(--sw-grid-item-column, auto);
+        grid-row: var(--sw-grid-item-row, auto);
+    }
+
+    @each $breakpoint in (sm, md, lg, xl, xxl) {
+        @include media-breakpoint-up($breakpoint) {
+            --sw-grid-columns: var(--sw-grid-columns-#{$breakpoint});
+
+            :where(& > *) {
+                --sw-grid-item-column: var(--sw-grid-item-column-#{$breakpoint});
+                --sw-grid-item-row: var(--sw-grid-item-row-#{$breakpoint});
+            }
+        }
+    }
+}
+/* stylelint-enable selector-class-pattern */

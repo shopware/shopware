@@ -61,103 +61,93 @@ properties:
         field: "mode"
         in: ["auto-fit", "auto-fill"]
 
-  columns:
-    type:
-      - "integer"
-      - "object"
-    title: "Columns"
-    titleSnippet: "sw-experience-studio.elements.grid-container.columns.title"
-    description: "Column count as a single integer or responsive object with breakpoint keys."
+  gridLayout:
+    type: object
+    title: "Grid layout"
+    titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.title"
+    description: >-
+      Complete grid configurations per breakpoint: xs, sm, md, lg and xl.
+      XS is required; omitted breakpoints inherit the nearest smaller configuration.
+      Columns and areas always inherit together.
     adminUI:
-      component: "responsive-number"
+      component: "grid-editor"
       panel: "general"
-      props:
-        min: 1
-        max: 12
-        step: 1
       visibleWhen:
         field: "mode"
         equals: "explicit"
     properties:
       xs:
-        type: integer
-        title: "Columns (XS)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.columns.xs.title"
-        description: "Column count on extra small breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        type: object
+        required: true
+        title: "XS grid"
+        titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.xs.title"
+        description: "Base grid configuration."
+        properties: &gridConfigurationProperties
+          columns:
+            type: array
+            required: true
+            title: "Columns"
+            titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.columns.title"
+            description: >-
+              Ordered column widths. At least one column is required.
+              Using no more than 12 columns is recommended.
+            items:
+              type: object
+              title: "Column"
+              description: "A column width."
+              properties:
+                type:
+                  type: string
+                  required: true
+                  title: "Width type"
+                  description: "Column width type."
+                  enum: ["auto", "px", "percent", "fraction"]
+                value:
+                  type: integer
+                  title: "Width value"
+                  description: >-
+                    Required for px, percent and fraction; omitted for auto.
+                    Pixels are positive, percent is 1 to 100, and fraction is 1 to 12 (n/12).
+          areas:
+            type: array
+            required: true
+            title: "Grid areas"
+            titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.areas.title"
+            description: >-
+              A matrix with at least one row. Each row contains one area ID per column.
+              Equal area IDs form one rectangular area.
+            items:
+              type: array
+              title: "Area row"
+              description: "Area IDs in column order."
+              items:
+                type: string
+                title: "Area ID"
+                description: "Identifier of the area occupying this cell."
       sm:
-        type: integer
-        title: "Columns (SM)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.columns.sm.title"
-        description: "Column count on small breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        type: object
+        title: "SM grid"
+        titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.sm.title"
+        description: "Optional grid configuration from the SM breakpoint."
+        properties: *gridConfigurationProperties
       md:
-        type: integer
-        title: "Columns (MD)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.columns.md.title"
-        description: "Column count on medium breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        type: object
+        title: "MD grid"
+        titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.md.title"
+        description: "Optional grid configuration from the MD breakpoint."
+        properties: *gridConfigurationProperties
       lg:
-        type: integer
-        title: "Columns (LG)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.columns.lg.title"
-        description: "Column count on large breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        type: object
+        title: "LG grid"
+        titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.lg.title"
+        description: "Optional grid configuration from the LG breakpoint."
+        properties: *gridConfigurationProperties
       xl:
-        type: integer
-        title: "Columns (XL)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.columns.xl.title"
-        description: "Column count on extra large breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
-  rows:
-    type:
-      - "integer"
-      - "object"
-    title: "Rows"
-    titleSnippet: "sw-experience-studio.elements.grid-container.rows.title"
-    description: "Row count as a single integer or responsive object with breakpoint keys."
-    adminUI:
-      component: "responsive-number"
-      panel: "general"
-      props:
-        min: 1
-        max: 12
-        step: 1
-      visibleWhen:
-        field: "mode"
-        equals: "explicit"
-    properties:
-      xs:
-        type: integer
-        title: "Rows (XS)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.rows.xs.title"
-        description: "Row count on extra small breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-      sm:
-        type: integer
-        title: "Rows (SM)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.rows.sm.title"
-        description: "Row count on small breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-      md:
-        type: integer
-        title: "Rows (MD)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.rows.md.title"
-        description: "Row count on medium breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-      lg:
-        type: integer
-        title: "Rows (LG)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.rows.lg.title"
-        description: "Row count on large breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-      xl:
-        type: integer
-        title: "Rows (XL)"
-        titleSnippet: "sw-experience-studio.elements.grid-container.rows.xl.title"
-        description: "Row count on extra large breakpoint."
-        enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        type: object
+        title: "XL grid"
+        titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.xl.title"
+        description: "Optional grid configuration from the XL breakpoint."
+        properties: *gridConfigurationProperties
 
   fullWidth:
     type: boolean

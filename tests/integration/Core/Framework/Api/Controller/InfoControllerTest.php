@@ -924,6 +924,19 @@ class InfoControllerTest extends TestCase
         );
     }
 
+    public function testPublishesStructuredGridLayoutSchema(): void
+    {
+        [$typesByName] = $this->requestElementTypesWithStorageSchema();
+        $grid = $typesByName['Sw:Grid:Container'];
+
+        $layout = $grid['properties']['gridLayout'];
+        static::assertSame('object', $layout['type']);
+        static::assertSame('array', $layout['properties']['xs']['properties']['columns']['type']);
+        static::assertSame('object', $layout['properties']['xs']['properties']['columns']['items']['type']);
+        static::assertSame('array', $layout['properties']['xs']['properties']['areas']['items']['type']);
+        static::assertSame('string', $layout['properties']['xs']['properties']['areas']['items']['items']['type']);
+    }
+
     public function testDerivesResolvedByStorageKeyFromMediaSpecification(): void
     {
         [$typesByName] = $this->requestElementTypesWithStorageSchema();

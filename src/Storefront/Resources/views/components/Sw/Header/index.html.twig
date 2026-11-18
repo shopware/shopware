@@ -23,7 +23,8 @@
     </twig:Sw:Grid:Container>
 
     <twig:Sw:Grid:Container
-        :columns="3"
+        mode="explicit"
+        :gridLayout="{ xs: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3']] } }"
         justifyContent="stretch"
         alignContent="center"
         align="center"
@@ -73,7 +74,8 @@
     </twig:Sw:Grid:Container>
 
     <twig:Sw:Grid:Container
-        columns="100%"
+        mode="explicit"
+        :gridLayout="{ xs: { columns: [{ type: 'percent', value: 100 }], areas: [['a1']] } }"
         gap="0"
         margin="0"
         justify="center"

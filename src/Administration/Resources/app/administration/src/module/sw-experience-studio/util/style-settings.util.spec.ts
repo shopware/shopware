@@ -167,8 +167,8 @@ describe('module/sw-experience-studio/util/style-settings.util', () => {
 
         const fields = getEditableStyleFields(
             {
-                'row-span': colSpanOption,
-                'col-span': colSpanOption,
+                'z-index': colSpanOption,
+                'custom-size': colSpanOption,
                 'align-self': marginOption,
                 'brand-gap': customGapOption,
                 display: displayOption,
@@ -181,9 +181,9 @@ describe('module/sw-experience-studio/util/style-settings.util', () => {
             'display',
             'align-self',
             'justify-self',
-            'col-span',
-            'row-span',
             'brand-gap',
+            'custom-size',
+            'z-index',
         ]);
     });
 

@@ -15,7 +15,7 @@ The compiler pass discovers plugin and bundle YAML automatically; app YAML is va
 
 ## Name Resolution
 
-An option name is the **Store-API wire key** taken directly from the kebab-case filename — there is no source prefix and no directory nesting. `Resources/content-system/style-options/col-span.yaml` registers the option `col-span`. Names are flat and globally unique across core, bundles, plugins, and apps.
+An option name is the **Store-API wire key** taken directly from the kebab-case filename — there is no source prefix and no directory nesting. `Resources/content-system/style-options/custom-size.yaml` registers the option `custom-size`. Names are flat and globally unique across core, bundles, plugins, and apps.
 
 **Rules:**
 - One option per YAML file

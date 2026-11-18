@@ -429,15 +429,15 @@ class ContentRouteRenderingTest extends TestCase
 
         static::assertArrayHasKey('style', $root);
         static::assertIsArray($root['style']);
-        static::assertSame(['col-span'], array_keys($root['style']));
-        static::assertSame(['xs' => 6], $root['style']['col-span']);
+        static::assertSame(['test-responsive-integer'], array_keys($root['style']));
+        static::assertSame(['xs' => 6], $root['style']['test-responsive-integer']);
 
         $nested = $this->slotChildren($root, 'content')[1];
 
         static::assertArrayHasKey('style', $nested);
         static::assertIsArray($nested['style']);
-        static::assertSame(['col-span'], array_keys($nested['style']));
-        static::assertSame(['md' => 4], $nested['style']['col-span']);
+        static::assertSame(['test-responsive-integer'], array_keys($nested['style']));
+        static::assertSame(['md' => 4], $nested['style']['test-responsive-integer']);
     }
 
     #[TestDox('names the full-format page keys id, name and version rather than the layout-prefixed struct names')]
@@ -1386,7 +1386,7 @@ class ContentRouteRenderingTest extends TestCase
             'id' => $this->ids->get('root-grid'),
             'component' => 'Sw:Grid:Container',
             'properties' => [],
-            'style' => ['col-span' => ['xs' => 6]],
+            'style' => ['test-responsive-integer' => ['xs' => 6]],
             // Consuming the page-level context the category root source declares is what makes the
             // virtual-root wrap/unwrap lifecycle observable in the response at all. Root scope is what
             // page-level context is delivered to, at any depth; a parent-scope consumer of this key would
@@ -1410,7 +1410,7 @@ class ContentRouteRenderingTest extends TestCase
                         'id' => $this->ids->get('inner-grid'),
                         'component' => 'Sw:Grid:Container',
                         'properties' => [],
-                        'style' => ['col-span' => ['md' => 4]],
+                        'style' => ['test-responsive-integer' => ['md' => 4]],
                         'slots' => [
                             'content' => [[
                                 'id' => $this->ids->get('image'),
@@ -1668,8 +1668,8 @@ class ContentRouteRenderingTest extends TestCase
     {
         $root = $this->storedRoots()[0];
 
-        static::assertSame(['col-span' => ['xs' => 6]], $root->style->toArray());
-        static::assertSame(['col-span' => ['md' => 4]], $root->slots['content'][1]->style->toArray());
+        static::assertSame(['test-responsive-integer' => ['xs' => 6]], $root->style->toArray());
+        static::assertSame(['test-responsive-integer' => ['md' => 4]], $root->slots['content'][1]->style->toArray());
     }
 
     /**

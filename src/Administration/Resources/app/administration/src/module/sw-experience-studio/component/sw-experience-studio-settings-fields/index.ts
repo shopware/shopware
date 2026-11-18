@@ -155,6 +155,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
+            radioPanelDescriptionIdPrefix: Shopware.Utils.createId(),
             expandedResponsiveProperties: {} as Record<string, boolean>,
             responsiveGlobalSnapshots: {} as Record<string, PrimitiveValue>,
             touchedBreakpointAwareProperties: {} as Record<string, boolean>,
@@ -825,11 +826,18 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
-        getRadioPanelOptionId(key: string, optionValue: string): string {
-            const normalizedKey = key.replace(/[^a-zA-Z0-9_-]/g, '-');
-            const normalizedOptionValue = optionValue.replace(/[^a-zA-Z0-9_-]/g, '-');
+        getRadioPanelDescription(property: ContentSystemElementTypeProperty, value: unknown): string | undefined {
+            const selected =
+                typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? String(value) : '';
+            return this.getRadioPanelOptions(property).find((option) => option.value === selected)?.description;
+        },
 
-            return `sw-experience-studio-radio-panel-${normalizedKey}-${normalizedOptionValue}`;
+        getRadioPanelDescriptionId(key: string): string {
+            return `sw-experience-studio-radio-panel-description-${this.radioPanelDescriptionIdPrefix}-${encodeURIComponent(key)}`;
+        },
+
+        getRadioPanelOptionId(key: string, optionValue: string): string {
+            return `sw-experience-studio-radio-panel-${this.radioPanelDescriptionIdPrefix}-${encodeURIComponent(JSON.stringify([key, optionValue]))}`;
         },
 
         getRadioPanelLabelTargetId(

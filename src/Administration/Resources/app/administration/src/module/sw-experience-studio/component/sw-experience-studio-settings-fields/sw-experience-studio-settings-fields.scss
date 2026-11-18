@@ -61,6 +61,12 @@
         display: grid;
         gap: 8px;
 
+        > p {
+            margin: 0;
+            color: var(--color-text-secondary-default);
+            font-size: var(--font-size-xs);
+        }
+
         > .sw-experience-studio-settings-fields__radio-panel-label {
             margin-bottom: 0;
         }

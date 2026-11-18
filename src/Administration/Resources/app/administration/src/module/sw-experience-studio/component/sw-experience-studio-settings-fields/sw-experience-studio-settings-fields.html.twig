@@ -366,6 +366,7 @@
                                     :variant="String(getPropertyValue(field.key, field.property) ?? '') === option.value ? 'primary' : 'secondary'"
                                     :disabled="!allowEdit || option.disabled || undefined"
                                     :aria-label="option.label"
+                                    :aria-describedby="String(getPropertyValue(field.key, field.property) ?? '') === option.value && getRadioPanelDescription(field.property, getPropertyValue(field.key, field.property)) ? getRadioPanelDescriptionId(field.key) : undefined"
                                     :title="option.label"
                                     @click="onUpdateRadioPanelProperty(field.key, field.property, option.value)"
                                 >
@@ -381,6 +382,14 @@
                                     />
                                 </mt-button>
                             </sw-button-group>
+
+                            <p
+                                v-show="getRadioPanelDescription(field.property, getPropertyValue(field.key, field.property))"
+                                :id="getRadioPanelDescriptionId(field.key)"
+                                aria-live="polite"
+                            >
+                                {{ getRadioPanelDescription(field.property, getPropertyValue(field.key, field.property)) }}
+                            </p>
                         </div>
 
                         <sw-entity-single-select

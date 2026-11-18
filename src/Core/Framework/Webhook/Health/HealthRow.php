@@ -62,4 +62,15 @@ final class HealthRow
 
         return $next;
     }
+
+    public function toDisabled(DisabledOrigin $origin, string $now): self
+    {
+        $next = clone $this;
+        $next->state = EndpointState::Disabled;
+        $next->disabledSince = $now;
+        $next->disabledOrigin = $origin;
+        $next->cooldownUntil = null;
+
+        return $next;
+    }
 }

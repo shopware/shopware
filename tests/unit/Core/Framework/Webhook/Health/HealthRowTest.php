@@ -111,6 +111,34 @@ class HealthRowTest extends TestCase
         yield 'null column maps to null' => [null, null];
     }
 
+    public function testToDisabledRecordsOriginAndMomentAndClearsCooldownWithoutMutatingReceiver(): void
+    {
+        $now = '2026-01-01 12:00:00';
+        $row = self::createRow(
+            consecutiveTransientFailures: 2,
+            consecutiveNonTransientFailures: 3,
+            degradedCycleCount: 4,
+            cooldownUntil: '2026-01-01 13:00:00',
+            suspendedSince: '2026-01-01 11:00:00',
+        );
+
+        $disabled = $row->toDisabled(DisabledOrigin::Operator, $now);
+
+        static::assertSame(EndpointState::Disabled, $disabled->state);
+        static::assertSame($now, $disabled->disabledSince);
+        static::assertSame(DisabledOrigin::Operator, $disabled->disabledOrigin);
+        static::assertNull($disabled->cooldownUntil);
+
+        static::assertSame(EndpointState::Degraded, $row->state);
+        static::assertSame(2, $row->consecutiveTransientFailures);
+        static::assertSame(3, $row->consecutiveNonTransientFailures);
+        static::assertSame(4, $row->degradedCycleCount);
+        static::assertSame('2026-01-01 13:00:00', $row->cooldownUntil);
+        static::assertSame('2026-01-01 11:00:00', $row->suspendedSince);
+        static::assertNull($row->disabledSince);
+        static::assertNull($row->disabledOrigin);
+    }
+
     private static function createRow(
         EndpointState $state = EndpointState::Degraded,
         int $consecutiveTransientFailures = 0,

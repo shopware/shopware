@@ -53,6 +53,35 @@ Every registered tool belongs to a group, and group membership is the single sou
 
 The `discovery` group is reserved for the three meta-tools (`McpToolsetRegistry::DISCOVERY_META_TOOLS`). A plugin or bundle tool that claims it is moved to `other` at compile time, `bin/console debug:mcp` lists it with a warning, and the `shopware.mcpReservedToolGroup` PHPStan rule reports it during development. An extension that needs its tools on the first `tools/list`, for example for a proxy endpoint, selects its own toolset with `?toolsets=` instead, as agentic-commerce does on `/ucp/mcp`.
 
+### Toolset descriptions
+
+`shopware-toolsets-list` shows one description per toolset, and a model reads it to decide which toolset to enable.
+Set it with the optional `description` argument of `#[McpToolGroup]`:
+
+```php
+#[McpTool(name: 'swag-report-revenue', description: '...')]
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+class RevenueReportTool
+```
+
+- Describe the toolset, not the tool: which tasks it covers and when to enable it.
+  Keep it to one or two sentences, because it is sent on every `shopware-toolsets-list` call.
+- Set it on one tool of the group.
+- Extensions may add tools to a core group, such as `entity`, but cannot change its description.
+  A description from a core bundle (`Shopware\Core`, `Shopware\Storefront`, `Shopware\Administration`, `Shopware\Elasticsearch`) always wins for its group, and an extension description for that group is ignored and logged at container build.
+  Separately versioned plugins such as Commercial count as extensions.
+- An extension can describe only a group no core tool describes.
+  If two extensions describe the same group differently, the tool whose name sorts first wins and the conflict is logged.
+- Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.
+- A description is used only while every tool of the toolset is visible.
+  When the caller's allowlist hides some of its tools, the toolset gets the generated description instead, so it never promises a tool the caller cannot use.
+- A tool that claims the reserved `discovery` group loses its description together with the group.
+- App toolsets (`mcp.xml`) cannot carry a description yet; they always get the generated one.
+
+`McpToolAnalysisCompilerPass` collects the descriptions per scope into `shopware.mcp.tool_group_descriptions` and `shopware.store_api_mcp.tool_group_descriptions`.
+Store API tools also carry the SDK tag `mcp.tool`, so the Admin scope leaves them out, and a Store API description never reaches the Admin toolsets.
+`McpToolsetRegistry` puts them into the toolset entries that `shopware-toolsets-list` and `shopware-toolset-enable` return.
+
 The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure via its own toolset meta-tools (`StoreApiToolsetsListTool` / `StoreApiToolsetEnableTool`) and a `store-api` toolset group, and its `shopware-tool-search` carries the same `_meta.usage` hint. Both endpoints' server `instructions` (returned in every `initialize` response) point clients at `shopware-tool-search` as the discovery entry point when no advertised tool matches the requested action.
 
 ## Architecture
@@ -118,6 +147,26 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
+- Privileges are declared, see "Declaring privileges" below
+
+### Declaring privileges
+
+Every Admin API tool declares exactly one of two attributes on its class.
+`#[McpToolRequires]` lists the ACL privileges it needs.
+`#[McpToolRequiresNoPrivilege(reason: '...')]` is the explicit opt-out for a tool that reads no shop data, such as `shopware-entity-schema` and the three discovery meta-tools.
+Both are informational and grant nothing: the opt-out is not shown in `debug:mcp` or the capabilities API, a tool with it simply has no privileges listed, and the DAL still checks the ACL of every repository call.
+
+Store API tools declare neither ACL attribute nor call `requirePrivilege()` or `requirePrivilegeResult()`, because Admin ACL privileges do not exist in a sales channel context.
+
+PHPStan enforces this with two rules:
+
+- `shopware.mcpAdminToolMissingRequires` (`McpAdminToolRequiresPrivilegeRule`) reports an Admin API tool with neither attribute, or with both.
+- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` or `requirePrivilegeResult()` call in its own class.
+  Inherited calls are not followed. They are harmless, because `requirePrivilege()` always passes outside an Admin API context.
+
+Both read the server from the container tags (`McpToolScopeResolver`), one service definition at a time.
+A class registered on both servers gets both rules, so it can only use `#[McpToolRequiresNoPrivilege]`.
+A class the container does not know is skipped.
 
 ### Tool metadata: `meta` vs dedicated attributes
 
@@ -125,6 +174,7 @@ Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest re
 
 - Use `#[McpTool(..., meta: [...])]` for lightweight MCP descriptor hints that are simple scalar values, experimental, client-facing, or only consumed near tool discovery/advertisement. Examples: ranking/search hints, visibility hints. (Advertisement visibility itself is **not** a `meta` hint — it is derived from the `#[McpToolGroup]`; the `discovery` group is advertised, everything else is deferred.)
 - Use a dedicated Shopware attribute only when the concept is first-class in Shopware, needs structured typing or validation, is repeatable, is consumed by several subsystems, or should be discoverable without parsing arbitrary string keys. Examples: `#[McpToolDependsOn]` and `#[McpToolRequires]`.
+- Behaviour hints for clients (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) go into the SDK's `annotations:` argument of `#[McpTool]` (`ToolAnnotations`), neither `meta` nor a Shopware attribute. Every core tool declares them; the rules and the table are in `Tool/AGENTS.md`.
 - Do not duplicate the same concept in both places. If `meta` grows validation rules, multiple consumers, or cross-cutting behavior, consider promoting it to an attribute in a follow-up. If an attribute is just a single optional scalar with one consumer, prefer `meta` instead.
 - Before adding a new attribute, document why `meta` is not enough in the PR description or nearby tests. Attribute sprawl makes tool declarations harder to scan.
 

@@ -157,6 +157,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequestCriteriaBuilder::class),
             service(DefinitionInstanceRegistry::class),
             service(EntityRouteResolver::class),
+            service(SeoUrlUpdater::class),
         ])
         ->call('setContainer', [
             service('service_container'),

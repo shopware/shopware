@@ -928,6 +928,16 @@ Get the first order delivery with `order.primaryOrderDelivery` so you should rep
 
 Get the latest order transaction with `order.primaryOrderTransaction` so you should replace methods like `order.transactions.last()` or `order.transactions[length - 1]`.
 
+### The order detail renders every shipment
+
+The Administration's order detail no longer treats every delivery besides the primary one as a shipping discount.
+A delivery with negative shipping costs is a discount, every other delivery is a shipment, which matches how `Shopware\Core\Checkout\Cart\Order\RecalculationService` already tells the two apart.
+The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, the primary delivery first.
+The order overview, the order list, the state history and the bulk edit keep showing and changing the primary delivery.
+
+Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` run once per shipment and must use the loop variable `shipment` instead of the `delivery` computed, which still points at the primary delivery.
+App component sections at the `sw-order-details-state-delivery` positions are rendered in every shipment card as well.
+
 ## Fixed `ListField` overwrites during entity clone
 
 `VersionManager::cloneEntity()` previously merged `CloneBehavior` overwrites with `array_replace_recursive`, which index-merges array values.

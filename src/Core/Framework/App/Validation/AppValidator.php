@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Util\Result;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ManifestValidator
+class AppValidator
 {
     /**
      * @param iterable<AbstractManifestValidator> $validators

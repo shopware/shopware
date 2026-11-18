@@ -20,8 +20,8 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 - Do not introduce public API breaks without prior discussion.
 - Model new code on the reference implementations listed in `src/Administration/Resources/app/administration/AGENTS.md`, not on the code next to it.
 - For Admin UI that reads or persists DAL entities or associations, update matching ACL privilege mapping and migrations for existing roles when needed.
-- After adding Twig blocks, run `composer admin:generate-blocks-list` and commit the updated `src/Administration/Resources/app/administration/blocks-list.json`.
-  `src/meta/meta.spec.js` fails with "New blocks have been added" otherwise, and Jest runs limited to the changed module do not catch it.
+- After adding, renaming, moving or removing a block, or registering a component, run `composer admin:generate-public-api` and commit the updated files in `src/Administration/Resources/app/administration/public-api/`.
+  `scripts/generate-public-api/committed-snapshot.spec.ts` fails with "The snapshot in public-api/ is stale" otherwise, and Jest runs limited to the changed module do not catch it.
 
 ## Tests
 

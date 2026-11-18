@@ -18,6 +18,7 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Metadata\MetadataLoader;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Media\TypeDetector\TypeDetector;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Mime\MimeTypes;
 
 #[Package('discovery')]
 class FileSaver
@@ -79,6 +81,7 @@ class FileSaver
         );
 
         $this->validateFileExtension($mediaFile, $mediaId, $currentMedia->isPrivate());
+        $this->validateContentType($mediaFile);
         $this->fileContentValidationStrategy->validate($mediaFile);
 
         $this->removeOldMediaData($currentMedia, $context);
@@ -130,7 +133,20 @@ class FileSaver
             $context
         );
 
+        if (ExternalMediaUrl::isExternal($currentMedia->getPath())) {
+            $this->renameExternalMedia($currentMedia, $destination, $context);
+
+            return;
+        }
+
         $this->doRenameMedia($currentMedia, $destination, $context);
+    }
+
+    private function renameExternalMedia(MediaEntity $media, string $destination, Context $context): void
+    {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($media, $destination): void {
+            $this->mediaRepository->update([['id' => $media->getId(), 'fileName' => $destination]], $context);
+        });
     }
 
     private function doRenameMedia(MediaEntity $media, string $destination, Context $context): void
@@ -225,10 +241,12 @@ class FileSaver
             return;
         }
 
-        try {
-            $this->getFileSystem($media)->delete($media->getPath());
-        } catch (UnableToDeleteFile) {
-            // nth
+        if (!ExternalMediaUrl::isExternal($media->getPath())) {
+            try {
+                $this->getFileSystem($media)->delete($media->getPath());
+            } catch (UnableToDeleteFile) {
+                // nth
+            }
         }
 
         if ($this->remoteThumbnailsEnable) {
@@ -361,6 +379,37 @@ class FileSaver
         $this->fileNameValidator->validateFileName($destination);
 
         return $destination;
+    }
+
+    /**
+     * @throws MediaException
+     */
+    private function validateContentType(MediaFile $mediaFile): void
+    {
+        if ($this->isContentTypeAllowed($mediaFile)) {
+            return;
+        }
+
+        $contentType = mb_strtolower(trim(explode(';', $mediaFile->getMimeType(), 2)[0]));
+
+        throw MediaException::invalidFile(\sprintf('The content type "%s" does not match the file extension "%s"', $contentType, $mediaFile->getFileExtension()));
+    }
+
+    private function isContentTypeAllowed(MediaFile $mediaFile): bool
+    {
+        $contentType = mb_strtolower(trim(explode(';', $mediaFile->getMimeType(), 2)[0]));
+        if (!\in_array($contentType, ['text/html', 'application/xhtml+xml', 'text/xml', 'application/xml'], true) && !str_ends_with($contentType, '+xml')) {
+            return true;
+        }
+
+        $extension = mb_strtolower($mediaFile->getFileExtension());
+        $allowedContentTypes = MimeTypes::getDefault()->getMimeTypes($extension);
+        if ($extension === 'svg') {
+            // SVG content validation also checks files detected as generic XML.
+            $allowedContentTypes = [...$allowedContentTypes, 'text/xml', 'application/xml'];
+        }
+
+        return \in_array($contentType, $allowedContentTypes, true);
     }
 
     /**

@@ -129,6 +129,18 @@ class ManifestTest extends TestCase
         Manifest::validate($fileContent, $file);
     }
 
+    public function testValidateRejectsManifestWithDocumentType(): void
+    {
+        $file = '/_fixtures/test/manifest.xml';
+        $fileContent = file_get_contents(__DIR__ . $file);
+        static::assertIsString($fileContent);
+        $fileContent = str_replace('<manifest ', '<!DOCTYPE manifest [<!ENTITY name "value">]><manifest ', $fileContent);
+
+        $this->expectExceptionObject(AppException::xmlParsingException($file, 'Document types are not allowed.'));
+
+        Manifest::validate($fileContent, $file);
+    }
+
     public function testSourceType(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/test/manifest.xml');

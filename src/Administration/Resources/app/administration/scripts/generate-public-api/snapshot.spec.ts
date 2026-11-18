@@ -471,7 +471,8 @@ describe('scripts/generate-public-api/snapshot', () => {
                     "    Shopware.Component.register('sw-example-card', () => import('./component/sw-example-card'));",
                     '}',
                 ].join('\n'),
-                'The component sw-example-card is registered twice, in src/module/sw-example/index.js and in',
+                'Register it once and branch its template with v-if="feature.isActive(\'v6.8.0.0\')", ' +
+                    'or register the variant for v6.8.0 under a new name.',
             ],
         ])('rejects %s', (_case, registry, message) => {
             expect(() => card('', { [REGISTRY]: registry })).toThrow(message);

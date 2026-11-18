@@ -75,7 +75,7 @@ function componentUnit(registration: Registration, blocks: TemplateBlock[]): Com
  * The snapshot has one entry per component name. A name that is registered twice, for example once per branch
  * of a feature check, would lose one of its registrations without anyone noticing.
  */
-function assertUniqueNames(components: ComponentUnit[]): void {
+function assertUniqueNames(components: ComponentUnit[], flags: FlagContext): void {
     const registeredIn = new Map<string, string>();
 
     components.forEach(({ name, registeredIn: file }) => {
@@ -84,7 +84,8 @@ function assertUniqueNames(components: ComponentUnit[]): void {
         if (first !== undefined) {
             throw new Error(
                 `The component ${name} is registered twice, in ${first} and in ${file}. ` +
-                    'The snapshot cannot tell two registrations of one name apart yet.',
+                    `Register it once and branch its template with v-if="feature.isActive('${flags.majorFlag}')", ` +
+                    `or register the variant for ${flags.majorVersion} under a new name.`,
             );
         }
 
@@ -127,7 +128,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
         .map((registration) => componentUnit(registration, blocksOf(registration)))
         .sort((a, b) => byCodePoint(a.name, b.name));
 
-    assertUniqueNames(components);
+    assertUniqueNames(components, flags);
 
     return { flags, components };
 }

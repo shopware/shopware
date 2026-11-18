@@ -56,7 +56,6 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
         position: absolute;
         left: 50%;
         top: 100%;
-        transform: translate(-35px, 10px);
     }
 
     .mt-button {
@@ -66,35 +65,19 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
 
 .mt-floating-ui__content.sw-context-button__menu-popover {
     z-index: $z-index-context-menu;
-}
 
-.sw-popover__wrapper.sw-context-button__menu-popover {
-    &.--placement-bottom-outside {
-        .sw-context-menu {
-            transform: translate(0, 13px);
-        }
+    &[data-placement$="-end"] .sw-context-menu__content::before {
+        left: unset;
+        right: 28px;
+    }
 
-        .sw-context-menu .sw-context-menu__content::before {
+    &[data-placement^="top"] .sw-context-menu .sw-context-menu__content {
+        margin-top: 0;
+
+        &::before {
             top: auto;
             bottom: -5px;
             transform: rotate(225deg);
-        }
-    }
-
-    &.--placement-right-outside {
-        .sw-context-menu {
-            transform: translate(calc(-100% + 69px), 0);
-
-            .sw-context-menu__content::before {
-                left: unset;
-                right: 28px;
-            }
-        }
-    }
-
-    &.--placement-right-outside.--placement-bottom-outside {
-        .sw-context-menu {
-            transform: translate(calc(-100% + 69px), 13px);
         }
     }
 }

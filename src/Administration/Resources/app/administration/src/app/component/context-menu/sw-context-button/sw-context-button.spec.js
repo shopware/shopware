@@ -4,15 +4,20 @@
 
 import { mount } from '@vue/test-utils';
 
+const floatingUiStub = {
+    props: [
+        'isOpened',
+        'floatingUiOptions',
+    ],
+    template: '<div><slot v-if="isOpened"></slot></div>',
+};
+
 async function createWrapper(customOptions = {}) {
     return mount(await wrapTestComponent('sw-context-button', { sync: true }), {
         global: {
             stubs: {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'mt-floating-ui': {
-                    props: ['isOpened'],
-                    template: '<div><slot v-if="isOpened"></slot></div>',
-                },
+                'mt-floating-ui': floatingUiStub,
             },
         },
         ...customOptions,
@@ -113,5 +118,31 @@ describe('src/app/component/context-menu/sw-context-button', () => {
         await wrapper.trigger('click');
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
+    });
+
+    it.each([
+        ['bottom-start', 190, 'bottom-start'],
+        ['bottom-end', 110, 'bottom-end'],
+        ['top-end', 110, 'top-end'],
+    ])('keeps the menu arrow under the button centre when placed %s', async (placement, expectedX, expectedPlacement) => {
+        const wrapper = await createWrapper();
+        const { middleware } = wrapper.getComponent(floatingUiStub).props('floatingUiOptions');
+        const floating = document.createElement('div');
+
+        const result = middleware[0].fn({
+            x: 150,
+            placement,
+            rects: { reference: { width: 150 } },
+            elements: { floating },
+        });
+
+        expect(result).toEqual({ x: expectedX });
+        expect(floating.dataset.placement).toBe(expectedPlacement);
+    });
+
+    it('starts above the button when the menu is aligned to the top', async () => {
+        const wrapper = await createWrapper({ props: { menuVerticalAlign: 'top', menuHorizontalAlign: 'left' } });
+
+        expect(wrapper.getComponent(floatingUiStub).props('floatingUiOptions').placement).toBe('top-end');
     });
 });

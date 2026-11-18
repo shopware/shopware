@@ -34,6 +34,7 @@
 
         {% block sw_media_field_toggle_button %}
         <mt-button
+            ref="toggleButton"
             class="sw-media-field__toggle-button"
             square
             :disabled="disabled"
@@ -46,8 +47,11 @@
 
             {% block sw_media_field_media_popover %}
             <mt-floating-ui
-                class="sw-media-field__popover sw-media-field__expanded-content"
+                class="sw-media-field__expanded-content"
                 :is-opened="showPicker"
+                :anchor-element="$refs.toggleButton?.$el"
+                :floating-ui-options="{ placement: 'bottom-end' }"
+                detached
             >
                 <div @click.stop>
                     {% block sw_media_field_action_bar %}

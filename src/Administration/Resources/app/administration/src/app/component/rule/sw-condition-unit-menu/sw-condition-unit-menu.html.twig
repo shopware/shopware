@@ -4,6 +4,7 @@
 >
     <button
         v-if="defaultUnit"
+        ref="unitMenuButton"
         class="sw-condition-unit-menu sw-condition-unit-menu__label"
         @click="showMenu = !showMenu"
         @keydown.esc="showMenu = false"
@@ -25,7 +26,11 @@
         {{ $t(`global.sw-condition-generic.units.${type}`) }}
     </div>
 
-    <mt-floating-ui :is-opened="showMenu && defaultUnit">
+    <mt-floating-ui
+        :is-opened="showMenu && defaultUnit"
+        :anchor-element="$refs.unitMenuButton"
+        detached
+    >
         <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
         <div
             v-click-outside="() => showMenu = false"

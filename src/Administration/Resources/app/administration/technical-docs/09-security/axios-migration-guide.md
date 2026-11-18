@@ -6,6 +6,8 @@ The Shopware Administration is moving from its legacy Axios 0.x client to Axios 
 
 To keep existing extensions working during the migration, the Administration temporarily contains both Axios versions behind a Shopware-owned HTTP client facade. Extension code continues to use the injected `httpClient`; it must not select or access an underlying Axios instance.
 
+Legacy Axios 0.x, the `useAxiosV1` switch and the `axios-v1` package alias are deprecated and are removed with Shopware 6.8. Complete the steps in this guide before upgrading to 6.8.
+
 The exact installed patch versions are implementation details and may change while the migration is in progress. This guide therefore refers to the clients as legacy Axios 0.x and Axios v1.
 
 ## Version selection
@@ -25,6 +27,10 @@ The resulting behavior is:
 | Repository requests during the transition | Axios v1 | None; the transport is internal |
 
 Repository requests use Axios v1 before the global switch because repositories are the standard Administration data-access path. Axios is not part of the repository contract, so extensions do not select its transport or need to change repository calls.
+
+If your extension never sets `useAxiosV1`, its direct requests run on legacy Axios today and move to Axios v1 with 6.8. That is the starting point this guide assumes.
+
+`useAxiosV1` is a migration aid, not a permanent option. It lets you move one request at a time onto Axios v1 while still running 6.7. It is deprecated with 6.7.15.0 and removed with 6.8, so delete it again once the migration is done.
 
 ## Migrating direct HTTP requests
 
@@ -52,7 +58,7 @@ this.httpClient.get(url, {
 });
 ```
 
-Keep the explicit opt-in while validating Axios v1 on Shopware 6.7. Remove it after upgrading to a version where `V6_8_0_0` is active, because Axios v1 is then the default.
+Keep the explicit opt-in while validating Axios v1 on Shopware 6.7. Remove it after upgrading to a version where `V6_8_0_0` is active, because Axios v1 is then the default and the flag is removed with 6.8.
 
 ## Repository requests
 
@@ -194,9 +200,39 @@ httpClient.request({
 
 Avoid spreading this override across an extension. A widespread opt-out hides migration problems and makes later removal harder.
 
-Axios 0.x, the `useAxiosV1` switch, and structural `AxiosInstance` compatibility are transitional. Their removal will be announced through the release information and the applicable major upgrade guide. No specific removal release is promised by this guide.
+## Removal with Shopware 6.8
 
-The architectural rationale for keeping both transports behind a Shopware-owned boundary is documented in [Keep Administration HTTP transports behind a compatibility facade](../../../../../../../adr/2026-07-23-administration-http-client-compatibility-facade.md).
+Legacy Axios 0.x and the transitional compatibility surface are removed with Shopware 6.8:
+
+- The `useAxiosV1` request flag, in both directions
+- `httpClient.axiosV0`, `httpClient.axiosV1`, `httpClient.interceptorsV0`, `httpClient.interceptorsV1`, `httpClient.defaultsV0` and `httpClient.defaultsV1`
+- The `axios-v1` package alias; Axios 1.x is installed as `axios`
+- The `src/core/factory/http-client-adapter` module
+
+Structural `AxiosInstance` compatibility is no longer a goal after the removal. Depend on `HttpClient`, `HttpRequestConfig` and `HttpResponse` from `src/core/factory/http-client.types`.
+
+Checklist before upgrading to 6.8:
+
+1. Remove every `useAxiosV1: true`; Axios v1 is the default.
+2. Replace every `useAxiosV1: false` with Axios v1 compatible code, most often `AbortController` instead of `CancelToken`.
+3. Replace `axios-v1` imports with `axios`, or better, with Shopware's HTTP types.
+4. Replace access to `axiosV0` and `axiosV1` with `httpClient` itself, and access to `interceptorsV*` and `defaults*V*` with `httpClient.interceptors` and `httpClient.defaults`.
+
+While both transports exist, `httpClient.interceptors.<request|response>.handlers` is a copy of the handler list rather than the array Axios runs, because the facade has to keep two handler stacks in sync. `use()`, `eject()`, `clear()` and assigning a whole element are mirrored onto both transports and behave as expected. Mutating a handler object in place does not:
+
+```javascript
+// Has no effect during 6.7: only the facade's copy is changed
+httpClient.interceptors.response.handlers[0].fulfilled = myWrapper;
+
+// Works in both versions
+const id = httpClient.interceptors.response.use(myWrapper);
+```
+
+From 6.8 on, `httpClient.interceptors` is the Axios interceptor manager itself and `handlers` is the list Axios runs.
+
+The removal is documented in `UPGRADE-6.8.md`, section "Axios 1.x is the only HTTP client of the Administration".
+
+The architectural rationale for the facade, and the decision to end the second transport, is documented in [One Axios transport behind the Administration HTTP client facade](../../../../../../../adr/2026-09-08-administration-single-axios-transport.md).
 
 ## Troubleshooting
 

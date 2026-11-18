@@ -2,6 +2,9 @@
  * @sw-package framework
  *
  * @module core/factory/http-client-adapter
+ *
+ * @deprecated tag:v6.8.0 - The whole module will be removed. It only exists to normalise the
+ * differences between axios 0.x and axios 1.x while both transports are available.
  */
 
 import Axios from 'axios';
@@ -23,6 +26,9 @@ type ResponseForConfig<TRequestConfig, TData = unknown> = TRequestConfig extends
       : AxiosResponseV0<TData> | AxiosResponseV1<TData>;
 /**
  * Adapter interface for handling axios version-specific differences
+ *
+ * @deprecated tag:v6.8.0 - Will be removed. Axios 1.x is the only transport, so no version
+ * abstraction is needed.
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export interface HttpClientAdapter<TRequestConfig = AxiosRequestConfigV0 | AxiosRequestConfigV1> {
@@ -40,6 +46,8 @@ export interface HttpClientAdapter<TRequestConfig = AxiosRequestConfigV0 | Axios
 /**
  * Creates an adapter for axios v1.x
  * Uses AbortController for request cancellation
+ *
+ * @deprecated tag:v6.8.0 - Will be removed. Call `client.request()` and `Axios.isCancel()` directly.
  *
  * @param client - The axios v1 instance
  * @returns HttpClientAdapter for axios v1
@@ -64,6 +72,8 @@ export function createAxiosV1Adapter(client: AxiosInstanceV1): HttpClientAdapter
 /**
  * Creates an adapter for axios v0.x
  * Uses CancelToken for request cancellation
+ *
+ * @deprecated tag:v6.8.0 - Will be removed with axios 0.x support.
  *
  * @param client - The axios v0 instance
  * @returns HttpClientAdapter for axios v0

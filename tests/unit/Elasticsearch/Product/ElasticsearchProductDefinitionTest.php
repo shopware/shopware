@@ -912,19 +912,23 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
-    public function testFetchingIncludesDocuments(): void
+    public function testFetchingIncludesTheDocumentsOfTheProductThatOwnsThem(): void
     {
         $definition = $this->getDefinitionRegistry()->get(ProductDefinition::class);
         static::assertInstanceOf(ProductDefinition::class, $definition);
 
         $productId = $this->ids->get('product-1');
+        $ownerId = $this->ids->get('parent-1');
         $connection = $this->getConnection();
+        $connection
+            ->method('fetchAllKeyValue')
+            ->willReturn([$productId => $ownerId]);
         $connection
             ->method('fetchAllAssociative')
             ->willReturn([
-                ['productId' => $productId, 'id' => $this->ids->get('document-1'), 'languageId' => Defaults::LANGUAGE_SYSTEM],
-                ['productId' => $productId, 'id' => $this->ids->get('document-1'), 'languageId' => $this->ids->get('language-de')],
-                ['productId' => $productId, 'id' => $this->ids->get('document-2'), 'languageId' => null],
+                ['ownerId' => $ownerId, 'id' => $this->ids->get('document-1'), 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                ['ownerId' => $ownerId, 'id' => $this->ids->get('document-1'), 'languageId' => $this->ids->get('language-de')],
+                ['ownerId' => $ownerId, 'id' => $this->ids->get('document-2'), 'languageId' => null],
             ]);
 
         $definition = new ElasticsearchProductDefinition(

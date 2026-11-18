@@ -9,11 +9,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingUpdater;
+use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Framework\Context;
@@ -40,6 +42,23 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(ProductIndexer::class)]
 class ProductIndexerTest extends TestCase
 {
+    public function testHandleMarksTheIndexerEventOfAFullIndexingRun(): void
+    {
+        $events = [];
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ProductIndexerEvent::class, static function (ProductIndexerEvent $event) use (&$events): void {
+            $events[] = $event;
+        });
+
+        $message = new ProductIndexingMessage([Uuid::randomHex()], null, Context::createDefaultContext());
+        $message->isFullIndexing = true;
+
+        $this->createIndexer(static::createStub(Connection::class), static::createStub(AbstractStockStorage::class), $dispatcher)->handle($message);
+
+        static::assertCount(1, $events);
+        static::assertTrue($events[0]->isFullIndexing);
+    }
+
     public function testUpdateSkipChildCountUpdater(): void
     {
         $context = Context::createDefaultContext();
@@ -120,7 +139,7 @@ class ProductIndexerTest extends TestCase
         $this->createIndexer($connection, $stockStorage)->update($this->writtenEvent($context, $parentId, ['stock' => 0]));
     }
 
-    private function createIndexer(Connection $connection, AbstractStockStorage $stockStorage): ProductIndexer
+    private function createIndexer(Connection $connection, AbstractStockStorage $stockStorage, ?EventDispatcher $eventDispatcher = null): ProductIndexer
     {
         return new ProductIndexer(
             static::createStub(IteratorFactory::class),
@@ -134,7 +153,7 @@ class ProductIndexerTest extends TestCase
             static::createStub(ChildCountUpdater::class),
             static::createStub(ManyToManyIdFieldUpdater::class),
             $stockStorage,
-            static::createStub(EventDispatcher::class),
+            $eventDispatcher ?? static::createStub(EventDispatcher::class),
             static::createStub(CheapestPriceUpdater::class),
             static::createStub(ProductStreamUpdater::class),
             static::createStub(MessageBusInterface::class),

@@ -487,7 +487,7 @@ class InfoControllerTest extends TestCase
             $presignedMediaUploadService,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
             $this->versionHistory,
-            new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], maxFileSize: 1024),
+            new ProductDocumentConfig($this->eventDispatcher, ['pdf', 'docx'], 1024, ['pdf', 'docx', '264']),
         );
     }
 }

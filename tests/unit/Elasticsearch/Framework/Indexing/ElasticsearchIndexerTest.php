@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use OpenSearch\Namespaces\IndicesNamespace;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -70,6 +71,52 @@ class ElasticsearchIndexerTest extends TestCase
         $this->client->method('indices')->willReturn($this->indices);
 
         parent::setUp();
+    }
+
+    #[DataProvider('messageCounts')]
+    public function testIterateMessagesStreamsWithOneBatchLookahead(int $count): void
+    {
+        $indexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate']);
+        $calls = 0;
+        $requestedEntities = [];
+        $requestedOffsets = [];
+        $offset = new IndexerOffset(['product'], 123);
+        $indexer->method('iterate')->willReturnCallback(static function (?IndexerOffset $previousOffset, array $entities) use (&$calls, &$requestedEntities, &$requestedOffsets, $offset, $count): ?ElasticsearchIndexingMessage {
+            ++$calls;
+            $requestedEntities[] = $entities;
+            $requestedOffsets[] = $previousOffset;
+
+            return $calls <= $count ? new ElasticsearchIndexingMessage(
+                new IndexingDto([(string) $calls], 'product-index', 'product'),
+                $offset,
+                Context::createDefaultContext(),
+            ) : null;
+        });
+
+        $messages = $indexer->iterateMessages(['product']);
+        static::assertCount(0, $requestedEntities);
+
+        $received = 0;
+        foreach ($messages as $message) {
+            ++$received;
+            static::assertCount($received + 1, $requestedEntities);
+            static::assertSame([(string) $received], $message->getData()->getIds());
+            static::assertSame($received === $count, $message->isLastMessage());
+        }
+
+        static::assertSame($count, $received);
+        static::assertSame(array_fill(0, $count + 1, ['product']), $requestedEntities);
+        static::assertSame([null, ...array_fill(0, $count, $offset)], $requestedOffsets);
+    }
+
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function messageCounts(): iterable
+    {
+        yield 'empty index' => [0];
+        yield 'single batch' => [1];
+        yield 'multiple batches' => [5];
     }
 
     public function testIterateESDisabled(): void

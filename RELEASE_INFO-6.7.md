@@ -79,6 +79,11 @@ A migration updates these mail templates unless they were changed in the Adminis
 Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
 The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
+### Elasticsearch indexing uses bounded memory
+
+`es:index` and automatic reindexing after updates now dispatch batches while scanning the catalog, reducing PHP memory usage for large catalogs.
+This also applies when running `es:index --no-queue`.
+Queued indexing still requires sufficient message transport capacity.
 
 ### Services can be reset between requests in long running runtimes
 

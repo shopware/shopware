@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Elasticsearch\Framework\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,7 @@ use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexer;
 use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Shopware\Elasticsearch\Framework\Indexing\IndexingDto;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -21,9 +23,51 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(ElasticsearchIndexingCommand::class)]
 class ElasticsearchIndexingCommandTest extends TestCase
 {
+    #[DataProvider('executionModes')]
+    public function testProcessesBatchesBeforeTheScanFinishes(bool $noQueue): void
+    {
+        $indexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate', '__invoke']);
+        $trace = [];
+        $batch = 0;
+        $indexer->method('iterate')->willReturnCallback(static function () use (&$trace, &$batch): ?ElasticsearchIndexingMessage {
+            $trace[] = 'read';
+
+            return ++$batch <= 3 ? new ElasticsearchIndexingMessage(
+                new IndexingDto([(string) $batch], 'product-index', 'product'),
+                null,
+                Context::createDefaultContext(),
+            ) : null;
+        });
+        $process = static function (ElasticsearchIndexingMessage $message) use (&$trace): Envelope {
+            $trace[] = $message->isLastMessage() ? 'last' : 'process';
+
+            return new Envelope($message);
+        };
+        $indexer->expects($noQueue ? $this->exactly(3) : $this->never())->method('__invoke')->willReturnCallback($process);
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects($noQueue ? $this->never() : $this->exactly(3))->method('dispatch')->willReturnCallback($process);
+        $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
+        $aliasHandler->expects($noQueue ? $this->once() : $this->never())->method('run');
+
+        $tester = new CommandTester(new ElasticsearchIndexingCommand($indexer, $bus, $aliasHandler, true));
+        $tester->execute(['--no-queue' => $noQueue]);
+
+        $tester->assertCommandIsSuccessful();
+        static::assertSame(['read', 'read', 'process', 'read', 'process', 'read', 'last'], $trace);
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function executionModes(): iterable
+    {
+        yield 'queued' => [false];
+        yield 'synchronous' => [true];
+    }
+
     public function testExecute(): void
     {
-        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
+        $oldIndexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate', '__invoke']);
 
         $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
@@ -37,7 +81,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
     public function testExecuteQueue(): void
     {
-        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
+        $oldIndexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate', '__invoke']);
 
         $message = new ElasticsearchIndexingMessage(
             new IndexingDto([], 'product', 'product'),
@@ -65,7 +109,7 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
     public function testEsDisabled(): void
     {
-        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
+        $oldIndexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate', '__invoke']);
 
         $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);
@@ -81,7 +125,8 @@ class ElasticsearchIndexingCommandTest extends TestCase
 
     public function testExecuteOnly(): void
     {
-        $oldIndexer = static::createStub(ElasticsearchIndexer::class);
+        $oldIndexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate', '__invoke']);
+        $oldIndexer->expects($this->once())->method('iterate')->with(null, ['product', 'category'])->willReturn(null);
 
         $bus = static::createStub(MessageBusInterface::class);
         $aliasHandler = $this->createMock(CreateAliasTaskHandler::class);

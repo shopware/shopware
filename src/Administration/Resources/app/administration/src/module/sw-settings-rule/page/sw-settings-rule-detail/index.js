@@ -9,7 +9,6 @@ const { Criteria, EntityCollection } = Shopware.Data;
  * @private
  * @sw-package fundamentals@after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

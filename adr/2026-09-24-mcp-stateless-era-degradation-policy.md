@@ -31,14 +31,16 @@ sequenceDiagram
     S-->>C: results from the request plus the session state
     S-->>C: notifications/tools/list_changed pushed to the session
     C->>S: DELETE (Mcp-Session-Id)
-    S-->>C: 204, session state discarded
+    S-->>C: 200, session state discarded
 ```
 
 **Stateless era** (revision 2026-07-28 and later).
 
 - There is no `initialize` and no session id. A client that wants to know what the server supports calls `server/discover`.
 - Instead, every request carries everything the server needs to know about the client in its `_meta` field: the protocol version, the client capabilities and, for example, the log level the client wants for this request.
-- The client never sends `DELETE`. Disconnecting is purely local on the client side. A server that still receives a `DELETE` answers `405`.
+- The client never sends `DELETE`. Disconnecting is purely local on the client side.
+  Only a server that serves the stateless era alone answers a `DELETE` with `405`.
+  Shopware serves both eras, so it handles a `DELETE` as the handshake revisions describe: it ends the session, or answers `400` when the request carries no session id.
 - Every request can be handled by a fresh server instance. Nothing a request writes into per-connection memory is visible to the next request.
 - Notifications that the server wants to push (for example "the tool list changed") no longer go to a session. The client opens a stream with `subscriptions/listen` and the server publishes to it.
 
@@ -54,11 +56,11 @@ sequenceDiagram
     C->>S: subscriptions/listen (opens a stream)
     S-->>C: tools/list_changed published to the stream
     Note over C: disconnect is local, no DELETE is sent
-    C->>S: DELETE from a client that still sends one
-    S-->>C: 405
+    C->>S: DELETE without Mcp-Session-Id
+    S-->>C: 400, handled as a handshake request
 ```
 
-The `mcp/sdk` 0.8 used by Shopware serves both eras from the same URL. The client decides which one it speaks, and the server answers in the same era. Shopware currently switches the stateless era off for both endpoints (`/api/_mcp` and `/store-api/_mcp`) with `Builder::withoutModernEra()` in `McpServerBuilderCompilerPass` (the SDK and the MCP Inspector call the stateless era "modern"). As soon as that switch is removed, every client on the stateless era gets the stateless behaviour described above.
+The `mcp/sdk` 0.9 used by Shopware serves both eras from the same URL. The client decides which one it speaks, and the server answers in the same era. Shopware currently switches the stateless era off for both endpoints (`/api/_mcp` and `/store-api/_mcp`) with `Builder::withoutModernEra()` in `McpServerBuilderCompilerPass` (the SDK and the MCP Inspector call the stateless era "modern"). As soon as that switch is removed, every client on the stateless era gets the stateless behaviour described above.
 
 ### What in Shopware depends on the session
 
@@ -108,7 +110,7 @@ Both endpoints will serve both eras from the same URL. We don't switch to statel
 
 **For stored large results.** A result is readable by its principal, not only by its session. Two agents that use the same integration can read each other's stored results. That is wider than the session scope of [#19966](https://github.com/shopware/shopware/issues/19966), and acceptable because both have the same permissions. On the Store endpoint the principal includes the context token, so a result is no longer readable after login or logout. A client that sends no `sw-context-token` gets its result inline, because a token minted for that one request could never read it back.
 
-**For operators.** Stored large results are cleaned up by age, whether or not a client ends its session. Shared state for multi-step requests needs a secret that all workers share, and the notification stream may need a cache pool shared by all workers, for example Redis in multi-server setups. Each open `subscriptions/listen` stream occupies a PHP worker for its whole lifetime: in `mcp/sdk` 0.8.1 the stream polls every 250 ms and ends after 30 seconds, after which the client reconnects. Every subscribed client therefore holds an FPM worker almost continuously, which has to be accounted for in `pm.max_children`. `Builder::setSubscriptionLifetime()` controls the lifetime.
+**For operators.** Stored large results are cleaned up by age, whether or not a client ends its session. Shared state for multi-step requests needs a secret that all workers share, and the notification stream may need a cache pool shared by all workers, for example Redis in multi-server setups. Each open `subscriptions/listen` stream occupies a PHP worker for its whole lifetime: in `mcp/sdk` 0.9 the stream polls every 250 ms and ends after 30 seconds, after which the client reconnects. Every subscribed client therefore holds an FPM worker almost continuously, which has to be accounted for in `pm.max_children`. `Builder::setSubscriptionLifetime()` controls the lifetime.
 
 **For Shopware development.** The result cache is re-keyed from the session to the signed token, the Store endpoint gets a result resource, and `shopware-toolset-enable` is hidden or returns an error on the stateless era. Tests have to run the same scenarios against both eras and check the behaviour described here, not whatever the code happens to do. When the implementation lands, `src/Core/Framework/Mcp/AGENTS.md` and `src/Core/Framework/Mcp/docs/spec-coverage.md` are updated. A future removal of the handshake era is out of scope here.
 

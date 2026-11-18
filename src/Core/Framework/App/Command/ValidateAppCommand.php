@@ -5,8 +5,8 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -29,7 +29,7 @@ class ValidateAppCommand extends Command
 {
     public function __construct(
         private readonly string $appDir,
-        private readonly ManifestValidator $manifestValidator
+        private readonly AppValidator $appValidator
     ) {
         parent::__construct();
     }
@@ -81,7 +81,7 @@ class ValidateAppCommand extends Command
 
         try {
             foreach ($this->getManifestsFromDir($appDir) as $manifest) {
-                $result = $this->manifestValidator->validate($manifest, $context);
+                $result = $this->appValidator->validate($manifest, $context);
 
                 if (!$result->isOk()) {
                     $messages = implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $result->errors));

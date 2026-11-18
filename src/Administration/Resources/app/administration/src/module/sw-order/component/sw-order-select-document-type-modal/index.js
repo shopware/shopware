@@ -29,7 +29,6 @@ export const REQUIRES_CREDIT_ITEMS = [
  * @sw-package checkout
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

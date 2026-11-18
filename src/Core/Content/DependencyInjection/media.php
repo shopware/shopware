@@ -100,6 +100,7 @@ use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Media\Upload\PresignedUploadUrlGenerator;
 use Shopware\Core\Content\Media\Upload\PresignedUrlGeneratorInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
+use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -630,6 +631,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('shopware.cms.element_media_ids_provider.vimeo_video', CmsElementMediaIdsProvider::class)
         ->args([service(VimeoVideoCmsElementResolver::class), ['previewMedia']])
+        ->tag('shopware.cms.element_media_ids_provider');
+
+    $services->set('shopware.cms.element_media_ids_provider.manufacturer_logo', CmsElementMediaIdsProvider::class)
+        ->args([service(ManufacturerLogoCmsElementResolver::class), ['media']])
         ->tag('shopware.cms.element_media_ids_provider');
 
     $services->set(CmsSlotMediaIdResolver::class)

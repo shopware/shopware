@@ -535,7 +535,7 @@ Extensions and headless frontends that convert `payload.value` into the cart cur
 Changing a media file used to invalidate only the product detail pages of products that use the media as product media.
 It now also invalidates the listings and dynamic product groups containing those products,
 categories using the media as category image,
-layouts using it as section or block background or in an image, image slider, image gallery or video element,
+layouts using it as section or block background or in an image, image slider, image gallery, video or manufacturer logo element,
 and categories, products and landing pages using it in their layout overrides.
 Replaced images show up on these pages without clearing the HTTP cache.
 
@@ -544,11 +544,13 @@ the media of layout overrides in `category_translation_media_usage`, `product_tr
 so replacing a file does not have to search the JSON of the content.
 After the update, the indexers of the same names with the suffix `.indexer` fill the tables for the existing content.
 
-The media of an element are read by its media ids provider, a `CmsElementMediaIdsProvider` service tagged with `shopware.cms.element_media_ids_provider`.
-The core registers providers for the image, image slider, image gallery, video, YouTube and Vimeo elements.
+The media of an element are read by its media ids provider, a service implementing the new `CmsElementMediaIdsProviderInterface`.
+Services implementing it are tagged with `shopware.cms.element_media_ids_provider` automatically.
+The core registers providers for the image, image slider, image gallery, video, YouTube, Vimeo and manufacturer logo elements.
 Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
 The first provider supporting the element type is used, so a provider with a higher tag priority replaces the one of the core.
-The provider takes the resolver of the element, which names the element type, and the paths to the media in the config.
+Elements whose media ids can be found by paths in their config can register the `CmsElementMediaIdsProvider`.
+It takes the resolver of the element, which names the element type, and the paths to the media in the config.
 A path starts with the config field, `*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
 
 ```php

@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer\MediaUsage;
 
-use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProvider;
+use Shopware\Core\Content\Media\Cms\CmsElementMediaIdsProviderInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 class CmsSlotMediaIdResolver
 {
     /**
-     * @param iterable<CmsElementMediaIdsProvider> $providers
+     * @param iterable<CmsElementMediaIdsProviderInterface> $providers
      */
     public function __construct(private readonly iterable $providers)
     {

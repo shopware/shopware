@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @final
  */
 #[Package('discovery')]
-class CmsElementMediaIdsProvider
+class CmsElementMediaIdsProvider implements CmsElementMediaIdsProviderInterface
 {
     private const WILDCARD = '*';
 
@@ -32,22 +32,11 @@ class CmsElementMediaIdsProvider
     ) {
     }
 
-    /**
-     * Whether the provider knows the media of the CMS element type, like `image`
-     */
     public function supports(string $type): bool
     {
         return $type === $this->resolver->getType();
     }
 
-    /**
-     * Returns the ids of the media the element shows from its static config.
-     * Mapped values like `category.media` are found through the entity they are mapped from.
-     *
-     * @param array<string, array{source?: string, value?: mixed}> $config raw config of the element, its fields by name, like `['media' => ['source' => 'static', 'value' => '<media id>']]`, it is not validated
-     *
-     * @return list<string>
-     */
     public function getMediaIds(array $config): array
     {
         $mediaIds = [];

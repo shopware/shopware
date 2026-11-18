@@ -150,6 +150,23 @@ class MediaReplacementCacheInvalidationTest extends TestCase
         static::assertContains(EntityCacheKeyGenerator::buildCmsTag($this->ids->get('page')), $tags);
     }
 
+    public function testInvalidatesCmsPageOfManufacturerLogo(): void
+    {
+        $layout = (new LayoutBuilder($this->ids, 'page'))->image('media')->build();
+        $layout['sections'][0]['blocks'][0]['slots'][0] = [
+            'type' => 'manufacturer-logo',
+            'slot' => 'image',
+            'config' => [
+                'media' => ['source' => 'static', 'value' => $this->ids->get('media')],
+            ],
+        ];
+        $this->createCmsPage($layout);
+
+        $tags = $this->replaceFileAndCollectInvalidatedTags($this->ids->get('media'));
+
+        static::assertContains(EntityCacheKeyGenerator::buildCmsTag($this->ids->get('page')), $tags);
+    }
+
     public function testInvalidatesCmsPageOfSectionBackground(): void
     {
         $layout = (new LayoutBuilder($this->ids, 'page'))->listing()->build();

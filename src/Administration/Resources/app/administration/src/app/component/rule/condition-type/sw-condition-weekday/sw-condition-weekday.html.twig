@@ -1,0 +1,29 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-weekday sw-condition__condition-value">
+    {% block sw_condition_weekday_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ condition, operators }"
+        :disabled="disabled || undefined"
+    />
+    {% endblock %}
+
+    {% block sw_condition_weekday_field_day_of_week %}
+    <sw-single-select
+        v-model:value="dayOfWeek"
+        name="sw-field--dayOfWeek"
+        :options="dayOfWeekOptions"
+        :disabled="disabled || undefined"
+    />
+    {% endblock %}
+
+    {% block sw_condition_weekday_field_timezone %}
+    <sw-single-select
+        v-model:value="timezone"
+        name="sw-field--timezone"
+        :options="timezoneOptions"
+        :disabled="disabled || undefined"
+        show-clearable-button
+    />
+    {% endblock %}
+</div>
+{% endblock %}

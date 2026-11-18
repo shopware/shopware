@@ -38,6 +38,10 @@
         height: var(--scale-size-6);
         border-radius: var(--border-radius-round);
         background-color: var(--color-zinc-300);
+
+        &.is--invalid {
+            background-color: var(--color-text-critical-default);
+        }
     }
 
     &__breakpoint-heading {

@@ -314,6 +314,9 @@ export default Shopware.Component.wrapComponentConfig({
         breakpointInvalid(name: Breakpoint): boolean {
             return invalidPattern(resolvePattern(this.patterns, name));
         },
+        breakpointHasInvalidWidth(name: Breakpoint): boolean {
+            return this.patterns[name]?.columns.some(invalidWidth) ?? false;
+        },
         addColumn(): void {
             if (!this.editable || this.pattern.columns.length >= 12) return;
             this.pattern.columns.push({ id: this.nextColumnId++, type: 'auto', value: null });

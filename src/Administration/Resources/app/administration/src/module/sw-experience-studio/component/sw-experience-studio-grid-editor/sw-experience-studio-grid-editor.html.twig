@@ -29,13 +29,15 @@
             :key="tab.name"
             size="small"
             :aria-pressed="breakpoint === tab.name"
+            :aria-label="breakpointHasInvalidWidth(tab.name) ? `${tab.label}: ${$t('global.default.error')}` : undefined"
             :variant="breakpoint === tab.name ? 'primary' : 'secondary'"
             @click="setBreakpoint(tab.name)"
         >
             {{ tab.label }}
             <span
-                v-if="tab.name !== 'xs' && patterns[tab.name]"
+                v-if="breakpointHasInvalidWidth(tab.name) ? breakpoint !== tab.name : tab.name !== 'xs' && patterns[tab.name]"
                 class="sw-experience-studio-grid-editor__breakpoint-indicator"
+                :class="{ 'is--invalid': breakpointHasInvalidWidth(tab.name) }"
                 aria-hidden="true"
             ></span>
         </mt-button>

@@ -4,6 +4,15 @@
 import { mount } from '@vue/test-utils';
 import { deprecations } from 'test/_helper_/deprecations';
 
+const floatingUiStub = {
+    props: [
+        'isOpened',
+        'anchorElement',
+        'floatingUiOptions',
+    ],
+    template: '<div><slot v-if="isOpened"></slot></div>',
+};
+
 const popoverConfigDeprecation = 'sw-media-field.popoverConfig is deprecated.';
 
 describe('src/app/component/media/sw-media-field', () => {
@@ -16,10 +25,7 @@ describe('src/app/component/media/sw-media-field', () => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-media-media-item': true,
-                    'mt-floating-ui': {
-                        props: ['isOpened'],
-                        template: '<div><slot v-if="isOpened"></slot></div>',
-                    },
+                    'mt-floating-ui': floatingUiStub,
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,
                     'sw-simple-search-field': true,
@@ -180,5 +186,14 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.emitted('update:value')).toEqual([[targetId]]);
         expect(wrapper.vm.showUploadField).toBe(false);
         expect(wrapper.vm.showPicker).toBe(false);
+    });
+
+    it('anchors the picker to the toggle button and aligns it with the button end', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.setData({ showPicker: true });
+        const floatingUi = wrapper.getComponent(floatingUiStub);
+
+        expect(floatingUi.props('anchorElement')).toBe(wrapper.get('.sw-media-field__toggle-button').element);
+        expect(floatingUi.props('floatingUiOptions')).toEqual({ placement: 'bottom-end' });
     });
 });

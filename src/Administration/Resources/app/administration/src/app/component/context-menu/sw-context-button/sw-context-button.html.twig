@@ -29,6 +29,9 @@
     <mt-floating-ui
         class="sw-context-button__menu-position sw-context-button__menu-popover"
         :is-opened="showMenu"
+        :anchor-element="$refs.swContextButton"
+        :offset="10"
+        :floating-ui-options="menuFloatingUiOptions"
     >
         <sw-context-menu
             ref="swContextMenu"

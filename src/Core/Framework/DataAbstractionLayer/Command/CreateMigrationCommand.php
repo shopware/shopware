@@ -148,26 +148,21 @@ class CreateMigrationCommand extends Command
 
     private function getPlugin(string $pluginName): Plugin
     {
-        $plugins = array_filter(
+        $plugins = array_values(array_filter(
             $this->kernel->getBundles(),
             static fn ($bundle) => $bundle instanceof Plugin && str_starts_with($bundle->getName(), $pluginName)
-        );
-
-        if ($plugins === []) {
-            throw DataAbstractionLayerException::migrationPluginNotFound($pluginName);
-        }
+        ));
 
         if (\count($plugins) > 1) {
-            $exactMatches = array_filter($plugins, static fn (Plugin $plugin) => $plugin->getName() === $pluginName);
-
-            if (\count($exactMatches) !== 1) {
-                throw DataAbstractionLayerException::migrationMoreThanOnePluginFound($pluginName, array_map(static fn (Plugin $plugin) => $plugin->getName(), array_values($plugins)));
-            }
-
-            $plugins = $exactMatches;
+            $exactMatches = array_values(array_filter($plugins, static fn (Plugin $plugin) => $plugin->getName() === $pluginName));
+            $plugins = \count($exactMatches) === 1 ? $exactMatches : $plugins;
         }
 
-        return array_values($plugins)[0];
+        if (\count($plugins) !== 1) {
+            throw DataAbstractionLayerException::migrationPluginNotUnique($pluginName, array_map(static fn (Plugin $plugin) => $plugin->getName(), $plugins));
+        }
+
+        return $plugins[0];
     }
 
     private function getNamespace(InputInterface $input, ?Bundle $bundle): string

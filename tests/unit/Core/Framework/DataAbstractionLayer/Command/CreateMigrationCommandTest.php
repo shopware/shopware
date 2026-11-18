@@ -390,7 +390,7 @@ class CreateMigrationCommandTest extends TestCase
         );
 
         $this->expectExceptionObject(
-            DataAbstractionLayerException::migrationMoreThanOnePluginFound('SwagMigration', ['SwagMigrationTest', 'SwagMigrationTestExtension'])
+            DataAbstractionLayerException::migrationPluginNotUnique('SwagMigration', ['SwagMigrationTest', 'SwagMigrationTestExtension'])
         );
 
         (new CommandTester($command))->execute(['entities' => 'test_entity', '--plugin' => 'SwagMigration']);
@@ -412,7 +412,7 @@ class CreateMigrationCommandTest extends TestCase
             new MockClock()
         );
 
-        $this->expectExceptionObject(DataAbstractionLayerException::migrationPluginNotFound('Unknown'));
+        $this->expectExceptionObject(DataAbstractionLayerException::migrationPluginNotUnique('Unknown', []));
 
         (new CommandTester($command))->execute(['entities' => 'test_entity', '--plugin' => 'Unknown']);
     }

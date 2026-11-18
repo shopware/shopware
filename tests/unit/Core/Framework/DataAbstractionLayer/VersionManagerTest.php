@@ -523,7 +523,10 @@ class VersionManagerTest extends TestCase
             static::createStub(VersionCommitDefinition::class),
             static::createStub(VersionCommitDataDefinition::class),
             static::createStub(VersionDefinition::class),
-            static::createStub(LockFactory::class)
+            static::createStub(LockFactory::class),
+            static::createStub(WriteCommandExtractor::class),
+            static::createStub(AclWriteValidator::class),
+            static::createStub(LanguageLoaderInterface::class)
         );
 
         $context = Context::createDefaultContext();

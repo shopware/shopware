@@ -3,11 +3,14 @@
 namespace Shopware\Core\Content\Product\Api;
 
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -67,6 +70,7 @@ class ProductDocumentVariantController extends AbstractController
 
             if ($changes === null && $context->getLanguageId() === Defaults::LANGUAGE_SYSTEM) {
                 $this->productDocumentRepository->delete($ids, $context);
+                $this->refreshPositions(array_values(array_unique($documents->map(static fn (ProductDocumentEntity $document) => $document->getProductId()))), $context);
 
                 continue;
             }
@@ -79,5 +83,30 @@ class ProductDocumentVariantController extends AbstractController
         }
 
         return new JsonResponse(['variantIds' => array_keys($variantIds)]);
+    }
+
+    /**
+     * @param list<string> $productIds
+     */
+    private function refreshPositions(array $productIds, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
+        $criteria->addSorting(new FieldSorting('position'));
+
+        $positions = [];
+        $updates = [];
+        foreach ($this->productDocumentRepository->search($criteria, $context)->getEntities() as $document) {
+            $position = $positions[$document->getProductId()] ?? 0;
+            $positions[$document->getProductId()] = $position + 1;
+
+            if ($document->getPosition() !== $position) {
+                $updates[] = ['id' => $document->getId(), 'position' => $position];
+            }
+        }
+
+        if ($updates !== []) {
+            $this->productDocumentRepository->update($updates, $context);
+        }
     }
 }

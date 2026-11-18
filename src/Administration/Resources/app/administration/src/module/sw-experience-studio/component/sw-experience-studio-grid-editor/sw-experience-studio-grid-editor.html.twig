@@ -68,7 +68,7 @@
                 <div
                     v-for="(column, index) in pattern.columns"
                     :key="column.id"
-                    v-draggable="{ disabled: !canMove, dragGroup: 'grid-columns', data: column.id, onDragStart: onColumnDragStart }"
+                    v-draggable="{ disabled: !canMove, dragGroup: 'grid-columns', data: column.id, onDragStart: onColumnDragStart, cancelOnUnmount: true }"
                     class="sw-experience-studio-grid-editor__column-entry"
                     :data-column-id="column.id"
                 >

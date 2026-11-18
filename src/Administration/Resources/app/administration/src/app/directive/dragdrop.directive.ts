@@ -23,6 +23,7 @@ interface DragConfig<DATA = unknown> {
     validDragCls: string;
     invalidDragCls: string;
     preventEvent: boolean;
+    cancelOnUnmount: boolean;
     validateDrop: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean);
     validateDrag: null | ((dragConfigData: DragConfig<DATA>['data'], dropConfigData: DropConfig<DATA>['data']) => boolean);
     onDragStart: null | ((dragConfig: DragConfig<DATA>, el: HTMLElement, dragElement: HTMLElement) => void);
@@ -93,6 +94,7 @@ const defaultDragConfig: DragConfig = {
     validDragCls: 'is--valid-drag',
     invalidDragCls: 'is--invalid-drag',
     preventEvent: true,
+    cancelOnUnmount: false,
     validateDrop: null,
     validateDrag: null,
     onDragStart: null,
@@ -497,7 +499,7 @@ Shopware.Directive.register('draggable', {
     unmounted(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
-        if (currentDrag?.el === el || pendingDragElement === el) cancelDrag();
+        if (pendingDragElement === el || (dragConfig.cancelOnUnmount && currentDrag?.el === el)) cancelDrag();
         el.classList.remove(dragConfig.draggableCls);
 
         if (el.boundDragListener) {

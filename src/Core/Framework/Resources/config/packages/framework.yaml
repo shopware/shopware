@@ -124,9 +124,13 @@ framework:
             log_level: notice
         Shopware\Core\Content\Cms\Exception\PageNotFoundException:
             log_level: notice
+        # Keep concrete mappings before the interface so existing per-class overrides retain precedence.
+        # @deprecated tag:v6.8.0 - The two concrete mappings will be removed, only the interface mapping remains
         Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\CustomerNotLoggedInRoutingException:
+            log_level: notice
+        Shopware\Core\Framework\CustomerAuthenticationRequiredExceptionInterface:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException:
             log_level: notice

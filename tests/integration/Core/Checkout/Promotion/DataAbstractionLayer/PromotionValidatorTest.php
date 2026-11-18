@@ -44,6 +44,15 @@ class PromotionValidatorTest extends TestCase
         static::getContainer()->get('promotion.repository')->delete([['id' => $this->ids->get('promotion')]], Context::createDefaultContext());
     }
 
+    public function testAPromotionUsedInAnOrderCanBeUpdated(): void
+    {
+        $this->createPromotion(orderCount: 1);
+
+        static::getContainer()->get('promotion.repository')->update([['id' => $this->ids->get('promotion'), 'active' => false]], Context::createDefaultContext());
+
+        $this->expectNotToPerformAssertions();
+    }
+
     private function createPromotion(int $orderCount): void
     {
         static::getContainer()->get('promotion.repository')->create([[

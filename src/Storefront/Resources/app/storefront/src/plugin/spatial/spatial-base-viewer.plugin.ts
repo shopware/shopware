@@ -1,7 +1,4 @@
-// @ts-ignore
 import Plugin from 'src/plugin-system/plugin.class';
-// @ts-ignore
-import type NativeEventEmitter from 'src/helper/emitter.helper';
 import type { QuickView } from '@shopware-ag/dive/quickview';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 
@@ -11,14 +8,13 @@ import { loadDIVE } from './utils/spatial-dive-load-util';
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
 // @ts-ignore
-export default class SpatialBaseViewerPlugin extends Plugin {
+export default class SpatialBaseViewerPlugin extends Plugin<Record<string, unknown>, HTMLElement> {
 
     protected rendering = false;
 
     public canvas: HTMLCanvasElement | undefined;
 
     public ready = false;
-    $emitter: NativeEventEmitter;
 
     public options!: {
         modelUrl: string;

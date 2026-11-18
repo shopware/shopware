@@ -3,6 +3,8 @@
 namespace Shopware\Administration\Controller;
 
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -21,8 +23,10 @@ class AdminTagController extends AbstractController
     /**
      * @internal
      */
-    public function __construct(private readonly FilterTagIdsService $filterTagIdsService)
-    {
+    public function __construct(
+        private readonly FilterTagIdsService $filterTagIdsService,
+        private readonly AclCriteriaValidator $criteriaValidator,
+    ) {
     }
 
     #[Route(
@@ -33,6 +37,12 @@ class AdminTagController extends AbstractController
     )]
     public function filterIds(Request $request, Criteria $criteria, Context $context): JsonResponse
     {
+        // Filters, sortings and aggregations on associations must not reveal data the user cannot read
+        $missing = $this->criteriaValidator->validate(TagDefinition::ENTITY_NAME, $criteria, $context);
+        if ($missing !== []) {
+            throw ApiException::missingPrivileges($missing);
+        }
+
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
 
         return new JsonResponse([

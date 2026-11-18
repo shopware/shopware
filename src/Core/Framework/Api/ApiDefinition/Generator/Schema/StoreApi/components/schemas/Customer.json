@@ -73,6 +73,11 @@
                         "description": "Last name of the customer.",
                         "type": "string"
                     },
+                    "displayName": {
+                        "description": "The name to render for this customer: the contact person, or the company when a commercial account has none.",
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "email": {
                         "description": "Email ID of the customer.",
                         "type": "string"

@@ -78,6 +78,7 @@ class CustomerEntityTest extends TestCase
         $customer->setSalutationId('salutation-id');
         $customer->setFirstName('Ada');
         $customer->setLastName('Lovelace');
+        $customer->setDisplayName('Ada Lovelace');
         $customer->setCompany('Analytical Engines');
         $customer->setEmail('ada@example.com');
         $customer->setTitle('Dr.');
@@ -136,6 +137,7 @@ class CustomerEntityTest extends TestCase
         static::assertSame('salutation-id', $customer->getSalutationId());
         static::assertSame('Ada', $customer->getFirstName());
         static::assertSame('Lovelace', $customer->getLastName());
+        static::assertSame('Ada Lovelace', $customer->getDisplayName());
         static::assertSame('Ada Lovelace', (string) $customer);
         static::assertSame('Analytical Engines', $customer->getCompany());
         static::assertSame('ada@example.com', $customer->getEmail());
@@ -196,6 +198,32 @@ class CustomerEntityTest extends TestCase
 
         $customer->setLegacyEncoder('md5');
         static::assertTrue($customer->hasLegacyPassword());
+    }
+
+    public function testDisplayNameIsEmptyUntilAssigned(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setFirstName('Ada');
+        $customer->setLastName('Lovelace');
+
+        static::assertSame('', $customer->getDisplayName());
+
+        $customer->setDisplayName('Analytical Engines');
+
+        static::assertSame('Analytical Engines', $customer->getDisplayName());
+    }
+
+    public function testTheStringRepresentationFollowsTheDisplayName(): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setFirstName('Ada');
+        $customer->setLastName('Lovelace');
+
+        static::assertSame('Ada Lovelace', (string) $customer);
+
+        $customer->setDisplayName('Analytical Engines');
+
+        static::assertSame('Analytical Engines', (string) $customer);
     }
 
     /**

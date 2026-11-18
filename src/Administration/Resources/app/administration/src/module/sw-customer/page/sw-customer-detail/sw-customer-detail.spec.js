@@ -16,11 +16,18 @@ const defaultCustomer = {
     },
 };
 
+const customerRepositorySave = jest.fn(() => Promise.resolve());
+
 async function createWrapper(
     privileges = [],
     editMode = false,
     customerResponse = defaultCustomer,
-    { featureActive = false, routeName = 'sw.customer.detail.base', routerPush = jest.fn() } = {},
+    {
+        featureActive = false,
+        routeName = 'sw.customer.detail.base',
+        routerPush = jest.fn(),
+        contactPersonRequired = true,
+    } = {},
 ) {
     return mount(
         await wrapTestComponent('sw-customer-detail', {
@@ -101,10 +108,15 @@ async function createWrapper(
                     },
                 },
                 provide: {
+                    companyAccountNameFieldsService: {
+                        isContactPersonRequired: () => Promise.resolve(contactPersonRequired),
+                    },
                     repositoryFactory: {
                         create: () => {
                             return {
                                 get: () => Promise.resolve(customerResponse),
+
+                                save: customerRepositorySave,
 
                                 searchIds: () =>
                                     Promise.resolve({
@@ -150,6 +162,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
 
     beforeEach(async () => {
         Shopware.Store.get('error').resetApiErrors();
+        customerRepositorySave.mockClear();
         wrapper = await createWrapper();
     });
 
@@ -157,6 +170,45 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         Shopware.Store.get('error').resetApiErrors();
         Shopware.Store.get('shopwareApps').selectedIds = [];
         jest.restoreAllMocks();
+    });
+
+    it.each([
+        [
+            'a company customer saves without a contact person once the settings release the names',
+            'business',
+            false,
+            true,
+        ],
+        [
+            'a company customer keeps the contact person while the settings require it',
+            'business',
+            true,
+            false,
+        ],
+        [
+            'a private customer always needs a contact person',
+            'private',
+            false,
+            false,
+        ],
+    ])('%s', async (_name, accountType, companyNamesRequired, saved) => {
+        const customer = {
+            id: 'test',
+            salutationId: '1',
+            accountType,
+            company: 'Acme GmbH',
+            email: '',
+            firstName: '',
+            lastName: '',
+            defaultBillingAddress: { company: 'Acme GmbH' },
+        };
+        wrapper = await createWrapper(['customer.editor'], true, customer, { contactPersonRequired: companyNamesRequired });
+        await flushPromises();
+
+        await wrapper.find('.sw-customer-detail__save-action').trigger('click');
+        await flushPromises();
+
+        expect(customerRepositorySave).toHaveBeenCalledTimes(saved ? 1 : 0);
     });
 
     it("should keep the customer's account type as private even when the company field is set", async () => {

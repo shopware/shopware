@@ -44,6 +44,10 @@ export default {
     },
 
     computed: {
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
+
         isNewPaymentMethod() {
             return this.paymentMethod._isNew;
         },

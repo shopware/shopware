@@ -107,6 +107,10 @@ export default {
             },
         },
 
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
+
         orderIdentifier() {
             return this.order?.orderNumber ?? '';
         },

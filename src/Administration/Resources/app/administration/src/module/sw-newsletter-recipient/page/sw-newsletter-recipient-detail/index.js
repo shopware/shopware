@@ -33,6 +33,10 @@ export default {
     },
 
     computed: {
+        adminEsEnable() {
+            return Shopware.Context.app.adminEsEnable ?? false;
+        },
+
         identifier() {
             return this.newsletterRecipient !== null ? this.salutation(this.newsletterRecipient) : '';
         },

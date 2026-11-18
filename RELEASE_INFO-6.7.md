@@ -659,6 +659,13 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Product listing count index
+
+Added `idx.product.parent_type` on `product(parent_id, parent_version_id, type)` to accelerate exact counts in the default product list.
+The migration requires online index creation using `ALGORITHM=INPLACE, LOCK=NONE`.
+On large installations, create this index before the update using `ALGORITHM=INPLACE, LOCK=NONE` to keep the update's migration step short.
+The migration detects the existing index and leaves the Administration pagination unchanged.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

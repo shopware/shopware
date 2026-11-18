@@ -2,12 +2,16 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
+use Mcp\Capability\Registry;
 use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Schema\Tool;
 use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\Loader\AppMcpPrivilegeProvider;
+use Shopware\Core\Framework\Mcp\McpCapabilityCatalog;
 use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
@@ -81,6 +85,35 @@ class ToolsetsListToolTest extends TestCase
 
         static::assertFalse($result->isError());
         static::assertFalse($result->data['toolsets'][0]['enabled']);
+    }
+
+    public function testListsTheAuthoredToolsetDescription(): void
+    {
+        $mcpRegistry = new Registry();
+        foreach (['shopware-entity-search', 'shopware-order-state'] as $toolName) {
+            $mcpRegistry->registerTool(new Tool($toolName, null, ['type' => 'object', 'properties' => [], 'required' => []], null, null), 'Acme\\Tool');
+        }
+
+        $privilegeProvider = static::createStub(AppMcpPrivilegeProvider::class);
+        $privilegeProvider->method('getAppToolPrivileges')->willReturn([]);
+        $privilegeProvider->method('getAppToolGroups')->willReturn([]);
+
+        $toolsetRegistry = new McpToolsetRegistry(
+            new McpCapabilityCatalog($mcpRegistry, $privilegeProvider, toolGroups: [
+                'shopware-entity-search' => 'entity',
+                'shopware-order-state' => 'order',
+            ]),
+            toolsetDescriptions: ['entity' => 'Find and change shop data.'],
+        );
+
+        $tool = new ToolsetsListTool($toolsetRegistry, static::createStub(McpToolsetSessionStorage::class), new RequestStack(), new McpRequestedToolsetResolver(new RequestStack()));
+        $result = $tool();
+
+        static::assertFalse($result->isError());
+        static::assertSame([
+            'entity' => 'Find and change shop data.',
+            'order' => 'Tools explicitly assigned to the "order" MCP tool group.',
+        ], array_column($result->data['toolsets'], 'description', 'name'));
     }
 
     public function testIsUnavailableOnTheStatelessEraAndPointsToToolsetsInTheUrl(): void

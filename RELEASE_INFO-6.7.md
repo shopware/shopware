@@ -613,6 +613,13 @@ shopware:
             enabled: false
 ```
 
+### MCP tools declare whether they change shop data
+
+The core MCP tools on `/api/_mcp` and `/store-api/_mcp` now send the tool annotations of the MCP specification in `tools/list` and in `shopware-tool-search` results.
+Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-upsert`, `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write`, `shopware-theme-config` and `shopware-media-upload`, with `destructiveHint`.
+MCP clients use these hints to decide when to ask the user before a call: clients that honour them may now run the read tools without asking, and ask before the destructive ones where they did not before.
+Plugin and bundle tools can declare the same hints with the `annotations` argument of `#[McpTool]`.
+
 ### Price calculation basis per customer group
 
 Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new customer group field `priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.
@@ -770,6 +777,25 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Extension Jest configs can compose the Administration test harness (experimental)
+
+The Administration extension tooling now ships a Jest config factory, `extension-tooling/jest.mjs`, next to its TypeScript and ESLint presets.
+It carries the harness the Administration's own specs run on: the `shopware:*` virtual modules, the feature flag registry behind `Shopware.Feature.triggerDeprecationOrThrow()`, `it.deprecated()` and `it.activeFeatureFlags()`, the global `Shopware` setup and the transforms.
+An extension Jest config that composes it picks up every later change to the harness without editing its own config:
+
+```js
+// jest.config.mjs, beside the generated .shopware/ bridge
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install) generates the `.shopware/jest.mjs` bridge for every extension.
+The harness works in a platform checkout and in a Composer install: the `shopware/administration` package now ships the Administration's Jest setup files (without spec files).
+Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types` and the component import map with `npm run unit-setup` in the Administration directory.
+The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
 ### Meteor apps get their own path in the Administration watcher
 
 An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.

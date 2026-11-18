@@ -45,12 +45,7 @@
     .checkout-aside-summary-label,
     .checkout-aside-summary-value {
         flex: 0 0 100%;
-        max-width: 100%;
         overflow-wrap: anywhere;
-    }
-
-    .checkout-aside-summary-label:not(.checkout-aside-summary-total) {
-        font-weight: $font-weight-bold;
     }
 
     .checkout-aside-summary-value {

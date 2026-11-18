@@ -3,7 +3,7 @@
  */
 
 import EntityValidationService from 'src/app/service/entity-validation.service';
-import { syncDocumentVariants } from '../../component/sw-product-document-form/product-document.helper';
+import { syncDocumentVariants, loadDocumentMedia } from '../../component/sw-product-document-form/product-document.helper';
 import template from './sw-product-detail.html.twig';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
@@ -276,7 +276,7 @@ export default {
             criteria.getAssociation('media').addSorting(Criteria.sort('position', 'ASC'));
             criteria.addAssociation('media.media');
             criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
-            criteria.addAssociation('documents.translations.media');
+            criteria.addAssociation('documents.translations');
 
             criteria.getAssociation('prices').addSorting(Criteria.sort('quantityStart', 'ASC', true));
 
@@ -859,6 +859,11 @@ export default {
                     } else {
                         Shopware.Store.get('swProductDetail').parentProduct = {};
                     }
+
+                    await loadDocumentMedia([
+                        ...(product.documents ?? []),
+                        ...(Shopware.Store.get('swProductDetail').parentProduct.documents ?? []),
+                    ]);
 
                     if (this.productId === product.id && this.lastViewedProductId !== product.id) {
                         this.lastViewedProductId = product.id;

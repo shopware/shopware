@@ -232,7 +232,6 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $resolver = new ManufacturerLogoCmsElementResolver();
         $resolver->enrich($slot, $context, $data);
 
-        /** @var ManufacturerLogoStruct $data */
         $data = $slot->getData();
         static::assertInstanceOf(ManufacturerLogoStruct::class, $data);
         static::assertSame('media-1', $data->getMediaId());
@@ -280,7 +279,6 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $resolver = new ManufacturerLogoCmsElementResolver();
         $resolver->enrich($slot, $context, $data);
 
-        /** @var ManufacturerLogoStruct $struct */
         $struct = $slot->getData();
         static::assertInstanceOf(ManufacturerLogoStruct::class, $struct);
         static::assertSame('media-from-result', $struct->getMediaId());
@@ -327,7 +325,6 @@ class ManufacturerLogoCmsElementResolverTest extends TestCase
         $resolver = new ManufacturerLogoCmsElementResolver();
         $resolver->enrich($slot, $context, $data);
 
-        /** @var ManufacturerLogoStruct $struct */
         $struct = $slot->getData();
         static::assertInstanceOf(ManufacturerLogoStruct::class, $struct);
         static::assertSame('media-context', $struct->getMediaId());

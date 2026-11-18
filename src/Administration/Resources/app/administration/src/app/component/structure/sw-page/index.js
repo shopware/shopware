@@ -177,7 +177,7 @@ export default {
         },
 
         /**
-         * @deprecated tag:v6.8.0 -- There's no replacement
+         * @deprecated tag:v6.8.0 - There's no replacement
          */
         headerStyles() {
             return {

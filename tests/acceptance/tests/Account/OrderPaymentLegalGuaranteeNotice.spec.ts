@@ -34,6 +34,8 @@ test(
         const orderLocators = await StorefrontAccountOrder.getOrderByOrderNumber(order.orderNumber);
         await ShopCustomer.presses(orderLocators.orderActionsButton);
         await ShopCustomer.presses(orderLocators.orderChangePaymentMethodButton);
+        // The link is server-rendered, but Bootstrap binds the modal toggle only after the storefront JS has run.
+        await StorefrontCheckoutOrderEdit.page.waitForURL(/\/account\/order\/edit\//, { waitUntil: 'load' });
 
         await test.step('The guarantee button opens the notice modal.', async () => {
             await ShopCustomer.expects(legalGuaranteeNoticeLink).toBeVisible();

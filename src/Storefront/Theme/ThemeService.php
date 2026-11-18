@@ -48,6 +48,11 @@ class ThemeService implements ResetInterface
      */
     public const CONFIG_KEY_PENDING_THEME = 'storefront.pendingThemeAssignment';
 
+    /**
+     * Context state that makes `updateTheme()` skip the theme compile, so a caller can compile after committing its transaction.
+     */
+    public const STATE_SKIP_COMPILE = 'theme-skip-compile';
+
     private bool $notified = false;
 
     /**
@@ -228,12 +233,12 @@ class ThemeService implements ResetInterface
             $data['configValues'] = array_intersect_key($data['configValues'], array_flip($validFields));
         }
 
-        if (\array_key_exists('configValues', $data)) {
-            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $data['configValues'], $context));
-        }
+        // The event carries the submitted values, not the merged config built below.
+        $configValuesChanged = \array_key_exists('configValues', $data);
+        $changedConfig = $configValuesChanged ? $data['configValues'] : [];
 
         // This part is not executed if the theme was reset before, because the config values are then empty.
-        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+        if ($configValuesChanged && $theme->getConfigValues()) {
             $submittedChanges = $data['configValues'];
             $currentConfig = $theme->getConfigValues();
             $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
@@ -250,11 +255,18 @@ class ThemeService implements ResetInterface
 
         $this->themeRepository->update([$data], $context);
 
+        // Dispatch after the write, because listeners such as StaticFileConfigDumper read the theme config from the database.
+        if ($configValuesChanged) {
+            $this->dispatcher->dispatch(new ThemeConfigChangedEvent($themeId, $changedConfig, $context));
+        }
+
         // Administration resets inherited values before saving. Replace that intermediate
         // runtime configuration even for unassigned themes and descendants compiled asynchronously.
         $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
 
-        $this->compileThemeById($themeId, $context, null, false);
+        if (!$context->hasState(self::STATE_SKIP_COMPILE)) {
+            $this->compileThemeById($themeId, $context, null, false);
+        }
     }
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool
@@ -302,8 +314,7 @@ class ThemeService implements ResetInterface
 
     public function resetTheme(string $themeId, Context $context): void
     {
-        $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->getEntities()->first();
-        if (!$theme) {
+        if (!$this->themeRepository->searchIds(new Criteria([$themeId]), $context)->has($themeId)) {
             throw ThemeException::couldNotFindThemeById($themeId);
         }
 

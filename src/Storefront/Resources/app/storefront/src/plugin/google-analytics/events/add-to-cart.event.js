@@ -70,11 +70,17 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         this._addPayload(formData, productId, formElement);
 
         const quantity = formData.get(`lineItems[${productId}][quantity]`);
-        const price = productData.value ?? ProductPageHelper.getValue();
+        // The meta price is the cheapest tier, so a graduated price is resolved from the quantity.
+        // The cart adds the quantity to a line that already holds the product and prices the sum,
+        // which the page knows when it rendered the cart, for example after an earlier add.
+        const tierQuantity = (Number(quantity) || 1) + this._getQuantityInCart(productId);
+        const price = ProductPageHelper.getGraduatedPrice(formElement, tierQuantity)
+            ?? productData.value
+            ?? ProductPageHelper.getValue();
         // GA4 expects the value of the added quantity, not the unit price
         const value = price === undefined ? undefined : Number(price) * (Number(quantity) || 1);
 
-        this.pushEvent('add_to_cart', {
+        const parameters = {
             'currency': productData.currency || ProductPageHelper.getCurrency(),
             'value': value,
             'items': [{
@@ -83,9 +89,55 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                 'quantity': quantity,
                 'price': price,
                 'item_brand': formData.get('brand-name') || productData.brand,
-                ...ProductPageHelper.getCategoriesFor(productId, formElement),
+                'item_variant': productData.variant,
             }],
+        };
+
+        const categories = ProductPageHelper.getCategoriesFor(productId, formElement);
+        if (Object.keys(categories).length > 0) {
+            this._push(parameters, categories);
+            return;
+        }
+
+        // the page does not describe the categories of the product, so they are requested
+        return ProductPageHelper.resolveCategories(productId, formElement, () => this.active).then(resolved => {
+            // the shopper can revoke the tracking consent while the categories are requested
+            if (this.active) {
+                this._push(parameters, resolved);
+            }
         });
+    }
+
+    /**
+     * @param {Object} parameters
+     * @param {Object} categories
+     * @private
+     */
+    _push(parameters, categories) {
+        parameters.items[0] = { ...parameters.items[0], ...categories };
+
+        this.pushEvent('add_to_cart', parameters);
+    }
+
+    /**
+     * The quantity of the product in the cart, if the page rendered the cart. Nothing is requested
+     * for it, an add on a page without the cart markup prices the added quantity only.
+     *
+     * @param {string} productId
+     * @returns {number}
+     * @private
+     */
+    _getQuantityInCart(productId) {
+        // The cart only stacks onto the line with the same id, which the storefront sets to the
+        // product id. A line an API client added under its own id is a separate line, so the product
+        // id is only compared for a theme's markup that carries no line item id.
+        const lineItem = [...document.querySelectorAll('.hidden-line-item')].find(element => {
+            return element.hasAttribute('data-line-item-id')
+                ? element.getAttribute('data-line-item-id') === productId
+                : element.getAttribute('data-id') === productId;
+        });
+
+        return parseInt(lineItem?.getAttribute('data-quantity'), 10) || 0;
     }
 
     /**
@@ -94,9 +146,10 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
      * so neither the cart nor the checkout loads anything for analytics. This only runs for a sales
      * channel with analytics and after consent, so a shop without tracking sends nothing extra.
      *
-     * A product element sends its own brand and the category the shopper is browsing. A page
-     * without breadcrumb, such as the homepage or the search, sends no category, and neither does
-     * a product element on a product detail page, whose breadcrumb belongs to the page product.
+     * A product element sends its own brand, and a product of a category listing the category the
+     * shopper is browsing. Any other product element sends no category, such as one on the
+     * homepage, in the search, in a slider or on a product detail page. Its categories are requested
+     * with the add and kept for the cart, see `ProductPageHelper.resolveCategories()`.
      *
      * @param {FormData} formData
      * @param {string} productId
@@ -116,7 +169,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         }
 
         const hasCategories = [...formData.keys()].some(key => key.startsWith(`${prefix}[categoryNames]`));
-        if (hasCategories || window.activeRoute === 'frontend.detail.page') {
+        if (hasCategories || !ProductPageHelper.isDescribedByBreadcrumb(productId, formElement)) {
             return;
         }
 
@@ -195,6 +248,7 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                     'quantity': orderItem.getAttribute('data-quantity'),
                     'price': element.getAttribute('data-price'),
                     'item_brand': orderItem.getAttribute('data-brand') || element.getAttribute('data-brand'),
+                    'item_variant': orderItem.getAttribute('data-variant') || element.getAttribute('data-variant'),
                     ...(Object.keys(categories).length > 0 ? categories : LineItemHelper.getCategoriesFromElement(element)),
                 };
             });

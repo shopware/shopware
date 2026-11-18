@@ -190,6 +190,45 @@ class ThemeMergedConfigBuilderTest extends TestCase
         static::assertEquals($expected, $config);
     }
 
+    public function testGetPlainThemeConfigurationsLoadsAllThemesOnceForTheThemeAndItsCopies(): void
+    {
+        $base = (new ThemeEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'technicalName' => StorefrontPluginRegistry::BASE_THEME_NAME,
+            'baseConfig' => ['fields' => ['sw-color-brand-primary' => ['type' => 'color', 'value' => '#000']]],
+        ]);
+        $themes = new ThemeCollection([$base]);
+        foreach (['#001', '#002', '#003'] as $color) {
+            $themes->add((new ThemeEntity())->assign([
+                'id' => Uuid::randomHex(),
+                'parentThemeId' => $base->getId(),
+                'configValues' => ['sw-color-brand-primary' => ['value' => $color]],
+            ]));
+        }
+
+        $searches = 0;
+        $themeRepository = static::createStub(EntityRepository::class);
+        $themeRepository->method('search')->willReturnCallback(
+            function (Criteria $criteria) use ($themes, &$searches): EntitySearchResult {
+                ++$searches;
+
+                return new EntitySearchResult('theme', $themes->count(), $themes, null, $criteria, $this->context);
+            }
+        );
+        $this->storefrontPluginRegistryMock->method('getConfigurations')->willReturn(new StorefrontPluginConfigurationCollection());
+
+        $mergedConfigBuilder = new ThemeMergedConfigBuilder($this->storefrontPluginRegistryMock, $themeRepository);
+
+        $configurations = $mergedConfigBuilder->getPlainThemeConfigurations($themes->getKeys(), $this->context);
+
+        static::assertSame(1, $searches);
+        static::assertSame($themes->getKeys(), array_keys($configurations));
+        foreach ($themes->getKeys() as $themeId) {
+            static::assertEquals($mergedConfigBuilder->getPlainThemeConfiguration($themeId, $this->context), $configurations[$themeId]);
+        }
+        static::assertSame('#002', $configurations[$themes->getKeys()[2]]['fields']['sw-color-brand-primary']['value']);
+    }
+
     /**
      * @deprecated tag:v6.8.0 Will be removed, use testGetThemeConfigurationFieldStructure instead
      *

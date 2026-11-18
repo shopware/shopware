@@ -53,13 +53,42 @@ Every registered tool belongs to a group, and group membership is the single sou
 
 The `discovery` group is reserved for the three meta-tools (`McpToolsetRegistry::DISCOVERY_META_TOOLS`). A plugin or bundle tool that claims it is moved to `other` at compile time, `bin/console debug:mcp` lists it with a warning, and the `shopware.mcpReservedToolGroup` PHPStan rule reports it during development. An extension that needs its tools on the first `tools/list`, for example for a proxy endpoint, selects its own toolset with `?toolsets=` instead, as agentic-commerce does on `/ucp/mcp`.
 
+### Toolset descriptions
+
+`shopware-toolsets-list` shows one description per toolset, and a model reads it to decide which toolset to enable.
+Set it with the optional `description` argument of `#[McpToolGroup]`:
+
+```php
+#[McpTool(name: 'swag-report-revenue', description: '...')]
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+class RevenueReportTool
+```
+
+- Describe the toolset, not the tool: which tasks it covers and when to enable it.
+  Keep it to one or two sentences, because it is sent on every `shopware-toolsets-list` call.
+- Set it on one tool of the group.
+- Extensions may add tools to a core group, such as `entity`, but cannot change its description.
+  A description from a core bundle (`Shopware\Core`, `Shopware\Storefront`, `Shopware\Administration`, `Shopware\Elasticsearch`) always wins for its group, and an extension description for that group is ignored and logged at container build.
+  Separately versioned plugins such as Commercial count as extensions.
+- An extension can describe only a group no core tool describes.
+  If two extensions describe the same group differently, the tool whose name sorts first wins and the conflict is logged.
+- Without a description the toolset gets a generated one (`Tools explicitly assigned to the "<group>" MCP tool group.`), which gives a model little to route on.
+- A description is used only while every tool of the toolset is visible.
+  When the caller's allowlist hides some of its tools, the toolset gets the generated description instead, so it never promises a tool the caller cannot use.
+- A tool that claims the reserved `discovery` group loses its description together with the group.
+- App toolsets (`mcp.xml`) cannot carry a description yet; they always get the generated one.
+
+`McpToolAnalysisCompilerPass` collects the descriptions per scope into `shopware.mcp.tool_group_descriptions` and `shopware.store_api_mcp.tool_group_descriptions`.
+Store API tools also carry the SDK tag `mcp.tool`, so the Admin scope leaves them out, and a Store API description never reaches the Admin toolsets.
+`McpToolsetRegistry` puts them into the toolset entries that `shopware-toolsets-list` and `shopware-toolset-enable` return.
+
 The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure via its own toolset meta-tools (`StoreApiToolsetsListTool` / `StoreApiToolsetEnableTool`) and a `store-api` toolset group, and its `shopware-tool-search` carries the same `_meta.usage` hint. Both endpoints' server `instructions` (returned in every `initialize` response) point clients at `shopware-tool-search` as the discovery entry point when no advertised tool matches the requested action.
 
 ## Architecture
 - **Transport**: HTTP via Symfony MCP Bundle (`/api/_mcp`), authenticated through Shopware's Admin API OAuth stack
 - **Context**: `McpContextProvider` bridges the authenticated HTTP request into the MCP tool execution layer
 - **Tools**: Single-responsibility PHP classes with `#[McpTool]` attributes, registered via PHP service definitions (`mcp.php`)
-- **Tool results**: the wire format of a tool result is decided only in `McpToolResultRenderer`, never in a tool. See "What the client receives" in `Tool/AGENTS.md`
+- **Tool results**: the wire format of a tool result, including whether it is too large to send inline and is stored behind a `resource_link`, is decided only in `McpToolResultRenderer`, never in a tool. The negotiated protocol revision picks the format (`McpToolResultCapabilities`): the MCP format since 2025-06-18, the deprecated `{"success": …}` envelope before. See "What the client receives" in `Tool/AGENTS.md`
 - **Availability**: always enabled (no feature flag); services are present whenever `symfony/mcp-bundle` is installed
 
 ### List change notifications
@@ -70,6 +99,9 @@ Clients learn about changed tool, prompt and resource lists through `notificatio
 - **Session-local changes are queued directly.** `shopware-toolset-enable` sets `McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE`, and the controller calls `notifySession()` for that session only.
 - **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
+- **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
+  mcp/sdk 0.9 strips the flag from every `initialize` answer, because it delivers list changes only through `subscriptions/listen` of the stateless era.
+  `McpHandshakeListChangedSubscriber` sets it again on the SDK's `ResponseEvent`.
 
 Invariants:
 - No state per server and no list of session ids. Every server reads the same versions from the database and writes only to the session store the SDK already uses, so this works with any session store and any number of servers, without a shared lock. The registry of session ids that this replaced had to be shared exactly as widely as the session store, which a compiler pass could only guess (#21284).
@@ -87,11 +119,11 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 ## Folder structure
 - `AllowList/` -- Per-integration capability allowlist (`McpAllowlistProvider`, `McpAllowlistFilter`, `McpAllowlist`)
 - `Attribute/` -- MCP-specific PHP attributes (`#[McpToolDependsOn]`, `#[McpToolRequires]`)
-- `Authentication/` -- MCP authentication and exception listeners
+- `Authentication/` -- MCP authentication and exception listeners, `McpPrincipalResolver` (the principal of a request: `user-<id>`, `integration-<accessKey>`, `integration-<accessKey>-user-<id>`)
 - `Context/` -- Context bridging (`McpContextProvider`, `StoreApiMcpContextProvider`)
 - `Controller/` -- HTTP endpoints for MCP protocol (`McpServerController` admin, `StoreApiMcpServerController` store)
 - `RateLimit/` -- `McpRateLimiter` wrapper around the core `RateLimiter` (per-scope keys + throttle translation)
-- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionCleanupSubscriber` (wipes the tool results a session stored and its toolset rows on session DELETE)
+- `Session/` -- Session helpers: `McpSessionIdValidator` (rejects malformed `mcp-session-id`), `McpSessionPrincipalBinding` (binds an Admin API session to the principal that sent `initialize`; another principal, or a session without one, gets the unknown-session `404`), `McpSessionCleanupSubscriber` (wipes the tool results a session stored and its toolset rows on session DELETE)
 - `ScheduledTask/` -- Periodic GC: `McpToolsetSessionCleanupTask` (session-store liveness for `mcp_toolset_session`), `McpToolResultCacheCleanupTask` (age TTL for `mcp_tool_result_cache`; does not require a session store)
 - `Tool/` -- Individual MCP tool implementations
 - `Prompt/` -- System prompts for AI context
@@ -115,6 +147,26 @@ The `=== null` null-checks on injected `mcp.*` dependencies in controllers/comma
 - Service IDs use FQCN; tags include `mcp.tool` for SDK discovery
 - Tools declare prerequisites with `#[McpToolDependsOn('other-tool-name')]` (repeatable) — the allowlist UI auto-expands these when a user enables a tool; `debug:mcp` shows them in the Dependencies column
 - Tools declare required ACL privileges with `#[McpToolRequires]` (repeatable) — **declarative only**; runtime enforcement still depends on `requirePrivilege()` calls and DAL ACL checks. The attribute is used by `debug:mcp` (Privileges column), the API (`/_action/mcp/tools`), and the Admin UI to help operators configure roles correctly
+- Privileges are declared, see "Declaring privileges" below
+
+### Declaring privileges
+
+Every Admin API tool declares exactly one of two attributes on its class.
+`#[McpToolRequires]` lists the ACL privileges it needs.
+`#[McpToolRequiresNoPrivilege(reason: '...')]` is the explicit opt-out for a tool that reads no shop data, such as `shopware-entity-schema` and the three discovery meta-tools.
+Both are informational and grant nothing: the opt-out is not shown in `debug:mcp` or the capabilities API, a tool with it simply has no privileges listed, and the DAL still checks the ACL of every repository call.
+
+Store API tools declare neither ACL attribute nor call `requirePrivilege()` or `requirePrivilegeResult()`, because Admin ACL privileges do not exist in a sales channel context.
+
+PHPStan enforces this with two rules:
+
+- `shopware.mcpAdminToolMissingRequires` (`McpAdminToolRequiresPrivilegeRule`) reports an Admin API tool with neither attribute, or with both.
+- `shopware.mcpStoreApiToolAdminAcl` (`McpStoreApiToolAdminAclRule`) reports a Store API tool with `#[McpToolRequires]` or a `requirePrivilege()` or `requirePrivilegeResult()` call in its own class.
+  Inherited calls are not followed. They are harmless, because `requirePrivilege()` always passes outside an Admin API context.
+
+Both read the server from the container tags (`McpToolScopeResolver`), one service definition at a time.
+A class registered on both servers gets both rules, so it can only use `#[McpToolRequiresNoPrivilege]`.
+A class the container does not know is skipped.
 
 ### Tool metadata: `meta` vs dedicated attributes
 
@@ -122,6 +174,7 @@ Avoid adding a new PHP attribute for every MCP tool hint. Choose the smallest re
 
 - Use `#[McpTool(..., meta: [...])]` for lightweight MCP descriptor hints that are simple scalar values, experimental, client-facing, or only consumed near tool discovery/advertisement. Examples: ranking/search hints, visibility hints. (Advertisement visibility itself is **not** a `meta` hint — it is derived from the `#[McpToolGroup]`; the `discovery` group is advertised, everything else is deferred.)
 - Use a dedicated Shopware attribute only when the concept is first-class in Shopware, needs structured typing or validation, is repeatable, is consumed by several subsystems, or should be discoverable without parsing arbitrary string keys. Examples: `#[McpToolDependsOn]` and `#[McpToolRequires]`.
+- Behaviour hints for clients (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) go into the SDK's `annotations:` argument of `#[McpTool]` (`ToolAnnotations`), neither `meta` nor a Shopware attribute. Every core tool declares them; the rules and the table are in `Tool/AGENTS.md`.
 - Do not duplicate the same concept in both places. If `meta` grows validation rules, multiple consumers, or cross-cutting behavior, consider promoting it to an attribute in a follow-up. If an attribute is just a single optional scalar with one consumer, prefer `meta` instead.
 - Before adding a new attribute, document why `meta` is not enough in the PR description or nearby tests. Attribute sprawl makes tool declarations harder to scan.
 
@@ -237,11 +290,97 @@ symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) alr
 
 ---
 
+## Authentication
+
+OAuth is an additional way in.
+Access keys, integration tokens, password grant tokens and authorization code tokens without `resource` keep working unchanged.
+The design is recorded in `adr/2026-10-21-mcp-oauth-client-authentication.md`.
+
+### Discovery
+
+- An unauthenticated or rejected request to `/api/_mcp` gets `401` with the JSON-RPC `-32001` body and `WWW-Authenticate: Bearer resource_metadata="<base>/.well-known/oauth-protected-resource/api/_mcp"`.
+  When credentials were sent, the header adds `error="invalid_token"`.
+  `McpExceptionListener` sets it on the Admin API route `api.mcp.endpoint` only.
+- A query on the MCP URL (`?toolsets=`) is kept as sent: the challenge URL is `.../.well-known/oauth-protected-resource/api/_mcp?<query>` (RFC 9728 §3.1), and the metadata answers with `resource` `<base>/api/_mcp?<query>`.
+  RFC 9728 §3.3 makes clients reject a `resource` that differs from the URL they used.
+  The audience check (`OAuthResource::normalize()`) keeps ignoring the query, so the same token works with and without toolsets.
+- `McpOAuthMetadataController` serves the protected resource metadata (RFC 9728) at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
+  The issuer is `<base>/api`; the authorization response carries `iss` (RFC 9207).
+- `McpOAuthMetadata` builds the URLs and documents.
+  `<base>` keeps the installation base path.
+  It comes from the request when `McpAllowedHostsProvider` allows the host, otherwise from `APP_URL`.
+  The protected resource metadata is the `mcp/sdk` value object `ProtectedResourceMetadata`; the authorization server metadata (RFC 8414) stays ours, the SDK has no class for it.
+  Only the value object is used, not `ProtectedResourceMetadataHandler` or its middleware: the document depends on the request host, base path and query, and the routes stay Symfony routes.
+  Since `mcp/sdk` 0.9 the class rejects plain http outside loopback hosts (`localhost`, `127.0.0.1`, `::1`); the route then answers `404` with `MCP__OAUTH_PROTECTED_RESOURCE_METADATA_UNAVAILABLE`.
+  Dev lanes on `http://<name>.localhost` are affected until the next `mcp/sdk` release after 0.9.0, which accepts `*.localhost` and `127.0.0.0/8` as loopback ([php-sdk#620](https://github.com/modelcontextprotocol/php-sdk/pull/620), merged); use `http://localhost:<port>` meanwhile.
+- The routes have no route scope (`McpOAuthMetadataRouteScopeWhitelist`) and are exempt from the sales channel lookup in `RequestTransformer`.
+- Well-known URIs sit at the host root with the path inserted.
+  An installation in a subdirectory (`https://shop.example/shop`) needs a web server rewrite, for example in nginx:
+
+  ```nginx
+  location = /.well-known/oauth-protected-resource/shop/api/_mcp { rewrite ^ /shop/.well-known/oauth-protected-resource/api/_mcp last; }
+  location = /.well-known/oauth-authorization-server/shop/api { rewrite ^ /shop/.well-known/oauth-authorization-server/api last; }
+  ```
+
+### Tokens bound to the MCP resource
+
+- `resource` (RFC 8707) is accepted on `GET`/`POST /api/oauth/authorize` and `POST /api/oauth/token`.
+  The only accepted value is this shop's MCP resource (`OAuthResource::normalize()` ignores case of scheme and host, default ports, a trailing slash and the query); a fragment or anything else is `invalid_target`.
+  The token request must name the same resource as the authorization request, and a refresh keeps it.
+  A token request without `resource` still gets a token bound to the granted resource, as RFC 8707 allows.
+- The resource is stored in `oauth_auth_code.resource` and `refresh_token.resource`.
+  The JWT keeps the client id as the first `aud` entry and lists the resource after it.
+- `SymfonyBearerTokenValidator` rejects a bound token with `401` unless the caller passes `acceptResourceBoundToken: true`.
+  Only `ApiAuthenticationListener` does, for the main request to `api.mcp.endpoint` and for subrequests carrying `OAuthResource::SUBREQUEST_ATTRIBUTE`.
+  `AppMcpCapabilityExecutor` sets that attribute on the app script subrequests of a request authenticated with a bound token.
+  Any other subrequest rejects the token, because ESI fragments copy the parent's `Authorization` header.
+  Services that validate bearer tokens themselves (system health check, Administration snippets) inherit the rejection.
+  `SymfonyBearerTokenValidatorConsumerTest` lists every service using the validator and fails when one is added; review it for this rule.
+- The binding separates the MCP endpoint from the rest of the Admin API, not one host from another.
+  A token issued for the MCP resource of one allowed host is accepted on the MCP endpoint of every other allowed host of the same installation, because it is the same user with the same permissions.
+  The validator does not compare the bound resource with the requested host; keep it that way unless hosts of one installation get separate principals.
+- The consent page forwards `resource` to `GET /api/oauth/authorize/info` and `POST /api/oauth/authorize`, and the info answer returns it so the page says that access is limited to the MCP endpoint.
+  An Administration built before resource support drops it: the code is stored without resource and the token request fails with `invalid_target` and a hint to rebuild the Administration.
+- A bound token authenticates its user like any other token of that user; MCP sessions and the rate limit treat it no differently.
+  Binding sessions to the principal and keying the rate limit on it are the subject of the related PRs https://github.com/shopware/shopware/pull/21860 and https://github.com/shopware/shopware/pull/21861.
+
+### Adding an OAuth client
+
+There is no dynamic client registration.
+`shopware-cli` is the only default client.
+Redirect URIs on the loopback IP literals `http://127.0.0.1` and `http://[::1]` match any port; every other redirect URI, including `http://localhost:<port>`, must match exactly.
+Web redirect URIs must use `https`.
+Plain `http` is accepted for `localhost` and the loopback IP literals only, or for every host when the kernel runs in the `dev` environment.
+Private-use schemes of native apps (`cursor://`) stay allowed and match exactly.
+`PublicClientRegistry::isTransportAllowed()` holds the rule; `ShopwareAuthCodeGrantType` rejects other redirect URIs on authorize with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI` (`400`, not sent to the redirect URI).
+The check runs on authorize and not on container build, because `oauth_clients` already shipped and a single bad entry must not break the whole Admin API.
+An operator adds a client for an MCP client with a configurable client id in `config/packages/shopware.yaml`.
+Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and pass it with `--callback-port`:
+
+```yaml
+shopware:
+    api:
+        oauth_clients:
+            claude-code:
+                name: 'Claude Code'
+                redirect_uris:
+                    - 'http://localhost:53682/callback'
+```
+
+```shell
+claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware https://shop.example/api/_mcp
+```
+
+Claude Code refuses plain `http` token endpoints on hosts other than `localhost`, `127.0.0.1` and `::1`, so a dev host such as `trunk.localhost` needs `https`.
+
+Known: the root `/.well-known/oauth-authorization-server` belongs to the UCP SDK (route `ucp_sdk_symfony_oauth_metadata`, `501` while identity linking is disabled).
+MCP clients use the path form `/.well-known/oauth-authorization-server/api` and are not affected.
+
 ## Security
 
 Every MCP request passes through three layers in order:
 
-1. **Authentication** — `sw-access-key` + `sw-secret-access-key` headers required on every request
+1. **Authentication**: every Admin API credential: integration or user access keys (`sw-access-key` + `sw-secret-access-key`), or a bearer token from any grant, including OAuth tokens bound to the MCP resource. See Authentication above.
 2. **Per-principal capability allowlist** — each integration and each user stores a `mcp_allowlist` JSON object with `tools`, `resources`, and `prompts` keys. Configured via Settings → Integrations → Edit MCP Allowlist, and on the user detail page. `tools/list`, `resources/list`, and `prompts/list` responses are filtered; `tools/call`, `resources/read`, and `prompts/get` are rejected early with a clear error. Tool allowlist auto-expands transitive `#[McpToolDependsOn]` dependencies.
    **The selection must be explicit.** `McpAllowlist::restrictedFromJson()` resolves every value that is not an explicit list to an empty list, i.e. deny all: an unset column, an empty column, unparseable JSON, JSON that is not an object, a missing per-type key, an explicit `null` per-type value, and a per-type value that is not a JSON list (a string, or an object — which `json_decode` would otherwise hand over as an associative array of names). The save endpoints reject the object shape outright rather than storing a selection that reads back empty. **The only bypass is an administrator user** (`user.admin = 1`), for whom `McpAllowlistProvider::forUserId()` returns `McpAllowlist::unrestricted()`. An integration never bypasses the allowlist, not even one flagged `admin`; the `admin` flag still bypasses layer 3 (ACL).
    Note that resources are allowlisted by **URI** (`shopware://currencies`) while `resources/list` reports the **name** (`shopware-currencies`). Tools and prompts use the name for both.
@@ -255,7 +394,7 @@ Additional safeguards:
 - **Audit logging**: tool invocations logged via `mcp` Monolog channel
 - **App HMAC**: app tool calls signed with `RequestSigner` using the app secret
 - **Signed result pointers**: `McpToolResultPointerSigner` signs the pointers in tool result links (`<id>.<expiry>.<hmac>`, bound to the principal). Reuse it for any new short-lived signed token instead of calling `hash_hmac` directly; it already has an injected clock, a constant-time compare and validated fields. Sharing it outside MCP is tracked in #21520.
-- **XML parsing**: `mcp.xml` parsed with `XmlUtils::loadFile()` to prevent XXE attacks
+- **XML parsing**: `mcp.xml` parsed with `XmlParserUtils::loadFile()`, which rejects document types before any DTD is resolved (XXE)
 - **Entity validation**: entity tools check `registry->has()` before ACL to give clear "entity not found" errors
 - **Global compile-time allowlist**: `shopware.mcp.allowed_tools` acts as an installation-wide safety switch (secondary to per-integration allowlists)
 - **Error visibility**: `McpExceptionListener` converts exceptions on the MCP route to JSON-RPC error responses instead of HTML. It also handles `POST /register` — some clients (e.g. Cursor) fall back to that path when the primary connection fails; without the listener they receive an HTML 404 or a storefront redirect that hides the real error. The gate is `POST` method (not `Accept: application/json`) since browser navigation to a register page uses GET.

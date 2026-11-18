@@ -200,6 +200,12 @@
     "security_eol": "2029-06-01"
   },
   {
+    "version": "6.7.16.0",
+    "release_date": "2026-11-02",
+    "extended_eol": false,
+    "security_eol": "2029-06-01"
+  },
+  {
     "type": "branch",
     "version": "6.8",
     "release_date": "2027-06-01",
@@ -214,4 +220,3 @@
     "security_eol": "2031-06-01"
   }
 ]
-

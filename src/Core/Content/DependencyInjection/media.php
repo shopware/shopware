@@ -37,6 +37,7 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteVali
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -172,14 +173,32 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // endregion Message handlers
 
     // region File Services
-    $services->set(FileService::class);
+    $services->set(FileService::class)
+        ->args([
+            param('shopware.media.allowed_protocols'),
+        ]);
 
     $services->set(TrustedUrlResolver::class)
         ->args([
             null,
             param('shopware.media.enable_url_validation'),
+            [],
+            param('shopware.media.allowed_protocols'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    // external media links accept only http and https, independent of shopware.media.allowed_protocols
+    $services->set('shopware.media.external_link.trusted_url_resolver', TrustedUrlResolver::class)
+        ->args([
+            null,
+            param('shopware.media.enable_url_validation'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set('shopware.media.external_link.url_validator', FileUrlValidator::class)
+        ->args([
+            service('shopware.media.external_link.trusted_url_resolver'),
+        ]);
 
     $services->set(FileFetcher::class)
         ->args([
@@ -440,8 +459,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.media.upload.http_client'),
             service('media_thumbnail.repository'),
             service('media_thumbnail_size.repository'),
-            service(FileUrlValidatorInterface::class),
-            service(TrustedUrlResolver::class),
+            service('shopware.media.external_link.url_validator'),
+            service('shopware.media.external_link.trusted_url_resolver'),
             param('shopware.media.enable_url_validation'),
             param('shopware.media.external_link_timeout'),
         ]);
@@ -497,6 +516,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MediaFileExtensionWriteValidator::class)
         ->args([
             service(MediaFileExtensionListProvider::class),
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(MediaPathWriteValidator::class)
+        ->args([
             service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');

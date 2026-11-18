@@ -3,6 +3,7 @@ import Storage from 'src/helper/storage/storage.helper';
 import { COOKIE_CONFIGURATION_UPDATE } from 'src/plugin/cookie/cookie-configuration.plugin';
 import AddPaymentInfoEvent from 'src/plugin/google-analytics/events/add-payment-info.event';
 import AddShippingInfoEvent from 'src/plugin/google-analytics/events/add-shipping-info.event';
+import AddShippingInfoOnRegisterEvent from 'src/plugin/google-analytics/events/add-shipping-info-on-register.event';
 import AddToCartEvent from 'src/plugin/google-analytics/events/add-to-cart.event';
 import AddToCartByNumberEvent from 'src/plugin/google-analytics/events/add-to-cart-by-number.event';
 import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
@@ -13,6 +14,7 @@ import PurchaseEvent from 'src/plugin/google-analytics/events/purchase.event';
 import RemoveFromCartEvent from 'src/plugin/google-analytics/events/remove-from-cart.event';
 import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 import SearchAjaxEvent from 'src/plugin/google-analytics/events/search-ajax.event';
+import SelectItemEvent from 'src/plugin/google-analytics/events/select-item.event';
 import SignUpEvent from 'src/plugin/google-analytics/events/sign-up.event';
 import ViewCartEvent from 'src/plugin/google-analytics/events/view-cart.event';
 import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
@@ -43,6 +45,15 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     startGoogleAnalytics() {
+        // Saving the cookie preferences again with analytics or ads enabled runs this once more. The
+        // events of the first start still listen, so registering a second set would report every
+        // interaction twice. They are only switched back on, in case consent was revoked meanwhile.
+        if (this.events) {
+            this.enableEvents();
+
+            return;
+        }
+
         const gtmScript = document.createElement('script');
         gtmScript.src = window.gtagURL;
         document.head.append(gtmScript);
@@ -97,6 +108,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
     registerDefaultEvents() {
         this.registerEvent(AddPaymentInfoEvent);
         this.registerEvent(AddShippingInfoEvent);
+        this.registerEvent(AddShippingInfoOnRegisterEvent);
         this.registerEvent(AddToCartEvent);
         this.registerEvent(AddToCartByNumberEvent);
         this.registerEvent(BeginCheckoutEvent);
@@ -105,6 +117,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
         this.registerEvent(PurchaseEvent);
         this.registerEvent(RemoveFromCartEvent);
         this.registerEvent(SearchAjaxEvent);
+        this.registerEvent(SelectItemEvent);
         this.registerEvent(SignUpEvent);
         this.registerEvent(ViewItemEvent);
         this.registerEvent(ViewItemListEvent);
@@ -162,8 +175,14 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     disableEvents() {
-        this.events.forEach(event => {
+        this.events?.forEach(event => {
             event.disable();
+        });
+    }
+
+    enableEvents() {
+        this.events?.forEach(event => {
+            event.enable();
         });
     }
 

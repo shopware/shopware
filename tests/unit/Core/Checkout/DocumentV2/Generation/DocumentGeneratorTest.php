@@ -324,8 +324,7 @@ class DocumentGeneratorTest extends TestCase
     {
         $referencedDocumentId = Uuid::randomHex();
 
-        /** @var StaticEntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = new StaticEntityRepository([], new OrderDefinition());
+        $orderRepository = StaticEntityRepository::of(OrderCollection::class, [], new OrderDefinition());
 
         [$generator] = $this->createGenerator(
             $orderRepository,

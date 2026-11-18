@@ -21,7 +21,7 @@ function setUpFormLoader(formSelector) {
  * @deprecated tag:v6.8.0 - Use the `form-handler.plugin.js` instead.
  * @package content
  */
-describe('Form submit loader tests', () => {
+describe.deprecated('v6.8.0.0')('Form submit loader tests', () => {
     let formSubmitLoaderPlugin;
     let form;
 
@@ -61,7 +61,7 @@ describe('Form submit loader tests', () => {
     });
 });
 
-describe('Form submit loader tests when submit button is out of form', () => {
+describe.deprecated('v6.8.0.0')('Form submit loader tests when submit button is out of form', () => {
     let formSubmitLoaderPlugin;
     let form;
 
@@ -101,7 +101,7 @@ describe('Form submit loader tests when submit button is out of form', () => {
     });
 });
 
-describe('Form submit loader tests with multiple buttons inside and outside the form', () => {
+describe.deprecated('v6.8.0.0')('Form submit loader tests with multiple buttons inside and outside the form', () => {
     let formSubmitLoaderPlugin;
     let form;
 
@@ -143,7 +143,7 @@ describe('Form submit loader tests with multiple buttons inside and outside the 
     });
 });
 
-describe('form submit loader loads button if selector is edited', () => {
+describe.deprecated('v6.8.0.0')('form submit loader loads button if selector is edited', () => {
     beforeEach(() => {
         document.body.innerHTML = editedSelectorTemplate;
     });
@@ -167,7 +167,7 @@ describe('form submit loader loads button if selector is edited', () => {
 });
 
 
-describe('form submit loader', () => {
+describe.deprecated('v6.8.0.0')('form submit loader', () => {
     let form, plugin;
 
     test('does not add a loading spinner but disables the button', () => {
@@ -214,5 +214,4 @@ describe('form submit loader', () => {
     });
 
 });
-
 

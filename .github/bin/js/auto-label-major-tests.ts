@@ -18,9 +18,9 @@
  * major behaviour, so `.md` files never count, the same definition of docs-only the
  * `markdown-only-changes` action uses.
  *
- * The PHP arm retains that repository-wide marker detection. The Administration
- * Jest arm uses the same markers only in Administration source and test files;
- * a feature-registry change enables both arms because it changes the flags of both major runs.
+ * The PHP arm retains that repository-wide marker detection. The JavaScript
+ * Jest arm uses the same markers only in Administration and Storefront source and test files;
+ * a feature-registry change enables both arms because it changes both baselines.
  * A change to the Jest deprecation baseline enables the Jest arm, so the major run checks the
  * usages it lists for that run.
  * Acceptance spec changes enable the ATS arm, using the same paths as
@@ -31,6 +31,7 @@ export const FEATURE_REGISTRY_PATH = 'src/Core/Framework/Resources/config/packag
 export const ADMINISTRATION_APP_PATH = 'src/Administration/Resources/app/administration/';
 export const ADMINISTRATION_SOURCE_PATH = `${ADMINISTRATION_APP_PATH}src/`;
 export const ADMINISTRATION_TEST_PATH = `${ADMINISTRATION_APP_PATH}test/`;
+const STOREFRONT_APP_PATH = 'src/Storefront/Resources/app/storefront/';
 export const ADMINISTRATION_DEPRECATION_BASELINE_PATH = `${ADMINISTRATION_SOURCE_PATH}core/deprecation-baseline.json`;
 
 type PullRequestLabel = {
@@ -72,7 +73,37 @@ type PullRequestContext = PullRequestDetectionContext & {
     };
 };
 
-type GitHubRestClient = {
+export type PullRequestFile = {
+    filename: string;
+    patch?: string;
+};
+
+type ListFilesOptions = {
+    owner: string;
+    repo: string;
+    pull_number: number;
+    per_page: number;
+};
+
+export type PullRequestDiffClient = {
+    paginate(
+        route: (options: ListFilesOptions) => Promise<{ data: PullRequestFile[] }>,
+        options: ListFilesOptions,
+    ): Promise<PullRequestFile[]>;
+    rest: {
+        pulls: {
+            get(options: {
+                owner: string;
+                repo: string;
+                pull_number: number;
+                mediaType: { format: 'diff' };
+            }): Promise<{ data: unknown }>;
+            listFiles(options: ListFilesOptions): Promise<{ data: PullRequestFile[] }>;
+        };
+    };
+};
+
+type GitHubRestClient = PullRequestDiffClient & {
     rest: {
         repos: {
             getContent(options: {
@@ -83,27 +114,15 @@ type GitHubRestClient = {
                 mediaType: { format: 'raw' };
             }): Promise<{ data: unknown }>;
         };
-        pulls: {
-            get(options: {
-                owner: string;
-                repo: string;
-                pull_number: number;
-                mediaType: { format: 'diff' };
-            }): Promise<{ data: unknown }>;
-        };
         issues: {
-            addLabels(options: {
-                owner: string;
-                repo: string;
-                issue_number: number;
-                labels: string[];
-            }): Promise<unknown>;
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
         };
     };
 };
 
 type CoreLogger = {
     info(message: string): void;
+    warning(message: string): void;
 };
 
 type DetectionToolkit = {
@@ -142,8 +161,10 @@ export function shouldDetect(context: PullRequestDetectionContext): boolean {
     // fork PRs included: pull_request_target runs base code only and reads the head as data
     const labels = (context.payload.pull_request.labels ?? []).map((label) => label.name);
 
-    return !labels.includes('major-tests') &&
-        ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label));
+    return (
+        !labels.includes('major-tests') &&
+        ['major-php', 'major-js', 'major-acceptance'].some((label) => !labels.includes(label))
+    );
 }
 
 export function parseMajorFlags(registryYaml: string): string[] {
@@ -223,14 +244,15 @@ export function hasMajorJsMarkers(diff: string, majorFlags: string[]): boolean {
         return true;
     }
 
-    const administrationFiles = files.filter(
+    const jsFiles = files.filter(
         ({ path }) =>
-            (path.startsWith(ADMINISTRATION_SOURCE_PATH) || path.startsWith(ADMINISTRATION_TEST_PATH)) &&
+            (path.startsWith(ADMINISTRATION_SOURCE_PATH) ||
+                path.startsWith(ADMINISTRATION_TEST_PATH) ||
+                path.startsWith(`${STOREFRONT_APP_PATH}src/`) ||
+                path.startsWith(`${STOREFRONT_APP_PATH}test/`)) &&
             !isMarkdownFile(path),
     );
-    const changedLines = administrationFiles.flatMap(({ section }) =>
-        section.split('\n').filter((line) => /^[+-][^+-]/.test(line)),
-    );
+    const changedLines = jsFiles.flatMap(({ section }) => section.split('\n').filter((line) => /^[+-][^+-]/.test(line)));
 
     if (changedLines.length === 0) {
         return false;
@@ -259,6 +281,73 @@ export function labelsForMajorTestArms(arms: MajorTestArms, existingLabels: Pull
     ].filter((label): label is string => label !== null);
 }
 
+/** GitHub answers 406 `too_large` once a diff passes 300 files or 20,000 lines. */
+export function isDiffTooLarge(error: unknown): boolean {
+    const requestError = error as
+        | {
+              status?: number;
+              response?: { data?: { errors?: Array<{ field?: string; code?: string }> } };
+          }
+        | undefined;
+
+    return (
+        requestError?.status === 406 &&
+        (requestError.response?.data?.errors ?? []).some((entry) => entry.field === 'diff' && entry.code === 'too_large')
+    );
+}
+
+/**
+ * Rebuilds a unified diff from the files endpoint, in the shape `splitDiffByFile` reads.
+ * GitHub omits the patch of a single oversized file; that file still counts for path matches.
+ */
+export function diffFromFiles(files: PullRequestFile[]): string {
+    return files
+        .map(
+            ({ filename, patch }) =>
+                `diff --git a/${filename} b/${filename}\n--- a/${filename}\n+++ b/${filename}\n${patch ?? ''}`,
+        )
+        .join('\n');
+}
+
+export async function fetchDiff({
+    github,
+    core,
+    context,
+}: {
+    github: PullRequestDiffClient;
+    core: Pick<CoreLogger, 'warning'>;
+    context: {
+        repo: { owner: string; repo: string };
+        payload: { pull_request: { number: number } };
+    };
+}): Promise<string> {
+    const pullRequest = {
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: context.payload.pull_request.number,
+    };
+
+    try {
+        const { data } = await github.rest.pulls.get({ ...pullRequest, mediaType: { format: 'diff' } });
+
+        return String(data);
+    } catch (error) {
+        if (!isDiffTooLarge(error)) {
+            throw error;
+        }
+    }
+
+    // The files endpoint stops at 3,000 files; beyond that some markers go unseen.
+    const files = await github.paginate(github.rest.pulls.listFiles, { ...pullRequest, per_page: 100 });
+    const withoutPatch = files.filter(({ patch }) => patch === undefined).length;
+    core.warning(
+        `diff too large, read ${files.length} file(s) through the files endpoint instead` +
+            (withoutPatch > 0 ? `; ${withoutPatch} without a patch are matched by path only` : ''),
+    );
+
+    return diffFromFiles(files);
+}
+
 export async function detectMajorTestArms({ github, core, context }: DetectionToolkit): Promise<MajorTestArms> {
     if (!shouldDetect(context)) {
         core.info('skipping major-flag detection: event or existing labels rule it out');
@@ -276,17 +365,12 @@ export async function detectMajorTestArms({ github, core, context }: DetectionTo
 
     const majorFlags = parseMajorFlags(String(registry));
 
-    const { data: diff } = await github.rest.pulls.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.payload.pull_request.number,
-        mediaType: { format: 'diff' },
-    });
+    const diff = await fetchDiff({ github, core, context });
 
     const arms = {
-        php: hasMajorMarkers(String(diff), majorFlags),
-        js: hasMajorJsMarkers(String(diff), majorFlags),
-        acceptance: hasAcceptanceTestChanges(String(diff)),
+        php: hasMajorMarkers(diff, majorFlags),
+        js: hasMajorJsMarkers(diff, majorFlags),
+        acceptance: hasAcceptanceTestChanges(diff),
     };
     core.info(
         arms.php || arms.js || arms.acceptance

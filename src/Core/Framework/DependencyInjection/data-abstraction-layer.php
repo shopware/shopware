@@ -7,6 +7,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
@@ -37,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAs
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ForeignKeyConstraintViolationExceptionHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
@@ -129,6 +131,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionT
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Cleanup\CleanupVersionTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory;
@@ -541,6 +544,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(VersionDefinition::class),
             service('lock.factory'),
             service(ClockInterface::class),
+            service(ClonePayloadBuilder::class),
+            service(WriteCommandExtractor::class),
+            service(AclWriteValidator::class),
+            service(LanguageLoader::class),
+        ]);
+
+    $services->set(ClonePayloadBuilder::class)
+        ->args([
+            service(ClockInterface::class),
         ]);
 
     $services->set(CalculatedPriceFieldSerializer::class)
@@ -907,6 +919,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(TechnicalNameExceptionHandler::class)
+        ->tag('shopware.dal.exception_handler');
+
+    $services->set(ForeignKeyConstraintViolationExceptionHandler::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+        ])
         ->tag('shopware.dal.exception_handler');
 
     $services->set(EntityProtectionValidator::class)

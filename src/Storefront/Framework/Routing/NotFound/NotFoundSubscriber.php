@@ -112,8 +112,11 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
         $name = self::buildName($salesChannelId, $domainId, $languageId);
         $key = $this->generateKey($salesChannelId, $domainId, $languageId, $request, $context);
 
-        $response = $this->cache->get($key, function (ItemInterface $item) use ($event, $name, $context, $request) {
+        $response = $this->cache->get($key, function (ItemInterface $item, bool &$save) use ($event, $name, $context, $request) {
             $response = $this->renderErrorPage($request, $event->getThrowable(), $context->getContext());
+
+            // Do not cache a failed rendering, otherwise every following 404 request of this sales channel gets the error
+            $save = $response->getStatusCode() === Response::HTTP_NOT_FOUND;
 
             $item->tag($this->generateTags($name, $event->getRequest(), $context));
 

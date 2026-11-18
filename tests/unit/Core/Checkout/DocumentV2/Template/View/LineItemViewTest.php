@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Template\View;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -149,6 +150,43 @@ class LineItemViewTest extends TestCase
         static::assertSame('1234567890123', $view->ean);
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('unitCodeProvider')]
+    public function testListFromOrderUsesTheUnitCodeFromThePayload(array $payload, string $expectedCode): void
+    {
+        $lineItem = $this->createProductLineItem('p-1', 'Widget');
+        $lineItem->setPayload($payload);
+
+        $view = LineItemView::listFromOrder($this->createOrder(CartPrice::TAX_STATE_NET, [$lineItem]))[0];
+
+        static::assertSame($expectedCode, $view->unitCode);
+    }
+
+    /**
+     * @return iterable<string, array{payload: array<string, mixed>, expectedCode: string}>
+     */
+    public static function unitCodeProvider(): iterable
+    {
+        yield 'code stored at order time is used' => ['payload' => ['uneceCode' => 'KGM'], 'expectedCode' => 'KGM'];
+        yield 'order placed before the code existed falls back to piece' => ['payload' => ['productNumber' => 'SKU-1'], 'expectedCode' => 'H87'];
+        yield 'product without a code falls back to piece' => ['payload' => ['uneceCode' => null], 'expectedCode' => 'H87'];
+        yield 'code is used without a purchase unit' => ['payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => null], 'expectedCode' => 'KGM'];
+        yield 'code is used when one pack is exactly one unit' => ['payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 1.0], 'expectedCode' => 'KGM'];
+        yield 'packed goods keep piece so the quantity still counts packs' => ['payload' => ['uneceCode' => 'KGM', 'purchaseUnit' => 0.5], 'expectedCode' => 'H87'];
+    }
+
+    public function testListFromOrderFallsBackToPieceForCustomLineItems(): void
+    {
+        $lineItem = $this->createLineItemOfType(LineItem::CUSTOM_LINE_ITEM_TYPE, 'Service');
+        $lineItem->setPrice(new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $view = LineItemView::listFromOrder($this->createOrder(CartPrice::TAX_STATE_NET, [$lineItem]))[0];
+
+        static::assertSame('H87', $view->unitCode);
+    }
+
     public function testListFromOrderIgnoresPurchaseUnitForBasisQuantity(): void
     {
         $product = new ProductEntity();
@@ -271,6 +309,25 @@ class LineItemViewTest extends TestCase
         static::assertSame('1', $views[0]->lineId);
         static::assertSame(100.0, $views[0]->lineTotal);
         static::assertSame(100.0, $views[0]->netUnitPrice);
+    }
+
+    public function testListFromCreditItemsFallsBackToPieceWithoutCode(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertSame('H87', $views[0]->unitCode);
+    }
+
+    public function testListFromCreditItemsUsesTheUnitCodeFromThePayload(): void
+    {
+        $credit = $this->createCreditLineItem('Refund', new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $credit->setPayload(['uneceCode' => 'KGM']);
+
+        $views = LineItemView::listFromCreditItems($this->createOrder(CartPrice::TAX_STATE_NET, [$credit]));
+
+        static::assertSame('KGM', $views[0]->unitCode);
     }
 
     public function testListFromCreditItemsSubtractsTaxPerRowForGrossOrders(): void

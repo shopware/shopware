@@ -19,8 +19,7 @@ class DiscardUnconfirmedAppSecretsListenerTest extends TestCase
 {
     public function testDiscardsUnconfirmedSecretsOfEveryPendingApp(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
-        $appRepository = new StaticEntityRepository([['app-one', 'app-two']]);
+        $appRepository = StaticEntityRepository::of(AppCollection::class, [['app-one', 'app-two']]);
 
         $listener = new DiscardUnconfirmedAppSecretsListener($appRepository);
         $listener(new ShopIdDeletedEvent());

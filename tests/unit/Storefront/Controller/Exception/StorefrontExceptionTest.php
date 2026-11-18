@@ -91,4 +91,13 @@ class StorefrontExceptionTest extends TestCase
             $res->getMessage()
         );
     }
+
+    public function testAnalyticsNotActive(): void
+    {
+        $res = StorefrontException::analyticsNotActive();
+
+        static::assertSame(404, $res->getStatusCode());
+        static::assertSame('STOREFRONT__ANALYTICS_NOT_ACTIVE', $res->getErrorCode());
+        static::assertSame('Analytics is not active for this sales channel.', $res->getMessage());
+    }
 }

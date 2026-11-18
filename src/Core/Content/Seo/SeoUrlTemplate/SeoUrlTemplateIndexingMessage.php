@@ -21,11 +21,16 @@ class SeoUrlTemplateIndexingMessage implements AsyncMessageInterface
 {
     /**
      * @param array{offset: int|null}|null $offset
+     * @param bool $onlyChangedTemplate regenerates only the sales channels affected by the changed template:
+     *                                  `$templateSalesChannelId` when its own template changed, or the sales channels
+     *                                  without an own template when it is `null`
      */
     public function __construct(
         public readonly string $routeName,
         public readonly string $entityName,
         public readonly ?array $offset = null,
+        public readonly bool $onlyChangedTemplate = false,
+        public readonly ?string $templateSalesChannelId = null,
     ) {
     }
 }

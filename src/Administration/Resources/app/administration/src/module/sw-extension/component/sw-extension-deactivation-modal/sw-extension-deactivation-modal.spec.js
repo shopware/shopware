@@ -31,22 +31,27 @@ async function createWrapper(propsData = {}) {
  * @sw-package checkout
  */
 describe('src/module/sw-extension/component/sw-extension-deactivation-modal', () => {
-    it('should show the correct remove hint (is licensed)', async () => {
-        const wrapper = await createWrapper();
+    it.each([
+        {
+            extension: 'a licensed extension',
+            props: {},
+            label: 'sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel',
+        },
+        {
+            extension: 'a licensed extension without deletable files',
+            props: { hasDeletableFiles: false },
+            label: 'sw-extension-store.component.sw-extension-card-base.contextMenu.cancelSubscriptionLabel',
+        },
+        {
+            extension: 'an unlicensed extension',
+            props: { isLicensed: false },
+            label: 'global.default.remove',
+        },
+    ])('should name the matching context menu action in the hint for $extension', async ({ props, label }) => {
+        const wrapper = await createWrapper(props);
 
-        expect(wrapper.vm.removeHint).toBe(
-            'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelsw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel',
-        );
-    });
-
-    it('should show the correct remove hint (is not licensed)', async () => {
-        const wrapper = await createWrapper();
-
-        await wrapper.setProps({
-            isLicensed: false,
-        });
-        expect(wrapper.vm.removeHint).toBe(
-            'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancelglobal.default.remove',
+        expect(wrapper.get('.sw-extension-deactivation-modal__hint-paragraph').text()).toBe(
+            `sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel${label}`,
         );
     });
 

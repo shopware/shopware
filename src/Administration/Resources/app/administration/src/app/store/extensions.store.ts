@@ -22,7 +22,7 @@ export interface Extension {
 /**
  * @private
  */
-export interface ExtensionsState {
+interface ExtensionsState {
     [key: string]: Extension;
 }
 

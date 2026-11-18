@@ -1,4 +1,17 @@
 {% block component_privacy_notice %}
+    {% set requiresTermsOfService = requiresTermsOfService ?? true %}
+    {% set showLegalGuaranteeNotice = requiresTermsOfService
+        and config('core.cart.showLegalGuaranteeNotice')
+        and config('core.loginRegistration.showLegalGuaranteeNotice') %}
+    {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
+    {% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
+    {% set legalGuaranteeNoticeModalTagClose = '</button>' %}
+
+    {# @deprecated tag:v6.8.0 - Block "component_privacy_legal_guarantee_notice_paragraph" will be moved to this position. #}
+    {% if feature('v6.8.0.0') %}
+        {{ sw_block('component_privacy_legal_guarantee_notice_paragraph') }}
+    {% endif %}
+
     <fieldset class="form-text privacy-notice">
         {% block component_privacy_title %}
             <legend class="form-text privacy-notice-title">
@@ -9,22 +22,21 @@
 
         {% block component_privacy_dpi %}
             {% set cmsPath = 'frontend.cms.page' %}
-            {% set requiresTermsOfService = requiresTermsOfService ?? true %}
-            {% set showLegalGuaranteeNotice = requiresTermsOfService and config('core.cart.showLegalGuaranteeNotice') %}
-            {% set legalGuaranteeNoticeModalId = 'legalGuaranteeNoticeModal' %}
-            {% set legalGuaranteeNoticeModalTagOpen = '<button type="button" class="btn btn-link-inline" aria-haspopup="dialog" data-bs-toggle="modal" data-bs-target="#' ~ legalGuaranteeNoticeModalId ~ '">' %}
-            {% set legalGuaranteeNoticeModalTagClose = '</button>' %}
 
-            {% block component_privacy_legal_guarantee_notice_paragraph %}
-                {% if showLegalGuaranteeNotice %}
-                    <p class="legal-guarantee-notice">
-                        {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
-                            '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
-                            '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
-                        })|raw }}
-                    </p>
-                {% endif %}
-            {% endblock %}
+            {# @deprecated tag:v6.8.0 - Block "component_privacy_legal_guarantee_notice_paragraph" will be moved out of "component_privacy_dpi", in front of the privacy fieldset. #}
+            {% if not feature('v6.8.0.0') %}
+                {% block component_privacy_legal_guarantee_notice_paragraph %}
+                    {% if showLegalGuaranteeNotice %}
+                        {# With v6.8.0.0, the sw_block() call in front of the fieldset renders this block #}
+                        <p class="{% if feature('v6.8.0.0') %}form-text {% endif %}legal-guarantee-notice">
+                            {{ 'checkout.confirmLegalGuaranteeNotice'|trans({
+                                '%legalGuaranteeNoticeModalTagOpen%': legalGuaranteeNoticeModalTagOpen,
+                                '%legalGuaranteeNoticeModalTagClose%': legalGuaranteeNoticeModalTagClose,
+                            })|raw }}
+                        </p>
+                    {% endif %}
+                {% endblock %}
+            {% endif %}
 
             {% if config('core.loginRegistration.requireDataProtectionCheckbox') == 1 %}
                 {% set privacyNoticeSnippet = requiresTermsOfService ? 'general.privacyNoticeTextModal' : 'contact.privacyNoticeTextModal' %}
@@ -59,44 +71,52 @@
                 </div>
             {% endif %}
 
-            {% block component_privacy_legal_guarantee_notice_modal %}
-                {% if showLegalGuaranteeNotice %}
-                    <div class="modal modal-lg fade"
-                         id="{{ legalGuaranteeNoticeModalId }}"
-                         tabindex="-1"
-                         role="dialog"
-                         aria-modal="true"
-                         aria-hidden="true"
-                         aria-labelledby="{{ legalGuaranteeNoticeModalId }}-header">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                {% block component_privacy_legal_guarantee_notice_modal_header %}
-                                    <div class="modal-header">
-                                        <div id="{{ legalGuaranteeNoticeModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
-                                            {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+            {# @deprecated tag:v6.8.0 - Block "component_privacy_legal_guarantee_notice_modal" will be moved out of "component_privacy_dpi", behind the privacy fieldset. #}
+            {% if not feature('v6.8.0.0') %}
+                {% block component_privacy_legal_guarantee_notice_modal %}
+                    {% if showLegalGuaranteeNotice %}
+                        <div class="modal modal-lg fade"
+                             id="{{ legalGuaranteeNoticeModalId }}"
+                             tabindex="-1"
+                             role="dialog"
+                             aria-modal="true"
+                             aria-hidden="true"
+                             aria-labelledby="{{ legalGuaranteeNoticeModalId }}-header">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    {% block component_privacy_legal_guarantee_notice_modal_header %}
+                                        <div class="modal-header">
+                                            <div id="{{ legalGuaranteeNoticeModalId }}-header" class="modal-title js-pseudo-modal-template-title-element h5">
+                                                {{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|sw_sanitize }}
+                                            </div>
+                                            <button class="btn-close close"
+                                                    type="button"
+                                                    data-bs-dismiss="modal"
+                                                    aria-label="{{ 'global.default.close'|trans|striptags }}">
+                                            </button>
                                         </div>
-                                        <button class="btn-close close"
-                                                type="button"
-                                                data-bs-dismiss="modal"
-                                                aria-label="{{ 'global.default.close'|trans|striptags }}">
-                                        </button>
-                                    </div>
-                                {% endblock %}
+                                    {% endblock %}
 
-                                {% block component_privacy_legal_guarantee_notice_modal_body %}
-                                    <div class="modal-body confirm-legal-guarantee-notice">
-                                        <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
-                                           target="_blank"
-                                           rel="noopener">
-                                            {{ context.languageId|sw_legal_guarantee_notice }}
-                                        </a>
-                                    </div>
-                                {% endblock %}
+                                    {% block component_privacy_legal_guarantee_notice_modal_body %}
+                                        <div class="modal-body confirm-legal-guarantee-notice">
+                                            <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
+                                               target="_blank"
+                                               rel="noopener">
+                                                {{ context.languageId|sw_legal_guarantee_notice }}
+                                            </a>
+                                        </div>
+                                    {% endblock %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endif %}
-            {% endblock %}
+                    {% endif %}
+                {% endblock %}
+            {% endif %}
         {% endblock %}
     </fieldset>
+
+    {# @deprecated tag:v6.8.0 - Block "component_privacy_legal_guarantee_notice_modal" will be moved to this position. #}
+    {% if feature('v6.8.0.0') %}
+        {{ sw_block('component_privacy_legal_guarantee_notice_modal') }}
+    {% endif %}
 {% endblock %}

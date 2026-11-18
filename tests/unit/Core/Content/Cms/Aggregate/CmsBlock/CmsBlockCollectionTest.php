@@ -37,14 +37,14 @@ class CmsBlockCollectionTest extends TestCase
 
         $slots = $collection->getSlots();
 
-        /** @var CmsSlotEntity $slot */
         $slot = $slots->last();
+        static::assertInstanceOf(CmsSlotEntity::class, $slot);
         $slot->setConfig(['overwrite' => true]);
 
         $collection->setSlots($slots);
 
-        /** @var CmsSlotEntity $lastSlot */
         $lastSlot = $collection->getSlots()->last();
+        static::assertInstanceOf(CmsSlotEntity::class, $lastSlot);
 
         static::assertSame(['overwrite' => true], $lastSlot->getConfig());
     }

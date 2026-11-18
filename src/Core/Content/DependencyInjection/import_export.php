@@ -199,13 +199,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('language.repository'),
         ])
-        ->tag('shopware.import_export.field_serializer', ['priority' => -500]);
+        ->tag('shopware.import_export.field_serializer', ['priority' => -500])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(PriceSerializer::class)
         ->args([
             service('currency.repository'),
         ])
-        ->tag('shopware.import_export.field_serializer', ['priority' => -500]);
+        ->tag('shopware.import_export.field_serializer', ['priority' => -500])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(CustomFieldsSerializer::class)
         ->args([

@@ -85,8 +85,7 @@ class WishlistPageLoader
     private function createCriteria(Request $request): Criteria
     {
         $limit = self::DEFAULT_LIMIT;
-        $page = $request->query->get('p');
-        $page = $page ? (int) $page : self::DEFAULT_PAGE;
+        $page = max((int) $request->query->get('p'), self::DEFAULT_PAGE);
         $offset = $limit * ($page - 1);
 
         return (new Criteria())

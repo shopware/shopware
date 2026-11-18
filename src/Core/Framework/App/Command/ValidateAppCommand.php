@@ -3,9 +3,9 @@
 namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -81,10 +81,11 @@ class ValidateAppCommand extends Command
 
         try {
             foreach ($this->getManifestsFromDir($appDir) as $manifest) {
-                try {
-                    $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException $e) {
-                    $invalids[] = $e->getMessage();
+                $result = $this->manifestValidator->validate($manifest, $context);
+
+                if (!$result->isOk()) {
+                    $messages = implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $result->errors));
+                    $invalids[] = \sprintf("The app \"%s\" is invalid:\n\n%s", $manifest->getMetadata()->getName(), $messages);
                 }
             }
         } catch (AppXmlParsingException $e) {

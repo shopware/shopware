@@ -4,12 +4,12 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -74,10 +74,11 @@ class InstallAppCommand extends Command
             }
 
             if (!$input->getOption('no-validate')) {
-                try {
-                    $this->manifestValidator->validate($manifest, $context);
-                } catch (AppValidationException $e) {
-                    $io->error(\sprintf('App installation of %s failed due: %s', $name, $e->getMessage()));
+                $result = $this->manifestValidator->validate($manifest, $context);
+
+                if (!$result->isOk()) {
+                    $messages = implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $result->errors));
+                    $io->error(\sprintf("App installation of %s failed due: The app \"%s\" is invalid:\n\n%s", $name, $manifest->getMetadata()->getName(), $messages));
 
                     $success = self::FAILURE;
 

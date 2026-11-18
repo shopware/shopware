@@ -83,6 +83,8 @@ export default {
             updateSeoPromises: [],
             isProductNotFound: false,
             lastViewedProductId: null,
+            showOpenInStorefrontModal: false,
+            openInStorefrontHasUnsavedChanges: false,
         };
     },
 
@@ -337,6 +339,16 @@ export default {
             };
         },
 
+        visibleStorefrontSalesChannels() {
+            const product = this.product?.id ? this.product.getOrigin() : null;
+            const parentProduct = this.parentProduct?.id ? this.parentProduct.getOrigin() : null;
+            const visibilities = product?.visibilities?.length ? product.visibilities : (parentProduct?.visibilities ?? []);
+
+            return Array.from(visibilities)
+                .map((visibility) => visibility.salesChannel)
+                .filter((salesChannel) => salesChannel?.typeId === Shopware.Defaults.storefrontSalesChannelTypeId);
+        },
+
         /**
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
@@ -496,6 +508,7 @@ export default {
 
     watch: {
         productId() {
+            this.showOpenInStorefrontModal = false;
             this.createdComponent();
         },
     },
@@ -1034,9 +1047,9 @@ export default {
         },
 
         fetchSalesChannelByIds(ids) {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
 
-            criteria.addFilter(Criteria.equalsAny('id', ids));
+            criteria.setIds(ids);
 
             return this.salesChannelRepository.search(criteria);
         },
@@ -1237,52 +1250,50 @@ export default {
 
             this.updateSeoPromises = [];
 
-            if (Shopware.Store.list().includes('swSeoUrl')) {
-                const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
-                const defaultSeoUrl = Shopware.Store.get('swSeoUrl').defaultSeoUrl;
-
-                if (seoUrls) {
-                    seoUrls.forEach((seoUrl) => {
-                        if (!seoUrl.seoPathInfo) {
-                            seoUrl.seoPathInfo = defaultSeoUrl.seoPathInfo;
-                            seoUrl.isModified = false;
-                        } else {
-                            seoUrl.isModified = true;
-                        }
-
-                        this.updateSeoPromises.push(
-                            this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
-                                if (error.response?.data?.errors) {
-                                    error.response.data.errors.forEach((apiError) => {
-                                        const messageKey = `global.error-codes.${apiError.detail}`;
-                                        const params = apiError.meta?.parameters || {};
-                                        const translated = this.$t(messageKey, params);
-
-                                        const message =
-                                            translated !== messageKey
-                                                ? translated
-                                                : apiError.detail ||
-                                                  apiError.title ||
-                                                  this.$t('global.notification.unspecifiedSaveErrorMessage');
-
-                                        this.createNotificationError({ message });
-                                    });
-                                } else {
-                                    const message =
-                                        error.message || this.$t('global.notification.unspecifiedSaveErrorMessage');
-                                    this.createNotificationError({ message });
-                                }
-
-                                return Promise.reject(error);
-                            }),
-                        );
-                    });
+            const updateSeoUrls = () => {
+                if (!Shopware.Store.list().includes('swSeoUrl')) {
+                    return;
                 }
-            }
+
+                const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls.filter((seoUrl) => {
+                    return seoUrl.foreignKey === this.product.id;
+                });
+
+                seoUrls.forEach((seoUrl) => {
+                    seoUrl.isModified = !!seoUrl.seoPathInfo?.trim();
+
+                    this.updateSeoPromises.push(
+                        this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                            if (error.response?.data?.errors) {
+                                error.response.data.errors.forEach((apiError) => {
+                                    const messageKey = `global.error-codes.${apiError.detail}`;
+                                    const params = apiError.meta?.parameters || {};
+                                    const translated = this.$t(messageKey, params);
+
+                                    const message =
+                                        translated !== messageKey
+                                            ? translated
+                                            : apiError.detail ||
+                                              apiError.title ||
+                                              this.$t('global.notification.unspecifiedSaveErrorMessage');
+
+                                    this.createNotificationError({ message });
+                                });
+                            } else {
+                                const message = error.message || this.$t('global.notification.unspecifiedSaveErrorMessage');
+                                this.createNotificationError({ message });
+                            }
+
+                            return Promise.reject(error);
+                        }),
+                    );
+                });
+            };
 
             return new Promise((resolve) => {
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
+                    updateSeoUrls();
                     Shopware.Store.get('swProductDetail').setLoading(['product', false]);
                     resolve('empty');
                     Shopware.Store.get('swProductDetail').setLoading(['product', false]);
@@ -1291,16 +1302,18 @@ export default {
 
                 const productType = this.productType;
                 const productIsNew = this.product.isNew();
+                const originalActive = this.product.getOrigin().active;
+                const productWasActive = originalActive === null ? this.parentProduct.active : originalActive;
+                const productIsActive = this.product.active === null ? this.parentProduct.active : this.product.active;
+                const productWasActivated = !productIsNew && productWasActive === false && productIsActive === true;
 
                 // save product
                 this.syncRepository
                     .save(this.product, this.productApiContext)
                     .then(() => {
-                        Shopware.Telemetry.track({
-                            eventName: 'sw_product.detail.product_saved',
-                            product_type: productType,
-                            product_is_new: productIsNew,
-                        });
+                        updateSeoUrls();
+
+                        this.trackProductSaveEvents(productType, productIsNew, productWasActivated);
 
                         this.savePreferenceUnits()
                             .then(() => {
@@ -1322,6 +1335,21 @@ export default {
                         resolve(response);
                     });
             });
+        },
+
+        trackProductSaveEvents(productType, productIsNew, productWasActivated) {
+            Shopware.Telemetry.track({
+                eventName: 'sw_product.detail.product_saved',
+                product_type: productType,
+                product_is_new: productIsNew,
+            });
+
+            if (productWasActivated) {
+                Shopware.Telemetry.track({
+                    eventName: 'sw_product.detail.product_activated',
+                    product_type: productType,
+                });
+            }
         },
 
         removeMediaItem(state, mediaId) {
@@ -1507,6 +1535,15 @@ export default {
                     weight: this.weightUnit,
                 },
             });
+        },
+
+        onOpenInStorefront() {
+            this.openInStorefrontHasUnsavedChanges = this.productRepository.hasChanges(this.product);
+            this.showOpenInStorefrontModal = true;
+        },
+
+        onCloseOpenInStorefrontModal() {
+            this.showOpenInStorefrontModal = false;
         },
     },
 };

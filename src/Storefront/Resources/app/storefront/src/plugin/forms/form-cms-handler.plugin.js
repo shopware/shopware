@@ -21,8 +21,12 @@ export default class FormCmsHandler extends Plugin {
     };
 
     init() {
+        this._deprecateOption('contentType', 'v6.8.0.0', 'The option was never effecting the actual request because the HttpClient automatically resets the Content-Type for FormData requests.');
+
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this._client = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this._client = new HttpClient();
+        }
         this._getHiddenSubmit();
         this._getSubmitButton();
         this._registerEvents();

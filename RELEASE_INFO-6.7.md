@@ -619,6 +619,13 @@ shopware:
             enabled: false
 ```
 
+### MCP tools declare whether they change shop data
+
+The core MCP tools on `/api/_mcp` and `/store-api/_mcp` now send the tool annotations of the MCP specification in `tools/list` and in `shopware-tool-search` results.
+Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-upsert`, `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write`, `shopware-theme-config` and `shopware-media-upload`, with `destructiveHint`.
+MCP clients use these hints to decide when to ask the user before a call: clients that honour them may now run the read tools without asking, and ask before the destructive ones where they did not before.
+Plugin and bundle tools can declare the same hints with the `annotations` argument of `#[McpTool]`.
+
 ### Price calculation basis per customer group
 
 Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new customer group field `priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.
@@ -1266,6 +1273,21 @@ The redirect is no longer cached. A shop that is already in this state gets out 
 ### Password recovery is rate limited per IP
 
 Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
+
+### Translations can be downloaded as one archive
+
+`bin/console translation:download` and `bin/console translation:install --all` download all locales as one archive when `shopware.translation.archive_manifest_url` is set.
+The translations repository publishes the manifest of its latest archive at `https://github.com/shopware/translations/releases/latest/download/manifest.json`.
+
+```yaml
+shopware:
+    translation:
+        archive_manifest_url: 'https://github.com/shopware/translations/releases/latest/download/manifest.json'
+```
+
+When the archive cannot be used, both commands download every file of each locale as before.
+`translation:install --all` also downloads every file when the archive is older than the translation metadata.
+Decorators of `AbstractTranslationLoader::download()` are not called for the locales that come from the archive.
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

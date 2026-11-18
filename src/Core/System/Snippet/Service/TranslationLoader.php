@@ -4,7 +4,11 @@ namespace Shopware\Core\System\Snippet\Service;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Pool;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Promise\PromiseInterface;
 use League\Flysystem\FilesystemOperator;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -34,16 +38,7 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('discovery')]
 class TranslationLoader extends AbstractTranslationLoader implements ResetInterface
 {
-    private const PLATFORM_BUNDLES = [
-        'Administration' => 'administration.json',
-        'Core' => 'messages.json',
-        'Storefront' => 'storefront.json',
-    ];
-
-    private const PLUGIN_BUNDLES = [
-        'Storefront',
-        'Administration',
-    ];
+    private const CONCURRENT_DOWNLOADS = 10;
 
     /**
      * @var ArrayStruct<list<string>>|null
@@ -102,8 +97,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
     }
 
     /**
-     * A directory on its own proves nothing: fetchFile() creates it before downloading and files the
-     * repository does not offer are skipped, so an empty or aborted download leaves the tree behind.
+     * An empty or aborted download leaves the locale directories behind, so only a file counts.
      * Any file counts, because a legitimate load() can produce a partial set.
      */
     public function hasTranslationFiles(string $locale): bool
@@ -129,8 +123,7 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
             throw SnippetException::languageDoesNotExist($locale);
         }
 
-        $this->fetchPlatformSnippets($locale);
-        $this->fetchPluginSnippets($locale);
+        $this->downloadFiles($this->prepareDownloads($locale));
 
         // New plugin translation directories may have been written, invalidate the memoized lookup.
         $this->reset();
@@ -217,68 +210,56 @@ class TranslationLoader extends AbstractTranslationLoader implements ResetInterf
         $this->existingPluginLocaleTranslations = $pluginLocales;
     }
 
-    private function fetchPluginSnippets(string $locale): void
+    /**
+     * @return array<string, string>
+     */
+    private function prepareDownloads(string $locale): array
     {
-        foreach ($this->config->plugins as $plugin) {
-            foreach (self::PLUGIN_BUNDLES as $bundle) {
-                $fileName = strtolower($bundle) . '.json';
-                $scope = 'Plugins/' . $plugin;
+        $destinationByUrl = [];
 
-                $this->fetchFile($bundle, $locale, $fileName, $scope);
-            }
-        }
-    }
+        foreach (TranslationFileMap::forLocale($this->config, $locale, $this->getLocalePath($locale)) as $remotePath => $destination) {
+            $destinationDirectory = Path::getDirectory($destination);
 
-    private function fetchPlatformSnippets(string $locale): void
-    {
-        foreach (self::PLATFORM_BUNDLES as $bundle => $fileName) {
-            $this->fetchFile($bundle, $locale, $fileName, 'Platform');
-        }
-    }
-
-    private function fetchFile(string $bundle, string $locale, string $fileName, string $scope): void
-    {
-        $destinationPath = Path::join($this->getLocalePath($locale), $scope);
-
-        if (!$this->translationWriter->directoryExists($destinationPath)) {
-            $this->translationWriter->createDirectory($destinationPath);
-        }
-
-        $downloadUrl = \sprintf(
-            '%s/%s/%s/%s/%s',
-            $this->config->repositoryUrl,
-            $locale,
-            $scope,
-            $bundle,
-            $fileName
-        );
-
-        if ($bundle === 'Core') {
-            // For the core bundle, we use a specific symfony messages name pattern: messages.{locale}.base.json
-            $destinationFileName = 'messages.' . $locale . '.base.json';
-        } else {
-            // For all other bundles, we use the bundle name e.g. administration.json
-            $destinationFileName = strtolower($bundle) . '.json';
-        }
-
-        $destination = Path::join($destinationPath, $destinationFileName);
-
-        $this->downloadFile($downloadUrl, $destination);
-    }
-
-    private function downloadFile(string $url, string $destination): void
-    {
-        try {
-            $response = $this->client->request('GET', $url);
-
-            $this->translationWriter->write($destination, $response->getBody()->getContents());
-        } catch (GuzzleException $e) {
-            if ($e->getCode() === 404) {
-                // If the file does not exist, we can skip it
-                return;
+            if (!$this->translationWriter->directoryExists($destinationDirectory)) {
+                $this->translationWriter->createDirectory($destinationDirectory);
             }
 
-            throw $e;
+            $destinationByUrl[$this->config->repositoryUrl . '/' . $remotePath] = $destination;
+        }
+
+        return $destinationByUrl;
+    }
+
+    /**
+     * @param array<string, string> $destinationByUrl
+     */
+    private function downloadFiles(array $destinationByUrl): void
+    {
+        $downloadFailure = null;
+
+        $requests = function () use ($destinationByUrl): \Generator {
+            foreach ($destinationByUrl as $url => $destination) {
+                yield fn (): PromiseInterface => $this->client->requestAsync('GET', $url)->then(
+                    fn (ResponseInterface $response) => $this->translationWriter->write($destination, $response->getBody()->getContents())
+                );
+            }
+        };
+
+        $pool = new Pool($this->client, $requests(), [
+            'concurrency' => self::CONCURRENT_DOWNLOADS,
+            'rejected' => static function (mixed $reason) use (&$downloadFailure): void {
+                if ($reason instanceof GuzzleException && $reason->getCode() === 404) {
+                    return;
+                }
+
+                $downloadFailure ??= Create::exceptionFor($reason);
+            },
+        ]);
+
+        $pool->promise()->wait();
+
+        if ($downloadFailure instanceof \Throwable) {
+            throw $downloadFailure;
         }
     }
 

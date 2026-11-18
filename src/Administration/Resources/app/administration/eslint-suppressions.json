@@ -2827,9 +2827,6 @@
     },
     "max-lines-per-function": {
       "count": 1
-    },
-    "no-restricted-syntax": {
-      "count": 1
     }
   },
   "src/app/init/filter-factory.init.ts": {

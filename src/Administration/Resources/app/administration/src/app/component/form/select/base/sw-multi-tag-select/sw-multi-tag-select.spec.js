@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import { DOMWrapper, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 const selector = {
     multiDataSelect: {
@@ -27,6 +27,8 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
             },
         },
         props: {
@@ -63,7 +65,7 @@ describe('components/sw-multi-tag-select', () => {
             const floatingUi = wrapper.getComponent({ name: 'mt-floating-ui' });
 
             expect(floatingUi.props('matchReferenceWidth')).toBe(true);
-            expect(floatingUi.vm.$attrs).not.toHaveProperty('resize-width');
+            expect(floatingUi.attributes()).not.toHaveProperty('resize-width');
             expect(warnSpy).not.toHaveBeenCalledWith(
                 'sw-popover',
                 'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
@@ -79,8 +81,8 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = new DOMWrapper(document.body).find(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover.exists()).toBeTruthy();
+        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover.isVisible()).toBeTruthy();
     });
 
     it('should focus input when the user click on .sw-select__selection', async () => {
@@ -97,7 +99,7 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = new DOMWrapper(document.body).get(selector.multiDataSelect.popover);
+        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
         expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.enterValidData');
 
         const input = wrapper.find(selector.multiDataSelect.input);
@@ -136,7 +138,8 @@ describe('components/sw-multi-tag-select', () => {
 
         expect(wrapper.vm.searchTerm).toBe(value);
 
-        await new DOMWrapper(document.body).get('.sw-multi-tag-select-valid').trigger('click');
+        const addItemPopover = wrapper.find('.sw-multi-tag-select-valid');
+        await addItemPopover.trigger('click');
 
         expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
         expect(wrapper.vm.searchTerm).toBe('');

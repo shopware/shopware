@@ -153,4 +153,31 @@ describe('src/app/component/form/sw-text-editor/sw-text-editor-toolbar', () => {
 
         expect(toolbarTop()).toBe(topBeforeScroll + 100);
     });
+
+    it.each([
+        'sw-popover__wrapper',
+        'mt-floating-ui__content',
+        'mt-select-result-list-popover-wrapper',
+    ])('keeps the link menu open when picking a result inside .%s', async (popoverClass) => {
+        wrapper = await createWrapper();
+        await selectEditorContent(wrapper);
+        await clickToolbarButton('link');
+
+        expect(linkMenu()).not.toBeNull();
+
+        // the dropdowns of the link menu's selects are teleported out of the toolbar
+        const popover = document.createElement('div');
+        popover.classList.add(popoverClass);
+        document.body.appendChild(popover);
+
+        const result = document.createElement('li');
+        popover.appendChild(result);
+
+        result.dispatchEvent(new Event('mouseup', { bubbles: true }));
+        await flushPromises();
+
+        expect(linkMenu()).not.toBeNull();
+
+        document.body.removeChild(popover);
+    });
 });

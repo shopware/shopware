@@ -67,7 +67,6 @@ describe('src/app/component/meteor/sw-meteor-single-select', () => {
                     'sw-field-error': true,
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
-                    'mt-floating-ui': true,
                     'sw-field-copyable': true,
                     'sw-inheritance-switch': true,
                     'sw-ai-copilot-badge': true,

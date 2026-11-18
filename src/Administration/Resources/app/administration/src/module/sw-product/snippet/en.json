@@ -673,7 +673,7 @@
       "errorDocumentDuplicated": "This file is already assigned to the product.",
       "languageHint": "Add documents in the default language. Switch the content language to translate their names and files.",
       "fileUploadLabel": "File upload",
-      "uploadHint": "{extensions} or {lastExtension}, up to {size} MB each.",
+      "uploadHint": "{extensions}, up to {size} each.",
       "unlinkToAdd": "Unlink the card to add documents for this variant."
     }
   },

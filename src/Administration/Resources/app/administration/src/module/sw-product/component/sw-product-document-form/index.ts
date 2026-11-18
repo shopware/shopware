@@ -4,16 +4,17 @@
 import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
+import documentColumns from './document-form.config';
 import { getDocumentTranslationChanges, getDocumentEditChanges } from './document-translation.utils';
 import { refreshDocumentPositions } from './document-changes.helper';
 import useDocumentChanges from './use-document-changes';
 import { copyInheritedDocuments } from './document-inheritance.helper';
-import { getUploadHintParams, getAcceptedMimeTypes, isInvalidDocumentFile } from './document-upload.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
 type DocumentGrid = { resetSelection: () => void };
+
+type DocumentUploadResult = { targetId: EntityKey<'media'>; successAmount?: number; totalAmount?: number };
 
 type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean; restoreInheritance: () => void };
 
@@ -27,7 +28,6 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'entityFactory',
         'acl',
-        'fileValidationService',
         'mediaDefaultFolderService',
     ],
 
@@ -60,8 +60,6 @@ export default Shopware.Component.wrapComponentConfig({
             applyToVariants: false,
             isApplyingDocumentEdit: false,
             hasSubmittedDocumentEdit: false,
-            allowedExtensions: [...allowedExtensions],
-            maxFileSize,
         };
     },
 
@@ -154,13 +152,28 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
+        allowedExtensions(): string[] {
+            return Shopware.Store.get('context').app.config.settings?.productDocuments?.allowedExtensions ?? [];
+        },
+
+        allowedMimeTypesByExtension(): Record<string, string[]> {
+            const config = Shopware.Store.get('context').app.config.settings?.productDocuments;
+            return config?.allowedMimeTypesByExtension ?? {};
+        },
+
+        maxFileSize(): number {
+            return Shopware.Store.get('context').app.config.settings?.productDocuments?.maxFileSize ?? 0;
+        },
+
         uploadHint(): string {
-            const hintParams = getUploadHintParams(this.allowedExtensions, this.maxFileSize);
-            return this.$t('sw-product.documentForm.uploadHint', hintParams);
+            return this.$t('sw-product.documentForm.uploadHint', {
+                extensions: this.allowedExtensions.join(', ').toUpperCase(),
+                size: Shopware.Utils.format.fileSize(this.maxFileSize),
+            });
         },
 
         fileAccept(): string {
-            return getAcceptedMimeTypes(this.fileValidationService.extensionByType, this.allowedExtensions);
+            return [...new Set(Object.values(this.allowedMimeTypesByExtension).flat())].join(',');
         },
     },
 
@@ -236,15 +249,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async onUploadFinished(
-            {
-                targetId,
-                successAmount = 1,
-                totalAmount = 1,
-            }: {
-                targetId: EntityKey<'media'>;
-                successAmount?: number;
-                totalAmount?: number;
-            },
+            { targetId, successAmount = 1, totalAmount = 1 }: DocumentUploadResult,
             editingDocument: Entity<'product_document'> | null = null,
         ): Promise<void> {
             const product = this.product;
@@ -275,33 +280,35 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        getDocumentValidationError(
+            media: Entity<'media'>,
+            editingDocument: Entity<'product_document'> | null,
+        ): string | null {
+            if (media.private) {
+                return this.$t('sw-product.documentForm.errorPrivateMedia');
+            }
+
+            const isAllowedExtension = this.allowedExtensions.includes(media.fileExtension?.toLowerCase() ?? '');
+            if (!isAllowedExtension || typeof media.fileSize !== 'number' || media.fileSize > this.maxFileSize) {
+                return this.uploadHint;
+            }
+
+            const isDuplicate = this.documents.some(
+                (document) =>
+                    document !== editingDocument && (document.mediaId || document.translated?.mediaId) === media.id,
+            );
+            return isDuplicate ? this.$t('sw-product.documentForm.errorDocumentDuplicated') : null;
+        },
+
         addDocuments(mediaItems: Entity<'media'>[], editingDocument: Entity<'product_document'> | null = null): void {
             if (!this.canChangeDocuments() || (!editingDocument && !this.isDefaultLanguage)) {
                 return;
             }
 
             for (const media of mediaItems) {
-                if (media.private) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorPrivateMedia'),
-                    });
-                    continue;
-                }
-
-                if (isInvalidDocumentFile(media, this.allowedExtensions, this.maxFileSize)) {
-                    useNotification().createNotificationError({ message: this.uploadHint });
-                    continue;
-                }
-
-                if (
-                    this.documents.some(
-                        (document) =>
-                            document !== editingDocument && (document.mediaId || document.translated?.mediaId) === media.id,
-                    )
-                ) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorDocumentDuplicated'),
-                    });
+                const validationError = this.getDocumentValidationError(media, editingDocument);
+                if (validationError !== null) {
+                    useNotification().createNotificationError({ message: validationError });
                     continue;
                 }
 

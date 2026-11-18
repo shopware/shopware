@@ -40,6 +40,7 @@
                     default-folder="product_document"
                     :allow-multi-select="false"
                     :extension-accept="extensionAccept"
+                    :extension-mime-types-by-extension="allowedMimeTypesByExtension"
                     :max-file-size="maxFileSize"
                     :disabled="isDisabled"
                     @media-upload-sidebar-open="$emit('media-select')"

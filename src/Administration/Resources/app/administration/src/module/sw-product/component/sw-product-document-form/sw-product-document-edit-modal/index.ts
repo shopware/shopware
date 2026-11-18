@@ -62,6 +62,11 @@ export default Shopware.Component.wrapComponentConfig({
             type: Array as PropType<string[]>,
             required: true,
         },
+        allowedMimeTypesByExtension: {
+            type: Object as PropType<Record<string, string[]>>,
+            required: false,
+            default: () => ({}),
+        },
         maxFileSize: {
             type: Number,
             required: true,

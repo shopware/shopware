@@ -40,6 +40,11 @@ export interface ContextState {
                 firstMigrationDate?: string | null;
                 hideUpdateModule?: boolean;
                 minSearchTermLength: number;
+                productDocuments?: {
+                    allowedExtensions: string[];
+                    allowedMimeTypesByExtension: Record<string, string[]>;
+                    maxFileSize: number;
+                };
             };
             version: null | string;
             versionRevision: null | string;

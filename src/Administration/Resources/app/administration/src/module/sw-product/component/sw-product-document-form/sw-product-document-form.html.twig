@@ -243,6 +243,7 @@
                         :label="$t('sw-product.documentForm.fileUploadLabel')"
                         required
                         :extension-accept="allowedExtensions.join(',')"
+                        :extension-mime-types-by-extension="allowedMimeTypesByExtension"
                         :max-file-size="maxFileSize"
                         default-folder="product_document"
                         :disabled="isInherited || !canAddDocuments"
@@ -302,6 +303,7 @@
                 :upload-tag="`${uploadTag}-replace-${editingDocument.id}-${documentEditSession}`"
                 :upload-hint="uploadHint"
                 :allowed-extensions="allowedExtensions"
+                :allowed-mime-types-by-extension="allowedMimeTypesByExtension"
                 :max-file-size="maxFileSize"
                 :can-edit="canEdit"
                 :is-applying-document-edit="isApplyingDocumentEdit"

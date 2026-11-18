@@ -14,7 +14,10 @@ async function createWrapper({ type, value, visibleValue }) {
         global: {
             renderStubDefaultSlot: true,
             stubs: {
-                'mt-floating-ui': true,
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
+                },
             },
         },
     });

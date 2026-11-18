@@ -25,10 +25,7 @@
         {{ $t(`global.sw-condition-generic.units.${type}`) }}
     </div>
 
-    <mt-floating-ui
-        v-if="showMenu && defaultUnit"
-        :is-opened="true"
-    >
+    <mt-floating-ui :is-opened="showMenu && defaultUnit">
         <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
         <div
             v-click-outside="() => showMenu = false"

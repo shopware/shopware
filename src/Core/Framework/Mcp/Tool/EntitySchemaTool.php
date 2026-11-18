@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolRequiresNoPrivilege;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 
@@ -29,9 +31,11 @@ use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 #[McpTool(
     name: 'shopware-entity-schema',
     title: 'Entity Schema',
+    annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Get the field and association schema of a Shopware entity definition: field names, types, and associations for building shopware-entity-search criteria. Many-to-many associations name their mappingEntity (e.g. "product_category"), which shopware-entity-delete uses to remove a link. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
 )]
 #[McpToolGroup('entity')]
+#[McpToolRequiresNoPrivilege(reason: 'Reads entity definitions only, never a repository.')]
 class EntitySchemaTool extends McpToolResponse
 {
     /**

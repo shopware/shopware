@@ -38,7 +38,8 @@ const swProductDetail = Shopware.Store.register({
             product: {} as ProductDetailProduct,
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
-            documentMedia: new WeakMap<Entity<'product'>, Record<string, Entity<'media'>>>(),
+            productDocumentMedia: new WeakMap<Entity<'product'>, Map<EntityKey<'media'>, Entity<'media'>>>(),
+            // Keep locale-loaded metadata stable when the global language fetch finishes later.
             documentLanguage: null as Entity<'language'> | null,
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
@@ -275,14 +276,14 @@ const swProductDetail = Shopware.Store.register({
             this.weightUnit = unit;
         },
 
-        getDocumentMedia(mediaId: EntityKey<'media'>): Entity<'media'> | undefined {
-            return this.documentMedia.get(this.product)?.[mediaId];
+        getProductDocumentMedia(mediaId: EntityKey<'media'>): Entity<'media'> | undefined {
+            return this.productDocumentMedia.get(this.product)?.get(mediaId);
         },
 
-        cacheDocumentMedia(media: Entity<'media'>): void {
-            const mediaById = this.documentMedia.get(this.product) || {};
-            mediaById[media.id] = media;
-            this.documentMedia.set(this.product, mediaById);
+        setProductDocumentMedia(media: Entity<'media'>): void {
+            const mediaById = this.productDocumentMedia.get(this.product) || new Map<EntityKey<'media'>, Entity<'media'>>();
+            mediaById.set(media.id, media);
+            this.productDocumentMedia.set(this.product, mediaById);
         },
     },
 });

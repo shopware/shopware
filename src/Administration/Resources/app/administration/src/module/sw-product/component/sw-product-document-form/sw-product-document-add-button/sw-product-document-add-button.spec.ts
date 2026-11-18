@@ -9,6 +9,7 @@ describe('sw-product-document-add-button', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     const originalSystemLanguage = Shopware.Context.api.systemLanguageId;
     let wrapper: VueWrapper;
+    let emitEvent: jest.SpyInstance;
     const getLanguage = jest.fn();
 
     async function createWrapper(disabled = false, useRealFloatingUi = false, isInherited = false) {
@@ -39,12 +40,14 @@ describe('sw-product-document-add-button', () => {
     }
 
     beforeEach(() => {
+        emitEvent = jest.spyOn(Shopware.Utils.EventBus, 'emit');
         getLanguage.mockReset().mockResolvedValue({ name: 'English' });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
     });
 
     afterEach(() => {
         wrapper?.unmount();
+        jest.restoreAllMocks();
         jest.useRealTimers();
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.systemLanguageId = originalSystemLanguage;
@@ -145,7 +148,7 @@ describe('sw-product-document-add-button', () => {
         expect(getLanguage).toHaveBeenCalledTimes(1);
         expect(document.activeElement).toBe(wrapper.get('button.mt-link').element);
         await wrapper.get('button.mt-link').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
     });
 
     it('shows the hint after the hover delay and ignores brief hovers', async () => {
@@ -197,7 +200,7 @@ describe('sw-product-document-add-button', () => {
             );
             expect(trigger.attributes('aria-label')).toContain(wrapper.get('button').text());
             expect(wrapper.find('button.mt-link').exists()).toBe(false);
-            expect(wrapper.emitted('language-change')).toBeUndefined();
+            expect(emitEvent).not.toHaveBeenCalledWith('on-change-language-clicked', expect.anything());
             expect(wrapper.emitted('documents-add')).toBeUndefined();
             expect(getLanguage).not.toHaveBeenCalled();
         },
@@ -215,7 +218,7 @@ describe('sw-product-document-add-button', () => {
         expect(document.activeElement).toBe(trigger.element);
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
         expect(wrapper.emitted('documents-add')).toBeUndefined();
-        expect(wrapper.emitted('language-change')).toBeUndefined();
+        expect(emitEvent).not.toHaveBeenCalledWith('on-change-language-clicked', expect.anything());
     });
 
     it('offers a language switch on focus instead of uploading in another content language', async () => {
@@ -226,7 +229,7 @@ describe('sw-product-document-add-button', () => {
         await flushPromises();
         expect(wrapper.get('[role="dialog"]').text()).toContain("'English'");
         await wrapper.get('button.mt-link').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
         expect(wrapper.emitted('documents-add')).toBeUndefined();
         expect(wrapper.find('[role="dialog"]').exists()).toBe(false);
     });

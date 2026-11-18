@@ -3,121 +3,83 @@
  */
 import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
+import type Repository from 'src/core/data/repository.data';
+import type { DocumentChanges } from './document-translation.utils';
 import {
-    getDocumentTranslationChanges,
-    getDocumentTranslationResetChanges,
-    type DocumentChanges,
-} from './document-translation.utils';
-import { getDocumentVariantCandidates } from './document-variant.helper';
-import { updateDocumentPositions } from './document-position.helper';
-
-function getMedia(document: Entity<'product_document'> | null): Entity<'media'> | undefined {
-    const mediaId = document?.mediaId || document?.translated?.mediaId;
-
-    return mediaId
-        ? Shopware.Store.get('swProductDetail').getDocumentMedia(mediaId) ||
-              document?.translations?.find((item) => item.mediaId === mediaId)?.media
-        : undefined;
-}
-
-function applyDocumentChanges(document: Entity<'product_document'>, changes: DocumentChanges): void {
-    Object.assign(document, changes);
-    const translation = document.translations?.find((entry) => entry.languageId === Shopware.Context.api.languageId);
-    if (!translation?.isNew()) {
-        return;
-    }
-    if (changes.title !== undefined) {
-        Object.assign(translation, { title: changes.title });
-    }
-    if (changes.mediaId !== undefined) {
-        const media = changes.mediaId ? getMedia(document) : null;
-        Object.assign(translation, { mediaId: changes.mediaId, media });
-    }
-}
-
-function resetDocumentLanguageVersion(document: Entity<'product_document'>): void {
-    const { systemLanguageId } = Shopware.Context.api;
-    const language = Shopware.Store.get('swProductDetail').documentLanguage;
-    applyDocumentChanges(document, getDocumentTranslationResetChanges(document, language, systemLanguageId));
-}
+    applyDocumentChanges,
+    resetDocumentLanguageVersion,
+    stageVariantDocumentChanges,
+    stageVariantDocumentRemovals,
+} from './document-changes.helper';
 
 /** @private */
 export default function useDocumentChanges() {
     const store = Shopware.Store.get('swProductDetail');
+    const context = Shopware.Store.get('context');
     const { product } = storeToRefs(store);
-    const languageId = computed(() => Shopware.Store.get('context').api.languageId);
+    const { isSystemDefaultLanguage: isDefaultLanguage } = storeToRefs(context);
+    const languageId = computed(() => context.api.languageId);
     const documentContext = computed(() => ({ ...Shopware.Context.api, language: store.documentLanguage }));
-    const systemLanguageId = computed(() => Shopware.Store.get('context').api.systemLanguageId);
-    const isDefaultLanguage = computed(() => languageId.value === systemLanguageId.value);
 
-    function stageVariantDocumentChanges(
-        variants: Entity<'product'>[],
-        original: Entity<'product_document'>,
-        changes: DocumentChanges,
-    ): string[] {
-        const children =
-            product.value.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-        const candidates = getDocumentVariantCandidates(variants, children, original);
-        const updatedVariantIds: string[] = [];
-        const context = documentContext.value;
-        candidates.forEach(({ variant, matching }) => {
-            let hasChanges = false;
-            matching.forEach((copy) => {
-                const update = getDocumentTranslationChanges(copy, changes, context, isDefaultLanguage.value);
-                const { title, mediaId } = copy;
-                applyDocumentChanges(copy, update);
-                if (title !== copy.title || mediaId !== copy.mediaId) {
-                    hasChanges = true;
-                }
-            });
-            if (hasChanges) {
-                if (!children.has(variant.id)) {
-                    children.add(variant);
-                }
-                updatedVariantIds.push(variant.id);
-            }
-        });
-        product.value.children = children;
-        return updatedVariantIds;
+    function getMedia(document: Entity<'product_document'> | null): Entity<'media'> | undefined {
+        const mediaId = document?.mediaId || document?.translated?.mediaId;
+        return mediaId
+            ? store.getProductDocumentMedia(mediaId) ||
+                  document?.translations?.find((item) => item.mediaId === mediaId)?.media
+            : undefined;
     }
 
-    function stageVariantDocumentRemovals(variants: Entity<'product'>[], original: Entity<'product_document'>): string[] {
-        const children =
-            product.value.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-        const origin = product.value.getOrigin();
-        const originChildren =
-            origin.children || new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-        const candidates = getDocumentVariantCandidates(variants, children, original);
-        candidates.forEach(({ variant, documents, matching }) => {
-            // Register loaded children in the origin so the changeset includes nested document deletions.
-            if (!variant.isNew() && !originChildren.has(variant.id)) {
-                originChildren.add(variant);
-            }
-            if (!children.has(variant.id)) {
-                children.add(variant);
-            }
-            if (isDefaultLanguage.value) {
-                matching.forEach((copy) => documents.remove(copy.id));
-                updateDocumentPositions(documents);
-            } else {
-                matching.forEach((copy) => resetDocumentLanguageVersion(copy));
-            }
-        });
-        product.value.children = children;
-        origin.children = originChildren;
-        return candidates.map(({ variant }) => variant.id);
+    async function loadDocumentVariants(
+        repository: Repository<'product'>,
+        productId: string,
+        mediaId: string | string[],
+        apiContext: typeof Shopware.Context.api,
+    ): Promise<Entity<'product'>[]> {
+        const { Criteria } = Shopware.Data;
+        const variants: Entity<'product'>[] = [];
+        let page = 1;
+        let result: EntityCollection<'product'>;
+        do {
+            const criteria = new Criteria(page, 100);
+            criteria.setTotalCountMode(0);
+            criteria.addSorting(Criteria.sort('id'));
+            criteria.addFilter(Criteria.equals('parentId', productId));
+            criteria.addFilter(
+                Array.isArray(mediaId)
+                    ? Criteria.equalsAny('documents.mediaId', mediaId)
+                    : Criteria.equals('documents.mediaId', mediaId),
+            );
+            criteria.addAssociation('documents.translations.media');
+            criteria.getAssociation('documents').addSorting(Criteria.sort('position', 'ASC'));
+            result = await repository.search(criteria, apiContext);
+            variants.push(...result);
+            page += 1;
+        } while (result.length === 100);
+        return variants;
     }
 
     return {
+        loadDocumentVariants,
         product,
         languageId,
-        systemLanguageId,
         isDefaultLanguage,
         documentContext,
         getMedia,
-        applyDocumentChanges,
-        resetDocumentLanguageVersion,
-        stageVariantDocumentChanges,
-        stageVariantDocumentRemovals,
+        applyDocumentChanges: (document: Entity<'product_document'>, changes: DocumentChanges) =>
+            applyDocumentChanges(document, changes, documentContext.value, getMedia),
+        resetDocumentLanguageVersion: (document: Entity<'product_document'>) =>
+            resetDocumentLanguageVersion(document, documentContext.value, getMedia),
+        stageVariantDocumentChanges: (
+            variants: Entity<'product'>[],
+            original: Entity<'product_document'>,
+            changes: DocumentChanges,
+        ) =>
+            stageVariantDocumentChanges(product.value, variants, original, {
+                changes,
+                context: documentContext.value,
+                getMedia,
+            }),
+        stageVariantDocumentRemovals: (variants: Entity<'product'>[], original: Entity<'product_document'>) =>
+            stageVariantDocumentRemovals(product.value, variants, original, { context: documentContext.value, getMedia }),
     };
 }

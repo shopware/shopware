@@ -36,7 +36,6 @@
         {% block sw_product_document_empty_state_language_link %}
         <sw-product-document-language-hint
             :default-language-name="defaultLanguageName ?? ''"
-            @language-change="$emit('language-change', $event)"
         />
         {% endblock %}
     </mt-text>

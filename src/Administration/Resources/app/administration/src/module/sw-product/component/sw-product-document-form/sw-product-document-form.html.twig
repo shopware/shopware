@@ -53,15 +53,11 @@
                         :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
                         @documents-add="showUploadModal = true"
-                        @language-change="$emit('language-change', $event)"
                     />
                 {% endblock %}
                 </template>
 
                 <template #grid>
-                {% block sw_product_document_form_language_hint %}
-
-                {% endblock %}
                 {% block sw_product_document_form_empty %}
                     <div
                         v-if="!currentValue.length"
@@ -70,7 +66,6 @@
                         <sw-product-document-empty-state
                             :can-add-documents="!isInherited && canAddDocuments"
                             @documents-add="showUploadModal = true"
-                            @language-change="$emit('language-change', $event)"
                         />
                     </div>
                 {% endblock %}

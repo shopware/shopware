@@ -7,7 +7,7 @@ import template from './sw-product-document-language-hint.html.twig';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['language-change'],
+    emits: ['close'],
 
     props: {
         defaultLanguageName: { type: String, required: false, default: '' },
@@ -20,6 +20,13 @@ export default Shopware.Component.wrapComponentConfig({
 
         defaultLanguageId() {
             return Shopware.Store.get('context').api.systemLanguageId;
+        },
+    },
+
+    methods: {
+        switchToDefaultLanguage(): void {
+            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.defaultLanguageId);
+            this.$emit('close');
         },
     },
 });

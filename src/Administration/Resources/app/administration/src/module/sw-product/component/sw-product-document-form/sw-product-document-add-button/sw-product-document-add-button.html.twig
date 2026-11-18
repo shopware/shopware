@@ -71,7 +71,7 @@
                     v-else
                     :default-language-name="defaultLanguageName"
                     @vue:mounted="focusHintContent"
-                    @language-change="closeHint(); $emit('language-change', $event)"
+                    @close="closeHint"
                 />
             </mt-text>
             {% endblock %}

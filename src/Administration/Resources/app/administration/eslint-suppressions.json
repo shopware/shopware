@@ -2149,11 +2149,6 @@
       "count": 1
     }
   },
-  "src/app/component/structure/sw-language-switch/sw-language-switch.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 6
-    }
-  },
   "src/app/component/structure/sw-media-modal-renderer/index.ts": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 2

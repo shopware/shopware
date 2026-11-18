@@ -8,7 +8,7 @@
         {% block sw_product_document_language_hint_link %}
         <mt-link
             as="button"
-            @click.prevent="$emit('language-change', defaultLanguageId)"
+            @click.prevent="switchToDefaultLanguage"
         >
             '{{ languageLabel }}'
         </mt-link>

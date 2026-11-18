@@ -6,10 +6,9 @@ import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
 import { getDocumentTranslationChanges, getDocumentEditChanges } from './document-translation.utils';
-import { loadDocumentVariants } from './document-variant.helper';
+import { refreshDocumentPositions } from './document-changes.helper';
 import useDocumentChanges from './use-document-changes';
 import { copyInheritedDocuments } from './document-inheritance.helper';
-import { updateDocumentPositions } from './document-position.helper';
 import { getUploadHintParams, getAcceptedMimeTypes, isInvalidDocumentFile } from './document-upload.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
@@ -23,8 +22,6 @@ type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boole
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    emits: ['language-change'],
 
     inject: [
         'repositoryFactory',
@@ -319,7 +316,7 @@ export default Shopware.Component.wrapComponentConfig({
                 document.mediaId = media.id;
                 document.title = media.fileName;
                 document.position = this.documents.length;
-                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
+                Shopware.Store.get('swProductDetail').setProductDocumentMedia(media);
                 this.documents.add(document);
             }
             this.showMediaModal = false;
@@ -334,7 +331,7 @@ export default Shopware.Component.wrapComponentConfig({
             const newIndex = oldIndex + offset;
 
             this.documents.moveItem(oldIndex, newIndex);
-            updateDocumentPositions(this.documents);
+            refreshDocumentPositions(this.documents);
         },
 
         openDocumentEditor(document: Entity<'product_document'>): void {
@@ -379,11 +376,11 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 if (replacementMedia) {
-                    Shopware.Store.get('swProductDetail').cacheDocumentMedia(replacementMedia);
+                    Shopware.Store.get('swProductDetail').setProductDocumentMedia(replacementMedia);
                 }
                 let updatedVariantIds: string[] = [];
                 if (matchingMediaId) {
-                    const variants = await loadDocumentVariants(
+                    const variants = await this.loadDocumentVariants(
                         this.productRepository,
                         product.id,
                         matchingMediaId,
@@ -471,7 +468,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.isRemovingDocuments = true;
             try {
                 const variants = mediaIds.length
-                    ? await loadDocumentVariants(this.productRepository, product.id, mediaIds, context)
+                    ? await this.loadDocumentVariants(this.productRepository, product.id, mediaIds, context)
                     : [];
                 if (!isCurrentRemoval()) {
                     return;
@@ -489,7 +486,7 @@ export default Shopware.Component.wrapComponentConfig({
                     }
                 });
                 if (this.isDefaultLanguage) {
-                    updateDocumentPositions(this.documents);
+                    refreshDocumentPositions(this.documents);
                 }
                 const message =
                     documents.length > 1

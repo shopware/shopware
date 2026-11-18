@@ -557,6 +557,7 @@ export default {
 
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
 
+            // Opening an existing product may not change the language ID; preload document labels and fallbacks.
             this.loadLanguage(Shopware.Context.api.languageId);
             await this.initProductMeasurementUnits();
 

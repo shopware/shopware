@@ -7,6 +7,7 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 describe('sw-product-document-empty-state', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     let wrapper: VueWrapper;
+    let emitEvent: jest.SpyInstance;
 
     async function createWrapper(canAddDocuments = true, get = jest.fn().mockResolvedValue({ name: 'English' })) {
         return shallowMount(await wrapTestComponent('sw-product-document-empty-state', { sync: true }), {
@@ -24,11 +25,13 @@ describe('sw-product-document-empty-state', () => {
     }
 
     beforeEach(() => {
+        emitEvent = jest.spyOn(Shopware.Utils.EventBus, 'emit');
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
     });
 
     afterEach(() => {
         wrapper?.unmount();
+        jest.restoreAllMocks();
         Shopware.Context.api.languageId = originalLanguage;
     });
 
@@ -57,7 +60,7 @@ describe('sw-product-document-empty-state', () => {
         const link = wrapper.get('button.mt-link');
         expect(link.text()).toBe("'Français'");
         await link.trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
         expect(wrapper.emitted('documents-add')).toBeUndefined();
     });
 
@@ -68,7 +71,7 @@ describe('sw-product-document-empty-state', () => {
 
         expect(wrapper.get('button.mt-link').text()).toContain('sw-product.documentForm.defaultLanguage');
         await wrapper.get('button.mt-link').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
     });
 
     it('offers Add documents after switching back to the default language', async () => {

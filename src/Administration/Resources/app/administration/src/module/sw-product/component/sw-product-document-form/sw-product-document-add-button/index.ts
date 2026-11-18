@@ -10,7 +10,7 @@ import './sw-product-document-add-button.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['documents-add', 'language-change'],
+    emits: ['documents-add'],
 
     props: {
         isInherited: {

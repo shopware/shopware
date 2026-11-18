@@ -112,8 +112,14 @@ describe('sw-product-document-form media assignment', () => {
         await flushPromises();
         expect(wrapper.find('.sw-product-document-form__empty-state .mt-button').exists()).toBe(false);
         expect(wrapper.find('.sw-product-document-form__language-hint').exists()).toBe(false);
-        await wrapper.get('.sw-product-document-form__empty-state .mt-link').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        const switchLanguage = jest.fn();
+        Shopware.Utils.EventBus.on('on-change-language-clicked', switchLanguage);
+        try {
+            await wrapper.get('.sw-product-document-form__empty-state .mt-link').trigger('click');
+            expect(switchLanguage).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
+        } finally {
+            Shopware.Utils.EventBus.off('on-change-language-clicked', switchLanguage);
+        }
     });
 
     it('adds all selected documents when more than ten files are selected', async () => {

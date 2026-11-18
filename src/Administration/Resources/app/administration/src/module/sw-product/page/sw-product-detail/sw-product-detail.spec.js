@@ -1056,38 +1056,23 @@ describe('module/sw-product/page/sw-product-detail', () => {
     it('keeps the active language when an earlier page lookup finishes last', async () => {
         wrapper.unmount();
         let resolveGerman;
-        wrapper = await createWrapper(
-            undefined,
-            (id) => {
-                if (id === 'german') {
-                    return new Promise((resolve) => {
-                        resolveGerman = resolve;
-                    });
-                }
-                return Promise.resolve({ id, variation: [] });
-            },
-            undefined,
-            {
-                languageSwitchInput(languageId) {
-                    this.$emit('on-change', languageId);
-                },
-                routedComponent: {
-                    template: `<div>
-                    <button class="request-german" @click="$emit('language-change', 'german')">German</button>
-                    <button class="request-french" @click="$emit('language-change', 'french')">French</button>
-                </div>`,
-                },
-            },
-        );
+        wrapper = await createWrapper(undefined, (id) => {
+            if (id === 'german') {
+                return new Promise((resolve) => {
+                    resolveGerman = resolve;
+                });
+            }
+            return Promise.resolve({ id, variation: [] });
+        });
         await flushPromises();
         const api = Shopware.Store.get('context').api;
         const originalLanguageId = api.languageId;
         const originalLanguage = api.language;
 
         try {
-            await wrapper.get('.request-german').trigger('click');
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'german');
             await flushPromises();
-            await wrapper.get('.request-french').trigger('click');
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'french');
             await flushPromises();
             expect(api.language.id).toBe('french');
             expect(Shopware.Store.get('swProductDetail').documentLanguage.id).toBe('french');
@@ -1101,25 +1086,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
             api.languageId = originalLanguageId;
             api.language = originalLanguage;
         }
-    });
-
-    it('routes a document language request through the normal language-switch input', async () => {
-        wrapper.unmount();
-        const languageSwitchInput = jest.fn();
-        wrapper = await createWrapper(undefined, undefined, undefined, {
-            languageSwitchInput,
-            routedComponent: {
-                template:
-                    '<button class="request-default-language" @click="$emit(\'language-change\', \'default-language\')">Switch language</button>',
-            },
-        });
-        await flushPromises();
-        const product = Shopware.Store.get('swProductDetail').product;
-        await wrapper.get('.request-default-language').trigger('click');
-
-        expect(languageSwitchInput).toHaveBeenCalledWith('default-language');
-        expect(wrapper.getComponent({ ref: 'languageSwitch' }).props('abortChangeFunction')()).toBe(true);
-        expect(Shopware.Store.get('swProductDetail').product).toBe(product);
     });
 
     it('should handle success response correctly', async () => {

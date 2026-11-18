@@ -91,11 +91,11 @@ export default {
             this.languageId = Shopware.Context.api.languageId;
             this.lastLanguageId = this.languageId;
 
-            Shopware.Utils.EventBus.on('on-change-language-clicked', this.changeToNewLanguage);
+            Shopware.Utils.EventBus.on('on-change-language-clicked', this.onInput);
         },
 
         destroyedComponent() {
-            Shopware.Utils.EventBus.off('on-change-language-clicked', this.changeToNewLanguage);
+            Shopware.Utils.EventBus.off('on-change-language-clicked', this.onInput);
         },
 
         onInput(newLanguageId) {

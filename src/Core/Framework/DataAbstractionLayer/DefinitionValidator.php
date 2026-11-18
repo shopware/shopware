@@ -55,6 +55,7 @@ class DefinitionValidator
         'product.sortedProperties',
         'product.cheapestPriceContainer',
         'product.cheapest_price',
+        'product.cheapest_price_blob',
         'product.cheapest_price_accessor',
         'sales_channel_domain.external_storefront_language_id',
     ];

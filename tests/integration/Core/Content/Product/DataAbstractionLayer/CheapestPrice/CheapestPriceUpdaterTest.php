@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPriceUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Assert\Serialization;
@@ -23,6 +24,27 @@ use Shopware\Core\Test\TestDefaults;
 class CheapestPriceUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public function testLegacyWritesStopOnlyAtTheMajorCutover(): void
+    {
+        $ids = new IdsCollection();
+        $product = (new ProductBuilder($ids, 'cutover'))->price(100)->build();
+        $context = Context::createDefaultContext();
+        $connection = static::getContainer()->get(Connection::class);
+        static::getContainer()->get('product.repository')->create([$product], $context);
+        $connection->executeStatement('UPDATE product SET cheapest_price = :legacy WHERE id = :id', [
+            'legacy' => 'old-writer',
+            'id' => $ids->getBytes('cutover'),
+        ]);
+
+        static::getContainer()->get(CheapestPriceUpdater::class)->update([$product['id']], $context);
+
+        $row = $connection->fetchAssociative('SELECT cheapest_price, cheapest_price_blob FROM product WHERE id = :id', ['id' => $ids->getBytes('cutover')]);
+        static::assertIsArray($row);
+        static::assertIsString($row['cheapest_price_blob']);
+        Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $row['cheapest_price_blob']);
+        static::assertSame(Feature::isActive('v6.8.0.0') ? 'old-writer' : $row['cheapest_price_blob'], $row['cheapest_price']);
+    }
 
     public function testCheapestPriceFilteredBySalesChannelId(): void
     {
@@ -57,7 +79,7 @@ class CheapestPriceUpdaterTest extends TestCase
         $updater->update([$parentId], $context);
 
         $cheapestPriceRaw = $connection->fetchOne(
-            'SELECT cheapest_price FROM product WHERE id = UNHEX(:id) AND version_id = UNHEX(:version)',
+            'SELECT cheapest_price_blob FROM product WHERE id = UNHEX(:id) AND version_id = UNHEX(:version)',
             [
                 'id' => str_replace('-', '', $parentId),
                 'version' => str_replace('-', '', $context->getVersionId()),
@@ -66,6 +88,13 @@ class CheapestPriceUpdaterTest extends TestCase
 
         static::assertIsString($cheapestPriceRaw, 'Cheapest price should be stored');
         static::assertNotSame('', $cheapestPriceRaw, 'Cheapest price should be stored');
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            static::assertSame($cheapestPriceRaw, $connection->fetchOne(
+                'SELECT cheapest_price FROM product WHERE id = UNHEX(:id) AND version_id = UNHEX(:version)',
+                ['id' => $parentId, 'version' => $context->getVersionId()]
+            ));
+        }
 
         $cheapestPrice = Serialization::assertUnserializedInstanceOf(CheapestPriceContainer::class, $cheapestPriceRaw);
 

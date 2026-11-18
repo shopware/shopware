@@ -18,8 +18,7 @@ const debounce = Shopware.Utils.debounce;
  *      colorOutput="auto"
  *      :alpha="true"
  *      :disabled="false"
- *      :colorLabels="true"
- *      zIndex="100">
+ *      :colorLabels="true">
  * </sw-colorpicker>
  */
 export default {
@@ -72,12 +71,6 @@ export default {
             type: Boolean,
             required: false,
             default: true,
-        },
-
-        zIndex: {
-            type: [Number, null],
-            required: false,
-            default: null,
         },
     },
 

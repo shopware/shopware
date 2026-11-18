@@ -96,12 +96,6 @@ export default {
             },
         },
 
-        zIndex: {
-            type: Number,
-            required: false,
-            default: 1100,
-        },
-
         ariaLabel: {
             type: String,
             required: false,

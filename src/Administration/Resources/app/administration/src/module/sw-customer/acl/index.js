@@ -6,6 +6,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'customers',
     key: 'customer',
+    containsPersonalData: true,
     roles: {
         viewer: {
             privileges: [

@@ -31,6 +31,10 @@ describe('src/module/sw-users-permissions/acl/index.js', () => {
             category: 'permissions',
             parent: 'settings',
             key: 'users_and_permissions',
+            containsPersonalData: [
+                'user',
+                'user_access_key',
+            ],
             roles: expect.any(Object),
         });
     });

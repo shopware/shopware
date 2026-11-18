@@ -18,6 +18,7 @@ Shopware.Service('privileges')
         category: 'permissions',
         parent: 'orders',
         key: 'order',
+        containsPersonalData: true,
         roles: {
             viewer: {
                 privileges: [

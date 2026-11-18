@@ -26,6 +26,10 @@ Shopware.Component.register(
     () => import('./components/sw-users-permissions-permissions-grid'),
 );
 Shopware.Component.register(
+    'sw-users-permissions-included-access-modal',
+    () => import('./components/sw-users-permissions-included-access-modal'),
+);
+Shopware.Component.register(
     'sw-users-permissions-detailed-permissions-grid',
     () => import('./components/sw-users-permissions-detailed-permissions-grid'),
 );

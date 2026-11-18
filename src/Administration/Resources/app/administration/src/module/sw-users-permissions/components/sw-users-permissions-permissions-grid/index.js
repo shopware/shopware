@@ -28,6 +28,12 @@ export default {
         },
     },
 
+    data() {
+        return {
+            includedAccessModal: null,
+        };
+    },
+
     computed: {
         permissionsWithParents() {
             const permissionsWithParents = [];
@@ -118,9 +124,117 @@ export default {
                 catalogues: 'products',
             };
         },
+
+        selectedPrivilegeKeys() {
+            return this.role?.privileges ?? [];
+        },
+
+        /**
+         * Per row: what the row grants on data of other modules, at its selected level or at its lowest level.
+         */
+        hiddenAccessByKey() {
+            return this.permissions.reduce((hiddenAccessByKey, permission) => {
+                hiddenAccessByKey[permission.key] = this.privileges.getHiddenAccessForAdminPrivilegeKeys(
+                    this.rowPreviewKeys(permission),
+                );
+
+                return hiddenAccessByKey;
+            }, {});
+        },
+
+        /**
+         * What the selected permissions grant on other areas beyond what those areas' own selected roles grant.
+         */
+        roleIncludedAccess() {
+            return this.privileges.getIncludedAccess(this.selectedPrivilegeKeys);
+        },
     },
 
     methods: {
+        rowPreviewKeys(permission) {
+            const selectedKeys = this.selectedRowKeys(permission);
+
+            if (selectedKeys.length > 0) {
+                return selectedKeys;
+            }
+
+            const lowestRole = this.roles.find((role) => permission.roles[role]) ?? Object.keys(permission.roles)[0];
+
+            return lowestRole ? [`${permission.key}.${lowestRole}`] : [];
+        },
+
+        hiddenAccess(permissionKey) {
+            return this.hiddenAccessByKey[permissionKey] ?? [];
+        },
+
+        selectedRowKeys(permission) {
+            return Object.keys(permission.roles)
+                .map((role) => `${permission.key}.${role}`)
+                .filter((identifier) => this.selectedPrivilegeKeys.includes(identifier));
+        },
+
+        isRowSelected(permission) {
+            return this.selectedRowKeys(permission).length > 0;
+        },
+
+        rowPreviewRoleLabel(permission) {
+            const [, role] = this.rowPreviewKeys(permission)[0].split('.');
+
+            return this.$t(`sw-privileges.roles.${role}`);
+        },
+
+        includedAccessButtonTooltip(permission) {
+            const count = this.hiddenAccess(permission.key).length;
+
+            if (this.isRowSelected(permission)) {
+                return this.$t('sw-users-permissions.roles.grid.includedAccessTooltip', { count }, count);
+            }
+
+            return this.$t(
+                'sw-users-permissions.roles.grid.includedAccessPreviewTooltip',
+                { count, role: this.rowPreviewRoleLabel(permission) },
+                count,
+            );
+        },
+
+        openRowIncludedAccess(permission) {
+            const area = this.$t(`sw-privileges.permissions.${permission.key}.label`);
+            const selectedRoles = this.selectedRowKeys(permission).map((identifier) => {
+                return this.$t(`sw-privileges.roles.${identifier.split('.')[1]}`);
+            });
+
+            this.includedAccessModal = {
+                privilegeKeys: this.rowPreviewKeys(permission),
+                title: this.$t('sw-users-permissions.roles.grid.rowModalTitle', { area }),
+                subtitle:
+                    selectedRoles.length > 0
+                        ? this.$t('sw-users-permissions.roles.grid.rowModalSubtitleSelected', {
+                              roles: selectedRoles.join(', '),
+                          })
+                        : this.$t('sw-users-permissions.roles.grid.rowModalSubtitlePreview', {
+                              role: this.rowPreviewRoleLabel(permission),
+                          }),
+                description: this.$t('sw-users-permissions.roles.grid.rowModalDescription', { area }),
+                withSources: false,
+            };
+        },
+
+        openRoleIncludedAccess() {
+            const count = this.selectedPrivilegeKeys.length;
+
+            this.includedAccessModal = {
+                privilegeKeys: [...this.selectedPrivilegeKeys],
+                title: this.$t('sw-users-permissions.roles.grid.roleModalTitle'),
+                subtitle: this.$t('sw-users-permissions.roles.grid.roleModalSubtitle', { count }, count),
+                description: this.$t('sw-users-permissions.roles.grid.roleModalDescription'),
+                withSources: true,
+            };
+        },
+
+        closeIncludedAccess() {
+            this.includedAccessModal = null;
+        },
+
         parentLabel(parentValue) {
             const key = parentValue || 'other';
             const snippetKey = Object.hasOwn(this.parentSnippetKeys, key) ? this.parentSnippetKeys[key] : key;

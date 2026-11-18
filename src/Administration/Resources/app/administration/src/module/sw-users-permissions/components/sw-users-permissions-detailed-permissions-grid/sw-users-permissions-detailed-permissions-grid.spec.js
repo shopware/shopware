@@ -7,7 +7,7 @@ import { reactive } from 'vue';
 import { mount } from '@vue/test-utils';
 import PrivilegesService from 'src/app/service/privileges.service';
 
-async function createWrapper({ privilegesMappings = [], rolePrivileges = [], detailedPrivileges = [] } = {}) {
+async function createWrapper({ privilegesMappings = [], rolePrivileges = [], detailedPrivileges = [], mocks = {} } = {}) {
     const privilegesService = new PrivilegesService();
     privilegesMappings.forEach((mapping) => {
         privilegesService.addPrivilegeMappingEntry(mapping);
@@ -23,6 +23,7 @@ async function createWrapper({ privilegesMappings = [], rolePrivileges = [], det
                 provide: {
                     privileges: privilegesService,
                 },
+                mocks,
             },
             props: reactive({
                 role: { privileges: rolePrivileges },
@@ -364,5 +365,55 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-detail
 
         expect(privileges).toEqual(['product.viewer', 'product.editor']);
         expect(detailedPrivileges).toEqual(['order:create']);
+    });
+
+    it('should name the General tab selections granting a disabled privilege', async () => {
+        const translate = (key, params = {}) => {
+            return Object.entries(params).reduce((text, [name, value]) => `${text} ${name}=${value}`, key);
+        };
+        const permission = (key, roles) => ({
+            category: 'permissions',
+            parent: null,
+            key,
+            roles: Object.fromEntries(
+                Object.entries(roles).map(([role, privileges]) => [
+                    role,
+                    { privileges, dependencies: [] },
+                ]),
+            ),
+        });
+
+        const wrapper = await createWrapper({
+            privilegesMappings: [
+                permission('order', { viewer: ['order:read'], creator: ['order:create'] }),
+                permission('tag', {
+                    viewer: [
+                        'tag:read',
+                        'order:read',
+                    ],
+                    editor: [
+                        'tag:update',
+                        'order:read',
+                    ],
+                }),
+                permission('promotion', { viewer: ['order:read'] }),
+            ],
+            rolePrivileges: [
+                'tag.editor',
+                'tag.viewer',
+                'promotion.viewer',
+            ],
+            mocks: { $t: translate },
+        });
+
+        const orderRead = wrapper.find(
+            '.sw-users-permissions-detailed-permissions-grid__entry_order .sw-users-permissions-detailed-permissions-grid__role_read [tooltip-mock-message]',
+        );
+
+        expect(orderRead.attributes('tooltip-mock-message')).toBe(
+            'sw-users-permissions.roles.detailed-grid.grantedVia sources=' +
+                'sw-privileges.permissions.tag.label (sw-privileges.roles.viewer), ' +
+                'sw-privileges.permissions.promotion.label (sw-privileges.roles.viewer)',
+        );
     });
 });

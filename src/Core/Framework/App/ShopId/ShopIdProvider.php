@@ -112,7 +112,12 @@ class ShopIdProvider implements ResetInterface
 
     private function retainAppSecretsIfShopIdIsOwned(): void
     {
-        $shopId = $this->fetchShopIdFromSystemConfig(migrateV1: false);
+        try {
+            $shopId = $this->fetchShopIdFromSystemConfig(migrateV1: false);
+        } catch (AppException) {
+            return;
+        }
+
         if ($shopId !== null && $this->fingerprintGenerator->matchFingerprints($shopId->fingerprints)->isMatching()) {
             $this->retainedSecrets->retainCandidates($shopId->id);
         }

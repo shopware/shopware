@@ -148,21 +148,36 @@ class CreateMigrationCommand extends Command
 
     private function getPlugin(string $pluginName): Plugin
     {
+        $plugins = $this->findPlugins($pluginName);
+
+        if (\count($plugins) !== 1) {
+            throw DataAbstractionLayerException::migrationPluginNotUnique(
+                $pluginName,
+                array_map(static fn (Plugin $plugin) => $plugin->getName(), $plugins)
+            );
+        }
+
+        return $plugins[0];
+    }
+
+    /**
+     * An exact name wins over plugins that merely start with it.
+     *
+     * @return list<Plugin>
+     */
+    private function findPlugins(string $pluginName): array
+    {
         $plugins = array_values(array_filter(
             $this->kernel->getBundles(),
             static fn ($bundle) => $bundle instanceof Plugin && str_starts_with($bundle->getName(), $pluginName)
         ));
 
-        if (\count($plugins) > 1) {
-            $exactMatches = array_values(array_filter($plugins, static fn (Plugin $plugin) => $plugin->getName() === $pluginName));
-            $plugins = \count($exactMatches) === 1 ? $exactMatches : $plugins;
-        }
+        $exactMatches = array_values(array_filter(
+            $plugins,
+            static fn (Plugin $plugin) => $plugin->getName() === $pluginName
+        ));
 
-        if (\count($plugins) !== 1) {
-            throw DataAbstractionLayerException::migrationPluginNotUnique($pluginName, array_map(static fn (Plugin $plugin) => $plugin->getName(), $plugins));
-        }
-
-        return $plugins[0];
+        return \count($exactMatches) === 1 ? $exactMatches : $plugins;
     }
 
     private function getNamespace(InputInterface $input, ?Bundle $bundle): string

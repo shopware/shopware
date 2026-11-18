@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
@@ -168,6 +170,103 @@ class RegisterControllerTest extends TestCase
 
         static::assertTrue($controller->recorder()->renderStorefrontParameters['loginError'] ?? null);
         static::assertSame(5, $controller->recorder()->renderStorefrontParameters['waitTime'] ?? null);
+    }
+
+    public function testCheckoutRegisterPassesRedirectParametersToTemplate(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+        $request = new Request(query: [
+            'redirectTo' => 'frontend.checkout.finish.page',
+            'redirectParameters' => '{"orderId":"order-id"}',
+        ]);
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(new LineItem('test', 'test'));
+
+        $cartService = static::createStub(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+
+        $controller = $this->createController(cartService: $cartService);
+
+        $controller->checkoutRegisterPage($request, new RequestDataBag(), $context);
+
+        static::assertSame('frontend.checkout.finish.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertSame('{"orderId":"order-id"}', $controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
+    }
+
+    public function testCheckoutRegisterRedirectsLoggedInCustomerWithRedirectParameters(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $request = new Request(query: [
+            'redirectTo' => 'frontend.checkout.finish.page',
+            'redirectParameters' => '{"orderId":"order-id"}',
+        ]);
+
+        $controller = $this->createController();
+
+        $controller->checkoutRegisterPage($request, new RequestDataBag(), $context);
+
+        static::assertSame(
+            [['parameters' => ['orderId' => 'order-id'], 'status' => Response::HTTP_FOUND]],
+            $controller->recorder()->redirected['frontend.checkout.finish.page'] ?? null
+        );
+    }
+
+    /**
+     * @param \Closure(RegisterControllerStub, Request, SalesChannelContext): void $loadPage
+     */
+    #[DataProvider('registerPageProvider')]
+    public function testRegisterPageKeepsRedirectTargetOfForwardedRequest(\Closure $loadPage): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->assign(['customer' => null]);
+
+        // A failed login or registration forwards with the submitted form data in the request body
+        $request = new Request(request: [
+            'redirectTo' => 'frontend.checkout.finish.page',
+            'redirectParameters' => '{"orderId":"order-id"}',
+        ]);
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(new LineItem('test', 'test'));
+        $cartService = static::createStub(CartService::class);
+        $cartService->method('getCart')->willReturn($cart);
+
+        $customerGroupPage = new CustomerGroupRegistrationPage();
+        $customerGroupPage->setGroup(new CustomerGroupEntity());
+        $customerGroupRegistrationPageLoader = static::createStub(CustomerGroupRegistrationPageLoader::class);
+        $customerGroupRegistrationPageLoader->method('load')->willReturn($customerGroupPage);
+
+        $controller = $this->createController(
+            cartService: $cartService,
+            customerGroupRegistrationPageLoader: $customerGroupRegistrationPageLoader,
+        );
+
+        $loadPage($controller, $request, $context);
+
+        static::assertSame('frontend.checkout.finish.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertSame('{"orderId":"order-id"}', $controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
+    }
+
+    public static function registerPageProvider(): \Generator
+    {
+        yield 'account register page' => [
+            static function (RegisterControllerStub $controller, Request $request, SalesChannelContext $context): void {
+                $controller->accountRegisterPage($request, new RequestDataBag(), $context);
+            },
+        ];
+
+        yield 'customer group registration page' => [
+            static function (RegisterControllerStub $controller, Request $request, SalesChannelContext $context): void {
+                $controller->customerGroupRegistration(Uuid::randomHex(), $request, new RequestDataBag(), $context);
+            },
+        ];
+
+        yield 'checkout register page' => [
+            static function (RegisterControllerStub $controller, Request $request, SalesChannelContext $context): void {
+                $controller->checkoutRegisterPage($request, new RequestDataBag(), $context);
+            },
+        ];
     }
 
     public function testCustomerGroupRegistration(): void

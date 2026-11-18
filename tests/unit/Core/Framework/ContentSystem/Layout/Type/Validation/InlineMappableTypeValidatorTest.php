@@ -101,6 +101,18 @@ class InlineMappableTypeValidatorTest extends TestCase
         ];
     }
 
+    public function testRejectsInlineMappableOnNestedArrayItem(): void
+    {
+        $item = new PropertySpecificationDto('items', 'string', false, false, 'Item', 'Item.', null, null, null, inlineMappable: true);
+        $row = new PropertySpecificationDto('items', 'array', false, false, 'Row', 'Row.', null, null, null, items: $item);
+        $dto = new PropertySpecificationDto('rows', 'array', false, false, 'Rows', 'Rows.', null, null, null, items: $row);
+        $violations = $this->validate($dto);
+
+        static::assertCount(1, $violations);
+        static::assertSame('items.items.inlineMappable', $violations->get(0)->getPropertyPath());
+        static::assertSame((new InlineMappableType())->nestedMessage, $violations->get(0)->getMessage());
+    }
+
     #[DataProvider('rejectsInvalidSpecificationProvider')]
     #[TestDox('rejects invalid property specification with $expectedMessage')]
     public function testRejectsInvalidPropertySpecification(PropertySpecificationDto $dto, string $expectedMessage): void

@@ -666,6 +666,7 @@ class PropertyTypeTest extends TestCase
     public static function contextTypeProvider(): iterable
     {
         yield 'a string property' => ['string', ['single']];
+        yield 'an array property' => ['array', ['collection']];
 
         // The distinction the Administration cannot make for itself, and the reason this method exists: the
         // gallery declares the collection and the image element the entity, and offering a candidate across

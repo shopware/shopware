@@ -71,6 +71,7 @@ export interface ContentSystemElementTypeProperty {
     descriptionSnippet?: string;
     adminUI: ContentSystemElementTypePropertyAdminUi | null;
     properties?: Record<string, ContentSystemElementTypeProperty> | null;
+    items?: ContentSystemElementTypeProperty;
 }
 
 /**

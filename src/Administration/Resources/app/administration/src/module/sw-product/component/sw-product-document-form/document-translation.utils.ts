@@ -69,13 +69,13 @@ export function getDocumentEditChanges(
         replacementMedia: Pick<Entity<'media'>, 'id'> | null;
         editingMedia?: Pick<Entity<'media'>, 'id'>;
         isDocumentFileRemoved: boolean;
-        isDefaultLanguage: boolean;
+        isSystemDefaultLanguage: boolean;
     },
     displayTitle: string,
     context: Pick<typeof Shopware.Context.api, 'language' | 'systemLanguageId'>,
 ) {
     const title = editor.documentTitle.trim();
-    const shouldUpdateTitle = !editor.isDefaultLanguage || title !== displayTitle.trim();
+    const shouldUpdateTitle = !editor.isSystemDefaultLanguage || title !== displayTitle.trim();
     const changes = getDocumentTranslationChanges(
         document,
         {
@@ -86,6 +86,6 @@ export function getDocumentEditChanges(
     );
     return {
         changes,
-        variantChanges: editor.isDefaultLanguage ? { title, mediaId: editor.editingMedia?.id } : changes,
+        variantChanges: editor.isSystemDefaultLanguage ? { title, mediaId: editor.editingMedia?.id } : changes,
     };
 }

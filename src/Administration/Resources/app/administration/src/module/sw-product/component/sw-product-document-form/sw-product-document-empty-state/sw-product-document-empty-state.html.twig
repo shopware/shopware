@@ -1,7 +1,7 @@
 {% block sw_product_document_empty_state %}
 <div
     class="sw-product-document-empty-state"
-    :class="{ 'sw-product-document-empty-state--translated': !isDefaultLanguage }"
+    :class="{ 'sw-product-document-empty-state--translated': !isSystemDefaultLanguage }"
 >
     <mt-empty-state
         centered
@@ -10,7 +10,7 @@
         :description="description"
     >
         <template
-            v-if="isDefaultLanguage"
+            v-if="isSystemDefaultLanguage"
             #button
         >
             {% block sw_product_document_empty_state_add %}
@@ -28,7 +28,7 @@
 
     {% block sw_product_document_empty_state_language_hint %}
     <mt-text
-        v-if="!isDefaultLanguage"
+        v-if="!isSystemDefaultLanguage"
         size="xs"
         color="color-text-secondary-default"
         class="sw-product-document-empty-state__language-hint"

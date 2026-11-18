@@ -18,14 +18,14 @@ export default Shopware.Component.wrapComponentConfig({
             return this.defaultLanguageName || this.$t('sw-product.documentForm.defaultLanguage');
         },
 
-        defaultLanguageId() {
+        systemLanguageId() {
             return Shopware.Store.get('context').api.systemLanguageId;
         },
     },
 
     methods: {
         switchToDefaultLanguage(): void {
-            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.defaultLanguageId);
+            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.systemLanguageId);
             this.$emit('close');
         },
     },

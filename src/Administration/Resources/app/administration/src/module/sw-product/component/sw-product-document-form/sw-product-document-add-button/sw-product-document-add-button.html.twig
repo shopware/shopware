@@ -1,7 +1,7 @@
 {% block sw_product_document_add_button %}
 <span class="sw-product-document-add-button">
     <mt-button
-        v-if="isDefaultLanguage && !isInherited"
+        v-if="isSystemDefaultLanguage && !isInherited"
         :disabled="disabled"
         size="small"
         variant="secondary"

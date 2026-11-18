@@ -17,7 +17,7 @@ export default function useDocumentChanges() {
     const store = Shopware.Store.get('swProductDetail');
     const context = Shopware.Store.get('context');
     const { product } = storeToRefs(store);
-    const { isSystemDefaultLanguage: isDefaultLanguage } = storeToRefs(context);
+    const { isSystemDefaultLanguage } = storeToRefs(context);
     const languageId = computed(() => context.api.languageId);
     const documentContext = computed(() => ({ ...Shopware.Context.api, language: store.documentLanguage }));
 
@@ -62,7 +62,7 @@ export default function useDocumentChanges() {
         loadDocumentVariants,
         product,
         languageId,
-        isDefaultLanguage,
+        isSystemDefaultLanguage,
         documentContext,
         getMedia,
         applyDocumentChanges: (document: Entity<'product_document'>, changes: DocumentChanges) =>

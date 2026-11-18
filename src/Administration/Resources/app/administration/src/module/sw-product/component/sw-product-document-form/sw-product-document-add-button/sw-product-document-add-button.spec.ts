@@ -182,8 +182,8 @@ describe('sw-product-document-add-button', () => {
 
     it.each([true, false])(
         'explains that inheritance must be removed before adding documents (default language: %s)',
-        async (isDefaultLanguage) => {
-            if (!isDefaultLanguage) {
+        async (isSystemDefaultLanguage) => {
+            if (!isSystemDefaultLanguage) {
                 Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
             }
             wrapper = await createWrapper(false, false, true);

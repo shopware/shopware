@@ -200,7 +200,7 @@
                             {% endblock %}
                             {% block sw_product_document_form_action_remove %}
                             <sw-context-menu-item
-                                v-if="isDefaultLanguage || item.title || item.mediaId"
+                                v-if="isSystemDefaultLanguage || item.title || item.mediaId"
                                 variant="danger"
                                 :disabled="!canEdit || isInherited"
                                 @click="openRemoveDocumentModal(item)"
@@ -293,7 +293,7 @@
                 v-if="editingDocument"
                 v-model:document-title="documentTitle"
                 v-model:apply-to-variants="applyToVariants"
-                :allow-fallback="!isDefaultLanguage"
+                :allow-fallback="!isSystemDefaultLanguage"
                 :language-name="contentLanguageName"
                 :is-adding-language-version="isMissingLanguageVersion(editingDocument)"
                 :document-title-placeholder="documentTitlePlaceholder"
@@ -322,7 +322,7 @@
                 v-model:remove-from-variants="removeFromVariants"
                 :document-title="getTitle(documentsToRemove[0])"
                 :document-count="documentsToRemove.length"
-                :language-name="isDefaultLanguage ? '' : contentLanguageName"
+                :language-name="isSystemDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
                 :is-removing-documents="isRemovingDocuments"
                 :has-variants="hasVariants"

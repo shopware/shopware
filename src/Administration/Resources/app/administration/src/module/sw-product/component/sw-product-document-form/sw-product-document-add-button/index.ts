@@ -82,7 +82,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openHint(): void {
-            if (this.isDefaultLanguage && !this.isInherited) {
+            if (this.isSystemDefaultLanguage && !this.isInherited) {
                 return;
             }
             if (this.hintTimer) {

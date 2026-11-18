@@ -29,7 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('context').api.systemLanguageId;
         },
 
-        isDefaultLanguage(): boolean {
+        isSystemDefaultLanguage(): boolean {
             return this.languageId === this.systemLanguageId;
         },
 

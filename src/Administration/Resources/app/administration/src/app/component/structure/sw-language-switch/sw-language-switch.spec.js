@@ -14,7 +14,17 @@ describe('src/app/component/structure/sw-language-switch', () => {
         wrapper = mount(await wrapTestComponent('sw-language-switch', { sync: true }), {
             global: {
                 stubs: {
-                    'sw-entity-single-select': true,
+                    'sw-entity-single-select': {
+                        props: ['value'],
+                        emits: ['update:value'],
+                        template: `
+                            <select :value="value" @change="$emit('update:value', $event.target.value)">
+                                <option value="123456789">Initial language</option>
+                                <option value="123">Current language</option>
+                                <option value="456">Selected language</option>
+                            </select>
+                        `,
+                    },
                     'sw-modal': {
                         template: `
                         <div class="sw-modal-stub">
@@ -40,7 +50,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         expect(Shopware.Store.get('context').api.languageId).toBe('123');
 
-        wrapper.getComponent('sw-entity-single-select-stub').vm.$emit('update:value', '456');
+        await wrapper.get('.sw-language-switch__select').setValue('456');
 
         expect(Shopware.Store.get('context').api.languageId).toBe('456');
     });
@@ -85,7 +95,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         await wrapper.setProps({ abortChangeFunction, checkChangesOnBusEvent: true });
         Shopware.Utils.EventBus.emit('on-change-language-clicked', '456');
         await flushPromises();
-        await wrapper.getComponent('#sw-language-switch-revert-changes-button').vm.$emit('click');
+        await wrapper.get('#sw-language-switch-revert-changes-button').trigger('click');
         expect(abortChangeFunction).toHaveBeenCalledTimes(1);
         expect(Shopware.Context.api.languageId).toBe('456');
         expect(wrapper.emitted('on-change')).toEqual([['456']]);
@@ -102,7 +112,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         await wrapper.setProps({ abortChangeFunction: () => true, saveChangesFunction, checkChangesOnBusEvent: true });
         Shopware.Utils.EventBus.emit('on-change-language-clicked', '456');
         await flushPromises();
-        wrapper.getComponent('#sw-language-switch-save-changes-button').vm.$emit('click');
+        await wrapper.get('#sw-language-switch-save-changes-button').trigger('click');
         await flushPromises();
         expect(saveChangesFunction).toHaveBeenCalledTimes(1);
         expect(Shopware.Context.api.languageId).toBe('123456789');
@@ -116,7 +126,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
     });
 
     it('uses cached entity select options for active languages', () => {
-        const languageSelect = wrapper.get('sw-entity-single-select-stub');
+        const languageSelect = wrapper.get('.sw-language-switch__select');
 
         expect(languageSelect.attributes('entity')).toBe('language');
         expect(languageSelect.attributes('cache-key')).toContain('shared-data');
@@ -130,7 +140,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         await wrapper.setProps({
             abortChangeFunction: () => true,
         });
-        await wrapper.getComponent('sw-entity-single-select-stub').vm.$emit('update:value', '456');
+        await wrapper.get('.sw-language-switch__select').setValue('456');
 
         const modal = wrapper.find('.sw-modal-stub');
         expect(modal.exists()).toBeTruthy();
@@ -150,7 +160,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         expect(abortChangeMock).not.toHaveBeenCalled();
 
-        await wrapper.getComponent('sw-entity-single-select-stub').vm.$emit('update:value', '456');
+        await wrapper.get('.sw-language-switch__select').setValue('456');
 
         expect(Shopware.Store.get('context').api.languageId).toBe('123');
 
@@ -159,8 +169,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
             oldLanguageId: '123456789',
         });
 
-        const revertButton = wrapper.findComponent('#sw-language-switch-revert-changes-button');
-        revertButton.vm.$emit('click');
+        await wrapper.get('#sw-language-switch-revert-changes-button').trigger('click');
 
         expect(Shopware.Store.get('context').api.languageId).toBe('456');
     });
@@ -174,14 +183,13 @@ describe('src/app/component/structure/sw-language-switch', () => {
             saveChangesFunction: saveChangesMock,
         });
 
-        await wrapper.getComponent('sw-entity-single-select-stub').vm.$emit('update:value', '456');
+        await wrapper.get('.sw-language-switch__select').setValue('456');
 
         expect(Shopware.Store.get('context').api.languageId).toBe('123');
 
         expect(saveChangesMock).not.toHaveBeenCalled();
 
-        const revertButton = wrapper.findComponent('#sw-language-switch-save-changes-button');
-        await revertButton.vm.$emit('click');
+        await wrapper.get('#sw-language-switch-save-changes-button').trigger('click');
 
         expect(saveChangesMock).toHaveBeenCalled();
 
@@ -194,7 +202,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
         await wrapper.setProps({
             abortChangeFunction: () => true,
         });
-        await wrapper.getComponent('sw-entity-single-select-stub').vm.$emit('update:value', '456');
+        await wrapper.get('.sw-language-switch__select').setValue('456');
 
         const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
         expect(saveButton.attributes().disabled).toBeUndefined();
@@ -207,7 +215,7 @@ describe('src/app/component/structure/sw-language-switch', () => {
             abortChangeFunction: () => true,
             allowEdit: false,
         });
-        await wrapper.getComponent('sw-entity-single-select-stub').vm.$emit('update:value', '456');
+        await wrapper.get('.sw-language-switch__select').setValue('456');
 
         const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
         expect(saveButton.attributes('disabled')).toBeDefined();

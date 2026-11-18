@@ -1,4 +1,12 @@
 .sw-settings-tag-list {
+    // Sits above the card, because the full-page grid covers the whole card content
+    &__unchecked-areas-hint {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+        padding-bottom: var(--scale-size-16);
+    }
+
     &__grid {
         .sw-label {
             border-radius: 4px;
@@ -108,7 +116,13 @@
     }
 
     .sw-card-view__content {
-        display: grid;
+        display: flex;
+        flex-direction: column;
+
+        > .mt-card__wrapper {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
     }
 
     @keyframes loading {

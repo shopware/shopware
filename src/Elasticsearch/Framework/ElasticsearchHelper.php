@@ -277,15 +277,26 @@ class ElasticsearchHelper
 
     private function limitTermWords(Criteria $criteria): Criteria
     {
-        $words = $this->tokenizer->tokenize((string) $criteria->getTerm());
+        $term = (string) $criteria->getTerm();
+        $words = preg_split('/\s+/u', $term, -1, \PREG_SPLIT_NO_EMPTY | \PREG_SPLIT_OFFSET_CAPTURE) ?: [];
+        $countedWords = [];
+        $end = 0;
 
-        if (\count($words) <= $this->termMaxWords) {
-            return $criteria;
+        foreach ($words as [$word, $offset]) {
+            foreach ($this->tokenizer->tokenize($word) as $token) {
+                $countedWords[$token] = true;
+            }
+
+            if (\count($countedWords) > $this->termMaxWords) {
+                $limited = clone $criteria;
+                $limited->setTerm(substr($term, 0, $end));
+
+                return $limited;
+            }
+
+            $end = $offset + \strlen($word);
         }
 
-        $limited = clone $criteria;
-        $limited->setTerm(implode(' ', \array_slice($words, 0, $this->termMaxWords)));
-
-        return $limited;
+        return $criteria;
     }
 }

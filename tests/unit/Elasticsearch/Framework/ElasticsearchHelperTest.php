@@ -339,7 +339,7 @@ class ElasticsearchHelperTest extends TestCase
         yield 'repeated words count once' => [
             'Chair chair table lamp shirt shoes watch phone glass plate brush knife',
             10,
-            'chair table lamp shirt shoes watch phone glass plate brush',
+            'Chair chair table lamp shirt shoes watch phone glass plate brush',
         ];
 
         yield 'punctuation and one-letter words do not count towards the limit' => [
@@ -348,10 +348,16 @@ class ElasticsearchHelperTest extends TestCase
             'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
         ];
 
+        yield 'the limited term keeps the words as they were typed' => [
+            'Bosch - GSR 18V-55 & Akku 2 x 5.0Ah  L-BOXX Koffer Set Bohrer (Schrauber) Ladegerät Tasche',
+            10,
+            'Bosch - GSR 18V-55 & Akku 2 x 5.0Ah  L-BOXX Koffer Set Bohrer (Schrauber)',
+        ];
+
         yield 'a configured limit keeps only that many distinct words' => [
             'Red red shirt chair table',
             2,
-            'red shirt',
+            'Red red shirt',
         ];
     }
 }

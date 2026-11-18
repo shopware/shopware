@@ -15,7 +15,7 @@ A client check may gate an interaction. A client check must not coerce, filter o
 
 Why: A rewrite based on a guess hides the client defect. A copy of a rule in the client diverges from the server's rule or becomes a second gate that the server cannot see.
 
-Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults and normalize style. The multi-entity picker trims unresolvable ids. The experimental grid layout relies on the client to respect the structural and geometry rules declared in the grid container specification; the server does not validate those rules, so invalid data may fail during rendering.
+Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults and normalize style. The multi-entity picker trims unresolvable ids. The grid layout relies on the client to respect the structural and geometry rules declared in the grid container specification; the server does not validate those rules, so invalid data may fail during rendering.
 
 In code:
 

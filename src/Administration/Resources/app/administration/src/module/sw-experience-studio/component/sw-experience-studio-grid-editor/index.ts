@@ -270,6 +270,10 @@ export default Shopware.Component.wrapComponentConfig({
             );
             this.selected = this.selected.map((id) => ids.get(id)).filter((id): id is number => id !== undefined);
             this.nextId = ids.size + 1;
+            this.emitPatterns();
+        },
+        emitPatterns(): void {
+            if (Object.values(this.patterns).some((pattern) => pattern.columns.some(invalidWidth))) return;
             this.$emit('update:gridLayout', encodePatterns(this.patterns));
         },
         focusArea(id: number | undefined): void {
@@ -288,7 +292,7 @@ export default Shopware.Component.wrapComponentConfig({
         breakInheritance(): void {
             if (!this.allowEdit || !this.inherited || invalidPattern(this.pattern)) return;
             this.patterns[this.breakpoint] = copyPattern(this.pattern);
-            this.$emit('update:gridLayout', encodePatterns(this.patterns));
+            this.emitPatterns();
         },
         restoreInheritance(): void {
             if (!this.allowEdit || this.breakpoint === 'xs' || this.inherited) return;
@@ -297,7 +301,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.selected = [];
             this.nextId = nextAreaId(this.pattern);
             this.nextColumnId = Math.max(...this.pattern.columns.map((column) => column.id)) + 1;
-            this.$emit('update:gridLayout', encodePatterns(this.patterns));
+            this.emitPatterns();
             void this.$nextTick(() => {
                 (this.$el as HTMLElement)
                     .querySelector<HTMLButtonElement>('.sw-experience-studio-grid-editor__inheritance')

@@ -179,9 +179,7 @@ describe('grid pattern settings', () => {
     it('preserves incomplete input containing a breakpoint separator', async () => {
         wrapper = createWrapper({ gridLayout: layout('percent:20 auto|a1 a2') });
         await wrapper.get('.sw-experience-studio-grid-editor__column input').setValue('~');
-        const draft = 'percent:%7E auto|a1 a2';
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout(draft)]);
-        await wrapper.setProps({ gridLayout: layout(draft) });
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
         await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1].trigger('click');
         await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[0].trigger('click');
         expect((wrapper.get('.sw-experience-studio-grid-editor__column input').element as HTMLInputElement).value).toBe('~');
@@ -321,11 +319,9 @@ describe('grid pattern settings', () => {
         const column = wrapper.findAll('.sw-experience-studio-grid-editor__column')[0];
 
         await column.get('select').setValue('px');
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('px: auto|a1 a2')]);
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
         await column.get('input').setValue('-');
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([
-            { xs: { columns: [{ type: 'px', value: '-' }, { type: 'auto' }], areas: [['a1', 'a2']] } },
-        ]);
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
         await column.get('input').setValue('300');
         expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([
             { xs: { columns: [{ type: 'px', value: 300 }, { type: 'auto' }], areas: [['a1', 'a2']] } },
@@ -425,9 +421,8 @@ describe('grid pattern settings', () => {
             layout('fraction:4 auto|a1 a2'),
         ]);
         await column.findAll('select')[1].setValue('percent');
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([
-            layout('percent: auto|a1 a2'),
-        ]);
+        expect(wrapper.emitted('update:gridLayout')).toHaveLength(2);
+        expect((column.get('input').element as HTMLInputElement).value).toBe('');
     });
 
     it('warns when relative widths leave no space for auto or exceed 100 percent', async () => {

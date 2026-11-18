@@ -338,19 +338,19 @@ class McpServerControllerTest extends TestCase
     public static function rateLimitKeyProvider(): iterable
     {
         yield 'rate-limited by IP' => ['192.168.1.1', null, '192.168.1.1'];
-        yield 'rate-limited by OAuth token' => [null, 'token-123', 'token-123'];
+        yield 'rate-limited by user' => [null, '0190a1b2c3d4e5f6a7b8c9d0e1f2a3b4', 'user-0190a1b2c3d4e5f6a7b8c9d0e1f2a3b4'];
         yield 'rate-limited as unknown' => [null, null, 'unknown'];
     }
 
     #[DataProvider('rateLimitKeyProvider')]
-    public function testRateLimitThrottlesRequest(?string $remoteAddr, ?string $tokenId, string $expectedKey): void
+    public function testRateLimitThrottlesRequest(?string $remoteAddr, ?string $userId, string $expectedKey): void
     {
         $request = new Request();
         if ($remoteAddr !== null) {
             $request->server->set('REMOTE_ADDR', $remoteAddr);
         }
-        if ($tokenId !== null) {
-            $request->attributes->set('oauth_access_token_id', $tokenId);
+        if ($userId !== null) {
+            $request->attributes->set('oauth_user_id', $userId);
         }
 
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());

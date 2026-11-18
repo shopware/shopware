@@ -8,11 +8,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Assert\WriteViolations;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -20,6 +22,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[Package('checkout')]
 class CustomerLanguageSalesChannelSubscriberTest extends TestCase
 {
+    use AdminApiTestBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -63,6 +66,23 @@ class CustomerLanguageSalesChannelSubscriberTest extends TestCase
             [CustomerLanguageSalesChannelSubscriber::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL],
             fn () => $this->updateCustomer(['salesChannelId' => $this->ids->get('german')]),
         );
+    }
+
+    public function testTheErrorPointsAtTheRejectedCustomerInASyncRequest(): void
+    {
+        $customer = (new CustomerBuilder($this->ids, 'customer', $this->ids->get('english')))
+            ->add('languageId', $this->getDeDeLanguageId())
+            ->build();
+
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/sync', [
+            ['key' => 'write-customer', 'action' => 'upsert', 'entity' => 'customer', 'payload' => [$customer]],
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('/write-customer/0/languageId', $content['errors'][0]['source']['pointer']);
     }
 
     public function testWritesThroughTheStoreApiAreNotChecked(): void

@@ -71,13 +71,13 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             }
 
             $event->getExceptions()->add(
-                $this->createLanguageNotInSalesChannelViolation($candidate['languageId'])
+                $this->createLanguageNotInSalesChannelViolation($candidate['languageId'], $candidate['path'])
             );
         }
     }
 
     /**
-     * @return list<array{languageId: string, salesChannelId: string}> each customer's language and sales channel after the write
+     * @return list<array{languageId: string, salesChannelId: string, path: string}> each customer's language and sales channel after the write
      */
     private function collectCandidates(PreWriteValidationEvent $event): array
     {
@@ -97,6 +97,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             $candidates[] = [
                 'languageId' => Uuid::fromBytesToHex($languageId),
                 'salesChannelId' => Uuid::fromBytesToHex($salesChannelId),
+                'path' => $customer->path,
             ];
         }
 
@@ -104,7 +105,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<array{languageId: string, salesChannelId: string}> $candidates
+     * @param list<array{languageId: string, salesChannelId: string, path: string}> $candidates
      *
      * @return EntityCollection<PartialEntity>
      */
@@ -132,7 +133,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
         return $languages?->has($languageId) ?? false;
     }
 
-    private function createLanguageNotInSalesChannelViolation(string $languageId): WriteConstraintViolationException
+    private function createLanguageNotInSalesChannelViolation(string $languageId, string $path): WriteConstraintViolationException
     {
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation(
@@ -140,7 +141,7 @@ class CustomerLanguageSalesChannelSubscriber implements EventSubscriberInterface
             'The language "{{ languageId }}" is not assigned to the sales channel.',
             ['{{ languageId }}' => $languageId],
             '',
-            '/languageId',
+            $path . '/languageId',
             $languageId,
             null,
             self::VIOLATION_LANGUAGE_NOT_IN_SALES_CHANNEL

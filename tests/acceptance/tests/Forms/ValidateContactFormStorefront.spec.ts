@@ -106,7 +106,8 @@ test(
 
         await test.step('Send and validate the negative contact form result.', async () => {
             // Form plugins load asynchronously. Submitting before they bind replaces the page with the JSON response.
-            await ShopCustomer.expects(StorefrontContactForm.contactForm).toHaveAttribute('novalidate');
+            const contactForm = StorefrontContactForm.page.locator('#cms-form-contact');
+            await ShopCustomer.expects(contactForm).toHaveAttribute('novalidate');
             await ShopCustomer.presses(StorefrontContactForm.submitButton);
             await ShopCustomer.expects(StorefrontContactForm.cardTitle).toContainText('Contact');
 

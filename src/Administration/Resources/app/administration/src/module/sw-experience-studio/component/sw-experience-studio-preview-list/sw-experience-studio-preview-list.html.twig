@@ -13,8 +13,8 @@
                 type="button"
                 class="sw-experience-studio-preview-list__select"
                 :aria-current="frame.isActive ? 'true' : undefined"
-                :aria-label="frame.ariaLabel ?? frame.label"
-                :title="frame.ariaLabel ?? frame.label"
+                :aria-label="frame.ariaLabel ?? (frame.languageLabel || frame.label)"
+                :title="frame.ariaLabel ?? (frame.languageLabel || frame.label)"
                 @click.stop="$emit('select', frame.id)"
             >
                 <mt-icon
@@ -22,12 +22,12 @@
                     size="16px"
                     decorative
                 />
-                <span class="sw-experience-studio-preview-list__name">{{ frame.label }}</span>
+                <span class="sw-experience-studio-preview-list__name">{{ frame.languageLabel || frame.label }}</span>
             </button>
             <button
                 type="button"
                 class="sw-experience-studio-preview-list__close"
-                :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label })"
+                :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? (frame.languageLabel || frame.label) })"
                 @click.stop="$emit('close', frame.id)"
             >
                 <mt-icon

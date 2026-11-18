@@ -106,7 +106,6 @@ describe('Experience Studio sidebar navigation', () => {
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
-                settingsWidth: 320,
             })),
             openLayouts: layouts.map((layout) => ({
                 id: layout.id,
@@ -144,7 +143,6 @@ describe('Experience Studio sidebar navigation', () => {
                     selectedElementId: null,
                     viewport: 'desktop',
                     previewEntityId: null,
-                    settingsWidth: 320,
                     savedState: '',
                     isNew: true,
                     isSaving: false,

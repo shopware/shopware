@@ -463,16 +463,18 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
         expect(vm.frameStates['layout-active']).toEqual({ x: 80, y: 90, width: 1480, height: 640 });
     });
 
-    it('opens the structure and settings panels when requested by element selection', () => {
+    it.each([false, true])('handles opening with settings already open: %s', (isSettingsOpen) => {
         const vm = {
             activePanel: 'layouts',
-            isSettingsOpen: false,
+            isSettingsOpen,
+            $emit: jest.fn(),
         };
 
         methods.openSettingsPanel.call(vm);
 
         expect(vm.activePanel).toBe('structure');
         expect(vm.isSettingsOpen).toBe(true);
+        expect(vm.$emit.mock.calls).toEqual(isSettingsOpen ? [] : [['settings-open']]);
     });
 
     it('closes the settings panel without closing the structure panel', () => {

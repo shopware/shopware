@@ -23,8 +23,9 @@ import './sw-experience-studio-element-settings.scss';
 function projectTranslatableValue(
     property: ContentSystemElementTypeProperty,
     value: unknown,
+    chain: readonly string[] = editingLanguageChain(),
 ): string | number | boolean | undefined {
-    return resolveTranslatableFieldValue(property, value, editingLanguageChain());
+    return resolveTranslatableFieldValue(property, value, chain);
 }
 
 /**
@@ -35,6 +36,14 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
+        languageChain: {
+            type: Array as PropType<readonly string[]>,
+            default: () => editingLanguageChain(),
+        },
+        languageName: {
+            type: String,
+            default: '',
+        },
         layout: {
             type: Object,
             required: false,
@@ -167,7 +176,7 @@ export default Shopware.Component.wrapComponentConfig({
                 // An absent key stays absent so the field controls still fall back to the declared default;
                 // a present map without a chain entry shows an empty string property.
                 if (property.translatable && Object.prototype.hasOwnProperty.call(values, key)) {
-                    const projectedValue = projectTranslatableValue(property, values[key]);
+                    const projectedValue = projectTranslatableValue(property, values[key], this.languageChain);
 
                     if (projectedValue === undefined) {
                         delete values[key];
@@ -223,7 +232,7 @@ export default Shopware.Component.wrapComponentConfig({
                     const elementProperties = selectedElement?.properties ?? {};
                     const storedValue = elementProperties[storageKey];
                     const currentValue = property.translatable
-                        ? projectTranslatableValue(property, storedValue)
+                        ? projectTranslatableValue(property, storedValue, this.languageChain)
                         : storedValue;
                     accumulator[key] = getInitialPropertyValue(property, currentValue);
 

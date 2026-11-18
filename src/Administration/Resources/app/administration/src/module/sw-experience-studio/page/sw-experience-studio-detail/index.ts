@@ -33,6 +33,7 @@ import type {
 } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
+    anchorLanguageId,
     editingLanguageChain,
     getPropertyControlType,
     withLanguageEntry,
@@ -133,17 +134,19 @@ type ExperienceStudioPreviewFrame = {
     selectedElementId: string | null;
     viewport: Viewport;
     previewEntityId: string | null;
-    settingsWidth: number;
+    languageId?: string;
 };
 
 type ExperienceStudioCanvasFrame = {
     id: string;
     label: string;
+    languageLabel: string;
     ariaLabel: string;
     layout: ContentLayoutEntity;
     selectedElementId: string | null;
     viewport: Viewport;
     previewEntityId: string | null;
+    languageId: string;
     isActive: boolean;
 };
 
@@ -204,6 +207,15 @@ type ExperienceStudioDetailState = {
     openLayouts: ExperienceStudioOpenLayout[];
     frames: ExperienceStudioPreviewFrame[];
     activeFrameId: string | null;
+    languageParents: Record<string, string | null>;
+    previewLanguageContext: {
+        salesChannelId: string;
+        defaultLanguageId: string;
+        languageIds: string[];
+        languageNames: Record<string, string>;
+        languageParents: Record<string, string | null>;
+    } | null;
+    previewLanguageRequestSequence: number;
     isLayoutPickerOpen: boolean;
     isCreateLayoutModalOpen: boolean;
     pendingCloseLayoutId: string | null;
@@ -278,6 +290,9 @@ export default Shopware.Component.wrapComponentConfig({
             openLayouts: [],
             frames: [],
             activeFrameId: null,
+            languageParents: {},
+            previewLanguageContext: null,
+            previewLanguageRequestSequence: 0,
             isLayoutPickerOpen: false,
             isCreateLayoutModalOpen: false,
             pendingCloseLayoutId: null,
@@ -347,6 +362,57 @@ export default Shopware.Component.wrapComponentConfig({
             return this.frames.find((frame) => frame.id === this.activeFrameId)?.layoutId ?? null;
         },
 
+        activeLanguageChain(): readonly [string, ...string[]] {
+            const languageId =
+                this.frames.find((frame) => frame.id === this.activeFrameId)?.languageId ?? anchorLanguageId();
+            return editingLanguageChain(languageId, this.languageParents[languageId] ?? null);
+        },
+
+        activeLanguageName(): string {
+            const languageId = this.activeLanguageChain[0];
+            return this.previewLanguageContext?.languageNames[languageId] ?? '';
+        },
+
+        languageCriteria(): Record<string, InstanceType<typeof Criteria>> {
+            const salesChannelId = this.previewSalesChannelId;
+            return Object.fromEntries(
+                this.frames.map((frame) => {
+                    const criteria = new Criteria(1, 25);
+                    criteria.addFilter(Criteria.equals('active', true));
+                    criteria.addFilter(Criteria.equals('salesChannels.id', salesChannelId ?? ''));
+                    criteria.addSorting(Criteria.sort('name', 'ASC'));
+                    return [frame.id, criteria] as const;
+                }),
+            );
+        },
+
+        isPreviewLanguageContextReady(): boolean {
+            return (
+                this.previewLanguageContext !== null &&
+                this.previewLanguageContext.salesChannelId === this.previewSalesChannelId
+            );
+        },
+
+        frameContexts(): Record<string, apiContext> {
+            return Object.fromEntries(
+                this.frames.map((frame) => {
+                    const languageId = frame.languageId ?? anchorLanguageId();
+                    const name = this.previewLanguageContext?.languageNames[languageId];
+                    const parentId = this.languageParents[languageId];
+                    return [
+                        frame.id,
+                        {
+                            ...Shopware.Context.api,
+                            languageId: languageId as EntityKey<'language'>,
+                            language: name
+                                ? { name, parentId: parentId ? (parentId as EntityKey<'language'>) : undefined }
+                                : null,
+                        },
+                    ] as const;
+                }),
+            );
+        },
+
         changedLayouts(): Array<{ id: string; name: string }> {
             return this.openLayouts
                 .filter((openLayout) => this.isLayoutDirty(openLayout))
@@ -370,15 +436,19 @@ export default Shopware.Component.wrapComponentConfig({
                     return [];
                 }
                 const isActive = frame.id === this.activeFrameId;
+                const languageId = frame.languageId ?? anchorLanguageId();
+                const languageLabel = this.previewLanguageContext?.languageNames[languageId] ?? '';
                 return [
                     {
                         id: frame.id,
                         label: document.layout.name ?? '',
-                        ariaLabel: this.previewFrameAriaLabel(frame.id),
+                        languageLabel,
+                        ariaLabel: [this.previewFrameAriaLabel(frame.id), languageLabel].filter(Boolean).join(' · '),
                         layout: document.layout,
                         selectedElementId: isActive ? this.selectedElementId : frame.selectedElementId,
                         viewport: isActive ? this.currentViewport : frame.viewport,
                         previewEntityId: isActive ? this.previewEntityId : frame.previewEntityId,
+                        languageId,
                         isActive,
                     },
                 ];
@@ -573,13 +643,17 @@ export default Shopware.Component.wrapComponentConfig({
             void this.scheduleWorkspaceSetup();
         },
         previewSalesChannelId(): void {
-            void this.scheduleWorkspaceSetup();
+            void this.refreshPreviewLanguages();
         },
         previewEntityId(): void {
             void this.scheduleWorkspaceSetup();
         },
         currentViewport(): void {
             void this.scheduleWorkspaceSetup();
+        },
+        // Different previews can select the same element, leaving the element watchers unchanged.
+        activeFrameId(): void {
+            this.adjustElementSettingsWidth();
         },
         selectedElementId(): void {
             this.adjustElementSettingsWidth();
@@ -681,6 +755,7 @@ export default Shopware.Component.wrapComponentConfig({
                                   viewport: item.id === this.activeFrameId ? this.currentViewport : item.viewport,
                                   previewEntityId:
                                       item.id === this.activeFrameId ? this.previewEntityId : item.previewEntityId,
+                                  languageId: item.languageId ?? anchorLanguageId(),
                               },
                           ]
                         : [];
@@ -698,8 +773,10 @@ export default Shopware.Component.wrapComponentConfig({
                 const { salesChannelId, missingReference: missingSalesChannel } = await this.restoreWorkspaceSalesChannel(
                     configuration.previewSalesChannelId,
                 );
+                const languageContext = await this.loadPreviewLanguageContext(salesChannelId);
                 this.isRestoringWorkspace = true;
                 this.resetWorkspaceEditor();
+                const missingLanguages = this.applyPreviewLanguageContext(languageContext, frames);
                 this.workspaceCanvasConfiguration = configuration;
                 this.workspaceStore.activate(workspace);
                 this.openLayouts = openLayouts;
@@ -712,7 +789,7 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.$nextTick();
                 this.isRestoringWorkspace = false;
                 await this.$router.replace({ name: 'sw.experience.studio.workspace', params: { workspaceId: id } });
-                if (missingReferences || missingSalesChannel) {
+                if (missingReferences || missingSalesChannel || missingLanguages) {
                     this.createNotificationWarning({
                         message: this.$t('sw-experience-studio.workspace.manager.missingReferences'),
                     });
@@ -758,6 +835,7 @@ export default Shopware.Component.wrapComponentConfig({
                               ...this.createPreviewFrame(layout.id, frame.id),
                               viewport: frame.viewport,
                               previewEntityId: frame.previewEntityId,
+                              languageId: frame.languageId,
                           },
                       ]
                     : [];
@@ -774,6 +852,88 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
             return { openLayouts, frames, missingReferences };
+        },
+
+        async loadPreviewLanguageContext(
+            salesChannelId: string | null,
+        ): Promise<ExperienceStudioDetailState['previewLanguageContext']> {
+            if (!salesChannelId) {
+                return null;
+            }
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('languages');
+            const salesChannel = await this.salesChannelRepository.get(
+                salesChannelId as EntityKey<'sales_channel'>,
+                Shopware.Context.api,
+                criteria,
+            );
+            const languages = salesChannel?.languages?.filter((language) => language.active) ?? [];
+            const defaultLanguage = languages.find((language) => language.id === salesChannel?.languageId) ?? languages[0];
+            if (!defaultLanguage) {
+                throw new Error('The preview sales channel has no active languages.');
+            }
+            return {
+                salesChannelId,
+                defaultLanguageId: defaultLanguage.id,
+                languageIds: languages.map((language) => language.id),
+                languageNames: Object.fromEntries(languages.map((language) => [language.id, language.name] as const)),
+                languageParents: Object.fromEntries(
+                    languages.map((language) => [language.id, language.parentId ?? null] as const),
+                ),
+            };
+        },
+
+        applyPreviewLanguageContext(
+            context: ExperienceStudioDetailState['previewLanguageContext'],
+            frames?: ExperienceStudioPreviewFrame[],
+        ): boolean {
+            this.previewLanguageContext = context;
+            if (!context) {
+                return false;
+            }
+            Object.assign(this.languageParents, context.languageParents);
+            let missingReference = false;
+            (frames ?? this.frames).forEach((frame) => {
+                if (!frame.languageId) {
+                    frame.languageId = context.languageIds.includes(anchorLanguageId())
+                        ? anchorLanguageId()
+                        : context.defaultLanguageId;
+                    return;
+                }
+                if (!context.languageIds.includes(frame.languageId)) {
+                    frame.languageId = context.defaultLanguageId;
+                    missingReference = true;
+                }
+            });
+            return missingReference;
+        },
+
+        async refreshPreviewLanguages(): Promise<void> {
+            const salesChannelId = this.previewSalesChannelId;
+            const requestId = ++this.previewLanguageRequestSequence;
+            if (this.previewLanguageContext?.salesChannelId === salesChannelId) {
+                this.applyPreviewLanguageContext(this.previewLanguageContext);
+                void this.scheduleWorkspaceSetup();
+                return;
+            }
+            try {
+                const context = await this.loadPreviewLanguageContext(salesChannelId);
+                if (requestId !== this.previewLanguageRequestSequence || salesChannelId !== this.previewSalesChannelId) {
+                    return;
+                }
+                this.applyPreviewLanguageContext(context);
+                void this.scheduleWorkspaceSetup();
+            } catch {
+                if (requestId !== this.previewLanguageRequestSequence || salesChannelId !== this.previewSalesChannelId) {
+                    return;
+                }
+                if (this.previewLanguageContext) {
+                    this.previewSalesChannelId = this.previewLanguageContext.salesChannelId;
+                }
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.toolbar.previewLanguageLoadError'),
+                });
+            }
         },
 
         async restoreFramePreviewEntity(item: ExperienceStudioPreviewFrame, layout: ContentLayoutEntity): Promise<boolean> {
@@ -834,6 +994,8 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         resetWorkspaceEditor(): void {
+            this.previewLanguageRequestSequence += 1;
+            this.previewLanguageContext = null;
             if (this.diagnoseTimeoutId !== null) {
                 window.clearTimeout(this.diagnoseTimeoutId);
             }
@@ -1062,7 +1224,10 @@ export default Shopware.Component.wrapComponentConfig({
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
-                settingsWidth: DEFAULT_ELEMENT_SETTINGS_WIDTH,
+                languageId:
+                    this.previewLanguageContext?.salesChannelId === this.previewSalesChannelId
+                        ? (this.previewLanguageContext?.defaultLanguageId ?? anchorLanguageId())
+                        : anchorLanguageId(),
             };
         },
 
@@ -1107,6 +1272,7 @@ export default Shopware.Component.wrapComponentConfig({
                 ...this.createPreviewFrame(source.layoutId),
                 viewport: source.viewport,
                 previewEntityId: source.previewEntityId,
+                languageId: source.languageId ?? anchorLanguageId(),
             };
             const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
             canvas?.copyFrameState(source.id, frame.id);
@@ -1139,7 +1305,6 @@ export default Shopware.Component.wrapComponentConfig({
             frame.selectedElementId = this.selectedElementId;
             frame.viewport = this.currentViewport;
             frame.previewEntityId = this.previewEntityId;
-            frame.settingsWidth = this.elementSettingsWidth;
         },
 
         async openLayoutById(layoutId: string): Promise<void> {
@@ -1216,7 +1381,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.selectedElementId = frame.selectedElementId;
             this.currentViewport = frame.viewport;
             this.previewEntityId = frame.previewEntityId;
-            this.elementSettingsWidth = frame.settingsWidth;
+            this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
             const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
             if (this.selectedElementId) {
                 canvas?.openSettingsPanel();
@@ -1703,7 +1868,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.previewSalesChannelId = salesChannelId;
+            if (salesChannelId === this.previewSalesChannelId) {
+                void this.refreshPreviewLanguages();
+            } else {
+                this.previewSalesChannelId = salesChannelId;
+            }
         },
 
         onFramePreviewEntityChange(frameId: string, entityId: string | null): void {
@@ -1724,13 +1893,39 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
+        onFrameLanguageChange(
+            frameId: string,
+            languageId: string | null,
+            language?: Pick<Entity<'language'>, 'parentId'>,
+        ): void {
+            const frame = this.frames.find((item) => item.id === frameId);
+            if (
+                !frame ||
+                !languageId ||
+                this.previewLanguageContext?.salesChannelId !== this.previewSalesChannelId ||
+                !this.previewLanguageContext?.languageIds.includes(languageId)
+            ) {
+                return;
+            }
+            if (language) {
+                this.languageParents[languageId] = language.parentId ?? null;
+            }
+            frame.languageId = languageId;
+            this.activateFrame(frameId);
+            void this.scheduleWorkspaceSetup();
+        },
+
         onFrameElementSelect(frameId: string, elementId: string | null): void {
             this.activateFrame(frameId);
             this.onElementSelect(elementId);
         },
 
         onElementSelect(elementId: string | null): void {
+            const wasRichText = this.selectedElementHasRichText;
             this.selectedElementId = elementId;
+            if (wasRichText && !this.selectedElementHasRichText) {
+                this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
+            }
             this.syncActiveLayoutState();
 
             if (!elementId) {
@@ -2035,7 +2230,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 const languageMap = withLanguageEntry(
                     location.elements[location.index].properties?.[propertyKey],
-                    editingLanguageChain()[0],
+                    this.activeLanguageChain[0],
                     value,
                 );
 

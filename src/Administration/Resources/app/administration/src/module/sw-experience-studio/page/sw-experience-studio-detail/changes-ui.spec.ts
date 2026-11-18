@@ -67,7 +67,6 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
                     selectedElementId: null,
                     viewport: 'desktop',
                     previewEntityId: null,
-                    settingsWidth: 320,
                 })),
             }),
             global: {
@@ -80,7 +79,10 @@ async function createWrapper(failedLayoutId: string | null = null, newLayoutId: 
                     'sw-page': { template: '<div><slot name="content" /></div>' },
                     'sw-experience-studio-toolbar': toolbar,
                     'sw-experience-studio-workspace-switcher': true,
-                    'sw-experience-studio-canvas': { template: '<div />', methods: { closeSettingsPanel: jest.fn() } },
+                    'sw-experience-studio-canvas': {
+                        template: '<div />',
+                        methods: { closeSettingsPanel: jest.fn(), closePanel: jest.fn() },
+                    },
                     'sw-experience-studio-create-wizard': true,
                     'sw-experience-studio-element-picker': true,
                     'sw-experience-studio-workspace-picker': true,

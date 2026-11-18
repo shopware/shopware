@@ -70,6 +70,7 @@
                     @frame-open-another="openAnotherPreview"
                     @settings-resize-start="onElementSettingsResizeStart"
                     @settings-resize-keydown="onElementSettingsResizeKeydown"
+                    @settings-open="adjustElementSettingsWidth"
                     @settings-close="onSettingsPanelClose"
                 >
                         {% block sw_experience_studio_detail_preview %}
@@ -78,9 +79,10 @@
                             :key="frame.id"
                             :layout="frame.layout"
                             :viewport="frame.viewport"
-                            :sales-channel-id="previewSalesChannelId"
+                            :sales-channel-id="isPreviewLanguageContextReady ? previewSalesChannelId : null"
                             :entity-type="resolvePreviewContext(frame.layout)?.entityType ?? null"
                             :entity-id="frame.previewEntityId"
+                            :language-id="frame.languageId"
                             @select-element="onFrameElementSelect(frame.id, $event)"
                         />
                     </template>
@@ -125,9 +127,25 @@
 
                     <template #frame-menu="{ frame, popoverClass }">
                         <sw-entity-single-select
+                            :key="`${previewSalesChannelId}-${frame.languageId}`"
+                            entity="language"
+                            size="small"
+                            :value="frame.languageId"
+                            :context="frameContexts[frame.id]"
+                            :label="$t('sw-experience-studio.detail.toolbar.previewLanguage')"
+                            :criteria="languageCriteria[frame.id]"
+                            :popover-classes="[popoverClass]"
+                            :show-clearable-button="false"
+                            :disabled="isLoading || !isPreviewLanguageContextReady || undefined"
+                            @pointerdown.stop
+                            @update:value="(languageId, language) => onFrameLanguageChange(frame.id, languageId, language)"
+                        />
+                        <sw-entity-single-select
+                            :key="frame.languageId"
                             :entity="resolvePreviewContext(frame.layout)?.entityType ?? null"
                             size="small"
                             :value="frame.previewEntityId"
+                            :context="frameContexts[frame.id]"
                             :label="$t('sw-experience-studio.detail.toolbar.previewEntity')"
                             :popover-classes="[popoverClass]"
                             :placeholder="$t('sw-experience-studio.detail.toolbar.previewEntityPlaceholder')"
@@ -236,6 +254,8 @@
                     <template #settings>
                         <sw-experience-studio-element-settings
                             :layout="layout"
+                            :language-chain="activeLanguageChain"
+                            :language-name="activeLanguageName"
                             :selected-element-id="selectedElementId"
                             :selected-element="selectedElement"
                             :selected-element-type="selectedElementType"
@@ -246,7 +266,7 @@
                             :style-option-load-error="styleOptionStore.loadError"
                             :is-loading-mapping-candidates="mappingCandidateStore.isLoading"
                             :mapping-candidate-load-error="mappingCandidateStore.loadError"
-                            :allow-edit="allowSave"
+                            :allow-edit="allowSave && (!previewSalesChannelId || isPreviewLanguageContextReady)"
                             :mapping-candidates="mappingCandidates"
                             :violations="selectedElementViolations"
                             @update-properties="onElementSettingsChange"

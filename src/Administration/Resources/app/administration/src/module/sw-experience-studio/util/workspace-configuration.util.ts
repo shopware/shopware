@@ -28,6 +28,7 @@ export function copyWorkspaceConfiguration(configuration: StoredWorkspaceConfigu
             height: frame.height,
             viewport: frame.viewport,
             previewEntityId: frame.previewEntityId,
+            ...(frame.languageId ? { languageId: frame.languageId } : {}),
         })),
         previewSalesChannelId: configuration.previewSalesChannelId,
         canvas: { panX: configuration.canvas.panX, panY: configuration.canvas.panY, zoom: configuration.canvas.zoom },

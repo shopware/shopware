@@ -55,7 +55,6 @@ function createEditor(duplicateElement: jest.Mock) {
             selectedElementId: null as string | null,
             viewport: 'desktop',
             previewEntityId: null,
-            settingsWidth: 320,
         })),
         allowSave: true,
         selectedElementId: 'a' as string | null,

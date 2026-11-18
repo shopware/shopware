@@ -14,6 +14,7 @@ export type WorkspaceFrame = {
     height: number;
     viewport: WorkspaceViewport;
     previewEntityId: string | null;
+    languageId?: string;
 };
 
 /** @private @sw-package discovery */

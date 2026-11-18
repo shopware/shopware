@@ -69,7 +69,14 @@
                             size="16px"
                             decorative
                         />
-                        <span>{{ frame.label ?? frame.layout.name }}</span>
+                        <span class="sw-experience-studio-canvas__frame-heading">
+                            <span class="sw-experience-studio-canvas__frame-name">{{ frame.label ?? frame.layout.name }}</span>
+                            <span
+                                v-if="frame.languageLabel"
+                                class="sw-experience-studio-canvas__frame-language"
+                                :title="frame.languageLabel"
+                            >{{ frame.languageLabel }}</span>
+                        </span>
                     </button>
 
                     <div

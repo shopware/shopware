@@ -37,6 +37,8 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
     {
         $desktop = ['id' => str_repeat('c', 32), ...self::frame()];
         $mobile = ['id' => str_repeat('d', 32), ...self::frame()];
+        $desktop['languageId'] = str_repeat('e', 32);
+        $mobile['languageId'] = str_repeat('f', 32);
         $mobile['viewport'] = 'mobile';
         $mobile['width'] = 375;
         $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
@@ -140,6 +142,9 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
         yield 'layout IDs must be UUIDs' => ['layoutId', 'bad'];
         yield 'layout IDs cannot end with a newline' => ['layoutId', str_repeat('a', 32) . "\n"];
         yield 'preview IDs cannot be empty' => ['previewEntityId', ''];
+        yield 'language IDs must be UUIDs' => ['languageId', 'bad'];
+        yield 'language IDs cannot be empty' => ['languageId', ''];
+        yield 'language IDs cannot be null' => ['languageId', null];
         yield 'frame widths have a minimum' => ['width', 319];
         yield 'frame heights have a maximum' => ['height', 1801];
         yield 'coordinates cannot be numeric strings' => ['x', '5001'];

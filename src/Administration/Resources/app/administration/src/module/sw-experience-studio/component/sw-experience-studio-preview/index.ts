@@ -14,6 +14,7 @@ type ContentSystemPreviewService = {
         entityType: string;
         entityId: string;
         salesChannelId: string;
+        languageId?: string;
     }) => Promise<string>;
 };
 
@@ -64,6 +65,10 @@ export default Shopware.Component.wrapComponentConfig({
         entityId: {
             type: String,
             required: false,
+            default: null,
+        },
+        languageId: {
+            type: String,
             default: null,
         },
     },
@@ -122,6 +127,10 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
+        languageId() {
+            this.latestRequestId += 1;
+            this.schedulePreviewReload();
+        },
         'layout.layout': {
             handler() {
                 this.schedulePreviewReload();
@@ -130,6 +139,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         salesChannelId() {
+            this.latestRequestId += 1;
             this.schedulePreviewReload();
         },
 
@@ -473,6 +483,7 @@ export default Shopware.Component.wrapComponentConfig({
                     entityType,
                     entityId,
                     salesChannelId,
+                    ...(this.languageId ? { languageId: this.languageId } : {}),
                 });
 
                 if (requestId !== this.latestRequestId) {

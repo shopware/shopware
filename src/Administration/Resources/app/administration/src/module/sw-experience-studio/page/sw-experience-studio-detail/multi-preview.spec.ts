@@ -1,6 +1,7 @@
 import { DOMWrapper, mount } from '@vue/test-utils';
 import type { Component, ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
+import type Criteria from 'src/core/data/criteria.data';
 import detailComponent from './index';
 import { createContentLayoutRepository } from '../../util/content-layout-repository.util';
 import '../../store/experience-studio-workspace.store';
@@ -40,6 +41,14 @@ async function createWrapper(role: 'viewer' | 'editor' = 'editor') {
             data: () => ({
                 layout,
                 activeFrameId: 'first-preview',
+                previewSalesChannelId: 'preview-channel',
+                previewLanguageContext: {
+                    salesChannelId: 'preview-channel',
+                    defaultLanguageId: Shopware.Defaults.systemLanguageId,
+                    languageIds: [Shopware.Defaults.systemLanguageId, 'a'.repeat(32)],
+                    languageNames: { [Shopware.Defaults.systemLanguageId]: 'English', ['a'.repeat(32)]: 'German' },
+                    languageParents: {},
+                },
                 openLayouts: [
                     {
                         id: layout.id,
@@ -61,7 +70,6 @@ async function createWrapper(role: 'viewer' | 'editor' = 'editor') {
                         viewport: 'desktop',
                         previewEntityId: 'product-a',
                         selectedElementId: null,
-                        settingsWidth: 320,
                     },
                 ],
                 previewEntityId: 'product-a',
@@ -86,11 +94,15 @@ async function createWrapper(role: 'viewer' | 'editor' = 'editor') {
                     'sw-experience-studio-toolbar': true,
                     'sw-experience-studio-preview': {
                         name: 'test-preview',
-                        props: ['layout', 'entityId'],
+                        props: ['layout', 'entityId', 'languageId'],
                         template:
                             '<button class="test-preview" @click="$emit(\'select-element\', \'text\')">{{ layout.layout[0]?.properties.text }}</button>',
                     },
-                    'sw-entity-single-select': { name: 'test-entity-select', props: ['value'], template: '<div />' },
+                    'sw-entity-single-select': {
+                        name: 'test-entity-select',
+                        props: ['entity', 'value', 'criteria'],
+                        template: '<div class="test-entity-select" :data-entity="entity" />',
+                    },
                     'sw-experience-studio-element-settings': true,
                     'sw-experience-studio-element-picker': true,
                     'sw-experience-studio-layout-picker': true,
@@ -127,6 +139,65 @@ describe('multiple previews of one layout', () => {
         await flushPromises();
         return view.wrapper.findAll('.sw-experience-studio-canvas__frame')[1];
     }
+
+    it.each(['editor', 'viewer'] as const)(
+        'keeps frame languages independent for an %s without changing the Admin language or draft',
+        async (role) => {
+            view = await createWrapper(role);
+            const systemLanguage = Shopware.Defaults.systemLanguageId;
+            const germanLanguage = 'a'.repeat(32);
+            const parentLanguage = 'b'.repeat(32);
+            const adminLanguage = Shopware.Context.api.languageId;
+            const firstMenu = await openFrameMenu();
+            const languageSelector = () =>
+                view.wrapper.getComponent<ComponentPublicInstance<{ value: string; criteria: Criteria }>>(
+                    '.test-entity-select[data-entity="language"]',
+                );
+            expect(languageSelector().props('value')).toBe(systemLanguage);
+            languageSelector().props('criteria').setTerm('German');
+            languageSelector().props('criteria').setPage(2);
+
+            languageSelector().vm.$emit('update:value', germanLanguage, { parentId: parentLanguage });
+            await flushPromises();
+            await firstMenu.trigger('keydown', { key: 'Escape' });
+            await view.wrapper.get('[data-frame-id="first-preview"] .test-preview').trigger('click');
+            expect(
+                view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-chain'),
+            ).toBe([germanLanguage, parentLanguage, systemLanguage].join(','));
+            expect(view.wrapper.get('sw-experience-studio-element-settings-stub').attributes('language-name')).toBe(
+                'German',
+            );
+
+            const second = await openAnotherPreview();
+            expect(
+                view.wrapper
+                    .findAllComponents({ name: 'test-preview' })
+                    .map((preview) => preview.props('languageId') as string),
+            ).toEqual([germanLanguage, germanLanguage]);
+            const secondMenu = await openFrameMenu(second.attributes('data-frame-id'));
+            expect(languageSelector().props('criteria').term).not.toBe('German');
+            expect(languageSelector().props('criteria').page).toBe(1);
+            languageSelector().vm.$emit('update:value', systemLanguage, { parentId: null });
+            await flushPromises();
+            await secondMenu.trigger('keydown', { key: 'Escape' });
+            await second.get('.test-preview').trigger('click');
+
+            expect(
+                view.wrapper
+                    .findAllComponents({ name: 'test-preview' })
+                    .map((preview) => preview.props('languageId') as string),
+            ).toEqual([germanLanguage, systemLanguage]);
+            expect(
+                view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-chain'),
+            ).toBe(systemLanguage);
+            expect(view.wrapper.get('sw-experience-studio-element-settings-stub').attributes('language-name')).toBe(
+                'English',
+            );
+            expect(Shopware.Context.api.languageId).toBe(adminLanguage);
+            expect(view.wrapper.get('sw-experience-studio-toolbar-stub').attributes('changed-layouts')).toBe('');
+            expect(view.save).not.toHaveBeenCalled();
+        },
+    );
 
     it('opens another preview from the frame flyout and copies custom dimensions without copying the layout', async () => {
         view = await createWrapper();
@@ -188,26 +259,39 @@ describe('multiple previews of one layout', () => {
         await second.get('button[aria-label="sw-experience-studio.detail.toolbar.viewportMobile"]').trigger('click');
         const menu = await openFrameMenu(second.attributes('data-frame-id'));
         view.wrapper
-            .getComponent<ComponentPublicInstance>({ name: 'test-entity-select' })
+            .getComponent<ComponentPublicInstance>('.test-entity-select[data-entity="language"]')
+            .vm.$emit('update:value', 'a'.repeat(32), { parentId: null });
+        await flushPromises();
+        view.wrapper
+            .getComponent<ComponentPublicInstance>('.test-entity-select[data-entity="product"]')
             .vm.$emit('update:value', 'product-b');
         await flushPromises();
 
         expect(second.attributes('style')).toContain('width: 375px');
         const first = view.wrapper.get('[data-frame-id="first-preview"]');
-        expect(first.get('.sw-experience-studio-canvas__move-handle').text()).toBe('Product page');
-        expect(second.get('.sw-experience-studio-canvas__move-handle').text()).toBe('Product page');
+        expect(first.get('.sw-experience-studio-canvas__frame-name').text()).toBe('Product page');
+        expect(second.get('.sw-experience-studio-canvas__frame-name').text()).toBe('Product page');
         expect(
             second.find('.sw-experience-studio-canvas__move-handle [data-testid="mt-icon__regular-mobile"]').exists(),
         ).toBe(true);
         expect(view.wrapper.findAll('.sw-experience-studio-preview-list__name').map((label) => label.text())).toEqual([
-            'Product page',
-            'Product page',
+            'English',
+            'German',
         ]);
+        expect(view.wrapper.get('.sw-experience-studio-layout-tree__name').text()).toBe('Product page');
         expect(first.attributes('style')).toContain('width: 1480px');
-        expect(view.wrapper.getComponent({ name: 'test-entity-select' }).props('value')).toBe('product-b');
+        expect(
+            view.wrapper
+                .getComponent<ComponentPublicInstance<{ value: string }>>('.test-entity-select[data-entity="product"]')
+                .props('value'),
+        ).toBe('product-b');
         await menu.trigger('keydown', { key: 'Escape' });
         const firstMenu = await openFrameMenu();
-        expect(view.wrapper.getComponent({ name: 'test-entity-select' }).props('value')).toBe('product-a');
+        expect(
+            view.wrapper
+                .getComponent<ComponentPublicInstance<{ value: string }>>('.test-entity-select[data-entity="product"]')
+                .props('value'),
+        ).toBe('product-a');
         await firstMenu.trigger('keydown', { key: 'Escape' });
         await view.wrapper.findAll('.sw-experience-studio-preview-list__select')[0].trigger('click');
         expect(first.classes()).toContain('is--active');

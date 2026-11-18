@@ -27,11 +27,13 @@ export type CanvasGesture = {
 export type CanvasFrame = {
     id: string;
     label?: string;
+    languageLabel?: string;
     ariaLabel?: string;
     layout: Entity<'content_layout'>;
     selectedElementId: string | null;
     viewport: Viewport;
     previewEntityId: string | null;
+    languageId?: string;
     isActive: boolean;
 };
 

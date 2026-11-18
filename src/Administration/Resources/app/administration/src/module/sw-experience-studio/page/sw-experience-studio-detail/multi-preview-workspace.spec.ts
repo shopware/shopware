@@ -131,7 +131,11 @@ describe('workspace persistence for several previews of one layout', () => {
             workspaceStore: { activeWorkspace: { id: 'workspace' }, schedule },
             $nextTick: jest.fn().mockResolvedValue(undefined),
             $refs: { experienceStudioCanvas: { getWorkspaceConfiguration: () => configuration } },
-            frames: configuration.frames.map((frame) => ({ ...frame, previewEntityId: `entity-${frame.id}` })),
+            frames: configuration.frames.map((frame) => ({
+                ...frame,
+                previewEntityId: `entity-${frame.id}`,
+                languageId: frame.id === 'mobile' ? 'german-language' : Shopware.Defaults.systemLanguageId,
+            })),
             openLayouts: [
                 { id: 'shared', isNew: false },
                 { id: 'unsaved', isNew: true },
@@ -147,12 +151,18 @@ describe('workspace persistence for several previews of one layout', () => {
         expect(schedule).toHaveBeenCalledWith(
             expect.objectContaining({
                 frames: [
-                    expect.objectContaining({ id: 'desktop', layoutId: 'shared', previewEntityId: 'entity-desktop' }),
+                    expect.objectContaining({
+                        id: 'desktop',
+                        layoutId: 'shared',
+                        previewEntityId: 'entity-desktop',
+                        languageId: Shopware.Defaults.systemLanguageId,
+                    }),
                     expect.objectContaining({
                         id: 'mobile',
                         layoutId: 'shared',
                         viewport: 'mobile',
                         previewEntityId: 'selected-product',
+                        languageId: 'german-language',
                     }),
                 ],
             }),

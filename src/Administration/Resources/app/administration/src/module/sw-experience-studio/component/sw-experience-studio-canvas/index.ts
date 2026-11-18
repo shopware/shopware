@@ -17,7 +17,6 @@ import {
     loadExperienceStudioCanvasPosition,
     saveExperienceStudioCanvasPosition,
 } from '../../util/canvas-position.util';
-import type { ExperienceStudioCanvasPosition } from '../../util/canvas-position.util';
 import template from './sw-experience-studio-canvas.html.twig';
 import './sw-experience-studio-canvas.scss';
 
@@ -83,6 +82,7 @@ export default Shopware.Component.wrapComponentConfig({
         'frame-viewport-change',
         'settings-resize-start',
         'settings-resize-keydown',
+        'settings-open',
         'settings-close',
         'open-layout',
         'create-layout',
@@ -308,6 +308,7 @@ export default Shopware.Component.wrapComponentConfig({
                         ...this.frameStates[frame.id],
                         viewport: frame.viewport,
                         previewEntityId: frame.previewEntityId,
+                        ...(frame.languageId ? { languageId: frame.languageId } : {}),
                     })),
                 previewSalesChannelId: null,
                 canvas: { panX: this.canvasPanX, panY: this.canvasPanY, zoom: this.canvasZoom },
@@ -333,10 +334,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.workspaceConfiguration) {
                 return;
             }
-            const position: ExperienceStudioCanvasPosition | null = loadExperienceStudioCanvasPosition(
-                this.getCurrentUserId(),
-                this.layoutId,
-            );
+            const position = loadExperienceStudioCanvasPosition(this.getCurrentUserId(), this.layoutId);
 
             this.frameX = position?.x ?? 0;
             this.frameY = position?.y ?? 0;
@@ -549,7 +547,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         openSettingsPanel(): void {
             this.activePanel = 'structure';
-            this.isSettingsOpen = true;
+            if (!this.isSettingsOpen) {
+                this.isSettingsOpen = true;
+                this.$emit('settings-open');
+            }
         },
 
         closeStructurePanel(): void {

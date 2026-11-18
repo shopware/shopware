@@ -87,6 +87,10 @@ export default Shopware.Component.wrapComponentConfig({
             type: Object as PropType<Record<string, unknown>>,
             required: true,
         },
+        languageName: {
+            type: String,
+            default: '',
+        },
         allowEdit: {
             type: Boolean,
             required: false,

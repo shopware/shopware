@@ -125,6 +125,7 @@ describe('Experience Studio workspace transitions', () => {
             diagnoseTimeoutId: null,
             diagnoseRequestSequence: 3,
             latestDiagnoseRequestId: 3,
+            previewLanguageRequestSequence: 2,
             editorStore: { reset: jest.fn() },
             openLayouts: [{ id: 'same-layout', unsaved: true }],
             layout: { id: 'same-layout' },
@@ -132,6 +133,7 @@ describe('Experience Studio workspace transitions', () => {
         methods.resetWorkspaceEditor.call(vm);
         expect(vm.editorStore.reset).toHaveBeenCalledTimes(1);
         expect(vm.latestDiagnoseRequestId).toBe(4);
+        expect(vm.previewLanguageRequestSequence).toBe(3);
         expect(vm.openLayouts).toEqual([]);
         expect(vm.layout).toBeNull();
     });
@@ -178,11 +180,20 @@ describe('Experience Studio workspace transitions', () => {
             restoreWorkspaceLayouts: methods.restoreWorkspaceLayouts,
             restoreFramePreviewEntity: methods.restoreFramePreviewEntity,
             restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
+            loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
+            applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
+            languageParents: {},
             layoutRepository: { search: jest.fn().mockResolvedValue(layouts) },
             createPreviewFrame: methods.createPreviewFrame,
             createOpenLayoutState: (layout: { id: string }) => ({ id: layout.id, layout, isNew: false }),
             resolvePreviewContext: () => null,
-            salesChannelRepository: { search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }) },
+            salesChannelRepository: {
+                search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }),
+                get: jest.fn().mockResolvedValue({
+                    languageId: Shopware.Defaults.systemLanguageId,
+                    languages: [{ id: Shopware.Defaults.systemLanguageId, active: true }],
+                }),
+            },
             defaultSalesChannelCriteria: new Shopware.Data.Criteria(1, 1),
             resetWorkspaceEditor: jest.fn(),
             activateFrame: jest.fn(),

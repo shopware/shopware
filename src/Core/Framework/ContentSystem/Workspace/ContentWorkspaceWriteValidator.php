@@ -71,6 +71,7 @@ class ContentWorkspaceWriteValidator implements EventSubscriberInterface
                             'height' => $number(280, 1800),
                             'viewport' => [new Assert\NotNull(), new Assert\Choice(choices: ['mobile', 'tablet-landscape', 'desktop', 'custom'])],
                             'previewEntityId' => $uuid(),
+                            'languageId' => new Assert\Optional([new Assert\NotBlank(), $uuid()]),
                         ]),
                     ]),
                 ],

@@ -8,6 +8,31 @@ describe('canvas workspace restoration', () => {
         wrapper?.unmount();
     });
 
+    it('shows each frame language and updates it when the language changes', async () => {
+        const frame = {
+            id: 'preview',
+            layout: { id: 'layout', name: 'Product page' },
+            languageLabel: 'English',
+            viewport: 'desktop',
+            previewEntityId: null,
+            isActive: true,
+        };
+        wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
+            props: { frames: [frame] },
+        });
+        await flushPromises();
+
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-name').text()).toBe('Product page');
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-language').text()).toBe('English');
+
+        await wrapper.setProps({ frames: [{ ...frame, languageLabel: 'German' }] });
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-language').text()).toBe('German');
+        expect(wrapper.get('.sw-experience-studio-canvas__frame-language').attributes('title')).toBe('German');
+
+        await wrapper.setProps({ frames: [{ ...frame, languageLabel: '' }] });
+        expect(wrapper.find('.sw-experience-studio-canvas__frame-language').exists()).toBe(false);
+    });
+
     it.each([
         0,
         1,

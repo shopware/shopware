@@ -333,14 +333,20 @@ export function anchorLanguageId(): string {
 /**
  * The languages a translatable property value resolves through, in serving order.
  *
- * The chain is the anchor language alone today; multi-language editing widens it here, and the write
- * path targets the chain head, so reads and writes widen together.
+ * Each frame resolves its selected language, its optional parent, then the system language.
+ * The write path targets the chain head, so inherited values are written into the selected language.
  *
  * @private
  * @sw-package discovery
  */
-export function editingLanguageChain(): readonly [string, ...string[]] {
-    return [anchorLanguageId()];
+export function editingLanguageChain(
+    languageId = anchorLanguageId(),
+    parentLanguageId: string | null = null,
+): readonly [string, ...string[]] {
+    return [
+        languageId,
+        ...new Set([parentLanguageId, anchorLanguageId()].filter((id): id is string => Boolean(id) && id !== languageId)),
+    ];
 }
 
 function isLanguageMap(value: unknown): value is LanguageMap {

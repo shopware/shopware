@@ -30,8 +30,33 @@
                     v-for="field in panel.fields"
                     :key="field.key"
                     class="sw-experience-studio-settings-fields__field"
-                    :class="{ 'is--error': getFieldViolation(field)?.severity === 'error' }"
+                    :class="{
+                        'is--error': getFieldViolation(field)?.severity === 'error',
+                        'has--language-label': field.property.translatable && languageName,
+                    }"
                 >
+                    <div
+                        v-if="field.property.translatable && languageName"
+                        class="sw-experience-studio-settings-fields__language-label"
+                    >
+                        <span aria-hidden="true">{{ getPropertyTitle(field.property) }}</span>
+                        <mt-badge
+                            class="sw-experience-studio-settings-fields__language-badge"
+                            variant="neutral"
+                            size="s"
+                            icon="regular-globe"
+                            role="img"
+                            :aria-label="$t('sw-experience-studio.detail.elementSettings.editingLanguage', { language: languageName })"
+                            :title="$t('sw-experience-studio.detail.elementSettings.editingLanguage', { language: languageName })"
+                        >
+                            {{ languageName }}
+                        </mt-badge>
+                        <mt-help-text
+                            v-if="getPropertyHelpText(field.property)"
+                            :text="getPropertyHelpText(field.property)"
+                        />
+                    </div>
+
                     <div
                         v-if="isFieldMapped(field)"
                         class="sw-experience-studio-settings-fields__mapping mt-field"
@@ -426,6 +451,7 @@
                         <mt-text-editor
                             v-else-if="getControlType(field.property) === 'richtext'"
                             v-bind="getControlProps(field.property)"
+                            :label="getPropertyTitle(field.property)"
                             :model-value="getPropertyValue(field.key, field.property)"
                             :disabled="!allowEdit || undefined"
                             @update:model-value="onUpdateField(field.key, $event)"

@@ -11,6 +11,7 @@ describe('workspace configuration serialization', () => {
             height: 900,
             viewport: 'desktop' as const,
             previewEntityId: 'product-a',
+            languageId: 'system-language',
         };
         const mobile = {
             ...desktop,
@@ -19,6 +20,7 @@ describe('workspace configuration serialization', () => {
             width: 375,
             viewport: 'mobile' as const,
             previewEntityId: 'product-b',
+            languageId: 'german-language',
         };
         const configuration = { ...createWorkspaceConfiguration(), frames: [desktop, mobile] };
 

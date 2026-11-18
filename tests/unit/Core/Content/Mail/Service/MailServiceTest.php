@@ -18,6 +18,8 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailErrorEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
@@ -353,6 +355,60 @@ class MailServiceTest extends TestCase
         static::assertInstanceOf(Email::class, $email);
     }
 
+    public function testSendMailSkipsExternalMediaAttachmentsWithWarning(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $this->salesChannelRepository->expects($this->once())->method('search')->willReturn(new EntitySearchResult(
+            'sales_channel',
+            1,
+            new SalesChannelCollection([$salesChannel]),
+            null,
+            new Criteria(),
+            $context
+        ));
+
+        $externalMedia = new MediaEntity();
+        $externalMedia->setId(Uuid::randomHex());
+        $externalMedia->setPath('https://cdn.example.com/../../victim.txt');
+        $localMedia = new MediaEntity();
+        $localMedia->setId(Uuid::randomHex());
+        $localMedia->setPath('media/ab/cd/brochure.pdf');
+
+        $mediaRepository = static::createStub(EntityRepository::class);
+        $mediaRepository->method('search')->willReturn(new EntitySearchResult(
+            'media',
+            2,
+            new MediaCollection([$externalMedia, $localMedia]),
+            null,
+            new Criteria(),
+            $context
+        ));
+
+        $this->templateRenderer->method('render')->willReturn('rendered');
+        $this->mailFactory->expects($this->once())->method('create')
+            ->with(static::anything(), static::anything(), static::anything(), static::anything(), ['media/ab/cd/brochure.pdf'])
+            ->willReturn((new Email())->text('rendered'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('log')->with(
+            Level::Warning,
+            \sprintf('Media "%s" has an external URL and cannot be attached to a mail, skipping this attachment', $externalMedia->getId())
+        );
+
+        $this->createMailService(logger: $logger, mediaRepository: $mediaRepository)->send([
+            'recipients' => ['customer@example.com' => 'Customer'],
+            'senderName' => 'me',
+            'senderEmail' => 'me@shopware.com',
+            'subject' => 'Your files',
+            'contentPlain' => 'Attached',
+            'contentHtml' => 'Attached',
+            'salesChannelId' => $salesChannel->getId(),
+            'mediaIds' => [$externalMedia->getId(), $localMedia->getId()],
+        ], $context);
+    }
+
     public function testMailSenderExceptionIsHandled(): void
     {
         $salesChannelId = Uuid::randomHex();
@@ -679,6 +735,9 @@ class MailServiceTest extends TestCase
             ->from(new Address('me@shopware.com'));
     }
 
+    /**
+     * @param EntityRepository<MediaCollection>|null $mediaRepository
+     */
     private function createMailService(
         ?StringTemplateRenderer $templateRenderer = null,
         ?AbstractMailSender $mailSender = null,
@@ -686,6 +745,7 @@ class MailServiceTest extends TestCase
         ?LoggerInterface $logger = null,
         ?LanguageLocaleCodeProvider $languageLocaleCodeProvider = null,
         ?AbstractTranslator $translator = null,
+        ?EntityRepository $mediaRepository = null,
     ): MailService {
         $mailMetrics = static::createStub(MailMetricsInstrumentor::class);
         $mailMetrics->method('measureSend')->willReturnCallback(
@@ -697,7 +757,7 @@ class MailServiceTest extends TestCase
             $templateRenderer ?? $this->templateRenderer,
             $this->mailFactory,
             $mailSender ?? $this->mailSender,
-            static::createStub(EntityRepository::class),
+            $mediaRepository ?? static::createStub(EntityRepository::class),
             $this->salesChannelRepository,
             static::createStub(SystemConfigService::class),
             $eventDispatcher ?? $this->eventDispatcher,

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -73,6 +75,49 @@ class MediaRepositoryTest extends TestCase
         $this->documentRepository = static::getContainer()->get('document.repository');
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
+    }
+
+    #[DataProvider('mediaVisibility')]
+    public function testPrivateFlagCanBeSetOnCreationAndResent(bool $private): void
+    {
+        $id = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $id, 'private' => $private]], $this->context);
+        $this->mediaRepository->update([['id' => $id, 'private' => $private, 'fileName' => 'updated']], $this->context);
+
+        $media = $this->mediaRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+        static::assertNotNull($media);
+        static::assertSame($private, $media->isPrivate());
+        static::assertSame('updated', $media->getFileName());
+    }
+
+    #[DataProvider('mediaVisibility')]
+    public function testPrivateFlagCannotBeChanged(bool $private): void
+    {
+        $id = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $id, 'private' => $private]], $this->context);
+
+        try {
+            $this->mediaRepository->update([['id' => $id, 'private' => !$private]], $this->context);
+            static::fail('Changing media visibility must be rejected.');
+        } catch (WriteException $exception) {
+            static::assertCount(1, $exception->getExceptions());
+            $violation = $exception->getExceptions()[0];
+            static::assertInstanceOf(WriteConstraintViolationException::class, $violation);
+            static::assertSame('The field "private" of "media" is immutable and cannot be updated.', $violation->getViolations()->get(0)->getMessage());
+        }
+
+        $media = $this->mediaRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+        static::assertNotNull($media);
+        static::assertSame($private, $media->isPrivate());
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function mediaVisibility(): iterable
+    {
+        yield 'public media' => [false];
+        yield 'private media' => [true];
     }
 
     public function testPrivateMediaNotReadable(): void

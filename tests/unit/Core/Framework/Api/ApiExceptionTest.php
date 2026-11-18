@@ -125,6 +125,15 @@ class ApiExceptionTest extends TestCase
         static::assertSame('Could not clone entity order with id 1234.', $exception->getMessage());
     }
 
+    public function testInvalidCloneOverwrite(): void
+    {
+        $exception = ApiException::invalidCloneOverwrite('media.0.media.path');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ApiException::API_INVALID_CLONE_OVERWRITE, $exception->getErrorCode());
+        static::assertSame('The value of "media.0.media.path" is not allowed in clone overwrites.', $exception->getMessage());
+    }
+
     public function testExpectationFailed(): void
     {
         $exception = ApiException::expectationFailed([]);

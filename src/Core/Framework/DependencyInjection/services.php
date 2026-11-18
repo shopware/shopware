@@ -196,6 +196,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'installer' => '',
     ]);
 
+    $parameters->set('shopware.security.private_media_csp', 'script-src \'none\'; object-src \'none\'; frame-src \'none\'; base-uri \'none\'; form-action \'none\'');
+
     $parameters->set('shopware_http_cache_enabled_default', 1);
     $parameters->set('shopware.http.cache.enabled', env('SHOPWARE_HTTP_CACHE_ENABLED')->default('shopware_http_cache_enabled_default'));
 

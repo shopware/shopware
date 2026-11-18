@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
@@ -46,11 +47,12 @@ class EntityWriteGatewayTest extends TestCase
         $this->dispatcher = new EventDispatcher();
     }
 
-    public function testImmutableFieldChangeThrowsViolation(): void
+    #[DataProvider('immutableFieldChanges')]
+    public function testImmutableFieldChangeThrowsViolation(string|int|bool|null $newValue, string|int|bool $oldValue): void
     {
         $gateway = $this->createGateway();
         $context = WriteContext::createFromContext(Context::createDefaultContext());
-        $command = $this->createUpdateCommand('updated', 'initial');
+        $command = $this->createUpdateCommand($newValue, $oldValue);
 
         $exception = new WriteException();
 
@@ -63,9 +65,9 @@ class EntityWriteGatewayTest extends TestCase
                     'field' => 'immutable_field',
                     'entity' => 'immutable_test',
                 ],
-                'initial',
+                $oldValue,
                 'immutable_field',
-                'updated'
+                $newValue
             )
         );
 
@@ -75,11 +77,25 @@ class EntityWriteGatewayTest extends TestCase
         $gateway->execute([$command], $context);
     }
 
-    public function testImmutableFieldSameValueIsIgnored(): void
+    /**
+     * @return iterable<string, array{string|int|bool|null, string|int|bool}>
+     */
+    public static function immutableFieldChanges(): iterable
+    {
+        yield 'changed string' => ['updated', 'initial'];
+        yield 'empty string' => ['', 'initial'];
+        yield 'zero' => [0, 1];
+        yield 'false' => [false, true];
+        yield 'true' => [true, false];
+        yield 'null' => [null, 'initial'];
+    }
+
+    #[DataProvider('unchangedImmutableFields')]
+    public function testImmutableFieldSameValueIsIgnored(string|int|bool|null $value): void
     {
         $gateway = $this->createGateway();
         $context = WriteContext::createFromContext(Context::createDefaultContext());
-        $command = $this->createUpdateCommand('initial', 'initial');
+        $command = $this->createUpdateCommand($value, $value);
 
         $postWriteEventDispatched = false;
 
@@ -94,6 +110,18 @@ class EntityWriteGatewayTest extends TestCase
         static::assertTrue($postWriteEventDispatched);
     }
 
+    /**
+     * @return iterable<string, array{string|int|bool|null}>
+     */
+    public static function unchangedImmutableFields(): iterable
+    {
+        yield 'string' => ['initial'];
+        yield 'false' => [false];
+        yield 'true' => [true];
+        yield 'zero' => [0];
+        yield 'null' => [null];
+    }
+
     private function createGateway(): EntityWriteGateway
     {
         return new EntityWriteGateway(
@@ -105,7 +133,7 @@ class EntityWriteGatewayTest extends TestCase
         );
     }
 
-    private function createUpdateCommand(string $newValue, string $oldValue): UpdateCommand
+    private function createUpdateCommand(string|int|bool|null $newValue, string|int|bool|null $oldValue): UpdateCommand
     {
         $definition = new class extends EntityDefinition {
             public function getEntityName(): string

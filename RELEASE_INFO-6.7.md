@@ -7,6 +7,14 @@
 Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
 Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while another entity still references them.
 
+### A failed theme save keeps the saved theme config
+
+Saving a theme in the Administration (`PATCH /api/_action/theme/{themeId}?reset=1`) now resets the theme config and writes the new values in one transaction.
+Before, a failure between the two writes left the theme without any of its saved settings.
+The theme is compiled after the commit.
+For that, `ThemeService::updateTheme()` skips the compile when the context has the new state `ThemeService::STATE_SKIP_COMPILE`.
+Classes overriding `updateTheme()` without calling the parent method should handle that state.
+
 ## Core
 
 ### Cart deliveries and transactions carry a payload into the order

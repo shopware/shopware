@@ -40,7 +40,7 @@ class CoreCorsHeaderProviderTest extends TestCase
         (new CoreCorsHeaderProvider())->provide($headers);
 
         static::assertSame(self::PLATFORM_HEADERS, $headers->getAllowed());
-        static::assertSame(self::PLATFORM_HEADERS, $headers->getExposed());
+        static::assertSame([...self::PLATFORM_HEADERS, 'WWW-Authenticate'], $headers->getExposed());
     }
 
     public function testContributedHeadersCanBeRemovedAgain(): void

@@ -1,0 +1,11 @@
+[
+    {
+        "group": "Info",
+        "rule": "class_missing",
+        "element": "component:sw-example-panel/class:sw-example-panel__title",
+        "states": ["current", "major"],
+        "explanation": "The CSS class sw-example-panel__title is no longer in the template, so plugin styles and selectors that use it stop matching.",
+        "fix": "mention it in the upgrade notes if plugins are likely to style it.",
+        "at": "src/app/component/base/sw-example-panel/sw-example-panel.html.twig:12"
+    }
+]

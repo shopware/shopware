@@ -97,6 +97,8 @@ class DocumentV2Exception extends HttpException
 
     public const NO_UNPROCESSED_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS';
 
+    public const ORDER_DELIVERY_NOT_FOUND = 'DOCUMENT_V2__ORDER_DELIVERY_NOT_FOUND';
+
     public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'DOCUMENT_V2__DOCUMENT_TYPE_ALREADY_REGISTERED';
 
     public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
@@ -568,6 +570,16 @@ class DocumentV2Exception extends HttpException
             self::NO_UNPROCESSED_CREDIT_LINE_ITEMS,
             'Cannot generate credit note because every credit line item of order "{{ orderId }}" is already invoiced or credited.',
             ['orderId' => $orderId],
+        );
+    }
+
+    public static function orderDeliveryNotFound(string $orderDeliveryId, string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_DELIVERY_NOT_FOUND,
+            'Delivery with id "{{ orderDeliveryId }}" does not belong to order "{{ orderId }}".',
+            ['orderDeliveryId' => $orderDeliveryId, 'orderId' => $orderId],
         );
     }
 }

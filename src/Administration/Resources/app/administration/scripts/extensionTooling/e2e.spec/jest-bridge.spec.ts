@@ -13,6 +13,7 @@ import { execFileSync, spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
+import { createJestRunner, testExtensions } from '../test';
 import {
     cleanupTempProject,
     createTempProject,
@@ -70,10 +71,6 @@ function createComposerInstall(projectRoot: string): string {
     const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'none' });
     extractPackagedHarness(path.resolve(administrationRoot, '../../..'));
 
-    // The meta-glob transform matches the real path of src/, which per-entry symlinks would move out of it.
-    fs.rmSync(path.join(administrationRoot, 'src'), { recursive: true });
-    fs.symlinkSync(path.join(realAdministrationRoot, 'src'), path.join(administrationRoot, 'src'), 'dir');
-
     // The harness reads these committed sources, which the package ships but createVendorAdmin does not copy.
     fs.symlinkSync(path.join(realAdministrationRoot, 'build'), path.join(administrationRoot, 'build'), 'dir');
     fs.copyFileSync(
@@ -99,6 +96,7 @@ describe.each([
     ['a Composer install', createComposerInstall],
 ])('extension tooling jest bridge in %s (e2e)', (_layout, installAdministration) => {
     let projectRoot: string;
+    let administrationRoot: string;
     let adminFolder: string;
 
     beforeAll(() => {
@@ -173,7 +171,8 @@ describe.each([
             },
         ]);
 
-        setupExtensionTooling({ projectRoot, administrationRoot: installAdministration(projectRoot) });
+        administrationRoot = installAdministration(projectRoot);
+        setupExtensionTooling({ projectRoot, administrationRoot });
     }, JEST_TIMEOUT);
 
     afterAll(() => {
@@ -198,6 +197,29 @@ describe.each([
             // A major lane skips the `it.deprecated` test, so only the total is fixed.
             expect(run.stderr).toMatch(/Tests:.* 5 total/);
             expect(run.status).toBe(0);
+        },
+        JEST_TIMEOUT,
+    );
+
+    it(
+        'runs the extension spec through admin:test-extensions',
+        async () => {
+            const result = await testExtensions({
+                projectRoot,
+                administrationRoot,
+                only: 'JestPlugin',
+                runJest: createJestRunner(administrationRoot, 'ignore'),
+            });
+
+            expect(result.runs).toMatchObject([
+                {
+                    extension: 'JestPlugin',
+                    config: 'custom/plugins/JestPlugin/src/Resources/app/administration/jest.config.mjs',
+                    exitCode: 0,
+                },
+            ]);
+            expect(result.runs[0].testCount).toBeGreaterThan(0);
+            expect(result.exitCode).toBe(0);
         },
         JEST_TIMEOUT,
     );

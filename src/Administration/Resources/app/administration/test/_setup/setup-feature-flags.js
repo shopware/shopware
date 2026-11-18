@@ -2,8 +2,8 @@
  * @sw-package framework
  */
 
-import Feature from 'src/core/feature';
 import { flagsOf, getMajorFeatureFlags, loadFeatureConfig, normalizeFeatureFlag } from '../../scripts/feature-flags';
+import registerFeatureFlags from '../_helper_/registerFeatureFlags';
 
 const featureConfig = loadFeatureConfig();
 const flags = flagsOf(featureConfig);
@@ -16,8 +16,5 @@ const defaultFlags = flags
 const majorFlags = getMajorFeatureFlags(featureConfig, process.env);
 global.activeFeatureFlags = [...new Set([...defaultFlags, ...majorFlags])];
 
-// Registers every flag in both spellings, like `window._features_` in the browser, so a guard with an
-// unknown flag is reported. Flags a test activates later only reach `FeatureMock.isActive`.
-const activeFlags = new Set(global.activeFeatureFlags);
-const flagNames = flags.flatMap(({ name }) => [name, normalizeFeatureFlag(name)]);
-Feature.init(Object.fromEntries(flagNames.map((name) => [name, activeFlags.has(normalizeFeatureFlag(name))])));
+// Flags a test activates later only reach `FeatureMock.isActive`.
+registerFeatureFlags(global.activeFeatureFlags, featureConfig);

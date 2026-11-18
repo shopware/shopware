@@ -354,6 +354,7 @@ export default {
                     extension: uploadTask.extension,
                     mimeType,
                     mediaId,
+                    fileSize: uploadTask.src.size,
                 }),
                 this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
             ]);

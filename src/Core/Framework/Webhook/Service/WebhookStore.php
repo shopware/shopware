@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @internal
@@ -29,16 +30,16 @@ class WebhookStore
 
     /**
      * @param list<string> $roleIds
+     *
+     * @return list<string>
      */
-    public function removeDeletedRoles(array $roleIds): void
+    public function getRoleIdsUsedByWebhooks(array $roleIds): array
     {
-        foreach ($roleIds as $roleId) {
-            $this->connection->executeStatement(
-                'UPDATE `webhook`
-                 SET `acl_role_ids` = JSON_REMOVE(`acl_role_ids`, JSON_UNQUOTE(JSON_SEARCH(`acl_role_ids`, \'one\', :roleId)))
-                 WHERE JSON_CONTAINS(`acl_role_ids`, JSON_QUOTE(:roleId))',
-                ['roleId' => $roleId],
-            );
+        $usedRoleIds = [];
+        foreach ($this->connection->fetchFirstColumn('SELECT `acl_role_ids` FROM `webhook` WHERE `acl_role_ids` IS NOT NULL') as $aclRoleIds) {
+            $usedRoleIds = [...$usedRoleIds, ...Json::decodeToList($aclRoleIds)];
         }
+
+        return array_values(array_intersect($roleIds, $usedRoleIds));
     }
 }

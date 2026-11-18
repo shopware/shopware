@@ -99,4 +99,13 @@ class WebhookExceptionTest extends TestCase
         static::assertSame('FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE', $e->getErrorCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
     }
+
+    public function testAclRoleUsedByWebhook(): void
+    {
+        $e = WebhookException::aclRoleUsedByWebhook('roleId');
+
+        static::assertSame('Role "roleId" is used by a webhook. Remove it from the webhook before deleting it.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
 }

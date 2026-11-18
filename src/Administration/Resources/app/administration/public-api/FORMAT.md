@@ -286,8 +286,17 @@ declare namespace AdminApi {
 }
 ```
 
-The helper types add these members and blocks to the target, so `this` and `AdminApi.BlockName<'sw-admin-menu'>` include them.
-The target's own file does not change when a core override changes.
+The helper types add these members to the target, so `this` includes them.
+
+For blocks, the generator applies the template of a core override to its target the way the runtime does, before an extend child is resolved.
+The `blocks` of the target and of its extend children hold what the override adds, and lack what it replaces without `{% parent %}`, so `AdminApi.BlockName<'sw-admin-menu'>` needs no helper type.
+These files change when the template of a core override changes.
+The `blocks` of the override entry list the blocks its template declares.
+
+The overrides of one target apply by their index.
+The runtime applies overrides with the same index in the order they are registered, which the generator cannot know, so it takes them in the order of their file paths.
+Each top-level block of an override template is applied on its own, so a later block can replace one that an earlier block kept or added.
+An extend template cannot do that: below a block it redeclares, it cannot redeclare another one.
 
 ### Template refs and CSS classes
 

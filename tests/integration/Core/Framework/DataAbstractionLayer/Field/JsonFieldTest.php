@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -438,6 +439,18 @@ EOF;
                 static::assertStringContainsString('Named parameter ', $e->getMessage());
             }
         }
+    }
+
+    public function testJsonPathWithCommentMarkerIsRejected(): void
+    {
+        $repo = $this->getRepository();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('data.a*/b', 'bar'));
+
+        $this->expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('.a*/b'));
+
+        $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, Context::createDefaultContext());
     }
 
     public function testNestedJsonFilter(): void

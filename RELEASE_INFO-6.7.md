@@ -1,4 +1,4 @@
-# 6.7.16.1 (upcoming)
+# 6.7.16.1
 
 ## Security Fixes
 
@@ -195,7 +195,7 @@ shopware:
 The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
 A rejected origin is logged as a warning in the `mcp` channel.
 
-# 6.7.16.0 (upcoming)
+# 6.7.16.0
 
 ## Critical Fixes
 

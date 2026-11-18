@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const mockGet = jest.fn();
 

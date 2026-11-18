@@ -8,6 +8,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia, setActivePinia } from 'pinia';
 import { DOCUMENT_TYPES } from '../../service/documentV2.service';
 import { allowDeprecation } from 'test/_helper_/deprecations';
+import DocumentApiService from 'src/core/service/api/document.api.service';
 
 function getCollection(entity, collection) {
     return new EntityCollection(

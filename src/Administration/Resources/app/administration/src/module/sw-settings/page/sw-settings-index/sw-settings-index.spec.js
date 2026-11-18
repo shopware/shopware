@@ -4,6 +4,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { MtSearch } from '@shopware-ag/meteor-component-library';
 import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper(

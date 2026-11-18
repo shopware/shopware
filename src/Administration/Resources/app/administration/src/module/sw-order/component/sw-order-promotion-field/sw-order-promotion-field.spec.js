@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import OrderApiService from 'src/core/service/api/order.api.service';
 
 /**
  * @sw-package checkout

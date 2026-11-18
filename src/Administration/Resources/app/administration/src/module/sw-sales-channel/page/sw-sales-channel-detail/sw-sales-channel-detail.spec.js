@@ -5,6 +5,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();

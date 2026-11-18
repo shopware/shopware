@@ -166,7 +166,9 @@ function enableWorkerNotificationListener(loginService: LoginService, context: C
         'enableWorkerNotificationListener() is deprecated. The increment-based message queue statistics are deprecated.',
     );
 
-    let workerNotificationListener = new WorkerNotificationListener(context);
+    // The login callbacks run after the caller's `Feature.silence()` has returned.
+    const createListener = () => Shopware.Feature.silence('V6_8_0_0', () => new WorkerNotificationListener(context));
+    let workerNotificationListener = createListener();
 
     if (loginService.isLoggedIn()) {
         workerNotificationListener.start();

@@ -15,15 +15,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
-use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Plugin\PluginIntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -384,15 +382,13 @@ class KernelPluginIntegrationTest extends TestCase
             $container,
             static::createStub(MigrationCollectionLoader::class),
             static::createStub(AssetService::class),
-            static::createStub(CommandExecutor::class),
+            static::createStub(PluginComposerDependencyService::class),
             static::createStub(RequirementsValidator::class),
             new ArrayAdapter(),
             $container->getParameter('kernel.shopware_version'),
             static::createStub(SystemConfigService::class),
             static::createStub(CustomEntityPersister::class),
             static::createStub(CustomEntitySchemaUpdater::class),
-            static::createStub(PluginService::class),
-            static::createStub(VersionSanitizer::class),
             static::createStub(DefinitionInstanceRegistry::class),
             new RequestStack(),
             static::createStub(CustomFieldSetPersister::class),

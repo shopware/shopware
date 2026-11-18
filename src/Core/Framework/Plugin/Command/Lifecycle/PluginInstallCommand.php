@@ -10,9 +10,11 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginException;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -41,9 +43,11 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         PluginLifecycleService $pluginLifecycleService,
         EntityRepository $pluginRepo,
         CacheClearer $cacheClearer,
-        private readonly string $projectDir
+        private readonly string $projectDir,
+        ?PluginComposerDependencyService $composerDependencyService = null,
+        ?ConsoleCommandProcessRunner $commandRunner = null,
     ) {
-        parent::__construct($pluginLifecycleService, $pluginRepo, $cacheClearer);
+        parent::__construct($pluginLifecycleService, $pluginRepo, $cacheClearer, $composerDependencyService, $commandRunner);
     }
 
     protected function configure(): void
@@ -62,6 +66,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+        $this->useSeparateComposerStep($context);
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
@@ -71,9 +76,33 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
         $activatePlugins = $input->getOption('activate');
         $plugins = $this->sortPluginsByRequirements($plugins);
 
+        $reinstall = $input->getOption('reinstall');
+        $pluginsWithRequiredPackage = new PluginCollection();
+
+        try {
+            $this->requireComposerDependencies(
+                $plugins->filter(static fn (PluginEntity $plugin): bool => $reinstall || $plugin->getInstalledAt() === null),
+                $context,
+                $pluginsWithRequiredPackage
+            );
+            $exitCode = $pluginsWithRequiredPackage->count() === 0 ? null : $this->runInChildProcess($input, $output, $plugins);
+        } catch (\Throwable $exception) {
+            $this->removeComposerPackagesOfPluginsNotInstalled($pluginsWithRequiredPackage, $io, $context);
+
+            throw $exception;
+        }
+
+        if ($exitCode !== null) {
+            if ($exitCode !== self::SUCCESS) {
+                $this->removeComposerPackagesOfPluginsNotInstalled($pluginsWithRequiredPackage, $io, $context);
+            }
+
+            return $exitCode;
+        }
+
         $installedPluginCount = 0;
         foreach ($plugins as $plugin) {
-            if ($input->getOption('reinstall') && $plugin->getInstalledAt()) {
+            if ($reinstall && $plugin->getInstalledAt()) {
                 $this->pluginLifecycleService->uninstallPlugin($plugin, $context);
             }
 

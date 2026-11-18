@@ -14,6 +14,8 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\JWT\JWTDecoder;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -164,6 +166,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PluginManagementService::class),
             service(PluginLifecycleService::class),
             service('user.repository'),
+            service(PluginComposerDependencyService::class),
+            service(ConsoleCommandProcessRunner::class),
         ])
         ->tag('console.command');
 
@@ -269,6 +273,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PluginService::class),
             service(PluginLifecycleService::class),
             service(PluginManagementService::class),
+            service(PluginComposerDependencyService::class),
         ]);
 
     $services->set(ExtensionStoreActionsController::class)

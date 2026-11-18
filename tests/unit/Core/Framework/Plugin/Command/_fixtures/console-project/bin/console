@@ -1,0 +1,11 @@
+<?php declare(strict_types=1);
+
+echo json_encode([
+    'arguments' => array_slice($argv, 1),
+    'childMarker' => getenv('SHOPWARE_PLUGIN_COMMAND_CHILD_PROCESS'),
+    'workingDirectory' => getcwd(),
+    'memoryLimit' => ini_get('memory_limit'),
+], JSON_THROW_ON_ERROR);
+fwrite(STDERR, 'warning');
+
+exit(3);

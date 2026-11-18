@@ -483,6 +483,24 @@ For extensions that already build positions holding part of a line item, this ch
 Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
 It is an object, or an empty array when nothing is set.
 
+### Composer runs for plugins have their own routes
+
+Plugins whose `executeComposerCommands()` returns `true` get their Composer package through two new routes, `api.extension.composer-require` (`POST /api/_action/extension/composer-require/{type}/{technicalName}`) and `api.extension.composer-remove` (`POST /api/_action/extension/composer-remove/{type}/{technicalName}`).
+Call `composer-require` before the install or update request, and `composer-remove` after the uninstall or update request.
+Both answer with `composerRan`, which is `true` when Composer changed the project in that request.
+In PHP, `PluginComposerDependencyService::requireDependency()` and `removeDependency()` do the same.
+The install, update, uninstall and remove routes accept `separateComposerStep: true` in the request body, so they leave Composer to these routes.
+The Administration and the `plugin:install`, `plugin:update`, `plugin:update:all`, `plugin:uninstall` and `store:download` commands already do this.
+When the Composer step changed the project, `plugin:install`, `plugin:update`, `plugin:update:all` and `store:download` run the lifecycle in a child `bin/console` process, so the lifecycle code of a plugin can use the packages the step added.
+
+Composer now runs in a copy of `vendor/`, `composer.json` and `composer.lock` next to the live ones.
+The copy replaces them only after Composer succeeded, and a message removes the replaced `vendor/` directory afterwards.
+This needs free disk space for one copy of `vendor/`.
+The Composer step fails with `FRAMEWORK__PLUGIN_COMPOSER_WORKING_COPY_NOT_POSSIBLE` instead of changing the live files when `vendor/` is a mount point or a symlink, when the project directory is not writable, when `config.vendor-dir` is not `vendor`, or when `config.bin-dir`, `COMPOSER_VENDOR_DIR` or `COMPOSER_BIN_DIR` is set.
+
+Without `separateComposerStep`, the lifecycle routes still run Composer themselves, and a deprecation is triggered.
+From 6.8 they no longer run Composer: install and update fail with `FRAMEWORK__PLUGIN_COMPOSER_DEPENDENCY_MISSING` when the package is missing.
+
 ### Plain JSON becomes the default Admin API response format in 6.8
 
 Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.

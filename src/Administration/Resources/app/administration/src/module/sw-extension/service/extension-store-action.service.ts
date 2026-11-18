@@ -128,30 +128,83 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
-    public installExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
-        return this.httpClient.post(
-            `_action/${this.getApiBasePath()}/install/${type}/${technicalName}`,
+    public async installExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
+        const composerRan = await this.composerRequireExtension(technicalName, type);
+
+        try {
+            return await this.httpClient.post(
+                `_action/${this.getApiBasePath()}/install/${type}/${technicalName}`,
+                { separateComposerStep: true },
+                {
+                    headers: this.storeHeaders(),
+                    version: 3,
+                },
+            );
+        } catch (error) {
+            if (composerRan) {
+                await this.composerRemoveExtension(technicalName, type).catch(() => {
+                    // the install error is rethrown below, a failed rollback must not replace it
+                    return false;
+                });
+            }
+
+            throw error;
+        }
+    }
+
+    public async composerRequireExtension(technicalName: string, type: ExtensionType): Promise<boolean> {
+        if (type !== 'plugin') {
+            return false;
+        }
+
+        const { data } = await this.httpClient.post<{ composerRan: boolean }>(
+            `_action/${this.getApiBasePath()}/composer-require/${type}/${technicalName}`,
             {},
             {
                 headers: this.storeHeaders(),
                 version: 3,
             },
         );
+
+        return data.composerRan;
     }
 
-    public updateExtension(
-        technicalName: string,
-        type: ExtensionType,
-        allowNewPermissions = false,
-    ): Promise<AxiosResponse<void>> {
-        return this.httpClient.post(
-            `_action/${this.getApiBasePath()}/update/${type}/${technicalName}`,
-            { allowNewPermissions },
+    public async composerRemoveExtension(technicalName: string, type: ExtensionType): Promise<boolean> {
+        if (type !== 'plugin') {
+            return false;
+        }
+
+        const { data } = await this.httpClient.post<{ composerRan: boolean }>(
+            `_action/${this.getApiBasePath()}/composer-remove/${type}/${technicalName}`,
+            {},
             {
                 headers: this.storeHeaders(),
                 version: 3,
             },
         );
+
+        return data.composerRan;
+    }
+
+    public async updateExtension(
+        technicalName: string,
+        type: ExtensionType,
+        allowNewPermissions = false,
+    ): Promise<AxiosResponse<void>> {
+        await this.composerRequireExtension(technicalName, type);
+
+        const updateResponse = await this.httpClient.post<void>(
+            `_action/${this.getApiBasePath()}/update/${type}/${technicalName}`,
+            { allowNewPermissions, separateComposerStep: true },
+            {
+                headers: this.storeHeaders(),
+                version: 3,
+            },
+        );
+
+        await this.composerRemoveExtension(technicalName, type);
+
+        return updateResponse;
     }
 
     public activateExtension(technicalName: string, type: ExtensionType): Promise<AxiosResponse<void>> {
@@ -176,25 +229,29 @@ export default class ExtensionStoreActionService extends ApiService {
         );
     }
 
-    public uninstallExtension(
+    public async uninstallExtension(
         technicalName: string,
         type: ExtensionType,
         removeData: boolean,
     ): Promise<AxiosResponse<void>> {
-        return this.httpClient.post(
+        const uninstallResponse = await this.httpClient.post<void>(
             `_action/${this.getApiBasePath()}/uninstall/${type}/${technicalName}`,
-            { keepUserData: !removeData },
+            { keepUserData: !removeData, separateComposerStep: true },
             {
                 headers: this.storeHeaders(),
                 version: 3,
             },
         );
+
+        await this.composerRemoveExtension(technicalName, type);
+
+        return uninstallResponse;
     }
 
     public removeExtension(technicalName: string, type: ExtensionType, removeData: boolean): Promise<AxiosResponse<void>> {
         return this.httpClient.post(
             `_action/${this.getApiBasePath()}/remove/${type}/${technicalName}`,
-            { keepUserData: !removeData },
+            { keepUserData: !removeData, separateComposerStep: true },
             {
                 headers: this.storeHeaders(),
                 version: 3,

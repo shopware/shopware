@@ -59,6 +59,17 @@ If your plugin or app ships its own `vite.config.*` or Vite plugins, follow the 
 
 <details>
 
+## Plugin lifecycle no longer runs Composer
+
+Installing, updating and uninstalling a plugin no longer runs `composer require` or `composer remove` for plugins whose `executeComposerCommands()` returns `true`.
+Install and update fail with `FRAMEWORK__PLUGIN_COMPOSER_DEPENDENCY_MISSING` while the plugin's package is missing.
+If you call the extension lifecycle routes or `PluginLifecycleService` yourself, run the Composer step in a request or process of its own:
+
+* `POST /api/_action/extension/composer-require/plugin/{technicalName}` or `PluginComposerDependencyService::requireDependency()` before the install or update.
+* `POST /api/_action/extension/composer-remove/plugin/{technicalName}` or `PluginComposerDependencyService::removeDependency()` after the uninstall or update.
+
+The Administration and the plugin commands already work this way.
+
 ## Reorder form line item blocks removed
 
 `frontend.checkout.cart.reorder` resolves the reordered products from the order itself, so the reorder form no longer posts any `lineItems`. These two blocks in `storefront/page/account/order-history/order-item.html.twig` were emptied in 6.7 and are now removed:

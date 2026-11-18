@@ -4,6 +4,7 @@ import type { App } from 'vue';
 import ExtensionStoreActionService from './extension-store-action.service';
 import ShopwareExtensionService from './shopware-extension.service';
 import ExtensionErrorService from './extension-error.service';
+import { composerErrorSnippets } from './composer-error-snippets';
 
 const { Application } = Shopware;
 
@@ -72,6 +73,7 @@ Application.addServiceProvider('extensionErrorService', () => {
             FRAMEWORK__APP_INVALID_CONFIGURATION: {
                 title: 'sw-extension.errors.appValidationFailed',
             },
+            ...composerErrorSnippets,
         },
         {
             title: 'global.default.error',

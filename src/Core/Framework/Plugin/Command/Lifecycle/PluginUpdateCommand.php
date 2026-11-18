@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Command\Lifecycle;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\PluginEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,10 +31,16 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
     {
         $io = new SymfonyStyle($input, $output);
         $context = Context::createCLIContext();
+        $this->useSeparateComposerStep($context);
         $plugins = $this->prepareExecution(self::LIFECYCLE_METHOD, $io, $input, $context);
 
         if ($plugins === null) {
             return self::SUCCESS;
+        }
+
+        $installedPlugins = $plugins->filter(static fn (PluginEntity $plugin): bool => $plugin->getInstalledAt() !== null);
+        if ($this->requireComposerDependencies($installedPlugins, $context)->count() !== 0) {
+            return $this->runInChildProcess($input, $output, $plugins);
         }
 
         $updatedPluginCount = 0;
@@ -44,6 +51,7 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
                 continue;
             }
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
+            $this->removeComposerDependency($plugin, $context);
             ++$updatedPluginCount;
 
             $io->text(\sprintf('Plugin "%s" has been updated successfully.', $plugin->getName()));

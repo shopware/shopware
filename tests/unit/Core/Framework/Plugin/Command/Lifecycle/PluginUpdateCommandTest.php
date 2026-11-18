@@ -9,15 +9,19 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Command\ConsoleCommandProcessRunner;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateCommand;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -84,6 +88,101 @@ class PluginUpdateCommandTest extends TestCase
             'plugins' => ['TestPlugin'],
         ], ['interactive' => false]));
         static::assertStringContainsString('Plugin "TestPlugin" is not installed. Skipping.', $this->commandTester->getDisplay());
+    }
+
+    public function testRunsComposerBeforeAndAfterTheUpdate(): void
+    {
+        $plugin = $this->createPluginEntity(installed: true);
+        $this->plugins->add($plugin);
+
+        $callOrder = [];
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->once())->method('requireDependency')->willReturnCallback(static function () use (&$callOrder): bool {
+            $callOrder[] = 'composer require';
+
+            return false;
+        });
+        $composerDependencyService->expects($this->once())->method('removeDependency')->willReturnCallback(static function () use (&$callOrder): bool {
+            $callOrder[] = 'composer remove';
+
+            return false;
+        });
+        $this->pluginLifecycleService
+            ->expects($this->once())
+            ->method('updatePlugin')
+            ->willReturnCallback(static function (PluginEntity $plugin, Context $context) use (&$callOrder): UpdateContext {
+                static::assertTrue($context->hasState(PluginLifecycleService::STATE_SEPARATE_COMPOSER_STEP));
+                $callOrder[] = 'update';
+
+                return static::createStub(UpdateContext::class);
+            });
+
+        $command = new PluginUpdateCommand(
+            $this->pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins]),
+            static::createStub(CacheClearer::class),
+            $composerDependencyService,
+        );
+        $command->setHelperSet(new HelperSet());
+
+        (new CommandTester($command))->execute(['plugins' => ['TestPlugin']], ['interactive' => false]);
+
+        static::assertSame(['composer require', 'update', 'composer remove'], $callOrder);
+    }
+
+    public function testRunsTheUpdateInAProcessOfItsOwnWhenAPackageWasRequired(): void
+    {
+        $this->plugins->add($this->createPluginEntity(installed: true));
+
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->once())->method('requireDependency')->willReturn(true);
+        $composerDependencyService->expects($this->never())->method('removeDependency');
+        $this->pluginLifecycleService->expects($this->never())->method('updatePlugin');
+        $commandRunner = $this->createMock(ConsoleCommandProcessRunner::class);
+        $commandRunner
+            ->expects($this->once())
+            ->method('run')
+            ->with(
+                static::isInstanceOf(PluginUpdateCommand::class),
+                static::isInstanceOf(InputInterface::class),
+                ['TestPlugin'],
+                static::isInstanceOf(OutputInterface::class),
+            )
+            ->willReturn(7);
+
+        $command = new PluginUpdateCommand(
+            $this->pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins]),
+            static::createStub(CacheClearer::class),
+            $composerDependencyService,
+            $commandRunner,
+        );
+        $command->setHelperSet(new HelperSet());
+
+        // the process gets the name of the plugin that was found, not the search term
+        static::assertSame(7, (new CommandTester($command))->execute(['plugins' => ['Test']], ['interactive' => false]));
+    }
+
+    public function testDoesNotRequireThePackageOfAPluginThatIsNotInstalled(): void
+    {
+        $this->plugins->add($this->createPluginEntity(installed: false));
+
+        $composerDependencyService = $this->createMock(PluginComposerDependencyService::class);
+        $composerDependencyService->expects($this->never())->method('requireDependency');
+        $this->pluginLifecycleService->expects($this->never())->method('updatePlugin');
+        $commandRunner = $this->createMock(ConsoleCommandProcessRunner::class);
+        $commandRunner->expects($this->never())->method('run');
+
+        $command = new PluginUpdateCommand(
+            $this->pluginLifecycleService,
+            new StaticEntityRepository([fn (): PluginCollection => $this->plugins]),
+            static::createStub(CacheClearer::class),
+            $composerDependencyService,
+            $commandRunner,
+        );
+        $command->setHelperSet(new HelperSet());
+
+        static::assertSame(Command::SUCCESS, (new CommandTester($command))->execute(['plugins' => ['TestPlugin']], ['interactive' => false]));
     }
 
     private function createPluginEntity(bool $installed): PluginEntity

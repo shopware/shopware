@@ -13,15 +13,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
-use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginCollection;
+use Shopware\Core\Framework\Plugin\PluginComposerDependencyService;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
-use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -169,15 +168,13 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get('service_container'),
             $this->container->get(MigrationCollectionLoader::class),
             $this->container->get(AssetService::class),
-            $this->container->get(CommandExecutor::class),
+            $this->container->get(PluginComposerDependencyService::class),
             $this->container->get(RequirementsValidator::class),
             $this->container->get('cache.messenger.restart_workers_signal'),
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $this->container->get(SystemConfigService::class),
             $this->container->get(CustomEntityPersister::class),
             $this->container->get(CustomEntitySchemaUpdater::class),
-            $this->container->get(PluginService::class),
-            $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
             new RequestStack(),
             $this->container->get(CustomFieldSetPersister::class),

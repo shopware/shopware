@@ -7,6 +7,14 @@
 Since 6.7.12.0, `RestrictDelete` on many-to-many associations, and on other associations to entities with a composite primary key, did not stop a delete.
 Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while another entity still references them.
 
+### A failed theme save keeps the saved theme config
+
+Saving a theme in the Administration (`PATCH /api/_action/theme/{themeId}?reset=1`) now resets the theme config and writes the new values in one transaction.
+Before, a failure between the two writes left the theme without any of its saved settings.
+The theme is compiled after the commit.
+For that, `ThemeService::updateTheme()` skips the compile when the context has the new state `ThemeService::STATE_SKIP_COMPILE`.
+Classes overriding `updateTheme()` without calling the parent method should handle that state.
+
 ## Core
 
 ### Cart deliveries and transactions carry a payload into the order
@@ -163,6 +171,17 @@ Webhooks created through the Admin API without an app now belong to the user or 
 * **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
   These entries are removed after the same lifetime as successful and failed ones.
 
+### MCP sessions on `/api/_mcp` are bound to the principal that opened them
+
+A session on the Admin API MCP endpoint now belongs to the user or integration that sent `initialize`.
+A request with the `Mcp-Session-Id` of a session opened by someone else gets the same `404` as an unknown session.
+The session stays valid when the client gets a new access token for the same user or integration.
+
+Sessions opened before the update have no owner and are answered with `404` once.
+MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era is not affected.
+On `/store-api/_mcp`, a `DELETE` of an unknown session now gets `404` instead of `200`.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
@@ -205,6 +224,44 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### MCP tool results follow the negotiated protocol revision
+
+Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the protocol revision the client negotiated, not from the `v6.8.0.0` feature flag.
+
+* **Clients on 2025-06-18 and later** get the MCP format: the first text block is the result data as plain JSON (or the error message), followed by the summary and the metadata (`{"_meta": …}`) as blocks of their own.
+  The text is no longer the `{"success": …}` envelope.
+  The data is also in `structuredContent`, a failure sets `isError: true` with a stable code in `structuredContent.error.code`, and the metadata is also in the result's `_meta` with the prefix `shopware/`.
+  Integrations that parse `success` out of `content[0].text` have to read `isError` and `structuredContent` instead, or negotiate an older revision.
+  When a result has metadata for the model, such as `dryRun`, `total` or a summary, `structuredContent` carries it under the reserved key `_meta`: next to the keys of an object, or as `{"result": …, "_meta": …}` for a list or scalar, on 2026-07-28 too.
+  Tools that declare an `outputSchema` get exactly their data in `structuredContent`.
+* **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
+  This legacy envelope is deprecated as a wire format.
+  It is kept for these clients and is not removed in 6.8.0.
+  `McpToolResponse::success()` and `::error()` stay; tools don't need to change.
+
+### Large MCP results in the result envelope are stored and linked for every tool
+
+The MCP result renderer now decides whether a tool result is too large to return inline, on `/api/_mcp` and `/store-api/_mcp`.
+It renders every result in the `{"success": …}` envelope, meaning a JSON string with a boolean `success`, no matter whether it comes from `McpToolResponse::success()`, an app tool, or a plugin tool that builds the string by hand.
+Such results, which were always returned inline unless they came from `McpToolResponse::success()`, are now stored when they are too large and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
+A tool result that is not in this envelope, such as plain text, is passed through unchanged and is never stored.
+On 2025-06-18 and later, results of a tool that declares an `outputSchema` are never stored, because a link carries no `structuredContent` that could match the schema; such a tool has to keep its results small itself.
+The model reads stored results with `resources/read`.
+`McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
+The limit applies to the rendered result, the text plus `structuredContent`, and is set so that the offload point stays at about 100 KB of data.
+The linked response keeps the tool's summary, its own links, and its metadata up to 10 KB; larger metadata values are named in `_meta.omittedMeta`.
+On 2025-06-18 and later these values cannot be fetched, because the stored result holds only the data, so tools should put large values into the data instead.
+For clients on protocol revision 2025-06-18 or later, `resources/read` of a stored result returns the plain data instead of the `{"success": true, "data": …}` envelope.
+Its metadata, such as `total`, comes with the link in the tool result.
+Clients on 2024-11-05 and 2025-03-26 keep reading the envelope.
+### Opt-out attribute for MCP tools without privileges
+
+An Admin API MCP tool that reads no shop data can now declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead of `#[McpToolRequires]`.
+The new PHPStan rule `shopware.mcpAdminToolMissingRequires` reports an Admin API tool that declares neither attribute,
+and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool that uses Admin ACL privileges.
+Both rules are part of the rule set that extensions include.
+They only report when `parameters.symfony.containerXmlPath` points to a compiled container that registers the extension's tools.
 
 ### ZUGFeRD documents include `discount` line items
 
@@ -265,6 +322,20 @@ The order document card in the Administration names the document type as well.
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
+### MCP toolsets can carry a description
+
+`#[McpToolGroup]` takes an optional `description` that describes the whole toolset.
+`shopware-toolsets-list` and `shopware-toolset-enable` return it instead of the generated `Tools explicitly assigned to the "<group>" MCP tool group.`, so a model can tell which toolset fits a task.
+All core toolsets now have one.
+Plugins that add their own toolset should set it on one tool of the group:
+
+```php
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+```
+
+Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
+Plugins can add tools to a core toolset such as `entity`, but cannot change its description.
 
 ### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
 
@@ -612,6 +683,13 @@ shopware:
         user_recovery:
             enabled: false
 ```
+
+### MCP tools declare whether they change shop data
+
+The core MCP tools on `/api/_mcp` and `/store-api/_mcp` now send the tool annotations of the MCP specification in `tools/list` and in `shopware-tool-search` results.
+Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-upsert`, `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write`, `shopware-theme-config` and `shopware-media-upload`, with `destructiveHint`.
+MCP clients use these hints to decide when to ask the user before a call: clients that honour them may now run the read tools without asking, and ask before the destructive ones where they did not before.
+Plugin and bundle tools can declare the same hints with the `annotations` argument of `#[McpTool]`.
 
 ### Price calculation basis per customer group
 
@@ -1261,6 +1339,21 @@ The redirect is no longer cached. A shop that is already in this state gets out 
 
 Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
 
+### Translations can be downloaded as one archive
+
+`bin/console translation:download` and `bin/console translation:install --all` download all locales as one archive when `shopware.translation.archive_manifest_url` is set.
+The translations repository publishes the manifest of its latest archive at `https://github.com/shopware/translations/releases/latest/download/manifest.json`.
+
+```yaml
+shopware:
+    translation:
+        archive_manifest_url: 'https://github.com/shopware/translations/releases/latest/download/manifest.json'
+```
+
+When the archive cannot be used, both commands download every file of each locale as before.
+`translation:install --all` also downloads every file when the archive is older than the translation metadata.
+Decorators of `AbstractTranslationLoader::download()` are not called for the locales that come from the archive.
+
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 
 The scheduled sitemap task and `bin/console sitemap:generate` no longer generate sitemaps for inactive sales channels.
@@ -1343,6 +1436,203 @@ elasticsearch:
 ```
 
 Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
+
+# 6.7.16.1
+
+## Security Fixes
+
+### Improved API access protection
+
+Fixed an API access-control vulnerability that could expose protected data.
+API responses and Store API searches now consistently respect field visibility restrictions.
+Validation errors with code `FRAMEWORK__ACCESSOR_NOT_ALLOWED` now use HTTP status 400 instead of 500.
+Entity aggregations in the Admin API and in app scripts now also require the read privilege of the aggregated entity.
+
+Association visibility is checked against the API scope of the caller.
+This applies to Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`.
+In 6.7, associations in the `associations` parameter that are not visible in that scope are ignored, including their nested criteria.
+Selections in the `fields` parameter that traverse a non-visible association are also ignored; valid selections and fields added by server code are preserved.
+If no field selections remain, the normal read behavior applies, with API response visibility still enforced.
+With debug mode enabled, these requests emit a deprecation notice identifying the ignored association or field selection.
+Starting with 6.8, these requests fail with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`; remove non-visible associations and field selections that traverse them from requests and app scripts before upgrading.
+Filters, sorting and aggregations retain their existing validation.
+App permissions do not grant additional access to protected associations through `services.store`.
+
+### ExtensionAPI repository operations no longer expose Administration access tokens
+
+Fixed an ExtensionAPI vulnerability that could expose the signed-in Administration user's access token to an app.
+The `save`, `saveAll`, and `delete` repository operations no longer return raw HTTP responses.
+Apps should await completion of these operations to detect success.
+
+### Clone overwrites enforce field protection and association permissions
+
+The Admin API clone action and `CloneBehavior` validate explicit root, nested association, translation and extension overwrites using the caller's field write protection and create/update permissions.
+Association overwrites remain supported, including partial payloads and `null` values that suppress copying.
+Copied source values retain their existing clone behavior without requiring additional association write privileges.
+Creating the root clone still requires create permission; updating an existing associated entity requires its update permission, while creating a new associated entity requires its create permission.
+
+### Recovery associations removed
+
+Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations, which were removed in a security update.
+`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` are deprecated and will be removed in 6.8.
+The outgoing `user_recovery.user` and `customer_recovery.customer` associations remain available.
+
+### Extension XML files are parsed without resolving document types
+
+App manifests, plugin `config.xml` files, custom entity, admin UI, flow, CMS and custom field XML files are now read through `Shopware\Core\Framework\Util\XmlParser`.
+It rejects any document type declaration before libxml can load an external DTD or entity.
+Previously the DTD was resolved before the document type was rejected, so an administrator who may upload extensions could read local files through a crafted manifest (XML external entity injection).
+
+Empty, missing or malformed extension XML files now fail with a `UtilException` (`UTIL__XML_PARSING_FAILED`, HTTP 400) instead of Symfony's `InvalidArgumentException`.
+The error messages are unchanged.
+The PHPStan rule `NoXmlUtilsParsingRule` in the core rule set reports direct calls to `XmlUtils::parse()` and `XmlUtils::loadFile()` outside tests.
+Use `XmlParser` for XML that may come from an extension.
+`XmlParser` is public API, so extensions that parse XML from an untrusted source should use it instead of `XmlUtils` as well.
+
+### Twig templates only read the request context
+
+Twig templates can no longer call methods that change the request context or the request, such as setters.
+Reading them stays possible, for example `context.languageId`, and so does adding an extension with `addExtension()` or `addArrayExtension()`.
+Such a call fails with the error code `FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED`; make the change in PHP instead, for example in an event subscriber.
+
+### App Script services use a separate context for each call
+
+The `repository` and `writer` App Script services now use their own context for every call.
+Context changes made during one call no longer carry over to later calls.
+
+### Aggregation identifiers and JSON paths reject comment and quote characters
+
+Aggregation names and range aggregation keys containing a single or double quote, the `--`, `/*`, or `*/` SQL comment markers, a backslash, or a semicolon are now rejected with a `FRAMEWORK__INVALID_AGGREGATION_QUERY` (HTTP 400), in addition to the previously rejected backtick, question mark, colon, and control characters.
+JSON field access paths used in filters, sortings, and aggregations now reject the `/*` and `*/` SQL comment markers and control characters.
+From 6.8.0.0 this fails as a `FRAMEWORK__DBAL_INVALID_IDENTIFIER` (HTTP 400); on 6.7 the same input is rejected with an `InvalidArgumentException` (HTTP 500).
+Either way the request is blocked and no data is returned.
+These characters could desynchronise PDO placeholder parsing from the database server under emulated prepares on PHP 8.2 and 8.3 leading to SQL Injection.
+
+### Store API criteria field paths are resolved per path segment
+
+Field paths in Store API criteria (filters, sortings, and aggregations) are resolved per path segment.
+A path that uses `extensions` as a whole segment keeps working;
+a segment that only contains the text `extensions` is treated literally and rejected when it is not a real field.
+Integrations that use valid field paths are unaffected.
+
+### Content Security Policy for Storefront documents
+
+Storefront document responses now send a `Content-Security-Policy` header that blocks scripts, embedded documents, base URL changes and form submissions. Custom HTML document templates must work without these capabilities; styles and images remain permitted. Admin API and Store API responses retain their existing CSP.
+
+The Storefront document policy can be overridden through the container parameter `shopware.security.private_media_csp` in `config/services.yaml`.
+
+### HTML files are no longer accepted as public media
+
+`html` was removed from the default `shopware.filesystem.allowed_extensions`. Public media is served from the shop's own domain, so an uploaded HTML file ran its scripts in the same origin as the Administration and could read the session of an administrator who opened it.
+
+HTML files are still accepted as private media, for example for accessible HTML documents. Uploads of HTML files to public media now fail with `CONTENT__MEDIA_FILE_TYPE_NOT_SUPPORTED`. HTML files that were uploaded to public media before this change are still served. Review them and delete the ones you do not need.
+
+S3 and other object storages serve a file with the content type stored at upload time, not with the type of its extension. Uploads whose content is HTML, XHTML, SVG or another XML type are therefore rejected with `CONTENT__MEDIA_INVALID_FILE` unless the file extension belongs to that type. This applies to the regular and the presigned upload flow. For example, an HTML document uploaded as `.jpg` or an SVG uploaded as `.png` is no longer accepted.
+
+If your shop needs HTML files as public media, add `html` to `shopware.filesystem.allowed_extensions` in your own configuration and serve these files from a separate domain or with a `Content-Security-Policy: sandbox` header.
+
+### Media visibility is immutable
+
+The `private` field of media can now only be set when creating the media entity.
+Updates that change its value are rejected because toggling the flag does not move the actual file or its thumbnails between the public and private filesystems.
+Set the intended visibility during creation.
+Updates that resend the existing value remain supported.
+
+The DAL `Immutable` flag now correctly rejects changes to falsy values such as `false`, `0`, and an empty string.
+
+### Media paths and file names are validated on API writes
+
+Admin API and Sync API writes can no longer set `media.path` or `media_thumbnail.path` to a relative path or reset it to `null`.
+These writes are rejected with `400` and `CONTENT__MEDIA_ILLEGAL_PATH`.
+External media keep working with an absolute `http` or `https` URL.
+The external media link action and the creation of external thumbnails reject URLs that are not a plain absolute `http` or `https` URL with a host.
+`media.fileName` is validated like the file name of an upload and is rejected with `CONTENT__MEDIA_ILLEGAL_FILE_NAME` when it contains characters such as `/` or `\`.
+Writing back the unchanged stored path or file name is still accepted.
+To store a file in the shop's own storage, use the media upload actions or the presigned upload.
+
+`POST /api/_action/clone/{entity}/{id}` validates `path` and `fileName` of `media` and `path` of `media_thumbnail` in `overwrites`, also inside nested associations and `extensions`.
+`path` must be an absolute `http` or `https` URL, and `fileName` follows the rules of an upload file name.
+Invalid values are rejected with `400` and `FRAMEWORK__API_INVALID_CLONE_OVERWRITE`.
+This media check applies to the Admin API clone action only, not to `EntityRepository::clone()` called from code.
+
+Media with an external URL are no longer attached to mails sent with `mediaIds`, because their stored path was read from the public filesystem.
+A warning is logged for each skipped media.
+
+The update does not rewrite values stored before it.
+Check `media.path` and `media_thumbnail.path` for relative values that the configured path strategy does not produce, for example values containing `..` or a backslash, or starting with `/`.
+Correct such paths before deleting or replacing the affected media, because both act on the stored path.
+
+### User, access key and admin integration writes are restricted
+
+A non-admin may only update or delete their own user and their own access keys through the Admin API.
+Writes to other users or their access keys are rejected with `403` and `USER__USER_CHANGE_NOT_ALLOWED`.
+A non-admin may no longer update or delete an admin integration; these writes are rejected with `403` and `INTEGRATION__ADMIN_INTEGRATION_CHANGE_NOT_ALLOWED`.
+Administrators are unaffected.
+The user of an access key can no longer be changed after the key was created, also not by administrators.
+
+### Presigned media upload endpoints now require ACL privileges
+
+`POST /api/_action/media/presign-upload` and `POST /api/_action/media/{mediaId}/finalize-upload` now require the `media:update` privilege.
+Preparing an upload without a `mediaId`, which creates a new media entity, additionally requires `media:create`.
+Requests with tokens lacking a privilege receive a `403` with `FRAMEWORK__MISSING_PRIVILEGE_ERROR`.
+Administration users are not affected: the "Media creator" permission already includes `media:update`.
+Integrations and API clients with manually assigned privilege lists must add the respective privilege to their ACL role.
+When `finalize-upload` fails for a new media, the media and the uploaded file are only removed if the caller also holds `media:delete`.
+Otherwise the media stays without a file.
+### Integrations no longer act as the user named in `sw-app-user-id`
+
+A standard integration that sends the `sw-app-user-id` header keeps its own identity.
+The header only narrows its permissions to those of the named user.
+Writes are no longer attributed to that user: `created_by_id` stays empty and `updated_by_id` keeps its previous value.
+Naming an inactive or unknown user is rejected with a `403` and the error code `FRAMEWORK__APP_USER_NOT_FOUND`, and requests of a deactivated app are rejected as well.
+An app integration still acts for the named user, except that an inactive user is now treated like a user without the required app privilege.
+
+Routes that act on the signed-in Administration user now require a directly authenticated user and reject every integration, including an app that names a user, with a `403` and the error code `FRAMEWORK__API_EXPECTED_USER`.
+To read a user, use `GET /api/user/{id}` with `user:read`.
+To change a user, use `PATCH /api/user/{id}` with `user:update`.
+That route requires an admin integration or a directly authenticated user, because a non-admin caller may only change its own user.
+
+### App files must be inside the App directory
+
+Shopware now only reads App files that are located inside the App directory.
+This applies to the App icon, the icons of payment methods, shipping methods and flow actions, and the scripts of rule conditions.
+Files outside of the App directory are treated like a missing file, so the icon is skipped.
+CMS blocks whose name leaves the `cms/blocks` directory of the App are rejected, so the App cannot be installed or updated.
+Until 6.8, both CMS block errors are still thrown as the deprecated `Shopware\Core\Framework\App\Exception\AppCmsExtensionException`.
+With 6.8 they are thrown as `Shopware\Core\Framework\App\AppException`.
+Apps that keep their files inside their own directory are not affected.
+
+## Core
+
+### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
+
+Shopware now requires `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15.
+Plugins and bundles that register MCP tools are affected in these points:
+
+* A tool that declares an `outputSchema` has its `structuredContent` validated against it.
+  A result that does not match is sent as an error result with `isError: true`.
+  Return `new \stdClass()` for an empty object, since `[]` is sent as an array.
+* A tool whose `inputSchema` has a `properties` member that is not an object, or a `required` member that is not a list, is rejected when it is registered.
+* `#[CompletionProvider]` no longer takes `providerClass`; pass the class to `provider` instead.
+
+The SDK classes for an OAuth proxy, client registration and OIDC discovery were removed, see the [mcp/sdk 0.9.0 changelog](https://github.com/modelcontextprotocol/php-sdk/blob/v0.9.0/CHANGELOG.md).
+The MCP endpoints match the `Origin` header of browser clients exactly, including scheme and port.
+They accept the origins of `APP_URL` and of every sales channel domain.
+A loopback origin, for example the MCP Inspector on `http://localhost:6274`, is accepted only for a shop on a loopback host such as `localhost` or `*.localhost`.
+Clients without an `Origin` header, such as CLI clients and desktop apps, are not affected.
+Allow further origins with `shopware.mcp.allowed_origins`.
+An entry is an exact origin, an origin with `:*` for any port, or `*` for any origin:
+
+```yaml
+shopware:
+    mcp:
+        allowed_origins:
+            - 'https://chat.example.com'
+            - 'http://localhost:*'
+```
+
+The list can also come from an environment variable, for example `allowed_origins: '%env(csv:MCP_ALLOWED_ORIGINS)%'`.
+A rejected origin is logged as a warning in the `mcp` channel.
 
 # 6.7.16.0
 

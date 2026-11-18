@@ -18,8 +18,10 @@ type LayoutConfiguration = { columns: LayoutColumn[]; areas: string[][] };
 type GridLayout = Partial<Record<Breakpoint, LayoutConfiguration>>;
 type BreakpointPatterns = Partial<Record<Breakpoint, Pattern>> & { xs: Pattern };
 
-function initialPattern(value?: LayoutConfiguration): Pattern {
-    if (!value) return { columns: [{ id: 1, type: 'auto', value: null }], cells: [[1]] };
+function initialPattern(value?: LayoutConfiguration | null): Pattern {
+    if (!value || !Array.isArray(value.columns) || !Array.isArray(value.areas)) {
+        return { columns: [{ id: 1, type: 'auto', value: null }], cells: [[1]] };
+    }
     const ids = new Map<string, number>();
     return {
         columns: value.columns.map((column, index) => ({
@@ -50,7 +52,7 @@ function encodePattern(pattern: Pattern): LayoutConfiguration {
     };
 }
 
-function parsePatterns(value: GridLayout): BreakpointPatterns {
+function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
     const patterns: BreakpointPatterns = { xs: initialPattern(value.xs) };
     breakpoints.slice(1).forEach((breakpoint) => {
         if (value[breakpoint]) patterns[breakpoint] = initialPattern(value[breakpoint]);
@@ -151,12 +153,13 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['update:gridLayout'],
 
     data() {
+        const patterns = parsePatterns(this.gridLayout ?? {});
         return {
             breakpoint: 'xs' as Breakpoint,
-            patterns: parsePatterns(this.gridLayout),
+            patterns,
             selected: [] as number[],
-            nextId: nextAreaId(initialPattern(this.gridLayout.xs)),
-            nextColumnId: initialPattern(this.gridLayout.xs).columns.length + 1,
+            nextId: nextAreaId(patterns.xs),
+            nextColumnId: patterns.xs.columns.length + 1,
             focusedColumnId: null as number | null,
             draggingColumnId: null as number | null,
             dragStartPattern: '',
@@ -252,7 +255,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         syncPattern(): void {
-            const incoming = parsePatterns(this.gridLayout);
+            const incoming = parsePatterns(this.gridLayout ?? {});
             if (JSON.stringify(encodePatterns(this.patterns)) === JSON.stringify(encodePatterns(incoming))) return;
             this.patterns = incoming;
             const pattern = this.pattern;

@@ -5,6 +5,28 @@ describe('grid editor invalid layouts', () => {
 
     afterEach(() => wrapper?.unmount());
 
+    it.each([
+        null,
+        {},
+        { xs: {} },
+        { xs: { columns: [{ type: 'auto' }] } },
+        { xs: { areas: [['a1']] } },
+    ])('falls back to a usable grid for %p on mount and update', async (gridLayout) => {
+        wrapper = createWrapper({ gridLayout });
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
+        await wrapper.setProps({ gridLayout: layout('auto auto|a1 a2') });
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(2);
+        // @ts-expect-error Exercise malformed values received at runtime.
+        await wrapper.setProps({ gridLayout });
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
+    });
+
+    it('falls back for an incomplete breakpoint override', async () => {
+        wrapper = createWrapper({ gridLayout: { ...layout('auto auto|a1 a2'), sm: { columns: [] } } });
+        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1].trigger('click');
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
+    });
+
     it('holds other edits locally until the invalid width is corrected', async () => {
         wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2') });
         const column = wrapper.findAll('.sw-experience-studio-grid-editor__column')[0];

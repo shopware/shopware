@@ -404,6 +404,7 @@ trait DocumentTrait
                         'shippingDateLatest' => $delivery->getShippingDateLatest(),
                         'shippingCosts' => $delivery->getShippingCosts(),
                         'positions' => $positions,
+                        'position' => $order->getDeliveries()->count() + 1,
                     ],
                 ],
             ],

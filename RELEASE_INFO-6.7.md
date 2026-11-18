@@ -1262,12 +1262,6 @@ A delivery with negative shipping costs is a discount, every other delivery is a
 Until now, every delivery besides the primary one was shown as a shipping discount.
 The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, sorted like `OrderDeliveryCollection::getShipments()`.
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
-### Deprecated Administration APIs warn when they are used
-
-Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used: deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
-In development builds, a use logs a warning naming the API and its replacement. With the next major flag active, it throws.
-
-To find the uses in your extension before the major, run its Jest suite with the environment variable `V6_8_0_0=1`.
 
 ## API
 

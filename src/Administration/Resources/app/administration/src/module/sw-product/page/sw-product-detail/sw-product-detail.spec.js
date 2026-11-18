@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
     value: {

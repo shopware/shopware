@@ -39,6 +39,11 @@
             "major"
         ]
     },
+    "The old usage of \"sw-popover\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-floating-ui\" instead.": {
+        "sw-colorpicker-deprecated > sw-popover": [
+            "default"
+        ]
+    },
     "The old usage of \"sw-skeleton-bar\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-skeleton-bar\" instead.": {
         "sw-cms-slot > sw-skeleton-bar": [
             "default",

@@ -54,10 +54,10 @@
     {% endblock %}
 
     {% block sw_colorpicker_popover %}
-    <mt-floating-ui
+    <sw-popover
         v-if="visible"
         class="sw-colorpicker__colorpicker-position"
-        :is-opened="true"
+        :z-index="zIndex"
     >
         {% block sw_colorpicker_colorpicker %}
         <div class="sw-colorpicker__colorpicker">
@@ -223,7 +223,7 @@
             {% endblock %}
         </div>
         {% endblock %}
-    </mt-floating-ui>
+    </sw-popover>
     {% endblock %}
 </div>
 {% endblock %}

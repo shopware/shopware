@@ -98,7 +98,7 @@ const productMock = {
 let repositoryFactoryDeleteMock;
 let assignMock;
 
-async function createWrapper({ salesChannel, products } = {}) {
+async function createWrapper({ salesChannel, products, onSearch = () => {} } = {}) {
     repositoryFactoryDeleteMock = jest.fn(async () => {});
     assignMock = jest.fn(async () => ({ assigned: 1, complete: true }));
 
@@ -177,7 +177,9 @@ async function createWrapper({ salesChannel, products } = {}) {
                         create: (entity) => {
                             return {
                                 create: async () => {},
-                                search: async () => {
+                                search: async (criteria) => {
+                                    onSearch(entity, criteria);
+
                                     if (entity === 'product') {
                                         const entityCollection = products ?? [];
                                         entityCollection.criteria = mockCriteria();
@@ -228,6 +230,42 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await flushPromises();
 
         expect(wrapper.getComponent('.sw-entity-listing').props('dataSource')).toEqual(productsMock);
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'loads only the visibility of the current sales channel for each product',
+        async () => {
+            const productCriteria = [];
+            await createWrapper({
+                salesChannel: { id: 'apiSalesChannelTypeId' },
+                products: productsMock,
+                onSearch: (entity, criteria) => entity === 'product' && productCriteria.push(criteria.parse()),
+            });
+            await flushPromises();
+
+            expect(productCriteria).toHaveLength(1);
+            const visibilities = productCriteria[0].associations.visibilities;
+            expect(visibilities.filter).toEqual([
+                { type: 'equals', field: 'salesChannelId', value: 'apiSalesChannelTypeId' },
+            ]);
+            expect(visibilities.associations).toBeUndefined();
+        },
+    );
+
+    // @deprecated tag:v6.8.0 - The test will be removed when the data is always limited.
+    it.deprecated('v6.8.0.0')('loads all visibilities with their sales channels before 6.8', async () => {
+        const productCriteria = [];
+        await createWrapper({
+            salesChannel: { id: 'apiSalesChannelTypeId' },
+            products: productsMock,
+            onSearch: (entity, criteria) => entity === 'product' && productCriteria.push(criteria.parse()),
+        });
+        await flushPromises();
+
+        expect(productCriteria).toHaveLength(1);
+        const visibilities = productCriteria[0].associations.visibilities;
+        expect(visibilities.filter).toBeUndefined();
+        expect(visibilities.associations).toHaveProperty('salesChannel');
     });
 
     it('should delete product successful', async () => {

@@ -470,6 +470,7 @@
     "addressEqualText": "Entspricht der Lieferadresse",
     "billingAddressHeader": "Rechnungsadresse",
     "shippingAddressHeader": "Lieferadresse",
+    "shipmentHeader": "Lieferung %number%: %shippingMethod%",
     "confirmHeader": "Bestellung abschließen",
     "confirmMetaTitle": "Bestellung abschließen",
     "confirmPaymentMethod": "Zahlungsart",

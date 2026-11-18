@@ -1,5 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import { loadDIVE } from './utils/spatial-dive-load-util';
+import type NativeEventEmitter from 'src/helper/emitter.helper';
 
 declare global {
     interface Window {
@@ -22,7 +23,13 @@ declare global {
  *
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-export default class SpatialArViewerPlugin extends Plugin<Record<string, unknown>, HTMLElement> {
+export default class SpatialArViewerPlugin extends Plugin {
+    /**
+     * The element that contains the AR button.
+     * @type {HTMLElement}
+     */
+    private el!: HTMLElement;
+
     public options!: {
         modelUrl: string;
         spatialArId: string;
@@ -54,6 +61,8 @@ export default class SpatialArViewerPlugin extends Plugin<Record<string, unknown
             };
         };
     };
+
+    $emitter: NativeEventEmitter;
 
     /**
      * `qrModalAutostartARButton` will only be set if the page was entered with the `autostartAr` parameter.

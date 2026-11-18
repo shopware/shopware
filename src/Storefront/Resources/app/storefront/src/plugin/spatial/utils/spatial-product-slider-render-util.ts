@@ -95,9 +95,12 @@ export default class SpatialProductSliderRenderUtil {
      * @private
      */
     private rebuildEvent() {
-        void window.PluginManager.initializePlugin('SpatialGallerySliderViewer', '[data-spatial-gallery-slider-viewer]');
-        void window.PluginManager.initializePlugin('SpatialZoomGallerySliderViewer', '[data-spatial-zoom-gallery-slider-viewer]');
-        void window.PluginManager.initializePlugin('SpatialArViewer', '[data-spatial-ar-viewer]');
+        // @ts-ignore
+        window.PluginManager.initializePlugin('SpatialGallerySliderViewer', '[data-spatial-gallery-slider-viewer]');
+        // @ts-ignore
+        window.PluginManager.initializePlugin('SpatialZoomGallerySliderViewer', '[data-spatial-zoom-gallery-slider-viewer]');
+        // @ts-ignore
+        window.PluginManager.initializePlugin('SpatialArViewer', '[data-spatial-ar-viewer]');
     }
 
     /**
@@ -126,7 +129,7 @@ export default class SpatialProductSliderRenderUtil {
      * Refreshes the slider elements.
      */
     private refreshSliderElements() {
-        this.sliderElement = this.plugin?.el?.closest<HTMLElement>(SpatialProductSliderRenderUtil.options.sliderSelector);
+        this.sliderElement = this.plugin?.el?.closest(SpatialProductSliderRenderUtil.options.sliderSelector);
         this.sliderPlugin = this.getSliderPlugin();
 
         if (this.sliderPlugin != null) {

@@ -12,6 +12,7 @@ export default class SpatialZoomGallerySliderViewerPlugin extends SpatialBaseVie
     private SpatialZoomGallerySliderRenderUtil: SpatialZoomGallerySliderRenderUtil | undefined;
 
     public sliderIndex: number | undefined;
+    public el: HTMLElement | undefined;
 
     /**
      * initialize plugin

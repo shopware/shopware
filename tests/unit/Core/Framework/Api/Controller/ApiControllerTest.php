@@ -322,28 +322,6 @@ class ApiControllerTest extends TestCase
     }
 
     /**
-     * @param list<string> $permissions
-     */
-    private function createAdminApiContext(array $permissions): Context
-    {
-        $source = new AdminApiSource(Uuid::randomHex());
-        $source->setPermissions($permissions);
-
-        return Context::createDefaultContext($source);
-    }
-
-    /**
-     * @param EntityRepository<EntityCollection<Entity>> $entityRepository
-     */
-    private function createMergeController(EntityRepository $entityRepository, AclVersionMergeValidator $versionMergeValidator): ApiController
-    {
-        $container = new ContainerBuilder();
-        $container->set('parent_entity.repository', $entityRepository);
-
-        return $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class], $versionMergeValidator);
-    }
-
-    /**
      * @param array<string, mixed> $overwrites
      */
     #[DataProvider('invalidMediaStorageOverwriteProvider')]
@@ -386,6 +364,28 @@ class ApiControllerTest extends TestCase
         yield 'external url' => [['path' => 'https://cdn.example.com/photo.jpg']];
         yield 'regular file name' => [['fileName' => 'copied-media']];
         yield 'nested data without storage fields' => [['translations' => [['title' => 'copy']]]];
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    private function createAdminApiContext(array $permissions): Context
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions($permissions);
+
+        return Context::createDefaultContext($source);
+    }
+
+    /**
+     * @param EntityRepository<EntityCollection<Entity>> $entityRepository
+     */
+    private function createMergeController(EntityRepository $entityRepository, AclVersionMergeValidator $versionMergeValidator): ApiController
+    {
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+
+        return $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class], $versionMergeValidator);
     }
 
     /**

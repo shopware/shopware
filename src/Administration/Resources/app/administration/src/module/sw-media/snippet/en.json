@@ -67,7 +67,18 @@
         "tooltipFoundShipping": "Found in Shipping",
         "tooltipFoundLayout": "Found in Shopping Experiences",
         "titleMediaNotUsed": "Unused medium",
-        "labelMediaNotUsed": "This media item is currently not in use."
+        "labelMediaNotUsed": "This media item is currently not in use.",
+        "labelMediaNotUsedInReadableAreas": "This media item is not in use in the areas you can view.",
+        "areaProducts": "Products",
+        "areaCategories": "Categories",
+        "areaLandingPages": "Landing pages",
+        "areaManufacturers": "Manufacturers",
+        "areaMailTemplates": "Email templates",
+        "areaDocuments": "Documents",
+        "areaUsers": "Users",
+        "areaPaymentMethods": "Payment methods",
+        "areaShippingMethods": "Shipping methods",
+        "areaLayouts": "Layouts"
       }
     },
     "index": {

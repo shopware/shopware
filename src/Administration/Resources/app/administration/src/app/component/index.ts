@@ -18,6 +18,10 @@ export default () => {
     Shopware.Component.register('sw-verify-user-modal', () => import('src/app/component/utils/sw-verify-user-modal/index'));
     Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
     Shopware.Component.register('sw-time-ago', () => import('src/app/component/utils/sw-time-ago/index'));
+    Shopware.Component.register(
+        'sw-unchecked-areas-hint',
+        () => import('src/app/component/utils/sw-unchecked-areas-hint/index'),
+    );
     Shopware.Component.register('sw-text-preview', () => import('src/app/component/utils/sw-text-preview/index'));
     Shopware.Component.register('sw-step-item', () => import('src/app/component/utils/sw-step-item/index'));
     Shopware.Component.register('sw-step-display', () => import('src/app/component/utils/sw-step-display/index'));

@@ -16,13 +16,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         switchToDefaultLanguage(): void {
             Shopware.Utils.EventBus.emit('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
-            this.$emit('language-change');
-        },
-    },
-
-    methods: {
-        switchToDefaultLanguage(): void {
-            Shopware.Utils.EventBus.emit('on-change-language-clicked', this.systemLanguageId);
             this.$emit('close');
         },
     },

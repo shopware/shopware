@@ -5,10 +5,8 @@ import { useId, type PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 import useSnackbar from 'src/app/composables/use-snackbar';
 import {
-    allowedExtensions,
-    maxFileSize,
     getUploadHint,
-    getFileAccept,
+    getUploadRules,
     isValidDocumentMedia,
     getFallbackTranslation,
     getDocumentTitle,
@@ -27,7 +25,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
-        'fileValidationService',
     ],
 
     props: {
@@ -71,34 +68,32 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data() {
-        const isDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+        const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
 
         return {
-            title: isDefaultLanguage ? getDocumentTitle(this.document) : this.document.title || '',
+            title: isSystemDefaultLanguage ? getDocumentTitle(this.document) : this.document.title || '',
             replacementMedia: null as Entity<'media'> | null,
             isFileRemoved: false,
             applyToVariants: this.hasVariants,
             hasSubmitted: false,
             isApplying: false,
             showMediaModal: false,
-            allowedExtensions,
-            maxFileSize,
         };
     },
 
     computed: {
-        isDefaultLanguage(): boolean {
+        isSystemDefaultLanguage(): boolean {
             return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 
         modalTitle(): string {
-            return !this.isDefaultLanguage && !this.document.title && !this.document.mediaId
+            return !this.isSystemDefaultLanguage && !this.document.title && !this.document.mediaId
                 ? this.$t('sw-product.documentForm.addLanguageVersion', { language: this.languageName })
                 : this.$t('sw-product.documentForm.editTitle');
         },
 
         titlePlaceholder(): string {
-            if (this.isDefaultLanguage) {
+            if (this.isSystemDefaultLanguage) {
                 return '';
             }
 
@@ -106,28 +101,30 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         editingMedia(): Entity<'media'> | undefined {
-            const showSavedFile = !this.isFileRemoved && (this.isDefaultLanguage || this.document.mediaId);
+            const showSavedFile = !this.isFileRemoved && (this.isSystemDefaultLanguage || this.document.mediaId);
             return this.replacementMedia || (showSavedFile ? getDocumentMedia(this.document) || undefined : undefined);
         },
 
         nameError(): { code: string; detail: string } | null {
-            return this.isDefaultLanguage && this.hasSubmitted && !this.title.trim()
+            return this.isSystemDefaultLanguage && this.hasSubmitted && !this.title.trim()
                 ? { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: this.$t('sw-product.documentForm.errorNameRequired') }
                 : null;
         },
 
         fileError(): { code: string; detail: string } | null {
-            return this.isDefaultLanguage && this.hasSubmitted && !this.editingMedia
+            return this.isSystemDefaultLanguage && this.hasSubmitted && !this.editingMedia
                 ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
                 : null;
         },
 
         fileHint(): string {
-            return this.isDefaultLanguage ? getUploadHint(this.$t) : this.$t('sw-product.documentForm.fileFallbackHint');
+            return this.isSystemDefaultLanguage
+                ? getUploadHint(this.$t)
+                : this.$t('sw-product.documentForm.fileFallbackHint');
         },
 
-        fileAccept(): string {
-            return getFileAccept(this.fileValidationService.extensionByType);
+        uploadRules(): ReturnType<typeof getUploadRules> {
+            return getUploadRules();
         },
 
         isDisabled(): boolean {
@@ -167,7 +164,7 @@ export default Shopware.Component.wrapComponentConfig({
         getChanges(): DocumentChanges {
             const title = this.title.trim();
             const newTitle =
-                this.isDefaultLanguage && title === getDocumentTitle(this.document).trim() ? undefined : title || null;
+                this.isSystemDefaultLanguage && title === getDocumentTitle(this.document).trim() ? undefined : title || null;
             const newMediaId = this.replacementMedia?.id ?? (this.isFileRemoved ? null : undefined);
             const changes: DocumentChanges = {};
 
@@ -183,7 +180,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         async apply(): Promise<void> {
             this.hasSubmitted = true;
-            if (this.isDisabled || (this.isDefaultLanguage && (this.nameError || this.fileError))) {
+            if (this.isDisabled || (this.isSystemDefaultLanguage && (this.nameError || this.fileError))) {
                 return;
             }
 

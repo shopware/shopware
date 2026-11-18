@@ -68,35 +68,29 @@ export function getDocumentTitle(document: Entity<'product_document'>): string {
 }
 
 /** @private */
-export const allowedExtensions = [
-    'pdf',
-    'docx',
-    'jpg',
-    'jpeg',
-    'png',
-];
-
-/** @private */
-export const maxFileSize = 20 * 1024 * 1024;
-
-/** @private */
 export type Translate = (key: string, values?: Record<string, unknown>) => string;
 
 /** @private */
-export function getUploadHint(t: Translate): string {
-    return t('sw-product.documentForm.uploadHint', {
-        extensions: 'PDF, DOCX, JPG',
-        lastExtension: 'PNG',
-        size: maxFileSize / (1024 * 1024),
-    });
+export function getUploadRules() {
+    const config = Shopware.Store.get('context').app.config.settings?.productDocuments;
+    const allowedMimeTypesByExtension = config?.allowedMimeTypesByExtension ?? {};
+
+    return {
+        allowedExtensions: config?.allowedExtensions ?? [],
+        allowedMimeTypesByExtension,
+        maxFileSize: config?.maxFileSize ?? 0,
+        fileAccept: [...new Set(Object.values(allowedMimeTypesByExtension).flat())].join(','),
+    };
 }
 
 /** @private */
-export function getFileAccept(extensionByType: Record<string, string[]>): string {
-    return Object.entries(extensionByType)
-        .filter(([, extensions]) => extensions.some((extension) => allowedExtensions.includes(extension)))
-        .map(([mimeType]) => mimeType)
-        .join(',');
+export function getUploadHint(t: Translate): string {
+    const { allowedExtensions, maxFileSize } = getUploadRules();
+
+    return t('sw-product.documentForm.uploadHint', {
+        extensions: allowedExtensions.join(', ').toUpperCase(),
+        size: Shopware.Utils.format.fileSize(maxFileSize),
+    });
 }
 
 /** @private */
@@ -112,6 +106,7 @@ export function isValidDocumentMedia(
         return false;
     }
 
+    const { allowedExtensions, maxFileSize } = getUploadRules();
     const extension = media.fileExtension?.toLowerCase() ?? '';
     if (!allowedExtensions.includes(extension) || typeof media.fileSize !== 'number' || media.fileSize > maxFileSize) {
         createNotificationError({ message: getUploadHint(t) });

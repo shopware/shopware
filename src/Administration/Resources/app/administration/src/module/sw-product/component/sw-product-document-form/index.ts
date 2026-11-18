@@ -5,10 +5,8 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import {
-    allowedExtensions,
-    maxFileSize,
     getUploadHint,
-    getFileAccept,
+    getUploadRules,
     isValidDocumentMedia,
     getFallbackTranslation,
     getDocumentTitle,
@@ -21,8 +19,6 @@ import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
 type DocumentGrid = { resetSelection: () => void };
-
-type DocumentUploadResult = { targetId: EntityKey<'media'>; successAmount?: number; totalAmount?: number };
 
 type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean; restoreInheritance: () => void };
 
@@ -70,8 +66,6 @@ export default Shopware.Component.wrapComponentConfig({
             selectedDocuments: [] as Entity<'product_document'>[],
             documentsToRemove: [] as Entity<'product_document'>[],
             defaultLanguageName: null as string | null,
-            allowedExtensions,
-            maxFileSize,
         };
     },
 
@@ -100,7 +94,7 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('context').api.languageId ?? '';
         },
 
-        isDefaultLanguage(): boolean {
+        isSystemDefaultLanguage(): boolean {
             return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 
@@ -113,7 +107,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            const isLanguageReady = this.isDefaultLanguage || this.contextLanguage?.id === this.languageId;
+            const isLanguageReady = this.isSystemDefaultLanguage || this.contextLanguage?.id === this.languageId;
             return !this.disabled && this.acl.can('product.editor') && isLanguageReady;
         },
 
@@ -143,7 +137,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         removeActionLabel(): string {
-            return this.isDefaultLanguage
+            return this.isSystemDefaultLanguage
                 ? this.$t('global.default.remove')
                 : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
         },
@@ -152,8 +146,8 @@ export default Shopware.Component.wrapComponentConfig({
             return getUploadHint(this.$t);
         },
 
-        fileAccept(): string {
-            return getFileAccept(this.fileValidationService.extensionByType);
+        uploadRules(): ReturnType<typeof getUploadRules> {
+            return getUploadRules();
         },
     },
 
@@ -172,11 +166,11 @@ export default Shopware.Component.wrapComponentConfig({
             this.selectedDocuments = [];
         },
 
-        isDefaultLanguage: {
+        isSystemDefaultLanguage: {
             immediate: true,
-            async handler(isDefaultLanguage: boolean) {
+            async handler(isSystemDefaultLanguage: boolean) {
                 const { systemLanguageId } = Shopware.Context.api;
-                if (isDefaultLanguage || this.defaultLanguageName !== null || !systemLanguageId) {
+                if (isSystemDefaultLanguage || this.defaultLanguageName !== null || !systemLanguageId) {
                     return;
                 }
 
@@ -286,7 +280,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         addDocuments(mediaItems: Entity<'media'>[]): void {
-            if (!this.canChangeDocuments() || !this.isDefaultLanguage) {
+            if (!this.canChangeDocuments() || !this.isSystemDefaultLanguage) {
                 return;
             }
 
@@ -362,13 +356,13 @@ export default Shopware.Component.wrapComponentConfig({
 
         removeDocuments(): void {
             this.documentsToRemove.forEach((document) => {
-                if (this.isDefaultLanguage) {
+                if (this.isSystemDefaultLanguage) {
                     this.documents.remove(document.id);
                 } else {
                     this.setDocumentValues(document, { title: null, mediaId: null }, null);
                 }
             });
-            if (this.isDefaultLanguage) {
+            if (this.isSystemDefaultLanguage) {
                 this.refreshPositions(this.documents);
             }
             (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();

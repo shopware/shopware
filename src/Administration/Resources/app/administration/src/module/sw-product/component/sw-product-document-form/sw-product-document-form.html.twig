@@ -63,16 +63,16 @@
                     {% block sw_product_document_empty_state %}
                         <div
                             class="sw-product-document-empty-state"
-                            :class="{ 'sw-product-document-empty-state--translated': !isDefaultLanguage }"
+                            :class="{ 'sw-product-document-empty-state--translated': !isSystemDefaultLanguage }"
                         >
                             <mt-empty-state
                                 centered
                                 icon="regular-file-text"
                                 :headline="$t('sw-product.documentForm.emptyState')"
-                                :description="isDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
+                                :description="isSystemDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
                             >
                                 <template
-                                    v-if="isDefaultLanguage"
+                                    v-if="isSystemDefaultLanguage"
                                     #button
                                 >
                                     {% block sw_product_document_empty_state_add %}
@@ -90,7 +90,7 @@
 
                             {% block sw_product_document_empty_state_language_hint %}
                             <mt-text
-                                v-if="!isDefaultLanguage"
+                                v-if="!isSystemDefaultLanguage"
                                 size="xs"
                                 color="color-text-secondary-default"
                                 class="sw-product-document-empty-state__language-hint"
@@ -279,9 +279,9 @@
                         :allow-multi-select="true"
                         :label="$t('sw-product.documentForm.fileUploadLabel')"
                         required
-                        :extension-accept="allowedExtensions.join(',')"
-                        :extension-mime-types-by-extension="allowedMimeTypesByExtension"
-                        :max-file-size="maxFileSize"
+                        :extension-accept="uploadRules.allowedExtensions.join(',')"
+                        :extension-mime-types-by-extension="uploadRules.allowedMimeTypesByExtension"
+                        :max-file-size="uploadRules.maxFileSize"
                         default-folder="product_document"
                         :disabled="isInherited || !canAddDocuments"
                         @media-upload-sidebar-open="showMediaModal = true; showUploadModal = false"
@@ -318,7 +318,7 @@
                 v-if="showMediaModal && mediaFolderId !== undefined"
                 entity-context="product_document"
                 :initial-folder-id="mediaFolderId"
-                :file-accept="fileAccept"
+                :file-accept="uploadRules.fileAccept"
                 :allow-multi-select="true"
                 @media-modal-selection-change="addDocuments"
                 @modal-close="showMediaModal = false"
@@ -343,7 +343,7 @@
             <sw-product-document-remove-modal
                 v-if="documentsToRemove.length"
                 :documents="documentsToRemove"
-                :language-name="isDefaultLanguage ? '' : contentLanguageName"
+                :language-name="isSystemDefaultLanguage ? '' : contentLanguageName"
                 :can-edit="canEdit"
                 :has-variants="hasVariants"
                 @close="documentsToRemove = []"

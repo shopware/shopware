@@ -2,11 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\Api;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +37,7 @@ class MediaUploadControllerTest extends TestCase
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
     final public const SAFE_SVG = __DIR__ . '/fixtures/safe.svg';
     final public const UNSAFE_SVG = __DIR__ . '/fixtures/unsafe.svg';
+    private const HTML_PAYLOAD = '<html><body><script>document.title = "xss";</script></body></html>';
 
     /**
      * @var EntityRepository<MediaCollection>
@@ -131,6 +135,93 @@ class MediaUploadControllerTest extends TestCase
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), $content);
         static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
         static::assertSame(['media:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+    }
+
+    public function testUploadingHtmlAsPublicMediaIsRejected(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=html', $this->mediaId),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'text/html',
+                'HTTP_CONTENT-LENGTH' => \strlen(self::HTML_PAYLOAD),
+            ],
+            self::HTML_PAYLOAD
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $content);
+        static::assertSame(MediaException::MEDIA_FILE_TYPE_NOT_SUPPORTED, json_decode($content, true)['errors'][0]['code'], $content);
+
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertNull($media->getFileExtension());
+        static::assertFalse($media->hasFile());
+    }
+
+    #[DataProvider('disguisedActiveContentProvider')]
+    public function testUploadingActiveContentWithForeignExtensionIsRejected(string $extension, string $content): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=%s', $this->mediaId, $extension),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'application/octet-stream',
+                'HTTP_CONTENT-LENGTH' => \strlen($content),
+            ],
+            $content
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        $responseContent = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $responseContent);
+        static::assertSame(MediaException::MEDIA_INVALID_FILE, json_decode($responseContent, true)['errors'][0]['code'], $responseContent);
+
+        $media = $this->mediaRepository->search(new Criteria([$this->mediaId]), $this->context)->getEntities()->get($this->mediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertFalse($media->hasFile());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function disguisedActiveContentProvider(): iterable
+    {
+        yield 'html as jpg' => ['jpg', self::HTML_PAYLOAD];
+        yield 'svg with script as png' => ['png', (string) file_get_contents(self::UNSAFE_SVG)];
+    }
+
+    public function testUploadingHtmlAsPrivateMediaIsStillAccepted(): void
+    {
+        $privateMediaId = Uuid::randomHex();
+        $this->mediaRepository->create([['id' => $privateMediaId, 'private' => true]], $this->context);
+
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=html', $privateMediaId),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'text/html',
+                'HTTP_CONTENT-LENGTH' => \strlen(self::HTML_PAYLOAD),
+            ],
+            self::HTML_PAYLOAD
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $media = $this->mediaRepository->search(new Criteria([$privateMediaId]), $this->context)->getEntities()->get($privateMediaId);
+        static::assertInstanceOf(MediaEntity::class, $media);
+        static::assertTrue($media->isPrivate());
+        static::assertSame('html', $media->getFileExtension());
     }
 
     public function testRenameRequiresMediaUpdatePrivilege(): void

@@ -38,17 +38,20 @@ class PaymentMethodValidatorTest extends TestCase
 
     public function testAPluginsPaymentMethodCannotBeDeleted(): void
     {
-        $this->createPaymentMethod(['plugin' => [
-            'name' => 'SwagTestPayment',
-            'baseClass' => 'SwagTestPayment\\SwagTestPayment',
-            'label' => 'Test payment',
-            'version' => '1.0.0',
-            'autoload' => [],
-        ]]);
+        $this->createPluginPaymentMethod();
 
         $this->expectExceptionObject(PaymentException::pluginPaymentMethodDeleteRestriction());
 
         static::getContainer()->get('payment_method.repository')->delete([['id' => $this->ids->get('payment-method')]], Context::createDefaultContext());
+    }
+
+    public function testAPluginsPaymentMethodCanBeUpdated(): void
+    {
+        $this->createPluginPaymentMethod();
+
+        static::getContainer()->get('payment_method.repository')->update([['id' => $this->ids->get('payment-method'), 'active' => false]], Context::createDefaultContext());
+
+        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -63,5 +66,16 @@ class PaymentMethodValidatorTest extends TestCase
             'handlerIdentifier' => TestPaymentHandler::class,
             ...$values,
         ]], Context::createDefaultContext());
+    }
+
+    private function createPluginPaymentMethod(): void
+    {
+        $this->createPaymentMethod(['plugin' => [
+            'name' => 'SwagTestPayment',
+            'baseClass' => 'SwagTestPayment\\SwagTestPayment',
+            'label' => 'Test payment',
+            'version' => '1.0.0',
+            'autoload' => [],
+        ]]);
     }
 }

@@ -214,6 +214,19 @@ class OAuthAuthorizeControllerTest extends TestCase
         );
     }
 
+    public function testApproveRejectsIntegrationActingAsUser(): void
+    {
+        $this->rateLimiter->expects($this->never())->method('ensureAccepted');
+        $this->authorizationServer->expects($this->never())->method('validateAuthorizationRequest');
+
+        $this->expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $this->controller->approve(
+            $this->createApproveRequest(true),
+            Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()))
+        );
+    }
+
     public function testApproveCompletesRequestForUserAndReturnsRedirectUri(): void
     {
         $this->rateLimiter->expects($this->never())->method('ensureAccepted');

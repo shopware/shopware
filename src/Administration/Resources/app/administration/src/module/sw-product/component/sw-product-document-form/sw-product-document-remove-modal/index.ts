@@ -3,6 +3,7 @@
  */
 import type { PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
+import useSnackbar from 'src/app/composables/use-snackbar';
 import {
     getDocumentTitle,
     getTranslated,
@@ -117,7 +118,26 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            this.$emit('remove', { operations, variantCount });
+            const count = this.documents.length;
+            const name = getDocumentTitle(this.documents[0]);
+            const language = this.languageName;
+            let message: string;
+            if (count > 1) {
+                message = this.$t(
+                    language
+                        ? 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess'
+                        : 'sw-product.documentForm.bulkRemoveSuccess',
+                    { count, language },
+                );
+            } else {
+                message = language
+                    ? this.$t('sw-product.documentForm.removeLanguageVersionSuccess', { language, name })
+                    : this.$t('sw-product.documentForm.removeSuccess', { name, count: variantCount });
+            }
+
+            this.$emit('remove');
+            Shopware.Store.get('swProductDetail').documentVariantOperations.push(...operations);
+            useSnackbar().addSnackbar({ variant: 'success', message });
         },
     },
 });

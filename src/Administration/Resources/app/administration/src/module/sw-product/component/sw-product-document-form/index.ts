@@ -11,10 +11,8 @@ import {
     getFileAccept,
     isValidDocumentMedia,
     getFallbackTranslation,
-    getDocumentTitle,
     setDocumentMedia,
     type DocumentChanges,
-    type DocumentVariantOperation,
 } from './product-document.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
@@ -107,9 +105,12 @@ export default Shopware.Component.wrapComponentConfig({
             return `product-documents-${this.product.id}-${this.languageId}`;
         },
 
+        contextLanguage(): Entity<'language'> | null {
+            return Shopware.Store.get('context').api.language as Entity<'language'> | null;
+        },
+
         canEdit(): boolean {
-            const isLanguageReady =
-                this.isDefaultLanguage || Shopware.Store.get('context').api.language?.id === this.languageId;
+            const isLanguageReady = this.isDefaultLanguage || this.contextLanguage?.id === this.languageId;
             return !this.disabled && this.acl.can('product.editor') && isLanguageReady;
         },
 
@@ -118,7 +119,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         contentLanguageName(): string {
-            const language = Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            const language = this.contextLanguage;
             const code = language?.locale?.code.split('-')[0];
             const locale = Shopware.Store.get('session').currentLocale || 'en-GB';
             const names = new Intl.DisplayNames([locale], { type: 'language' });
@@ -138,21 +139,14 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
-        allowedExtensions(): string[] {
-            return Shopware.Store.get('context').app.config.settings?.productDocuments?.allowedExtensions ?? [];
-        },
-
-        allowedMimeTypesByExtension(): Record<string, string[]> {
-            const config = Shopware.Store.get('context').app.config.settings?.productDocuments;
-            return config?.allowedMimeTypesByExtension ?? {};
-        },
-
-        maxFileSize(): number {
-            return Shopware.Store.get('context').app.config.settings?.productDocuments?.maxFileSize ?? 0;
+        removeActionLabel(): string {
+            return this.isDefaultLanguage
+                ? this.$t('global.default.remove')
+                : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
         },
 
         uploadHint(): string {
-            return getUploadHint();
+            return getUploadHint(this.$t);
         },
 
         fileAccept(): string {
@@ -178,11 +172,11 @@ export default Shopware.Component.wrapComponentConfig({
         isDefaultLanguage: {
             immediate: true,
             async handler(isDefaultLanguage: boolean) {
-                if (isDefaultLanguage || this.defaultLanguageName !== null) {
+                const { systemLanguageId } = Shopware.Context.api;
+                if (isDefaultLanguage || this.defaultLanguageName !== null || !systemLanguageId) {
                     return;
                 }
 
-                const { systemLanguageId } = Shopware.Context.api;
                 try {
                     const language = await this.repositoryFactory
                         .create('language')
@@ -247,7 +241,7 @@ export default Shopware.Component.wrapComponentConfig({
         }): Promise<void> {
             try {
                 const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);
-                if (media && this.canChangeDocuments()) {
+                if (media) {
                     const documentCount = this.documents.length;
                     this.addDocuments([media]);
                     if (this.documents.length > documentCount && successAmount === totalAmount) {
@@ -267,7 +261,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             mediaItems
-                .filter((media) => isValidDocumentMedia(media, null))
+                .filter((media) => isValidDocumentMedia(media, null, this.$t))
                 .forEach((media) => {
                     const document = this.documentRepository.create(Shopware.Context.api);
                     document.productId = this.product.id;
@@ -316,33 +310,9 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        applyDocumentEdit({
-            changes,
-            media,
-            variants,
-        }: {
-            changes: DocumentChanges;
-            media: Entity<'media'> | null;
-            variants: { operation: DocumentVariantOperation; count: number } | null;
-        }): void {
-            const document = this.editingDocument;
-            if (!document || !this.canChangeDocuments()) {
-                return;
-            }
-
-            this.setDocumentValues(document, changes, media);
-
-            if (variants) {
-                if (Object.keys(changes).length) {
-                    Shopware.Store.get('swProductDetail').documentVariantOperations.push(variants.operation);
-                }
-                useSnackbar().addSnackbar({
-                    variant: 'success',
-                    message: this.$t('sw-product.documentForm.applySuccess', {
-                        name: getDocumentTitle(document),
-                        count: variants.count,
-                    }),
-                });
+        applyDocumentEdit({ changes, media }: { changes: DocumentChanges; media: Entity<'media'> | null }): void {
+            if (this.editingDocument) {
+                this.setDocumentValues(this.editingDocument, changes, media);
             }
             this.editingDocument = null;
         },
@@ -360,14 +330,8 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentsToRemove = documents.filter((item) => !this.isMissingLanguageVersion(item));
         },
 
-        removeDocuments({ operations, variantCount }: { operations: DocumentVariantOperation[]; variantCount: number }) {
-            const documents = this.documentsToRemove;
-            if (!this.canChangeDocuments() || !documents.length) {
-                return;
-            }
-
-            const name = getDocumentTitle(documents[0]);
-            documents.forEach((document) => {
+        removeDocuments(): void {
+            this.documentsToRemove.forEach((document) => {
                 if (this.isDefaultLanguage) {
                     this.documents.remove(document.id);
                 } else {
@@ -377,23 +341,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (this.isDefaultLanguage) {
                 this.refreshPositions(this.documents);
             }
-            Shopware.Store.get('swProductDetail').documentVariantOperations.push(...operations);
-
-            const language = this.contentLanguageName;
-            let message: string;
-            if (documents.length > 1) {
-                message = this.$t(
-                    this.isDefaultLanguage
-                        ? 'sw-product.documentForm.bulkRemoveSuccess'
-                        : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
-                    { count: documents.length, language },
-                );
-            } else {
-                message = this.isDefaultLanguage
-                    ? this.$t('sw-product.documentForm.removeSuccess', { name, count: variantCount })
-                    : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', { language, name });
-            }
-            useSnackbar().addSnackbar({ variant: 'success', message });
             (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
             this.selectedDocuments = [];
             this.documentsToRemove = [];
@@ -455,12 +402,6 @@ export default Shopware.Component.wrapComponentConfig({
             return this.isMissingLanguageVersion(document)
                 ? this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName })
                 : this.$t('global.default.edit');
-        },
-
-        getRemoveActionLabel(): string {
-            return this.isSystemDefaultLanguage
-                ? this.$t('global.default.remove')
-                : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
         },
     },
 });

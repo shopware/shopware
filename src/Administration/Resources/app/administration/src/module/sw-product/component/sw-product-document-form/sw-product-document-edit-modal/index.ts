@@ -3,6 +3,7 @@
  */
 import { useId, type PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
+import useSnackbar from 'src/app/composables/use-snackbar';
 import {
     allowedExtensions,
     maxFileSize,
@@ -101,12 +102,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return '';
             }
 
-            const title =
-                (this.document.title ?? null) !== null
-                    ? getFallbackTranslation(this.document, 'title')?.title
-                    : getTranslated(this.document).title;
-
-            return title || getDocumentMedia(this.document)?.fileName || '';
+            return getFallbackTranslation(this.document, 'title')?.title || getDocumentMedia(this.document)?.fileName || '';
         },
 
         editingMedia(): Entity<'media'> | undefined {
@@ -127,7 +123,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         fileHint(): string {
-            return this.isDefaultLanguage ? getUploadHint() : this.$t('sw-product.documentForm.fileFallbackHint');
+            return this.isDefaultLanguage ? getUploadHint(this.$t) : this.$t('sw-product.documentForm.fileFallbackHint');
         },
 
         fileAccept(): string {
@@ -155,7 +151,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         selectMedia(mediaItems: Entity<'media'>[]): void {
             mediaItems
-                .filter((media) => isValidDocumentMedia(media, this.document))
+                .filter((media) => isValidDocumentMedia(media, this.document, this.$t))
                 .forEach((media) => {
                     this.replacementMedia = media;
                     this.isFileRemoved = false;
@@ -213,10 +209,20 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            this.$emit('apply', {
-                changes,
-                media: this.replacementMedia,
-                variants: operation && { operation, count: variantCount },
+            this.$emit('apply', { changes, media: this.replacementMedia });
+
+            if (!operation) {
+                return;
+            }
+            if (Object.keys(changes).length) {
+                Shopware.Store.get('swProductDetail').documentVariantOperations.push(operation);
+            }
+            useSnackbar().addSnackbar({
+                variant: 'success',
+                message: this.$t('sw-product.documentForm.applySuccess', {
+                    name: getDocumentTitle(this.document),
+                    count: variantCount,
+                }),
             });
         },
     },

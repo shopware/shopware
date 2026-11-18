@@ -51,7 +51,7 @@ export async function loadDocumentMedia(documents: Entity<'product_document'>[])
             .filter((translation) => languageIds.includes(translation.languageId))
             .map((translation) => translation.mediaId),
     ]);
-    const ids = [...new Set(mediaIds.filter((id): id is string => !!id))];
+    const ids = [...new Set(mediaIds.filter((id): id is NonNullable<typeof id> => !!id))];
     if (!ids.length) {
         return;
     }
@@ -80,12 +80,15 @@ export const allowedExtensions = [
 export const maxFileSize = 20 * 1024 * 1024;
 
 /** @private */
-export function getUploadHint(): string {
-    return Shopware.Snippet.t('sw-product.documentForm.uploadHint', {
+export type Translate = (key: string, values?: Record<string, unknown>) => string;
+
+/** @private */
+export function getUploadHint(t: Translate): string {
+    return t('sw-product.documentForm.uploadHint', {
         extensions: 'PDF, DOCX, JPG',
         lastExtension: 'PNG',
         size: maxFileSize / (1024 * 1024),
-    }) as string;
+    });
 }
 
 /** @private */
@@ -97,24 +100,28 @@ export function getFileAccept(extensionByType: Record<string, string[]>): string
 }
 
 /** @private */
-export function isValidDocumentMedia(media: Entity<'media'>, exceptDocument: Entity<'product_document'> | null): boolean {
+export function isValidDocumentMedia(
+    media: Entity<'media'>,
+    exceptDocument: Entity<'product_document'> | null,
+    t: Translate,
+): boolean {
     const { createNotificationError } = useNotification();
 
     if (media.private) {
-        createNotificationError({ message: Shopware.Snippet.t('sw-product.documentForm.errorPrivateMedia') as string });
+        createNotificationError({ message: t('sw-product.documentForm.errorPrivateMedia') });
         return false;
     }
 
     const extension = media.fileExtension?.toLowerCase() ?? '';
     if (!allowedExtensions.includes(extension) || typeof media.fileSize !== 'number' || media.fileSize > maxFileSize) {
-        createNotificationError({ message: getUploadHint() });
+        createNotificationError({ message: getUploadHint(t) });
         return false;
     }
 
     const documents = Shopware.Store.get('swProductDetail').product.documents ?? [];
     if (documents.some((document) => document !== exceptDocument && getDocumentMediaId(document) === media.id)) {
         createNotificationError({
-            message: Shopware.Snippet.t('sw-product.documentForm.errorDocumentDuplicated') as string,
+            message: t('sw-product.documentForm.errorDocumentDuplicated'),
         });
         return false;
     }

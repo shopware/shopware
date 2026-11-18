@@ -135,7 +135,7 @@
                                 :disabled="!canEdit || isInherited || !selectedDocuments.length"
                                 @click="openRemoveDocumentModal(selectedDocuments)"
                             >
-                                {{ getRemoveActionLabel() }}
+                                {{ removeActionLabel }}
                             </mt-link>
                         </template>
                     {% block sw_product_document_form_number %}
@@ -238,7 +238,7 @@
                                 :disabled="!canEdit || isInherited"
                                 @click="openRemoveDocumentModal(item)"
                             >
-                                {{ getRemoveActionLabel() }}
+                                {{ removeActionLabel }}
                             </sw-context-menu-item>
                             {% endblock %}
                         </template>

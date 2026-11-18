@@ -10,7 +10,6 @@ import './sw-condition-goods-price.scss';
  * @component-example
  * <sw-condition-goods-price :condition="condition" :level="0"></sw-condition-goods-price>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

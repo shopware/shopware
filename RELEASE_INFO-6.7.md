@@ -434,6 +434,35 @@ On `PATCH /store-api/account/address/{addressId}`, `getData()` of `framework.val
 At checkout, only the Storefront confirm page checks these rules and shows their violations.
 Neither `POST /store-api/checkout/order` nor the Storefront order request checks them, so a rule that must block an order needs a cart validator (`CartValidatorInterface`).
 
+### MCP endpoints can serve the stateless 2026-07-28 protocol revision
+
+Both MCP endpoints can now serve the stateless 2026-07-28 revision next to the handshake revisions, from the same URL.
+It is off by default.
+Switch it on per endpoint:
+
+```yaml
+shopware:
+    mcp:
+        protocol_era:
+            admin: auto
+            store_api: auto
+```
+
+`legacy`, the default, serves the handshake revisions up to 2025-11-25 only.
+With `auto`, the client picks the revision, and clients on the handshake revisions are not affected.
+`bin/console debug:mcp` shows the era of each endpoint.
+
+On the stateless revision there is no MCP session:
+
+* Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
+  `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
+  The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
+* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
+  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
+* Each open `subscriptions/listen` stream occupies a PHP worker for up to 25 seconds before the client reconnects.
+  Account for it in `pm.max_children`.
+  The Store API endpoint publishes no notifications, so it answers `subscriptions/listen` with the JSON-RPC error `-32601` instead of opening a stream.
+
 ### Import keeps CSV values of `0`
 
 The import no longer treats a CSV cell containing `0` as empty.
@@ -441,6 +470,12 @@ Rows whose cells only contain `0` are imported instead of skipped.
 A `0` is no longer replaced by the mapping's default value and satisfies a required field.
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
+
+### Manifest validation runs on every app install and update
+
+Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
+Errors make the install or update fail, and all of them are reported at once.
+Notices no longer stop `app:install` and `app:refresh`, run `app:validate` to see them.
 
 ### Event once all line items of an add are in the cart
 
@@ -455,7 +490,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
+### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
+
+The constant is unused and will be removed in 6.8.
+The imitation token is signed by the internal `HmacSigner`.
 ### Order deliveries keep the order of the cart deliveries
 
 Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
@@ -558,6 +598,12 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
+
+### Default tax rules use the current VAT rates
+
+The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania, Romania and Slovakia to the current VAT rates, and adds a 5% rule for "Reduced rate 2" in Slovakia and Slovenia.
+Only rules of the default tax groups that still have their original rate and were never edited are changed.
+Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 
 ## API
 
@@ -801,6 +847,16 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.
 They are rendered in the new block `sw_customer_create_custom_field_sets` in `sw-customer-create.html.twig`.
 
+### `blocks-list.json` is replaced by the public API snapshot
+
+The Administration no longer ships `blocks-list.json`.
+The block names are now in `public-api/index.json`, listed per component.
+All `blocks` arrays of that file together hold the names of the old list.
+Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
+
+Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
+The format of the files in `public-api/` can still change while the snapshot is being built.
+Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
 ### Administration HTTP client runs on a single Axios 1.x transport
 
 The Administration `httpClient` is now one Axios 1.x instance (1.20.0).

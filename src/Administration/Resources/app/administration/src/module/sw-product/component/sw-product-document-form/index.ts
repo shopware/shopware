@@ -290,7 +290,7 @@ export default Shopware.Component.wrapComponentConfig({
                     const document = this.documentRepository.create(Shopware.Context.api);
                     document.productId = this.product.id;
                     document.mediaId = media.id;
-                    document.title = media.fileName;
+                    document.title = media.fileName ?? '';
                     document.position = this.documents.length;
                     setDocumentMedia(document, media);
                     this.documents.add(document);

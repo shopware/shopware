@@ -202,7 +202,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NotificationService::class),
             service(ThemeMergedConfigBuilder::class),
             service(ThemeRuntimeConfigService::class),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ResolvedConfigLoader::class)
         ->lazy()

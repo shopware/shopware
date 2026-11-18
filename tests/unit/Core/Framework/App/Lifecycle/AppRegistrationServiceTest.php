@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -462,6 +463,27 @@ class AppRegistrationServiceTest extends TestCase
         $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
+    public function testRegistrationFailsWhenTheAppServerSendsNoSecret(): void
+    {
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no secret'));
+
+        $this->registerWithAppServerResponse(['proof' => 'proof', 'confirmation_url' => 'https://app.server/confirm']);
+    }
+
+    public function testRegistrationFailsWhenTheAppServerSendsASecretThatIsNotAString(): void
+    {
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no secret'));
+
+        $this->registerWithAppServerResponse(['proof' => 'proof', 'secret' => 1337, 'confirmation_url' => 'https://app.server/confirm']);
+    }
+
+    public function testRegistrationFailsWhenTheAppServerSendsNoConfirmationUrl(): void
+    {
+        $this->expectExceptionObject(AppException::registrationFailed('test', 'The app server provided no confirmation URL'));
+
+        $this->registerWithAppServerResponse(['proof' => 'proof', 'secret' => '4pp-s3cr3t']);
+    }
+
     public function testKeepsPendingSecretWhenHandshakeFailsWithClientError(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
@@ -620,6 +642,22 @@ class AppRegistrationServiceTest extends TestCase
 
         $this->createService($this->appRepositoryMock, $shopIdProvider)
             ->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
+    }
+
+    /**
+     * @param array<string, mixed> $responseBody
+     */
+    private function registerWithAppServerResponse(array $responseBody): void
+    {
+        $handshake = static::createStub(PrivateHandshake::class);
+        $handshake->method('assembleRequest')->willReturn(new Request('POST', 'https://app.server/register'));
+        $handshake->method('fetchAppProof')->willReturn('proof');
+        $this->handshakeFactoryMock->expects($this->once())->method('create')->willReturn($handshake);
+
+        $this->mockHandler->append(new Response(body: json_encode($responseBody, \JSON_THROW_ON_ERROR)));
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../_fixtures/manifest.xml');
+        $this->appRegistrationService->registerApp($manifest, $this->testApp->getId(), 's3cr3t-4cc3s-k3y', Context::createDefaultContext());
     }
 
     /**

@@ -68,6 +68,7 @@ async function createWrapper(orderRepository: ReturnType<typeof createOrderRepos
                     'sw-skeleton': true,
                 },
                 provide: {
+                    acl: { can: (privilege: string) => privilege === 'order.editor' },
                     repositoryFactory: {
                         create: () => orderRepository,
                     },

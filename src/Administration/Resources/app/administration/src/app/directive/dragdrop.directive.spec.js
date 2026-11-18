@@ -416,6 +416,35 @@ describe('directives/dragdrop', () => {
         expect(dragDrop1.classes()).not.toContain('is--dragging');
     });
 
+    it.each([0, 100])('cancels a drag on unmount with delay %i', async (delay) => {
+        const onDrop = jest.fn();
+        wrapper = await createWrapper({ delay, onDrop });
+        const element = wrapper.find('#sw-dragdrop--1');
+
+        await element.trigger('mousedown', { buttons: 1 });
+        wrapper.unmount();
+        jest.advanceTimersByTime(200);
+        document.dispatchEvent(new MouseEvent('mouseup'));
+
+        expect(getCurrentDragElement()).toBeNull();
+        expect(onDrop).not.toHaveBeenCalled();
+    });
+
+    it('cancels an active drag on touchcancel without dropping', async () => {
+        const onDrop = jest.fn();
+        wrapper = await createWrapper({ delay: 0, onDrop });
+        const element = wrapper.find('#sw-dragdrop--1');
+
+        await element.trigger('mousedown', { buttons: 1 });
+        expect(element.classes()).toContain('is--dragging');
+        document.dispatchEvent(new Event('touchcancel'));
+
+        expect(element.classes()).not.toContain('is--dragging');
+        expect(getCurrentDragElement()).toBeNull();
+        expect(onDrop).not.toHaveBeenCalled();
+        wrapper.unmount();
+    });
+
     it('should execute the onDrop method when given', async () => {
         const mockMethod = jest.fn(() => null);
         wrapper = await createWrapper({

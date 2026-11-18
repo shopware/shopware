@@ -74,6 +74,7 @@ let dragMouseOffsetY = 0;
  * @description The timeout managing the delayed drag start.
  */
 let delayTimeout: number | null = null;
+let pendingDragElement: HTMLElement | null = null;
 
 /**
  * @description A registry of all drop zones.
@@ -138,6 +139,7 @@ function onDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | Tou
         event.stopPropagation();
     }
 
+    pendingDragElement = el;
     if (dragConfig.delay === null || dragConfig.delay <= 0) {
         startDrag(el, dragConfig, event);
     } else {
@@ -146,6 +148,7 @@ function onDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | Tou
 
     document.addEventListener('mouseup', stopDrag);
     document.addEventListener('touchend', stopDrag);
+    document.addEventListener('touchcancel', cancelDrag);
 
     return true;
 }
@@ -155,6 +158,7 @@ function onDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | Tou
  */
 function startDrag(el: HTMLElement, dragConfig: DragConfig, event: MouseEvent | TouchEvent) {
     delayTimeout = null;
+    pendingDragElement = null;
 
     if (currentDrag !== null) {
         return;
@@ -247,35 +251,28 @@ function isEventOverElement(event: MouseEvent | TouchEvent, el: HTMLElement): bo
  * Stops all drag interaction and resets all variables and listeners.
  */
 function stopDrag() {
+    finishDrag(false);
+}
+
+function cancelDrag() {
+    finishDrag(true);
+}
+
+function finishDrag(cancelled: boolean) {
     if (delayTimeout !== null) {
         window.clearTimeout(delayTimeout);
         delayTimeout = null;
-        return;
     }
+    pendingDragElement = null;
 
-    const validDrag = validateDrag();
-    const validDrop = validateDrop();
-
-    if (validDrag && currentDrag) {
-        if (types.isFunction(currentDrag.dragConfig.onDrop)) {
-            currentDrag.dragConfig.onDrop(
-                currentDrag.dragConfig.data,
-                validDrop ? currentDrop && currentDrop.dropConfig.data : null,
-            );
-        }
-    }
-
-    if (validDrop && currentDrop) {
-        if (types.isFunction(currentDrop.dropConfig.onDrop)) {
-            currentDrop.dropConfig.onDrop(currentDrag && currentDrag.dragConfig.data, currentDrop.dropConfig.data);
-        }
-    }
+    if (!cancelled) dispatchDrop();
 
     document.removeEventListener('mousemove', moveDrag);
     document.removeEventListener('touchmove', moveDrag);
 
     document.removeEventListener('mouseup', stopDrag);
     document.removeEventListener('touchend', stopDrag);
+    document.removeEventListener('touchcancel', cancelDrag);
 
     if (dragElement !== null) {
         dragElement.remove();
@@ -297,6 +294,26 @@ function stopDrag() {
 
     dragMouseOffsetX = 0;
     dragMouseOffsetY = 0;
+}
+
+function dispatchDrop() {
+    const validDrag = validateDrag();
+    const validDrop = validateDrop();
+
+    if (validDrag && currentDrag) {
+        if (types.isFunction(currentDrag.dragConfig.onDrop)) {
+            currentDrag.dragConfig.onDrop(
+                currentDrag.dragConfig.data,
+                validDrop ? currentDrop && currentDrop.dropConfig.data : null,
+            );
+        }
+    }
+
+    if (validDrop && currentDrop) {
+        if (types.isFunction(currentDrop.dropConfig.onDrop)) {
+            currentDrop.dropConfig.onDrop(currentDrag && currentDrag.dragConfig.data, currentDrop.dropConfig.data);
+        }
+    }
 }
 
 /**
@@ -480,6 +497,7 @@ Shopware.Directive.register('draggable', {
     unmounted(el: DragHTMLElement, binding: { value: unknown }) {
         const dragConfig = mergeConfigs(defaultDragConfig, binding) as DragConfig;
 
+        if (currentDrag?.el === el || pendingDragElement === el) cancelDrag();
         el.classList.remove(dragConfig.draggableCls);
 
         if (el.boundDragListener) {

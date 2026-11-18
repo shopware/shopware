@@ -86,7 +86,15 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, the picker renders in mt-floating-ui.
+         */
         popoverConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-field.popoverConfig is deprecated. Will be removed without replacement.',
+            );
+
             if (!this.showPicker || !this.$el) {
                 return {};
             }

@@ -8,6 +8,10 @@
     pointer-events: none;
 }
 
+.mt-floating-ui__content.sw-select-result-list-popover {
+    z-index: $z-index-context-menu;
+}
+
 .sw-select-result-list-popover:not(.mt-floating-ui__content) {
     position: absolute;
     top: 0;

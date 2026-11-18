@@ -2,6 +2,9 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
+
+const popoverConfigDeprecation = 'sw-media-field.popoverConfig is deprecated.';
 
 describe('src/app/component/media/sw-media-field', () => {
     async function createWrapper() {
@@ -126,21 +129,26 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(wrapper.vm.fetchSuggestions).toHaveBeenCalled();
     });
 
-    it('returns empty config when picker is false', async () => {
+    it.deprecated('v6.8.0.0')('returns empty config when picker is false', async () => {
+        allowDeprecation(popoverConfigDeprecation);
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.popoverConfig).toEqual({});
+        expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
-    it('returns empty config when not inside a modal', async () => {
+    it.deprecated('v6.8.0.0')('returns empty config when not inside a modal', async () => {
+        allowDeprecation(popoverConfigDeprecation);
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
         wrapper.element.closest = jest.fn(() => null);
         expect(wrapper.vm.popoverConfig).toEqual({});
+        expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
-    it('returns modal targetSelector when picker open inside modal', async () => {
+    it.deprecated('v6.8.0.0')('returns modal targetSelector when picker open inside modal', async () => {
+        allowDeprecation(popoverConfigDeprecation);
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
@@ -151,6 +159,7 @@ describe('src/app/component/media/sw-media-field', () => {
         expect(config).toEqual({
             targetSelector: '.mt-modal',
         });
+        expect(deprecations).toHaveTriggered(popoverConfigDeprecation);
     });
 
     it('should render sw-upload-listener with correct upload tag and auto-upload', async () => {

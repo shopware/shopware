@@ -139,6 +139,10 @@ $sw-media-field-border-color-picker: var(--color-border-secondary-default);
     }
 }
 
+.mt-floating-ui__content.sw-media-field__expanded-content {
+    z-index: $z-index-context-menu;
+}
+
 .mt-modal:has(.sw-popover__wrapper.sw-media-field__expanded-content) {
     overflow: visible;
 

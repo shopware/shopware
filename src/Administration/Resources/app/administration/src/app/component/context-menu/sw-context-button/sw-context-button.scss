@@ -62,6 +62,10 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
     }
 }
 
+.mt-floating-ui__content.sw-context-button__menu-popover {
+    z-index: $z-index-context-menu;
+}
+
 .sw-popover__wrapper.sw-context-button__menu-popover {
     &.--placement-bottom-outside {
         .sw-context-menu {

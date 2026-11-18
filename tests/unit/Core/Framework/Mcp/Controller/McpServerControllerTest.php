@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 
+use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Server;
+use Mcp\Server\Stateless\RequestMeta;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
@@ -26,6 +29,7 @@ use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
@@ -54,7 +58,7 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 200));
 
@@ -91,7 +95,7 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
         $sfRequest->attributes->set(
@@ -145,7 +149,7 @@ class McpServerControllerTest extends TestCase
                 $syncedSessionIds[] = $sessionId;
             });
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController(
             $psrRequest,
             new HttpFoundationFactory(),
@@ -161,7 +165,7 @@ class McpServerControllerTest extends TestCase
 
     public function testHandleDetectsStreamedResponse(): void
     {
-        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+        $psrRequest = new ServerRequest('GET', 'http://localhost/api/_mcp');
         $httpFoundationFactory = $this->createMock(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->expects($this->once())
             ->method('createResponse')
@@ -184,7 +188,7 @@ class McpServerControllerTest extends TestCase
         $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->once())->method('syncSession')->with($sessionId, false);
 
-        $psrRequest = new ServerRequest('GET', '/api/_mcp', [PlatformRequest::HEADER_MCP_SESSION_ID => $sessionId]);
+        $psrRequest = new ServerRequest('GET', 'http://localhost/api/_mcp', [PlatformRequest::HEADER_MCP_SESSION_ID => $sessionId]);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
 
@@ -200,12 +204,40 @@ class McpServerControllerTest extends TestCase
         $controller->handle($request);
     }
 
+    public function testAStatelessRequestDoesNotSyncTheSessionItNames(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('syncSession');
+
+        $psrRequest = new ServerRequest('GET', 'http://localhost/api/_mcp');
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $controller = $this->buildController(
+            $psrRequest,
+            $httpFoundationFactory,
+            listChangedNotifier: $notifier,
+        );
+
+        $request = new Request(content: Json::encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/list',
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ]));
+        $request->setMethod('POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, '0198c0de-0000-7000-8000-000000000001');
+        static::assertTrue(McpProtocolEra::isStateless($request));
+
+        $controller->handle($request);
+    }
+
     public function testDoesNotSyncListVersionsWithoutASession(): void
     {
         $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->never())->method('syncSession');
 
-        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+        $psrRequest = new ServerRequest('GET', 'http://localhost/api/_mcp');
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
 
@@ -222,7 +254,7 @@ class McpServerControllerTest extends TestCase
 
     public function testPostWithMalformedJsonBodyDoesNotSetJsonRpcAttributeAndPassesThrough(): void
     {
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], 'not-json');
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], 'not-json');
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 400));
 
@@ -262,7 +294,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => $toolName, 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
@@ -285,7 +317,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => 'shopware-tool-search', 'arguments' => ['query' => 'entity']],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
@@ -318,7 +350,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => $toolName, 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
@@ -338,19 +370,19 @@ class McpServerControllerTest extends TestCase
     public static function rateLimitKeyProvider(): iterable
     {
         yield 'rate-limited by IP' => ['192.168.1.1', null, '192.168.1.1'];
-        yield 'rate-limited by OAuth token' => [null, 'token-123', 'token-123'];
+        yield 'rate-limited by user' => [null, '0190a1b2c3d4e5f6a7b8c9d0e1f2a3b4', 'user-0190a1b2c3d4e5f6a7b8c9d0e1f2a3b4'];
         yield 'rate-limited as unknown' => [null, null, 'unknown'];
     }
 
     #[DataProvider('rateLimitKeyProvider')]
-    public function testRateLimitThrottlesRequest(?string $remoteAddr, ?string $tokenId, string $expectedKey): void
+    public function testRateLimitThrottlesRequest(?string $remoteAddr, ?string $userId, string $expectedKey): void
     {
         $request = new Request();
         if ($remoteAddr !== null) {
             $request->server->set('REMOTE_ADDR', $remoteAddr);
         }
-        if ($tokenId !== null) {
-            $request->attributes->set('oauth_access_token_id', $tokenId);
+        if ($userId !== null) {
+            $request->attributes->set('oauth_user_id', $userId);
         }
 
         $rateLimitException = new RateLimitExceededException((new \DateTimeImmutable('+60 seconds'))->getTimestamp());
@@ -379,7 +411,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => 'shopware-entity-read', 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['shopware-entity-search'], resources: null, prompts: null));
 
@@ -403,7 +435,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => 'shopware-entity-schema', 'arguments' => []],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: [], resources: null, prompts: null));
 
@@ -425,7 +457,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['uri' => 'shopware://state-machines'],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://entities'], prompts: null));
 
@@ -448,7 +480,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['uri' => 'shopware://entities'],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
@@ -471,7 +503,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => 'shopware-developer'],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['shopware-context']));
 
@@ -494,7 +526,7 @@ class McpServerControllerTest extends TestCase
             'params' => ['name' => 'shopware-context'],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
         $httpFoundationFactory->method('createResponse')->willReturn(new Response('{}', 200));
 
@@ -517,7 +549,7 @@ class McpServerControllerTest extends TestCase
             'params' => [],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: ['shopware-entity-search'], resources: null, prompts: null));
 
@@ -539,7 +571,7 @@ class McpServerControllerTest extends TestCase
             'params' => [],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: ['shopware://entities'], prompts: null));
 
@@ -561,7 +593,7 @@ class McpServerControllerTest extends TestCase
             'params' => [],
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $allowlistProvider = static::createStub(McpAllowlistProvider::class);
         $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(tools: null, resources: null, prompts: ['shopware-context']));
 
@@ -581,7 +613,7 @@ class McpServerControllerTest extends TestCase
             ->method('debug')
             ->with('MCP request', static::callback(static fn (array $ctx): bool => ($ctx['method'] ?? null) === 'GET' && \array_key_exists('clientIp', $ctx)));
 
-        $psrRequest = new ServerRequest('GET', '/api/_mcp');
+        $psrRequest = new ServerRequest('GET', 'http://localhost/api/_mcp');
         $httpMessageFactory = static::createStub(HttpMessageFactoryInterface::class);
         $httpMessageFactory->method('createRequest')->willReturn($psrRequest);
 
@@ -594,7 +626,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             $psr17,
             $httpFoundationFactory,
-            static::createStub(McpAllowedHostsProvider::class),
+            static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
         );
         $controller = new McpServerController(
             Server::builder()->build(),
@@ -622,7 +654,7 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
         $sfRequest->attributes->set(
@@ -655,7 +687,7 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
 
@@ -681,7 +713,7 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
         $sfRequest->attributes->set(
@@ -711,7 +743,7 @@ class McpServerControllerTest extends TestCase
             'id' => 1,
         ], \JSON_THROW_ON_ERROR);
 
-        $psrRequest = new ServerRequest('POST', '/api/_mcp', ['Content-Type' => 'application/json'], $body);
+        $psrRequest = new ServerRequest('POST', 'http://localhost/api/_mcp', ['Content-Type' => 'application/json'], $body);
         $controller = $this->buildController($psrRequest, new HttpFoundationFactory());
         $sfRequest = Request::create('/api/_mcp', 'POST', content: $body);
         $sfRequest->attributes->set(
@@ -768,7 +800,7 @@ class McpServerControllerTest extends TestCase
             );
 
         $controller = $this->buildController(
-            new ServerRequest('POST', '/api/_mcp'),
+            new ServerRequest('POST', 'http://localhost/api/_mcp'),
             new HttpFoundationFactory(),
             listChangedNotifier: $notifier,
         );
@@ -786,7 +818,7 @@ class McpServerControllerTest extends TestCase
         $notifier->expects($this->never())->method('notifySession');
 
         $controller = $this->buildController(
-            new ServerRequest('POST', '/api/_mcp'),
+            new ServerRequest('POST', 'http://localhost/api/_mcp'),
             new HttpFoundationFactory(),
             listChangedNotifier: $notifier,
         );
@@ -803,7 +835,7 @@ class McpServerControllerTest extends TestCase
         $notifier->expects($this->never())->method('notifySession');
 
         $controller = $this->buildController(
-            new ServerRequest('POST', '/api/_mcp'),
+            new ServerRequest('POST', 'http://localhost/api/_mcp'),
             new HttpFoundationFactory(),
             listChangedNotifier: $notifier,
         );
@@ -833,7 +865,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             $psr17,
             static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(McpAllowedHostsProvider::class),
+            static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
         );
     }
 
@@ -854,7 +886,7 @@ class McpServerControllerTest extends TestCase
             $psr17,
             $psr17,
             $httpFoundationFactory ?? static::createStub(HttpFoundationFactoryInterface::class),
-            static::createStub(McpAllowedHostsProvider::class),
+            static::createConfiguredStub(McpAllowedHostsProvider::class, ['getAllowedHosts' => ['localhost']]),
         );
 
         return new McpServerController(

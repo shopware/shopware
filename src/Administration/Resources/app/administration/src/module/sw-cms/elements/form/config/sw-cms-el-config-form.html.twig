@@ -26,6 +26,7 @@
             <template #default="{ isInherited }">
                 <mt-select
                     v-model="element.config.type.value"
+                    :hide-clearable-button="true"
                     :options="formTypeOptions"
                     :disabled="isInherited"
                 />
@@ -139,6 +140,7 @@
                     <template #default="{ isInherited }">
                         <mt-select
                             v-model="element.config.type.value"
+                            :hide-clearable-button="true"
                             :options="formTypeOptions"
                             :disabled="isInherited"
                         />

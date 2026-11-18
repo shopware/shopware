@@ -435,7 +435,6 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertCount(2, $filteredThumbnails);
 
-        /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
             static::assertTrue(
                 $this->getPublicFilesystem()->has($thumbnail->getPath()),
@@ -588,7 +587,6 @@ class ThumbnailServiceTest extends TestCase
 
         static::assertCount(2, $filteredThumbnails);
 
-        /** @var MediaThumbnailEntity $thumbnail */
         foreach ($filteredThumbnails as $thumbnail) {
             $path = $thumbnail->getPath();
             static::assertTrue(

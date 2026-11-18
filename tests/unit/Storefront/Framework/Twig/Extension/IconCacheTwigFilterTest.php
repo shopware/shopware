@@ -113,7 +113,6 @@ class IconCacheTwigFilterTest extends TestCase
     {
         $loader = new FilesystemLoader(__DIR__ . '/fixtures/Storefront/Resources/views');
 
-        /** @var BundleFixture $bundle */
         foreach ($bundles as $bundle) {
             $directory = $bundle->getPath() . '/Resources/views';
             $loader->addPath($directory);

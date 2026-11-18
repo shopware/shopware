@@ -26,6 +26,9 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
             SelectShippingMethod,
             SubmitOrder,
         }) => {
+            // This journey covers product, cart, checkout and order-history pages, including modal interactions.
+            test.slow();
+
             await TestDataService.setSystemConfig({
                 'core.cart.showLegalGuaranteeNotice': true,
                 'core.cart.showTosCheckbox': showTosCheckbox,
@@ -42,7 +45,7 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
             };
             const garanLabelInfoLanguage = getLanguageCode(getLocale()).split('-')[0]?.toLowerCase() === 'de' ? 'de' : 'en';
             const garanLabelInfoUrl = `https://europa.eu/youreurope/citizens/consumers/shopping/commercial-guarantee-durability/index_${garanLabelInfoLanguage}.htm`;
-            const garanLabelModal = StorefrontProductDetail.page.locator('.js-pseudo-modal .modal.show');
+            const garanLabelModal = StorefrontProductDetail.page.locator('.js-pseudo-modal .modal');
             const product = await TestDataService.createBasicProduct({
                 name: 'GARAN-Label-Checkout-Product',
                 manufacturerId: manufacturer.id,
@@ -97,7 +100,8 @@ const testLegalGuaranteeNotice = (showTosCheckbox: boolean) =>
                 await ShopCustomer.expects(garanLabelModal).toContainText('ACME-36');
                 await ShopCustomer.expects(garanLabelModal.getByRole('link')).toHaveAttribute('href', garanLabelInfoUrl);
                 await ShopCustomer.presses(garanLabelModal.locator('.btn-close'));
-                await ShopCustomer.expects(garanLabelModal).not.toBeVisible();
+                // hidden.bs.modal removes the modal and restores focus before the next keyboard action.
+                await ShopCustomer.expects(garanLabelModal).toHaveCount(0);
 
                 await ShopCustomer.attemptsTo(ProceedFromProductToCheckout());
                 await ShopCustomer.expects(StorefrontCheckoutConfirm.lineItemGaranLabel).toBeVisible();

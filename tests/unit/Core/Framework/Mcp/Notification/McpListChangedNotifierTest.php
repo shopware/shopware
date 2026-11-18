@@ -2,8 +2,12 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
+use Mcp\Exception\SessionStoreException;
+use Mcp\Schema\JsonRpc\Notification;
 use Mcp\Server\Session\InMemorySessionStore;
 use Mcp\Server\Session\SessionStoreInterface;
+use Mcp\Server\Subscription\InMemoryNotificationBus;
+use Mcp\Server\Subscription\NotificationBusInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -52,6 +56,41 @@ class McpListChangedNotifierTest extends TestCase
         $listVersions->expects($this->never())->method('bump');
 
         (new McpListChangedNotifier($this->store, $listVersions))->notify(McpListChangedNotificationSet::none());
+    }
+
+    public function testNotifyPublishesTheChangedListsToTheStatelessEra(): void
+    {
+        $bus = new InMemoryNotificationBus();
+
+        (new McpListChangedNotifier($this->store, $this->listVersions(), notificationBus: $bus))
+            ->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: true));
+
+        static::assertSame(
+            [self::TOOLS_CHANGED, self::PROMPTS_CHANGED],
+            array_map(static fn (Notification $notification): string => $notification::getMethod(), $bus->since(0)[0]),
+        );
+    }
+
+    public function testNotifyPublishesNothingWithoutChanges(): void
+    {
+        $bus = new InMemoryNotificationBus();
+
+        (new McpListChangedNotifier($this->store, $this->listVersions(), notificationBus: $bus))->notify(McpListChangedNotificationSet::none());
+
+        static::assertSame([], $bus->since(0)[0]);
+    }
+
+    public function testAFailingBusDoesNotFailTheChange(): void
+    {
+        $bus = static::createStub(NotificationBusInterface::class);
+        $bus->method('publish')->willThrowException(new \RuntimeException('cache down'));
+        $listVersions = $this->createMock(McpListVersions::class);
+        $listVersions->expects($this->once())->method('bump');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+
+        (new McpListChangedNotifier($this->store, $listVersions, $logger, $bus))
+            ->notify(new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
     public function testANewSessionStartsAtTheCurrentVersionsWithoutANotification(): void
@@ -149,6 +188,20 @@ class McpListChangedNotifierTest extends TestCase
         $logger->expects($this->once())->method('warning');
 
         (new McpListChangedNotifier($store, $this->listVersions(), $logger))->syncSession(Uuid::v4()->toRfc4122());
+    }
+
+    public function testSkipsTheSessionWhileTheSessionStoreIsUnavailable(): void
+    {
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willThrowException(new SessionStoreException('Session store is unavailable: connection refused'));
+        $store->expects($this->never())->method('write');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))->method('warning');
+
+        $notifier = new McpListChangedNotifier($store, $this->listVersions(), $logger);
+        $notifier->syncSession(Uuid::v4()->toRfc4122());
+        $notifier->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
     public function testNotifySessionQueuesForThatSessionOnly(): void

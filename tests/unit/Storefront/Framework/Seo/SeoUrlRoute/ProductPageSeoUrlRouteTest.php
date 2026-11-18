@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -43,6 +44,34 @@ class ProductPageSeoUrlRouteTest extends TestCase
         static::assertTrue($criteria->hasEqualsFilter('active'));
 
         static::assertTrue($criteria->hasEqualsFilter('visibilities.salesChannelId'));
+    }
+
+    public function testCriteriaFiltersTheMainCategoriesOfTheTemplateBySalesChannel(): void
+    {
+        $route = new ProductPageSeoUrlRoute(static::createStub(ProductDefinition::class));
+
+        $criteria = (new Criteria())->addAssociation('mainCategories.category');
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $route->prepareCriteria($criteria, $salesChannel);
+
+        static::assertEquals(
+            [new EqualsFilter('salesChannelId', 'sales-channel-id')],
+            $criteria->getAssociation('mainCategories')->getFilters()
+        );
+        static::assertTrue($criteria->getAssociation('mainCategories')->hasAssociation('category'));
+    }
+
+    public function testCriteriaDoesNotLoadMainCategoriesTheTemplateDoesNotUse(): void
+    {
+        $route = new ProductPageSeoUrlRoute(static::createStub(ProductDefinition::class));
+
+        $criteria = new Criteria();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId('sales-channel-id');
+        $route->prepareCriteria($criteria, $salesChannel);
+
+        static::assertFalse($criteria->hasAssociation('mainCategories'));
     }
 
     public function testMappingWithInvalidEntity(): void

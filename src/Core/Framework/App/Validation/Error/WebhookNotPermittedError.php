@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class WebhookNotPermittedError implements Error
 {
+    public const CODE = 'FRAMEWORK__APP_WEBHOOK_NOT_PERMITTED';
+
     private readonly string $message;
 
     /**
@@ -28,5 +30,20 @@ class WebhookNotPermittedError implements Error
     public function getMessage(): string
     {
         return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::CODE;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
     }
 }

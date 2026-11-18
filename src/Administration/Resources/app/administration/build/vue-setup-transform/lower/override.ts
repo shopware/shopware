@@ -19,7 +19,7 @@ import type { SourceEdit } from '../source-edits/apply-source-edits';
 import type { OverrideSetupScriptAnalysis } from '../script-analyzer';
 import type { OverrideReferenceRewrite, OverrideSlotScope, TemplateAnalysis } from '../template-analyzer';
 import type { ShopwareSetupBlock } from '../utils/shopware-setup-block';
-import { escapeSingleQuoted } from './shared';
+import { escapeSingleQuoted, type LowerOptions } from './shared';
 import {
     OVERRIDE_NAMESPACE_BINDING,
     OVERRIDE_SCOPE_ACCESSOR,
@@ -149,6 +149,7 @@ function buildOverrideScript(
     block: ShopwareSetupBlock,
     analysis: OverrideSetupScriptAnalysis,
     templateAnalysis: TemplateAnalysis,
+    options: LowerOptions,
 ): SourceEdit[] {
     // Generated bindings use the reserved `__swSetup` prefix (rejected as user bindings), so they are
     // deterministic and never collide.
@@ -182,22 +183,6 @@ function buildOverrideScript(
         generated(`\n\n${buildOverrideReturn(analysis, templateAnalysis.privateBindings)}`),
     ];
 
-    // Only needed when this override actually forwards private locals into a <sw-block extends> scope;
-    // an override that only replaces public bindings has nothing to file under the namespace.
-    //
-    // Declared at module root, NOT inside the callback: the callback runs once per base-component
-    // instance, so a symbol created there would be a different value every time and the state lookup
-    // would never match. Module scope evaluates once, giving one stable symbol per override file - and it
-    // stays template-visible, so the generated accessor resolves.
-    if (templateAnalysis.privateBindings.size > 0) {
-        chunks.push(
-            generated(
-                `const ${OVERRIDE_NAMESPACE_BINDING} = Symbol('${escapeSingleQuoted(block.componentName)}.override');\n` +
-                    `const ${OVERRIDE_SCOPE_ACCESSOR} = (scope) => scope.${RESERVED_OVERRIDE_STATE_NAME}[${OVERRIDE_NAMESPACE_BINDING}];\n\n`,
-            ),
-        );
-    }
-
     analysis.typeDeclarations.forEach((typeDeclaration) => {
         chunks.push(fromSource(block, typeDeclaration));
         chunks.push(generated('\n'));
@@ -223,7 +208,12 @@ function buildOverrideScript(
         : '<template><!-- Shopware override registration component --></template>\n';
 
     return [
-        ...buildNativeExtensionTargetsEdits(block, templateAnalysis, placeholderTemplate),
+        ...buildModuleScriptEdits(
+            block,
+            buildNativeExtensionTargetsCall(block, templateAnalysis) +
+                buildOverrideNamespace(block, templateAnalysis, options),
+            placeholderTemplate,
+        ),
         ...templateAnalysis.componentNameInsertions.map((at) => toComponentNameEdit(at, block.componentName)),
         ...templateAnalysis.slotScopes.flatMap(toSlotScopeEdits),
         {
@@ -264,20 +254,46 @@ function buildNativeExtensionTargetsCall(block: ShopwareSetupBlock, templateAnal
 }
 
 /**
- * Places the extension-targets registration, plus a generated template when the override has none.
+ * Declares the namespace an override files its forwarded private locals under, and the accessor its
+ * `<sw-block extends>` content reads them through.
+ *
+ * Only needed when this override actually forwards private locals into a `<sw-block extends>` scope;
+ * an override that only replaces public bindings has nothing to file under the namespace.
+ *
+ * Declared at module root, in the plain `<script>`: a symbol created in `<script setup>` would be a new
+ * value on every setup run of the hidden component, so the block content of one run could not read the
+ * state the callback of another run produced. A hot-updated module evaluates again, so with
+ * `hotUpdates` the symbol comes from the global registry, keyed by the file: the base components the
+ * previous version set up stay readable until they are set up again.
+ */
+function buildOverrideNamespace(
+    block: ShopwareSetupBlock,
+    templateAnalysis: TemplateAnalysis,
+    options: LowerOptions,
+): string {
+    if (templateAnalysis.privateBindings.size === 0) {
+        return '';
+    }
+
+    const symbol = options.hotUpdates
+        ? `Symbol.for('${escapeSingleQuoted(`${block.componentName}.override:${options.filename}`)}')`
+        : `Symbol('${escapeSingleQuoted(block.componentName)}.override')`;
+
+    return (
+        `const ${OVERRIDE_NAMESPACE_BINDING} = ${symbol};\n` +
+        `const ${OVERRIDE_SCOPE_ACCESSOR} = (scope) => scope.${RESERVED_OVERRIDE_STATE_NAME}[${OVERRIDE_NAMESPACE_BINDING}];\n`
+    );
+}
+
+/**
+ * Places the module-eval code, plus a generated template when the override has none.
  *
  * Vue allows exactly one plain `<script>` beside `<script setup>`, and the migration codemod already
  * spends it on its `data-sfc-migration-module` prelude - so the registration is appended to that block
  * where it exists, and only emitted as its own (with `lang` mirrored from the setup block) where it
  * does not.
  */
-function buildNativeExtensionTargetsEdits(
-    block: ShopwareSetupBlock,
-    templateAnalysis: TemplateAnalysis,
-    placeholderTemplate: string,
-): SourceEdit[] {
-    const registration = buildNativeExtensionTargetsCall(block, templateAnalysis);
-
+function buildModuleScriptEdits(block: ShopwareSetupBlock, moduleCode: string, placeholderTemplate: string): SourceEdit[] {
     if (!block.moduleScript) {
         const langAttribute = block.lang ? ` lang="${block.lang}"` : '';
 
@@ -287,7 +303,7 @@ function buildNativeExtensionTargetsEdits(
             {
                 start: 0,
                 end: 0,
-                replacement: `<script${langAttribute}>\n${registration}</script>\n${placeholderTemplate}`,
+                replacement: `<script${langAttribute}>\n${moduleCode}</script>\n${placeholderTemplate}`,
             },
         ];
     }
@@ -311,7 +327,7 @@ function buildNativeExtensionTargetsEdits(
         {
             start: block.moduleScript.contentEnd,
             end: block.moduleScript.contentEnd,
-            replacement: `${separator}${registration}`,
+            replacement: `${separator}${moduleCode}`,
         },
     ];
 }

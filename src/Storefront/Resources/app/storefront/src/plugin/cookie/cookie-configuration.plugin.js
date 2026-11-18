@@ -796,7 +796,7 @@ export default class CookieConfiguration extends Plugin {
 
         AjaxOffCanvas.open(route, false, () => {
             window.PluginManager.initializePlugins();
-            const offcanvas = document.querySelector('.offcanvas');
+            const offcanvas = this._getOffCanvas();
             if (!offcanvas){
                 return;
             }
@@ -1163,7 +1163,7 @@ export default class CookieConfiguration extends Plugin {
         e.preventDefault();
         AjaxOffCanvas.close();
         this.openOffCanvas(() => {
-            const offcanvasElement = document.querySelector('.offcanvas');
+            const offcanvasElement = this._getOffCanvas();
             if (!offcanvasElement) {
                 return;
             }

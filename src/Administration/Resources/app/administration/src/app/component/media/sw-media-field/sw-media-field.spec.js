@@ -13,7 +13,7 @@ describe('src/app/component/media/sw-media-field', () => {
                 renderStubDefaultSlot: true,
                 stubs: {
                     'sw-media-media-item': true,
-                    'sw-popover': {
+                    'mt-floating-ui': {
                         template: `
                         <div>
                             <slot />

@@ -147,7 +147,7 @@ async function createWrapper() {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-field-error': true,
-                'sw-popover': {
+                'mt-floating-ui': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },

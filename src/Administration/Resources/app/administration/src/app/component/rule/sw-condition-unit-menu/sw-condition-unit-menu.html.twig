@@ -25,48 +25,46 @@
         {{ $t(`global.sw-condition-generic.units.${type}`) }}
     </div>
 
-    <sw-silence-deprecations flag="V6_8_0_0">
-        <sw-popover
-            v-if="showMenu && defaultUnit"
-            :z-index="1001"
+    <mt-floating-ui
+        v-if="showMenu && defaultUnit"
+        :is-opened="true"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
+        <div
+            v-click-outside="() => showMenu = false"
+            class="sw-condition-unit-menu__menu"
+            role="menu"
+            tabindex="0"
+            @mouseover="hoveringOverMenu = true"
+            @mouseout="hoveringOverMenu = false"
         >
-            <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
-            <div
-                v-click-outside="() => showMenu = false"
-                class="sw-condition-unit-menu__menu"
-                role="menu"
-                tabindex="0"
-                @mouseover="hoveringOverMenu = true"
-                @mouseout="hoveringOverMenu = false"
+            <template
+                v-for="(item) in unitOptions"
+                :key="item.value"
             >
-                <template
-                    v-for="(item) in unitOptions"
-                    :key="item.value"
+                <div
+                    class="sw-condition-unit-menu__menu-item"
+                    role="menuitem"
+                    tabindex="0"
+                    @click="onUnitChange(item.value)"
+                    @keyup.enter="onUnitChange(item.value)"
                 >
-                    <div
-                        class="sw-condition-unit-menu__menu-item"
-                        role="menuitem"
-                        tabindex="0"
-                        @click="onUnitChange(item.value)"
-                        @keyup.enter="onUnitChange(item.value)"
+                    <span
+                        v-if="isSelected(item.value)"
+                        class="sw-condition-unit-menu__menu-item__selected-label"
+                    >{{ item.label }}</span>
+                    <span
+                        v-else
+                        class="sw-condition-unit-menu__menu-item__label"
                     >
-                        <span
-                            v-if="isSelected(item.value)"
-                            class="sw-condition-unit-menu__menu-item__selected-label"
-                        >{{ item.label }}</span>
-                        <span
-                            v-else
-                            class="sw-condition-unit-menu__menu-item__label"
-                        >
-                            {{ item.label }}
-                        </span>
-                        <span class="sw-condition-unit-menu__menu-item__shortcut">
-                            {{ item.shortLabel }}
-                        </span>
-                    </div>
-                </template>
-            </div>
-        </sw-popover>
-    </sw-silence-deprecations>
+                        {{ item.label }}
+                    </span>
+                    <span class="sw-condition-unit-menu__menu-item__shortcut">
+                        {{ item.shortLabel }}
+                    </span>
+                </div>
+            </template>
+        </div>
+    </mt-floating-ui>
 </div>
 {% endblock %}

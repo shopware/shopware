@@ -40,7 +40,7 @@ async function createWrapper(profile) {
                     'sw-field-error': true,
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
-                    'sw-popover': {
+                    'mt-floating-ui': {
                         template: '<div><slot></slot></div>',
                     },
                     'sw-select-base': await wrapTestComponent('sw-select-base'),

@@ -57,10 +57,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-label': true,
                         'sw-loader': true,
                         'sw-modal': true,
-                        'sw-popover': {
-                            props: ['popoverClass'],
+                        'mt-floating-ui': {
                             template: `
-                    <div class="sw-popover" :class="popoverClass">
+                    <div class="sw-popover">
                         <slot></slot>
                     </div>`,
                         },

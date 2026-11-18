@@ -29,7 +29,7 @@ async function createWrapper() {
                     'sw-context-menu': {
                         template: '<div><slot></slot></div>',
                     },
-                    'sw-popover': {
+                    'mt-floating-ui': {
                         template: '<div><slot></slot></div>',
                     },
                     'router-link': true,

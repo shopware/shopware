@@ -9,7 +9,7 @@ async function createWrapper(customOptions = {}) {
         global: {
             stubs: {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
-                'sw-popover': {
+                'mt-floating-ui': {
                     template: `
                         <div class="sw-popover">
                             <slot></slot>

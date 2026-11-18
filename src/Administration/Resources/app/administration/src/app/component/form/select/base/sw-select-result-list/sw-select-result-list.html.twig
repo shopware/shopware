@@ -1,49 +1,47 @@
 {% block sw_select_result_list %}
 <div class="sw-select-result-list">
-    <sw-silence-deprecations flag="V6_8_0_0">
-        <sw-popover
-            class="sw-select-result-list-popover"
-            :popover-class="popoverClass"
-            :z-index="1100"
-            :match-reference-width="popoverResizeWidth"
+    <mt-floating-ui
+        class="sw-select-result-list-popover"
+        :class="popoverClass"
+        :is-opened="true"
+        :match-reference-width="popoverResizeWidth"
+    >
+        <div
+            ref="popoverContent"
+            class="sw-select-result-list__content"
+            :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }"
+            @scroll="onScroll"
         >
+            <slot name="before-item-list"></slot>
+
+            <ul class="sw-select-result-list__item-list">
+                <template v-for="(item, index) in options">
+                    <slot
+                        name="result-item"
+                        v-bind="{ item, index }"
+                    ></slot>
+                </template>
+            </ul>
+
+            <slot name="after-item-list"></slot>
+
             <div
-                ref="popoverContent"
-                class="sw-select-result-list__content"
-                :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }"
-                @scroll="onScroll"
+                v-if="!isLoading && options && options.length < 1"
+                class="sw-select-result-list__empty"
             >
-                <slot name="before-item-list"></slot>
+                {% block sw_select_result_list_empty_icon %}
+                <mt-icon
+                    name="regular-search"
+                    size="var(--scale-size-16)"
+                    color="var(--color-icon-primary-default)"
+                />
+                {% endblock %}
 
-                <ul class="sw-select-result-list__item-list">
-                    <template v-for="(item, index) in options">
-                        <slot
-                            name="result-item"
-                            v-bind="{ item, index }"
-                        ></slot>
-                    </template>
-                </ul>
-
-                <slot name="after-item-list"></slot>
-
-                <div
-                    v-if="!isLoading && options && options.length < 1"
-                    class="sw-select-result-list__empty"
-                >
-                    {% block sw_select_result_list_empty_icon %}
-                    <mt-icon
-                        name="regular-search"
-                        size="var(--scale-size-16)"
-                        color="var(--color-icon-primary-default)"
-                    />
-                    {% endblock %}
-
-                    {% block sw_select_result_list_empty_text %}
-                    {{ emptyMessageText }}
-                    {% endblock %}
-                </div>
+                {% block sw_select_result_list_empty_text %}
+                {{ emptyMessageText }}
+                {% endblock %}
             </div>
-        </sw-popover>
-    </sw-silence-deprecations>
+        </div>
+    </mt-floating-ui>
 </div>
 {% endblock %}

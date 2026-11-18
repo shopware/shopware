@@ -130,7 +130,7 @@ async function createWrapper(sequence = {}) {
                         },
                     },
                 },
-                'sw-popover': {
+                'mt-floating-ui': {
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'sw-context-menu-item': {

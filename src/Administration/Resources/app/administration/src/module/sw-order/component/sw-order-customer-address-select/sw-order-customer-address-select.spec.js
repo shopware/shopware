@@ -80,7 +80,7 @@ async function createWrapper({ availableAddresses = addresses, props = {} } = {}
             },
             global: {
                 stubs: {
-                    'sw-popover': {
+                    'mt-floating-ui': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
                     'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),

@@ -139,10 +139,9 @@ async function createWrapper(salesChannelList = salesChannels) {
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-popover': {
-                        props: ['popoverClass'],
+                    'mt-floating-ui': {
                         template: `
-                    <div class="sw-popover" :class="popoverClass">
+                    <div class="sw-popover">
                         <slot></slot>
                     </div>`,
                     },

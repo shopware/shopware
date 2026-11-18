@@ -806,7 +806,7 @@ const createWrapper = async (options = {}) => {
                 'sw-grid-row': await wrapTestComponent('sw-grid-row'),
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
                 'sw-ignore-class': true,
-                'sw-popover': {
+                'mt-floating-ui': {
                     template: '<div><slot></slot></div>',
                 },
                 'sw-description-list': true,

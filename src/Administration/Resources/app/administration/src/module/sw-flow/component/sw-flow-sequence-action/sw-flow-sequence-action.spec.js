@@ -86,7 +86,7 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                     'sw-block-field': await wrapTestComponent('sw-block-field'),
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
-                    'sw-popover': {
+                    'mt-floating-ui': {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
                     'sw-select-result': {

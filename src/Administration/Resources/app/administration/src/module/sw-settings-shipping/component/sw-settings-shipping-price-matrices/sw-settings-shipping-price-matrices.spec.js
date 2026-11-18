@@ -27,7 +27,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
-                        'sw-popover': true,
+                        'mt-floating-ui': true,
                         'sw-text-field': await wrapTestComponent('sw-text-field'),
                         'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                         'sw-context-button': await wrapTestComponent('sw-context-button', {

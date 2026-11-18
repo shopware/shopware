@@ -52,44 +52,41 @@
             v-if="hasFocus"
             class="sw-multi-tag-select-validation sw-select-result-list"
         >
-            <sw-silence-deprecations flag="V6_8_0_0">
-                <sw-popover
-                    class="sw-select-result-list-popover"
-                    popover-class="sw-multi-tag-select-validation-popover"
-                    :z-index="1100"
-                    :match-reference-width="true"
-                >
-                    <div class="sw-select-result-list__content">
-                        {% block sw_multi_tag_select_validation_valid %}
-                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-                        <div
-                            v-if="inputIsValid"
-                            class="sw-multi-tag-select-valid"
-                            @click="addItem"
-                        >
-                            {% block sw_multi_tag_select_validation_valid_message %}
-                            <slot name="message-add-data">
-                                <span>{{ $t('global.sw-multi-tag-select.addData') }}</span>
-                            </slot>
-                            {% endblock %}
-                        </div>
-                        {% endblock %}
-
-                        {% block sw_multi_tag_select_validation_invalid %}
-                        <div
-                            v-else
-                            class="sw-multi-tag-select-invalid"
-                        >
-                            {% block sw_multi_tag_select_validation_invalid_message %}
-                            <slot name="message-enter-valid-data">
-                                <span>{{ $t('global.sw-multi-tag-select.enterValidData') }}</span>
-                            </slot>
-                            {% endblock %}
-                        </div>
+            <mt-floating-ui
+                class="sw-select-result-list-popover sw-multi-tag-select-validation-popover"
+                :is-opened="true"
+                :match-reference-width="true"
+            >
+                <div class="sw-select-result-list__content">
+                    {% block sw_multi_tag_select_validation_valid %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+                    <div
+                        v-if="inputIsValid"
+                        class="sw-multi-tag-select-valid"
+                        @click="addItem"
+                    >
+                        {% block sw_multi_tag_select_validation_valid_message %}
+                        <slot name="message-add-data">
+                            <span>{{ $t('global.sw-multi-tag-select.addData') }}</span>
+                        </slot>
                         {% endblock %}
                     </div>
-                </sw-popover>
-            </sw-silence-deprecations>
+                    {% endblock %}
+
+                    {% block sw_multi_tag_select_validation_invalid %}
+                    <div
+                        v-else
+                        class="sw-multi-tag-select-invalid"
+                    >
+                        {% block sw_multi_tag_select_validation_invalid_message %}
+                        <slot name="message-enter-valid-data">
+                            <span>{{ $t('global.sw-multi-tag-select.enterValidData') }}</span>
+                        </slot>
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+                </div>
+            </mt-floating-ui>
         </div>
     </template>
     {% endblock %}

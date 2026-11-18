@@ -260,7 +260,7 @@ class DeliveryNoteRendererTest extends TestCase
 
         static::assertSame(['p0' => '3', 'p1' => '1', 'p2' => '1'], $this->renderedQuantities($html));
         static::assertStringNotContainsString('Second Street 2', $html);
-        static::assertStringNotContainsString('test shipping method', $html);
+        static::assertStringContainsString('<strong>Shipping method:</strong> Standard, test shipping method<br>', $html);
     }
 
     public function testRenderFailsForADeliveryOfAnotherOrder(): void

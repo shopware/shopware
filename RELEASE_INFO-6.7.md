@@ -9,6 +9,16 @@ Such deletes are refused again with `409 FRAMEWORK__DELETE_RESTRICTED` while ano
 
 ## Core
 
+### Cart deliveries and transactions carry a payload into the order
+
+Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
+Their payload methods work like the ones of line items.
+`setPayloadValue($key, $value, protected: true)` keeps a key out of the Store API cart response, but Store API order responses still contain it.
+Unlike a line item payload, it does not survive the next cart calculation.
+Keep your state on line items or in a cart extension, and write the delivery payload in a cart processor after the `DeliveryProcessor`.
+At checkout, a payment handler can set the transaction payload in its `validate()` method, which receives the calculated cart right before the order is written.
+Any other extension sets it on the converted order data in the `CartConvertedEvent`.
+
 ### Attribute entities can generate the reverse side of a many-to-many association
 
 `Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToMany` now accepts `reversedBy`, `reverseApi` and `reverseOnDelete`:
@@ -50,6 +60,17 @@ The Administration doesn't offer rules using it for payment methods or promotion
 ### Rule Builder: new "Item with longest side and girth" condition
 
 A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLineItemDimensionLongestAndGirth`) was added. It matches the cart against the longest side plus girth of each individual line item. It is calculated as `longest side + 2 * (shortest side + second shortest side)`. This condition allows for more precise shipping rules based on the dimensions of the items in the cart.
+
+### Mails and documents list every shipment
+
+`OrderDeliveryCollection::getShipments()` returns the deliveries that are not shipping discounts, in the order the Administration lists them: the primary delivery first when its id is passed, then by shipping costs.
+The cart's `DeliveryCollection::getShipments()` returns the cart deliveries that are not shipping discounts, highest shipping costs first.
+When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
+The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
+A migration updates these mail templates unless they were changed in the Administration.
+Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
+The invoice shows the shipping address of the primary delivery.
+Orders with one shipment render as before.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -142,6 +163,17 @@ Webhooks created through the Admin API without an app now belong to the user or 
 * **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
   These entries are removed after the same lifetime as successful and failed ones.
 
+### MCP sessions on `/api/_mcp` are bound to the principal that opened them
+
+A session on the Admin API MCP endpoint now belongs to the user or integration that sent `initialize`.
+A request with the `Mcp-Session-Id` of a session opened by someone else gets the same `404` as an unknown session.
+The session stays valid when the client gets a new access token for the same user or integration.
+
+Sessions opened before the update have no owner and are answered with `404` once.
+MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era is not affected.
+On `/store-api/_mcp`, a `DELETE` of an unknown session now gets `404` instead of `200`.
+
 ### `sales-channel:file:enable` switches on `llms.txt` and `AGENTS.md`
 
 The new `bin/console sales-channel:file:enable [ids...] [--all]` command switches on `llms.txt` and `AGENTS.md` for Storefront and Headless sales channels.
@@ -184,6 +216,14 @@ This release fills `payload.productType` for every product and custom order line
 The update to 6.7.7.0 only filled it for the first 5000 digital and 5000 physical line items, so most line items of older orders had no product type.
 Values that are already set are kept.
 Extensions and integrations that read the product type of older order line items can use `payload.productType` instead of `states`, which is removed in 6.8.
+
+### Opt-out attribute for MCP tools without privileges
+
+An Admin API MCP tool that reads no shop data can now declare `#[McpToolRequiresNoPrivilege(reason: '...')]` instead of `#[McpToolRequires]`.
+The new PHPStan rule `shopware.mcpAdminToolMissingRequires` reports an Admin API tool that declares neither attribute,
+and `shopware.mcpStoreApiToolAdminAcl` reports a Store API tool that uses Admin ACL privileges.
+Both rules are part of the rule set that extensions include.
+They only report when `parameters.symfony.containerXmlPath` points to a compiled container that registers the extension's tools.
 
 ### ZUGFeRD documents include `discount` line items
 
@@ -244,6 +284,20 @@ The order document card in the Administration names the document type as well.
 New sales channel contexts now decide tax-free delivery like the cart (`TaxDetector::isNetDelivery()`):
 commercial customers only get "Tax-free (B2B)", all other customers only "Tax-free (B2C)".
 Cart and order taxes stay the same, but Rule Builder conditions like "Cart amount" can match differently than before for customers who only met the other setting.
+
+### MCP toolsets can carry a description
+
+`#[McpToolGroup]` takes an optional `description` that describes the whole toolset.
+`shopware-toolsets-list` and `shopware-toolset-enable` return it instead of the generated `Tools explicitly assigned to the "<group>" MCP tool group.`, so a model can tell which toolset fits a task.
+All core toolsets now have one.
+Plugins that add their own toolset should set it on one tool of the group:
+
+```php
+#[McpToolGroup('swag-report', description: 'Revenue, bestseller and customer reports for a date range. Enable it for questions about sales figures.')]
+```
+
+Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
+Plugins can add tools to a core toolset such as `entity`, but cannot change its description.
 
 ### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
 
@@ -355,6 +409,29 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Order deliveries keep the order of the cart deliveries
+
+Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
+Extensions that build several cart deliveries in a deliberate order, for example by priority or release date, no longer need to persist that order themselves.
+Sort order deliveries by `position` to show them in that order; the primary delivery is still the one with the highest shipping costs.
+Recalculating an order numbers the deliveries from 1 again in the order of their stored positions, like line items, with deliveries added by the recalculation, such as shipping discounts, last.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
+### Cart guards cover every cart delivery
+
+A cart can carry more than one delivery, each with its own shipping method and shipping address, while the `SalesChannelContext` keeps the customer's default shipping method and address.
+Three checks that only looked at the context now cover every delivery of the cart:
+
+- `AddressValidator` validates the shipping address of every delivery against the sales channel countries and their shipping availability.
+  It adds one `ShippingAddressBlockedError` per blocked country, carrying the id of the first affected address.
+- The cart hash that `/store-api/checkout/order` compares with the submitted `hash` includes the shipping method, the address and the positions of every delivery.
+  Place the order with the `hash` of the latest cart response, a hash fetched before a delivery or the shipping address changed is rejected with `CHECKOUT__CART_HASH_MISMATCH`.
+- The Storefront switches the context shipping method only when the blocked shipping method is the context's one.
+  A `ShippingMethodBlockedError` for the shipping method of another delivery stays in the cart and blocks the order until the extension that created that delivery resolves it.
+  Errors created without a shipping method id switch the context shipping method as before.
+
+A cart with a single delivery is only affected by the hash: a shipping address changed after the confirm page was loaded is now detected.
+
 ### "Assign status" flow action picks the delivery and transaction of the flow
 
 The Flow Builder action "Assign status" (`action.set.order.state`) now changes the delivery and the transaction the flow carries as `orderDelivery` and `orderTransaction` data, if they belong to the order, for example on the delivery and transaction state triggers.
@@ -437,6 +514,11 @@ For extensions that already build positions holding part of a line item, this ch
 
 ## API
 
+### Order deliveries and order transactions have a `payload` field
+
+Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
+It is an object, or an empty array when nothing is set.
+
 ### Plain JSON becomes the default Admin API response format in 6.8
 
 Admin API entity requests without an `Accept` header now use the JSON:API default instead of returning HTTP 415.
@@ -451,6 +533,13 @@ The Admin API and Sync API return HTTP 400 with code `USER__USERNAME_WHITESPACE`
 Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
+
+### SSO logins can carry the `user-verified` scope
+
+The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
+The following code exchange puts the `user-verified` scope on the access token when that authentication is at most five minutes old.
+A token exchange without `auth_time`, or with an older one, gets no `user-verified` scope; identity providers that omit the claim after `max_age=0` do not follow OpenID Connect Core.
+The user and role endpoints keep accepting SSO sessions without the scope for now.
 
 ### HTTP method overrides restricted to form actions
 
@@ -506,6 +595,14 @@ The route requires the `number_range:read` privilege.
 The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern.
 Saving is not blocked.
 
+### Reset a SEO URL to its template
+
+`PATCH /api/_action/seo-url/canonical` accepts an empty or missing `seoPathInfo`, unless the request sets `isModified` to `true`.
+It replaces the canonical SEO URL of that entity, sales channel and language with the URL generated from the SEO URL template, and removes its write protection (`isModified`).
+Before, the request was rejected with `400`.
+When the template generates no URL there, for example for an inactive sales channel or a language without a domain, the request is rejected with `400` and the error code `CONTENT__SEO_URL_RESET_NOT_POSSIBLE`, and the SEO URL stays unchanged.
+In the Administration, clearing the SEO URL field of a product or category and saving does this.
+
 ### Sync API reports missing references as write errors
 
 Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
@@ -527,6 +624,21 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Order deliveries have a `position` field
+
+Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
+Deliveries of orders placed before this release have position `0` until the order is recalculated.
+
+### Price definitions are validated so that they can be read again
+
+A price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if it could not be read again:
+
+- `quantity`: `taxRules` is missing or is not a list, or a tax rule is not an object or has no `percentage`. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+- `currency-price`: an entry of `price` is not an object, has no valid `currencyId`, or has no `net`, `gross` or `linked`.
+
+Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
+The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -543,6 +655,13 @@ shopware:
             enabled: false
 ```
 
+### MCP tools declare whether they change shop data
+
+The core MCP tools on `/api/_mcp` and `/store-api/_mcp` now send the tool annotations of the MCP specification in `tools/list` and in `shopware-tool-search` results.
+Read tools such as `shopware-entity-search` are marked with `readOnlyHint`, and tools that change or remove data, such as `shopware-entity-upsert`, `shopware-entity-delete`, `shopware-order-state`, `shopware-system-config-write`, `shopware-theme-config` and `shopware-media-upload`, with `destructiveHint`.
+MCP clients use these hints to decide when to ask the user before a call: clients that honour them may now run the read tools without asking, and ask before the destructive ones where they did not before.
+Plugin and bundle tools can declare the same hints with the `annotations` argument of `#[McpTool]`.
+
 ### Price calculation basis per customer group
 
 Tax display and price basis are now two independent customer group settings. The existing display mode still decides whether the customer sees gross or net prices; the new customer group field `priceBasis` (`net` or `gross`) decides which stored product price value is authoritative for the calculation. All four combinations work: the missing flavour is derived live from the shipping country's tax rules, so a `net` basis keeps the merchant's proceeds identical in every country while showing gross prices, and a `gross` basis keeps the customer-facing gross fixed while showing net prices. Derived prices therefore vary per country and are not psychological prices (net 10.00 € shows as 11.90 € in DE and 12.00 € in AT). Tax-free orders always charge the stored net value, on every basis.
@@ -556,6 +675,15 @@ Tax providers replace the calculated taxes afterwards and keep the displayed fla
 Amounts that carry a single value instead of a net and gross pair, such as absolute or fixed-price promotion discounts, manual shipping costs and credits, also keep the displayed flavour, so under a `net` basis their net value differs slightly per country.
 
 The customer group detail page offers both settings separately. Plugins customize the selection through the new extension point `Shopware\Core\Checkout\Cart\Extension\PriceSelectorExtension` (`price-selector.select.pre` and `.post`), for example to apply charm-price rounding to derived gross prices. `GrossPriceCalculator` now grosses up uncalculated prices over several tax rules so that its own tax split returns the given net value; prices with a single tax rule are unchanged. Background and trade-offs are documented in the ADR `adr/2026-08-11-decouple-price-calculation-basis-from-tax-display.md`.
+
+### Open a product in the Storefront from the Administration
+
+The product detail page has a new "Open in Storefront" action in the context menu of its smart bar.
+It opens a modal to select one of the Storefront sales channels the product is assigned to.
+For the selected sales channel it shows the product URLs, or the reason why the sales channel cannot show the product, for example an inactive sales channel or product, a missing domain, or a sold-out clearance sale product.
+Sales channels in maintenance mode get a hint.
+If the IP address of the Administration user is not on the maintenance allowlist, the modal explains that it cannot load the product URLs.
+The `product.viewer` role now includes the `sales_channel_domain:read` privilege, which the modal needs to load the domains; a migration adds it to existing roles.
 
 ## App System
 
@@ -580,6 +708,14 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Order viewers no longer receive delete privileges
+
+The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.
+Existing viewer roles lose `order:delete` during the update unless they also have `order.editor` or `order.deleter`.
+Existing `version:delete` grants are preserved because other modules and extensions may require them.
+Editor roles still require both grants to discard working versions.
+Custom roles without the `order.viewer` marker are unchanged.
+Extensions that require `order:delete` alongside `order.viewer` must explicitly restore that grant for the affected roles after the migration.
 ### Deprecated the unused visibilities and sales channels in the sales channel detail
 
 Some sales channel detail components load the visibilities or sales channels of their products and currencies, although they only need one of them or none.
@@ -683,6 +819,25 @@ bin/console administration:check-extensions -- --only=MyPlugin --fix
 
 To keep a rule off, set it to `'off'` in the `eslint.config.mjs` of your extension, or record the current findings with `--update-baseline`.
 
+### Extension Jest configs can compose the Administration test harness (experimental)
+
+The Administration extension tooling now ships a Jest config factory, `extension-tooling/jest.mjs`, next to its TypeScript and ESLint presets.
+It carries the harness the Administration's own specs run on: the `shopware:*` virtual modules, the feature flag registry behind `Shopware.Feature.triggerDeprecationOrThrow()`, `it.deprecated()` and `it.activeFeatureFlags()`, the global `Shopware` setup and the transforms.
+An extension Jest config that composes it picks up every later change to the harness without editing its own config:
+
+```js
+// jest.config.mjs, beside the generated .shopware/ bridge
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install) generates the `.shopware/jest.mjs` bridge for every extension.
+The harness works in a platform checkout and in a Composer install: the `shopware/administration` package now ships the Administration's Jest setup files (without spec files).
+Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types` and the component import map with `npm run unit-setup` in the Administration directory.
+The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
 ### Meteor apps get their own path in the Administration watcher
 
 An extension that ships an Administration entry and a `meteor-app` used to get both dev servers under `/_internal_ext/<technical-name>/`.
@@ -877,6 +1032,16 @@ If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0
 For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
+
+### Checkout and account pages list every shipment
+
+When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.
+Deliveries with negative shipping costs are shipping discounts and are not listed as shipments.
+`AccountOrderPageLoader` and `AccountOverviewPageLoader` now load the shipping address and the state of every delivery, independent of the `v6.8.0.0` feature flag.
+`CheckoutFinishPageLoader` and `AccountEditOrderPageLoader` load the shipping method and the shipping address of every delivery, also with the flag active.
+Carts and orders with one shipment render as before.
+The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
+The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
 
 ### New shipping method blocks added
 
@@ -1140,6 +1305,25 @@ Switching maintenance mode on again then sent every visitor not on the IP allowl
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
 ## Hosting & Configuration
+
+### Password recovery is rate limited per IP
+
+Customer and admin password recovery requests are now also limited per client IP (`reset_password_client`, `user_recovery_client`), so setups behind a proxy or a headless frontend must configure trusted proxies to keep the real client IP
+
+### Translations can be downloaded as one archive
+
+`bin/console translation:download` and `bin/console translation:install --all` download all locales as one archive when `shopware.translation.archive_manifest_url` is set.
+The translations repository publishes the manifest of its latest archive at `https://github.com/shopware/translations/releases/latest/download/manifest.json`.
+
+```yaml
+shopware:
+    translation:
+        archive_manifest_url: 'https://github.com/shopware/translations/releases/latest/download/manifest.json'
+```
+
+When the archive cannot be used, both commands download every file of each locale as before.
+`translation:install --all` also downloads every file when the archive is older than the translation metadata.
+Decorators of `AbstractTranslationLoader::download()` are not called for the locales that come from the archive.
 
 ### Sitemaps skip inactive sales channels and `sitemap:generate` continues after a failure
 

@@ -12,6 +12,14 @@ parameters:
         maximumNumberOfProcesses: 2
 services:
     -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TemplateContracts
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TemplateContractRule
+        tags:
+            - phpstan.rules.rule
+    -
         class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StorefrontGlobalsTypeResolver
         tags:
             - phpstan.broker.expressionTypeResolverExtension

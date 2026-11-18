@@ -9,6 +9,9 @@ use Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3;
 use Shopware\Storefront\Framework\Captcha\HoneypotCaptcha;
 use Symfony\Component\Finder\Finder;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Node\Expression\AbstractExpression;
+use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\Binary\ConcatBinary;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\FilterExpression;
@@ -22,6 +25,11 @@ use Twig\NodeVisitor\NodeVisitorInterface;
 #[Package('framework')]
 final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
 {
+    /**
+     * @var array<string, string|null>
+     */
+    private array $contracts = [];
+
     public function __construct(private readonly string $viewsDirectory)
     {
     }
@@ -40,6 +48,17 @@ final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
         $expression = $node->getNode('expr');
         $templates = $this->getTemplates($expression);
         if ($templates === []) {
+            if ($expression instanceof ConstantExpression && \is_string($expression->getAttribute('value'))) {
+                $template = $expression->getAttribute('value');
+                $type = $this->getContract($env, $template);
+                if ($type !== null) {
+                    $variables = $node->hasNode('variables') ? $node->getNode('variables') : new ArrayExpression([], $node->getTemplateLine());
+                    \assert($variables instanceof AbstractExpression);
+                    $node->setNode('variables', new TemplateContractContextExpression($variables, !$node->getAttribute('only'), $template, $type, $node->getTemplateLine()));
+                    $node->setAttribute('only', true);
+                }
+            }
+
             return $node;
         }
 
@@ -54,6 +73,27 @@ final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
     {
         // Expand before TwigStan replaces IncludeNode instances with its analysis nodes.
         return -10;
+    }
+
+    private function getContract(Environment $twig, string $template): ?string
+    {
+        if (\array_key_exists($template, $this->contracts)) {
+            return $this->contracts[$template];
+        }
+        try {
+            $declaration = TemplateContracts::declaration($twig, $twig->getLoader()->getSourceContext($template));
+        } catch (LoaderError) {
+            return $this->contracts[$template] = null;
+        }
+        if ($declaration === null) {
+            return $this->contracts[$template] = null;
+        }
+        $fields = [];
+        foreach ($declaration as $name => $field) {
+            $fields[] = $name . ($field['optional'] ? '?' : '') . ': ' . $field['type'];
+        }
+
+        return $this->contracts[$template] = 'array{' . implode(', ', $fields) . '}';
     }
 
     /**

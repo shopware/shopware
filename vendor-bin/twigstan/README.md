@@ -53,6 +53,16 @@ It filters `getAttribute.notFound` only for existence checks, lookups with stric
 Unguarded reads and other diagnostic identifiers remain checked.
 Findings require triage before becoming blocking checks.
 
+Templates can opt into an input contract by placing `{## template-contract ##}` immediately before a `{% types %}` declaration at the template's entry point.
+For static Twig includes, the analysis visitor preserves the original arguments in a contract context expression.
+`TemplateContractRule` validates these arguments before the stock include collector exports the declared context for analysis.
+The declaration is embedded in generated PHP so a contract change invalidates cached caller analysis.
+Required inputs must be definitely present, optional inputs may be absent, and concrete supplied types must fit the declaration.
+Unknown `mixed` values remain accepted as unverified inputs.
+Extra caller variables remain available at runtime but are excluded from the contracted template's analysis; genuine Twig globals remain available.
+Templates without the marker retain ordinary inference.
+This validation currently applies to Twig include calls; PHP render entrypoints retain their existing inference.
+
 ## Analyzer versions
 
 - [TwigStan 0.2.8](https://github.com/twigstan/twigstan/releases/tag/0.2.8) is installed from upstream and pinned in `composer.lock`.

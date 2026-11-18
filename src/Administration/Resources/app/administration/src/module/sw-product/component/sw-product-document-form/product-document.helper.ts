@@ -14,8 +14,6 @@ type DocumentTranslated = { title?: string | null; mediaId?: EntityKey<'media'> 
 
 const selectedMedia = reactive(new WeakMap<Entity<'product_document'>, Entity<'media'>>());
 
-const loadedMedia = reactive(new Map<string, Entity<'media'>>());
-
 /** @private */
 export function getTranslated(document: Entity<'product_document'>): DocumentTranslated {
     return (document.translated ?? {}) as DocumentTranslated;
@@ -29,7 +27,9 @@ export function getDocumentMediaId(document: Entity<'product_document'>): Entity
 /** @private */
 export function getDocumentMedia(document: Entity<'product_document'>): Entity<'media'> | null | undefined {
     const mediaId = getDocumentMediaId(document);
-    return selectedMedia.get(document) ?? (mediaId ? loadedMedia.get(mediaId) : undefined);
+    return (
+        selectedMedia.get(document) ?? document.translations?.find((translation) => translation.mediaId === mediaId)?.media
+    );
 }
 
 /** @private */
@@ -39,27 +39,6 @@ export function setDocumentMedia(document: Entity<'product_document'>, media: En
     } else {
         selectedMedia.delete(document);
     }
-}
-
-/** @private */
-export async function loadDocumentMedia(documents: Entity<'product_document'>[]): Promise<void> {
-    const { languageId, language, systemLanguageId } = Shopware.Store.get('context').api;
-    const languageIds = [languageId, language?.parentId, systemLanguageId];
-    const mediaIds = documents.flatMap((document) => [
-        getDocumentMediaId(document),
-        ...(document.translations ?? [])
-            .filter((translation) => languageIds.includes(translation.languageId))
-            .map((translation) => translation.mediaId),
-    ]);
-    const ids = [...new Set(mediaIds.filter((id): id is NonNullable<typeof id> => !!id))];
-    if (!ids.length) {
-        return;
-    }
-
-    const criteria = new Shopware.Data.Criteria(1, ids.length);
-    criteria.setIds(ids);
-    const media = await Shopware.Service('repositoryFactory').create('media').search(criteria);
-    media.forEach((item) => loadedMedia.set(item.id, item));
 }
 
 /** @private */

@@ -56,7 +56,7 @@ class AppExceptionTest extends TestCase
                     'parameters' => ['name' => 'IncompatibleApp'],
                 ],
                 [
-                    'code' => AppException::VALIDATION_FAILED,
+                    'code' => MissingPermissionError::CODE,
                     'message' => "The following permissions are missing:\n- order:read",
                     'parameters' => [],
                 ],

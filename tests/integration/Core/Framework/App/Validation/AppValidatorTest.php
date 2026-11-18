@@ -53,11 +53,11 @@ class AppValidatorTest extends TestCase
         static::assertNotNull($result->errors);
         static::assertSame(
             [
-                [MissingTranslationError::class, AppException::VALIDATION_FAILED, Severity::Notice],
-                [AppNameError::class, AppException::VALIDATION_FAILED, Severity::Fail],
+                [MissingTranslationError::class, MissingTranslationError::CODE, Severity::Notice],
+                [AppNameError::class, AppNameError::CODE, Severity::Fail],
                 [ConfigurationError::class, AppException::INVALID_CONFIGURATION, Severity::Fail],
-                [NotHookableError::class, AppException::VALIDATION_FAILED, Severity::Notice],
-                [MissingPermissionError::class, AppException::VALIDATION_FAILED, Severity::Fail],
+                [NotHookableError::class, NotHookableError::CODE, Severity::Notice],
+                [MissingPermissionError::class, MissingPermissionError::CODE, Severity::Fail],
             ],
             array_map(static fn (Error $error): array => [$error::class, $error->getErrorCode(), $error->getSeverity()], $result->errors)
         );

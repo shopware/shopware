@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AppNameError implements Error
 {
+    public const CODE = 'FRAMEWORK__APP_NAME_MISMATCH';
+
     private readonly string $message;
 
     public function __construct(string $appName)
@@ -30,7 +31,7 @@ class AppNameError implements Error
 
     public function getErrorCode(): string
     {
-        return AppException::VALIDATION_FAILED;
+        return self::CODE;
     }
 
     public function getParameters(): array

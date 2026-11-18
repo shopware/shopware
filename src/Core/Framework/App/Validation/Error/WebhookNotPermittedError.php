@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class WebhookNotPermittedError implements Error
 {
+    public const CODE = 'FRAMEWORK__APP_WEBHOOK_NOT_PERMITTED';
+
     private readonly string $message;
 
     /**
@@ -33,7 +34,7 @@ class WebhookNotPermittedError implements Error
 
     public function getErrorCode(): string
     {
-        return AppException::VALIDATION_FAILED;
+        return self::CODE;
     }
 
     public function getParameters(): array

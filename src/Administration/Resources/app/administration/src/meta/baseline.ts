@@ -237,7 +237,6 @@ const missingTests = [
     'src/module/sw-bulk-edit/init/services.init.js',
     'src/module/sw-bulk-edit/service/handler/bulk-edit-base.handler.js',
     'src/module/sw-bulk-edit/service/handler/bulk-edit-customer.handler.js',
-    'src/module/sw-bulk-edit/service/handler/bulk-edit-order.handler.js',
     'src/module/sw-category/component/sw-category-entry-point-overwrite-modal/index.js',
     'src/module/sw-category/component/sw-category-sales-channel-multi-select/index.js',
     'src/module/sw-category/component/sw-landing-page-view/index.js',

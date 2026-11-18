@@ -56,16 +56,28 @@ class GaranLabelTemplateTest extends TestCase
     }
 
     #[DataProvider('orderReferences')]
-    public function testOrderProductRendersGaranLabel(?string $referencedId): void
+    public function testOrderProductRendersStoredGaranLabel(?string $referencedId): void
     {
         $lineItem = new OrderLineItemEntity();
         $lineItem->setProductId($this->productId);
         $lineItem->setReferencedId($referencedId ?? $this->productId);
+        $lineItem->setPayload(['garanLabel' => ['guaranteeMonths' => 36, 'brand' => 'ACME', 'modelIdentifier' => 'ACME-123']]);
 
         $html = $this->renderLineItem($lineItem, displayMode: 'order');
 
         static::assertStringContainsString('line-item-garan-label', $html);
         static::assertStringContainsString('<svg', $html);
+    }
+
+    public function testOrderProductWithoutStoredGaranLabelOmitsGaranLabel(): void
+    {
+        $lineItem = new OrderLineItemEntity();
+        $lineItem->setProductId($this->productId);
+        $lineItem->setReferencedId($this->productId);
+
+        $html = $this->renderLineItem($lineItem, displayMode: 'order');
+
+        static::assertSame('', trim($html));
     }
 
     public function testOrderWithoutLinkedProductOmitsGaranLabel(): void

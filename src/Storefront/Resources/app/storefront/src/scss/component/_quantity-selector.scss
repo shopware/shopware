@@ -1,4 +1,5 @@
 .quantity-selector-group {
+    flex-wrap: nowrap;
 
     .quantity-selector-group-input {
         -moz-appearance: textfield;
@@ -7,8 +8,8 @@
         border-right: 0;
         padding-left: 0;
         padding-right: 0;
-        // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
-        line-height: if(feature('ACCESSIBILITY_TWEAKS'), 1rem, inherit);
+        line-height: 1rem;
+        min-width: 2ch;
 
         &:disabled {
             color: $gray-600;
@@ -49,5 +50,16 @@
     .input-group-text {
         // @deprecated tag:v6.7.0 - The general font size of the storefront will be optimized to 1rem base size.
         line-height: if(feature('ACCESSIBILITY_TWEAKS'), 1rem, inherit);
+    }
+}
+
+.buy-widget-container {
+    .buy-widget-quantity {
+        min-width: min-content;
+    }
+
+    .buy-widget-buy-button {
+        flex: 1 0 10em;
+        width: auto;
     }
 }

@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('after-sales')]
 class FlowException extends HttpException
 {
+    final public const SCALAR_VALUES_ALREADY_STORED = 'CONTENT__FLOW_SCALAR_VALUES_ALREADY_STORED';
     final public const METHOD_NOT_COMPATIBLE = 'METHOD_NOT_COMPATIBLE';
     final public const FLOW_ACTION_TRANSACTION_ABORTED = 'FLOW_ACTION_TRANSACTION_ABORTED';
     final public const FLOW_ACTION_TRANSACTION_COMMIT_FAILED = 'FLOW_ACTION_TRANSACTION_COMMIT_FAILED';
@@ -71,5 +72,14 @@ class FlowException extends HttpException
                 $previous,
             ),
         };
+    }
+
+    public static function scalarValuesAlreadyStored(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCALAR_VALUES_ALREADY_STORED,
+            'Can not store generic values twice.',
+        );
     }
 }

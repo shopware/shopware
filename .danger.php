@@ -2,7 +2,6 @@
 
 use Danger\Config;
 use Danger\Context;
-use Danger\Rule\Condition;
 use Danger\Struct\File;
 
 const COMPOSER_PACKAGE_EXCEPTIONS = [
@@ -42,65 +41,40 @@ return (new Config())
         }
     })
 
-    ->useRule(new Condition(
-        function (Context $context) {
-            $labels = array_map('strtolower', $context->platform->pullRequest->labels);
+    ->useRule(function (Context $context): void {
+        $files = $context->platform->pullRequest->getFiles();
 
-            return !\in_array('skip-danger-phpstan-baseline', $labels, true);
-        },
-        [
-            function (Context $context): void {
-                $filesWithIgnoredErrors = [];
-                $phpstanBaseline = $context->platform->pullRequest->getFile('phpstan-baseline.neon')->getContent();
-                foreach ($context->platform->pullRequest->getFiles()->map(fn (File $f) => $f->name) as $fileName) {
-                    if (str_contains($phpstanBaseline, 'path: ' . $fileName)) {
-                        $filesWithIgnoredErrors[] = $fileName;
-                    }
+        $newRepoUseInFrontend = array_merge(
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+            $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
+                ->matchesContent('/EntityRepository/')
+                ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
+        );
+
+        if (count($newRepoUseInFrontend) > 0) {
+            $errorFiles = [];
+            foreach ($newRepoUseInFrontend as $file) {
+                if ($file->name !== '.danger.php') {
+                    $errorFiles[] = $file->name . '<br/>';
                 }
+            }
 
-                if ($filesWithIgnoredErrors) {
-                    $context->failure(
-                        'Some files you touched in your MR contain ignored PHPStan errors. Please be nice and fix all ignored errors for the following files:<br>'
-                        . implode('<br>', $filesWithIgnoredErrors)
-                    );
-                }
-            },
-            function (Context $context): void {
-                $files = $context->platform->pullRequest->getFiles();
+            if (count($errorFiles) === 0) {
+                return;
+            }
 
-                $newRepoUseInFrontend = array_merge(
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Controller/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Page/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                    $files->filterStatus(File::STATUS_MODIFIED)->matches('src/Storefront/Pagelet/*')
-                        ->matchesContent('/EntityRepository/')
-                        ->matchesContent('/^((?!@deprecated).)*$/')->getElements(),
-                );
-
-                if (count($newRepoUseInFrontend) > 0) {
-                    $errorFiles = [];
-                    foreach ($newRepoUseInFrontend as $file) {
-                        if ($file->name !== '.danger.php') {
-                            $errorFiles[] = $file->name . '<br/>';
-                        }
-                    }
-
-                    if (count($errorFiles) === 0) {
-                        return;
-                    }
-
-                    $context->failure(
-                        'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
-                        . ' Use Store-Api Routes instead.<br/>'
-                        . implode('<br>', $errorFiles)
-                    );
-                }
-            },
-        ]
-    ))
+            $context->failure(
+                'Do not use direct repository calls in the Frontend Layer (Controller, Page, Pagelet).'
+                . ' Use Store-Api Routes instead.<br/>'
+                . implode('<br>', $errorFiles)
+            );
+        }
+    })
     ->useRule(function (Context $context): void {
         $files = $context->platform->pullRequest->getFiles();
 

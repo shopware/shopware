@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Mail\Subscriber;
 
 use Doctrine\DBAL\Connection;
 use Monolog\Level;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -29,17 +30,22 @@ class FailedMessageSubscriber implements EventSubscriberInterface
 
     public function logEvent(FailedMessageEvent $event): void
     {
+        $sensitive = MailLogData::isSensitiveMessage($event->getMessage());
+
         try {
             $entry = [
                 'id' => Uuid::randomBytes(),
                 'message' => 'mail.message.failed',
                 'level' => Level::Error->value,
                 'channel' => 'mail',
-                'context' => json_encode([
+                'context' => json_encode($sensitive ? MailLogData::create(
+                    MailLogData::fromMessage($event->getMessage()),
+                    $event->getError(),
+                ) : [
                     'error' => $event->getError()->getMessage(),
                     'rawMessage' => $event->getMessage()->toString(),
                 ], \JSON_THROW_ON_ERROR),
-                'extra' => json_encode([
+                'extra' => $sensitive ? null : json_encode([
                     'exception' => $event->getError()->__toString(),
                     'trace' => $event->getError()->getTraceAsString(),
                 ], \JSON_THROW_ON_ERROR),

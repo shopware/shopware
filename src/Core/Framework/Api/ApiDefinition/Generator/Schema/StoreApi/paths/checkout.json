@@ -105,6 +105,10 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many repeated line item additions. Wait for the number of seconds provided in the error before retrying."
                     }
                 },
                 "security": [

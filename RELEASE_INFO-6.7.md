@@ -456,6 +456,10 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 
+### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
+
+The constant is unused and will be removed in 6.8.
+The imitation token is signed by the internal `HmacSigner`.
 ### Order deliveries keep the order of the cart deliveries
 
 Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.

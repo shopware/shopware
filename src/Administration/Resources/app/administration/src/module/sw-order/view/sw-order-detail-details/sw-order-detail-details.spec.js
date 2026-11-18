@@ -73,6 +73,36 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
+const deliveryCardSelector = '.sw-order-details-state-card[state-label="sw-order.stateCard.headlineDeliveryState"]';
+
+function createShipment(id, shippingOrderAddressId, trackingCodes = []) {
+    return {
+        id,
+        shippingOrderAddress: { id: shippingOrderAddressId },
+        shippingCosts: { calculatedTaxes: [], totalPrice: 4.99 },
+        stateMachineState: { translated: { name: 'Open' } },
+        trackingCodes,
+    };
+}
+
+function setMultiShipmentOrder() {
+    const primaryShipment = createShipment('primary-shipment', 'address-primary');
+
+    Shopware.Store.get('swOrderDetail').order = {
+        ...orderMock,
+        primaryOrderDeliveryId: 'primary-shipment',
+        primaryOrderDelivery: primaryShipment,
+        deliveries: [
+            createShipment('first-shipment', 'address-first', ['FIRST-1']),
+            primaryShipment,
+            {
+                ...createShipment('discount-delivery', 'address-primary'),
+                shippingCosts: { calculatedTaxes: [], totalPrice: -5 },
+            },
+        ],
+    };
+}
+
 async function createWrapper(props = {}) {
     orderMock.transactions.last = () => ({
         stateMachineState: {

@@ -29,11 +29,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     created() {
-        if (!Shopware.Feature.isActive('v6.8.0.0')) {
-            Shopware.Feature.silence('V6_8_0_0', () => {
-                void this.getUserConfig();
-            });
-        }
+        this.createdComponent();
     },
 
     metaInfo() {
@@ -151,7 +147,9 @@ export default Shopware.Component.wrapComponentConfig({
         createdComponent() {
             // @deprecated tag:v6.8.0 - Remove together with getUserConfig()
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                void this.getUserConfig();
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    void this.getUserConfig();
+                });
             }
 
             void Shopware.Store.get('whatsNew').load();

@@ -73,6 +73,14 @@ const orderMock = {
 
 orderMock.primaryOrderDelivery = orderMock.deliveries[0];
 
+function createShipment(id, shippingMethodName, totalPrice, calculatedTaxes = []) {
+    return {
+        id,
+        shippingMethod: { translated: { name: shippingMethodName } },
+        shippingCosts: { calculatedTaxes, totalPrice, unitPrice: totalPrice },
+    };
+}
+
 async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {

@@ -37,7 +37,7 @@ class Migration1794852779UpdateDefaultTaxRules extends MigrationStep
             self::REDUCED_RATE => [14, 13.5],
         ],
         'LT' => [
-            self::REDUCED_RATE => [9, 12],
+            self::REDUCED_RATE => [9, 5],
         ],
         'RO' => [
             self::STANDARD_RATE => [19, 21],

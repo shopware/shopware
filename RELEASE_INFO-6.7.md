@@ -480,6 +480,7 @@ Check import files that relied on `0` being ignored.
 - `--auto-mapping` also creates migrations for the mapping definitions of their many-to-many associations.
 
 The additional migrations get later timestamps, so they run after the tables they reference.
+Foreign keys of mapping definitions use `ON DELETE CASCADE`, like those of translation definitions, because their key columns are `NOT NULL`.
 
 ```bash
 bin/console dal:migration:create --plugin=SwagExample --auto-translation --auto-mapping swag_example

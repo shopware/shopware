@@ -33,12 +33,13 @@ const generatedFiles = [
 ];
 
 /**
- * Unpacks the Administration's `test/` folder from the committed bundle into
+ * Unpacks the Jest harness (the Administration's `test/` and `scripts/`
+ * folders) from the committed bundle into
  * `packageRoot`, exactly as `git archive` packs it for the Composer package.
  * Files the package must not ship are absent, so the e2e catches a harness
  * file that `.gitattributes` excludes by mistake.
  */
-function extractPackagedTests(packageRoot: string): void {
+function extractPackagedHarness(packageRoot: string): void {
     const repositoryRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
         cwd: realAdministrationRoot,
         encoding: 'utf8',
@@ -46,28 +47,29 @@ function extractPackagedTests(packageRoot: string): void {
     const bundlePath = path.relative(repositoryRoot, realBundleRoot);
 
     // The archive root is the bundle, so its .gitattributes applies the way the package split applies it.
-    const packagedTests = execFileSync(
+    const packagedHarness = execFileSync(
         'git',
         [
             'archive',
             '--format=tar',
             `HEAD:${bundlePath}`,
             'Resources/app/administration/test',
+            'Resources/app/administration/scripts',
         ],
         { cwd: repositoryRoot, maxBuffer: 64 * 1024 * 1024 },
     );
-    execFileSync('tar', ['-x', '-C', packageRoot], { input: packagedTests });
+    execFileSync('tar', ['-x', '-C', packageRoot], { input: packagedHarness });
 }
 
 /**
  * Stands in for a Composer install: the shopware/administration package with
- * its `test/` folder exactly as `git archive` packs it, the files every
+ * its Jest harness exactly as `git archive` packs it, the files every
  * installation generates itself, and the Core bundle in lowercase
  * `vendor/shopware/core`.
  */
 function createComposerInstall(projectRoot: string): string {
     const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'none' });
-    extractPackagedTests(path.resolve(administrationRoot, '../../..'));
+    extractPackagedHarness(path.resolve(administrationRoot, '../../..'));
 
     // The harness reads these committed sources, which the package ships but createVendorAdmin does not copy.
     fs.symlinkSync(path.join(realAdministrationRoot, 'build'), path.join(administrationRoot, 'build'), 'dir');

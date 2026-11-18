@@ -13,6 +13,6 @@ component sw-price-preview  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_price_field  [private]
+  sw_price_field  [replaced] [private]
     sw_price_preview  [private]
 ```

@@ -12,9 +12,18 @@ component sw-condition-goods-price  public  js
   template src/app/component/rule/condition-type/sw-condition-goods-price/sw-condition-goods-price.html.twig
 
 blocks
-  sw_condition_value_content
-    sw_condition_goods_price_condition_modal
-    sw_condition_goods_price_field_amount
-    sw_condition_goods_price_field_operator
-    sw_condition_goods_price_filter_button
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced]
+        sw_condition_goods_price_condition_modal
+        sw_condition_goods_price_field_amount
+        sw_condition_goods_price_field_operator
+        sw_condition_goods_price_filter_button
+    sw_condition_base_error  [inherited]
 ```

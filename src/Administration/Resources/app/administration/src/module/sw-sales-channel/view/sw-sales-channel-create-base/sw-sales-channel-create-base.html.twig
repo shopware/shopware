@@ -1,11 +1,10 @@
 {% block sw_sales_channel_detail_base_options_delete %}{% endblock %}
 
-{% block sw_sales_channel_detail_base_general_input_active %}
+{% block sw_sales_channel_detail_base_status_input_active %}
 
 <mt-switch
     v-model="salesChannel.active"
     v-tooltip="{ message: $t('sw-sales-channel.detail.activateDisable') }"
-    bordered
     disabled
     :label="$t('sw-sales-channel.detail.labelInputActive')"
 />

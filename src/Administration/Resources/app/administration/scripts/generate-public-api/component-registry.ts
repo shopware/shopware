@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  *
- * Finds the `Component.register` and `Component.extend` calls and the files behind them.
+ * Finds the `Component.register`, `Component.extend` and `Component.override` calls and the files behind them.
  */
 import ts from 'typescript';
 import { isEslintDirective } from '../../eslint-rules/deprecation-rules/utils/eslint-directive';
@@ -9,10 +9,13 @@ import { BOTH_STATES, ConditionChain, conditionTruths, inBothStates } from './fl
 import type { FlagContext, FlagStates } from './flag-states';
 import type { SourceTree } from './source-tree';
 
-const REGISTRATION_KINDS = [
+const CALL_KINDS = [
     'register',
     'extend',
+    'override',
 ] as const;
+
+type CallKind = (typeof CALL_KINDS)[number];
 
 /**
  * @private
@@ -21,7 +24,7 @@ const REGISTRATION_KINDS = [
  * re-exports, and `template` its Twig template. `states` are the flag states in which the call runs.
  */
 export interface Registration {
-    kind: (typeof REGISTRATION_KINDS)[number];
+    kind: Exclude<CallKind, 'override'>;
     name: string;
     extends: string | null;
     language: 'js' | 'ts' | 'vue';
@@ -34,10 +37,30 @@ export interface Registration {
     states: FlagStates;
 }
 
+/**
+ * @private
+ *
+ * One `Component.override` call of core. The runtime applies the overrides of a component by `index`, and
+ * those with the same index in the order they are registered.
+ */
+export interface Override {
+    target: string;
+    index: number;
+    registeredIn: string;
+    template: string | null;
+    states: FlagStates;
+}
+
+/** @private */
+export interface ComponentCalls {
+    registrations: Registration[];
+    overrides: Override[];
+}
+
 type ComponentFiles = Pick<Registration, 'source' | 'sfc' | 'template' | 'language'> & { privateExport: boolean };
 
 // Only saves parsing the files without a registration. The syntax tree decides what counts as one.
-const REGISTRATION_CALL = new RegExp(`\\bComponent\\s*\\.\\s*(?:${REGISTRATION_KINDS.join('|')})\\s*\\(`);
+const COMPONENT_CALL = new RegExp(`\\bComponent\\s*\\.\\s*(?:${CALL_KINDS.join('|')})\\s*\\(`);
 
 const COMPONENT_FACTORY = /(?:^|\.)Component$/;
 
@@ -160,14 +183,13 @@ function literalText(node: ts.Node | undefined): string | undefined {
     return node && ts.isStringLiteralLike(node) ? node.text : undefined;
 }
 
-/** The module of `() => import('./sw-example')`. */
+/** The module of `() => import('./sw-example')`, or of `import('./sw-example')` as older commits pass it. */
 function lazyImport(config: ts.Expression): string | undefined {
-    const isLazyImport =
-        ts.isArrowFunction(config) &&
-        ts.isCallExpression(config.body) &&
-        config.body.expression.kind === ts.SyntaxKind.ImportKeyword;
+    const call = ts.isArrowFunction(config) ? config.body : config;
 
-    return isLazyImport ? literalText(config.body.arguments[0]) : undefined;
+    return ts.isCallExpression(call) && call.expression.kind === ts.SyntaxKind.ImportKeyword
+        ? literalText(call.arguments[0])
+        : undefined;
 }
 
 function visibilityOf(
@@ -205,30 +227,36 @@ function statementOf(node: ts.Node): ts.Node {
     return ts.isStatement(node) || node.parent === undefined ? node : statementOf(node.parent);
 }
 
-interface RegistrationCall {
-    kind: Registration['kind'];
+interface ComponentCall {
+    kind: CallKind;
     call: ts.CallExpression;
 }
 
-function registrationOf(
-    { kind, call }: RegistrationCall,
-    source: ts.SourceFile,
-    tree: SourceTree,
-    flags: FlagContext,
-): Registration {
-    const where = `${source.fileName}: Component.${kind}`;
-    const [nameArgument, ...rest] = call.arguments;
+const CALL_ARGUMENTS = {
+    register: ['name', 'config'],
+    extend: ['name', 'parent', 'config'],
+    override: ['name', 'config', 'index'],
+} as const;
+
+type CallArguments = Partial<Record<(typeof CALL_ARGUMENTS)[CallKind][number], ts.Expression>>;
+
+function callArguments({ kind, call }: ComponentCall): CallArguments {
+    return Object.fromEntries(CALL_ARGUMENTS[kind].map((role, position) => [role, call.arguments[position]]));
+}
+
+interface NamedComponent {
+    name: string;
+    where: string;
+    files: ComponentFiles;
+}
+
+function namedComponent(componentCall: ComponentCall, source: ts.SourceFile, tree: SourceTree): NamedComponent {
+    const where = `${source.fileName}: Component.${componentCall.kind}`;
+    const { name: nameArgument, config } = callArguments(componentCall);
     const name = literalText(nameArgument);
-    const config = rest.at(-1);
 
     if (name === undefined || !config) {
         throw new Error(`${where} needs a literal component name and a component, so the snapshot can name it.`);
-    }
-
-    const parent = kind === 'extend' ? literalText(rest[0]) : null;
-
-    if (parent === undefined) {
-        throw new Error(`${where}('${name}') needs the name of the extended component as a literal.`);
     }
 
     const specifier = lazyImport(config);
@@ -237,13 +265,34 @@ function registrationOf(
         throw new Error(`${where}('${name}') has to pass an object literal or () => import('...').`);
     }
 
-    const { privateExport, ...files } = componentFiles(
-        specifier === undefined ? source.fileName : resolveModule(specifier, source.fileName, tree),
-        tree,
-    );
+    return {
+        name,
+        where: `${where}('${name}')`,
+        files: componentFiles(
+            specifier === undefined ? source.fileName : resolveModule(specifier, source.fileName, tree),
+            tree,
+        ),
+    };
+}
+
+function registrationOf(
+    componentCall: ComponentCall & { kind: Registration['kind'] },
+    source: ts.SourceFile,
+    tree: SourceTree,
+    flags: FlagContext,
+): Registration {
+    const { kind, call } = componentCall;
+    const { name, where, files } = namedComponent(componentCall, source, tree);
+    const parent = kind === 'extend' ? literalText(callArguments(componentCall).parent) : null;
+
+    if (parent === undefined) {
+        throw new Error(`${where} needs the name of the extended component as a literal.`);
+    }
+
+    const { privateExport, ...componentSource } = files;
 
     return {
-        ...files,
+        ...componentSource,
         ...visibilityOf(privateExport, hasPrivateTag(statementOf(call), source)),
         kind,
         name,
@@ -253,38 +302,79 @@ function registrationOf(
     };
 }
 
-function registrationKind(node: ts.Node): Registration['kind'] | undefined {
+function overrideIndex(index: ts.Expression | undefined, where: string): number {
+    if (index === undefined || index.kind === ts.SyntaxKind.NullKeyword) {
+        return 0;
+    }
+
+    const value = Number(index.getText());
+
+    if (Number.isNaN(value)) {
+        throw new Error(`${where} needs its index as a number, so the snapshot knows the order of the overrides.`);
+    }
+
+    return value;
+}
+
+function overrideOf(componentCall: ComponentCall, source: ts.SourceFile, tree: SourceTree, flags: FlagContext): Override {
+    const { name, where, files } = namedComponent(componentCall, source, tree);
+
+    return {
+        target: name,
+        index: overrideIndex(callArguments(componentCall).index, where),
+        registeredIn: source.fileName,
+        template: files.template,
+        states: guardStates(componentCall.call, flags),
+    };
+}
+
+function callKind(node: ts.Node): CallKind | undefined {
     if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) {
         return undefined;
     }
 
     const { name, expression } = node.expression;
 
-    return COMPONENT_FACTORY.test(expression.getText()) ? REGISTRATION_KINDS.find((kind) => kind === name.text) : undefined;
+    return COMPONENT_FACTORY.test(expression.getText()) ? CALL_KINDS.find((kind) => kind === name.text) : undefined;
 }
 
-function registrationCalls(node: ts.Node): RegistrationCall[] {
-    const kind = registrationKind(node);
-    const calls: RegistrationCall[] = kind && ts.isCallExpression(node) ? [{ kind, call: node }] : [];
+function componentCallsIn(node: ts.Node): ComponentCall[] {
+    const kind = callKind(node);
+    const calls: ComponentCall[] = kind && ts.isCallExpression(node) ? [{ kind, call: node }] : [];
 
     ts.forEachChild(node, (child) => {
-        calls.push(...registrationCalls(child));
+        calls.push(...componentCallsIn(child));
     });
 
     return calls;
 }
 
+function isRegistration(call: ComponentCall): call is ComponentCall & { kind: Registration['kind'] } {
+    return call.kind !== 'override';
+}
+
 /**
  * @private
  *
- * Every component registration of the tree, in the order of the files and of the calls in them.
+ * Every component registration and core override of the tree, in the order of the files and of the calls in them.
  */
-export function componentRegistrations(tree: SourceTree, flags: FlagContext): Registration[] {
-    return tree.files
-        .filter((file) => SCRIPT_FILE.test(file) && REGISTRATION_CALL.test(tree.read(file)))
-        .flatMap((file) => {
+export function componentCalls(tree: SourceTree, flags: FlagContext): ComponentCalls {
+    const registrations: Registration[] = [];
+    const overrides: Override[] = [];
+
+    tree.files
+        .filter((file) => SCRIPT_FILE.test(file) && COMPONENT_CALL.test(tree.read(file)))
+        .forEach((file) => {
             const source = parseScript(file, tree);
 
-            return registrationCalls(source).map((call) => registrationOf(call, source, tree, flags));
+            componentCallsIn(source).forEach((call) => {
+                if (isRegistration(call)) {
+                    registrations.push(registrationOf(call, source, tree, flags));
+                } else {
+                    overrides.push(overrideOf(call, source, tree, flags));
+                }
+            });
         });
+
+    return { registrations, overrides };
 }

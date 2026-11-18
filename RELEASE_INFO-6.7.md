@@ -846,7 +846,8 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 The Administration no longer ships `blocks-list.json`.
 The block names are now in `public-api/index.json`, listed per component.
-All `blocks` arrays of that file together hold the names of the old list.
+A component that extends another one also lists the blocks it inherits.
+All `blocks` arrays of that file together hold the names of the old list, except eight blocks of extend templates that the Administration never rendered.
 Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
 
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.

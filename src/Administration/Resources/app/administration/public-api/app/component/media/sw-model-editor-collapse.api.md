@@ -12,7 +12,11 @@ component sw-model-editor-collapse  public  ts
   template src/app/component/media/sw-model-editor-collapse/sw-model-editor-collapse.html.twig
 
 blocks
-  sw_collapse_panel_header_slot
-    sw_model_editor_collapse_buttons
-    sw_model_editor_collapse_title
+  sw_collapse_panel  [inherited]
+    sw_collapse_panel_content  [inherited]
+      sw_collapse_panel_content_slot  [inherited]
+    sw_collapse_panel_header  [inherited]
+      sw_collapse_panel_header_slot  [replaced]
+        sw_model_editor_collapse_buttons
+        sw_model_editor_collapse_title
 ```

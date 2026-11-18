@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Mcp\Controller;
 
+use Mcp\Exception\SessionStoreException;
 use Mcp\Schema\JsonRpc\Error;
 use Mcp\Server;
+use Mcp\Server\Session\SessionStoreInterface;
 use Mcp\Server\Stateless\StatelessProtocol;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
@@ -22,6 +24,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -54,6 +57,7 @@ class StoreApiMcpServerController
         private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?LoggerInterface $logger = null,
         private readonly ?McpListChangedNotifier $listChangedNotifier = null,
+        private readonly ?SessionStoreInterface $sessionStore = null,
     ) {
     }
 
@@ -71,6 +75,12 @@ class StoreApiMcpServerController
 
         $this->sessionIdValidator->validate($request);
         $this->rateLimiter->enforceForStoreApi($request);
+
+        if ($this->deletesUnknownSession($request)) {
+            return $this->transportFactory->createResponse(
+                $this->server->run($this->transportFactory->createTransport($request, sessionNotFound: true)),
+            );
+        }
 
         $this->logger?->debug('Store API MCP request', [
             'method' => $request->getMethod(),
@@ -122,6 +132,25 @@ class StoreApiMcpServerController
         );
 
         return new JsonResponse($error, Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * The SDK answers a DELETE without checking its session store, and `McpSessionCleanupSubscriber`
+     * then drops the cached results and toolsets of the named session. Session ids are not scoped per
+     * endpoint in those tables, so a DELETE here must not end a session of the Admin API endpoint.
+     */
+    private function deletesUnknownSession(Request $request): bool
+    {
+        $sessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '';
+        if ($this->sessionStore === null || !$request->isMethod(Request::METHOD_DELETE) || !Uuid::isValid($sessionId)) {
+            return false;
+        }
+
+        try {
+            return !$this->sessionStore->exists(Uuid::fromString($sessionId));
+        } catch (SessionStoreException) {
+            return true;
+        }
     }
 
     /**

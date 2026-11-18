@@ -365,6 +365,14 @@ This header also works on earlier Shopware 6 versions.
 Plain JSON detail responses contain the entity in `data`, with fields directly on the entity instead of under `attributes`.
 Listing responses contain `data`, `total`, and `aggregations`.
 
+## Non-visible API associations are rejected
+
+Admin API and Store API requests, as well as app scripts using `services.repository` or `services.store`, now reject associations in the `associations` parameter that are not visible in the caller's API scope with HTTP 400 and `FRAMEWORK__ACCESSOR_NOT_ALLOWED`.
+Selections in the `fields` parameter that traverse a non-visible association are also rejected.
+In 6.7, these requested associations and their nested criteria, and these field selections, were ignored with a deprecation notice in debug mode.
+Remove associations that are not exposed in the relevant API scope and field selections that traverse them from your criteria before upgrading.
+App permissions do not change association visibility through `services.store`.
+
 ## Product reviews require a rating
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
@@ -444,6 +452,11 @@ Previously, these routes could return unrelated records or fail because the unde
 </details>
 
 # Core
+
+## Recovery entity accessors
+
+`UserEntity::getRecoveryUser()`, `UserEntity::setRecoveryUser()`, `CustomerEntity::getRecoveryCustomer()`, and `CustomerEntity::setRecoveryCustomer()` were removed.
+Remove criteria using the `user.recoveryUser` or `customer.recoveryCustomer` associations, which were removed in a security update.
 
 <details>
 
@@ -1895,99 +1908,99 @@ Please use the `dataSource` prop instead to align with the parent `sw-data-grid`
 />
 ```
 
-## Axios v1 is now the default HTTP client
+## Administration HTTP client ships only Axios 1.x
 
-Starting with Shopware 6.8, axios 1.x is the default HTTP client for the Administration, replacing axios 0.30.2.
-This change addresses the security vulnerability CVE-2023-45857 present in older axios versions.
+The Administration HTTP client (`httpClient`) became a single Axios 1.x instance.
+The legacy Axios 0.x dependency and the `axios-v1` package alias were removed.
+The compatibility mode for Axios 0.x behaviour, the `CancelToken` shim and the version-specific aliases were removed with 6.8.
 
-### What changed
+### Axios 1.x behaviour for every request
 
-**Shopware 6.7.x:**
-- Default: axios 0.30.2
-- Opt-in to v1: `useAxiosV1: true`
-- Repository requests use axios 1.x internally so the standard data-access path is migrated before the global switch. Their transport is not configurable through repository options because repositories do not expose axios as part of their public contract.
+The `useAxiosV1` request option was removed.
+Every request now behaves like Axios 1.x:
 
-**Shopware 6.8.0+ (with `V6_8_0_0` feature flag active):**
-- Direct HTTP request default: axios 1.x
-- Direct HTTP request opt-out to v0: `useAxiosV1: false`
+- **Query encoding.** `[` and `]` are percent-encoded (`?ids%5B%5D=1&ids%5B%5D=2`), Axios 0.x kept them literal (`?ids[]=1&ids[]=2`).
+  This also applies to `httpClient.getUri()`.
+  Pass an own `paramsSerializer` if a request depends on the literal form.
+- **Response headers.** `response.headers` is an `AxiosHeaders` instance instead of a plain object.
+  Lower-case property access such as `response.headers['content-type']` works as before.
 
-### Key differences between axios 0.30.2 and axios 1.x
+Remove the option from your requests:
 
-**Request Cancellation:**
 ```javascript
-// Axios 0.30.2 (deprecated CancelToken)
-const { CancelToken } = Axios;
-const source = CancelToken.source();
+// Before
+this.httpClient.get('/api/endpoint', { useAxiosV1: false });
 
-httpClient.get('/api/endpoint', {
-    cancelToken: source.token,
+// After
+this.httpClient.get('/api/endpoint');
+```
+
+### Request interceptors and header groups
+
+Request interceptors see the headers after Axios 1.x merged the `common` and method groups.
+An interceptor that wrote `config.headers.common[...]` or `config.headers.post[...]` failed with a `TypeError`, already on 6.7.
+Set the header on `config.headers` directly:
+
+```javascript
+// Before
+httpClient.interceptors.request.use((config) => {
+    config.headers.common['x-my-header'] = 'value';
+    return config;
 });
-source.cancel('Operation cancelled');
 
-// Axios 1.x (modern AbortController)
+// After
+httpClient.interceptors.request.use((config) => {
+    config.headers['x-my-header'] = 'value';
+    return config;
+});
+```
+
+### `CancelToken` replaced by `AbortController`
+
+`httpClient.CancelToken`, the `cancelToken` request option, and the `CancelToken` and `Cancel` exports of `src/core/factory/http.factory` were removed.
+Use `AbortController`:
+
+```javascript
+// Before
+const source = httpClient.CancelToken.source();
+httpClient.get('/api/endpoint', { cancelToken: source.token });
+source.cancel();
+
+// After
 const controller = new AbortController();
-
-httpClient.get('/api/endpoint', {
-    signal: controller.signal,
-    useAxiosV1: true,
-});
+httpClient.get('/api/endpoint', { signal: controller.signal });
 controller.abort();
 ```
 
-**Error Detection:**
-```javascript
-// Works for both versions
-if (httpClient.isCancel(error)) {
-    // Handle cancellation
-}
+Detect cancellations with `httpClient.isCancel(error)`.
 
-// Axios 1.x specific
-if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
-    // Handle cancellation
-}
-```
+`Shopware.Service('messageQueueService').consume(receiver, signal)` accepts only an `AbortSignal` as second argument.
 
-**Interceptors and Defaults:**
+### Version-specific escape hatches
 
-The Administration HTTP client is a Shopware-owned compatibility facade. Interceptors and defaults registered through its existing public API are mirrored to both internal axios clients:
+`httpClient.axiosV0`, `httpClient.axiosV1`, `httpClient.interceptorsV0`, `httpClient.interceptorsV1`, `httpClient.defaultsV0` and `httpClient.defaultsV1` were removed.
+Use `httpClient`, `httpClient.interceptors` and `httpClient.defaults` directly:
 
 ```javascript
-const interceptorId = httpClient.interceptors.request.use(myRequestHandler);
-httpClient.defaults.headers.common['my-header'] = 'value';
+// Before
+httpClient.interceptorsV1.request.use(handler);
 
-// Removes the interceptor from both internal clients
-httpClient.interceptors.request.eject(interceptorId);
+// After
+httpClient.interceptors.request.use(handler);
 ```
 
-Extensions do not need to know which axios version handles a request. The underlying axios instances and their version-specific types are no longer part of the public HTTP-client contract. During the transition, the facade remains structurally compatible with `AxiosInstance`, `AxiosRequestConfig.useAxiosV1`, and `axios-mock-adapter` to avoid unnecessary source changes.
+### TypeScript
 
-### Migration guide
+Type imports from `axios-v1` no longer resolve.
+Use Shopware's HTTP types instead of Axios types:
 
-Most code will work without changes.
-However, if you use request cancellation or depend on specific axios behavior:
-
-1. **Update cancellation logic** to use `AbortController` instead of `CancelToken`
-2. **Test your plugin** with axios v1 before the 6.8 release
-3. **Review error handling** for version-specific error codes
-
-**If a direct HTTP request needs axios 0.30.2 temporarily:**
-```javascript
-// Explicitly opt-out to use axios 0.30.2
-httpClient.request({
-    method: 'get',
-    url: '/api/endpoint',
-    useAxiosV1: false, // Force axios 0.30.2
-});
+```typescript
+import type { HttpClient, HttpError, HttpRequestConfig, HttpResponse } from 'src/core/factory/http-client.types';
 ```
 
-### Future removal
+`HttpClient` stays structurally compatible with `AxiosInstance`, so passing the client to `axios-mock-adapter` keeps compiling.
 
-Axios 0.30.2 support will be completely removed in a future major release.
-The `useAxiosV1` flag will be deprecated once axios v1 becomes the sole version.
-Plan to migrate all code to axios v1 as soon as possible.
-
-For detailed migration instructions, see the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
-The architectural rationale is documented in [Keep Administration HTTP transports behind a compatibility facade](adr/2026-07-23-administration-http-client-compatibility-facade.md).
+See the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md` and the [single-transport ADR](adr/2026-09-11-administration-http-client-single-transport.md).
 
 ## Removed empty state Twig block anchors
 
@@ -3194,6 +3207,12 @@ State-based invalidation is not supported anymore.
 -{% do response.cache.invalidationState('logged-in', 'cart-filled') %}
 +{# No replacement #}
 ```
+
+## `AppCmsExtensionException` removed
+
+`Shopware\Core\Framework\App\Exception\AppCmsExtensionException` was removed.
+A missing CMS block file and a CMS block outside of the `cms/blocks` directory of the App are thrown as `Shopware\Core\Framework\App\AppException` instead.
+Catch `AppException` and check the error codes `FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING` and `FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY`.
 
 </details>
 

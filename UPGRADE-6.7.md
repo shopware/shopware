@@ -1,5 +1,13 @@
 # 6.7.16.0
 
+## Outdated default standard VAT rates are corrected for EE, FI, RO and SK
+
+`Migration1589359936AddTaxCountryRules` wrote the default per-country VAT rates in 2020 and four standard rates have been raised by the member states since. `Migration1794989867CorrectCountryStandardVatRates` corrects them: Estonia 20% to 24%, Finland 24% to 25.5%, Romania 19% to 21%, Slovakia 20% to 23%. Existing shops are affected, so the tax a customer in those countries is charged changes with the update
+
+Only rows that still look like the untouched 2020 default are corrected. A `tax_rule` row is updated when it is an `entire_country` rule in the `Standard rate` tax class, still carries the rate shipped in 2020, and has `updated_at IS NULL`. A rate you configured deliberately, a rule in another tax class, a rule scoped to a postal code, and a rate that is neither the old nor the new default are all left alone. A shop that renamed the `Standard rate` tax class keeps its old rates and has to correct them by hand
+
+The reduced rates the same migration wrote have also drifted, and are deliberately **not** changed. Which of a country's published reduced rates belongs in which of the two reduced slots is a tax judgement — in Belgium, Greece and Portugal the same percentage is reported both as a parking rate and as a genuine reduced rate — and Austria, Cyprus, France, Greece, Italy and Luxembourg now levy three reduced rates where the 2020 migration provides two slots bound to fixed tax classes. Verify your reduced rates against your own tax advice
+
 ## Reorder no longer posts its line items
 
 `frontend.checkout.cart.reorder` resolves the reordered products from the order, so the reorder form no longer posts `lineItems`. The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` in `storefront/page/account/order-history/order-item.html.twig` are empty and deprecated: an override still renders, but it no longer changes what a reorder adds. Subscribe to the `checkout.cart.collect-reorder-line-items` extension instead, which hands you the `OrderEntity` and the built `list<LineItem>`

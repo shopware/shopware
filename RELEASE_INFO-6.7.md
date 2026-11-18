@@ -179,6 +179,15 @@ The session stays valid when the client gets a new access token for the same use
 
 Sessions opened before the update have no owner and are answered with `404` once.
 MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era and `/store-api/_mcp` are not affected.
+
+### The `/api/_mcp` rate limit counts per user or integration
+
+The `mcp_admin_api` rate limit now counts the requests of a user or integration, no longer of a single access token.
+A new or refreshed access token continues in the same bucket, and all MCP clients of one user share it.
+An integration has one bucket, whichever user it acts for with `sw-app-user-id`.
+Clients that requested a new token to get a fresh limit are throttled sooner.
+Requests without a known user or integration are still counted per client IP.
 The stateless protocol era is not affected.
 On `/store-api/_mcp`, a `DELETE` of an unknown session now gets `404` instead of `200`.
 

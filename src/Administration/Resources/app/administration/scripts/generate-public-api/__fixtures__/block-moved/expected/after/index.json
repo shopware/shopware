@@ -1,0 +1,27 @@
+{
+    "components": {
+        "sw-example-state-card": {
+            "file": "app/component/base/sw-example-state-card",
+            "visibility": "public",
+            "extends": null,
+            "blocks": [
+                "sw_example_state_card",
+                "sw_example_state_card_content",
+                "sw_example_state_card_divider",
+                "sw_example_state_card_state",
+                "sw_example_state_card_state_history_button",
+                "sw_example_state_card_state_history_text",
+                "sw_example_state_card_state_history_text_internal_comment",
+                "sw_example_state_card_state_history_text_label",
+                "sw_example_state_card_state_select"
+            ]
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

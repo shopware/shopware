@@ -778,6 +778,22 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Administration HTTP client runs on a single Axios 1.x transport
+
+The Administration `httpClient` is now one Axios 1.x instance (1.20.0).
+The legacy Axios 0.x dependency and the `axios-v1` package alias were removed, which drops the second Axios copy from the Administration bundle.
+The opt-out survives the removal: `useAxiosV1: false` now selects a compatibility mode on the single client that keeps `[` and `]` literal in query strings, including `httpClient.getUri()`, and returns `response.headers` as a plain object.
+The defaults are unchanged, legacy behaviour on 6.7 and Axios 1.x once `V6_8_0_0` is active.
+Request interceptors now run on Axios 1.x on 6.7 too, and no opt-out restores how they see headers.
+`config.headers` is one flat `AxiosHeaders` instance, so an interceptor that writes `config.headers.common[...]` or `config.headers.post[...]` fails with a `TypeError`.
+Set such headers on `config.headers` directly.
+Repository requests return plain response headers again on 6.7, as they did before 6.7.14.
+This applies to every response a `Repository` method returns, for example from `save()`, `delete()`, `assign()`, `mergeVersion()` and `deleteVersion()`, and to `error.response.headers` of every failed repository request.
+`useAxiosV1`, `httpClient.CancelToken`, the `cancelToken` option, passing a `CancelToken` to `messageQueueService.consume()`, and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases are deprecated and removed in 6.8.
+They log a development-mode warning on first use.
+Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations.
+Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

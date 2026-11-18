@@ -5,13 +5,27 @@
     :is-loading="isLoading"
     :title="$t('sw-users-permissions.roles.grid.title')"
 >
+    <template #headerRight>
+        {% block sw_users_permissions_permissions_grid_indirect_access_switch %}
+        <mt-switch
+            v-if="role"
+            class="sw-users-permissions-permissions-grid__indirect-access-switch"
+            :model-value="showIndirectAccess"
+            :label="$t('sw-users-permissions.roles.grid.showIndirectAccess')"
+            remove-top-margin
+            @update:model-value="onToggleIndirectAccess"
+        />
+        {% endblock %}
+    </template>
+
     {% block sw_users_permissions_permissions_grid_included_access %}
-    <div
-        v-if="role"
+    <mt-banner
+        v-if="role && showIndirectAccess"
         class="sw-users-permissions-permissions-grid__included-access"
+        variant="info"
     >
         <p class="sw-users-permissions-permissions-grid__included-access-hint">
-            {{ $t('sw-users-permissions.roles.grid.includedAccessHint') }}
+            {{ $t('sw-users-permissions.roles.grid.indirectAccessHint') }}
         </p>
 
         <mt-button
@@ -21,9 +35,9 @@
             :disabled="roleIncludedAccess.length === 0"
             @click="openRoleIncludedAccess"
         >
-            {{ $t('sw-users-permissions.roles.grid.reviewIncludedAccess', { count: roleIncludedAccess.length }, roleIncludedAccess.length) }}
+            {{ $t('sw-users-permissions.roles.grid.reviewIndirectAccess', { count: roleIncludedAccess.length }, roleIncludedAccess.length) }}
         </mt-button>
-    </div>
+    </mt-banner>
     {% endblock %}
 
     <div
@@ -123,22 +137,30 @@
             >
                 {% block sw_users_permissions_permissions_grid_permissions_title %}
                 <div class="sw-users-permissions-permissions-grid__title">
-                    {% block sw_users_permissions_permissions_grid_permissions_title_content %}
-                    {{ $t('sw-privileges.permissions.' + permission.key + '.label') }}
-                    {% endblock %}
+                    <span class="sw-users-permissions-permissions-grid__title-label">
+                        {% block sw_users_permissions_permissions_grid_permissions_title_content %}
+                        {{ $t('sw-privileges.permissions.' + permission.key + '.label') }}
+                        {% endblock %}
+                    </span>
 
                     {% block sw_users_permissions_permissions_grid_permissions_included_access_button %}
-                    <mt-button
-                        v-if="hiddenAccess(permission.key).length > 0"
-                        v-tooltip="{ message: includedAccessButtonTooltip(permission) }"
-                        class="sw-users-permissions-permissions-grid__included-access-row-button"
-                        :class="{ 'is--muted': !isRowSelected(permission) }"
-                        size="x-small"
-                        variant="secondary"
-                        @click="openRowIncludedAccess(permission)"
+                    <mt-tooltip
+                        v-if="showIndirectAccess && hiddenAccess(permission.key).length > 0"
+                        :content="includedAccessButtonTooltip(permission)"
                     >
-                        +{{ hiddenAccess(permission.key).length }}
-                    </mt-button>
+                        <template #default="tooltipProps">
+                            <mt-button
+                                v-bind="tooltipProps"
+                                class="sw-users-permissions-permissions-grid__included-access-row-button"
+                                :class="{ 'is--muted': !isRowSelected(permission) }"
+                                size="x-small"
+                                variant="secondary"
+                                @click="openRowIncludedAccess(permission)"
+                            >
+                                +{{ hiddenAccess(permission.key).length }}
+                            </mt-button>
+                        </template>
+                    </mt-tooltip>
                     {% endblock %}
                 </div>
                 {% endblock %}
@@ -191,7 +213,6 @@
         v-if="includedAccessModal"
         :privilege-keys="includedAccessModal.privilegeKeys"
         :title="includedAccessModal.title"
-        :subtitle="includedAccessModal.subtitle"
         :description="includedAccessModal.description"
         :with-sources="includedAccessModal.withSources"
         @close="closeIncludedAccess"

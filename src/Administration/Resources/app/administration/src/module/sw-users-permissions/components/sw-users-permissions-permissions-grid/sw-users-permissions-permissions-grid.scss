@@ -3,33 +3,38 @@
         padding: 0;
     }
 
+    .mt-card__titles-right-slot {
+        display: flex;
+        align-items: center;
+    }
+
+    .sw-users-permissions-permissions-grid__indirect-access-switch {
+        margin-bottom: 0;
+    }
+
     .sw-users-permissions-permissions-grid__grid {
         display: flex;
         flex-direction: column;
     }
 
     .sw-users-permissions-permissions-grid__included-access {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: var(--scale-size-16);
-        padding: var(--scale-size-16);
-        border-bottom: 1px solid var(--color-border-secondary-default);
+        margin: var(--scale-size-16);
     }
 
     .sw-users-permissions-permissions-grid__included-access-hint {
-        margin: 0;
-        font-size: var(--font-size-xs);
-        line-height: var(--font-line-height-xs);
-        color: var(--color-text-secondary-default);
+        margin: 0 0 var(--scale-size-12);
     }
 
-    .sw-users-permissions-permissions-grid__included-access-button {
+    .sw-users-permissions-permissions-grid__included-access + .sw-users-permissions-permissions-grid__grid {
+        border-top: 1px solid var(--color-border-secondary-default);
+    }
+
+    .sw-users-permissions-permissions-grid__included-access-row-button.mt-button {
         flex-shrink: 0;
-    }
-
-    .sw-users-permissions-permissions-grid__included-access-row-button {
-        margin-left: var(--scale-size-8);
+        padding-inline: var(--scale-size-6);
+        color: var(--color-text-primary-default);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-medium);
 
         &.is--muted {
             opacity: 0.55;
@@ -89,11 +94,18 @@
     }
 
     .sw-users-permissions-permissions-grid__title {
+        flex: 1 1 0;
+        gap: var(--scale-size-8);
+        min-width: 0;
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         margin-right: auto;
-        width: auto;
         justify-content: left;
         padding-left: var(--scale-size-28);
+    }
+
+    .sw-users-permissions-permissions-grid__title-label {
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 }

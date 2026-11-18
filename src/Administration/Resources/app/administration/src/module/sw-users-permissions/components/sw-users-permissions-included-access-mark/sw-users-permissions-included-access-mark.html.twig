@@ -1,0 +1,19 @@
+{% block sw_users_permissions_included_access_mark %}
+<mt-tooltip :content="tooltip">
+    <template #default="tooltipProps">
+        <span
+            v-bind="tooltipProps"
+            class="sw-users-permissions-included-access-mark"
+            :class="`sw-users-permissions-included-access-mark--${variant}`"
+            :tabindex="variant === 'partial' ? 0 : undefined"
+        >
+            <mt-icon
+                :name="icon"
+                size="14px"
+                aria-hidden="true"
+            />
+            <span class="sw-users-permissions-included-access-mark__label">{{ label }}</span>
+        </span>
+    </template>
+</mt-tooltip>
+{% endblock %}

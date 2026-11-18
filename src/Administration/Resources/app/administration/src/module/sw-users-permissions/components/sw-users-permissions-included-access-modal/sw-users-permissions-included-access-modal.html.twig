@@ -18,103 +18,66 @@
             </p>
             {% endblock %}
 
-            {% block sw_users_permissions_included_access_modal_table_sections %}
-            <section
-                v-for="section in tableSections"
-                :key="section.tier"
-                class="sw-users-permissions-included-access-modal__section"
-                :class="`sw-users-permissions-included-access-modal__section--${section.tier}`"
-            >
-                <header class="sw-users-permissions-included-access-modal__section-header">
-                    <mt-icon
-                        :name="section.icon"
-                        size="16px"
-                    />
-                    <span class="sw-users-permissions-included-access-modal__section-title">
-                        {{ $t(`sw-users-permissions.roles.included-access.tiers.${section.tier}`) }}
-                    </span>
-                    <mt-badge
-                        :variant="section.badgeVariant"
-                        size="s"
+            {% block sw_users_permissions_included_access_modal_matrix %}
+            <table class="sw-users-permissions-included-access-modal__matrix">
+                <colgroup>
+                    <col>
+                    <col
+                        v-for="column in columns"
+                        :key="column.operation"
+                        class="sw-users-permissions-included-access-modal__operation-column"
                     >
-                        {{ section.areas.length }}
-                    </mt-badge>
-                </header>
+                </colgroup>
 
-                <div
-                    class="sw-users-permissions-included-access-modal__row sw-users-permissions-included-access-modal__row--head"
+                {% block sw_users_permissions_included_access_modal_matrix_head %}
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            {{ $t('sw-users-permissions.roles.included-access.columnArea') }}
+                        </th>
+                        <th
+                            v-for="column in columns"
+                            :key="column.operation"
+                            scope="col"
+                            class="sw-users-permissions-included-access-modal__operation-head"
+                        >
+                            {{ $t(`sw-privileges.roles.${column.role}`) }}
+                        </th>
+                    </tr>
+                </thead>
+                {% endblock %}
+
+                <template
+                    v-for="(group, groupIndex) in groups"
+                    :key="group.tier"
                 >
-                    <span>{{ $t('sw-users-permissions.roles.included-access.columnArea') }}</span>
-                    <span class="sw-users-permissions-included-access-modal__column-access">{{ $t('sw-users-permissions.roles.included-access.columnAccess') }}</span>
-                </div>
-
-                <div
-                    v-for="area in section.areas"
-                    :key="area.key"
-                    class="sw-users-permissions-included-access-modal__row"
-                >
-                    <span class="sw-users-permissions-included-access-modal__area-cell">
-                        <span class="sw-users-permissions-included-access-modal__area">{{ area.label }}</span>
-                        <span
-                            v-if="area.isShared"
-                            class="sw-users-permissions-included-access-modal__area-hint"
-                        >
-                            {{ $t('sw-users-permissions.roles.included-access.sharedDataDescription') }}
-                        </span>
-                        <span
-                            v-if="area.sources.length > 0"
-                            v-tooltip="{ message: area.sourceTooltip }"
-                            class="sw-users-permissions-included-access-modal__sources"
-                        >
-                            {{ $tc('sw-users-permissions.roles.included-access.grantedBy', area.sources.length, { count: area.sources.length }) }}
-                        </span>
-                    </span>
-
-                    <span class="sw-users-permissions-included-access-modal__access">
-                        <template
-                            v-for="entry in area.entries"
-                            :key="entry.operations"
-                        >
-                            <span class="sw-users-permissions-included-access-modal__operations">{{ entry.operations }}</span>
-                            <span class="sw-users-permissions-included-access-modal__entities">{{ entry.entities }}</span>
-                        </template>
-                    </span>
-                </div>
-            </section>
-            {% endblock %}
-
-            {% block sw_users_permissions_included_access_modal_read_section %}
-            <section
-                v-if="readAreas.length > 0"
-                class="sw-users-permissions-included-access-modal__section sw-users-permissions-included-access-modal__section--read"
-            >
-                <header class="sw-users-permissions-included-access-modal__section-header">
-                    <mt-icon
-                        name="regular-eye"
-                        size="16px"
-                    />
-                    <span class="sw-users-permissions-included-access-modal__section-title">
-                        {{ $t('sw-users-permissions.roles.included-access.tiers.read') }}
-                    </span>
-                    <mt-badge
-                        variant="neutral"
-                        size="s"
+                    {% block sw_users_permissions_included_access_modal_matrix_group %}
+                    <tbody
+                        class="sw-users-permissions-included-access-modal__group"
+                        :class="{ 'is--first': groupIndex === 0 }"
                     >
-                        {{ readAreas.length }}
-                    </mt-badge>
-                </header>
+                        <tr>
+                            <th
+                                colspan="5"
+                                scope="colgroup"
+                            >
+                                {{ $t(`sw-users-permissions.roles.included-access.tiers.${group.tier}`) }}
+                            </th>
+                        </tr>
+                    </tbody>
+                    {% endblock %}
 
-                <ul class="sw-users-permissions-included-access-modal__read-list">
-                    <li
-                        v-for="area in readAreas"
+                    {% block sw_users_permissions_included_access_modal_matrix_areas %}
+                    <sw-users-permissions-included-access-area
+                        v-for="area in group.areas"
                         :key="area.key"
-                        v-tooltip="{ message: readAreaTooltip(area) }"
-                        class="sw-users-permissions-included-access-modal__read-area"
-                    >
-                        {{ area.label }}
-                    </li>
-                </ul>
-            </section>
+                        :area="area"
+                        :columns="columns"
+                        :show-granted-by="withSources"
+                    />
+                    {% endblock %}
+                </template>
+            </table>
             {% endblock %}
         </div>
 

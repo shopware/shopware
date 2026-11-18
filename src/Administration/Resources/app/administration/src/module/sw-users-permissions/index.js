@@ -30,6 +30,18 @@ Shopware.Component.register(
     () => import('./components/sw-users-permissions-included-access-modal'),
 );
 Shopware.Component.register(
+    'sw-users-permissions-included-access-area',
+    () => import('./components/sw-users-permissions-included-access-area'),
+);
+Shopware.Component.register(
+    'sw-users-permissions-included-access-mark',
+    () => import('./components/sw-users-permissions-included-access-mark'),
+);
+Shopware.Component.register(
+    'sw-users-permissions-included-access-granted-by',
+    () => import('./components/sw-users-permissions-included-access-granted-by'),
+);
+Shopware.Component.register(
     'sw-users-permissions-detailed-permissions-grid',
     () => import('./components/sw-users-permissions-detailed-permissions-grid'),
 );

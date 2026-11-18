@@ -68,34 +68,30 @@
                 "tooltipParentRole": "Alle {role}-Rechte für {parent}",
                 "tooltipParentAll": "Alle Rechte für {parent} ({roles})",
                 "tooltipEntityAll": "Alle Rechte für {entity} ({roles})",
-                "includedAccessHint": "Einige Berechtigungen brauchen Zugriff auf andere Bereiche, um zu funktionieren.",
-                "reviewIncludedAccess": "Enthaltenen Zugriff prüfen ({count} Bereich) | Enthaltenen Zugriff prüfen ({count} Bereiche)",
-                "includedAccessTooltip": "Enthält auch Zugriff auf {count} weiteren Bereich | Enthält auch Zugriff auf {count} weitere Bereiche",
-                "includedAccessPreviewTooltip": "Wenn Du {role} auswählst, ist auch Zugriff auf {count} weiteren Bereich enthalten | Wenn Du {role} auswählst, ist auch Zugriff auf {count} weitere Bereiche enthalten",
-                "rowModalTitle": "{area} enthält auch",
-                "rowModalSubtitleSelected": "Ausgewählt: {roles}",
-                "rowModalSubtitlePreview": "Wenn Du {role} auswählst",
-                "rowModalDescription": "{area} braucht diesen Zugriff, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch.",
-                "roleModalTitle": "Diese Rolle enthält auch",
-                "roleModalSubtitle": "{count} Berechtigung ausgewählt | {count} Berechtigungen ausgewählt",
-                "roleModalDescription": "Die ausgewählten Berechtigungen brauchen Zugriff auf diese Bereiche, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch."
+                "showIndirectAccess": "Indirekten Zugriff anzeigen",
+                "indirectAccessHint": "Einige Berechtigungen brauchen zusätzlich Zugriff auf andere Bereiche, um zu funktionieren.",
+                "reviewIndirectAccess": "Indirekten Zugriff prüfen ({count} Bereich) | Indirekten Zugriff prüfen ({count} Bereiche)",
+                "indirectAccessTooltip": "Gibt indirekten Zugriff auf {count} weiteren Bereich | Gibt indirekten Zugriff auf {count} weitere Bereiche",
+                "indirectAccessPreviewTooltip": "Wenn Du {role} auswählst, gibt dies indirekten Zugriff auf {count} weiteren Bereich | Wenn Du {role} auswählst, gibt dies indirekten Zugriff auf {count} weitere Bereiche",
+                "rowModalTitle": "Indirekter Zugriff von {area}",
+                "rowModalDescriptionSelected": "Mit {roles} braucht {area} diesen Zugriff, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch.",
+                "rowModalDescriptionPreview": "Wenn Du {role} auswählst, braucht {area} diesen Zugriff, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn dann automatisch.",
+                "roleModalTitle": "Indirekter Zugriff dieser Rolle",
+                "roleModalDescription": "Die ausgewählten Berechtigungen brauchen diesen Zugriff, um zu funktionieren. Benutzer mit dieser Rolle erhalten ihn automatisch."
             },
             "included-access": {
                 "tiers": {
-                    "personal": "Persönliche Daten ansehen",
-                    "write": "Daten ändern in",
-                    "read": "Daten ansehen in"
+                    "personal": "Persönliche Daten",
+                    "write": "Kann Daten ändern",
+                    "read": "Nur ansehen"
                 },
                 "columnArea": "Bereich",
-                "columnAccess": "Zugriff",
                 "grantedBy": "Erteilt durch {count} Berechtigung | Erteilt durch {count} Berechtigungen",
-                "fullAccess": "Vollzugriff",
-                "operations": {
-                    "read": "ansehen",
-                    "update": "bearbeiten",
-                    "create": "erstellen",
-                    "delete": "löschen"
-                },
+                "fullAccess": "Alle Daten",
+                "partialAccess": "{count} von {total}: {entities}",
+                "partialAccessShort": "{count} von {total}",
+                "noAccess": "Kein Zugriff",
+                "dataOf": "Daten in {area}",
                 "sourceEntry": "{area} › {role}",
                 "sharedData": "Gemeinsame Daten",
                 "sharedDataDescription": "Von mehreren Bereichen genutzt"

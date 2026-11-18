@@ -1,0 +1,133 @@
+.sw-users-permissions-included-access-area {
+    .sw-users-permissions-included-access-area__row > * {
+        height: 40px;
+        vertical-align: middle;
+    }
+
+    .sw-users-permissions-included-access-area__row > :last-child {
+        padding-right: var(--included-access-bleed);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .sw-users-permissions-included-access-area__row:hover > *,
+        .sw-users-permissions-included-access-area__entity:hover {
+            background: var(--color-elevation-surface-sunken);
+        }
+    }
+
+    .sw-users-permissions-included-access-area__label-cell {
+        padding: 0 var(--scale-size-8) 0 calc(var(--included-access-bleed) - var(--scale-size-8));
+    }
+
+    .sw-users-permissions-included-access-area__toggle {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        width: 100%;
+        min-height: 40px;
+        padding: 0 var(--scale-size-8);
+        border: 0;
+        border-radius: var(--border-radius-xs);
+        background: transparent;
+        color: var(--color-text-primary-default);
+        font: inherit;
+        font-weight: var(--font-weight-medium);
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+
+        &:focus-visible {
+            outline: 2px solid var(--color-text-primary-default);
+            outline-offset: -2px;
+        }
+
+        &[data-state="open"] .sw-users-permissions-included-access-area__chevron {
+            transform: rotate(90deg);
+        }
+    }
+
+    .sw-users-permissions-included-access-area__label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .sw-users-permissions-included-access-area__chevron {
+        flex-shrink: 0;
+        color: var(--color-icon-secondary-default);
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .sw-users-permissions-included-access-area__cell {
+        text-align: center;
+    }
+
+    .sw-users-permissions-included-access-area__visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .sw-users-permissions-included-access-area__detail[data-state="open"],
+    .sw-users-permissions-included-access-area__detail[data-state="closed"] {
+        animation-duration: 0.3s;
+        animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .sw-users-permissions-included-access-area__detail-inner {
+        padding-bottom: var(--scale-size-12);
+    }
+
+    .sw-users-permissions-included-access-area__shared-hint {
+        margin: 0 0 var(--scale-size-4);
+        padding-left: var(--included-access-indent);
+        color: var(--color-text-secondary-default);
+    }
+
+    .sw-users-permissions-included-access-area__entities {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .sw-users-permissions-included-access-area__entity {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1fr)
+            repeat(3, var(--included-access-column-width))
+            calc(var(--included-access-column-width) + var(--included-access-bleed));
+        align-items: center;
+        min-height: 28px;
+    }
+
+    .sw-users-permissions-included-access-area__entity-label {
+        padding-left: var(--included-access-indent);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--color-text-secondary-default);
+    }
+
+    .sw-users-permissions-included-access-area__entity-cell {
+        display: flex;
+        justify-content: center;
+    }
+
+    .sw-users-permissions-included-access-area__entity-cell:last-child {
+        padding-right: var(--included-access-bleed);
+    }
+
+    .sw-users-permissions-included-access-area__granted-by {
+        margin-top: var(--scale-size-4);
+        padding-left: calc(var(--included-access-indent) - var(--scale-size-8));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .sw-users-permissions-included-access-area__chevron {
+            transition: none;
+        }
+    }
+}

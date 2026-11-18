@@ -1,0 +1,52 @@
+{% block sw_users_permissions_included_access_granted_by %}
+<div class="sw-users-permissions-included-access-granted-by">
+    <mt-floating-ui
+        :is-opened="isOpen"
+        :offset="4"
+        @close="close"
+    >
+        <template #trigger>
+            <button
+                type="button"
+                class="sw-users-permissions-included-access-granted-by__trigger"
+                :aria-expanded="isOpen ? 'true' : 'false'"
+                :aria-describedby="descriptionId"
+                @mouseenter="onMouseEnter"
+                @mouseleave="onLeave"
+                @focus="onFocus"
+                @blur="onLeave"
+                @click="onClick"
+                @keydown.esc.stop.prevent="close"
+            >
+                {{ $tc('sw-users-permissions.roles.included-access.grantedBy', grantedBy.length, { count: grantedBy.length }) }}
+            </button>
+        </template>
+
+        <template #default>
+            {% block sw_users_permissions_included_access_granted_by_popover %}
+            <div
+                class="sw-users-permissions-included-access-granted-by__popover"
+                role="tooltip"
+            >
+                <ul class="sw-users-permissions-included-access-granted-by__list">
+                    <li
+                        v-for="grant in grantedBy"
+                        :key="grant.key"
+                    >
+                        <span>{{ grant.label }}</span>
+                        <span class="sw-users-permissions-included-access-granted-by__roles">{{ grant.roles }}</span>
+                    </li>
+                </ul>
+            </div>
+            {% endblock %}
+        </template>
+    </mt-floating-ui>
+
+    <span
+        :id="descriptionId"
+        class="sw-users-permissions-included-access-granted-by__description"
+    >
+        {{ description }}
+    </span>
+</div>
+{% endblock %}

@@ -68,34 +68,30 @@
                 "tooltipParentRole": "All {role} rights for {parent}",
                 "tooltipParentAll": "All rights for {parent} ({roles})",
                 "tooltipEntityAll": "All rights for {entity} ({roles})",
-                "includedAccessHint": "Some permissions need access to other areas to work.",
-                "reviewIncludedAccess": "Review included access ({count} area) | Review included access ({count} areas)",
-                "includedAccessTooltip": "Also includes access to {count} other area | Also includes access to {count} other areas",
-                "includedAccessPreviewTooltip": "If you select {role}, this also includes access to {count} other area | If you select {role}, this also includes access to {count} other areas",
-                "rowModalTitle": "{area} also includes",
-                "rowModalSubtitleSelected": "Selected: {roles}",
-                "rowModalSubtitlePreview": "If you select {role}",
-                "rowModalDescription": "{area} needs this access to work. Users with this role get it automatically.",
-                "roleModalTitle": "This role also includes",
-                "roleModalSubtitle": "{count} permission selected | {count} permissions selected",
-                "roleModalDescription": "The selected permissions need access to these areas to work. Users with this role get it automatically."
+                "showIndirectAccess": "Show indirect access",
+                "indirectAccessHint": "Some permissions also need access to other areas to work.",
+                "reviewIndirectAccess": "Review indirect access ({count} area) | Review indirect access ({count} areas)",
+                "indirectAccessTooltip": "Gives indirect access to {count} other area | Gives indirect access to {count} other areas",
+                "indirectAccessPreviewTooltip": "If you select {role}, this gives indirect access to {count} other area | If you select {role}, this gives indirect access to {count} other areas",
+                "rowModalTitle": "Indirect access of {area}",
+                "rowModalDescriptionSelected": "With {roles} selected, {area} needs this access to work. Users with this role get it automatically.",
+                "rowModalDescriptionPreview": "If you select {role}, {area} needs this access to work. Users with this role then get it automatically.",
+                "roleModalTitle": "Indirect access of this role",
+                "roleModalDescription": "The selected permissions need this access to work. Users with this role get it automatically."
             },
             "included-access": {
                 "tiers": {
-                    "personal": "View personal data",
-                    "write": "Change data in",
-                    "read": "View data in"
+                    "personal": "Personal data",
+                    "write": "Can change data",
+                    "read": "View only"
                 },
                 "columnArea": "Area",
-                "columnAccess": "Access",
                 "grantedBy": "Granted by {count} permission | Granted by {count} permissions",
-                "fullAccess": "Full access",
-                "operations": {
-                    "read": "view",
-                    "update": "edit",
-                    "create": "create",
-                    "delete": "delete"
-                },
+                "fullAccess": "All data",
+                "partialAccess": "{count} of {total}: {entities}",
+                "partialAccessShort": "{count} of {total}",
+                "noAccess": "No access",
+                "dataOf": "Data in {area}",
                 "sourceEntry": "{area} › {role}",
                 "sharedData": "Shared data",
                 "sharedDataDescription": "Used by several areas"

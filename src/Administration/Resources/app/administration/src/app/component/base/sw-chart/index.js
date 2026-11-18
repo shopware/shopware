@@ -238,8 +238,8 @@ export default {
                         show: false,
                     },
 
-                    defaultLocale: this.defaultLocale,
-                    locales: [...(this.localeConfig ? [this.localeConfig] : [])],
+                    defaultLocale: this.localeConfig?.name ?? 'en',
+                    ...(this.localeConfig ? { locales: [this.localeConfig] } : {}),
                     zoom: false,
                 },
 
@@ -313,12 +313,12 @@ export default {
     },
 
     created() {
-        this.createdComponent();
+        return this.createdComponent();
     },
 
     methods: {
-        createdComponent() {
-            this.loadLocaleConfig();
+        async createdComponent() {
+            await this.loadLocaleConfig();
             this.isLoading = false;
         },
 
@@ -437,8 +437,19 @@ export default {
             return zeroTimestamps;
         },
 
-        loadLocaleConfig() {
-            this.localeConfig = apexLocales[this.defaultLocale];
+        async loadLocaleConfig() {
+            const loadLocale = apexLocales[this.defaultLocale];
+
+            // English is built into ApexCharts and used while localeConfig is null
+            if (!loadLocale) {
+                return;
+            }
+
+            try {
+                this.localeConfig = (await loadLocale()).default;
+            } catch (error) {
+                warn('sw-chart', `Chart locale "${this.defaultLocale}" could not be loaded.`, error);
+            }
         },
     },
 };

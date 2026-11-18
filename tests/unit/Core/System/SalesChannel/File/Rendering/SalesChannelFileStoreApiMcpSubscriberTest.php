@@ -23,7 +23,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 #[CoversClass(SalesChannelFileStoreApiMcpSubscriber::class)]
 class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 {
-    public function testStoreApiMcpUrlIsAddedForHeadlessAiCatalog(): void
+    private const APP_URL = 'https://shopware.example.com/';
+
+    public function testStoreApiMcpUrlIsAddedForTheAiCatalog(): void
     {
         $currentDomain = $this->createDomain('https://headless.example.com/en/');
         $fallbackDomain = $this->createDomain('https://fallback.example.com');
@@ -34,7 +36,7 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
             ->with('store-api.mcp.endpoint', [], UrlGeneratorInterface::ABSOLUTE_PATH)
             ->willReturn('/store-api/_mcp');
 
-        $subscriber = new SalesChannelFileStoreApiMcpSubscriber($urlGenerator);
+        $subscriber = new SalesChannelFileStoreApiMcpSubscriber($urlGenerator, self::APP_URL);
         $extension = new SalesChannelFileRenderParametersExtension(
             $this->createSalesChannelFile('.well-known/ai-catalog.json'),
             $this->createSalesChannelContext($currentDomain->getId()),
@@ -49,14 +51,90 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
 
         static::assertSame([
             'salesChannelFileContext' => [
+                'appUrl' => 'https://shopware.example.com',
                 'baseUrl' => 'https://headless.example.com/en',
                 'publisher' => 'headless.example.com',
-                'storeApiMcpServerUrl' => 'https://headless.example.com/en/store-api/_mcp',
+                'storeApiMcpServerUrl' => 'https://shopware.example.com/store-api/_mcp',
             ],
         ], $extension->result);
     }
 
-    public function testSalesChannelFileContextIsOnlyAddedForAiCatalog(): void
+    public function testDomainMatchingTheContextLanguageIsUsedWithoutDomainInTheRequest(): void
+    {
+        $englishDomain = $this->createDomain('https://en.headless.example.com', Uuid::randomHex());
+        $germanDomain = $this->createDomain('https://de.headless.example.com', Uuid::randomHex());
+
+        $extension = new SalesChannelFileRenderParametersExtension(
+            $this->createSalesChannelFile('.well-known/ai-catalog.json'),
+            $this->createSalesChannelContext(null, $englishDomain->getLanguageId()),
+            $this->createSalesChannel(
+                Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+                new SalesChannelDomainCollection([$germanDomain, $englishDomain])
+            )
+        );
+        $extension->result = [];
+
+        (new SalesChannelFileStoreApiMcpSubscriber($this->createUrlGeneratorStub(), self::APP_URL))->addStoreApiMcpContext($extension);
+
+        static::assertSame([
+            'salesChannelFileContext' => [
+                'appUrl' => 'https://shopware.example.com',
+                'baseUrl' => 'https://en.headless.example.com',
+                'publisher' => 'en.headless.example.com',
+                'storeApiMcpServerUrl' => 'https://shopware.example.com/store-api/_mcp',
+            ],
+        ], $extension->result);
+    }
+
+    public function testFirstDomainIsUsedWithoutDomainMatchingTheContextLanguage(): void
+    {
+        $firstDomain = $this->createDomain('https://first.example.com', Uuid::randomHex());
+        $secondDomain = $this->createDomain('https://second.example.com', Uuid::randomHex());
+
+        $extension = new SalesChannelFileRenderParametersExtension(
+            $this->createSalesChannelFile('llms.txt'),
+            $this->createSalesChannelContext(null, Uuid::randomHex()),
+            $this->createSalesChannel(
+                Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+                new SalesChannelDomainCollection([$firstDomain, $secondDomain])
+            )
+        );
+        $extension->result = [];
+
+        (new SalesChannelFileStoreApiMcpSubscriber($this->createUrlGeneratorStub(), self::APP_URL))->addStoreApiMcpContext($extension);
+
+        static::assertSame([
+            'salesChannelFileContext' => [
+                'appUrl' => 'https://shopware.example.com',
+                'baseUrl' => 'https://first.example.com',
+                'publisher' => 'first.example.com',
+                'storeApiMcpServerUrl' => 'https://shopware.example.com/store-api/_mcp',
+            ],
+        ], $extension->result);
+    }
+
+    public function testStoreApiMcpUrlIsAddedForSalesChannelWithoutDomains(): void
+    {
+        $urlGenerator = $this->createUrlGeneratorStub();
+
+        $extension = new SalesChannelFileRenderParametersExtension(
+            $this->createSalesChannelFile('.well-known/ai-catalog.json'),
+            $this->createSalesChannelContext(null),
+            $this->createSalesChannel(Defaults::SALES_CHANNEL_TYPE_API, new SalesChannelDomainCollection())
+        );
+        $extension->result = [];
+
+        (new SalesChannelFileStoreApiMcpSubscriber($urlGenerator, self::APP_URL))->addStoreApiMcpContext($extension);
+
+        static::assertSame([
+            'salesChannelFileContext' => [
+                'appUrl' => 'https://shopware.example.com',
+                'storeApiMcpServerUrl' => 'https://shopware.example.com/store-api/_mcp',
+            ],
+        ], $extension->result);
+    }
+
+    public function testSalesChannelFileContextIsNotAddedForOtherFiles(): void
     {
         $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator
@@ -64,7 +142,7 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
             ->method('generate');
 
         $extension = new SalesChannelFileRenderParametersExtension(
-            $this->createSalesChannelFile('llms.txt'),
+            $this->createSalesChannelFile('AGENTS.md'),
             $this->createSalesChannelContext(null),
             $this->createSalesChannel(
                 Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
@@ -73,15 +151,24 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
         );
         $extension->result = [];
 
-        (new SalesChannelFileStoreApiMcpSubscriber($urlGenerator))->addStoreApiMcpContext($extension);
+        (new SalesChannelFileStoreApiMcpSubscriber($urlGenerator, self::APP_URL))->addStoreApiMcpContext($extension);
 
         static::assertSame([], $extension->result);
     }
 
-    private function createSalesChannelContext(?string $domainId): SalesChannelContext
+    private function createUrlGeneratorStub(): UrlGeneratorInterface
+    {
+        $urlGenerator = static::createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/store-api/_mcp');
+
+        return $urlGenerator;
+    }
+
+    private function createSalesChannelContext(?string $domainId, string $languageId = Defaults::LANGUAGE_SYSTEM): SalesChannelContext
     {
         $context = static::createStub(SalesChannelContext::class);
         $context->method('getDomainId')->willReturn($domainId);
+        $context->method('getLanguageId')->willReturn($languageId);
 
         return $context;
     }
@@ -95,11 +182,12 @@ class SalesChannelFileStoreApiMcpSubscriberTest extends TestCase
         return $salesChannel;
     }
 
-    private function createDomain(string $url): SalesChannelDomainEntity
+    private function createDomain(string $url, string $languageId = Defaults::LANGUAGE_SYSTEM): SalesChannelDomainEntity
     {
         $domain = new SalesChannelDomainEntity();
         $domain->setId(Uuid::randomHex());
         $domain->setUrl($url);
+        $domain->setLanguageId($languageId);
 
         return $domain;
     }

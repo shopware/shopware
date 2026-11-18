@@ -44,46 +44,24 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     {
         $now = $this->clock->now();
 
-        foreach ($this->fetchSalesChannelIds() as $salesChannelId) {
-            $productExports = $this->fetchProductExports($salesChannelId);
-
-            if ($productExports === []) {
+        foreach ($this->fetchProductExports() as $productExport) {
+            if (!$this->shouldBeRun($productExport, $now)) {
                 continue;
             }
 
-            foreach ($productExports as $productExport) {
-                if (!$this->shouldBeRun($productExport, $now)) {
-                    continue;
-                }
-
-                $this->messageBus->dispatch(
-                    new ProductExportPartialGeneration($productExport['id'], $salesChannelId)
-                );
-            }
+            $this->messageBus->dispatch(
+                new ProductExportPartialGeneration($productExport['id'], $productExport['sales_channel_id'])
+            );
         }
     }
 
     /**
-     * @return list<string>
-     */
-    private function fetchSalesChannelIds(): array
-    {
-        return $this->connection->fetchFirstColumn(
-            <<<'SQL'
-                SELECT LOWER(HEX(id))
-                FROM `sales_channel`
-                WHERE `type_id` IN (:typeIds)
-                  AND `active` = 1
-            SQL,
-            ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
-            ['typeIds' => ArrayParameterType::BINARY]
-        );
-    }
-
-    /**
+     * Loads the cron job exports of all active storefront and headless sales channels with one query,
+     * one row per export and sales channel it is generated for
+     *
      * @return list<array<string, mixed>>
      */
-    private function fetchProductExports(string $salesChannelId): array
+    private function fetchProductExports(): array
     {
         $productExports = [];
         /** @var list<array<string, mixed>> $rows */
@@ -91,6 +69,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
             <<<'SQL'
                 SELECT
                     LOWER(HEX(product_export.id)) AS id,
+                    LOWER(HEX(storefront_sales_channel.id)) AS sales_channel_id,
                     product_export.generated_at,
                     product_export.next_generation_at,
                     product_export.interval,
@@ -102,19 +81,19 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                     ON sales_channel.id = product_export.sales_channel_id
                 INNER JOIN sales_channel_domain
                     ON sales_channel_domain.id = product_export.sales_channel_domain_id
+                INNER JOIN sales_channel storefront_sales_channel
+                    ON storefront_sales_channel.id IN (product_export.storefront_sales_channel_id, sales_channel_domain.sales_channel_id)
                 WHERE product_export.generate_by_cronjob = 1
                   AND sales_channel.active = 1
-                  AND (
-                        product_export.storefront_sales_channel_id = :salesChannelId
-                        OR sales_channel_domain.sales_channel_id = :salesChannelId
-                  )
+                  AND storefront_sales_channel.`type_id` IN (:typeIds)
+                  AND storefront_sales_channel.active = 1
             SQL,
-            ['salesChannelId' => Uuid::fromHexToBytes($salesChannelId)],
-            ['salesChannelId' => ParameterType::BINARY]
+            ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
+            ['typeIds' => ArrayParameterType::BINARY]
         );
 
         foreach ($rows as $row) {
-            if (!\is_string($row['id'])) {
+            if (!\is_string($row['id']) || !\is_string($row['sales_channel_id'])) {
                 continue;
             }
 

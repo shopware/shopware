@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Tests\Integration\Storefront\Checkout\Customer\CustomerGroupSubscriberTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -39,12 +38,10 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
      *
      * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
-     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
         private readonly EntityRepository $seoUrlRepository,
-        private readonly EntityRepository $languageRepository,
         private readonly SeoUrlPersister $persister,
         private readonly SlugifyInterface $slugify
     ) {
@@ -134,6 +131,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             ->addFilter(new EqualsFilter('registrationActive', true))
             ->addAssociations(['registrationSalesChannels.languages', 'translations']);
 
+        $criteria->getAssociation('registrationSalesChannels.languages')
+            ->addFilter(new EqualsFilter('active', true));
+
         $criteria->getAssociation('registrationSalesChannels')
             ->addFilter(new NandFilter([new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API)]));
 
@@ -154,18 +154,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
-                $languageIds = $registrationSalesChannel->getLanguages()->getIds();
-                $languageCriteria = new Criteria($languageIds);
-                $languageCriteria->addFilter(new EqualsFilter('active', true));
-
-                $languageCollection = $this->languageRepository->search($languageCriteria, $context)->getEntities();
-
-                foreach ($languageIds as $languageId) {
-                    $language = $languageCollection->get($languageId);
-                    if (!$language) {
-                        continue;
-                    }
-
+                foreach ($registrationSalesChannel->getLanguages() as $languageId => $language) {
                     $title = $this->getTranslatedTitle($group->getTranslations(), $language);
 
                     if ($title === '') {

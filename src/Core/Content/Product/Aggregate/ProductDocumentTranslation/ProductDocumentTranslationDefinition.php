@@ -52,7 +52,7 @@ class ProductDocumentTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new StringField('title', 'title'))->addFlags(new ApiAware())->setDescription('Display name of the document in this language.'),
+            (new StringField('title', 'title'))->addFlags(new ApiAware(), new Required())->setDescription('Display name of the document in this language.'),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new ApiAware(), new Required(), new DoNotUseContext())->setDescription('Unique identity of the file of the document in this language.'),
             (new CustomFields())->addFlags(new ApiAware()),
 

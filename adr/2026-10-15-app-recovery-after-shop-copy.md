@@ -23,11 +23,11 @@ Running example: production, the live shop, runs at `https://shop.example` with 
 
 ```mermaid
 flowchart LR
-    S1["1. Copy made<br/>Production: shop-1, prod-secret<br/>Copy: shop-1, prod-secret<br/>App: shop-1 = prod-secret"]
-    S2["2. Copy takes over<br/>'Move shop permanently'<br/>App: shop-1 = staging-secret<br/>previous prod-secret"]
-    S3["3. Production stranded<br/>Still signs with prod-secret<br/>Rejected after 60 s"]
-    S4["4. Copy leaves<br/>reinstall-apps: copy is shop-2<br/>staging-secret is gone from the copy"]
-    S5["Production stays stranded"]
+    S1["1. Database copied<br/>Production and the copy both use<br/>ShopId shop-1 and prod-secret"]
+    S2["2. Copy picks 'Move shop permanently'<br/>The app switches shop-1<br/>to staging-secret"]
+    S3["3. Production is locked out<br/>It still signs with prod-secret, which<br/>the app stops accepting after 60 seconds"]
+    S4["4. Copy runs reinstall-apps<br/>The copy becomes shop-2<br/>and deletes staging-secret"]
+    S5["5. Production stays locked out<br/>Nobody holds staging-secret any more"]
     S1 --> S2 --> S3 --> S4 --> S5
     style S1 fill:#69c,stroke:#333,color:#fff
     style S2 fill:#f90,stroke:#333,color:#fff
@@ -67,16 +67,17 @@ That is why the [developer documentation](https://beta-developer.shopware.com/do
 1. Before a shop gets a new ShopId, or removes its apps, it keeps the secrets its apps currently accept, for 72 hours.
    It only does this while its fingerprints still match.
 2. The shop operator takes them from the copy to production, and production registers again with them.
-3. Apps don't change: they already accept a registration signed with their current secret.
+3. The app protocol does not change: apps already accept a registration signed with their current secret.
 4. Every other case is a manual decision by the app operator.
 
 The process in short:
 
-1. A staging copy takes over the shop, and the app switches to `staging-secret`.
-2. Before the copy gets a new ShopId, Shopware keeps `staging-secret` for 72 hours.
-3. The shop operator prints `staging-secret` on the copy and passes it to a command on production.
-4. Production registers again, signed with `staging-secret`.
+1. The copy picks "Move shop permanently", and the app switches `shop-1` to `staging-secret`.
+2. Before the copy gets a new ShopId, for example with `reinstall-apps`, it keeps `staging-secret` for 72 hours.
+3. The shop operator prints `staging-secret` on the copy and passes it to production.
+4. Production registers again as `shop-1`, signed with `staging-secret`.
 5. The app accepts it like any registration and gives production `new-prod-secret`.
+   Production is no longer locked out.
 
 ```mermaid
 sequenceDiagram
@@ -139,14 +140,7 @@ Moving the secrets from the copy to production safely, for example through a pas
 |:----------------------------------------------------|:----------------------------------------------|
 | Production, given `staging-secret`                  | Accepted                                      |
 | Production, holding only `prod-secret`              | Rejected: the app accepts only `staging-secret` |
-| An old backup holding the secret before `prod-secret` | Rejected                                    |
-| An old server left running after a planned move     | Rejected: it holds only older secrets         |
-| Production, after the copy ran `app:secret:rotate` again | Accepted, if it is given the newest secret |
 | Production, more than 72 hours after the copy got a new ShopId | The copy deleted `staging-secret`, so there is nothing to pass on; see manual recovery |
-| Anyone given `staging-secret`                       | Accepted, see the limitations                 |
-
-The app does nothing new.
-It accepts the registration for the same reason it accepts any request: it is signed with the secret the app issued last.
 
 ### Manual recovery
 
@@ -184,8 +178,8 @@ Support for this in the app SDKs is not part of this decision.
 
 - **A working secret stays on the copy after it gets a new ShopId.**
   For up to 72 hours.
-- **The shop operator passes on a full secret.**
-  Whoever holds it can act as `shop-1` until production registers again and the app issues `new-prod-secret`.
+- **The secret travels from the copy to production.**
+  Anyone who gets it on the way can take over `shop-1`, until production has registered again.
 - **The app still accepts `staging-secret` for 60 seconds after recovery.**
   That is the SDK's grace period for a replaced secret.
 - **Recovery strands a copy that is still `shop-1`.**
@@ -193,9 +187,6 @@ Support for this in the app SDKs is not part of this decision.
 
 ### Limitations
 
-- **Whoever holds `staging-secret` can act as `shop-1`.**
-  This is already true today.
-  Passing `staging-secret` on moves that ability from the copy to production; it does not create it.
 - **72 hours.**
   They start when the copy got a new ShopId or removed its apps.
   After it, or if the copy is destroyed first, only manual recovery is left.

@@ -30,7 +30,8 @@ async function createWrapper() {
                         template: '<div><slot></slot></div>',
                     },
                     'mt-floating-ui': {
-                        template: '<div><slot></slot></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'router-link': true,
                 },

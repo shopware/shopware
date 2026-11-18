@@ -87,7 +87,8 @@ async function createWrapper(privileges = []) {
                         },
                     },
                     'mt-floating-ui': {
-                        template: '<div><slot></slot></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-loader': true,
                     'sw-product-variant-info': true,

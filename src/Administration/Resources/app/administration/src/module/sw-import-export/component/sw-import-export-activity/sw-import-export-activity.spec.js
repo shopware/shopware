@@ -807,7 +807,8 @@ const createWrapper = async (options = {}) => {
                 'sw-grid-column': await wrapTestComponent('sw-grid-column'),
                 'sw-ignore-class': true,
                 'mt-floating-ui': {
-                    template: '<div><slot></slot></div>',
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-description-list': true,
                 'sw-color-badge': true,

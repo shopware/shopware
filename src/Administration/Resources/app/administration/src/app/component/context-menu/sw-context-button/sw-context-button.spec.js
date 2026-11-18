@@ -10,11 +10,8 @@ async function createWrapper(customOptions = {}) {
             stubs: {
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'mt-floating-ui': {
-                    template: `
-                        <div>
-                            <slot></slot>
-                        </div>
-                    `,
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
             },
         },

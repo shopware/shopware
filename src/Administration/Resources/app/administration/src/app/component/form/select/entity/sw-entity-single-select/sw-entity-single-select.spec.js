@@ -130,7 +130,8 @@ async function createEntitySingleSelect(
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
                 'mt-floating-ui': {
-                    template: '<div><slot></slot></div>',
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
             },
             provide: {
@@ -928,7 +929,8 @@ describe('components/sw-entity-single-select', () => {
                     'sw-ai-copilot-badge': true,
                     'sw-help-text': true,
                     'mt-floating-ui': {
-                        template: '<div><slot></slot></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                 },
                 provide: {

@@ -162,7 +162,8 @@ async function createWrapper(
                     'sw-inheritance-switch': true,
                     'sw-help-text': true,
                     'mt-floating-ui': {
-                        template: '<div><slot></slot></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-context-menu': {
                         template: '<div class="sw-context-menu"><slot></slot></div>',

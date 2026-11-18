@@ -81,7 +81,8 @@ async function createWrapper({ availableAddresses = addresses, props = {} } = {}
             global: {
                 stubs: {
                     'mt-floating-ui': {
-                        template: '<div><slot></slot></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),

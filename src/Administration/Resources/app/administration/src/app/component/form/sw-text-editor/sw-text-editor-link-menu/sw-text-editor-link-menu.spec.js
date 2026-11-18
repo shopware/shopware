@@ -112,7 +112,10 @@ async function createWrapper(buttonConfig) {
                 'sw-checkbox-field': true,
                 'sw-tree-item': true,
                 'sw-field-copyable': true,
-                'mt-floating-ui': { template: '<div><slot></slot></div>' },
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
+                },
                 'mt-url-field': MtUrlField,
                 'sw-app-action-button': true,
                 'sw-time-ago': true,

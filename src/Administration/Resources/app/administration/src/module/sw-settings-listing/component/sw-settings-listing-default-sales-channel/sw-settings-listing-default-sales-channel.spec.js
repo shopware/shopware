@@ -58,10 +58,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-loader': true,
                         'sw-modal': true,
                         'mt-floating-ui': {
-                            template: `
-                    <div>
-                        <slot></slot>
-                    </div>`,
+                            props: ['isOpened'],
+                            template: '<div><slot v-if="isOpened"></slot></div>',
                         },
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),

@@ -131,7 +131,8 @@ async function createWrapper(sequence = {}) {
                     },
                 },
                 'mt-floating-ui': {
-                    template: '<div><slot></slot></div>',
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-context-menu-item': {
                     emits: ['click'],

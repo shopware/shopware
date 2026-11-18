@@ -87,7 +87,8 @@ async function createWrapper(propsData = {}, appFlowResponseData = [], flag = ''
                     'sw-base-field': await wrapTestComponent('sw-base-field'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'mt-floating-ui': {
-                        template: '<div><slot></slot></div>',
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-select-result': {
                         props: ['item', 'index'],

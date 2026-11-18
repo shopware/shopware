@@ -91,10 +91,8 @@ async function createWrapper(privileges = [], resetError = false) {
                     'sw-context-button': await wrapTestComponent('sw-context-button'),
                     'sw-select-field': true,
                     'mt-floating-ui': {
-                        template: `
-                    <div>
-                        <slot></slot>
-                    </div>`,
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                     'sw-data-grid-skeleton': true,

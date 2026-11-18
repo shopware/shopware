@@ -210,11 +210,8 @@ describe('src/app/component/rule/sw-condition-all-line-items-container', () => {
                 'sw-condition-type-select': true,
                 'sw-field-error': true,
                 'mt-floating-ui': {
-                    template: `
-                            <div>
-                                <slot></slot>
-                            </div>
-                        `,
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'router-link': true,
             },

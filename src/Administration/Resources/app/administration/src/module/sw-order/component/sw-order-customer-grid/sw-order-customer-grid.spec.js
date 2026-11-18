@@ -148,7 +148,8 @@ async function createWrapper() {
                 'sw-help-text': true,
                 'sw-field-error': true,
                 'mt-floating-ui': {
-                    template: '<div><slot></slot></div>',
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },

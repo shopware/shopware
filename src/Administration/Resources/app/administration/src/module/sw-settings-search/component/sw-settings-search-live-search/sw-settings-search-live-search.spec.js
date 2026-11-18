@@ -140,10 +140,8 @@ async function createWrapper(salesChannelList = salesChannels) {
                     'sw-select-result': await wrapTestComponent('sw-select-result'),
                     'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                     'mt-floating-ui': {
-                        template: `
-                    <div>
-                        <slot></slot>
-                    </div>`,
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                     'sw-product-variant-info': await wrapTestComponent('sw-product-variant-info'),

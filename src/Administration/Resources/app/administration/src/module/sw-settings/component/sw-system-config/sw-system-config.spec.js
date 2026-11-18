@@ -99,7 +99,8 @@ async function createWrapper(defaultValues = {}, config = createConfig(), slots 
                 'sw-popover': await wrapTestComponent('sw-popover'),
                 'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'mt-floating-ui': {
-                    template: '<div><slot /></div>',
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                 'sw-media-field': await wrapTestComponent('sw-media-field'),

@@ -17,11 +17,8 @@ describe('src/app/component/media/sw-media-field', () => {
                 stubs: {
                     'sw-media-media-item': true,
                     'mt-floating-ui': {
-                        template: `
-                        <div>
-                            <slot />
-                        </div>
-                    `,
+                        props: ['isOpened'],
+                        template: '<div><slot v-if="isOpened"></slot></div>',
                     },
                     'sw-media-upload-v2': true,
                     'sw-upload-listener': true,

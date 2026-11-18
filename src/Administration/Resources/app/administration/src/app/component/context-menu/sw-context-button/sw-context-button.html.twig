@@ -25,9 +25,8 @@
 
     {% block sw_context_button_menu %}
     <mt-floating-ui
-        v-if="showMenu"
         class="sw-context-button__menu-position sw-context-button__menu-popover"
-        :is-opened="true"
+        :is-opened="showMenu"
     >
         <sw-context-menu
             ref="swContextMenu"
@@ -39,6 +38,9 @@
             </slot>
         </sw-context-menu>
     </mt-floating-ui>
+    <template v-if="showMenu">
+        <!-- Keeps the v-if chain open for overrides that add a v-else after this block -->
+    </template>
     {% endblock %}
 </button>
 {% endblock %}

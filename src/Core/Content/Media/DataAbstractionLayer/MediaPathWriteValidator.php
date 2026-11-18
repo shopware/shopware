@@ -24,6 +24,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * Only the system may write relative paths; other writers may only reference external media by URL.
  *
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Media\Api\MediaPathWriteProtectionTest
  */
 #[Package('discovery')]
 class MediaPathWriteValidator implements EventSubscriberInterface

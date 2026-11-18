@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Validation\AppValidator;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\MissingTranslationError;
+use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Result;
 use Symfony\Component\Console\Command\Command;
@@ -82,6 +83,19 @@ class ValidateAppCommandTest extends TestCase
             "test\n  notice  Missing label translations: de-DE\n\n✔ 0 errors, 1 notice",
             trim($this->commandTester->getDisplay())
         );
+    }
+
+    #[TestDox('Findings are escaped')]
+    public function testFindingsAreEscaped(): void
+    {
+        $this->appValidator
+            ->expects($this->once())
+            ->method('validate')
+            ->willReturn(Result::failed([new NotHookableError(['pre<info>mid</info>post' => 'product.written'])]));
+
+        $this->commandTester->execute([]);
+
+        static::assertStringContainsString('Webhooks not hookable: pre<info>mid</info>post (product.written)', $this->commandTester->getDisplay());
     }
 
     #[TestDox('An unknown app folder name fails the command')]

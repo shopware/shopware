@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -154,7 +155,7 @@ class ValidateAppCommand extends Command
 
         foreach ($errors as $error) {
             $label = $error->getSeverity() === Severity::Fail ? '<fg=red>error </>' : '<fg=yellow>notice</>';
-            $io->writeln(\sprintf('  %s  %s', $label, $error->getMessage()));
+            $io->writeln(\sprintf('  %s  %s', $label, OutputFormatter::escape($error->getMessage())));
         }
     }
 

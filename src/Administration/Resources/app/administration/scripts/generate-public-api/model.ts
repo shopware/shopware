@@ -98,8 +98,8 @@ function assertUniqueNames(registrations: Registration[], flags: FlagContext): v
  * The snapshot lists blocks per component, so the blocks of a template that no component uses would be missing
  * from it without anyone noticing.
  */
-function assertEveryTemplateIsUsed(trees: ReadonlyMap<string, BlockContent[]>, used: ReadonlySet<string>): void {
-    const missing = [...trees]
+function assertEveryTemplateIsUsed(blockTrees: ReadonlyMap<string, BlockContent[]>, used: ReadonlySet<string>): void {
+    const missing = [...blockTrees]
         .filter(([template]) => !used.has(template))
         .flatMap(([template, tree]) => listBlocks(tree).map(({ name }) => `${name} in ${template}`));
 
@@ -120,8 +120,24 @@ function assertEveryOverrideHasItsComponent(overrides: Override[], registrations
     }
 }
 
-/** The overrides of one component in the order the runtime applies them: by index, then as registered. */
-function overridesOf(
+function assertEveryOverrideCoversItsComponent(overrides: Override[], registrations: Registration[]): void {
+    registrations.forEach((target) => {
+        const partial = overrides.find(
+            ({ target: name, states }) =>
+                name === target.name && FLAG_STATES.some((state) => target.states[state] && !states[state]),
+        );
+
+        if (partial) {
+            throw new Error(
+                `${partial.registeredIn}: the override of ${target.name} is registered in one flag state only. ` +
+                    'The snapshot cannot apply an override to one state of a template so far.',
+            );
+        }
+    });
+}
+
+/** The templates of the overrides of one component by index. Overrides with the same index keep their file order. */
+function overrideTemplatesOf(
     target: Registration,
     overrides: Override[],
     source: (file: string) => TemplateSource,
@@ -129,16 +145,7 @@ function overridesOf(
     return overrides
         .filter((override) => override.target === target.name)
         .sort((a, b) => a.index - b.index)
-        .flatMap((override) => {
-            if (FLAG_STATES.some((state) => target.states[state] && !override.states[state])) {
-                throw new Error(
-                    `${override.registeredIn}: the override of ${target.name} is registered in one flag state only. ` +
-                        'The snapshot cannot apply an override to one state of a template so far.',
-                );
-            }
-
-            return override.template === null ? [] : [source(override.template)];
-        });
+        .flatMap(({ template }) => (template === null ? [] : [source(template)]));
 }
 
 function componentTemplates(
@@ -155,7 +162,7 @@ function componentTemplates(
             native: registration.language === 'vue',
             states: registration.states,
             template: markup === null ? null : source(markup),
-            overrides: overridesOf(registration, overrides, source),
+            overrides: overrideTemplatesOf(registration, overrides, source),
         };
     });
 }
@@ -171,7 +178,7 @@ function componentUnit(registration: Registration, { tree, states }: ResolvedTem
 /** @private */
 export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     const flags = createFlagContext(options.majorFlags);
-    const trees = new Map(
+    const blockTrees = new Map(
         tree.files
             .filter(isTemplateSourceFile)
             .map((file): [string, BlockContent[]] => [file, templateTree(tree.read(file), file, flags)]),
@@ -180,8 +187,9 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
 
     assertUniqueNames(registrations, flags);
     assertEveryOverrideHasItsComponent(overrides, registrations);
+    assertEveryOverrideCoversItsComponent(overrides, registrations);
     assertEveryTemplateIsUsed(
-        trees,
+        blockTrees,
         new Set(
             [
                 ...registrations.map(markupOf),
@@ -191,7 +199,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     );
 
     const resolved = resolveTemplates(
-        componentTemplates(registrations, overrides, (file) => ({ file, tree: trees.get(file) ?? [] })),
+        componentTemplates(registrations, overrides, (file) => ({ file, tree: blockTrees.get(file) ?? [] })),
     );
     const components = registrations
         .map((registration, index) => componentUnit(registration, resolved[index]))

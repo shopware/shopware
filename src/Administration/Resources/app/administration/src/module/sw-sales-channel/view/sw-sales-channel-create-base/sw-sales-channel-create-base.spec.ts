@@ -4,9 +4,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
 
-const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
-
-async function createWrapper() {
+async function createWrapper(typeId: string) {
     return mount(await wrapTestComponent('sw-sales-channel-create-base', { sync: true }), {
         global: {
             stubs: {
@@ -56,7 +54,7 @@ async function createWrapper() {
             },
         },
         props: {
-            salesChannel: { typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID, active: false },
+            salesChannel: { typeId, active: false },
             productExport: {},
             customFieldSets: [],
         },
@@ -76,13 +74,32 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-create-base', () => 
         global.activeAclRoles = ['sales_channel.editor'];
     });
 
-    // A sales channel needs a theme before it can be active, and a theme can only be assigned once it is saved.
-    it('does not let an editor activate a sales channel that is not saved yet', async () => {
-        const wrapper = await createWrapper();
+    async function activeSwitch(typeId: string) {
+        const wrapper = await createWrapper(typeId);
         await flushPromises();
 
-        const activeSwitch = wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelInputActive"]');
+        return wrapper.get('.mt-switch input[aria-label="sw-sales-channel.detail.labelInputActive"]');
+    }
 
-        expect(activeSwitch.attributes('disabled')).toBeDefined();
+    // A sales channel with a storefront needs a theme to be active, and a theme can only be assigned once it is saved.
+    it('does not let an editor activate a storefront sales channel that is not saved yet', async () => {
+        const field = await activeSwitch(Shopware.Defaults.storefrontSalesChannelTypeId);
+
+        expect(field.attributes('disabled')).toBeDefined();
+    });
+
+    it('lets an editor activate a headless sales channel while creating it', async () => {
+        const field = await activeSwitch(Shopware.Defaults.apiSalesChannelTypeId);
+
+        expect(field.attributes('disabled')).toBeUndefined();
+    });
+
+    it('does not let a viewer activate a headless sales channel', async () => {
+        // @ts-expect-error - activeAclRoles is an untyped test global
+        global.activeAclRoles = [];
+
+        const field = await activeSwitch(Shopware.Defaults.apiSalesChannelTypeId);
+
+        expect(field.attributes('disabled')).toBeDefined();
     });
 });

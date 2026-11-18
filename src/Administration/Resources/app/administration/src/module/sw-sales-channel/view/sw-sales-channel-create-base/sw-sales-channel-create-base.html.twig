@@ -1,11 +1,15 @@
 {% block sw_sales_channel_detail_base_options_delete %}{% endblock %}
 
 {% block sw_sales_channel_detail_base_status_input_active %}
-
 <mt-switch
+    v-if="activationNeedsTheme"
     v-model="salesChannel.active"
     v-tooltip="{ message: $t('sw-sales-channel.detail.activateDisable') }"
     disabled
     :label="$t('sw-sales-channel.detail.labelInputActive')"
 />
+
+<template v-else>
+    {% parent %}
+</template>
 {% endblock %}

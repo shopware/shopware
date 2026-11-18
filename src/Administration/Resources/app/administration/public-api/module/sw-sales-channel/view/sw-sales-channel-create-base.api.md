@@ -63,7 +63,7 @@ blocks
       sw_sales_channel_detail_base_options_maintenance_header  [inherited]
       sw_sales_channel_detail_base_options_status_description  [inherited]
       sw_sales_channel_detail_base_settings_link  [inherited]
-      sw_sales_channel_detail_base_status_input_active  [replaced]
+      sw_sales_channel_detail_base_status_input_active  [keepsParent]
     sw_sales_channel_detail_custom_field_sets  [inherited]
     sw_sales_channel_shipping_payment  [inherited]
       sw_sales_channel_detail_base_disabled_payments_methods_warning  [inherited]

@@ -41,7 +41,7 @@ export interface Registration {
  * @private
  *
  * One `Component.override` call of core. The runtime applies the overrides of a component by `index`, and
- * those with the same index in the order they are registered.
+ * those with the same index in the order they are registered. The generator takes those in file order.
  */
 export interface Override {
     target: string;

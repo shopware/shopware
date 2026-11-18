@@ -104,7 +104,8 @@ The generator merges the templates by the rules of `src/core/factory/template.fa
 
 A core `Component.override` has no report of its own yet.
 Its template is applied to the component it overrides, as at runtime, so the blocks it adds or removes show up in the report of that component and of its extend children.
-Core overrides apply before a child extends the component, ordered by their index and then by registration.
+Core overrides apply before a child extends the component, ordered by their index.
+The runtime applies overrides with the same index in the order they are registered, which the generator cannot know, so it takes them in the order of their file paths.
 Unlike an extend template, each top-level block of an override is applied on its own, so a later block can replace one that an earlier block kept or added.
 
 Some blocks of an extend or override template never render: the runtime drops a block that replaces nothing, without a warning.

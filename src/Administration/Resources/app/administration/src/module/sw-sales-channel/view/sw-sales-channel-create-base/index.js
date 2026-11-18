@@ -10,6 +10,13 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    computed: {
+        // A theme can only be assigned to a saved sales channel.
+        activationNeedsTheme() {
+            return !this.isProductExportChannel && !this.isHeadlessSalesChannel;
+        },
+    },
+
     created() {
         this.createdComponent();
     },

@@ -3,7 +3,7 @@
  *
  * Builds the template a component renders: its own blocks merged into those of the component it extends, and
  * the core overrides applied on top. The rules are those of `src/core/factory/template.factory.js`, which
- * differ from plain Twig. `extend-chain.runtime.spec.ts` compares the result with what that factory builds.
+ * differ from plain Twig. `extend-chain.spec/runtime.spec.ts` compares the result with what that factory builds.
  */
 import { hasBlock, isBlock, placeContent } from './block-tree';
 import type { BlockContent, BlockNode, BlockOrigin } from './block-tree';

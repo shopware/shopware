@@ -1,4 +1,4 @@
-/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error -- Legacy spec exceeds the current file-size limit. */
 
 /**
  * @sw-package inventory
@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
@@ -66,7 +67,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
+        { routeName = 'sw.product.detail.base', routerPush = jest.fn() } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -82,9 +83,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                 },
                 provide: {
-                    feature: {
-                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
-                    },
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
@@ -251,6 +249,19 @@ describe('module/sw-product/page/sw-product-detail', () => {
             wrapper.unmount();
         }
     });
+
+    /* eslint-disable sw-test-rules/no-vm-access -- Deprecated extension callbacks require direct API coverage. */
+    it.activeFeatureFlags(['v6.8.0.0'])('should reject legacy price callbacks', () => {
+        useProductionDeprecationGuard();
+
+        expect(() => wrapper.vm.syncVariantPriceInheritance()).toThrow(
+            'sw-product-detail.syncVariantPriceInheritance() is deprecated',
+        );
+        expect(() => wrapper.vm.getDefaultPurchasePrices()).toThrow(
+            'sw-product-detail.getDefaultPurchasePrices() is deprecated',
+        );
+    });
+    /* eslint-enable sw-test-rules/no-vm-access */
 
     it('should show item tabs', async () => {
         await wrapper.setProps({
@@ -427,64 +438,59 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
     });
 
-    it('should render meteor route tabs when the major feature flag is active', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should render meteor route tabs when the major feature flag is active',
+        async () => {
+            Shopware.Store.get('swProductDetail').product = { parentId: null };
+            Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
-        Shopware.Store.get('swProductDetail').product = { parentId: null };
-        Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
+            await nextTick();
 
-        await nextTick();
+            const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+            const items = tabs.props('items');
 
-        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
-        const items = tabs.props('items');
+            expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
+            expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
+            expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
+                {
+                    label: 'sw-product.detail.tabGeneral',
+                    name: 'sw.product.detail.base',
+                },
+                {
+                    label: 'sw-product.detail.tabSpecifications',
+                    name: 'sw.product.detail.specifications',
+                },
+                {
+                    label: 'sw-product.detail.tabAdvancedPrices',
+                    name: 'sw.product.detail.prices',
+                },
+                {
+                    label: 'sw-product.detail.tabVariation',
+                    name: 'sw.product.detail.variants',
+                },
+                {
+                    label: 'sw-product.detail.tabLayout',
+                    name: 'sw.product.detail.layout',
+                },
+                {
+                    label: 'sw-product.detail.tabSeo',
+                    name: 'sw.product.detail.seo',
+                },
+                {
+                    label: 'sw-product.detail.tabCrossSelling',
+                    name: 'sw.product.detail.crossSelling',
+                },
+                {
+                    label: 'sw-product.detail.tabReviews',
+                    name: 'sw.product.detail.reviews',
+                },
+            ]);
+            expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+            expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
+        },
+    );
 
-        expect(tabs.props('positionIdentifier')).toBe('sw-product-detail');
-        expect(tabs.props('defaultItem')).toBe('sw.product.detail.base');
-        expect(items.map(({ label, name }) => ({ label, name }))).toEqual([
-            {
-                label: 'sw-product.detail.tabGeneral',
-                name: 'sw.product.detail.base',
-            },
-            {
-                label: 'sw-product.detail.tabSpecifications',
-                name: 'sw.product.detail.specifications',
-            },
-            {
-                label: 'sw-product.detail.tabAdvancedPrices',
-                name: 'sw.product.detail.prices',
-            },
-            {
-                label: 'sw-product.detail.tabVariation',
-                name: 'sw.product.detail.variants',
-            },
-            {
-                label: 'sw-product.detail.tabLayout',
-                name: 'sw.product.detail.layout',
-            },
-            {
-                label: 'sw-product.detail.tabSeo',
-                name: 'sw.product.detail.seo',
-            },
-            {
-                label: 'sw-product.detail.tabCrossSelling',
-                name: 'sw.product.detail.crossSelling',
-            },
-            {
-                label: 'sw-product.detail.tabReviews',
-                name: 'sw.product.detail.reviews',
-            },
-        ]);
-        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
-        expect(wrapper.find('.sw-product-detail__tab-general').exists()).toBe(false);
-    });
-
-    it('should show the layout meteor tab for variant products', async () => {
-        wrapper.unmount();
-        wrapper = await createWrapper(undefined, undefined, '1234', { featureActive: true });
-        await flushPromises();
-
+    it.activeFeatureFlags(['v6.8.0.0'])('should show the layout meteor tab for variant products', async () => {
         Shopware.Store.get('swProductDetail').product = { parentId: 'parent-id' };
         Shopware.Store.get('swProductDetail').advancedModeSetting = advancedModeSettings;
 
@@ -501,12 +507,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(tabNames).not.toContain('sw.product.detail.variants');
     });
 
-    it('should navigate when a meteor route tab is selected', async () => {
+    it.activeFeatureFlags(['v6.8.0.0'])('should navigate when a meteor route tab is selected', async () => {
         const routerPush = jest.fn();
 
         wrapper.unmount();
         wrapper = await createWrapper(undefined, undefined, '1234', {
-            featureActive: true,
             routerPush,
         });
         await flushPromises();
@@ -615,7 +620,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(settings.some((entry) => entry.key === mockKey)).toBeFalsy();
     });
 
-    it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
+    it('should keep purchasePrices optional when creating a product', async () => {
         await flushPromises();
         wrapper.unmount();
         wrapper = await createWrapper(() =>
@@ -630,14 +635,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         await nextTick();
 
-        expect(wrapper.vm.product.purchasePrices).toStrictEqual([
-            {
-                currencyId: undefined,
-                gross: 0,
-                net: 0,
-                linked: true,
-            },
-        ]);
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
     it('should validate and clear listPrices/regulationPrices on save', async () => {
@@ -1292,7 +1290,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
         expect(wrapper.vm.product._origin.purchasePrices).toEqual(wrapper.vm.product.purchasePrices);
     });
 
@@ -1314,7 +1312,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
     it('should handle the purchase price if its undefined', async () => {
@@ -1335,7 +1333,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 0, linked: true, gross: 0 }]);
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
     });
 
     it('should synchronize the default purchase price with the parent product origin', async () => {
@@ -1365,7 +1363,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.parentProduct.purchasePrices).toEqual([{ currencyId: undefined, gross: 0, net: 0, linked: true }]);
+        expect(wrapper.vm.parentProduct.purchasePrices).toBeNull();
         expect(wrapper.vm.parentProduct._origin.purchasePrices).toEqual(wrapper.vm.parentProduct.purchasePrices);
     });
 
@@ -1412,7 +1410,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
+        expect(wrapper.vm.product.purchasePrices).toBeUndefined();
     });
 
     it('should keep existing purchase price for variant products with their own values', async () => {
@@ -1452,11 +1450,19 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 5, linked: true, gross: 6 }]);
     });
 
-    it('should sync purchasePrices to null when price is inherited but purchasePrices is not', async () => {
+    it('should load inherited displayPrices without changing overridden purchasePrices', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
-            () =>
-                Promise.resolve({
+            (id) => {
+                if (id === 'parent-id') {
+                    return Promise.resolve({
+                        id: 'parent-id',
+                        price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                        purchasePrices: [{ currencyId: undefined, net: 42, gross: 50, linked: true }],
+                    });
+                }
+
+                return Promise.resolve({
                     id: 'test',
                     parentId: 'parent-id',
                     price: null,
@@ -1468,7 +1474,8 @@ describe('module/sw-product/page/sw-product-detail', () => {
                             linked: true,
                         },
                     ],
-                }),
+                });
+            },
         );
 
         await wrapper.setProps({
@@ -1479,10 +1486,11 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
 
         expect(wrapper.vm.product.id).toBe('test');
-        expect(wrapper.vm.product.purchasePrices).toBeNull();
+        expect(Shopware.Store.get('swProductDetail').product.price).toBeNull();
+        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, net: 5, gross: 6, linked: true }]);
     });
 
-    it('should sync purchasePrices from parent when price is not inherited but purchasePrices is', async () => {
+    it('should load inherited purchasePrices without changing overridden displayPrices', async () => {
         wrapper = await createWrapper(
             () => Promise.resolve([]),
             (id) => {
@@ -1497,7 +1505,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 return Promise.resolve({
                     id: 'variant-id',
                     parentId: 'parent-id',
-                    price: [{ currencyId: undefined, net: 84, gross: 100, linked: true }],
+                    price: [{ currencyId: undefined, net: 100, gross: 120, linked: true }],
                     purchasePrices: null,
                 });
             },
@@ -1510,7 +1518,10 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await wrapper.vm.loadProduct();
         await flushPromises();
 
-        expect(wrapper.vm.product.purchasePrices).toEqual([{ currencyId: undefined, gross: 50, net: 42, linked: true }]);
+        expect(wrapper.vm.product.purchasePrices).toBeNull();
+        expect(Shopware.Store.get('swProductDetail').product.price).toEqual([
+            { currencyId: undefined, net: 100, gross: 120, linked: true },
+        ]);
     });
 
     it('should ignore purchase price if its set', async () => {

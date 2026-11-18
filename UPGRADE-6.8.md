@@ -1617,6 +1617,44 @@ The unused property was removed.
 
 # Administration
 
+## Product prices card extension points
+
+The product prices card was restructured, and display prices and purchase prices received separate inheritance controls.
+The following blocks were deprecated and retained as compatibility wrappers during 6.7, and removed in 6.8.
+Update overrides to use the replacement blocks:
+
+| Previous block | Replacement |
+| --- | --- |
+| `sw_product_price_form_fields` | `sw_product_price_form_tax_field`, `sw_product_price_form_display_prices`, and `sw_product_price_form_purchase_prices` |
+| `sw_product_price_form_price_field` | `sw_product_price_form_display_prices` and `sw_product_price_form_purchase_prices` |
+| `sw_product_price_form_link` | `sw_product_price_form_currency_link` or `sw_product_detail_base_advanced_prices_link` |
+| `sw_product_price_form_maintain_currencies_link` | `sw_product_price_form_currency_link` |
+| `sw_product_price_form_advanced_prices_link` | `sw_product_detail_base_advanced_prices_link` in `sw-product-detail-base` |
+
+`sw-list-price-field` continued to render purchase prices during 6.7 when its deprecated `purchasePrices` prop was supplied.
+Its `hidePurchasePrices` and `purchasePrices` props were deprecated during 6.7 and removed in 6.8.
+Render `sw-purchase-price-field` separately where purchase prices are needed.
+Overrides that copied the old combined price editor and continued passing `purchasePrices` to `sw-list-price-field` could render purchase prices twice alongside the new purchase section.
+Remove the `purchasePrices` binding from the copied display-price editor and customize `sw_product_price_form_purchase_prices` separately.
+The `sw_product_price_form_purchase_price_field` and `sw_product_price_form_purchase_price_field_content` blocks were deprecated during 6.7 and removed in 6.8.
+Use `sw_product_price_form_purchase_prices` to customize the product card's purchase section.
+
+The restructured price inheritance wrappers exposed their price arrays directly as `currentValue`.
+Replace `currentValue.price` and `currentValue.purchasePrices` with `currentValue` in the corresponding sections.
+Replace overrides of `removePriceInheritation()` with `copyDefaultPrice(prices)` for display prices or `copyDefaultPurchasePrice(prices)` for purchase prices.
+Replace overrides of `inheritationCheckFunction()` with `isPriceInherited(prices)`.
+Each replacement receives the corresponding section's price array.
+The `prices` and `parentPrices` computed properties of `sw-product-price-form` were deprecated during 6.7 and removed in 6.8.
+Replace `this.prices.price` with `this.product.price` and `this.prices.purchasePrices` with `this.product.purchasePrices`.
+Use `product.price`, `product.purchasePrices`, `parentProduct.price`, and `parentProduct.purchasePrices` separately; use `displayPrices` for the effective inherited display prices.
+
+`sw-product-detail.syncVariantPriceInheritance()` was deprecated during 6.7 and removed in 6.8.
+It retained the old coupled inheritance behavior during 6.7, so calling it could reset independently overridden purchase prices.
+Remove calls to it.
+Move unrelated load-time customization to `sw-product-detail.loadProduct()`.
+`sw-product-detail.getDefaultPurchasePrices()` was deprecated during 6.7 and removed in 6.8.
+Set `product.purchasePrices` explicitly in a product-detail extension when a default purchase price is required.
+
 ## Sales channel detail components load fewer visibilities and sales channels
 
 - `sw-sales-channel-detail-base`: the currencies of the *Currency* select are loaded without `salesChannels`.

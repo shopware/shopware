@@ -65,6 +65,17 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
+        currentLocale() {
+            return Shopware.Store.get('session').currentLocale;
+        },
+
+        taxRateFormatter() {
+            return new Intl.NumberFormat(this.currentLocale, {
+                style: 'percent',
+                maximumFractionDigits: 3,
+            });
+        },
+
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
 
         taxRateHelpText() {
@@ -85,8 +96,16 @@ export default {
             );
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use product.price and product.purchasePrices separately.
+         */
         prices: {
             get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-product-price-form.prices is deprecated. Use product.price and product.purchasePrices separately.',
+                );
+
                 const prices = {
                     price: [],
                     purchasePrices: [],
@@ -104,16 +123,41 @@ export default {
             },
 
             set(newValue) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-product-price-form.prices is deprecated. Use product.price and product.purchasePrices separately.',
+                );
+
                 this.product.price = newValue?.price || null;
                 this.product.purchasePrices = newValue?.purchasePrices || null;
             },
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use product.price, product.purchasePrices, parentProduct.price, and parentProduct.purchasePrices separately.
+         */
         parentPrices() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-price-form.parentPrices is deprecated. Use the product and parentProduct price properties separately.',
+            );
+
             return {
                 price: this.product.price || this.parentProduct.price,
                 purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices,
             };
+        },
+
+        displayPricesInherited() {
+            return !!this.parentProduct.id && this.isPriceInherited(this.product.price);
+        },
+
+        displayPrices() {
+            if (this.displayPricesInherited) {
+                return this.parentProduct.price;
+            }
+
+            return this.product.price;
         },
 
         taxRateOptions() {
@@ -128,7 +172,15 @@ export default {
     },
 
     methods: {
+        /**
+         * @deprecated tag:v6.8.0 - Use copyDefaultPrice() or copyDefaultPurchasePrice() for the corresponding price section.
+         */
         removePriceInheritation(refPrice) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-price-form.removePriceInheritation() is deprecated. Use copyDefaultPrice() or copyDefaultPurchasePrice() instead.',
+            );
+
             const defaultRefPrice = refPrice.price?.find((price) => price.currencyId === this.defaultCurrency.id);
             const defaultRefPurchasePrice = refPrice.purchasePrices?.find(
                 (price) => price.currencyId === this.defaultCurrency.id,
@@ -162,26 +214,62 @@ export default {
             return prices;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Use isPriceInherited() for the corresponding price section.
+         */
         inheritationCheckFunction() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-price-form.inheritationCheckFunction() is deprecated. Use isPriceInherited() instead.',
+            );
+
             return !this.prices.price.length && !this.prices.purchasePrices.length;
         },
 
         onMaintainCurrenciesClose(prices) {
-            this.product.price = prices;
+            if (!this.displayPricesInherited) {
+                this.product.price = prices;
+            }
 
             this.displayMaintainCurrencies = false;
         },
 
         getTaxLabel(tax) {
-            if (this.$te(`global.tax-rates.${tax.name}`)) {
-                return this.$t(`global.tax-rates.${tax.name}`);
+            if (!tax) {
+                return '';
             }
 
-            return tax.name;
+            const translationKey = `global.tax-rates.${tax.name}`;
+            const label = this.$te(translationKey) ? this.$t(translationKey) : tax.name;
+
+            return `${label} (${this.taxRateFormatter.format(tax.taxRate / 100)})`;
         },
 
         updatePrices(index) {
             this.product.price.splice(index, 1);
+        },
+
+        copyDefaultPrice(prices) {
+            return this.copyDefaultCurrencyPrice(prices, null);
+        },
+
+        copyDefaultPurchasePrice(prices) {
+            return this.copyDefaultCurrencyPrice(prices, 0);
+        },
+
+        copyDefaultCurrencyPrice(prices, fallbackValue) {
+            const price = prices?.find(({ currencyId }) => currencyId === this.defaultCurrency.id) ?? {
+                currencyId: this.defaultCurrency.id,
+                gross: fallbackValue,
+                net: fallbackValue,
+                linked: true,
+            };
+
+            return [Shopware.Utils.object.cloneDeep(price)];
+        },
+
+        isPriceInherited(prices) {
+            return !prices?.length;
         },
     },
 };

@@ -2,24 +2,23 @@ import Plugin from 'src/plugin-system/plugin.class';
 import type { QuickView } from '@shopware-ag/dive/quickview';
 import { loadDIVE } from './utils/spatial-dive-load-util';
 
+type SpatialBaseViewerOptions = {
+    modelUrl: string;
+    sliderPosition: number;
+};
+
 /**
  * @package innovation
  *
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-// @ts-ignore
-export default class SpatialBaseViewerPlugin extends Plugin<Record<string, unknown>, HTMLElement> {
+export default class SpatialBaseViewerPlugin extends Plugin<SpatialBaseViewerOptions, HTMLElement> {
 
     protected rendering = false;
 
     public canvas: HTMLCanvasElement | undefined;
 
     public ready = false;
-
-    public options!: {
-        modelUrl: string;
-        sliderPosition: number;
-    };
 
     protected dive: QuickView | undefined;
 

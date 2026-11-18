@@ -521,15 +521,36 @@ Block names are keyed by component, never by prefix: `sw_sales_channel_detail_ba
 ### Extend children
 
 The generator resolves the Twig extend and writes the effective blocks of the child, because Twig extend resolution cannot be expressed in types.
-Each block of the child carries one origin facet:
+Each block the child takes from its parent carries one origin facet:
 
 - `inherited`: taken unchanged from the parent.
 - `replaced`: redeclared by the child template without `{% parent %}`.
   Its inherited children disappear from the child's map.
 - `keepsParent`: redeclared with `{% parent %}`.
 
+A block the child adds inside a block it redeclares carries no origin facet.
+The origin is relative to the direct parent: a grandchild marks a block `inherited` whatever its parent did with it.
+A child exists in the flag states in which every component of its chain is registered.
+
 A block change in a parent therefore also changes the files of its extend children.
 That is intended, because their API changes too.
+
+The merge follows `src/core/factory/template.factory.js`, which differs from plain Twig:
+
+- Only the top-level blocks of a child template replace blocks of the parent.
+  A block inside them is a new block at that place, even when the parent has a block of that name elsewhere.
+- A top-level block that the parent does not have is dropped, and the blocks directly inside it count as top-level blocks.
+  A child can therefore wrap its template in a block of its own, which is then no block of the component.
+- A redeclaration replaces the whole block.
+  `{% parent %}` brings the parent content back, directly in the redeclaration or one block deeper.
+- Below a block that a child redeclares, the same template cannot redeclare another block, with or without `{% parent %}`.
+- A block the child declares twice uses the first declaration.
+  A block the parent has several times is replaced in every place, and `{% parent %}` takes the content of the first one.
+- The flag state of a block comes from the place where it renders.
+  A `v-if` around a top-level block of a child template has no effect, because only the content of that block is used.
+
+The runtime drops a block of an extend or override template that replaces nothing, without a warning.
+Such a block is in no file, and a spec of the generator fails when a template declares one.
 
 ### Block context
 

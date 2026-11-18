@@ -2,17 +2,20 @@
 
 namespace Shopware\Tests\Unit\Core\System\Snippet\Service;
 
-use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Promise\Create;
+use GuzzleHttp\Promise\Promise;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use League\Flysystem\Filesystem as FlySystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -44,7 +47,15 @@ use Symfony\Component\Filesystem\Path;
 #[CoversClass(TranslationLoader::class)]
 class TranslationLoaderTest extends TestCase
 {
-    private ClientInterface&Stub $client;
+    /**
+     * @var \Closure(RequestInterface): (ResponseInterface|PromiseInterface)
+     */
+    private \Closure $respond;
+
+    /**
+     * @var list<string>
+     */
+    private array $requestedUrls = [];
 
     private FlySystem $flysystem;
 
@@ -73,7 +84,7 @@ class TranslationLoaderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->client = static::createStub(ClientInterface::class);
+        $this->respond = static fn (): ResponseInterface => new Response(200, [], '["es-ES"]');
         $this->flysystem = new FlySystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
         $this->context = Context::createDefaultContext();
         $this->eventDispatcher = new EventDispatcher();
@@ -90,7 +101,6 @@ class TranslationLoaderTest extends TestCase
             new Uri('http://localhost:8000/metadata.json'),
             ['it-IT'],
         );
-        $this->initClient();
     }
 
     public function testLoadThrowsExceptionIfLanguageDoesNotExist(): void
@@ -113,12 +123,7 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadThrowsExceptionIfRemoteServerReturnsNon404(): void
     {
-        $response500 = new Response(500);
-        $request = new Request('GET', 'http://localhost:8000');
-        $requestException = new RequestException('Server Error', $request, $response500);
-
-        $this->client = static::createStub(ClientInterface::class);
-        $this->client->method('request')->willThrowException($requestException);
+        $this->respond = static fn (): ResponseInterface => new Response(500);
 
         $loader = $this->getTranslationLoader();
 
@@ -129,20 +134,13 @@ class TranslationLoaderTest extends TestCase
 
     public function testLoadSkips404RemoteFiles(): void
     {
-        $response404 = new Response(404);
-        $request = new Request('GET', 'http://localhost:8000');
-        $requestException = new RequestException('Not Found', $request, $response404);
-
-        $this->client = static::createStub(ClientInterface::class);
-        $this->client->method('request')->willReturnCallback(static function ($method, $url) use ($requestException) {
-            if (str_contains($url, 'administration.json')) {
-                throw $requestException;
+        $this->respond = static function (RequestInterface $request): ResponseInterface {
+            if (str_ends_with($request->getUri()->getPath(), 'administration.json')) {
+                return new Response(404);
             }
-            $jsonResponse = json_encode(['es-ES']);
-            static::assertIsString($jsonResponse);
 
-            return new Response(200, [], $jsonResponse);
-        });
+            return new Response(200, [], '["es-ES"]');
+        };
 
         $loader = $this->getTranslationLoader();
         $loader->load('es-ES', $this->context);
@@ -186,6 +184,64 @@ class TranslationLoaderTest extends TestCase
         sort($expectedFiles);
 
         static::assertSame($expectedFiles, $writtenFiles);
+    }
+
+    public function testDownloadKeepsAtMostTenRequestsInFlight(): void
+    {
+        $this->config = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            ['es-ES'],
+            ['PluginA', 'PluginB', 'PluginC', 'PluginD', 'PluginE', 'PluginF'],
+            new LanguageDtoCollection([new Language('es-ES', 'Español')]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            ['it-IT'],
+        );
+
+        $inFlight = 0;
+        $maxInFlight = 0;
+
+        $this->respond = static function () use (&$inFlight, &$maxInFlight): PromiseInterface {
+            ++$inFlight;
+            $maxInFlight = max($maxInFlight, $inFlight);
+
+            $pendingResponse = new Promise(static function () use (&$pendingResponse, &$inFlight): void {
+                --$inFlight;
+                static::assertInstanceOf(Promise::class, $pendingResponse);
+                $pendingResponse->resolve(new Response(200, [], '{}'));
+            });
+
+            return $pendingResponse;
+        };
+
+        $this->getTranslationLoader()->download('es-ES');
+
+        static::assertSame(10, $maxInFlight);
+        static::assertCount(15, $this->requestedUrls);
+    }
+
+    public function testDownloadWritesTheOtherFilesWhenOneRequestFails(): void
+    {
+        $this->respond = static function (RequestInterface $request): ResponseInterface {
+            if (str_ends_with($request->getUri()->getPath(), 'Core/messages.json')) {
+                return new Response(500);
+            }
+
+            return new Response(200, [], '{}');
+        };
+
+        $loader = $this->getTranslationLoader();
+
+        try {
+            $loader->download('es-ES');
+            static::fail('A failed request must be thrown');
+        } catch (GuzzleException $e) {
+            static::assertSame(500, $e->getCode());
+        }
+
+        static::assertCount(5, $this->requestedUrls);
+        static::assertTrue($this->flysystem->fileExists(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'storefront.json')));
+        static::assertFalse($this->flysystem->fileExists(Path::join($loader->getLocalePath('es-ES'), 'Platform', 'messages.es-ES.base.json')));
     }
 
     public function testLoadCreatesLanguageAndSnippetSet(): void
@@ -465,8 +521,6 @@ class TranslationLoaderTest extends TestCase
 
     public function testLinkCreatesLanguageAndSnippetSetWithoutDownloading(): void
     {
-        $this->client = $this->createMock(ClientInterface::class);
-        $this->client->expects($this->never())->method('request');
         $this->languageRepository = StaticEntityRepository::of(LanguageCollection::class, [$this->getEmptySearchResult()]);
         $this->snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, [$this->getEmptySearchResult()]);
 
@@ -498,6 +552,7 @@ class TranslationLoaderTest extends TestCase
             ->filter(static fn ($item) => $item->isFile())
             ->toArray();
         static::assertCount(1, $files, 'link() must not write any translation file');
+        static::assertSame([], $this->requestedUrls, 'link() must not contact the translation repository');
     }
 
     public function testLinkCreatesLanguageWithActiveFalseWhenSkipped(): void
@@ -554,7 +609,6 @@ class TranslationLoaderTest extends TestCase
     {
         $loader = $this->getTranslationLoader();
 
-        // fetchFile() creates this directory before downloading, so it survives a download that fetched nothing
         $this->flysystem->createDirectory(Path::join($loader->getLocalePath('es-ES'), 'Platform'));
 
         $this->expectExceptionObject(SnippetException::translationsUnavailable(['es-ES']));
@@ -590,7 +644,12 @@ class TranslationLoaderTest extends TestCase
             languageRepository: $this->languageRepository,
             localeRepository: $this->localeRepository,
             snippetSetRepository: $this->snippetSetRepository,
-            client: $this->client,
+            client: new Client(['handler' => HandlerStack::create(function (RequestInterface $request): PromiseInterface {
+                $this->requestedUrls[] = (string) $request->getUri();
+                $stubbedResponse = ($this->respond)($request);
+
+                return $stubbedResponse instanceof PromiseInterface ? $stubbedResponse : Create::promiseFor($stubbedResponse);
+            })]),
             config: $this->config,
             eventDispatcher: $this->eventDispatcher,
         );
@@ -619,14 +678,5 @@ class TranslationLoaderTest extends TestCase
             new Criteria(),
             $this->context
         );
-    }
-
-    private function initClient(): void
-    {
-        $body = json_encode(['es-ES']);
-        static::assertIsString($body);
-
-        $response = new Response(200, [], $body);
-        $this->client->method('request')->willReturn($response);
     }
 }

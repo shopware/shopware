@@ -5,7 +5,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -49,7 +49,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -67,7 +67,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -125,7 +125,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -230,7 +230,7 @@
         "<=",
         "!="
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -250,7 +250,7 @@
         "<=",
         "!="
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -321,7 +321,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -356,7 +356,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -375,7 +375,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -393,7 +393,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -508,7 +508,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -665,7 +665,7 @@
         "<=",
         "!="
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -686,7 +686,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -764,7 +764,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -787,7 +787,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -810,7 +810,30 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
+    },
+    "fields": [
+      {
+        "name": "amount",
+        "type": "float",
+        "config": {
+          "unit": "dimension"
+        }
+      }
+    ]
+  },
+  "cartLineItemDimensionLongestAndGirth": {
+    "operatorSet": {
+      "operators": [
+        "=",
+        ">",
+        ">=",
+        "<",
+        "<=",
+        "!=",
+        "empty"
+      ],
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -833,7 +856,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -855,7 +878,7 @@
         "<=",
         "!="
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -878,7 +901,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -899,7 +922,7 @@
         "!=",
         "empty"
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -939,7 +962,7 @@
         "<=",
         "!="
       ],
-      "isMatchAny": false
+      "isMatchAny": true
     },
     "fields": [
       {
@@ -955,7 +978,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {
@@ -973,7 +996,7 @@
         "=",
         "!="
       ],
-      "isMatchAny": true
+      "isMatchAny": false
     },
     "fields": [
       {

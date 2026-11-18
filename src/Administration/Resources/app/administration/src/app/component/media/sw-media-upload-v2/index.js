@@ -2,6 +2,7 @@ import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
 
 const { Mixin, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 const { fileReader } = Shopware.Utils;
 const { fileSize } = Shopware.Utils.format;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
@@ -533,20 +534,25 @@ export default {
             const pendingIds = Array.from(this.pendingUploadMediaIds);
             this.pendingUploadMediaIds.clear();
 
-            pendingIds.forEach((mediaId) => {
-                Promise.resolve()
-                    .then(() => this.mediaRepository.get(mediaId, Context.api))
-                    .then((media) => {
-                        if (media && !media.hasFile) {
-                            return this.mediaRepository.delete(mediaId, Context.api);
-                        }
+            const criteria = new Criteria(1, pendingIds.length);
+            criteria.setIds(pendingIds);
 
+            Promise.resolve()
+                .then(() => this.mediaRepository.search(criteria, Context.api))
+                .then((mediaItems) => {
+                    const orphanedIds = Array.from(mediaItems)
+                        .filter((media) => !media.hasFile)
+                        .map((media) => media.id);
+
+                    if (orphanedIds.length === 0) {
                         return null;
-                    })
-                    .catch((error) => {
-                        Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', mediaId, error);
-                    });
-            });
+                    }
+
+                    return this.mediaRepository.syncDeleted(orphanedIds, Context.api);
+                })
+                .catch((error) => {
+                    Shopware.Utils.debug.warn('sw-media-upload-v2', 'Failed to clean up orphaned media', pendingIds, error);
+                });
         },
 
         async getDefaultFolderId() {

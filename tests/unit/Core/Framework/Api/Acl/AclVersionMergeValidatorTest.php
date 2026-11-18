@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -20,15 +19,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -160,13 +160,9 @@ class AclVersionMergeValidatorTest extends TestCase
     {
         $versionId = Uuid::randomHex();
 
-        $commitDataRepository = $this->createMock(EntityRepository::class);
-        $commitDataRepository->expects($this->once())->method('aggregate')
-            ->willReturnCallback(static function (Criteria $criteria) use ($versionId): AggregationResultCollection {
-                static::assertEquals([new EqualsFilter('commit.versionId', $versionId)], $criteria->getFilters());
-
-                return new AggregationResultCollection([new TermsResult('entities', [])]);
-            });
+        $commitDataRepository = StaticEntityRepository::of(VersionCommitDataCollection::class, [
+            new AggregationResultCollection([new TermsResult('entities', [])]),
+        ]);
         $this->container->set(VersionCommitDataDefinition::ENTITY_NAME . '.repository', $commitDataRepository);
 
         $this->validator->getMissingPrivileges(
@@ -174,13 +170,15 @@ class AclVersionMergeValidatorTest extends TestCase
             $this->registry->getByEntityName('versioned_entity'),
             $this->createAdminApiContext(['versioned_entity:update'])
         );
+
+        static::assertCount(1, $commitDataRepository->searchedCriteria);
+        static::assertEquals([new EqualsFilter('commit.versionId', $versionId)], $commitDataRepository->searchedCriteria[0]->getFilters());
     }
 
     #[DataProvider('versionWithoutRecordedChangesProvider')]
     public function testOnlyRequiresUpdatePrivilegeWhenNoChangesAreRecorded(string $entity, string $versionId): void
     {
-        $commitDataRepository = $this->createMock(EntityRepository::class);
-        $commitDataRepository->expects($this->never())->method('aggregate');
+        $commitDataRepository = StaticEntityRepository::of(VersionCommitDataCollection::class);
         $this->container->set(VersionCommitDataDefinition::ENTITY_NAME . '.repository', $commitDataRepository);
 
         $missing = $this->validator->getMissingPrivileges(
@@ -190,6 +188,7 @@ class AclVersionMergeValidatorTest extends TestCase
         );
 
         static::assertSame([$entity . ':update'], $missing);
+        static::assertSame([], $commitDataRepository->searchedCriteria);
     }
 
     /**
@@ -212,8 +211,7 @@ class AclVersionMergeValidatorTest extends TestCase
             $buckets[] = new Bucket($entityName, \count($actions), new TermsResult('actions', $actionBuckets));
         }
 
-        $commitDataRepository = static::createStub(EntityRepository::class);
-        $commitDataRepository->method('aggregate')->willReturn(new AggregationResultCollection([new TermsResult('entities', $buckets)]));
+        $commitDataRepository = StaticEntityRepository::of(VersionCommitDataCollection::class, [new AggregationResultCollection([new TermsResult('entities', $buckets)])]);
 
         $this->container->set(VersionCommitDataDefinition::ENTITY_NAME . '.repository', $commitDataRepository);
     }

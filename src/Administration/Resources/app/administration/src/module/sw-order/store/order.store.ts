@@ -355,8 +355,3 @@ export default swOrderStore;
  * @private
  */
 export type SwOrderStore = ReturnType<typeof swOrderStore>;
-
-/**
- * @private
- */
-export type { SwOrderState };

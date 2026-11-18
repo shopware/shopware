@@ -884,13 +884,11 @@ class DocumentGeneratorTest extends TestCase
             $mediaFiles = $mediaRepository->search(new Criteria([$documentMediaFileId, $documentA11yMediaFileId]), $this->context)->getEntities();
             static::assertNotNull($mediaFiles);
 
-            /** @var MediaEntity $media */
             $media = $mediaFiles->get($documentMediaFileId);
-            static::assertNotNull($media);
+            static::assertInstanceOf(MediaEntity::class, $media);
 
-            /** @var MediaEntity $mediaAyy1 */
             $mediaAyy1 = $mediaFiles->get($documentA11yMediaFileId);
-            static::assertNotNull($mediaAyy1);
+            static::assertInstanceOf(MediaEntity::class, $mediaAyy1);
 
             $filePath = $media->getPath();
 

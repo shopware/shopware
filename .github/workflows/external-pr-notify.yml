@@ -1,11 +1,16 @@
 name: External PR notify
 
 # Tells a team in Slack about a new external pull request once it carries both
-# `external-contribution` and the team's domain label. Which teams take part, and the
-# rationale, live in .github/bin/js/waiting-on-slack.ts.
+# `external-contribution` and the team's domain label (WAITING_ON_SLACK_CHANNELS: domain
+# label → Slack channel id), using `notifyExternalContribution` from
+# @shopware-ag/gh-project-automation.
+#
+# `external-contribution` is set with GITHUB_TOKEN, whose events start no workflow. That still
+# works because it lands the moment a pull request opens, before anyone can triage it: the
+# team label, added later by a person or an octo-sts app, is the event that fires with both.
 #
 # pull_request_target so a fork's pull request gets the Slack token. Nothing from the pull
-# request is checked out or run: the job reads the event payload and the base branch's script.
+# request is checked out or run: the job reads the event payload and the base branch's packages.
 
 on:
   pull_request_target:
@@ -25,11 +30,12 @@ jobs:
         with:
           persist-credentials: false
           sparse-checkout: .github/bin/js
+      - run: npm ci --ignore-scripts --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN_PRODUCT_NOTIFICATIONS }}
           SLACK_CHANNELS: ${{ vars.WAITING_ON_SLACK_CHANNELS }}
         with:
           script: |
-            const { notifyNewExternalPullRequest } = await import('${{ github.workspace }}/.github/bin/js/waiting-on-slack.ts')
-            await notifyNewExternalPullRequest({ core, context }, { token: process.env.SLACK_TOKEN }, process.env.SLACK_CHANNELS)
+            const { notifyExternalContribution } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await notifyExternalContribution({ github, core, context }, process.env.SLACK_CHANNELS)

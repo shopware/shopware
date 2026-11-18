@@ -208,30 +208,28 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
 
         $fields = [];
         foreach ($groupings as $grouping) {
-            $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
-
-            $fields[] = \sprintf(
-                '
-                if (doc[\'%s\'].size()==0) {
-                    value = value + \'empty\';
-                } else {
-                    value = value + doc[\'%s\'].value;
-                }',
-                $accessor,
-                $accessor
-            );
+            $fields[] = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
         }
 
         $script = '
             def value = \'\';
 
-            ' . implode(' ', $fields) . '
+            for (def field : params.fields) {
+                if (doc[field].size()==0) {
+                    value = value + \'empty\';
+                } else {
+                    value = value + doc[field].value;
+                }
+            }
 
             return value;
         ';
 
         $aggregation = new CardinalityAggregation('total-count');
-        $aggregation->setScript($script);
+        $aggregation->addParameter('script', [
+            'source' => $script,
+            'params' => ['fields' => $fields],
+        ]);
         if ($this->precisionThreshold !== null) {
             $aggregation->addParameter('precision_threshold', $this->precisionThreshold);
         }

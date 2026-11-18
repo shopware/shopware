@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const popoverConfigDeprecation = 'sw-media-field.popoverConfig is deprecated.';
 
@@ -130,7 +130,6 @@ describe('src/app/component/media/sw-media-field', () => {
     });
 
     it.deprecated('v6.8.0.0')('returns empty config when picker is false', async () => {
-        allowDeprecation(popoverConfigDeprecation);
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.popoverConfig).toEqual({});
@@ -138,7 +137,6 @@ describe('src/app/component/media/sw-media-field', () => {
     });
 
     it.deprecated('v6.8.0.0')('returns empty config when not inside a modal', async () => {
-        allowDeprecation(popoverConfigDeprecation);
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 
@@ -148,7 +146,6 @@ describe('src/app/component/media/sw-media-field', () => {
     });
 
     it.deprecated('v6.8.0.0')('returns modal targetSelector when picker open inside modal', async () => {
-        allowDeprecation(popoverConfigDeprecation);
         const wrapper = await createWrapper();
         await wrapper.setData({ showPicker: true });
 

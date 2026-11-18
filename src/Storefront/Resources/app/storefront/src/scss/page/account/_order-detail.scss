@@ -1,5 +1,6 @@
 .order-detail-content {
     border-top: 1px solid $border-color;
+    overflow-wrap: anywhere;
 }
 
 .order-detail-content-header {
@@ -256,6 +257,13 @@
 
     .download-item-view-file-icon-btn {
         display: none;
+    }
+}
+
+@include media-breakpoint-only(xs) {
+    .order-detail-content-footer .order-item-detail-footer dl > dt,
+    .order-detail-content-footer .order-item-detail-footer dl > dd {
+        width: 100%;
     }
 }
 

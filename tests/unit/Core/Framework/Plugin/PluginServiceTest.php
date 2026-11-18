@@ -249,6 +249,54 @@ class PluginServiceTest extends TestCase
         static::assertSame(['en-GB', 'nl-NL', 'en-GB', 'nl-NL'], $lookedUpLocales->getArrayCopy(), 'Every refresh has to look the locales up again');
     }
 
+    public function testRefreshPluginsUsesEnGbAsSystemLanguageTranslationFallback(): void
+    {
+        $germanLanguageId = Uuid::randomHex();
+        $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
+        $pluginService = $this->getPluginServiceForLocales(
+            $pluginRepo,
+            ['de-DE', 'en-GB'],
+            ['de-DE' => $germanLanguageId],
+            new \ArrayObject()
+        );
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertCount(2, $pluginRepo->upserts);
+        foreach ($pluginRepo->upserts as $upsert) {
+            $name = $upsert[0]['name'];
+
+            static::assertSame([
+                $germanLanguageId => ['label' => $name . ' de-DE', 'description' => $name . ' de-DE'],
+                Defaults::LANGUAGE_SYSTEM => ['label' => $name . ' en-GB', 'description' => $name . ' en-GB'],
+            ], $upsert[0]['translations']);
+        }
+    }
+
+    public function testRefreshPluginsUsesFirstLocaleAsSystemLanguageTranslationFallbackWithoutEnGb(): void
+    {
+        $germanLanguageId = Uuid::randomHex();
+        $pluginRepo = new StaticEntityRepository([new PluginCollection()]);
+        $pluginService = $this->getPluginServiceForLocales(
+            $pluginRepo,
+            ['nl-NL', 'de-DE'],
+            ['de-DE' => $germanLanguageId],
+            new \ArrayObject()
+        );
+
+        $pluginService->refreshPlugins(Context::createDefaultContext(), static::createStub(IOInterface::class));
+
+        static::assertCount(2, $pluginRepo->upserts);
+        foreach ($pluginRepo->upserts as $upsert) {
+            $name = $upsert[0]['name'];
+
+            static::assertSame([
+                $germanLanguageId => ['label' => $name . ' de-DE', 'description' => $name . ' de-DE'],
+                Defaults::LANGUAGE_SYSTEM => ['label' => $name . ' nl-NL', 'description' => $name . ' nl-NL'],
+            ], $upsert[0]['translations']);
+        }
+    }
+
     private function getComposerPackage(string $version = '1.0.0'): CompletePackage
     {
         $completePackage = new CompletePackage('foo', $version, $version);

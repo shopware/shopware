@@ -55,7 +55,7 @@ class AppSeoUrlIndexer extends EntityIndexer
             return null;
         }
 
-        return new EntityIndexingMessage([$seoUrl->getRouteName()], ['offset' => $position + 1]);
+        return new EntityIndexingMessage([$seoUrl->getRouteName()], ['offset' => (int) $position + 1]);
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage

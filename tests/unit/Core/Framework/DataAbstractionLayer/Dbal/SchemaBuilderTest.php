@@ -67,6 +67,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -90,6 +91,7 @@ class SchemaBuilderTest extends TestCase
                 TestAssociationDefinition::class,
                 TestEntityWithAllPossibleFieldsDefinition::class,
                 TestEntityWithForeignKeysDefinition::class,
+                TestMappingDefinition::class,
                 ProductDefinition::class,
                 TestAssociationWithMissingReferenceVersionDefinition::class,
                 TestEntityWithUnmappedFieldSubclassDefinition::class,
@@ -326,6 +328,18 @@ class SchemaBuilderTest extends TestCase
         static::assertSame('RESTRICT', $associationFk3->getOnDeleteAction()->value);
     }
 
+    public function testMappingDefinitionForeignKeysCascadeOnDelete(): void
+    {
+        $definition = $this->registry->get(TestMappingDefinition::class);
+
+        $table = (new SchemaBuilder())->buildSchemaOfDefinition($definition);
+
+        $foreignKey = $table->getForeignKey('fk__test_mapping__association_id');
+
+        static::assertSame('CASCADE', $foreignKey->getOnUpdateAction()->value);
+        static::assertSame('CASCADE', $foreignKey->getOnDeleteAction()->value);
+    }
+
     public function testUnregisteredFieldSubclassUsesClosestMappedType(): void
     {
         $definition = $this->registry->get(TestEntityWithUnmappedFieldSubclassDefinition::class);
@@ -502,6 +516,25 @@ class TestEntityWithForeignKeysDefinition extends EntityDefinition
             new OneToManyAssociationField('children', self::class, 'parent_id'),
             new ManyToManyAssociationField('manyToMany', self::class, TestAssociationDefinition::class, 'test_entity_with_foreign_keys_id', 'test_association_id'),
             new OneToOneAssociationField('oneToOne', 'id', 'test_entity_with_foreign_keys_id', self::class, true),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class TestMappingDefinition extends MappingEntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'test_mapping';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new FkField('association_id', 'associationId', TestAssociationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            new ManyToOneAssociationField('association', 'association_id', TestAssociationDefinition::class, 'id'),
         ]);
     }
 }

@@ -74,6 +74,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
@@ -361,8 +362,8 @@ class SchemaBuilder
                 $delete = 'CASCADE';
             } elseif ($field->is(RestrictDelete::class)) {
                 $delete = 'RESTRICT';
-            } elseif ($definition instanceof EntityTranslationDefinition) {
-                // When a foreign key is used in a translation definition, cascade deletion should be applied so that related records are deleted when the main entity is removed, including translations.
+            } elseif ($definition instanceof EntityTranslationDefinition || $definition instanceof MappingEntityDefinition) {
+                // Translation and mapping rows are owned by the entities they reference and their key columns are NOT NULL, so SET NULL is invalid there. Delete them together with the referenced entity instead.
                 $delete = 'CASCADE';
             } else {
                 $delete = 'SET NULL';

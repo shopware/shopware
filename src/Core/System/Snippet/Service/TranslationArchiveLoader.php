@@ -118,6 +118,10 @@ class TranslationArchiveLoader
             throw SnippetException::translationArchiveUnavailable(\sprintf('the manifest "%s" names an invalid archive file', $manifestUrl), $e);
         }
 
+        if ($archiveUrl->getScheme() !== $manifestUrl->getScheme() || $archiveUrl->getAuthority() !== $manifestUrl->getAuthority()) {
+            throw SnippetException::translationArchiveUnavailable(\sprintf('the manifest "%s" names an archive on another host', $manifestUrl));
+        }
+
         return [$archiveUrl, $checksum, $this->parseCommittedAt($manifest['committedAt'] ?? null)];
     }
 

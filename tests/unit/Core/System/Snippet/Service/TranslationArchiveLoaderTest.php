@@ -223,6 +223,31 @@ class TranslationArchiveLoaderTest extends TestCase
         }
     }
 
+    #[DataProvider('provideArchiveFilesOnAnotherHost')]
+    public function testDownloadRejectsAnArchiveOnAnotherHost(string $file): void
+    {
+        $this->responses->append(new Response(200, [], $this->manifest(hash('sha256', ''), file: $file)));
+
+        $this->expectExceptionObject(SnippetException::translationArchiveUnavailable(\sprintf('the manifest "%s" names an archive on another host', self::MANIFEST_URL)));
+
+        try {
+            $this->createLoader()->download(['es-ES']);
+        } finally {
+            static::assertSame([self::MANIFEST_URL], $this->requestedUrls);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideArchiveFilesOnAnotherHost(): iterable
+    {
+        yield 'absolute URL' => ['https://internal.example/translations.zip'];
+        yield 'scheme-relative URL' => ['//internal.example/translations.zip'];
+        yield 'other port' => ['https://example.com:8443/translations.zip'];
+        yield 'other scheme' => ['http://example.com/translations.zip'];
+    }
+
     public function testDownloadConvertsAnUnusableCacheDirectory(): void
     {
         $this->respondWithArchive($this->createArchive(['translations/es-ES/Platform/Storefront/storefront.json' => '{}']));

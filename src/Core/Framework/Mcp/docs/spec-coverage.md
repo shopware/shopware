@@ -49,7 +49,7 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|---|---|
 | Transport | Streamable HTTP at `/api/_mcp` via `symfony/mcp-bundle` and `McpServerController` | clear | Keep docs aligned with the actual bundle behavior after upgrades |
 | Session lifecycle and JSON-RPC routing | Delegated to `symfony/mcp-bundle` / MCP PHP SDK | partial | Document the exact boundary between bundle behavior and Shopware-specific additions |
-| Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules | clear | Keep docs and tests aligned with the real enforcement path |
+| Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules. OAuth per the MCP authorization spec on `/api/_mcp`: `401` with `WWW-Authenticate` pointing to the protected resource metadata (RFC 9728), authorization server metadata (RFC 8414), PKCE `S256`, and tokens bound to the MCP resource (RFC 8707). Clients are registered by the operator in `shopware.api.oauth_clients`; see `## Authentication` in `AGENTS.md` | clear | Client ID metadata documents or dynamic client registration (#22047); keep docs and tests aligned with the real enforcement path |
 
 ## Client-side spec areas that are not server features here
 

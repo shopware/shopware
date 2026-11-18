@@ -73,50 +73,57 @@ class ElasticsearchIndexerTest extends TestCase
         parent::setUp();
     }
 
-    #[DataProvider('messageCounts')]
-    public function testIterateMessagesStreamsWithOneBatchLookahead(int $count): void
+    /**
+     * @param list<list<string>> $batches
+     */
+    #[DataProvider('indexingBatches')]
+    public function testIterateMessagesPreservesProductsAndMarksOnlyTheLastBatch(array $batches): void
     {
-        $indexer = $this->createPartialMock(ElasticsearchIndexer::class, ['iterate']);
-        $calls = 0;
-        $requestedEntities = [];
-        $requestedOffsets = [];
-        $offset = new IndexerOffset(['product'], 123);
-        $indexer->method('iterate')->willReturnCallback(static function (?IndexerOffset $previousOffset, array $entities) use (&$calls, &$requestedEntities, &$requestedOffsets, $offset, $count): ?ElasticsearchIndexingMessage {
-            ++$calls;
-            $requestedEntities[] = $entities;
-            $requestedOffsets[] = $previousOffset;
+        $query = static::createStub(IterableQuery::class);
+        $query->method('fetch')->willReturnOnConsecutiveCalls(...[...$batches, []]);
+        $this->iteratorFactory->method('createIterator')->willReturn($query);
 
-            return $calls <= $count ? new ElasticsearchIndexingMessage(
-                new IndexingDto([(string) $calls], 'product-index', 'product'),
-                $offset,
-                Context::createDefaultContext(),
-            ) : null;
-        });
+        $messages = iterator_to_array($this->getIndexer()->iterateMessages(['product']));
 
-        $messages = $indexer->iterateMessages(['product']);
-        static::assertCount(0, $requestedEntities);
-
-        $received = 0;
-        foreach ($messages as $message) {
-            ++$received;
-            static::assertCount($received + 1, $requestedEntities);
-            static::assertSame([(string) $received], $message->getData()->getIds());
-            static::assertSame($received === $count, $message->isLastMessage());
+        static::assertCount(\count($batches), $messages);
+        foreach ($messages as $position => $message) {
+            static::assertSame($batches[$position], $message->getData()->getIds());
+            static::assertSame($position === array_key_last($batches), $message->isLastMessage());
         }
-
-        static::assertSame($count, $received);
-        static::assertSame(array_fill(0, $count + 1, ['product']), $requestedEntities);
-        static::assertSame([null, ...array_fill(0, $count, $offset)], $requestedOffsets);
     }
 
     /**
-     * @return iterable<string, array{int}>
+     * @return iterable<string, array{list<list<string>>}>
      */
-    public static function messageCounts(): iterable
+    public static function indexingBatches(): iterable
     {
-        yield 'empty index' => [0];
-        yield 'single batch' => [1];
-        yield 'multiple batches' => [5];
+        yield 'empty index' => [[]];
+        yield 'single batch' => [[['product-a', 'product-b']]];
+        yield 'multiple batches' => [[['product-a'], ['product-b'], ['product-c']]];
+    }
+
+    public function testIterateMessagesYieldsBeforeReadingTheWholeCatalog(): void
+    {
+        $catalog = new \ArrayIterator([['product-a'], ['product-b']]);
+        $query = static::createStub(IterableQuery::class);
+        $query->method('fetch')->willReturnCallback(static function () use ($catalog): array {
+            if (!$catalog->valid()) {
+                throw new \RuntimeException('Later catalog read failed');
+            }
+
+            $batch = $catalog->current();
+            $catalog->next();
+
+            return $batch;
+        });
+        $this->iteratorFactory->method('createIterator')->willReturn($query);
+
+        $messages = $this->getIndexer()->iterateMessages(['product']);
+
+        static::assertSame(['product-a'], $messages->current()->getData()->getIds());
+        static::assertFalse($messages->current()->isLastMessage());
+        $this->expectExceptionObject(new \RuntimeException('Later catalog read failed'));
+        $messages->next();
     }
 
     public function testIterateESDisabled(): void

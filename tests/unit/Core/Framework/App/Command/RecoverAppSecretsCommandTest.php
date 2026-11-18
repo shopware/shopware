@@ -139,6 +139,23 @@ class RecoverAppSecretsCommandTest extends TestCase
         ], $calls);
     }
 
+    public function testFinishRegistersAnAppWhoseNameIsOnlyDigits(): void
+    {
+        $app = $this->app('123');
+
+        $rotationService = $this->createMock(AppSecretRotationService::class);
+        $rotationService->expects($this->once())
+            ->method('rotateNow')
+            ->with($app->getId(), static::anything(), AppSecretRotationService::TRIGGER_CLI, ['some-secret']);
+
+        $tester = new CommandTester($this->createCommand([$app], [], $rotationService));
+        $tester->setInputs(['[{"app": "123", "secret": "some-secret"}]']);
+
+        $tester->execute(['--finish' => true]);
+
+        static::assertSame(Command::SUCCESS, $tester->getStatusCode());
+    }
+
     #[TestWith(['[{"app": "TestApp"}]'])]
     #[TestWith(['[{"app": "TestApp", "secret": ""}]'])]
     public function testFinishRefusesInputThatIsNotTheHandoverJson(string $input): void

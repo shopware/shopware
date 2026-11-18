@@ -36,8 +36,6 @@ test(
 
             await ShopAdmin.attemptsTo(DuplicateCustomerAddress(street));
 
-            await ShopAdmin.goesTo(AdminCustomerDetail.url(customer.id));
-            await ShopAdmin.goesTo(AdminCustomerDetail.addressesUrl(customer.id));
             await ShopAdmin.expects(AdminCustomerDetail.addressRows(street)).toHaveCount(addressCount + 1);
         });
 

@@ -214,7 +214,7 @@ class RecoverAppSecretsCommand extends Command
 
         $failed = false;
         foreach ($secretsByApp as $appName => $secrets) {
-            $app = $apps->filterByProperty('name', $appName)->first();
+            $app = $apps->filterByProperty('name', (string) $appName)->first();
             if ($app === null) {
                 $io->error(\sprintf('App %s is not installed on this shop.', $appName));
                 $failed = true;

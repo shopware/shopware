@@ -180,11 +180,21 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-cell
-                                    :document="item"
-                                    column="title"
-                                    :show-variant-badge="!isInherited"
-                                />
+                                <sw-product-document-language-value
+                                    :value="getDocumentTitle(item)"
+                                    :is-translated="!!item.title"
+                                >
+                                    {% block sw_product_document_form_variant_badge %}
+                                    <mt-badge
+                                        v-if="!isInherited && isVariantOnly(item)"
+                                        class="sw-product-document-variant-badge"
+                                        variant="info"
+                                        size="s"
+                                    >
+                                        {{ $t('sw-product.documentForm.variantOnly') }}
+                                    </mt-badge>
+                                    {% endblock %}
+                                </sw-product-document-language-value>
                             </mt-link>
                         </template>
                     {% endblock %}
@@ -197,27 +207,21 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-cell
-                                    :document="item"
-                                    column="fileName"
+                                <sw-product-document-language-value
+                                    :value="getFileName(item)"
+                                    :is-translated="!!item.mediaId"
                                 />
                             </mt-link>
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_type %}
                         <template #column-fileType="{ item }">
-                            <sw-product-document-cell
-                                :document="item"
-                                column="fileType"
-                            />
+                            {{ getDocumentMedia(item)?.fileExtension?.toUpperCase() }}
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_size %}
                         <template #column-fileSize="{ item }">
-                            <sw-product-document-cell
-                                :document="item"
-                                column="fileSize"
-                            />
+                            {{ getFileSize(item) }}
                         </template>
                     {% endblock %}
                     {% block sw_product_document_form_actions %}

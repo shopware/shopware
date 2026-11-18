@@ -48,8 +48,8 @@ Shopware.Component.register(
     () => import('./component/sw-product-document-form/sw-product-document-language-hint'),
 );
 Shopware.Component.register(
-    'sw-product-document-cell',
-    () => import('./component/sw-product-document-form/sw-product-document-cell'),
+    'sw-product-document-language-value',
+    () => import('./component/sw-product-document-form/sw-product-document-language-value'),
 );
 Shopware.Component.register(
     'sw-product-document-add-button',

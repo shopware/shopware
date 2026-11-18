@@ -11,6 +11,9 @@ import {
     getFileAccept,
     isValidDocumentMedia,
     getFallbackTranslation,
+    getDocumentTitle,
+    getDocumentMedia,
+    getDocumentMediaId,
     setDocumentMedia,
     type DocumentChanges,
 } from './product-document.helper';
@@ -200,6 +203,33 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getDocumentTitle,
+
+        getDocumentMedia,
+
+        getFileName(document: Entity<'product_document'>): string {
+            const media = getDocumentMedia(document);
+            return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
+        },
+
+        getFileSize(document: Entity<'product_document'>): string {
+            const fileSize = getDocumentMedia(document)?.fileSize;
+            return typeof fileSize === 'number' ? Shopware.Utils.format.fileSize(fileSize) : '';
+        },
+
+        isVariantOnly(document: Entity<'product_document'>): boolean {
+            const mediaId = getDocumentMediaId(document);
+            return (
+                !!this.product.parentId &&
+                !!mediaId &&
+                !this.parentProduct.documents?.some(
+                    (parentDocument) =>
+                        getDocumentMediaId(parentDocument) === mediaId ||
+                        parentDocument.translations?.some((translation) => translation.mediaId === mediaId),
+                )
+            );
+        },
+
         getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
             return documents.slice(this.pageOffset, this.pageOffset + this.limit);
         },

@@ -1,16 +1,15 @@
-{% block sw_product_document_cell %}
+{% block sw_product_document_language_value %}
 <span
-    v-if="isLanguageColumn"
     class="sw-product-document-language-value"
     :class="{ 'sw-product-document-language-value--fallback': !isSystemDefaultLanguage && !isTranslated }"
 >
-    {% block sw_product_document_cell_text %}
+    {% block sw_product_document_language_value_text %}
     <span
         class="sw-product-document-language-value__text"
         :title="value"
     >{{ value }}</span>
     {% endblock %}
-    {% block sw_product_document_cell_language_badge %}
+    {% block sw_product_document_language_value_badge %}
     <mt-badge
         v-if="!isSystemDefaultLanguage && isTranslated && languageCode"
         v-tooltip="{ message: $t('sw-product.documentForm.changedForLanguage'), width: 'auto' }"
@@ -20,18 +19,6 @@
         {{ languageCode }}
     </mt-badge>
     {% endblock %}
-    {% block sw_product_document_cell_variant_badge %}
-    <mt-badge
-        v-if="isVariantOnly"
-        class="sw-product-document-variant-badge"
-        variant="info"
-        size="s"
-    >
-        {{ $t('sw-product.documentForm.variantOnly') }}
-    </mt-badge>
-    {% endblock %}
+    <slot></slot>
 </span>
-<template v-else>
-    {{ value }}
-</template>
 {% endblock %}

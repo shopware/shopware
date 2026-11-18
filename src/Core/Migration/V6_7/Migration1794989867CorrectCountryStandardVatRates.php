@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * Corrects the standard VAT rates Migration1589359936AddTaxCountryRules wrote in 2020, verified
  * against the European Commission's TEDB on 2026-11-18. The reduced rates it wrote have drifted
  * too, but which published rate belongs in which of the two reduced slots is a tax judgement no
- * source answers — see UPGRADE-6.7.md.
+ * source answers — see RELEASE_INFO-6.7.md.
  *
  * @internal
  */

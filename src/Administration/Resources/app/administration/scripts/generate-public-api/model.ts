@@ -72,6 +72,10 @@ function existingIn<Element extends { states: FlagStates }>(states: FlagStates, 
         .filter((element) => FLAG_STATES.some((state) => element.states[state]));
 }
 
+function flagBranch(flags: FlagContext): string {
+    return `v-if="feature.isActive('${flags.majorFlag}')"`;
+}
+
 /**
  * The snapshot has one entry per component name. A name that is registered twice, for example once per branch
  * of a feature check, would lose one of its registrations without anyone noticing.
@@ -85,7 +89,7 @@ function assertUniqueNames(registrations: Registration[], flags: FlagContext): v
         if (first !== undefined) {
             throw new Error(
                 `The component ${name} is registered twice, in ${first} and in ${file}. ` +
-                    `Register it once and branch its template with v-if="feature.isActive('${flags.majorFlag}')", ` +
+                    `Register it once and branch its template with ${flagBranch(flags)}, ` +
                     `or register the variant for ${flags.majorVersion} under a new name.`,
             );
         }
@@ -124,7 +128,7 @@ function assertEveryOverrideHasItsComponent({ registrations, overrides }: Compon
     }
 }
 
-function assertEveryOverrideCoversItsComponent({ registrations, overrides }: ComponentCalls): void {
+function assertEveryOverrideCoversItsComponent({ registrations, overrides }: ComponentCalls, flags: FlagContext): void {
     registrations.forEach((component) => {
         const partial = overrides
             .filter((override) => override.target === component.name)
@@ -133,7 +137,8 @@ function assertEveryOverrideCoversItsComponent({ registrations, overrides }: Com
         if (partial) {
             throw new Error(
                 `${partial.registeredIn}: the override of ${component.name} is registered in one flag state only. ` +
-                    'The snapshot cannot apply an override to one state of a template so far.',
+                    'The snapshot cannot apply an override to one state of a template so far. ' +
+                    `Register the override in both states and branch its template with ${flagBranch(flags)}.`,
             );
         }
     });
@@ -182,7 +187,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
 
     assertUniqueNames(registrations, flags);
     assertEveryOverrideHasItsComponent(calls);
-    assertEveryOverrideCoversItsComponent(calls);
+    assertEveryOverrideCoversItsComponent(calls, flags);
     assertEveryTemplateIsUsed(calls, templates);
 
     const resolved = resolveTemplates(componentTemplates(calls, templates));

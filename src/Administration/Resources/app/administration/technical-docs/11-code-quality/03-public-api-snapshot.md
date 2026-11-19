@@ -110,7 +110,7 @@ Unlike an extend template, each top-level block of an override is applied on its
 
 Some blocks of an extend or override template never render: the runtime drops a block that replaces nothing, without a warning.
 Such a block is in no report, and `scripts/generate-public-api/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
-The same spec registers every template with the runtime factory and compares the blocks of each component with the snapshot.
+The same spec registers every template with the runtime factory and compares the blocks of each component with the snapshot, their origin included.
 
 ### Flag states
 
@@ -274,7 +274,7 @@ The blocks have four unit kinds, because they are built in four steps:
 
 | Unit kind | Compares |
 |---|---|
-| `block-tree` | The block names, their parents, their flag states and their origin in an extend child, in the reports and the index |
+| `block-tree` | The block names, their parents, their flag states and their origin in an extend child in the reports, and the block names in the index |
 | `block-contract` | The same in the `blocks` member of the `.d.ts` contracts |
 | `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks |
 | `block-findings` | The findings on blocks and crossings |

@@ -888,6 +888,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Custom fields on the customer create page
+
+The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.
+They are rendered in the new block `sw_customer_create_custom_field_sets` in `sw-customer-create.html.twig`.
+
 ### `blocks-list.json` is replaced by the public API snapshot
 
 The Administration no longer ships `blocks-list.json`.

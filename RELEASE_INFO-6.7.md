@@ -896,6 +896,7 @@ Closing a select with the keyboard returns the focus to it.
 While a closed select has the focus, ESC no longer triggers the ESC shortcut of the page, like in a text field.
 Automated tests that open a select by focusing it must click it or press one of these keys instead.
 Inputs that extensions add inside a select need `tabindex="-1"`, so TAB moves on to the next field.
+
 ### Custom fields on the customer create page
 
 The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.

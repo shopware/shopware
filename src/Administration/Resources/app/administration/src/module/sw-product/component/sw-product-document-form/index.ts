@@ -5,7 +5,7 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 import type Repository from 'src/core/data/repository.data';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import type { DocumentChanges } from 'src/core/service/api/product-document-variant.api.service';
+import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 import { getDocumentMedia, setDocumentMedia } from './product-document.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
@@ -363,11 +363,34 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        applyDocumentEdit({ changes, media }: { changes: DocumentChanges; media: Entity<'media'> | null }): void {
-            if (this.editingDocument) {
-                this.setDocumentValues(this.editingDocument, changes, media);
-            }
+        applyDocumentEdit({
+            changes,
+            media,
+            operation,
+            variantCount,
+        }: {
+            changes: DocumentChanges;
+            media: Entity<'media'> | null;
+            operation: DocumentVariantOperation | null;
+            variantCount: number;
+        }): void {
+            const document = this.editingDocument;
             this.editingDocument = null;
+            if (!document) {
+                return;
+            }
+
+            this.setDocumentValues(document, changes, media);
+            if (operation) {
+                Store.get('swProductDetail').documentVariantOperations[document.id] = operation;
+                useSnackbar().addSnackbar({
+                    variant: 'success',
+                    message: this.$t('sw-product.documentForm.applySuccess', {
+                        name: document.translated?.title ?? '',
+                        count: variantCount,
+                    }),
+                });
+            }
         },
 
         onDocumentSelectionChange(selection: Record<string, Entity<'product_document'>>): void {
@@ -383,7 +406,36 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentsToRemove = documents.filter((item) => !this.isMissingLanguageVersion(item));
         },
 
-        removeDocuments(): void {
+        getRemoveSuccessMessage(variantCount: number): string {
+            const isBulk = this.documentsToRemove.length > 1;
+            const values = {
+                count: this.documentsToRemove.length,
+                language: this.contentLanguageName,
+                name: this.documentsToRemove[0]?.translated?.title ?? '',
+            };
+            if (isBulk) {
+                return this.$t(
+                    this.isSystemDefaultLanguage
+                        ? 'sw-product.documentForm.bulkRemoveSuccess'
+                        : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
+                    values,
+                );
+            }
+
+            return this.isSystemDefaultLanguage
+                ? this.$t('sw-product.documentForm.removeSuccess', { ...values, count: variantCount })
+                : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', values);
+        },
+
+        removeDocuments({
+            operations,
+            variantCount,
+        }: {
+            operations: Record<string, DocumentVariantOperation>;
+            variantCount: number;
+        }): void {
+            const message = this.getRemoveSuccessMessage(variantCount);
+
             this.documentsToRemove.forEach((document) => {
                 if (this.isSystemDefaultLanguage) {
                     this.documents.remove(document.id);
@@ -397,6 +449,8 @@ export default Shopware.Component.wrapComponentConfig({
             (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
             this.selectedDocuments = [];
             this.documentsToRemove = [];
+            Object.assign(Store.get('swProductDetail').documentVariantOperations, operations);
+            useSnackbar().addSnackbar({ variant: 'success', message });
         },
 
         removeDocumentInheritance(
@@ -426,6 +480,7 @@ export default Shopware.Component.wrapComponentConfig({
                     translation.productDocumentId = document.id;
                     translation.languageId = sourceTranslation.languageId;
                     translation.mediaId = sourceTranslation.mediaId;
+                    translation.media = sourceTranslation.media;
                     translation.title = sourceTranslation.title;
                     translation.customFields = Utils.object.cloneDeep(sourceTranslation.customFields);
                     document.translations.add(translation);

@@ -283,7 +283,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             productId: null,
         });
 
-        wrapper.vm.onDuplicate();
+        await wrapper.vm.onDuplicate();
 
         expect(wrapper.vm.cloning).toBe(true);
     });
@@ -889,6 +889,99 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
+
+    /* eslint-disable sw-test-rules/no-vm-access -- save, duplicate and the language switch are only reachable through the stubbed smart bar */
+    describe('saving queued variant document updates', () => {
+        const operation = { mediaId: 'media-id', title: 'Manual', changes: { title: 'Guide' } };
+        let sync;
+
+        beforeAll(() => {
+            Shopware.Service().register('productDocumentVariantService', () => ({ sync: () => Promise.resolve([]) }));
+        });
+
+        beforeEach(async () => {
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, () => Promise.resolve({ id: 'product-id', variation: [] }));
+            await flushPromises();
+            wrapper.vm.createNotificationError = jest.fn();
+            sync = jest.spyOn(Shopware.Service('productDocumentVariantService'), 'sync').mockResolvedValue([]);
+            Shopware.Store.get('swProductDetail').documentVariantOperations = { 'document-id': operation };
+        });
+
+        it('sends the queued operations for the saved product in its language after the product save', async () => {
+            await wrapper.vm.saveProduct();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, wrapper.vm.productApiContext.languageId);
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+
+        it('sends the queued operations when the product itself has no changes', async () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(false);
+
+            const response = await wrapper.vm.saveProduct();
+
+            expect(response).toBe('empty');
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+
+        it('sends the operations to the saved product when another product is loaded before they are sent', async () => {
+            const saveDocumentVariants = wrapper.vm.getDocumentVariantsSaver();
+            Shopware.Store.get('swProductDetail').product = { id: 'other-product' };
+
+            await saveDocumentVariants();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+        });
+
+        it('keeps the queued operations and shows an error when the variant update fails', async () => {
+            sync.mockRejectedValue(new Error('Request failed'));
+
+            await wrapper.vm.getDocumentVariantsSaver()();
+
+            expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+                message: 'sw-product.documentForm.errorSaveVariants',
+            });
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+        });
+
+        it('sends nothing when no operation is queued', async () => {
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            await wrapper.vm.saveProduct();
+
+            expect(sync).not.toHaveBeenCalled();
+        });
+
+        it('asks before a language switch while variant updates are queued', () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(false);
+
+            expect(wrapper.vm.abortOnLanguageChange()).toBe(true);
+
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
+        });
+
+        it('sends the queued operations before the product is duplicated', async () => {
+            sync.mockImplementation(() => {
+                expect(wrapper.vm.cloning).toBe(false);
+                return Promise.resolve([]);
+            });
+
+            await wrapper.vm.onDuplicate();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(wrapper.vm.cloning).toBe(true);
+        });
+
+        it('discards the queued operations when a product is loaded', async () => {
+            await wrapper.vm.loadProduct();
+
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+    });
+    /* eslint-enable sw-test-rules/no-vm-access */
 
     describe('saving SEO URLs', () => {
         async function saveWithSeoUrl({ foreignKey = 'product-id', seoPathInfo, isModified }) {

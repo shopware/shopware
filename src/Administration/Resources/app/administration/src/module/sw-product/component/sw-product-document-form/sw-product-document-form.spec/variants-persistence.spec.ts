@@ -167,7 +167,7 @@ describe('sw-product-document-form variant persistence', () => {
             const operation = { mediaId: englishMediaId, title: 'Manual', changes: changedField };
             expect(mockVariantSync).toHaveBeenCalledTimes(1);
             expect(mockVariantSync).toHaveBeenCalledWith(productId, [operation], true);
-            expect(store.documentVariantOperations).toEqual([operation]);
+            expect(store.documentVariantOperations).toEqual({ [documentId]: operation });
 
             const beforeSave = new ChangesetGenerator().generate(store.product);
             const responses = getResponses();
@@ -236,7 +236,7 @@ describe('sw-product-document-form variant persistence', () => {
         await flushPromises();
         const operation = { mediaId: englishMediaId, title: 'Manual' };
         expect(mockVariantSync).toHaveBeenCalledWith(productId, [operation], true);
-        expect(store.documentVariantOperations).toEqual([operation]);
+        expect(store.documentVariantOperations).toEqual({ [documentId]: operation });
 
         const responses = getResponses();
         responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: {} });

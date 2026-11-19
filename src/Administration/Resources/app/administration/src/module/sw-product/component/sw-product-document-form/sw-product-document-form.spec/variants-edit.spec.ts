@@ -5,6 +5,7 @@ import { config } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
+import { getDocumentMedia } from '../product-document.helper';
 
 import {
     mockSnackbar,
@@ -73,7 +74,7 @@ describe('sw-product-document-form variant editing', () => {
             };
             expect(mockVariantSync).toHaveBeenCalledTimes(1);
             expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
-            expect(store.documentVariantOperations).toEqual([operation]);
+            expect(store.documentVariantOperations).toEqual({ [getDocuments()![0].id]: operation });
             expect(getDocuments()?.[0]).toMatchObject({
                 title: 'Battery safety data sheet',
                 mediaId: replacement.id,
@@ -106,7 +107,7 @@ describe('sw-product-document-form variant editing', () => {
             expect(saveSpy).not.toHaveBeenCalled();
         });
 
-        it('neither dry runs nor queues a variant update for an unchanged document', async () => {
+        it('neither dry runs, queues nor reports a variant update for an unchanged document', async () => {
             const store = Shopware.Store.get('swProductDetail');
             store.product.childCount = 1;
             const wrapper = await createWrapper();
@@ -115,9 +116,11 @@ describe('sw-product-document-form variant editing', () => {
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
+            expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(false);
             expect(mockVariantSync).not.toHaveBeenCalled();
-            expect(store.documentVariantOperations).toEqual([]);
-            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 0 });
+            expect(store.documentVariantOperations).toEqual({});
+            expect(notification).not.toHaveBeenCalled();
+            expect(translate).not.toHaveBeenCalledWith('sw-product.documentForm.applySuccess', expect.anything());
             expect(store.product.children).toHaveLength(0);
         });
 
@@ -133,7 +136,7 @@ describe('sw-product-document-form variant editing', () => {
             await flushPromises();
 
             expect(mockVariantSync).not.toHaveBeenCalled();
-            expect(store.documentVariantOperations).toEqual([]);
+            expect(store.documentVariantOperations).toEqual({});
             expect(store.product.children).toHaveLength(0);
             expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
             expect(getDocuments()?.[0].title).toBe('Parent only');
@@ -159,7 +162,7 @@ describe('sw-product-document-form variant editing', () => {
             );
         });
 
-        it('queues each variant update when a replacement is applied and reverted before saving the product', async () => {
+        it('keeps one variant update keyed by the saved file when a replacement is applied and reverted before saving', async () => {
             const store = Shopware.Store.get('swProductDetail');
             store.product.childCount = 1;
             const original = createMedia();
@@ -190,13 +193,11 @@ describe('sw-product-document-form variant editing', () => {
             await flushPromises();
 
             const replaceOperation = { mediaId: original.id, title: 'manual', changes: { mediaId: replacement.id } };
-            const revertOperation = { mediaId: replacement.id, title: 'manual', changes: { mediaId: original.id } };
+            const revertOperation = { mediaId: original.id, title: 'manual', changes: { mediaId: original.id } };
             expect(mockVariantSync).toHaveBeenCalledTimes(2);
+            expect(mockVariantSync).toHaveBeenNthCalledWith(1, store.product.id, [replaceOperation], true);
             expect(mockVariantSync).toHaveBeenLastCalledWith(store.product.id, [revertOperation], true);
-            expect(store.documentVariantOperations).toEqual([
-                replaceOperation,
-                revertOperation,
-            ]);
+            expect(store.documentVariantOperations).toEqual({ [getDocuments()![0].id]: revertOperation });
             expect(getDocuments()?.[0]).toMatchObject({ mediaId: original.id, translated: { mediaId: original.id } });
             expect(notification).toHaveBeenCalledTimes(1);
             expect(notification).toHaveBeenCalledWith({
@@ -230,7 +231,7 @@ describe('sw-product-document-form variant editing', () => {
             await cancel.trigger('click');
             expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(true);
             expect(getDocuments()?.[0].title).toBe('manual');
-            expect(store.documentVariantOperations).toEqual([]);
+            expect(store.documentVariantOperations).toEqual({});
             expect(notification).not.toHaveBeenCalled();
 
             resolveSync(['variant-a']);
@@ -238,9 +239,9 @@ describe('sw-product-document-form variant editing', () => {
 
             expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(false);
             expect(getDocuments()?.[0].title).toBe('New title');
-            expect(store.documentVariantOperations).toEqual([
-                { mediaId: media.id, title: 'manual', changes: { title: 'New title' } },
-            ]);
+            expect(store.documentVariantOperations).toEqual({
+                [getDocuments()![0].id]: { mediaId: media.id, title: 'manual', changes: { title: 'New title' } },
+            });
             expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', {
                 name: 'New title',
                 count: 1,
@@ -263,7 +264,7 @@ describe('sw-product-document-form variant editing', () => {
             await flushPromises();
 
             expect(getDocuments()?.[0].title).toBe('manual');
-            expect(store.documentVariantOperations).toEqual([]);
+            expect(store.documentVariantOperations).toEqual({});
             expect(wrapper.get('.sw-product-document-form__save-document').attributes('disabled')).toBeUndefined();
             expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__name-input input').element.value).toBe(
                 'New title',
@@ -272,6 +273,44 @@ describe('sw-product-document-form variant editing', () => {
                 expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
             );
             expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+        });
+
+        it('applies the file picked before the variant dry run when an upload finishes while it runs', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            store.product.childCount = 1;
+            const original = createMedia();
+            const replacement = createMedia('replacement');
+            const uploaded = createMedia('uploaded');
+            const mediaRepository = repositoryFactory.create('media');
+            let finishDryRun!: (variantIds: string[]) => void;
+            mockVariantSync.mockImplementationOnce(
+                () =>
+                    new Promise((resolve) => {
+                        finishDryRun = resolve;
+                    }),
+            );
+            const wrapper = await createWrapper(mediaRepository);
+            await addDocuments(wrapper, [original]);
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
+            await selectMedia(wrapper, [replacement]);
+            await clickButton(wrapper, 'global.default.apply');
+
+            jest.spyOn(mediaRepository, 'get').mockResolvedValueOnce(uploaded);
+            wrapper
+                .findAllComponents<ComponentPublicInstance>('sw-upload-listener-stub')
+                .at(-1)!
+                .vm.$emit('media-upload-finish', { targetId: uploaded.id });
+            await flushPromises();
+            finishDryRun(['variant-a']);
+            await flushPromises();
+
+            const document = getDocuments()![0];
+            expect(document.mediaId).toBe(replacement.id);
+            expect(getDocumentMedia(document)?.id).toBe(replacement.id);
+            expect(store.documentVariantOperations).toEqual({
+                [document.id]: { mediaId: original.id, title: 'manual', changes: { mediaId: replacement.id } },
+            });
         });
     });
 });

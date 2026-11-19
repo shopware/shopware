@@ -3,7 +3,6 @@
  */
 import type { PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
-import useSnackbar from 'src/app/composables/use-snackbar';
 import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 import template from './sw-product-document-remove-modal.html.twig';
 import './sw-product-document-remove-modal.scss';
@@ -63,10 +62,6 @@ export default Shopware.Component.wrapComponentConfig({
             return this.documents[0]?.translated?.title ?? '';
         },
 
-        productId(): string {
-            return Store.get('swProductDetail').product.id;
-        },
-
         modalTitle(): string {
             const values = { count: this.documents.length, language: this.languageName, name: this.documentName };
             if (this.isBulk) {
@@ -98,47 +93,44 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
+        operations(): Record<string, DocumentVariantOperation> {
+            if (!this.removeFromVariants || !this.hasVariants) {
+                return {};
+            }
+
+            const queuedOperations = Store.get('swProductDetail').documentVariantOperations;
+            const changes = this.isSystemDefaultLanguage ? {} : { changes: { title: null, mediaId: null } };
+
+            return Object.fromEntries(
+                this.documents.flatMap((document) => {
+                    const { mediaId, title } = queuedOperations[document.id] ?? document.translated ?? {};
+                    return mediaId ? [[document.id, { mediaId, title: title || null, ...changes }]] : [];
+                }),
+            );
+        },
+
         isDisabled(): boolean {
             return !this.canEdit || this.isRemoving;
         },
     },
 
     methods: {
-        getSuccessMessage(variantCount: number): string {
-            const values = { count: this.documents.length, language: this.languageName, name: this.documentName };
-            if (this.isBulk) {
-                return this.$t(
-                    this.isSystemDefaultLanguage
-                        ? 'sw-product.documentForm.bulkRemoveSuccess'
-                        : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
-                    values,
-                );
-            }
-
-            return this.isSystemDefaultLanguage
-                ? this.$t('sw-product.documentForm.removeSuccess', { ...values, count: variantCount })
-                : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', values);
-        },
-
         async remove(): Promise<void> {
             if (this.isDisabled) {
                 return;
             }
 
-            const operations: DocumentVariantOperation[] =
-                this.removeFromVariants && this.hasVariants
-                    ? this.documents.flatMap((document) => {
-                          const { mediaId, title } = document.translated ?? {};
-                          return mediaId ? [{ mediaId, title: title || null }] : [];
-                      })
-                    : [];
-            const productId = this.productId;
+            const { operations } = this;
+            const { product } = Store.get('swProductDetail');
+            const showsVariantCount = !this.isBulk && this.isSystemDefaultLanguage;
             let variantCount = 0;
 
-            if (operations.length) {
+            if (showsVariantCount && Object.keys(operations).length) {
                 this.isRemoving = true;
                 try {
-                    variantCount = (await this.productDocumentVariantService.sync(productId, operations, true)).length;
+                    variantCount = (
+                        await this.productDocumentVariantService.sync(product.id, Object.values(operations), true)
+                    ).length;
                 } catch {
                     this.isRemoving = false;
                     useNotification().createNotificationError({
@@ -148,15 +140,11 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            if (this.productId !== productId) {
+            if (Store.get('swProductDetail').product !== product) {
                 return;
             }
 
-            const message = this.getSuccessMessage(variantCount);
-
-            this.$emit('remove');
-            Store.get('swProductDetail').documentVariantOperations.push(...operations);
-            useSnackbar().addSnackbar({ variant: 'success', message });
+            this.$emit('remove', { operations, variantCount });
         },
     },
 });

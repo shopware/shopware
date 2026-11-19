@@ -6,13 +6,7 @@ import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 
-const mockAddSnackbar = jest.fn();
 const mockCreateNotificationError = jest.fn();
-
-jest.mock('src/app/composables/use-snackbar', () => ({
-    __esModule: true,
-    default: () => ({ addSnackbar: mockAddSnackbar, removeSnackbar: jest.fn() }),
-}));
 
 jest.mock('src/app/composables/use-notification', () => ({
     __esModule: true,
@@ -41,8 +35,8 @@ function createDocument(title: string, mediaId: string | null = repositoryFactor
     return document;
 }
 
-function loadProduct() {
-    const product = repositoryFactory.create('product').create();
+function loadProduct(id: EntityKey<'product'> | null = null) {
+    const product = repositoryFactory.create('product').create(Shopware.Context.api, id);
     Object.assign(Shopware.Store.get('swProductDetail'), { product });
     return product;
 }
@@ -98,6 +92,12 @@ function getVariantOperations() {
     return Shopware.Store.get('swProductDetail').documentVariantOperations;
 }
 
+function removals(modal: VueWrapper) {
+    return modal
+        .emitted<[{ operations: Record<string, DocumentVariantOperation>; variantCount: number }]>('remove')
+        ?.map(([payload]) => payload);
+}
+
 describe('sw-product-document-remove-modal', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
     let product: Entity<'product'>;
@@ -108,7 +108,6 @@ describe('sw-product-document-remove-modal', () => {
         product = loadProduct();
         variantSync.mockReset();
         variantSync.mockResolvedValue([]);
-        mockAddSnackbar.mockClear();
         mockCreateNotificationError.mockClear();
     });
 
@@ -127,8 +126,6 @@ describe('sw-product-document-remove-modal', () => {
             title: 'removeTitle',
             description: translate('sw-product.documentForm.removeDescription'),
             variant: 'critical',
-            success: 'removeSuccess',
-            successCount: 0,
         },
         {
             scope: 'several documents',
@@ -138,8 +135,6 @@ describe('sw-product-document-remove-modal', () => {
             title: 'bulkRemoveTitle',
             description: translate('sw-product.documentForm.bulkRemoveDescription'),
             variant: 'critical',
-            success: 'bulkRemoveSuccess',
-            successCount: 2,
         },
         {
             scope: 'the language version of one document',
@@ -149,8 +144,6 @@ describe('sw-product-document-remove-modal', () => {
             title: 'removeLanguageVersionTitle',
             description: translate('sw-product.documentForm.removeLanguageVersionDescription', { language: 'Deutsch' }),
             variant: 'primary',
-            success: 'removeLanguageVersionSuccess',
-            successCount: 1,
         },
         {
             scope: 'the language versions of several documents',
@@ -160,12 +153,10 @@ describe('sw-product-document-remove-modal', () => {
             title: 'bulkRemoveLanguageVersionTitle',
             description: translate('sw-product.documentForm.removeLanguageVersionDescription', { language: 'Deutsch' }),
             variant: 'primary',
-            success: 'bulkRemoveLanguageVersionSuccess',
-            successCount: 2,
         },
     ])(
         'asks to remove $scope and removes only after confirmation',
-        async ({ languageId, languageName, documentCount, title, description, variant, success, successCount }) => {
+        async ({ languageId, languageName, documentCount, title, description, variant }) => {
             if (languageId) {
                 Shopware.Context.api.languageId = languageId;
             }
@@ -183,14 +174,10 @@ describe('sw-product-document-remove-modal', () => {
 
             await confirmRemoval(modal);
 
-            expect(modal.emitted('remove')).toHaveLength(1);
+            expect(removals(modal)).toEqual([{ operations: {}, variantCount: 0 }]);
             expect(modal.emitted('close')).toBeUndefined();
             expect(variantSync).not.toHaveBeenCalled();
-            expect(getVariantOperations()).toEqual([]);
-            expect(mockAddSnackbar).toHaveBeenCalledWith({
-                variant: 'success',
-                message: translate(`sw-product.documentForm.${success}`, { ...values, count: successCount }),
-            });
+            expect(getVariantOperations()).toEqual({});
         },
     );
 
@@ -220,7 +207,7 @@ describe('sw-product-document-remove-modal', () => {
     });
 
     describe('removing from variants', () => {
-        it('runs a dry run, queues the removal and reports the variant count', async () => {
+        it('dry-runs the removal of one document and emits its operation with the variant count', async () => {
             const document = createDocument('Manual');
             variantSync.mockResolvedValueOnce(['variant-a', 'variant-b']);
             const modal = await createWrapper({ documents: [document], hasVariants: true });
@@ -232,42 +219,62 @@ describe('sw-product-document-remove-modal', () => {
             const operation = { mediaId: document.mediaId, title: 'Manual' };
             expect(variantSync).toHaveBeenCalledTimes(1);
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
-            expect(modal.emitted('remove')).toHaveLength(1);
-            expect(getVariantOperations()).toEqual([operation]);
-            expect(mockAddSnackbar).toHaveBeenCalledWith({
-                variant: 'success',
-                message: translate('sw-product.documentForm.removeSuccess', {
-                    count: 2,
-                    language: 'English',
-                    name: 'Manual',
-                }),
-            });
+            expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, variantCount: 2 }]);
+            expect(getVariantOperations()).toEqual({});
         });
 
-        it('builds one operation per document with a file from its translated values', async () => {
+        it('matches a document by its queued operation and drops the queued changes', async () => {
+            const document = createDocument('Manual');
+            const queued = { mediaId: 'old-media', title: 'Old', changes: { title: 'Manual', mediaId: document.mediaId } };
+            Shopware.Store.get('swProductDetail').documentVariantOperations = { [document.id]: queued };
+            variantSync.mockResolvedValueOnce(['variant-a']);
+            const modal = await createWrapper({ documents: [document], hasVariants: true });
+
+            await confirmRemoval(modal);
+
+            const operation = { mediaId: 'old-media', title: 'Old' };
+            expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
+            expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, variantCount: 1 }]);
+            expect(getVariantOperations()).toEqual({ [document.id]: queued });
+        });
+
+        it('emits one operation per document with a file and skips the dry run for several documents', async () => {
             const manual = createDocument('Manual');
             const untitled = createDocument('');
             const withoutFile = createDocument('Missing file', null);
-            variantSync.mockResolvedValueOnce(['variant-a']);
             const modal = await createWrapper({ documents: [manual, untitled, withoutFile], hasVariants: true });
 
             await confirmRemoval(modal);
 
-            const operations = [
-                { mediaId: manual.mediaId, title: 'Manual' },
-                { mediaId: untitled.mediaId, title: null },
-            ];
-            expect(variantSync).toHaveBeenCalledWith(product.id, operations, true);
-            expect(modal.emitted('remove')).toHaveLength(1);
-            expect(getVariantOperations()).toEqual(operations);
-            expect(mockAddSnackbar).toHaveBeenCalledWith({
-                variant: 'success',
-                message: translate('sw-product.documentForm.bulkRemoveSuccess', {
-                    count: 3,
-                    language: 'English',
-                    name: 'Manual',
-                }),
-            });
+            const operations = {
+                [manual.id]: { mediaId: manual.mediaId, title: 'Manual' },
+                [untitled.id]: { mediaId: untitled.mediaId, title: null },
+            };
+            expect(variantSync).not.toHaveBeenCalled();
+            expect(removals(modal)).toEqual([{ operations, variantCount: 0 }]);
+        });
+
+        it.each([
+            { scope: 'the language version of one document', titles: ['Manual'] },
+            { scope: 'the language versions of several documents', titles: ['Manual', 'Certificate'] },
+        ])('clears $scope on the variants without a dry run', async ({ titles }) => {
+            Shopware.Context.api.languageId = GERMAN_LANGUAGE_ID;
+            const documents = titles.map((title) => createDocument(title));
+            const modal = await createWrapper({ documents, languageName: 'Deutsch', hasVariants: true });
+
+            expect(getRemoveFromVariants(modal).element.checked).toBe(true);
+
+            await confirmRemoval(modal);
+
+            const changes = { title: null, mediaId: null };
+            const operations = Object.fromEntries(
+                documents.map((document, index) => [
+                    document.id,
+                    { mediaId: document.mediaId, title: titles[index], changes },
+                ]),
+            );
+            expect(variantSync).not.toHaveBeenCalled();
+            expect(removals(modal)).toEqual([{ operations, variantCount: 0 }]);
         });
 
         it('leaves the variants untouched when removing from variants is unchecked', async () => {
@@ -277,21 +284,14 @@ describe('sw-product-document-remove-modal', () => {
             await confirmRemoval(modal);
 
             expect(variantSync).not.toHaveBeenCalled();
-            expect(modal.emitted('remove')).toHaveLength(1);
-            expect(getVariantOperations()).toEqual([]);
-            expect(mockAddSnackbar).toHaveBeenCalledWith({
-                variant: 'success',
-                message: translate('sw-product.documentForm.removeSuccess', {
-                    count: 0,
-                    language: 'English',
-                    name: 'Manual',
-                }),
-            });
+            expect(removals(modal)).toEqual([{ operations: {}, variantCount: 0 }]);
+            expect(getVariantOperations()).toEqual({});
         });
 
         it('blocks closing and repeated removals while the dry run runs', async () => {
+            const document = createDocument('Manual');
             const finishDryRun = holdDryRun();
-            const modal = await createWrapper({ documents: [createDocument('Manual')], hasVariants: true });
+            const modal = await createWrapper({ documents: [document], hasVariants: true });
             await confirmRemoval(modal);
 
             expect(getButton(modal, 'global.default.cancel').attributes('disabled')).toBeDefined();
@@ -309,8 +309,8 @@ describe('sw-product-document-remove-modal', () => {
             finishDryRun(['variant-a']);
             await flushPromises();
 
-            expect(modal.emitted('remove')).toHaveLength(1);
-            expect(getVariantOperations()).toHaveLength(1);
+            const operations = { [document.id]: { mediaId: document.mediaId, title: 'Manual' } };
+            expect(removals(modal)).toEqual([{ operations, variantCount: 1 }]);
         });
 
         it('shows an error and keeps the modal open when the dry run fails', async () => {
@@ -322,8 +322,6 @@ describe('sw-product-document-remove-modal', () => {
                 message: 'sw-product.documentForm.errorLoadVariants',
             });
             expect(modal.emitted('remove')).toBeUndefined();
-            expect(getVariantOperations()).toEqual([]);
-            expect(mockAddSnackbar).not.toHaveBeenCalled();
             expect(getButton(modal, 'global.default.cancel').attributes('disabled')).toBeUndefined();
             expect(modal.get('.sw-product-document-form__confirm-remove').attributes('disabled')).toBeUndefined();
 
@@ -333,18 +331,19 @@ describe('sw-product-document-remove-modal', () => {
             expect(modal.emitted('remove')).toHaveLength(1);
         });
 
-        it('drops the result when another product was loaded during the dry run', async () => {
+        it.each([
+            { scenario: 'another product was loaded', isSameProduct: false },
+            { scenario: 'the same product was reloaded', isSameProduct: true },
+        ])('drops the result when $scenario during the dry run', async ({ isSameProduct }) => {
             const finishDryRun = holdDryRun();
             const modal = await createWrapper({ documents: [createDocument('Manual')], hasVariants: true });
             await confirmRemoval(modal);
 
-            loadProduct();
+            loadProduct(isSameProduct ? product.id : null);
             finishDryRun(['variant-a']);
             await flushPromises();
 
             expect(modal.emitted('remove')).toBeUndefined();
-            expect(getVariantOperations()).toEqual([]);
-            expect(mockAddSnackbar).not.toHaveBeenCalled();
         });
     });
 });

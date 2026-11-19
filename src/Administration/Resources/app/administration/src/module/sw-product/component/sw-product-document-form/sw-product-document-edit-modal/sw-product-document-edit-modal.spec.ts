@@ -8,13 +8,7 @@ import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service
 import { setDocumentMedia } from '../product-document.helper';
 import type { DocumentUploadRules } from '../index';
 
-const mockAddSnackbar = jest.fn();
 const mockNotifyError = jest.fn();
-
-jest.mock('src/app/composables/use-snackbar', () => ({
-    __esModule: true,
-    default: () => ({ addSnackbar: mockAddSnackbar, removeSnackbar: jest.fn() }),
-}));
 
 jest.mock('src/app/composables/use-notification', () => ({
     __esModule: true,
@@ -56,8 +50,8 @@ function createDocument(title: string | null = 'Manual', media: Entity<'media'> 
     return document;
 }
 
-function loadProduct() {
-    const product = repositoryFactory.create('product').create();
+function loadProduct(id: EntityKey<'product'> | null = null) {
+    const product = repositoryFactory.create('product').create(Shopware.Context.api, id);
     Object.assign(Shopware.Store.get('swProductDetail'), { product });
     return product;
 }
@@ -155,6 +149,12 @@ function appliedEdits(modal: VueWrapper) {
         ?.map(([{ changes, media }]) => ({ changes, media: media && toRaw(media) }));
 }
 
+function variantResults(modal: VueWrapper) {
+    return modal
+        .emitted<[{ operation: DocumentVariantOperation | null; variantCount: number }]>('apply')
+        ?.map(([{ operation, variantCount }]) => ({ operation, variantCount }));
+}
+
 async function apply(modal: VueWrapper) {
     await getButton(modal, 'global.default.apply').trigger('click');
     await flushPromises();
@@ -193,7 +193,6 @@ describe('sw-product-document-edit-modal', () => {
         document = createDocument();
         variantSync.mockReset().mockResolvedValue([]);
         mediaRepository.get.mockReset();
-        mockAddSnackbar.mockClear();
         mockNotifyError.mockClear();
     });
 
@@ -400,7 +399,7 @@ describe('sw-product-document-edit-modal', () => {
     });
 
     describe('applying to variants', () => {
-        it('dry-runs only real changes against the saved values, queues them and reports the variant count', async () => {
+        it('dry-runs only real changes against the saved values and emits them with the variant count', async () => {
             const replacement = createMedia('handbook');
             const modal = await createWrapper({ document, hasVariants: true });
 
@@ -409,11 +408,8 @@ describe('sw-product-document-edit-modal', () => {
             await apply(modal);
 
             expect(variantSync).not.toHaveBeenCalled();
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual([]);
-            expect(mockAddSnackbar).toHaveBeenLastCalledWith({
-                variant: 'success',
-                message: translate('sw-product.documentForm.applySuccess', { name: 'Manual', count: 0 }),
-            });
+            expect(appliedEdits(modal)).toEqual([{ changes: {}, media: null }]);
+            expect(variantResults(modal)).toEqual([{ operation: null, variantCount: 0 }]);
 
             variantSync.mockResolvedValueOnce(['variant-a', 'variant-b']);
             await getTitleInput(modal).setValue('Handbook');
@@ -422,17 +418,23 @@ describe('sw-product-document-edit-modal', () => {
 
             const changes = { title: 'Handbook', mediaId: replacement.id };
             const operation = { mediaId: savedMedia.id, title: 'Manual', changes };
-            expect(variantSync).toHaveBeenCalledTimes(1);
+            expect(variantSync.mock.calls).toEqual([[product.id, [operation], true]]);
+            expect(appliedEdits(modal)?.[1]).toEqual({ changes, media: replacement });
+            expect(variantResults(modal)?.[1]).toEqual({ operation, variantCount: 2 });
+        });
+
+        it('merges the edit into the operation already queued for the document', async () => {
+            const queued = { mediaId: 'old-media', title: 'Old', changes: { title: 'Manual', mediaId: savedMedia.id } };
+            Shopware.Store.get('swProductDetail').documentVariantOperations = { [document.id]: queued };
+            const modal = await createWrapper({ document, hasVariants: true });
+            await getTitleInput(modal).setValue('Handbook');
+            await apply(modal);
+
+            const operation = { mediaId: 'old-media', title: 'Old', changes: { title: 'Handbook', mediaId: savedMedia.id } };
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
-            expect(appliedEdits(modal)).toEqual([
-                { changes: {}, media: null },
-                { changes, media: replacement },
-            ]);
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual([operation]);
-            expect(mockAddSnackbar).toHaveBeenLastCalledWith({
-                variant: 'success',
-                message: translate('sw-product.documentForm.applySuccess', { name: 'Manual', count: 2 }),
-            });
+            expect(appliedEdits(modal)).toEqual([{ changes: { title: 'Handbook' }, media: null }]);
+            expect(variantResults(modal)).toEqual([{ operation, variantCount: 0 }]);
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ [document.id]: queued });
         });
 
         it('leaves the variants untouched when applying to variants is unchecked', async () => {
@@ -443,11 +445,13 @@ describe('sw-product-document-edit-modal', () => {
 
             expect(variantSync).not.toHaveBeenCalled();
             expect(appliedEdits(modal)).toEqual([{ changes: { title: 'Handbook' }, media: null }]);
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual([]);
-            expect(mockAddSnackbar).not.toHaveBeenCalled();
+            expect(variantResults(modal)).toEqual([{ operation: null, variantCount: 0 }]);
         });
 
-        it('blocks closing and repeated applies during the dry run and drops a result for another product', async () => {
+        it.each([
+            { scenario: 'another product', isSameProduct: false },
+            { scenario: 'a reload of the same product', isSameProduct: true },
+        ])('ignores close and apply during the dry run and drops the result after $scenario', async ({ isSameProduct }) => {
             const finishDryRun = holdDryRun();
             const modal = await createWrapper({ document, hasVariants: true });
             await getTitleInput(modal).setValue('Handbook');
@@ -465,13 +469,11 @@ describe('sw-product-document-edit-modal', () => {
             expect(modal.emitted('apply')).toBeUndefined();
             expect(variantSync).toHaveBeenCalledTimes(1);
 
-            loadProduct();
+            loadProduct(isSameProduct ? product.id : null);
             finishDryRun(['variant-a']);
             await flushPromises();
 
             expect(modal.emitted('apply')).toBeUndefined();
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual([]);
-            expect(mockAddSnackbar).not.toHaveBeenCalled();
         });
 
         it('shows an error and keeps the modal open when the dry run fails', async () => {
@@ -484,8 +486,6 @@ describe('sw-product-document-edit-modal', () => {
                 message: 'sw-product.documentForm.errorLoadVariants',
             });
             expect(modal.emitted('apply')).toBeUndefined();
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual([]);
-            expect(mockAddSnackbar).not.toHaveBeenCalled();
             expect(getButton(modal, 'global.default.cancel').attributes('disabled')).toBeUndefined();
             expect(getButton(modal, 'global.default.apply').attributes('disabled')).toBeUndefined();
 

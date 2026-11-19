@@ -40,7 +40,7 @@ const swProductDetail = Shopware.Store.register({
             parentProduct: {} as Entity<'product'>,
             isDownloadExternallyManaged: false,
             /** @private */
-            documentVariantOperations: [] as DocumentVariantOperation[],
+            documentVariantOperations: {} as Record<string, DocumentVariantOperation>,
             currencies: [] as Entity<'currency'>[],
             apiContext: {} as ContextStore['api'],
             taxes: [] as Entity<'tax'>[],

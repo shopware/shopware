@@ -5,6 +5,7 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import {
+    mockSnackbar,
     createProduct,
     cleanupWrappers,
     createWrapper,
@@ -28,6 +29,7 @@ describe('sw-product-document-form bulk removal', () => {
     const originalLanguage = Shopware.Store.get('context').api.language;
 
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -65,36 +67,32 @@ describe('sw-product-document-form bulk removal', () => {
         expect(save).not.toHaveBeenCalled();
     });
 
-    it('checks matching variants together and leaves the draft untouched on failure before retrying', async () => {
+    it('queues the variant removal of every selected document without a dry run', async () => {
         const wrapper = await createWrapper();
         const media = [createMedia('first'), createMedia('second')];
         await addDocuments(wrapper, media);
+        const documents = [...getDocuments()!];
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
-        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-        const operations = media.map((file) => ({ mediaId: file.id, title: file.fileName }));
-        mockVariantSync.mockRejectedValueOnce(new Error('Unavailable'));
 
-        await selectDocuments(wrapper, [...getDocuments()!]);
-        await wrapper.get('.sw-product-document-form__confirm-remove').trigger('click');
-        await flushPromises();
-
-        expect(getDocuments()).toHaveLength(2);
-        expect(store.documentVariantOperations).toEqual([]);
-        expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(true);
-        expect(notificationSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
+        await selectDocuments(wrapper, documents);
+        expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__remove-from-variants input').element.checked).toBe(
+            true,
         );
-
-        mockVariantSync.mockResolvedValueOnce(['variant-a']);
         await wrapper.get('.sw-product-document-form__confirm-remove').trigger('click');
         await flushPromises();
 
-        expect(mockVariantSync).toHaveBeenCalledTimes(2);
-        expect(mockVariantSync).toHaveBeenLastCalledWith(store.product.id, operations, true);
+        expect(mockVariantSync).not.toHaveBeenCalled();
         expect(getDocuments()).toHaveLength(0);
-        expect(store.documentVariantOperations).toEqual(operations);
+        expect(store.documentVariantOperations).toEqual({
+            [documents[0].id]: { mediaId: media[0].id, title: 'first' },
+            [documents[1].id]: { mediaId: media[1].id, title: 'second' },
+        });
         expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(false);
+        expect(mockSnackbar).toHaveBeenCalledTimes(1);
+        expect(mockSnackbar).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.bulkRemoveSuccess' }),
+        );
     });
 
     it('clears only the selected language versions and keeps the assignments', async () => {

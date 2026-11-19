@@ -174,7 +174,7 @@ describe('sw-product-document-form language editor', () => {
             changes: { mediaId: media.id },
         };
         expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
-        expect(store.documentVariantOperations).toEqual([operation]);
+        expect(store.documentVariantOperations).toEqual({ [document.id]: operation });
         expect(mockSnackbar).toHaveBeenCalledWith(
             expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.applySuccess' }),
         );
@@ -268,7 +268,7 @@ describe('sw-product-document-form language editor', () => {
         await flushPromises();
         const operation = { mediaId: media.id, title: 'Handbuch', changes: { title: null } };
         expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
-        expect(store.documentVariantOperations).toEqual([operation]);
+        expect(store.documentVariantOperations).toEqual({ [document.id]: operation });
         expect(document).toMatchObject({ title: null, mediaId: media.id });
         expect(document.translated).toEqual({ title: 'Manual', mediaId: media.id });
         expect(translation).toMatchObject({ title: null, mediaId: media.id });

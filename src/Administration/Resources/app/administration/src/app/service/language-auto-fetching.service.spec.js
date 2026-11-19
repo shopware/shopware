@@ -75,4 +75,26 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
             }),
         );
     });
+
+    it('ignores a language response that arrives after the language was switched again', async () => {
+        LanguageAutoFetchingService();
+        await flushPromises();
+
+        let resolveStaleLanguage;
+        repositoryGetMock.mockImplementationOnce(
+            (id) =>
+                new Promise((resolve) => {
+                    resolveStaleLanguage = () => resolve({ id, name: `Language ${id}`, parentId: null });
+                }),
+        );
+
+        Shopware.Store.get('context').api.languageId = 'stale-language-id';
+        await flushPromises();
+        Shopware.Store.get('context').api.languageId = 'current-language-id';
+        await flushPromises();
+        resolveStaleLanguage();
+        await flushPromises();
+
+        expect(Shopware.Store.get('context').api.language).toEqual(expect.objectContaining({ id: 'current-language-id' }));
+    });
 });

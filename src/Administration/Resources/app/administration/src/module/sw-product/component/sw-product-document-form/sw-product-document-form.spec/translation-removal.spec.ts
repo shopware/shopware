@@ -119,32 +119,6 @@ describe('sw-product-document-form language-version removal', () => {
         cleanupWrappers();
     });
 
-    it('does not report success when checking variant documents fails', async () => {
-        const store = Shopware.Store.get('swProductDetail');
-        store.product = await loadProduct('Handbuch', germanMedia.id);
-        store.product.childCount = 1;
-        wrapper = await createWrapper(undefined, undefined, repository);
-        mockVariantSync.mockRejectedValueOnce(new Error('Variant lookup failed'));
-        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-
-        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
-        await clickButton(wrapper, 'global.default.remove');
-        await flushPromises();
-
-        expect(mockVariantSync).toHaveBeenCalledWith(
-            store.product.id,
-            [{ mediaId: germanMedia.id, title: 'Handbuch' }],
-            true,
-        );
-        expect(mockSnackbar).not.toHaveBeenCalled();
-        expect(notification).toHaveBeenCalledWith(
-            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
-        );
-        expect(store.product.documents![0]).toMatchObject({ title: 'Handbuch', mediaId: germanMedia.id });
-        expect(store.documentVariantOperations).toEqual([]);
-        expect(wrapper.text()).toContain('sw-product.documentForm.removeLanguageVersionDescription');
-    });
-
     it.each([
         ['name', 'Handbuch', null],
         ['file', null, germanMedia.id],
@@ -280,21 +254,19 @@ describe('sw-product-document-form language-version removal', () => {
         expect(wrapper.findAll('sw-context-menu-item-stub')).toHaveLength(2);
     });
 
-    it('queues the language-version reset for matching variants instead of adding them to the payload', async () => {
+    it('queues the language-version reset for matching variants without a dry run instead of adding them to the payload', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct('Handbuch', germanMedia.id);
         store.product.childCount = 3;
-        mockVariantSync.mockResolvedValueOnce(['matching-variant']);
-        const operation = { mediaId: germanMedia.id, title: 'Handbuch' };
+        const operation = { mediaId: germanMedia.id, title: 'Handbuch', changes: { title: null, mediaId: null } };
         const saveSpy = jest.spyOn(repository, 'save');
         wrapper = await createWrapper(undefined, undefined, repository);
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         await wrapper.get('.sw-product-document-form__remove-from-variants input').setValue(true);
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
-        expect(mockVariantSync).toHaveBeenCalledTimes(1);
-        expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
-        expect(store.documentVariantOperations).toEqual([operation]);
+        expect(mockVariantSync).not.toHaveBeenCalled();
+        expect(store.documentVariantOperations).toEqual({ [store.product.documents![0].id]: operation });
         expect(mockSnackbar).toHaveBeenCalledWith(
             expect.objectContaining({
                 variant: 'success',

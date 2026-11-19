@@ -179,6 +179,62 @@ describe('sw-product-document-form inheritance', () => {
         expect(getDocuments()![0]).toMatchObject({ title: null, mediaId: null });
     });
 
+    it('shows the fallback file after removing the language version of a copied document in another language', async () => {
+        const store = Shopware.Store.get('swProductDetail');
+        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
+        Shopware.Store.get('context').api.language = repositoryFactory
+            .create('language')
+            .create(Shopware.Context.api, Shopware.Context.api.languageId);
+        store.product.parentId = store.parentProduct.id;
+        const document = repositoryFactory.create('product_document').create();
+        const defaultMedia = createMedia('default-language-file');
+        const languageMedia = createMedia('language-file');
+        Object.assign(document, {
+            title: 'Language title',
+            mediaId: languageMedia.id,
+            translated: { title: 'Language title', mediaId: languageMedia.id },
+        });
+        [
+            {
+                languageId: Shopware.Context.api.systemLanguageId,
+                title: 'Default language title',
+                mediaId: defaultMedia.id,
+                media: defaultMedia,
+            },
+            {
+                languageId: Shopware.Context.api.languageId,
+                title: 'Language title',
+                mediaId: languageMedia.id,
+                media: languageMedia,
+            },
+        ].forEach((values) => {
+            const translation = new EntityFactory().create(
+                'product_document_translation',
+                null,
+                Shopware.Context.api,
+            ) as Entity<'product_document_translation'>;
+            Object.assign(translation, values);
+            document.translations.add(translation);
+        });
+        store.parentProduct.documents!.add(document);
+        const wrapper = await createWrapper();
+        const getFileNameCell = () => wrapper.findAll('.document-row .sw-product-document-cell')[1];
+
+        await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
+        expect(getFileNameCell().text()).toBe('language-file.pdf');
+        await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
+        await clickButton(wrapper, 'global.default.remove');
+
+        expect(getDocuments()![0]).toMatchObject({
+            title: null,
+            mediaId: null,
+            translated: { title: 'Default language title', mediaId: defaultMedia.id },
+        });
+        expect(getFileNameCell().text()).toBe('default-language-file.pdf');
+        expect(getFileNameCell().classes()).toContain('sw-product-document-cell--fallback');
+        expect(document).toMatchObject({ title: 'Language title', mediaId: languageMedia.id });
+    });
+
     it('detaches an empty inherited list and restores inheritance without adding assignments', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;

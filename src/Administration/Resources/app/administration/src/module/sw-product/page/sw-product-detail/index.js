@@ -834,7 +834,6 @@ export default {
 
         loadProduct() {
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
-            this.documentVariantOperations = [];
 
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
@@ -869,6 +868,7 @@ export default {
 
                     Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = !product.downloads?.length;
                     Shopware.Store.get('swProductDetail').product = product;
+                    this.documentVariantOperations = {};
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
@@ -1089,7 +1089,7 @@ export default {
         },
 
         abortOnLanguageChange() {
-            return this.productRepository.hasChanges(this.product);
+            return this.productRepository.hasChanges(this.product) || Object.keys(this.documentVariantOperations).length > 0;
         },
 
         saveOnLanguageChange() {
@@ -1312,12 +1312,15 @@ export default {
             };
 
             return new Promise((resolve) => {
+                const saveDocumentVariants = this.getDocumentVariantsSaver();
+
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
-                    updateSeoUrls();
-                    Shopware.Store.get('swProductDetail').setLoading(['product', false]);
-                    resolve('empty');
-                    Shopware.Store.get('swProductDetail').setLoading(['product', false]);
+                    saveDocumentVariants().then(() => {
+                        updateSeoUrls();
+                        Shopware.Store.get('swProductDetail').setLoading(['product', false]);
+                        resolve('empty');
+                    });
                     return;
                 }
 
@@ -1327,7 +1330,6 @@ export default {
                 const productWasActive = originalActive === null ? this.parentProduct.active : originalActive;
                 const productIsActive = this.product.active === null ? this.parentProduct.active : this.product.active;
                 const productWasActivated = !productIsNew && productWasActive === false && productIsActive === true;
-                const saveDocumentVariants = this.getDocumentVariantsSaver();
 
                 // save product
                 this.syncRepository
@@ -1362,24 +1364,18 @@ export default {
 
         /** @private */
         getDocumentVariantsSaver() {
-            const operations = [...this.documentVariantOperations];
-            if (!operations.length) {
-                return () => {};
-            }
-
+            const operations = Object.values(this.documentVariantOperations);
+            const productId = this.product.id;
             const { languageId } = this.productApiContext;
 
             return async () => {
+                if (!operations.length) {
+                    return;
+                }
+
                 try {
-                    await Shopware.Service('productDocumentVariantService').sync(
-                        this.product.id,
-                        operations,
-                        false,
-                        languageId,
-                    );
-                    this.documentVariantOperations = this.documentVariantOperations.filter(
-                        (operation) => !operations.includes(operation),
-                    );
+                    await Shopware.Service('productDocumentVariantService').sync(productId, operations, false, languageId);
+                    this.documentVariantOperations = {};
                 } catch {
                     this.createNotificationError({
                         message: this.$t('sw-product.documentForm.errorSaveVariants'),
@@ -1444,7 +1440,8 @@ export default {
             return '';
         },
 
-        onDuplicate() {
+        async onDuplicate() {
+            await this.getDocumentVariantsSaver()();
             this.cloning = true;
         },
 

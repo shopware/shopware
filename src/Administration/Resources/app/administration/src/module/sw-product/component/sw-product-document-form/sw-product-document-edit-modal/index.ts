@@ -3,7 +3,6 @@
  */
 import { useId, type PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
-import useSnackbar from 'src/app/composables/use-snackbar';
 import type Repository from 'src/core/data/repository.data';
 import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 import { getDocumentMedia } from '../product-document.helper';
@@ -155,9 +154,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         variantOperation(): DocumentVariantOperation | null {
-            const { mediaId, title } = this.document.translated ?? {};
-            return this.applyToVariants && this.hasVariants && mediaId
-                ? { mediaId, title: title || null, changes: this.changes }
+            const queuedOperation = Store.get('swProductDetail').documentVariantOperations[this.document.id];
+            const { mediaId, title } = queuedOperation ?? this.document.translated ?? {};
+            return this.applyToVariants && this.hasVariants && this.hasChanges && mediaId
+                ? { mediaId, title: title || null, changes: { ...queuedOperation?.changes, ...this.changes } }
                 : null;
         },
 
@@ -201,17 +201,14 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const { changes, hasChanges, variantOperation: operation } = this;
+            const { changes, replacementMedia: media, variantOperation: operation } = this;
+            const { product } = Store.get('swProductDetail');
             let variantCount = 0;
 
-            const productId = Store.get('swProductDetail').product.id;
-
-            if (operation && hasChanges) {
+            if (operation) {
                 this.isApplying = true;
                 try {
-                    variantCount = (
-                        await this.productDocumentVariantService.sync(this.document.productId, [operation], true)
-                    ).length;
+                    variantCount = (await this.productDocumentVariantService.sync(product.id, [operation], true)).length;
                 } catch {
                     this.isApplying = false;
                     useNotification().createNotificationError({
@@ -221,25 +218,11 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            if (Store.get('swProductDetail').product.id !== productId) {
+            if (Store.get('swProductDetail').product !== product) {
                 return;
             }
 
-            this.$emit('apply', { changes, media: this.replacementMedia });
-
-            if (!operation) {
-                return;
-            }
-            if (hasChanges) {
-                Store.get('swProductDetail').documentVariantOperations.push(operation);
-            }
-            useSnackbar().addSnackbar({
-                variant: 'success',
-                message: this.$t('sw-product.documentForm.applySuccess', {
-                    name: this.document.translated?.title ?? '',
-                    count: variantCount,
-                }),
-            });
+            this.$emit('apply', { changes, media, operation, variantCount });
         },
     },
 });

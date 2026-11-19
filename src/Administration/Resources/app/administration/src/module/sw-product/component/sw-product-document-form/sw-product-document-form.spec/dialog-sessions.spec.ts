@@ -198,7 +198,7 @@ describe('sw-product-document-form dialog sessions', () => {
             const store = Shopware.Store.get('swProductDetail');
             const wrapper = await createWrapper();
             await addDocuments(wrapper, [createMedia()]);
-            const mediaId = getDocuments()![0].mediaId;
+            const { id: documentId, mediaId } = getDocuments()![0];
 
             const settle = await confirmWithPendingVariantCheck(wrapper);
 
@@ -210,14 +210,14 @@ describe('sw-product-document-form dialog sessions', () => {
             await flushPromises();
             expect(wrapper.find(dialog.confirm).exists()).toBe(true);
             expect(getDocuments()![0].title).toBe('manual');
-            expect(store.documentVariantOperations).toEqual([]);
+            expect(store.documentVariantOperations).toEqual({});
 
             settle(['variant-a']);
             await flushPromises();
 
             expect(wrapper.find(dialog.confirm).exists()).toBe(false);
             expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(dialog.appliedTitles);
-            expect(store.documentVariantOperations).toEqual([dialog.operation(mediaId)]);
+            expect(store.documentVariantOperations).toEqual({ [documentId]: dialog.operation(mediaId) });
             expect(mockSnackbar).toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
         });
 
@@ -238,7 +238,7 @@ describe('sw-product-document-form dialog sessions', () => {
             expect(getCancelButton(wrapper).element.disabled).toBe(false);
             expect(getDocuments()).toHaveLength(1);
             expect(getDocuments()![0].title).toBe('manual');
-            expect(store.documentVariantOperations).toEqual([]);
+            expect(store.documentVariantOperations).toEqual({});
             expect(mockSnackbar).not.toHaveBeenCalled();
 
             requestDialogClose(wrapper);
@@ -264,7 +264,25 @@ describe('sw-product-document-form dialog sessions', () => {
             expect(product.documents).toHaveLength(1);
             expect(document.title).toBe('manual');
             expect(store.product.documents).toHaveLength(0);
-            expect(store.documentVariantOperations).toEqual([]);
+            expect(store.documentVariantOperations).toEqual({});
+            expect(mockSnackbar).not.toHaveBeenCalled();
+        });
+
+        it('queues nothing and reports no success when the variant check returns after the form unmounted', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            const wrapper = await createWrapper();
+            await addDocuments(wrapper, [createMedia()]);
+            const document = getDocuments()![0];
+
+            const settle = await confirmWithPendingVariantCheck(wrapper);
+            expect(mockVariantSync).toHaveBeenCalledTimes(1);
+            wrapper.unmount();
+            settle(['variant-a']);
+            await flushPromises();
+
+            expect(getDocuments()).toHaveLength(1);
+            expect(document.title).toBe('manual');
+            expect(store.documentVariantOperations).toEqual({});
             expect(mockSnackbar).not.toHaveBeenCalled();
         });
     });

@@ -88,11 +88,11 @@ describe('Experience Studio preview visibility during canvas dragging', () => {
         expect(wrapper.find('iframe[title="first"]').exists()).toBe(true);
 
         for (const frame of frames) {
-            expect(frame.get('.sw-experience-studio-canvas__frame-toolbar').text()).toContain(
+            expect(frame.get('.sw-experience-studio-canvas__frame-header').text()).toContain(
                 frame.attributes('data-frame-id'),
             );
             expect(frame.find('.sw-experience-studio-canvas__close-frame').exists()).toBe(true);
-            expect(frame.findAll('.sw-experience-studio-canvas__resize-handle')).toHaveLength(8);
+            expect(frame.findAll('.sw-experience-studio-canvas__resize-handle')).toHaveLength(3);
         }
 
         await wrapper.setData({ canvasPanX: -1600 });

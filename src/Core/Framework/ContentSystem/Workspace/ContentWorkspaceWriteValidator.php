@@ -57,10 +57,13 @@ class ContentWorkspaceWriteValidator implements EventSubscriberInterface
             new Assert\NotNull(),
             new Assert\Collection(fields: [
                 'frames' => [
-                    new Assert\NotNull(), new Assert\Type('list'), new Assert\Unique(fields: ['layoutId']),
+                    new Assert\NotNull(), new Assert\Type('list'),
+                    // Existing workspaces used the layout id as the frame identity.
+                    new Assert\Unique(normalizer: static fn (mixed $frame): mixed => \is_array($frame) ? ($frame['id'] ?? $frame['layoutId'] ?? null) : $frame),
                     new Assert\All([
                         new Assert\NotNull(),
                         new Assert\Collection(fields: [
+                            'id' => new Assert\Optional([new Assert\NotBlank(), $uuid()]),
                             'layoutId' => [new Assert\NotBlank(), $uuid()],
                             'x' => [new Assert\NotNull(), new Assert\Type('finite-number')],
                             'y' => [new Assert\NotNull(), new Assert\Type('finite-number')],
@@ -68,6 +71,7 @@ class ContentWorkspaceWriteValidator implements EventSubscriberInterface
                             'height' => $number(280, 1800),
                             'viewport' => [new Assert\NotNull(), new Assert\Choice(choices: ['mobile', 'tablet-landscape', 'desktop', 'custom'])],
                             'previewEntityId' => $uuid(),
+                            'languageId' => new Assert\Optional([new Assert\NotBlank(), $uuid()]),
                         ]),
                     ]),
                 ],

@@ -44,6 +44,17 @@
                             decorative
                         />
                         <span class="sw-experience-studio-workspace-picker__name">{{ workspace.name }}</span>
+                        <span class="sw-experience-studio-workspace-picker__creator">
+                            {{ $t('sw-experience-studio.workspace.manager.createdBy', { name: getCreatorName(workspace) || $t('sw-experience-studio.workspace.manager.unknownCreator') }) }}
+                        </span>
+                        <sw-avatar
+                            :image-url="workspace.createdBy?.avatarMedia?.url"
+                            :first-name="workspace.createdBy?.firstName"
+                            :last-name="workspace.createdBy?.lastName"
+                            :placeholder="!workspace.createdBy?.firstName && !workspace.createdBy?.lastName"
+                            size="24px"
+                            aria-hidden="true"
+                        />
                     </button>
                     <mt-dropdown-menu-root
                         v-if="allowEdit || allowDelete"

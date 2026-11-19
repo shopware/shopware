@@ -57,10 +57,10 @@ describe('layout picker', () => {
     });
 
     it.each([
-        { id: 'layout-a', name: 'Home', action: 'activate' },
-        { id: 'layout-b', name: 'Summer collection', action: 'open' },
+        { id: 'layout-a', name: 'Home', action: 'sw-experience-studio.detail.canvas.openAnotherPreview' },
+        { id: 'layout-b', name: 'Summer collection', action: 'sw-experience-studio.workspace.layoutPicker.open' },
     ])('opens $name directly from its name, including layouts already open', async ({ id, name, action }) => {
-        const button = wrapper.get(`button[title="sw-experience-studio.workspace.layoutPicker.${action}"]`);
+        const button = wrapper.get(`button[title="${action}"]`);
 
         expect(button.text()).toBe(name);
         await button.trigger('click');

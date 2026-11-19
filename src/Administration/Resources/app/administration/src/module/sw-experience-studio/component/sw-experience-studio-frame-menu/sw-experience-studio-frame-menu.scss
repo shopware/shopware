@@ -1,0 +1,46 @@
+.sw-experience-studio-frame-menu {
+    display: flex;
+    align-items: center;
+    gap: var(--scale-size-8);
+
+    &__settings {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        padding-right: var(--scale-size-8);
+        border-right: 1px solid var(--color-border-primary-default);
+
+        .sw-field {
+            width: 200px;
+            margin-bottom: 0;
+        }
+
+        .sw-field__label {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+        }
+
+        .sw-field + .sw-field {
+            width: 160px;
+            padding-left: var(--scale-size-8);
+            border-left: 1px solid var(--color-border-primary-default);
+        }
+
+        .sw-entity-single-select__selection-text {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &__divider {
+        width: 1px;
+        height: var(--scale-size-24);
+        background: var(--color-border-primary-default);
+    }
+}

@@ -1,0 +1,91 @@
+{% block sw_experience_studio_layout_tree %}
+<ul
+    class="sw-experience-studio-layout-tree"
+    :aria-label="$t('sw-experience-studio.workspace.layouts.title')"
+>
+    <li
+        v-for="item in items"
+        :key="item.id"
+        class="sw-experience-studio-layout-tree__item"
+    >
+        <div
+            class="sw-experience-studio-layout-tree__row"
+            :class="{ 'is--active': item.id === activeLayoutId }"
+        >
+            <button
+                type="button"
+                class="sw-experience-studio-layout-tree__toggle"
+                :aria-expanded="isExpanded(item.id)"
+                :aria-controls="`experience-studio-previews-${item.id}`"
+                :aria-label="$t(isExpanded(item.id) ? 'sw-experience-studio.workspace.layouts.collapsePreviews' : 'sw-experience-studio.workspace.layouts.expandPreviews', { name: item.name })"
+                @click="toggleLayout(item.id)"
+            >
+                <mt-icon
+                    :name="isExpanded(item.id) ? 'regular-chevron-down-xs' : 'regular-chevron-right-xs'"
+                    size="12px"
+                    decorative
+                />
+            </button>
+            <button
+                type="button"
+                class="sw-experience-studio-layout-tree__select"
+                :aria-current="item.id === activeLayoutId ? 'page' : undefined"
+                :title="item.name"
+                @click="$emit('select-layout', item.id)"
+            >
+                <mt-icon
+                    name="regular-layout"
+                    size="16px"
+                    decorative
+                />
+                <span class="sw-experience-studio-layout-tree__name">{{ item.name }}</span>
+                <span
+                    v-if="item.isDirty"
+                    class="sw-experience-studio-layout-tree__dirty-indicator"
+                    role="img"
+                    :aria-label="$t('sw-experience-studio.workspace.layouts.unsaved')"
+                ></span>
+            </button>
+            <button
+                v-if="item.canManageAssignments"
+                type="button"
+                class="sw-experience-studio-layout-tree__assignments"
+                :aria-label="$t('sw-experience-studio.workspace.layouts.assignments', { name: item.name })"
+                :title="$t('sw-experience-studio.workspace.layouts.assignments', { name: item.name })"
+                :disabled="isLoading || undefined"
+                @click="$emit('assign', item.id)"
+            >
+                <mt-icon
+                    name="regular-share"
+                    size="16px"
+                    decorative
+                />
+            </button>
+            <button
+                type="button"
+                class="sw-experience-studio-layout-tree__close"
+                :aria-label="$t('sw-experience-studio.workspace.layouts.close', { name: item.name })"
+                @click="$emit('close-layout', item.id)"
+            >
+                <mt-icon
+                    name="regular-times"
+                    size="14px"
+                    decorative
+                />
+            </button>
+        </div>
+        <small
+            v-if="item.saveError"
+            class="sw-experience-studio-layout-tree__error"
+        >{{ item.saveError }}</small>
+        <sw-experience-studio-preview-list
+            v-show="isExpanded(item.id)"
+            :id="`experience-studio-previews-${item.id}`"
+            :frames="frames"
+            :layout-id="item.id"
+            @select="$emit('select-frame', $event)"
+            @close="$emit('close-frame', $event)"
+        />
+    </li>
+</ul>
+{% endblock %}

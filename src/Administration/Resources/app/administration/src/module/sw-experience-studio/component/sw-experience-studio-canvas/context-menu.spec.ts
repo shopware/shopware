@@ -19,7 +19,7 @@ async function createWrapper(withLayouts = true, preview = '') {
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
-                isActive: false,
+                isActive: frame.layoutId === 'left',
             })),
             workspaceConfiguration: {
                 frames,
@@ -77,6 +77,7 @@ describe('Experience Studio free canvas context menu', () => {
     it.each([
         '.sw-experience-studio-canvas__sidebar',
         '.sw-experience-studio-canvas__zoom-controls',
+        '.sw-experience-studio-canvas__frame-header',
         '.sw-experience-studio-canvas__frame-toolbar',
     ])('keeps the browser context menu outside the free background (%s)', async (selector) => {
         wrapper = await createWrapper();

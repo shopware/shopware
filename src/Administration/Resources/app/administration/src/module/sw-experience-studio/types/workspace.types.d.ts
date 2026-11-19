@@ -6,6 +6,7 @@ export type WorkspaceViewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'cus
 
 /** @private @sw-package discovery */
 export type WorkspaceFrame = {
+    id: string;
     layoutId: string;
     x: number;
     y: number;
@@ -13,6 +14,7 @@ export type WorkspaceFrame = {
     height: number;
     viewport: WorkspaceViewport;
     previewEntityId: string | null;
+    languageId?: string;
 };
 
 /** @private @sw-package discovery */

@@ -17,9 +17,6 @@ function createLayout(id: string, isNew = false) {
         isNew,
         isSaving: false,
         saveError: null as string | null,
-        selectedElementId: null as string | null,
-        viewport: 'desktop',
-        previewEntityId: null as string | null,
     };
 }
 
@@ -30,6 +27,13 @@ function createVm() {
     inactive.layout.layout[0].properties.text = 'Changed inactive';
     return {
         openLayouts: [active, inactive],
+        frames: [active, inactive].map((document) => ({
+            id: document.id,
+            layoutId: document.id,
+            selectedElementId: null as string | null,
+            viewport: 'desktop',
+            previewEntityId: null as string | null,
+        })),
         layout: active.layout,
         activeLayoutId: active.id,
         selectedElementId: 'active-text' as string | null,
@@ -54,9 +58,13 @@ describe('layout change review state', () => {
     it('counts changed active and inactive layouts and new layouts, excluding clean layouts and preview changes', () => {
         const vm = createVm();
         const clean = createLayout('clean');
-        clean.selectedElementId = 'clean-text';
-        clean.viewport = 'mobile';
-        clean.previewEntityId = 'preview-id';
+        vm.frames.push({
+            id: 'clean-preview',
+            layoutId: clean.id,
+            selectedElementId: 'clean-text',
+            viewport: 'mobile',
+            previewEntityId: 'preview-id',
+        });
         vm.openLayouts.push(clean, createLayout('new', true));
 
         expect(computed.changedLayouts.call(vm)).toEqual([
@@ -70,13 +78,13 @@ describe('layout change review state', () => {
         const vm = createVm();
         const inactive = vm.openLayouts[1];
         inactive.saveError = 'Save failed';
-        inactive.selectedElementId = 'inactive-text';
+        vm.frames[1].selectedElementId = 'inactive-text';
 
         methods.onDiscardLayout.call(vm, 'inactive');
 
         expect(inactive.layout.layout[0].properties.text).toBe('Saved content');
         expect(inactive.saveError).toBeNull();
-        expect(inactive.selectedElementId).toBeNull();
+        expect(vm.frames[1].selectedElementId).toBeNull();
         expect(methods.isLayoutDirty.call(vm, inactive)).toBe(false);
         expect(vm.layout.name).toBe('Changed active');
         expect(vm.selectedElementId).toBe('active-text');

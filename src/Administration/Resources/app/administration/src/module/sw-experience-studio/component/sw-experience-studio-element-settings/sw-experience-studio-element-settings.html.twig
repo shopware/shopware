@@ -76,6 +76,7 @@
                     v-else
                     :fields="elementFields"
                     :values="elementPropertyValues"
+                    :language-name="languageName"
                     :allow-edit="allowEdit"
                     :selected-element-type="selectedElementType"
                     :mapping-candidates="mappingCandidates"
@@ -110,6 +111,7 @@
                     v-else
                     :fields="layoutFields"
                     :values="elementStyleValues"
+                    :language-name="languageName"
                     :allow-edit="allowEdit"
                     @update-field="onUpdateLayoutField"
                 />

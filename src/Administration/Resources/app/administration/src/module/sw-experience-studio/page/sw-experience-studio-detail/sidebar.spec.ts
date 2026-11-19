@@ -8,12 +8,14 @@ async function createWrapper(renderMenus = false, role: 'viewer' | 'editor' | 'c
         canvasComponent,
         treeComponent,
         treeNodeComponent,
-        gridComponent,
+        layoutTreeComponent,
+        previewListComponent,
     ] = await Promise.all([
         wrapTestComponent('sw-experience-studio-canvas', { sync: true }),
         wrapTestComponent('sw-experience-studio-sidebar-tree', { sync: true }),
         wrapTestComponent('sw-experience-studio-sidebar-tree-node', { sync: true }),
-        wrapTestComponent('sw-data-grid', { sync: true }),
+        wrapTestComponent('sw-experience-studio-layout-tree', { sync: true }),
+        wrapTestComponent('sw-experience-studio-preview-list', { sync: true }),
     ]);
 
     const mountComponent = renderMenus ? mount : shallowMount;
@@ -44,7 +46,9 @@ async function createWrapper(renderMenus = false, role: 'viewer' | 'editor' | 'c
                 stubs: {
                     'sw-page': { template: '<div><slot name="content" /></div>' },
                     'sw-experience-studio-canvas': canvasComponent,
-                    'sw-data-grid': gridComponent,
+                    'sw-experience-studio-layout-tree': layoutTreeComponent,
+                    'sw-experience-studio-preview-list': previewListComponent,
+                    'sw-experience-studio-frame-menu': true,
                     'sw-provide': { inheritAttrs: false, template: '<slot />' },
                     'sw-experience-studio-toolbar': true,
                     'sw-entity-single-select': {
@@ -57,6 +61,11 @@ async function createWrapper(renderMenus = false, role: 'viewer' | 'editor' | 'c
                     'sw-experience-studio-preview': {
                         name: 'test-preview',
                         props: ['layout', 'entityId'],
+                        methods: {
+                            scrollToElement(this: ComponentPublicInstance, elementId: string) {
+                                this.$emit('scroll-element', elementId);
+                            },
+                        },
                         template: `<button class="test-preview" :data-layout-id="layout.id" :data-entity-id="entityId" @click="$emit('select-element', layout.layout[0]?.id ?? null)">Select element</button>`,
                     },
                     'sw-experience-studio-element-settings': true,
@@ -94,15 +103,18 @@ describe('Experience Studio sidebar navigation', () => {
             },
         ];
         await wrapper.setData({
-            activeLayoutId: 'layout-a',
+            activeFrameId: 'layout-a',
             layout: layouts[0],
-            openLayouts: layouts.map((layout) => ({
+            frames: layouts.map((layout) => ({
                 id: layout.id,
-                layout,
+                layoutId: layout.id,
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
-                settingsWidth: 320,
+            })),
+            openLayouts: layouts.map((layout) => ({
+                id: layout.id,
+                layout,
                 savedState: '',
                 isNew: false,
                 isSaving: false,
@@ -117,30 +129,14 @@ describe('Experience Studio sidebar navigation', () => {
         jest.restoreAllMocks();
     });
 
-    it('changes preview entities through each layout frame toolbar', async () => {
-        const frame = wrapper.get('[data-frame-id="layout-a"]');
-        const selector = frame.getComponent<ComponentPublicInstance>({ name: 'test-preview-entity-select' });
-        selector.vm.$emit('update:value', 'preview-category');
-        await flushPromises();
+    it('renders layouts as parent nodes with their preview frames nested below', () => {
+        const tree = wrapper.get('.sw-experience-studio-layout-tree');
 
-        expect(frame.get('.test-preview').attributes('data-entity-id')).toBe('preview-category');
-        expect(
-            wrapper.get('[data-frame-id="layout-b"]').getComponent({ name: 'test-preview-entity-select' }).props('value'),
-        ).toBeNull();
-        expect(frame.findAll('button[aria-label="sw-experience-studio.detail.toolbar.undo"]')).toHaveLength(1);
-        expect(frame.findAll('button[aria-label="sw-experience-studio.detail.toolbar.redo"]')).toHaveLength(1);
-    });
-
-    it('renders opened layouts in a compact Admin grid without selection or column headers', () => {
-        const grid = wrapper.get('.sw-experience-studio-detail__open-layouts.sw-data-grid');
-
-        expect(grid.classes()).toContain('is--compact');
-        expect(grid.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(2);
-        expect(grid.findAll('.sw-data-grid__cell')).toHaveLength(2);
-        expect(grid.find('.sw-data-grid__header').exists()).toBe(false);
-        expect(grid.find('.sw-data-grid__cell--selection').exists()).toBe(false);
-        expect(grid.find('.sw-data-grid__cell--actions').exists()).toBe(false);
-        expect(grid.get('[aria-current="page"]').text()).toContain('Home');
+        expect(tree.element.tagName).toBe('UL');
+        expect(tree.findAll('.sw-experience-studio-layout-tree__item')).toHaveLength(2);
+        expect(tree.findAll('.sw-experience-studio-preview-list')).toHaveLength(2);
+        expect(tree.findAll('.sw-experience-studio-layout-tree__toggle[aria-expanded="true"]')).toHaveLength(2);
+        expect(tree.get('[aria-current="page"]').text()).toContain('Home');
     });
 
     it('shows a new layout name without a save reminder', async () => {
@@ -152,7 +148,6 @@ describe('Experience Studio sidebar navigation', () => {
                     selectedElementId: null,
                     viewport: 'desktop',
                     previewEntityId: null,
-                    settingsWidth: 320,
                     savedState: '',
                     isNew: true,
                     isSaving: false,
@@ -161,21 +156,21 @@ describe('Experience Studio sidebar navigation', () => {
             ],
         });
 
-        const entry = wrapper.get('.sw-experience-studio-detail__layout-select');
+        const entry = wrapper.get('.sw-experience-studio-layout-tree__select');
 
         expect(entry.text()).toBe('New layout');
         expect(entry.find('small').exists()).toBe(false);
-        expect(entry.find('.sw-experience-studio-detail__dirty-indicator').exists()).toBe(true);
+        expect(entry.find('.sw-experience-studio-layout-tree__dirty-indicator').exists()).toBe(true);
     });
 
-    it('opens the page tree when clicking the row outside its buttons', async () => {
-        await wrapper.get('.sw-data-grid__row--1 .sw-data-grid__cell-content').trigger('click');
+    it('opens the page tree when selecting its layout label', async () => {
+        await wrapper.findAll('.sw-experience-studio-layout-tree__select')[1].trigger('click');
 
         expect(wrapper.get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe('Summer collection');
     });
 
     it('opens the close confirmation without selecting the layout row', async () => {
-        await wrapper.findAll('.sw-experience-studio-detail__layout-close')[1].trigger('click');
+        await wrapper.findAll('.sw-experience-studio-layout-tree__close')[1].trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-experience-studio-detail__open-layouts').exists()).toBe(true);
@@ -235,13 +230,13 @@ describe('Experience Studio sidebar navigation', () => {
 
     it('opens the selected page tree and returns to the opened pages with the back button', async () => {
         const sidebar = () => wrapper.get('.sw-experience-studio-canvas__sidebar');
-        expect(sidebar().findAll('.sw-experience-studio-detail__layout-select')).toHaveLength(2);
+        expect(sidebar().findAll('.sw-experience-studio-layout-tree__select')).toHaveLength(2);
         expect(sidebar().find('.sw-experience-studio-sidebar-tree').exists()).toBe(false);
         expect(
             wrapper.get('.sw-experience-studio-canvas__stage').find('aside.sw-experience-studio-canvas__sidebar').exists(),
         ).toBe(false);
 
-        await sidebar().findAll('.sw-experience-studio-detail__layout-select')[1].trigger('click');
+        await sidebar().findAll('.sw-experience-studio-layout-tree__select')[1].trigger('click');
         await flushPromises();
 
         expect(sidebar().get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe('Summer collection');
@@ -255,11 +250,11 @@ describe('Experience Studio sidebar navigation', () => {
         await sidebar().get('.sw-experience-studio-sidebar-tree__back-button').trigger('click');
 
         expect(sidebar().get('h2').text()).toBe('sw-experience-studio.workspace.layouts.title');
-        expect(sidebar().findAll('.sw-experience-studio-detail__layout-select')).toHaveLength(2);
+        expect(sidebar().findAll('.sw-experience-studio-layout-tree__select')).toHaveLength(2);
         expect(sidebar().find('.sw-experience-studio-sidebar-tree__back-button').exists()).toBe(false);
 
         // Selecting the already active page must open its tree again.
-        await sidebar().findAll('.sw-experience-studio-detail__layout-select')[1].trigger('click');
+        await sidebar().findAll('.sw-experience-studio-layout-tree__select')[1].trigger('click');
         expect(sidebar().get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe('Summer collection');
     });
 
@@ -279,7 +274,7 @@ describe('Experience Studio sidebar navigation', () => {
             -200,
         ],
     ] as const)(
-        'positions layout %s 20px from the canvas top-left at 100%% and opens its tree',
+        'leaves room for the toolbar when focusing layout %s at 100%% and opens its tree',
         async (index, id, name, x, y) => {
             const canvas = wrapper.getComponent({ ref: 'experienceStudioCanvas' });
             await canvas.setData({
@@ -297,11 +292,11 @@ describe('Experience Studio sidebar navigation', () => {
             });
             expect(wrapper.find('.sw-experience-studio-detail__layout-focus').exists()).toBe(false);
 
-            await wrapper.findAll('.sw-experience-studio-detail__layout-select')[index].trigger('click');
+            await wrapper.findAll('.sw-experience-studio-layout-tree__select')[index].trigger('click');
             await flushPromises();
 
             expect(wrapper.get('.sw-experience-studio-canvas__world').attributes('style')).toContain(
-                `translate3d(${-230 - x}px, ${-80 - y}px, 0) scale(1)`,
+                `translate3d(${-230 - x}px, ${20 - y}px, 0) scale(1)`,
             );
             expect(wrapper.get('.sw-experience-studio-canvas__zoom-controls > span').text()).toBe('100%');
             expect(wrapper.get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe(name);
@@ -381,19 +376,19 @@ describe('Experience Studio sidebar navigation', () => {
         },
     );
 
-    it('clears selection and closes settings on every layout switch, including previously selected layouts', async () => {
+    it('clears selection and closes settings on every switch to another layout, including previously selected layouts', async () => {
         const canvas = wrapper.getComponent({ ref: 'experienceStudioCanvas' });
-        await wrapper.findAll('.sw-experience-studio-detail__layout-select')[0].trigger('click');
+        await wrapper.findAll('.sw-experience-studio-layout-tree__select')[0].trigger('click');
         await wrapper.get('.sw-experience-studio-sidebar-tree-node__element').trigger('click');
 
         for (const destination of [
-            { index: 1, name: 'Summer collection', elementId: 'element-b' },
-            { index: 0, name: 'Home', elementId: 'element-a' },
-            { index: 1, name: 'Summer collection', elementId: 'element-b' },
+            { index: 1, name: 'Summer collection' },
+            { index: 0, name: 'Home' },
+            { index: 1, name: 'Summer collection' },
         ]) {
             await wrapper.get('.sw-experience-studio-sidebar-tree__back-button').trigger('click');
             expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(true);
-            await wrapper.findAll('.sw-experience-studio-detail__layout-select')[destination.index].trigger('click');
+            await wrapper.findAll('.sw-experience-studio-layout-tree__select')[destination.index].trigger('click');
             await flushPromises();
 
             expect(wrapper.get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe(destination.name);
@@ -403,19 +398,16 @@ describe('Experience Studio sidebar navigation', () => {
                 expect.objectContaining({ id: 'layout-a', selectedElementId: null }),
                 expect.objectContaining({ id: 'layout-b', selectedElementId: null }),
             ]);
-
             await wrapper.get('.sw-experience-studio-sidebar-tree-node__element').trigger('click');
             expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(true);
-            expect(wrapper.get('sw-experience-studio-element-settings-stub').attributes('selected-element-id')).toBe(
-                destination.elementId,
-            );
         }
     });
 
     it.each(['tree', 'preview'])(
         'opens the corresponding settings from the %s without a settings button',
         async (source) => {
-            await wrapper.findAll('.sw-experience-studio-detail__layout-select')[0].trigger('click');
+            await wrapper.findAll('.sw-experience-studio-layout-tree__select')[0].trigger('click');
+            await wrapper.get('button[aria-label="sw-experience-studio.detail.canvas.fit"]').trigger('click');
             expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(false);
 
             if (source === 'tree') {
@@ -430,6 +422,13 @@ describe('Experience Studio sidebar navigation', () => {
             expect(wrapper.get('sw-experience-studio-element-settings-stub').attributes('selected-element-id')).toBe(
                 'element-a',
             );
+            const previews = wrapper.findAllComponents({ name: 'test-preview' });
+            expect(previews[0].emitted('scroll-element')).toEqual(source === 'tree' ? [['element-a']] : undefined);
+            expect(previews[1].emitted('scroll-element')).toBeUndefined();
+            if (source === 'tree') {
+                await wrapper.get('.sw-experience-studio-sidebar-tree-node__element').trigger('click');
+            }
+            expect(previews[0].emitted('scroll-element') ?? []).toHaveLength(source === 'tree' ? 2 : 0);
 
             await wrapper.get('.sw-experience-studio-sidebar-tree__back-button').trigger('click');
             expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(true);
@@ -444,7 +443,7 @@ describe('Experience Studio sidebar navigation', () => {
         { label: 'sw-experience-studio.workspace.layoutPicker.open', creates: false },
         { label: 'sw-experience-studio.general.createNewLayout', creates: true },
     ])('opens the correct dialog from the empty-state $label action', async ({ label, creates }) => {
-        await wrapper.setData({ openLayouts: [], activeLayoutId: null, layout: null });
+        await wrapper.setData({ openLayouts: [], frames: [], activeFrameId: null, layout: null });
         const emptyState = wrapper.get('.sw-experience-studio-detail__layouts-empty-state');
         const buttons = emptyState.findAll('button');
         const button = buttons[creates ? 1 : 0];
@@ -459,8 +458,8 @@ describe('Experience Studio sidebar navigation', () => {
     });
 
     it('returns to the overview when the last page is closed', async () => {
-        await wrapper.findAll('.sw-experience-studio-detail__layout-select')[0].trigger('click');
-        await wrapper.setData({ openLayouts: [], activeLayoutId: null, layout: null });
+        await wrapper.findAll('.sw-experience-studio-layout-tree__select')[0].trigger('click');
+        await wrapper.setData({ openLayouts: [], frames: [], activeFrameId: null, layout: null });
 
         expect(wrapper.get('.sw-experience-studio-canvas__sidebar h2').text()).toBe(
             'sw-experience-studio.workspace.layouts.title',
@@ -490,7 +489,7 @@ describe('Experience Studio sidebar navigation', () => {
         if (back.exists()) {
             await back.trigger('click');
         }
-        expect(wrapper.findAll('.sw-experience-studio-detail__layout-select')).toHaveLength(2 - ids.length);
+        expect(wrapper.findAll('.sw-experience-studio-layout-tree__select')).toHaveLength(2 - ids.length);
         expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(!ids.includes('layout-a'));
     });
 });

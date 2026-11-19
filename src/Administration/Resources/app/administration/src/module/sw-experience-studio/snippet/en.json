@@ -26,6 +26,8 @@
       },
       "layouts": {
         "title": "Layouts",
+        "expandPreviews": "Show previews of {name}",
+        "collapsePreviews": "Hide previews of {name}",
         "emptyTitle": "No layouts open",
         "emptyDescription": "Open an existing layout or create a new one to start editing.",
         "create": "Create",
@@ -44,6 +46,8 @@
         "manage": "Manage workspaces",
         "rename": "Rename workspace",
         "name": "Workspace name",
+        "createdBy": "Created by {name}",
+        "unknownCreator": "Unknown user",
         "empty": "No workspaces yet. Create one to start arranging layouts.",
         "loadError": "Workspaces could not be loaded.",
         "saveError": "The canvas setup could not be saved. Retry before switching workspaces.",
@@ -997,16 +1001,21 @@
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
         "previewEntity": "Entity",
+        "previewLanguage": "Language",
+        "previewLanguageLoadError": "The available languages for this preview sales channel could not be loaded.",
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
         "save": "Save layout"
       },
       "canvas": {
+        "previewLabel": "{name} · {viewport} · Preview {number}",
+        "previewActions": "Actions for {name}",
+        "openAnotherPreview": "Open another preview",
         "customViewport": "Custom",
         "viewportToolbar": "Preview viewport",
         "moveFrame": "Move preview frame. Use arrow keys to reposition.",
-        "closeFrame": "Close layout {name}",
+        "closeFrame": "Close preview {name}",
         "panelsToolbar": "Canvas panels",
         "structure": "Structure",
         "settings": "Settings",
@@ -1065,6 +1074,11 @@
         "errorUpdate": "The preview could not be updated. It still shows an earlier version.",
         "retry": "Retry"
       },
+      "translationSettings": {
+        "title": "Translations",
+        "openAction": "Translate layout",
+        "emptyState": "This layout has no translatable fields."
+      },
       "elementSettings": {
         "title": "Element settings",
         "tabElement": "Element",
@@ -1077,6 +1091,7 @@
         "noEditableProperties": "This element does not provide editable primitive properties.",
         "noEditableStyleOptions": "No layout style options are available.",
         "panelGeneral": "General",
+        "editingLanguage": "Editing in {language}",
         "viewportSettings": "Viewport settings",
         "boxSpacingTop": "Top",
         "boxSpacingRight": "Right",

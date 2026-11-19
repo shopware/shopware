@@ -22,6 +22,7 @@ describe('Experience Studio detail translatable property writes', () => {
             layout: [element],
         },
         allowSave: true,
+        activeLanguageChain: [SYSTEM_LANGUAGE_ID],
         selectedElementId: 'element-1' as string | null,
         showDiagnostics: false,
         editorStore: {
@@ -93,6 +94,18 @@ describe('Experience Studio detail translatable property writes', () => {
                 [GERMAN_LANGUAGE_ID]: 'Hallo',
             },
         });
+    });
+
+    it('writes into the selected frame language while preserving the system entry', () => {
+        const vm = propertyWriteVm(textElement({ text: { [SYSTEM_LANGUAGE_ID]: 'Hello' } }), 'text', true);
+        vm.activeLanguageChain = [GERMAN_LANGUAGE_ID, SYSTEM_LANGUAGE_ID];
+
+        methods.onElementSettingsChange.call(vm, { elementId: 'element-1', propertyKey: 'text', value: 'Hallo' });
+
+        expect(vm.layout.layout[0].properties).toEqual({
+            text: { [SYSTEM_LANGUAGE_ID]: 'Hello', [GERMAN_LANGUAGE_ID]: 'Hallo' },
+        });
+        expect(vm.editorStore.pushToHistory).toHaveBeenCalledTimes(1);
     });
 
     it('records a translatable settings change in the undo history', () => {

@@ -26,6 +26,8 @@
       },
       "layouts": {
         "title": "Layouts",
+        "expandPreviews": "Vorschauen von {name} anzeigen",
+        "collapsePreviews": "Vorschauen von {name} ausblenden",
         "emptyTitle": "Keine Layouts geöffnet",
         "emptyDescription": "Öffne ein vorhandenes Layout oder erstelle ein neues, um mit der Bearbeitung zu beginnen.",
         "create": "Erstellen",
@@ -44,6 +46,8 @@
         "manage": "Arbeitsbereiche verwalten",
         "rename": "Arbeitsbereich umbenennen",
         "name": "Name des Arbeitsbereichs",
+        "createdBy": "Erstellt von {name}",
+        "unknownCreator": "Unbekannter Benutzer",
         "empty": "Noch keine Arbeitsbereiche vorhanden. Erstelle einen, um Layouts anzuordnen.",
         "loadError": "Die Arbeitsbereiche konnten nicht geladen werden.",
         "saveError": "Die Canvas-Konfiguration konnte nicht gespeichert werden. Versuche es erneut, bevor Du den Arbeitsbereich wechselst.",
@@ -997,16 +1001,21 @@
         "viewportTablet": "Tablet",
         "viewportDesktop": "Desktop",
         "previewEntity": "Entität",
+        "previewLanguage": "Sprache",
+        "previewLanguageLoadError": "Die verfügbaren Sprachen für diesen Vorschau-Verkaufskanal konnten nicht geladen werden.",
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
         "save": "Layout speichern"
       },
       "canvas": {
+        "previewLabel": "{name} · {viewport} · Vorschau {number}",
+        "previewActions": "Aktionen für {name}",
+        "openAnotherPreview": "Weitere Vorschau öffnen",
         "customViewport": "Benutzerdefiniert",
         "viewportToolbar": "Vorschau-Viewport",
         "moveFrame": "Vorschau verschieben. Mit den Pfeiltasten positionieren.",
-        "closeFrame": "Layout {name} schließen",
+        "closeFrame": "Vorschau {name} schließen",
         "panelsToolbar": "Canvas-Bereiche",
         "structure": "Struktur",
         "settings": "Einstellungen",
@@ -1065,6 +1074,11 @@
         "errorUpdate": "Die Vorschau konnte nicht aktualisiert werden. Sie zeigt noch einen älteren Stand.",
         "retry": "Erneut versuchen"
       },
+      "translationSettings": {
+        "title": "Übersetzungen",
+        "openAction": "Layout übersetzen",
+        "emptyState": "Dieses Layout hat keine übersetzbaren Felder."
+      },
       "elementSettings": {
         "title": "Element-Einstellungen",
         "tabElement": "Element",
@@ -1077,6 +1091,7 @@
         "noEditableProperties": "Dieses Element besitzt keine bearbeitbaren primitiven Eigenschaften.",
         "noEditableStyleOptions": "Es sind keine Layout-Stiloptionen verfügbar.",
         "panelGeneral": "Allgemein",
+        "editingLanguage": "Bearbeitung auf {language}",
         "viewportSettings": "Viewport-Einstellungen",
         "boxSpacingTop": "Oben",
         "boxSpacingRight": "Rechts",

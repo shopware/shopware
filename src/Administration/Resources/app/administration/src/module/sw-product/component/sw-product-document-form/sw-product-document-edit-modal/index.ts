@@ -9,10 +9,25 @@ import type {
     DocumentVariantOperation,
 } from 'src/module/sw-product/service/product-document-variant.service';
 import { getDocumentMedia } from '../product-document.helper';
-import type { DocumentUploadRules } from '../index';
 import template from './sw-product-document-edit-modal.html.twig';
 
 const { Context, Store } = Shopware;
+
+/** @private */
+export type DocumentUploadRules = {
+    allowedExtensions: string[];
+    allowedMimeTypesByExtension: Record<string, string[]>;
+    maxFileSize: number;
+    fileAccept: string;
+};
+
+/** @private */
+export type DocumentEdit = {
+    changes: DocumentChanges;
+    media: Entity<'media'> | null;
+    operation: DocumentVariantOperation | null;
+    message: string | null;
+};
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
@@ -236,7 +251,7 @@ export default Shopware.Component.wrapComponentConfig({
             const message = operation
                 ? this.$t('sw-product.documentForm.applySuccess', { name: appliedTitle, count: variantCount })
                 : null;
-            this.$emit('apply', { changes, media, operation, message });
+            this.$emit('apply', { changes, media, operation, message } satisfies DocumentEdit);
         },
     },
 });

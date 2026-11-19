@@ -6,7 +6,7 @@ import { toRaw, type ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { DocumentChanges, DocumentVariantOperation } from '../../../service/product-document-variant.service';
 import { setDocumentMedia } from '../product-document.helper';
-import type { DocumentUploadRules } from '../index';
+import type { DocumentUploadRules } from './index';
 
 const mockNotifyError = jest.fn();
 

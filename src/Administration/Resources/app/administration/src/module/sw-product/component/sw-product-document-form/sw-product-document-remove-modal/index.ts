@@ -10,6 +10,9 @@ import './sw-product-document-remove-modal.scss';
 const { Store } = Shopware;
 
 /** @private */
+export type DocumentRemoval = { operations: Record<string, DocumentVariantOperation>; message: string };
+
+/** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -160,7 +163,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.$emit('remove', { operations, message: this.getSuccessMessage(variantCount) });
+            this.$emit('remove', { operations, message: this.getSuccessMessage(variantCount) } satisfies DocumentRemoval);
         },
     },
 });

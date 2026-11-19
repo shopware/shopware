@@ -4,10 +4,9 @@
 import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import type {
-    DocumentChanges,
-    DocumentVariantOperation,
-} from 'src/module/sw-product/service/product-document-variant.service';
+import type { DocumentChanges } from 'src/module/sw-product/service/product-document-variant.service';
+import type { DocumentEdit, DocumentUploadRules } from './sw-product-document-edit-modal';
+import type { DocumentRemoval } from './sw-product-document-remove-modal';
 import { getDocumentMedia, setDocumentMedia } from './product-document.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
@@ -16,13 +15,7 @@ type DocumentGrid = { resetSelection: () => void };
 
 type DocumentInheritance = { restoreInheritance: () => void };
 
-/** @private */
-export type DocumentUploadRules = {
-    allowedExtensions: string[];
-    allowedMimeTypesByExtension: Record<string, string[]>;
-    maxFileSize: number;
-    fileAccept: string;
-};
+type DocumentUploadResult = { targetId: EntityKey<'media'>; successAmount?: number; totalAmount?: number };
 
 const columns = [
     { property: 'number', label: '#', width: '56px', align: 'center' },
@@ -318,8 +311,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
             const index = this.documents.indexOf(document);
-            const newIndex = index + offset;
-            return index >= 0 && newIndex >= 0 && newIndex < this.documents.length;
+            return index >= 0 && !!this.documents[index + offset];
         },
 
         onPageChange({ page, limit }: { page: number; limit: number }): void {
@@ -333,15 +325,7 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        async onUploadFinished({
-            targetId,
-            successAmount = 1,
-            totalAmount = 1,
-        }: {
-            targetId: EntityKey<'media'>;
-            successAmount?: number;
-            totalAmount?: number;
-        }): Promise<void> {
+        async onUploadFinished({ targetId, successAmount = 1, totalAmount = 1 }: DocumentUploadResult): Promise<void> {
             const productId = this.product.id;
             try {
                 const media = await this.mediaRepository.get(targetId, Context.api);
@@ -409,22 +393,17 @@ export default Shopware.Component.wrapComponentConfig({
         isValidMedia(media: Entity<'media'>, exceptDocument: Entity<'product_document'> | null): boolean {
             const { allowedExtensions, maxFileSize } = this.uploadRules;
             const extension = media.fileExtension?.toLowerCase() ?? '';
+            const isAllowedFile = allowedExtensions.includes(extension) && (media.fileSize ?? Infinity) <= maxFileSize;
             const isDuplicate = this.documents.some(
                 (document) => document !== exceptDocument && document.translated?.mediaId === media.id,
             );
-            let message: string | null = null;
-
-            if (!allowedExtensions.includes(extension) || (media.fileSize ?? Infinity) > maxFileSize) {
-                message = this.uploadHint;
-            } else if (isDuplicate) {
-                message = this.$t('sw-product.documentForm.errorDocumentDuplicated');
+            if (isAllowedFile && !isDuplicate) {
+                return true;
             }
 
-            if (message) {
-                useSnackbar().addSnackbar({ variant: 'error', message });
-            }
-
-            return !message;
+            const message = isAllowedFile ? this.$t('sw-product.documentForm.errorDocumentDuplicated') : this.uploadHint;
+            useSnackbar().addSnackbar({ variant: 'error', message });
+            return false;
         },
 
         setDocumentValues(document: Entity<'product_document'>, changes: DocumentChanges, media: Entity<'media'> | null) {
@@ -448,17 +427,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        applyDocumentEdit({
-            changes,
-            media,
-            operation,
-            message,
-        }: {
-            changes: DocumentChanges;
-            media: Entity<'media'> | null;
-            operation: DocumentVariantOperation | null;
-            message: string | null;
-        }): void {
+        applyDocumentEdit({ changes, media, operation, message }: DocumentEdit): void {
             const document = this.editingDocument;
             this.editingDocument = null;
             if (!document) {
@@ -487,22 +456,14 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentsToRemove = documents.filter((item) => !this.isMissingLanguageVersion(item));
         },
 
-        removeDocuments({
-            operations,
-            message,
-        }: {
-            operations: Record<string, DocumentVariantOperation>;
-            message: string;
-        }): void {
-            this.documentsToRemove.forEach((document) => {
-                if (this.isSystemDefaultLanguage) {
-                    this.documents.remove(document.id);
-                } else {
-                    this.setDocumentValues(document, { title: null, mediaId: null }, null);
-                }
-            });
+        removeDocuments({ operations, message }: DocumentRemoval): void {
             if (this.isSystemDefaultLanguage) {
+                this.documentsToRemove.forEach((document) => this.documents.remove(document.id));
                 this.refreshPositions(this.documents);
+            } else {
+                this.documentsToRemove.forEach((document) =>
+                    this.setDocumentValues(document, { title: null, mediaId: null }, null),
+                );
             }
             (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
             this.selectedDocuments = [];

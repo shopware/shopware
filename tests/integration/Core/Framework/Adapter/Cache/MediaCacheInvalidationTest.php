@@ -143,6 +143,46 @@ class MediaCacheInvalidationTest extends TestCase
         static::assertSame(Feature::isActive('CACHE_REWORK') ? [[MediaRoute::buildName($media)]] : [], $this->batches);
     }
 
+    public function testDuplicatePairsAtTheBoundaryDoNotHideTheFollowingProduct(): void
+    {
+        $media = $this->createMedia();
+        $otherMedia = $this->createMedia();
+        $otherProduct = $this->createProduct();
+        $this->assignMedia($otherProduct, $otherMedia);
+        $products = [$this->createProduct(), $this->createProduct()];
+        sort($products);
+        [$parent, $following] = $products;
+        $variant = $this->createProduct($parent);
+        $queue = new MultiInsertQueryQueue($this->connection, chunkSize: 1000);
+        for ($i = 0; $i < 100001; ++$i) {
+            $queue->addInsert('product_media', [
+                'id' => Uuid::randomBytes(),
+                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'product_id' => Uuid::fromHexToBytes($parent),
+                'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'media_id' => Uuid::fromHexToBytes($media),
+                'created_at' => '2026-01-01 00:00:00',
+            ]);
+            if ($i % 1000 === 999) {
+                $queue->execute();
+            }
+        }
+        $queue->execute();
+        $this->assignMedia($following, $media);
+
+        $this->subscriber->invalidateMedia(new MediaIndexerEvent([$media, $otherMedia], Context::createDefaultContext()));
+
+        $expected = array_map(EntityCacheKeyGenerator::buildProductTag(...), [$parent, $variant, $following, $otherProduct]);
+        if (Feature::isActive('CACHE_REWORK')) {
+            $expected[] = MediaRoute::buildName($media);
+            $expected[] = MediaRoute::buildName($otherMedia);
+        }
+        static::assertEqualsCanonicalizing(
+            $expected,
+            array_values(array_unique(array_merge(...$this->batches)))
+        );
+    }
+
     private function createMedia(): string
     {
         $id = Uuid::randomHex();

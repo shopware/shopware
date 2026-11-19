@@ -31,10 +31,6 @@
     bottom: 0;
 }
 
-.sw-select-result-list-popover .sw-popover__wrapper {
-    width: 100%;
-}
-
 .sw-select-result-list__content {
     width: 100%;
     max-height: 250px;
@@ -64,8 +60,4 @@
     opacity: 0;
     min-height: 293px;
     height: 293px;
-}
-
-.sw-popover__wrapper.--placement-bottom-outside.sw-select-result-list-popover-wrapper {
-    transform: translate(0, calc(-100% - 48px));
 }

@@ -185,6 +185,7 @@ export default Component.wrapComponentConfig({
                         success: 'positive',
                         failed: 'critical',
                         pending_retry: 'attention',
+                        not_permitted: 'attention',
                     } as Record<string, string>
                 )[status] ?? 'neutral'
             );

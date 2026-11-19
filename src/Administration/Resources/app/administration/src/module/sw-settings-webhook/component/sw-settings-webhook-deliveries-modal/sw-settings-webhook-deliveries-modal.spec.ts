@@ -139,6 +139,7 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-deliverie
                 { id: 'failed', deliveryStatus: 'failed' },
                 { id: 'retry', deliveryStatus: 'pending_retry' },
                 { id: 'queued', deliveryStatus: 'queued' },
+                { id: 'notPermitted', deliveryStatus: 'not_permitted' },
             ],
         });
 
@@ -149,6 +150,7 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-deliverie
         expect(status('failed').attributes('data-variant')).toBe('critical');
         expect(status('retry').attributes('data-variant')).toBe('attention');
         expect(status('queued').attributes('data-variant')).toBe('neutral');
+        expect(status('notPermitted').attributes('data-variant')).toBe('attention');
     });
 
     it('shows when the last attempt of a delivery started', async () => {

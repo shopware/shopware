@@ -75,6 +75,10 @@
 
             <template #column-roles="{ item }">
                 <span class="sw-data-grid__cell-value">
+                    <template v-if="limitedRoleIds(item).length === 0">
+                        {{ $t('sw-settings-webhook.list.allOwnerRoles') }}
+                    </template>
+
                     <template
                         v-for="(roleId, index) in limitedRoleIds(item)"
                         :key="roleId"

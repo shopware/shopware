@@ -348,7 +348,7 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
             { name: 'sw.users.permissions.role.detail', params: { id: 'role-1' } },
             { name: 'sw.users.permissions.role.detail', params: { id: 'role-2' } },
         ]);
-        expect(wrapper.find('.row-integration-webhook .roles').text()).toBe('');
+        expect(wrapper.find('.row-integration-webhook .roles').text()).toBe('sw-settings-webhook.list.allOwnerRoles');
     });
 
     it('shows a deleted role without a link and does not look it up again', async () => {

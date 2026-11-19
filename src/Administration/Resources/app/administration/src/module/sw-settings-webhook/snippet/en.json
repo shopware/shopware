@@ -32,6 +32,7 @@
       "messageSaveSuccess": "Webhook \"{name}\" has been saved.",
       "placeholderSearchBar": "Search webhooks...",
       "deletedRole": "Deleted role",
+      "allOwnerRoles": "All roles of the owner",
       "tooltipWebhookNotOwned": "Only the owner of this webhook or an administrator can delete it."
     },
     "deliveries": {
@@ -50,7 +51,8 @@
         "failed": "Failed",
         "pending_retry": "Retrying",
         "queued": "Queued",
-        "running": "Sending"
+        "running": "Sending",
+        "not_permitted": "Not permitted"
       },
       "columnCode": "Code",
       "columnPayload": "Payload",

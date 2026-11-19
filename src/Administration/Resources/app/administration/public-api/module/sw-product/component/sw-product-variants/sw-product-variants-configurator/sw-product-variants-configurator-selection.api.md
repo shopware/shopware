@@ -12,6 +12,27 @@ component sw-product-variants-configurator-selection  public  js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/sw-product-variants-configurator-selection.html.twig
 
 blocks
-  sw_property_search_field
-    sw_product_variants_configurator_selection_search_field
+  sw_property_search  [inherited]
+    sw_property_search_field  [replaced]
+      sw_product_variants_configurator_selection_search_field
+    sw_property_search_inner_after  [inherited]
+    sw_property_search_inner_before  [inherited]
+    sw_property_search_option_search  [inherited]
+      sw_property_search_empty  [inherited]
+        sw_property_search_empty_image  [inherited]
+      sw_property_search_option_search_grid  [inherited]
+        sw_property_search_option_search_grid_columns  [inherited]
+          sw_property_search_option_search_grid_columns_name  [inherited]
+        sw_property_search_option_search_grid_pagination  [inherited]
+    sw_property_search_tree  [inherited]
+      sw_property_search_tree_container  [inherited]
+        sw_property_search_tree_group_grid  [inherited]
+          sw_property_search_tree_group_grid_columns  [inherited]
+            sw_property_search_tree_group_grid_columns_name  [inherited]
+            sw_property_search_tree_group_grid_columns_options  [inherited]
+          sw_property_search_tree_group_grid_pagination  [inherited]
+        sw_property_search_tree_option_grid  [inherited]
+          sw_property_search_tree_option_grid_columns  [inherited]
+            sw_property_search_tree_option_grid_columns_name  [inherited]
+          sw_property_search_tree_option_grid_pagination  [inherited]
 ```

@@ -13,9 +13,9 @@ component sw-compact-colorpicker  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_compact_colorpicker  [private]
-    sw_colorpicker_contextual_field  [private]
-    sw_colorpicker_popover  [private]
+  sw_colorpicker  [inherited] [private]
+    sw_colorpicker_contextual_field  [replaced] [private]
+    sw_colorpicker_popover  [replaced] [private]
       sw_compact_colorpicker_colorpicker  [private]
         sw_colorpicker_button  [private]
         sw_colorpicker_selection  [private]

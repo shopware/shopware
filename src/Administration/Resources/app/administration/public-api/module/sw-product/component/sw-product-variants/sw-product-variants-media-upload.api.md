@@ -12,7 +12,7 @@ component sw-product-variants-media-upload  public  js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-media-upload/sw-product-variants-media-upload.html.twig
 
 blocks
-  sw_media_upload_v2
+  sw_media_upload_v2  [replaced]
     sw_product_variants_media_upload_actions_media_modal
     sw_product_variants_media_upload_content
       sw_product_variants_media_upload_drop_zone

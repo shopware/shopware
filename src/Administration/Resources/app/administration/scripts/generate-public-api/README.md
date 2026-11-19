@@ -12,16 +12,17 @@ Each file says in its header what it does.
 ```mermaid
 flowchart TD
     tree["source-tree.ts<br/>lists and reads the source files"]
-    registry["component-registry.ts<br/>finds the registered components"]
-    blocks["template-blocks.ts<br/>reads the blocks of a template"]
+    registry["component-registry.ts<br/>finds the registered components and the core overrides"]
+    blocks["template-blocks.ts<br/>reads the blocks of a template as a tree"]
+    chain["extend-chain.ts<br/>merges the trees along the extend chains and applies the overrides"]
     flags["flag-states.ts<br/>current state, major state or both"]
     model["model.ts<br/>one unit per component"]
     printers["print-report.ts, print-index.ts<br/>print the files"]
     snapshot["snapshot.ts<br/>collects all printed files"]
     committed["committed-snapshot.ts<br/>writes them to public-api/"]
 
-    tree --> registry --> model
-    tree --> blocks --> model
+    tree --> registry --> chain
+    tree --> blocks --> chain --> model
     flags -.-> registry
     flags -.-> blocks
     model --> printers --> snapshot --> committed
@@ -34,8 +35,14 @@ Every element in the model carries a `FlagStates` value that says in which of th
 `model.ts` limits the elements of a component to the states in which the component is registered, so the printers only split or merge states.
 A new kind of element goes through `existingIn` in `componentUnit`.
 
-`template-blocks.ts` replaces every `{% block %}` and `{% endblock %}` with an HTML comment and parses the result with `@vue/compiler-dom`.
+`template-blocks.ts` replaces every `{% block %}`, `{% endblock %}` and `{% parent %}` with an HTML comment and parses the result with `@vue/compiler-dom`.
 That way Twig blocks and `<sw-block>` elements end up in one tree, and the `v-if` chains around a block decide its flag state.
+The tree keeps the order of the source, because the merge in `extend-chain.ts` depends on it.
+`listBlocks` in `block-tree.ts` turns a merged tree into the entries the printers use.
+
+`extend-chain.ts` follows the rules of `src/core/factory/template.factory.js` and names the function of the runtime above each of its own.
+A block keeps two flag state values: `within`, the conditions between it and the block around it, and `states`, where it renders.
+When a redeclaration moves content to another place, `states` is computed again from `within`, because the conditions around the old place no longer apply.
 
 ## Rules the code follows
 
@@ -52,6 +59,8 @@ That way Twig blocks and `<sw-block>` elements end up in one tree, and the `v-if
 |---|---|
 | `fixtures.spec.ts` | Every case in `__fixtures__/` against its hand-written expected output |
 | `snapshot.spec.ts` | Single behaviours of the generator on small source trees given as strings |
+| `extend-chain.spec/snapshot.spec.ts` | How the snapshot shows extend children and core overrides, and the chains the generator rejects |
+| `extend-chain.spec/runtime.spec.ts` | The merged blocks against the runtime: one case per merge rule, and every component of the real Administration |
 | `committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
 | `fixture-runner.spec.ts`, `findings.spec.ts` | The fixture comparison and the summary of the break check |
 

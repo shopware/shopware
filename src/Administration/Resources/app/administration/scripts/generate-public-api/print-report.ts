@@ -7,7 +7,7 @@ import { byCodePoint } from './code-point-order';
 import { flagStateMarker } from './flag-states';
 import type { FlagContext } from './flag-states';
 import type { ComponentUnit } from './model';
-import type { TemplateBlock } from './template-blocks';
+import type { TemplateBlock } from './block-tree';
 
 /** @private */
 export const GENERATE_COMMAND = 'composer admin:generate-public-api';
@@ -37,8 +37,8 @@ function blockTree(unit: ComponentUnit, flags: FlagContext): Line[] {
     const below = (parent: string | null, ancestors: readonly string[]): Line[] =>
         (children.get(parent) ?? [])
             .sort((a, b) => byCodePoint(a.name, b.name))
-            .flatMap(({ name, states }) => [
-                line(`${'  '.repeat(ancestors.length + 1)}${name}`, flagStateMarker(states, flags)),
+            .flatMap(({ name, origin, states }) => [
+                line(`${'  '.repeat(ancestors.length + 1)}${name}`, origin, flagStateMarker(states, flags)),
                 // A block that sits inside itself would repeat forever.
                 ...(ancestors.includes(name)
                     ? []

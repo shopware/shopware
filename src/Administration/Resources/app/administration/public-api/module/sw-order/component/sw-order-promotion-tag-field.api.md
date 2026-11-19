@@ -12,7 +12,7 @@ component sw-order-promotion-tag-field  public  js
   template src/module/sw-order/component/sw-order-promotion-tag-field/sw-order-promotion-tag-field.html.twig
 
 blocks
-  sw_tagged_field
+  sw_tagged_field  [replaced]
     sw_order_promotion_tag_field
       sw_tagged_field_inner
         sw_order_promotion_tag_field_item_input

@@ -7,40 +7,24 @@
 import { NodeTypes, parse } from '@vue/compiler-dom';
 import type { AttributeNode, DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import { parse as parseSfc } from '@vue/compiler-sfc';
-import { byCodePoint } from './code-point-order';
-import {
-    BOTH_STATES,
-    ConditionChain,
-    expressionTruths,
-    FLAG_STATES,
-    inAnyState,
-    inBothStates,
-    perState,
-} from './flag-states';
+import type { BlockContent, BlockNode, Placement } from './block-tree';
+import { BOTH_STATES, ConditionChain, expressionTruths, inBothStates } from './flag-states';
 import type { FlagContext, FlagStates } from './flag-states';
 
-/**
- * @private
- *
- * A block under one parent block. A block that sits under another parent in the major state has two entries.
- */
-export interface TemplateBlock {
-    name: string;
-    parent: string | null;
-    states: FlagStates;
-}
+// The runtime reads every tag that starts with `parent` as `{% parent %}`.
+const TWIG_TAG = /\{#[\s\S]*?#\}|\{%\s*block\s+([^%\s}]+)\s*%\}|\{%\s*(endblock)\s*%\}|\{%\s*parent\b[^%]*%\}/g;
 
-const TWIG_TAG = /\{#[\s\S]*?#\}|\{%\s*block\s+([^%\s}]+)\s*%\}|\{%\s*endblock\s*%\}/g;
-
-// Twig block tags become HTML comments, so the HTML parser keeps their position in the tree.
+// Twig tags become HTML comments, so the HTML parser keeps their position in the tree.
 const BLOCK_START = 'sw-twig-block:';
 const BLOCK_END = 'sw-twig-endblock';
+const PARENT_CALL = 'sw-twig-parent';
 
 const NATIVE_BLOCK_TAG = 'sw-block';
 
 interface OpenBlock {
-    name: string;
-    states: FlagStates;
+    block: BlockNode;
+    /** How many conditional elements were open around the place where the block opened. */
+    depth: number;
 }
 
 function templateOf(source: string, file: string): string {
@@ -73,9 +57,12 @@ function isWhitespace(node: TemplateChildNode): boolean {
 }
 
 class BlockReader {
+    private readonly tree: BlockContent[] = [];
+
     private readonly open: OpenBlock[] = [];
 
-    private readonly blocks = new Map<string, TemplateBlock>();
+    /** The flag states of the conditional elements around the current node, outermost first. */
+    private readonly branches: FlagStates[] = [];
 
     private twigTagsSeen = 0;
 
@@ -86,12 +73,12 @@ class BlockReader {
         private readonly flags: FlagContext,
     ) {}
 
-    public read(nodes: TemplateChildNode[], twigTags: number): TemplateBlock[] {
-        this.visit(nodes, BOTH_STATES);
+    public read(nodes: TemplateChildNode[], twigTags: number): BlockContent[] {
+        this.visit(nodes);
 
         if (this.twigTagsSeen !== twigTags) {
             throw new Error(
-                `${this.file}: a {% block %} tag sits where the HTML parser cannot see it, ` +
+                `${this.file}: a {% block %} or {% parent %} tag sits where the HTML parser cannot see it, ` +
                     'for example inside a tag, a <script>, a <style> or a <textarea>.',
             );
         }
@@ -101,20 +88,18 @@ class BlockReader {
         }
 
         if (this.open.length > 0) {
-            throw new Error(`${this.file}: the block ${this.open[this.open.length - 1].name} is never closed.`);
+            throw new Error(`${this.file}: the block ${this.open[this.open.length - 1].block.name} is never closed.`);
         }
 
-        return [...this.blocks.values()].sort(
-            (a, b) => byCodePoint(a.name, b.name) || byCodePoint(a.parent ?? '', b.parent ?? ''),
-        );
+        return this.tree;
     }
 
-    private visit(nodes: TemplateChildNode[], states: FlagStates): void {
+    private visit(nodes: TemplateChildNode[]): void {
         let chain: ConditionChain | null = null;
 
         nodes.forEach((node) => {
             if (node.type === NodeTypes.COMMENT) {
-                this.visitComment(node.content, states);
+                this.visitComment(node.content);
 
                 return;
             }
@@ -129,7 +114,7 @@ class BlockReader {
 
             if (!condition) {
                 chain = null;
-                this.visitElement(node, states);
+                this.visitElement(node);
 
                 return;
             }
@@ -138,7 +123,9 @@ class BlockReader {
                 chain = new ConditionChain();
             }
 
-            this.visitElement(node, inBothStates(states, this.branchStates(chain, condition)));
+            this.branches.push(this.branchStates(chain, condition));
+            this.visitElement(node);
+            this.branches.pop();
         });
     }
 
@@ -148,17 +135,21 @@ class BlockReader {
             : chain.branch(expressionTruths(expressionOf(condition), this.flags));
     }
 
-    private visitComment(content: string, states: FlagStates): void {
+    private visitComment(content: string): void {
         if (content.startsWith(BLOCK_START)) {
-            this.twigTagsSeen += 1;
-            this.openBlock(content.slice(BLOCK_START.length), states);
+            this.openBlock(content.slice(BLOCK_START.length));
         } else if (content === BLOCK_END) {
-            this.twigTagsSeen += 1;
             this.closeBlock();
+        } else if (content === PARENT_CALL) {
+            this.add({ kind: 'parent', ...this.place() });
+        } else {
+            return;
         }
+
+        this.twigTagsSeen += 1;
     }
 
-    private visitElement(element: ElementNode, states: FlagStates): void {
+    private visitElement(element: ElementNode): void {
         // A bound `:name` carries no literal block name. An `extends` names the block an override replaces.
         const nativeBlock =
             element.tag === NATIVE_BLOCK_TAG
@@ -166,57 +157,61 @@ class BlockReader {
                 : undefined;
 
         if (nativeBlock === undefined) {
-            this.visit(element.children, states);
+            this.visit(element.children);
 
             return;
         }
 
-        this.openBlock(nativeBlock, states);
-        this.visit(element.children, states);
+        this.openBlock(nativeBlock);
+        this.visit(element.children);
         this.closeBlock();
     }
 
-    private openBlock(name: string, states: FlagStates): void {
-        FLAG_STATES.filter((state) => states[state]).forEach((state) => {
-            const parent = this.open.findLast((block) => block.states[state])?.name ?? null;
+    /** `within` counts the conditional elements that opened after the block around the current node. */
+    private place(): Placement {
+        const inBlock = this.branches.slice(this.open.at(-1)?.depth ?? 0);
 
-            this.add(
-                name,
-                parent,
-                perState((other) => other === state),
-            );
-        });
+        return {
+            within: inBlock.reduce(inBothStates, BOTH_STATES),
+            states: this.branches.reduce(inBothStates, BOTH_STATES),
+        };
+    }
 
-        this.open.push({ name, states });
+    private openBlock(name: string): void {
+        const block: BlockNode = { kind: 'block', name, origin: null, content: [], ...this.place() };
+
+        this.add(block);
+        this.open.push({ block, depth: this.branches.length });
     }
 
     private closeBlock(): void {
         this.closedTooOften ||= this.open.pop() === undefined;
     }
 
-    private add(name: string, parent: string | null, states: FlagStates): void {
-        const key = `${name}\n${parent ?? ''}`;
-        const known = this.blocks.get(key);
-
-        this.blocks.set(key, { name, parent, states: known ? inAnyState(known.states, states) : states });
+    private add(item: BlockContent): void {
+        (this.open.at(-1)?.block.content ?? this.tree).push(item);
     }
 }
 
 /**
  * @private
  *
- * The blocks of the template in `file`, sorted by name and parent.
+ * The blocks and `{% parent %}` tags of the template in `file`, in the order of the source.
  */
-export function templateBlocks(source: string, file: string, flags: FlagContext): TemplateBlock[] {
+export function templateTree(source: string, file: string, flags: FlagContext): BlockContent[] {
     let twigTags = 0;
-    const html = templateOf(source, file).replace(TWIG_TAG, (tag: string, name?: string) => {
+    const html = templateOf(source, file).replace(TWIG_TAG, (tag: string, name?: string, end?: string) => {
         if (tag.startsWith('{#')) {
             return '';
         }
 
         twigTags += 1;
 
-        return name === undefined ? `<!--${BLOCK_END}-->` : `<!--${BLOCK_START}${name}-->`;
+        if (name !== undefined) {
+            return `<!--${BLOCK_START}${name}-->`;
+        }
+
+        return `<!--${end === undefined ? PARENT_CALL : BLOCK_END}-->`;
     });
     // The parser reports what Vue would reject at runtime. That is no concern of the snapshot.
     const { children } = parse(html, { comments: true, onError: () => {} });

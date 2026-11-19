@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 import escape from 'lodash-es/escape';
-import useDocumentDefaultLanguage from '../use-document-default-language';
 import './sw-product-document-add-button.scss';
 import template from './sw-product-document-add-button.html.twig';
 
@@ -13,6 +12,7 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['documents-add'],
 
     props: {
+        defaultLanguageName: { type: String, required: false, default: '' },
         isInherited: {
             type: Boolean,
             required: false,
@@ -25,11 +25,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    setup(props) {
-        return useDocumentDefaultLanguage(() => !props.isInherited);
-    },
-
     computed: {
+        isSystemDefaultLanguage(): boolean {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
         tooltipContent(): string {
             if (this.isInherited) {
                 return this.$t('sw-product.documentForm.unlinkToAdd');

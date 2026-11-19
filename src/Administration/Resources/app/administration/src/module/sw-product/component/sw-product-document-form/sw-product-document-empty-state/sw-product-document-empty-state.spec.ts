@@ -9,11 +9,10 @@ describe('sw-product-document-empty-state', () => {
     let wrapper: VueWrapper;
     let emitEvent: jest.SpyInstance;
 
-    async function createWrapper(canAddDocuments = true, get = jest.fn().mockResolvedValue({ name: 'English' })) {
+    async function createWrapper(canAddDocuments = true, defaultLanguageName = 'English') {
         return shallowMount(await wrapTestComponent('sw-product-document-empty-state', { sync: true }), {
-            props: { canAddDocuments },
+            props: { canAddDocuments, defaultLanguageName },
             global: {
-                provide: { repositoryFactory: { create: () => ({ get }) } },
                 stubs: {
                     'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
                         sync: true,
@@ -35,13 +34,11 @@ describe('sw-product-document-empty-state', () => {
         Shopware.Context.api.languageId = originalLanguage;
     });
 
-    it('shows Add documents in the default language without loading a language name', async () => {
-        const get = jest.fn();
-        wrapper = await createWrapper(true, get);
+    it('shows Add documents in the default language', async () => {
+        wrapper = await createWrapper();
         await wrapper.get('button').trigger('click');
         expect(wrapper.emitted('documents-add')).toEqual([[]]);
         expect(wrapper.find('.mt-link').exists()).toBe(false);
-        expect(get).not.toHaveBeenCalled();
     });
 
     it('disables adding documents when the product cannot be edited', async () => {
@@ -51,11 +48,9 @@ describe('sw-product-document-empty-state', () => {
 
     it('offers a switch to the default language when another language is active', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        const get = jest.fn().mockResolvedValue({ name: 'Français' });
-        wrapper = await createWrapper(false, get);
+        wrapper = await createWrapper(false, 'Français');
         await flushPromises();
 
-        expect(get).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
         expect(wrapper.find('.mt-button').exists()).toBe(false);
         const link = wrapper.get('button.mt-link');
         expect(link.text()).toBe("'Français'");
@@ -66,7 +61,7 @@ describe('sw-product-document-empty-state', () => {
 
     it('keeps language switching available if the language name cannot be loaded', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        wrapper = await createWrapper(false, jest.fn().mockRejectedValue(new Error('Language lookup failed')));
+        wrapper = await createWrapper(false, '');
         await flushPromises();
 
         expect(wrapper.get('button.mt-link').text()).toContain('sw-product.documentForm.defaultLanguage');

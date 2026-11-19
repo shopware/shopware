@@ -50,6 +50,7 @@
                     <sw-product-document-add-button
                         v-if="currentValue.length"
                         class="sw-product-document-form__add-button"
+                        :default-language-name="defaultLanguageName"
                         :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
                         @documents-add="showUploadModal = true"
@@ -65,6 +66,7 @@
                     >
                         <sw-product-document-empty-state
                             :can-add-documents="!isInherited && canAddDocuments"
+                            :default-language-name="defaultLanguageName"
                             @documents-add="showUploadModal = true"
                         />
                     </div>

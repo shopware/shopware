@@ -3,7 +3,7 @@
  */
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { getDocumentTranslationResetChanges } from './document-translation.utils';
+import { createProductDocument, getDocumentTranslationResetChanges } from './document-form.helper';
 
 describe('document translation reset', () => {
     it('previews parent-language fallback per field and preserves unrelated translation data', () => {
@@ -46,5 +46,17 @@ describe('document translation reset', () => {
         expect(document.mediaId).toBe('current-file');
         expect(parent.title).toBe('Parent name');
         expect(system.mediaId).toBe('system-file');
+    });
+});
+
+describe('document creation', () => {
+    it('uses an empty title when the media has no filename', () => {
+        const product = repositoryFactory.create('product').create();
+        const media = repositoryFactory.create('media').create();
+        media.fileName = undefined;
+
+        const document = createProductDocument(media, product, repositoryFactory.create('product_document'));
+
+        expect(document.title).toBe('');
     });
 });

@@ -234,7 +234,7 @@ describe('fixtureTests', () => {
         [
             'a scope in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "'scope:item'", "'afterIf'"),
-            ['block-structure', 'complete'],
+            ['block-contract', 'complete'],
         ],
         [
             'a crossing in the report',
@@ -244,7 +244,7 @@ describe('fixtureTests', () => {
         [
             'a crossing in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "'div'", "'span'"),
-            ['block-structure', 'complete'],
+            ['block-contract', 'complete'],
         ],
         ['the rule of a finding', withBlockFinding({ rule: 'block_missing' }), ['block-findings', 'complete']],
         ['the group of a finding', withBlockFinding({ group: 'Info' }), ['block-findings', 'complete']],
@@ -350,11 +350,11 @@ describe('fixtureTests', () => {
             inBothSnapshots(withFile('app/component/base/sw-example-card.api.md', '  [scope: item]', '')),
         ],
         [
-            'contract member blockContext for the unit kind block-structure',
+            'contract member blockContext for the unit kind block-contract',
             inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', ", 'scope:item'", '')),
         ],
         [
-            'contract member crossings for the unit kind block-structure',
+            'contract member crossings for the unit kind block-contract',
             inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', 'crossings:', 'refs:')),
         ],
         [

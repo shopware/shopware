@@ -4,6 +4,8 @@
  * The public API of a source tree as data. The printers turn it into the snapshot files.
  */
 import { isTemplateSourceFile } from '../public-api-source-files';
+import { readStructure } from './block-structure';
+import type { Crossing } from './block-structure';
 import { listBlocks } from './block-tree';
 import type { TemplateBlock } from './block-tree';
 import { byCodePoint } from './code-point-order';
@@ -27,11 +29,13 @@ export interface SnapshotOptions {
  *
  * One registered component. `file` is the path of its snapshot files below `public-api/`, without extension.
  * `blocks` holds the blocks of the template it renders, with those it inherits along its extend chain and the
- * core overrides applied, limited to the flag states in which the whole chain is registered.
+ * core overrides applied, limited to the flag states in which the whole chain is registered. `crossings` holds
+ * the elements and `v-if` chains of that template that cross a block boundary.
  */
 export type ComponentUnit = Registration & {
     file: string;
     blocks: TemplateBlock[];
+    crossings: Crossing[];
 };
 
 /**
@@ -162,10 +166,13 @@ function componentTemplates(
 }
 
 function componentUnit(registration: Registration, { tree, states }: ResolvedTemplate): ComponentUnit {
+    const { contexts, crossings } = readStructure(tree);
+
     return {
         ...registration,
         file: snapshotFile(registration.name, registration.source),
-        blocks: existingIn(states, listBlocks(tree)),
+        blocks: existingIn(states, listBlocks(tree, contexts)),
+        crossings: existingIn(states, crossings),
     };
 }
 

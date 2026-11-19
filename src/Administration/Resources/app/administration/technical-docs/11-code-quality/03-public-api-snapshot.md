@@ -112,6 +112,42 @@ Some blocks of an extend or override template never render: the runtime drops a 
 Such a block is in no report, and `scripts/generate-public-api/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
 The same spec registers every template with the runtime factory and compares the blocks of each component with the snapshot.
 
+### Block structure
+
+An override replaces the content of a block, but it runs in the place of the block.
+The report shows what that place offers, and which elements make a block unsafe to replace.
+
+```text
+blocks
+  sw_example_card
+    sw_example_card_empty  [after v-if]
+    sw_example_card_item  [scope: index, item]
+
+crossings
+  <div>  sw_example_card_header -> sw_example_card_footer
+  v-if  sw_example_card_title -> sw_example_card_fallback
+```
+
+| Marker or line | Meaning |
+|---|---|
+| `[after v-if]` | The block follows an element with `v-if` or `v-else-if`, so an override may start with `v-else-if` or `v-else` |
+| `[scope: <names>]` | The variables of the `v-for` and slot elements around the block, which an override can use |
+| `<tag>  <a> -> <b>` | An element opens in block `a` and closes in block `b`, so replacing one of them leaves a tag without its partner |
+| `v-if  <a> -> <b>` | A `v-if` chain of block `a` continues in block `b`, so replacing `a` leaves a `v-else` without its `v-if` |
+
+- Only whitespace, comments and the tags of other blocks may stand between the element and the block, as in Vue.
+  A `v-else` closes the chain.
+- A conditional slot, `<template v-if="..." #name>`, counts for no block: Vue continues it with another slot only.
+- A block has the variables of the blocks around it.
+  A block the template declares in places with a different context has one line per context.
+- `(root)` stands for the template outside of every block.
+- A chain is no crossing when the block of the earlier member holds the block of the later one.
+- The origin of an extend child comes first, then `[after v-if]`, `[scope: ...]` and the flag state.
+
+The structure is read from the template a component renders, after the merge along its extend chain.
+An inherited block has the context of its place in the parent, and a block the child adds has the context of the place it renders in.
+`scripts/generate-public-api/block-structure.spec/compiler.spec.ts` asks the Vue compiler the same questions about every block of the Administration and compares the answers.
+
 ### Flag states
 
 The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
@@ -275,11 +311,11 @@ The blocks have four unit kinds, because they are built in four steps:
 | Unit kind | Compares |
 |---|---|
 | `block-tree` | The block names, their parents, their flag states and their origin in an extend child, in the reports and the index |
-| `block-contract` | The same in the `blocks` member of the `.d.ts` contracts |
-| `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks |
+| `block-contract` | The blocks, their context and the crossings in the `.d.ts` contracts |
+| `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks, in the reports |
 | `block-findings` | The findings on blocks and crossings |
 
-The other markers of a block line, such as `[after v-if]` and `[scope: item]`, and the other facets of `Block<>` belong to `block-structure`.
+The other markers of a block line, such as `[after v-if]` and `[scope: item]`, belong to `block-structure`, and the other facets of `Block<>` to `block-contract`.
 The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
 
 `expected-failures.ts` lists what cannot pass yet, in two lists:

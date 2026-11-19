@@ -5,7 +5,7 @@
  * the core overrides applied on top. The rules are those of `src/core/factory/template.factory.js`, which
  * differ from plain Twig. `extend-chain.spec/runtime.spec.ts` compares the result with what that factory builds.
  */
-import { hasBlock, isBlock, placeContent } from './block-tree';
+import { hasBlock, isBlock, isMarkup, placeContent } from './block-tree';
 import type { BlockContent, BlockNode, BlockOrigin, ParentCall } from './block-tree';
 import { inBothStates } from './flag-states';
 import type { FlagStates } from './flag-states';
@@ -87,7 +87,9 @@ function callsParent(content: BlockContent[]): boolean {
 
 function withParentContent(content: BlockContent[], replaced: BlockContent[]): BlockContent[] {
     return content.flatMap((item) =>
-        isParentCall(item) ? replaced.map((kept) => ({ ...kept, within: inBothStates(kept.within, item.within) })) : [item],
+        isParentCall(item)
+            ? replaced.map((kept) => (isMarkup(kept) ? kept : { ...kept, within: inBothStates(kept.within, item.within) }))
+            : [item],
     );
 }
 
@@ -145,6 +147,8 @@ function redeclare(
             ...item,
             origin: originAfterRedeclaration(item.origin, redeclaration.keepsParent),
             content: placeContent(redeclaration.content, item.states),
+            at: declaration.at,
+            markers: [...item.markers, ...declaration.markers],
         };
     };
 

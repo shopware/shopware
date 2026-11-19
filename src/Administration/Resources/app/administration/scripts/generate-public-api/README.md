@@ -15,6 +15,7 @@ flowchart TD
     registry["component-registry.ts<br/>finds the registered components and the core overrides"]
     blocks["template-blocks.ts<br/>reads the blocks of a template as a tree"]
     chain["extend-chain.ts<br/>merges the trees along the extend chains and applies the overrides"]
+    structure["block-structure.ts<br/>reads the v-if chains, variables and crossings of a merged template"]
     flags["flag-states.ts<br/>current state, major state or both"]
     model["model.ts<br/>one unit per component"]
     printers["print-report.ts, print-index.ts<br/>print the files"]
@@ -22,7 +23,7 @@ flowchart TD
     committed["committed-snapshot.ts<br/>writes them to public-api/"]
 
     tree --> registry --> chain
-    tree --> blocks --> chain --> model
+    tree --> blocks --> chain --> structure --> model
     flags -.-> registry
     flags -.-> blocks
     model --> printers --> snapshot --> committed
@@ -37,12 +38,18 @@ A new kind of element goes through `existingIn` in `componentUnit`.
 
 `template-blocks.ts` replaces every `{% block %}`, `{% endblock %}` and `{% parent %}` with an HTML comment and parses the result with `@vue/compiler-dom`.
 That way Twig blocks and `<sw-block>` elements end up in one tree, and the `v-if` chains around a block decide its flag state.
+`template-nodes.ts` holds the parser call and the node helpers that this reader and `block-structure.ts` share.
 The tree keeps the order of the source, because the merge in `extend-chain.ts` depends on it.
+The tree also keeps the HTML between the Twig tags as markup, which the merge carries along without reading it.
 `listBlocks` in `block-tree.ts` turns a merged tree into the entries the printers use.
 
 `extend-chain.ts` follows the rules of `src/core/factory/template.factory.js` and names the function of the runtime above each of its own.
 A block keeps two flag state values: `within`, the conditions between it and the block around it, and `states`, where it renders.
 When a redeclaration moves content to another place, `states` is computed again from `within`, because the conditions around the old place no longer apply.
+
+`block-structure.ts` puts the merged tree of a component together as one template again and parses it once more.
+What an override can rely on depends on the template Vue compiles, and a block of an extend child sits between markup of its parent.
+Reading the structure after the merge needs no rules of its own for `{% parent %}` or for a block that moved.
 
 ## Rules the code follows
 
@@ -61,8 +68,12 @@ When a redeclaration moves content to another place, `states` is computed again 
 | `snapshot.spec.ts` | Single behaviours of the generator on small source trees given as strings |
 | `extend-chain.spec/snapshot.spec.ts` | How the snapshot shows extend children and core overrides, and the chains the generator rejects |
 | `extend-chain.spec/runtime.spec.ts` | The merged blocks against the runtime: one case per merge rule, and every component of the real Administration |
+| `block-structure.spec/snapshot.spec.ts` | How the snapshot shows the context of a block and the crossings, also for extend children |
+| `block-structure.spec/compiler.spec.ts` | The context and the crossings against the Vue compiler, for every block of the real Administration |
 | `committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
 | `fixture-runner.spec.ts`, `findings.spec.ts` | The fixture comparison and the summary of the break check |
+
+`example-components.ts` builds the small source tree that the specs of the block structure use.
 
 Run them in the Administration folder:
 

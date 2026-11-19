@@ -20,6 +20,9 @@ blocks
     sw_example_card_list
       sw_example_card_list_item  [scope: item]
 
+crossings
+  v-if  sw_example_card_header_label_manual -> sw_example_card_header_label_default
+
 classes
   sw-example-card
   sw-example-card__default-label

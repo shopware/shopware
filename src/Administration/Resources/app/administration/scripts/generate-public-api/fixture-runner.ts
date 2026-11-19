@@ -115,16 +115,16 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'block-contract': {
         ...NO_PARTS,
-        contractMembers: ['blocks'],
+        contractMembers: [
+            'blocks',
+            BLOCK_CONTEXT.contractMember,
+            'crossings',
+        ],
     },
     'block-structure': {
         ...NO_PARTS,
         reportSections: [
             BLOCK_CONTEXT.reportSection,
-            'crossings',
-        ],
-        contractMembers: [
-            BLOCK_CONTEXT.contractMember,
             'crossings',
         ],
     },

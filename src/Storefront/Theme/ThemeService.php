@@ -48,6 +48,11 @@ class ThemeService implements ResetInterface
      */
     public const CONFIG_KEY_PENDING_THEME = 'storefront.pendingThemeAssignment';
 
+    /**
+     * Context state that makes `updateTheme()` skip the theme compile, so a caller can compile after committing its transaction.
+     */
+    public const STATE_SKIP_COMPILE = 'theme-skip-compile';
+
     private bool $notified = false;
 
     /**
@@ -259,7 +264,9 @@ class ThemeService implements ResetInterface
         // runtime configuration even for unassigned themes and descendants compiled asynchronously.
         $this->themeRuntimeConfigService->refreshConfigValues($themeId, $context);
 
-        $this->compileThemeById($themeId, $context, null, false);
+        if (!$context->hasState(self::STATE_SKIP_COMPILE)) {
+            $this->compileThemeById($themeId, $context, null, false);
+        }
     }
 
     public function assignTheme(string $themeId, string $salesChannelId, Context $context, bool $skipCompile = false): bool

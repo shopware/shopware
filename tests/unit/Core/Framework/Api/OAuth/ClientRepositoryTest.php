@@ -33,7 +33,7 @@ class ClientRepositoryTest extends TestCase
         $this->connection = $this->createMock(Connection::class);
         $publicClients = new PublicClientRegistry([
             'shopware-cli' => ['name' => 'Shopware CLI', 'redirect_uris' => ['http://127.0.0.1/callback']],
-        ]);
+        ], 'prod');
         $this->clientRepository = new ClientRepository($this->connection, new NativeClock(), $publicClients);
     }
 

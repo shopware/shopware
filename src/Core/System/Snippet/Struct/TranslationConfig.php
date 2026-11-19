@@ -33,6 +33,7 @@ class TranslationConfig extends Struct
         public readonly ?string $documentationUrlSnippetKey = null,
         public readonly array $pseudoLocales = [],
         public readonly int $completenessThreshold = 90,
+        public readonly ?Uri $archiveManifestUrl = null,
     ) {
     }
 

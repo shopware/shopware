@@ -107,6 +107,7 @@ export async function createWrapper(
                     ...mediaService,
                 },
                 mediaPresignedUploadService: {},
+                productDocumentVariantService: { sync: jest.fn().mockResolvedValue([]) },
                 fileValidationService: fileValidationService(),
                 entityFactory: new EntityFactory(),
                 repositoryFactory: {
@@ -126,12 +127,7 @@ export async function createWrapper(
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
                 'sw-product-document-download': await wrapTestComponent('sw-product-document-download', { sync: true }),
                 'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),
-                'sw-product-document-variant-badge': await wrapTestComponent('sw-product-document-variant-badge', {
-                    sync: true,
-                }),
-                'sw-product-document-language-value': await wrapTestComponent('sw-product-document-language-value', {
-                    sync: true,
-                }),
+                'sw-product-document-cell': await wrapTestComponent('sw-product-document-cell', { sync: true }),
                 'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
                     sync: true,
                 }),

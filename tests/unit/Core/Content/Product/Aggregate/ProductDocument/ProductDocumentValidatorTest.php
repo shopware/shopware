@@ -59,7 +59,7 @@ class ProductDocumentValidatorTest extends TestCase
     public function testSubscribedEvents(): void
     {
         static::assertSame(
-            [PreWriteValidationEvent::class => 'validate', BeforeMediaFileReplacedEvent::class => 'validateReplacedFile'],
+            [PreWriteValidationEvent::class => 'preValidate', BeforeMediaFileReplacedEvent::class => 'validateReplacedFile'],
             ProductDocumentValidator::getSubscribedEvents()
         );
     }
@@ -86,14 +86,14 @@ class ProductDocumentValidatorTest extends TestCase
         $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
 
         $expected = array_map(static fn (string $code): array => ['code' => $code, 'pointer' => '/0/translations/' . self::GERMAN . '/mediaId'], $codes);
-        static::assertSame($expected, $this->validate());
+        static::assertSame($expected, $this->preValidate());
     }
 
     public function testAFileTheSearchDoesNotReturnIsReportedAsNotFound(): void
     {
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'missing-file')];
 
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/mediaId']], $this->validate());
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/mediaId']], $this->preValidate());
     }
 
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
@@ -102,14 +102,14 @@ class ProductDocumentValidatorTest extends TestCase
         $this->storeFile(self::file(private: true));
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
 
-        static::assertSame([], $this->validate());
+        static::assertSame([], $this->preValidate());
     }
 
     public function testAWriteWithoutDocumentTranslationsPasses(): void
     {
         $this->translations = [];
 
-        static::assertSame([], $this->validate());
+        static::assertSame([], $this->preValidate());
     }
 
     public static function replacedFileProvider(): iterable
@@ -160,13 +160,13 @@ class ProductDocumentValidatorTest extends TestCase
     /**
      * @return list<array{code: mixed, pointer: mixed}>
      */
-    private function validate(): array
+    private function preValidate(): array
     {
         // an Admin API request runs in the user scope, where the media repository hides private files
         $context = Context::createDefaultContext(new AdminApiSource(null));
         $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), []);
 
-        $this->validator()->validate($event);
+        $this->validator()->preValidate($event);
 
         $errors = [];
         foreach ($event->getExceptions()->getErrors() as $error) {

@@ -94,7 +94,7 @@ class ProductDocumentValidatorTest extends TestCase
         ], $errors);
     }
 
-    public function testTheFileOfADocumentCanOnlyBeReplacedWithAFileThatFits(): void
+    public function testReplacingADocumentFileWithAnotherTypeKeepsTheOldFile(): void
     {
         $this->productRepository->update([[
             'id' => $this->ids->get('drill'),

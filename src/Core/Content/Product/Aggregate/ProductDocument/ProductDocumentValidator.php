@@ -54,12 +54,12 @@ final class ProductDocumentValidator implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            PreWriteValidationEvent::class => 'validate',
+            PreWriteValidationEvent::class => 'preValidate',
             BeforeMediaFileReplacedEvent::class => 'validateReplacedFile',
         ];
     }
 
-    public function validate(PreWriteValidationEvent $event): void
+    public function preValidate(PreWriteValidationEvent $event): void
     {
         $translations = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ProductDocumentTranslationDefinition::ENTITY_NAME),
@@ -85,7 +85,13 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         }
 
         $violations = new ConstraintViolationList();
-        $this->validateTypeAndSize($event->fileExtension, $event->fileSize, $this->config->getAllowedExtensions($event->getContext()), '', $violations);
+        $this->validate(
+            $event->fileExtension,
+            $event->fileSize,
+            $this->config->getAllowedExtensions($event->getContext()),
+            path: '',
+            violations: $violations,
+        );
 
         if ($violations->count() > 0) {
             throw new ConstraintViolationException($violations, ['fileExtension' => $event->fileExtension, 'fileSize' => $event->fileSize]);
@@ -164,14 +170,14 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $this->validateTypeAndSize((string) $file->getFileExtension(), $size, $allowedExtensions, $errorPath, $violations);
+            $this->validate((string) $file->getFileExtension(), $size, $allowedExtensions, $errorPath, $violations);
         }
     }
 
     /**
      * @param list<string> $allowedExtensions
      */
-    private function validateTypeAndSize(string $extension, ?int $size, array $allowedExtensions, string $path, ConstraintViolationList $violations): void
+    private function validate(string $extension, ?int $size, array $allowedExtensions, string $path, ConstraintViolationList $violations): void
     {
         if (!\in_array(mb_strtolower($extension), $allowedExtensions, true)) {
             $violations->add($this->violation(

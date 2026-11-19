@@ -1230,6 +1230,12 @@ For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-
 
 ## Storefront
 
+### Staging banner uses the current page
+
+The staging banner now renders before the header ESI fragment, using the current page for its Administration shortcuts.
+Use `base_staging_info` in `storefront/base.html.twig` to customize its placement.
+Customize its content through `staging_info` and `staging_info_admin_url_wrapper` in `storefront/utilities/staging-info.html.twig`.
+
 ### Checkout and account pages list every shipment
 
 When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.

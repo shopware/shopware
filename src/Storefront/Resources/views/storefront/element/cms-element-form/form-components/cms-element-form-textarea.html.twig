@@ -3,7 +3,7 @@
         label: label|trans,
         id: formPrefix ~ '-form-' ~ fieldName,
         name: fieldName,
-        value: (data ?? null) ? data.get(fieldName) : null,
+        value: data.get(fieldName) ?? null,
         placeholder: (placeholder ?? '')|trans,
         violationPath: '/' ~ fieldName,
         validationRules: required ? 'required',

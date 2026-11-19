@@ -933,7 +933,7 @@ Get the latest order transaction with `order.primaryOrderTransaction` so you sho
 
 The Administration's order detail no longer treats every delivery besides the primary one as a shipping discount.
 A delivery with negative shipping costs is a discount, every other delivery is a shipment, which matches how `Shopware\Core\Checkout\Cart\Order\RecalculationService` already tells the two apart.
-The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, the primary delivery first.
+The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, sorted by delivery `position` like the storefront, mails and documents.
 The order overview, the order list, the state history and the bulk edit keep showing and changing the primary delivery.
 
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` run once per shipment and must use the loop variable `shipment` instead of the `delivery` computed, which still points at the primary delivery.

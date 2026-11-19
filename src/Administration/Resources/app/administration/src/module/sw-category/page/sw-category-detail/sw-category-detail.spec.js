@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-settings-seo/component/sw-seo-url/store';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 describe('src/module/sw-category/page/sw-category-detail', () => {
     const saveMock = jest.fn(() => Promise.resolve());
@@ -80,6 +81,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     }
 
     beforeEach(() => {
+        allowDeprecation('sw-category-detail.extractSlotOverrides() is deprecated');
         global.activeAclRoles = [];
 
         Shopware.Store.unregister('cmsPage');

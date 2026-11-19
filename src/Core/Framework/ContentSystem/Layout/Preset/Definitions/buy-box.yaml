@@ -22,14 +22,13 @@ layout:
         - component: Sw:Product:VariantSelection
         - component: Sw:Grid:Container
           properties:
-            mode: explicit
             gridLayout:
+              lg:
+                columns: [{ type: fraction, value: 4 }, { type: auto }]
+                areas: [[a1, a2]]
               xs:
                 columns: [{ type: auto }]
                 areas: [[a1]]
-              sm:
-                columns: [{ type: fraction, value: 4 }, { type: auto }]
-                areas: [[a1, a2]]
             gap: 16
             align: start
             margin:

@@ -26,6 +26,36 @@
     initial-value: 1.5rem;
 }
 
+.sw-grid-container,
+/* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
+.sw-grid-container__inner {
+    &.has-grid-background-color {
+        background-color: color-mix(
+            in srgb,
+            var(--sw-grid-container-background-color) var(--sw-grid-container-background-opacity),
+            transparent
+        );
+    }
+
+    &.has-grid-background-image {
+        background-image: var(--sw-grid-container-background-image);
+    }
+
+    &.grid-background-cover,
+    &.grid-background-contain {
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    &.grid-background-cover {
+        background-size: cover;
+    }
+
+    &.grid-background-contain {
+        background-size: contain;
+    }
+}
+
 .sw-grid-container {
     display: flex;
     width: 100%;
@@ -65,12 +95,18 @@
 
 /* stylelint-disable-next-line selector-class-pattern -- Existing grid BEM class. */
 .sw-grid-container__inner {
+    --sw-grid-container-gap: normal;
+
     display: grid;
     width: 100%;
     max-width: var(--sw-grid-container-max-width, 1400px);
+    gap: var(--sw-grid-container-gap);
 
-    &.full-width {
-        max-width: none;
+    &.auto-fit {
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(min(var(--sw-grid-container-item-min-width), 100%), 1fr)
+        );
     }
 
     &.max-content {
@@ -78,92 +114,68 @@
         grid-auto-columns: max-content;
     }
 
-    &.align-start {
-        align-items: start;
-    }
-
-    &.align-end {
-        align-items: end;
-    }
-
-    &.align-center {
-        align-items: center;
-    }
-
-    &.align-stretch {
-        align-items: stretch;
-    }
-
-    &.align-content-start {
-        align-content: start;
-    }
-
-    &.align-content-end {
-        align-content: end;
-    }
-
-    &.align-content-center {
-        align-content: center;
-    }
-
-    &.align-content-stretch {
-        align-content: stretch;
-    }
-
-    &.align-content-space-around {
-        align-content: space-around;
-    }
-
-    &.align-content-space-between {
-        align-content: space-between;
-    }
-
-    &.align-content-space-evenly {
-        align-content: space-evenly;
-    }
-
-    &.justify-start {
-        justify-items: start;
-    }
-
-    &.justify-end {
-        justify-items: end;
-    }
-
-    &.justify-center {
-        justify-items: center;
-    }
-
-    &.justify-stretch {
-        justify-items: stretch;
-    }
-
-    &.justify-content-start {
+    &.repeated-pattern {
+        grid-template-columns: var(--sw-grid-columns);
+        grid-auto-flow: row dense;
         justify-content: start;
+
+        --sw-grid-columns: var(--sw-grid-columns-xs);
+
+        :where(& > *) {
+            --sw-grid-item-column: var(--sw-grid-item-column-xs);
+            --sw-grid-item-row: var(--sw-grid-item-row-xs);
+
+            grid-column: var(--sw-grid-item-column, auto);
+            grid-row: var(--sw-grid-item-row, auto);
+        }
+
+        @each $breakpoint in (sm, md, lg, xl, xxl) {
+            @include media-breakpoint-up($breakpoint) {
+                --sw-grid-columns: var(--sw-grid-columns-#{$breakpoint});
+
+                :where(& > *) {
+                    --sw-grid-item-column: var(--sw-grid-item-column-#{$breakpoint});
+                    --sw-grid-item-row: var(--sw-grid-item-row-#{$breakpoint});
+                }
+            }
+        }
     }
 
-    &.justify-content-end {
-        justify-content: end;
+    &.has-grid-radius {
+        border-radius: var(--sw-grid-container-border-radius);
     }
 
-    &.justify-content-center {
-        justify-content: center;
+    &.has-grid-shadow {
+        box-shadow: var(--sw-grid-container-shadow-offsets)
+            color-mix(
+                in srgb,
+                var(--sw-grid-container-shadow-color) var(--sw-grid-container-shadow-opacity),
+                transparent
+            );
     }
 
-    &.justify-content-stretch {
-        justify-content: stretch;
+    &.full-width {
+        max-width: none;
     }
 
-    &.justify-content-space-around {
-        justify-content: space-around;
+    @each $position in (start, end, center, stretch) {
+        &.align-#{$position} {
+            align-items: $position;
+        }
+
+        &.justify-#{$position} {
+            justify-items: $position;
+        }
     }
 
-    &.justify-content-space-between {
-        justify-content: space-between;
-    }
+    @each $position in (start, end, center, stretch, space-around, space-between, space-evenly) {
+        &.align-content-#{$position} {
+            align-content: $position;
+        }
 
-    &.justify-content-space-evenly {
-        justify-content: space-evenly;
+        &.justify-content-#{$position} {
+            justify-content: $position;
+        }
     }
 
     @each $breakpoint, $value in $grid-breakpoints {
@@ -220,28 +232,3 @@
         }
     }
 }
-
-/* stylelint-disable selector-class-pattern -- Match the existing grid component's BEM classes. */
-.sw-grid-container__inner.repeated-pattern {
-    --sw-grid-columns: var(--sw-grid-columns-xs);
-
-    :where(& > *) {
-        --sw-grid-item-column: var(--sw-grid-item-column-xs);
-        --sw-grid-item-row: var(--sw-grid-item-row-xs);
-
-        grid-column: var(--sw-grid-item-column, auto);
-        grid-row: var(--sw-grid-item-row, auto);
-    }
-
-    @each $breakpoint in (sm, md, lg, xl, xxl) {
-        @include media-breakpoint-up($breakpoint) {
-            --sw-grid-columns: var(--sw-grid-columns-#{$breakpoint});
-
-            :where(& > *) {
-                --sw-grid-item-column: var(--sw-grid-item-column-#{$breakpoint});
-                --sw-grid-item-row: var(--sw-grid-item-row-#{$breakpoint});
-            }
-        }
-    }
-}
-/* stylelint-enable selector-class-pattern */

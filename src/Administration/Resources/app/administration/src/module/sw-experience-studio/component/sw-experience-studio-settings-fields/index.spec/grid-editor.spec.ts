@@ -3,9 +3,10 @@ import type { ContentSystemElementTypeProperty } from 'src/core/service/api/cont
 import settingsFieldsComponent from '../index';
 
 describe('grid editor field', () => {
-    it('renders the declared editor and forwards its value under the field key', async () => {
-        const layout = { xs: { columns: [{ type: 'auto' }], areas: [['a1']] } };
-        const updated = { xs: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2']] } };
+    it('passes the fallback rules to the declared editor and forwards updates under the field key', async () => {
+        const layout = { lg: { columns: [{ type: 'auto' }], areas: [['a1']] } };
+        const updated = { lg: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2']] } };
+        const breakpointFallbacks = { xs: ['md', 'lg'] } as const;
         const wrapper = shallowMount(settingsFieldsComponent, {
             props: {
                 fields: [
@@ -13,12 +14,14 @@ describe('grid editor field', () => {
                         key: 'layout',
                         property: {
                             type: 'object',
+                            title: 'Grid',
                             adminUI: { component: 'grid-editor' },
                         } as ContentSystemElementTypeProperty,
                     },
                 ],
                 values: { layout },
                 allowEdit: true,
+                breakpointFallbacks,
             },
             global: {
                 provide: { repositoryFactory: {} },
@@ -26,7 +29,7 @@ describe('grid editor field', () => {
                     'sw-collapse': { template: '<div><slot name="content" /></div>' },
                     'sw-experience-studio-grid-editor': {
                         name: 'sw-experience-studio-grid-editor',
-                        props: ['gridLayout', 'allowEdit'],
+                        props: ['gridLayout', 'label', 'allowEdit', 'breakpointFallbacks'],
                         emits: ['update:gridLayout'],
                         template: '<button @click="$emit(\'update:gridLayout\', next)"><slot /></button>',
                         data: () => ({ next: updated }),
@@ -36,7 +39,9 @@ describe('grid editor field', () => {
         });
 
         const editor = wrapper.getComponent({ name: 'sw-experience-studio-grid-editor' });
+        expect(editor.props('label')).toBe('Grid');
         expect(editor.props('gridLayout')).toEqual(layout);
+        expect(editor.props('breakpointFallbacks')).toEqual(breakpointFallbacks);
         await editor.trigger('click');
         expect(wrapper.emitted('update-field')).toEqual([[{ key: 'layout', value: updated }]]);
         wrapper.unmount();

@@ -229,17 +229,17 @@
         "mode": {
           "title": "Modus",
           "options": {
+            "explicit": {
+              "label": "Eigenes Raster",
+              "description": "Lege fest, wie viele Spalten es gibt, wie breit sie sind und wo die Inhalte erscheinen."
+            },
             "auto-fit": {
-              "label": "Automatisch einpassen",
-              "description": "Passt automatisch so viele Spalten wie möglich ein."
+              "label": "Automatisch",
+              "description": "Passt so viele Spalten ein, wie die Mindestbreite der Elemente zulässt."
             },
             "max-content": {
-              "label": "Maximaler Inhalt",
-              "description": "Richtet die Spaltenbreite nach ihrer maximalen Inhaltsgröße aus."
-            },
-            "explicit": {
-              "label": "Festgelegt",
-              "description": "Verwendet eine festgelegte Spalten- und Zeilenkonfiguration."
+              "label": "Max-content",
+              "description": "Richtet jede Spalte nach der maximalen Breite ihres Inhalts aus."
             }
           }
         },
@@ -247,27 +247,30 @@
           "title": "Mindestbreite der Elemente"
         },
         "gridLayout": {
-          "title": "Grid-Layout",
+          "title": "Raster",
           "xs": {
-            "title": "XS-Grid"
+            "title": "Raster (XS)"
           },
           "sm": {
-            "title": "SM-Grid"
+            "title": "Raster (SM)"
           },
           "md": {
-            "title": "MD-Grid"
+            "title": "Raster (MD)"
           },
           "lg": {
-            "title": "LG-Grid"
+            "title": "Raster (LG)"
           },
           "xl": {
-            "title": "XL-Grid"
+            "title": "Raster (XL)"
+          },
+          "xxl": {
+            "title": "Raster (XXL)"
           },
           "columns": {
             "title": "Spalten"
           },
           "areas": {
-            "title": "Grid-Bereiche"
+            "title": "Rasterbereiche"
           }
         },
         "fullWidth": {
@@ -1230,34 +1233,26 @@
       "fewer": "Weniger Größen anzeigen"
     },
     "gridEditor": {
-      "breakpoints": "Breakpoints",
-      "breakpointInheritanceDescription": "Größere Breakpoints erben die Einstellungen kleinerer Breakpoints, sofern du sie nicht anpasst.",
       "invalidPercentWidth": "Gib eine ganze Zahl von 1 bis 100 ein.",
       "invalidPixelWidth": "Gib eine ganze Zahl größer als 0 ein.",
-      "tooMuch": "Die Summe überschreitet 100 %.",
-      "noAutoSpace": "Für die Auto-Spalte bleibt kein Platz.",
-      "inherited": "Vererbt",
-      "own": "Eigene Konfiguration",
-      "breakInheritance": "Vererbung aufheben",
-      "restoreInheritance": "Vererbung wiederherstellen",
-      "restoreConfirmation": "Die Konfiguration dieses Breakpoints wird verworfen. Andere Breakpoints bleiben erhalten.",
-      "columns": "Spalten",
+      "tooMuch": "Die Summe der relativen Spaltenbreiten überschreitet 100 %.",
+      "noAutoSpace": "Für Spalten mit automatischer Breite bleibt kein Platz.",
       "width": "Breite",
       "type": "Breitentyp",
       "columnActions": "Spaltenaktionen",
       "move": "Spalte verschieben",
       "moveUp": "Nach oben verschieben",
       "moveDown": "Nach unten verschieben",
-      "addColumn": "Spalte",
-      "pattern": "Wiederholtes Muster",
-      "patternHelp": "Elemente folgen den nummerierten Plätzen. Danach beginnt das Muster erneut.",
-      "areaLabel": "Platz {number}, Zeile {row}, Spalte {column}, umfasst {rows} Zeilen und {columns} Spalten",
+      "addColumn": "Spalte hinzufügen",
+      "pattern": "Anordnung der Inhalte",
+      "patternHelp": "Wähle Bereiche aus, um die Anordnung anzupassen.",
+      "areaLabel": "Bereich {number}, Zeile {row}, Spalte {column}, Größe {columns} mal {rows}",
       "removeRow": "Zeile {number} entfernen",
-      "addRow": "Zeile",
+      "addRow": "Zeile hinzufügen",
       "split": "Teilen",
       "splitColumns": "Nur Spalten teilen",
       "splitRows": "Nur Zeilen teilen",
-      "merge": "Verbinden"
+      "merge": "Zusammenführen"
     }
   }
 }

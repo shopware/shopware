@@ -253,6 +253,8 @@
 
                         <sw-experience-studio-grid-editor
                             v-else-if="getControlType(field.property) === 'grid-editor'"
+                            :breakpoint-fallbacks="breakpointFallbacks"
+                            :label="getPropertyTitle(field.property)"
                             :grid-layout="getRawPropertyValue(field.key)"
                             :allow-edit="allowEdit"
                             @update:grid-layout="onUpdateField(field.key, $event)"

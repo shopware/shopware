@@ -18,56 +18,58 @@ properties:
     title: "Mode"
     titleSnippet: "sw-experience-studio.elements.grid-container.mode.title"
     description: "Grid layout mode."
-    default: "auto-fit"
+    default: "explicit"
     enum:
-      - "max-content"
-      - "auto-fit"
-      - "auto-fill"
       - "explicit"
+      - "auto-fit"
+      - "max-content"
     adminUI:
       component: "radio-panel"
       panel: "general"
       props:
         options:
+          - value: "explicit"
+            label: "Custom grid"
+            labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.explicit.label"
+            icon: "regular-layout"
+            description: "Choose the number and width of columns and where content appears."
+            descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.explicit.description"
           - value: "auto-fit"
-            label: "Auto fit"
+            label: "Auto"
             labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.auto-fit.label"
             icon: "regular-view-grid"
-            description: "Automatically fits as many columns as possible."
+            description: "Fit as many columns as the minimum item width allows."
             descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.auto-fit.description"
           - value: "max-content"
-            label: "Max content"
+            label: "Max-content"
             labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.max-content.label"
             icon: "regular-line-column-xs"
-            description: "Size columns based on their maximum content size."
+            description: "Size each column to its maximum content width."
             descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.max-content.description"
-          - value: "explicit"
-            label: "Explicit"
-            labelSnippet: "sw-experience-studio.elements.grid-container.mode.options.explicit.label"
-            icon: "regular-table"
-            description: "Use explicit columns and rows configuration."
-            descriptionSnippet: "sw-experience-studio.elements.grid-container.mode.options.explicit.description"
 
   itemMinWidth:
     type: string
     title: "Item Min Width"
     titleSnippet: "sw-experience-studio.elements.grid-container.itemMinWidth.title"
-    description: "Minimum item width used in auto-fit and auto-fill mode."
+    description: "Minimum item width in Auto mode."
     default: "400px"
     adminUI:
       component: "text"
       panel: "general"
       visibleWhen:
         field: "mode"
-        in: ["auto-fit", "auto-fill"]
+        equals: "auto-fit"
 
   gridLayout:
     type: object
-    title: "Grid layout"
+    title: "Grid"
     titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.title"
+    # Keep the fallback order in sync with ../../../Element/Style/Breakpoint.php.
     description: >-
-      Complete grid configurations per breakpoint: xs, sm, md, lg and xl.
-      XS is required; omitted breakpoints inherit the nearest smaller configuration.
+      Complete grid configurations per breakpoint: xs, sm, md, lg, xl and xxl.
+      LG is the base configuration.
+      When omitted, XS checks SM before LG, and XXL checks XL before LG.
+      Omitted SM, MD and XL configurations use LG directly.
       Columns and areas always inherit together.
     adminUI:
       component: "grid-editor"
@@ -78,10 +80,9 @@ properties:
     properties:
       xs:
         type: object
-        required: true
         title: "XS grid"
         titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.xs.title"
-        description: "Base grid configuration."
+        description: "Optional grid configuration for the XS breakpoint."
         properties: &gridConfigurationProperties
           columns:
             type: array
@@ -128,25 +129,33 @@ properties:
         type: object
         title: "SM grid"
         titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.sm.title"
-        description: "Optional grid configuration from the SM breakpoint."
+        description: "Optional grid configuration for the SM breakpoint."
         properties: *gridConfigurationProperties
       md:
         type: object
         title: "MD grid"
         titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.md.title"
-        description: "Optional grid configuration from the MD breakpoint."
+        description: "Optional grid configuration for the MD breakpoint."
         properties: *gridConfigurationProperties
       lg:
         type: object
+        required: true
         title: "LG grid"
         titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.lg.title"
-        description: "Optional grid configuration from the LG breakpoint."
+        description: "Base grid configuration."
         properties: *gridConfigurationProperties
       xl:
         type: object
         title: "XL grid"
         titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.xl.title"
-        description: "Optional grid configuration from the XL breakpoint."
+        description: "Optional grid configuration for the XL breakpoint."
+        properties: *gridConfigurationProperties
+
+      xxl:
+        type: object
+        title: "XXL grid"
+        titleSnippet: "sw-experience-studio.elements.grid-container.gridLayout.xxl.title"
+        description: "Optional grid configuration for the XXL breakpoint."
         properties: *gridConfigurationProperties
 
   fullWidth:

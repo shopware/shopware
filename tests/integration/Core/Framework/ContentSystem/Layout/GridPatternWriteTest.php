@@ -26,7 +26,7 @@ class GridPatternWriteTest extends TestCase
         $repository = $this->getContainer()->get('content_layout.repository');
         static::assertInstanceOf(EntityRepository::class, $repository);
         $configuration = [
-            'xs' => ['columns' => [['type' => 'auto']], 'areas' => [['a1']]],
+            'xxl' => ['columns' => [['type' => 'auto']], 'areas' => [['a1']]],
             'lg' => [
                 'columns' => [['type' => 'px', 'value' => 300], ['type' => 'percent', 'value' => 20], ['type' => 'fraction', 'value' => 4]],
                 'areas' => [['a1', 'a2', 'a3'], ['a1', 'a4', 'a4']],
@@ -42,7 +42,7 @@ class GridPatternWriteTest extends TestCase
         static::assertSame(4, $storedConfiguration['lg']['columns'][2]['value']);
     }
 
-    public function testExplicitModeDoesNotRequireAStoredGridLayout(): void
+    public function testContainerDoesNotRequireAStoredGridLayout(): void
     {
         $ids = new IdsCollection();
         $repository = $this->getContainer()->get('content_layout.repository');
@@ -54,6 +54,7 @@ class GridPatternWriteTest extends TestCase
         $stored = $repository->search(new Criteria([$ids->get('layout')]), Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ContentLayoutEntity::class, $stored);
         static::assertNull($stored->getLayout()[0]->property('gridLayout'));
+        static::assertSame('explicit', $stored->getLayout()[0]->property('mode')?->jsonSerialize());
     }
 
     /**
@@ -69,7 +70,7 @@ class GridPatternWriteTest extends TestCase
             'layout' => [[
                 'id' => $ids->get('element'),
                 'component' => 'Sw:Grid:Container',
-                'properties' => ['mode' => 'explicit', 'gridLayout' => $configuration],
+                'properties' => ['gridLayout' => $configuration],
             ]],
         ];
     }

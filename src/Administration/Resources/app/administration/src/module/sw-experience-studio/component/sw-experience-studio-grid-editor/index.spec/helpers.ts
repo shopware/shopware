@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils';
 import type { Component } from 'vue';
 import { MtTextField } from '@shopware-ag/meteor-component-library';
 import gridPattern from '../index';
+import BreakpointSelect, { type GridBreakpoint } from '../../sw-experience-studio-breakpoint-select';
 
 const containerStub = { template: '<div><slot /></div>' };
 const buttonStub = {
@@ -24,7 +25,7 @@ export function layout(value: string) {
     const entries = value.split('~');
     return Object.fromEntries(
         entries.map((entry, index) => {
-            const [breakpoint, configuration] = index === 0 ? ['xs', entry] : entry.split('=');
+            const [breakpoint, configuration] = index === 0 ? ['lg', entry] : entry.split('=');
             const [widths, rows] = configuration.split('|');
             return [
                 breakpoint,
@@ -56,7 +57,11 @@ export function createWrapper(props: Record<string, unknown> = {}, realComponent
     return mount(gridPattern, {
         shallow: !realComponents,
         attachTo: document.body,
-        props: { allowEdit: true, ...props },
+        props: {
+            allowEdit: true,
+            breakpointFallbacks: { xs: ['sm', 'lg'], sm: ['lg'], md: ['lg'], xl: ['lg'], xxl: ['xl', 'lg'] },
+            ...props,
+        },
         global: {
             directives: {
                 draggable: realComponents
@@ -72,10 +77,17 @@ export function createWrapper(props: Record<string, unknown> = {}, realComponent
                 droppable: {},
             },
             stubs: {
-                'sw-button-group': containerStub,
-                'mt-collapsible': containerStub,
-                'mt-collapsible-content': containerStub,
-                'mt-collapsible-trigger': containerStub,
+                BreakpointSelect: {
+                    name: 'BreakpointSelect',
+                    props: [
+                        'modelValue',
+                        'overrides',
+                        'invalidBreakpoints',
+                        'canReset',
+                    ],
+                    emits: ['update:modelValue', 'reset'],
+                    template: `<button v-if="canReset && overrides.includes(modelValue)" @click="$emit('reset')">Reset</button>`,
+                },
                 'mt-button': buttonStub,
                 'mt-link': buttonStub,
                 'mt-dropdown-menu-root': containerStub,
@@ -85,8 +97,6 @@ export function createWrapper(props: Record<string, unknown> = {}, realComponent
                 'mt-action-menu-item': actionStub,
                 'mt-icon': true,
                 'mt-text': containerStub,
-                'mt-modal-root': { props: ['isOpen'], template: '<div v-if="isOpen"><slot /></div>' },
-                'mt-modal': { template: '<div><slot /><slot name="footer" /></div>' },
                 'mt-select': {
                     props: ['modelValue', 'options', 'disabled'],
                     emits: ['update:modelValue'],
@@ -104,4 +114,10 @@ export function createWrapper(props: Record<string, unknown> = {}, realComponent
             },
         },
     });
+}
+
+/** @private */
+export async function selectBreakpoint(wrapper: ReturnType<typeof createWrapper>, breakpoint: GridBreakpoint) {
+    wrapper.getComponent(BreakpointSelect).vm.$emit('update:modelValue', breakpoint);
+    await wrapper.vm.$nextTick();
 }

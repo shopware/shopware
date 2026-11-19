@@ -1,4 +1,4 @@
-import { createWrapper, layout } from './helpers';
+import { createWrapper, layout, selectBreakpoint } from './helpers';
 
 describe('grid editor edge interactions', () => {
     let wrapper: ReturnType<typeof createWrapper>;
@@ -11,9 +11,23 @@ describe('grid editor edge interactions', () => {
         await control.trigger('click');
     }
 
-    it('uses the default grid when xs is missing and keeps read-only controls inert', async () => {
+    it('uses the supplied fallback order to resolve a grid without a local override', async () => {
+        wrapper = createWrapper({
+            gridLayout: layout('auto|a1~md=auto auto|a1 a2'),
+            breakpointFallbacks: { xs: ['md', 'lg'] },
+        });
+
+        await selectBreakpoint(wrapper, 'xs');
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__column-entry')).toHaveLength(2);
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+
+        await selectBreakpoint(wrapper, 'sm');
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__column-entry')).toHaveLength(1);
+    });
+
+    it('uses the default grid when lg is missing and keeps read-only controls inert', async () => {
         wrapper = createWrapper({ gridLayout: {} });
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__column')).toHaveLength(1);
         wrapper.unmount();
 
         wrapper = createWrapper({
@@ -23,8 +37,7 @@ describe('grid editor edge interactions', () => {
         await clickDisabledControl('.sw-experience-studio-grid-editor__area');
         await clickDisabledControl('.sw-experience-studio-grid-editor__add button');
         await clickDisabledControl('.sw-experience-studio-grid-editor__rows button');
-        await clickDisabledControl('.sw-experience-studio-grid-editor__actions button');
-        await clickDisabledControl('.sw-experience-studio-grid-editor__actions button:last-child');
+        expect(wrapper.find('.sw-experience-studio-grid-editor__actions').exists()).toBe(false);
 
         const type = wrapper.get('.sw-experience-studio-grid-editor__column-type');
         type.element.removeAttribute('disabled');
@@ -34,17 +47,9 @@ describe('grid editor edge interactions', () => {
         input.element.removeAttribute('disabled');
         await input.setValue('30');
 
-        const smTab = wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1];
-        expect(smTab.attributes('disabled')).toBeUndefined();
-        await smTab.trigger('click');
-        expect(smTab.attributes('aria-pressed')).toBe('true');
-        await clickDisabledControl('.sw-experience-studio-grid-editor__inheritance');
-        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
-
-        wrapper.unmount();
-        wrapper = createWrapper({ gridLayout: layout('percent:101 auto|a1 a2') });
-        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1].trigger('click');
-        await clickDisabledControl('.sw-experience-studio-grid-editor__inheritance');
+        await selectBreakpoint(wrapper, 'sm');
+        expect(wrapper.getComponent({ name: 'BreakpointSelect' }).props('modelValue')).toBe('sm');
+        await clickDisabledControl('.sw-experience-studio-grid-editor__add button');
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
     });
 
@@ -62,30 +67,22 @@ describe('grid editor edge interactions', () => {
 
         wrapper.unmount();
         wrapper = createWrapper({ gridLayout: layout('auto|a1') });
-        await clickDisabledControl('.sw-experience-studio-grid-editor__rows button');
         const columnButtons = wrapper.get('.sw-experience-studio-grid-editor__column-entry').findAll('button');
         for (const button of columnButtons.slice(1)) {
             button.element.removeAttribute('disabled');
             await button.trigger('click');
         }
+        await wrapper.setProps({ gridLayout: layout('auto auto|a1 a2') });
+        await clickDisabledControl('.sw-experience-studio-grid-editor__rows button');
+        await wrapper.get('.sw-experience-studio-grid-editor__area').trigger('click');
         await clickDisabledControl('.sw-experience-studio-grid-editor__actions button');
         await clickDisabledControl('.sw-experience-studio-grid-editor__actions button:last-child');
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
     });
 
-    it('ignores restore confirmation if editing is disabled while the modal is open', async () => {
-        wrapper = createWrapper({ gridLayout: layout('auto|a1~sm=auto|a1') });
-        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1].trigger('click');
-        await wrapper.get('.sw-experience-studio-grid-editor__inheritance').trigger('click');
-        expect(wrapper.find('.sw-experience-studio-grid-editor__modal-footer').exists()).toBe(true);
-
-        await wrapper.setProps({ allowEdit: false });
-        await clickDisabledControl('.sw-experience-studio-grid-editor__modal-footer button:last-child');
-        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
-    });
-
-    it('reorders columns only after the pointer crosses the target midpoint', async () => {
+    it('creates an override only after a drag crosses the target midpoint', async () => {
         wrapper = createWrapper({ gridLayout: layout('px:100 auto|a1 a2') });
+        await selectBreakpoint(wrapper, 'sm');
         const rows = wrapper.findAll('.sw-experience-studio-grid-editor__column-entry');
         const originalElementFromPoint = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
         Object.defineProperty(document, 'elementFromPoint', {
@@ -102,10 +99,11 @@ describe('grid editor edge interactions', () => {
             document.dispatchEvent(new MouseEvent('mousemove', { clientY: 1 }));
             document.dispatchEvent(new MouseEvent('mousemove', { clientY: 2 }));
             expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+            expect(wrapper.getComponent({ name: 'BreakpointSelect' }).props('overrides')).toEqual([]);
 
             document.dispatchEvent(new MouseEvent('mousemove', { clientY: 6 }));
             document.dispatchEvent(new MouseEvent('mouseup'));
-            expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('auto px:100|a1 a2')]);
+            expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('px:100 auto|a1 a2~sm=auto px:100|a1 a2')]);
         } finally {
             if (originalElementFromPoint) Object.defineProperty(document, 'elementFromPoint', originalElementFromPoint);
             else Reflect.deleteProperty(document, 'elementFromPoint');

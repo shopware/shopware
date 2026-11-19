@@ -60,6 +60,18 @@ class ProductListingComponentTest extends TestCase
         static::assertStringNotContainsString('data-component="Sw:Filter:ActiveFilters"', $html);
     }
 
+    public function testRendersDefaultAndConfiguredGridColumns(): void
+    {
+        $emptyListing = $this->render(['listing' => $this->listing()]);
+        static::assertStringContainsString('--sw-grid-columns-lg: minmax(0, 1fr);', $emptyListing);
+
+        $populatedListing = $this->render(['listing' => $this->listing(42)]);
+        static::assertStringContainsString(
+            '--sw-grid-columns-lg: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);',
+            $populatedListing,
+        );
+    }
+
     /**
      * The type must not advertise slots the template no longer renders, because Studio would offer
      * drop targets that silently swallow whatever is placed into them.

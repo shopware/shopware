@@ -393,6 +393,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(Container::class)
+        ->args([service(UrlEncodingTwigFilter::class)])
         ->autoconfigure(true);
 
     $services->set(UrlEncodingTwigFilter::class)

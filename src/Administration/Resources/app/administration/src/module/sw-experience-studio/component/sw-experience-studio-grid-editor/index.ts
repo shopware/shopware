@@ -1,22 +1,20 @@
-import { MtCollapsible, MtCollapsibleContent, MtCollapsibleTrigger, MtText } from '@shopware-ag/meteor-component-library';
+import { MtText } from '@shopware-ag/meteor-component-library';
+import type { ContentSystemBreakpointFallbacks } from 'src/core/service/api/content-system-element-type.api.service';
+import { resolveBreakpointValue } from '../../util/breakpoint.util';
+import BreakpointSelect, {
+    GRID_BASE_BREAKPOINT,
+    gridBreakpoints,
+    type GridBreakpoint,
+} from '../sw-experience-studio-breakpoint-select';
 import template from './sw-experience-studio-grid-editor.html.twig';
 import './sw-experience-studio-grid-editor.scss';
 
 type Column = { id: number; type: 'auto' | 'px' | 'percent' | 'fraction'; value: string | null };
 type Pattern = { columns: Column[]; cells: number[][] };
-type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-const breakpoints: Breakpoint[] = [
-    'xs',
-    'sm',
-    'md',
-    'lg',
-    'xl',
-];
-
 type LayoutColumn = { type: Column['type']; value?: number | string };
 type LayoutConfiguration = { columns: LayoutColumn[]; areas: string[][] };
-type GridLayout = Partial<Record<Breakpoint, LayoutConfiguration>>;
-type BreakpointPatterns = Partial<Record<Breakpoint, Pattern>> & { xs: Pattern };
+type GridLayout = Partial<Record<GridBreakpoint, LayoutConfiguration>>;
+type BreakpointPatterns = Partial<Record<GridBreakpoint, Pattern>> & { lg: Pattern };
 
 function initialPattern(value?: LayoutConfiguration | null): Pattern {
     if (!value || !Array.isArray(value.columns) || !Array.isArray(value.areas)) {
@@ -53,29 +51,24 @@ function encodePattern(pattern: Pattern): LayoutConfiguration {
 }
 
 function parsePatterns(value: GridLayout = {}): BreakpointPatterns {
-    const patterns: BreakpointPatterns = { xs: initialPattern(value.xs) };
-    breakpoints.slice(1).forEach((breakpoint) => {
-        if (value[breakpoint]) patterns[breakpoint] = initialPattern(value[breakpoint]);
-    });
+    const patterns: BreakpointPatterns = { lg: initialPattern(value.lg) };
+    for (const breakpoint of gridBreakpoints) {
+        if (breakpoint !== GRID_BASE_BREAKPOINT && Object.hasOwn(value, breakpoint)) {
+            patterns[breakpoint] = initialPattern(value[breakpoint]);
+        }
+    }
+
     return patterns;
 }
 
 function encodePatterns(patterns: BreakpointPatterns): GridLayout {
-    const result: GridLayout = { xs: encodePattern(patterns.xs) };
-    breakpoints.slice(1).forEach((breakpoint) => {
+    const result: GridLayout = { lg: encodePattern(patterns.lg) };
+    for (const breakpoint of gridBreakpoints) {
         const pattern = patterns[breakpoint];
-        if (pattern) result[breakpoint] = encodePattern(pattern);
-    });
-    return result;
-}
-
-function resolvePattern(patterns: BreakpointPatterns, breakpoint: Breakpoint): Pattern {
-    for (let current = breakpoints.indexOf(breakpoint); current > 0; current -= 1) {
-        const pattern = patterns[breakpoints[current]];
-        if (pattern) return pattern;
+        if (breakpoint !== GRID_BASE_BREAKPOINT && pattern) result[breakpoint] = encodePattern(pattern);
     }
 
-    return patterns.xs;
+    return result;
 }
 
 function invalidWidth(column: Column): boolean {
@@ -99,14 +92,6 @@ function relativeWidthUnits(columns: Column[]): number {
     }, 0);
 }
 
-function invalidPattern(pattern: Pattern): boolean {
-    return (
-        pattern.columns.some(invalidWidth) ||
-        relativeWidthUnits(pattern.columns) > 300 ||
-        (pattern.columns.some((column) => column.type === 'px') && pattern.columns.every((column) => column.type === 'px'))
-    );
-}
-
 function isPastDragMidpoint(movingDown: boolean, y: number, previousY: number, midpoint: number): boolean {
     return movingDown ? y >= midpoint && y > previousY : y <= midpoint && y < previousY;
 }
@@ -127,9 +112,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
 
     components: {
-        MtCollapsible,
-        MtCollapsibleContent,
-        MtCollapsibleTrigger,
+        BreakpointSelect,
         MtText,
     },
 
@@ -142,10 +125,15 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     props: {
+        label: { type: String, default: '' },
+        breakpointFallbacks: {
+            type: Object as PropType<ContentSystemBreakpointFallbacks>,
+            default: () => ({}),
+        },
         gridLayout: {
             type: Object as () => GridLayout,
             required: false,
-            default: () => ({ xs: { columns: [{ type: 'auto' }], areas: [['a1']] } }),
+            default: () => ({}),
         },
         allowEdit: { type: Boolean, required: false, default: false },
     },
@@ -155,35 +143,32 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         const patterns = parsePatterns(this.gridLayout ?? {});
         return {
-            breakpoint: 'xs' as Breakpoint,
+            breakpoint: GRID_BASE_BREAKPOINT as GridBreakpoint,
             patterns,
             selected: [] as number[],
-            nextId: nextAreaId(patterns.xs),
-            nextColumnId: patterns.xs.columns.length + 1,
+            nextId: nextAreaId(patterns.lg),
+            nextColumnId: patterns.lg.columns.length + 1,
             focusedColumnId: null as number | null,
             draggingColumnId: null as number | null,
             dragStartPattern: '',
+            dragStartedInherited: false,
             lastDragY: null as number | null,
             dragMoveListener: null as EventListener | null,
             dragEndListener: null as EventListener | null,
-            showRestoreModal: false,
-            columnsOpen: true,
-            patternOpen: true,
         };
     },
 
     computed: {
-        tabs(): { name: string; label: string }[] {
-            return breakpoints.map((name) => ({ name, label: name.toUpperCase() }));
+        overrides(): GridBreakpoint[] {
+            return gridBreakpoints.filter(
+                (breakpoint) => breakpoint !== GRID_BASE_BREAKPOINT && this.patterns[breakpoint] !== undefined,
+            );
         },
-        inherited(): boolean {
-            return this.breakpoint !== 'xs' && !this.patterns[this.breakpoint];
+        invalidBreakpoints(): GridBreakpoint[] {
+            return gridBreakpoints.filter((breakpoint) => this.patterns[breakpoint]?.columns.some(invalidWidth));
         },
         pattern(): Pattern {
-            return resolvePattern(this.patterns, this.breakpoint);
-        },
-        editable(): boolean {
-            return this.allowEdit && !this.inherited;
+            return resolveBreakpointValue(this.patterns, this.breakpoint, this.breakpointFallbacks) ?? initialPattern();
         },
         areas(): { id: number; number: number; row: number; column: number; rowSpan: number; columnSpan: number }[] {
             const bounds = new Map<
@@ -230,7 +215,7 @@ export default Shopware.Component.wrapComponentConfig({
                 .every((row) => row.slice(bounds.left, bounds.right).every((id) => selected.has(id)));
         },
         canMove(): boolean {
-            return this.editable && this.pattern.columns.length > 1;
+            return this.allowEdit && this.pattern.columns.length > 1;
         },
         fractionOptions(): { value: number; label: string }[] {
             return Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: String(index + 1) }));
@@ -257,6 +242,8 @@ export default Shopware.Component.wrapComponentConfig({
         syncPattern(): void {
             const incoming = parsePatterns(this.gridLayout ?? {});
             if (JSON.stringify(encodePatterns(this.patterns)) === JSON.stringify(encodePatterns(incoming))) return;
+            this.removeDragListeners();
+            this.draggingColumnId = null;
             this.patterns = incoming;
             const pattern = this.pattern;
             this.nextId = nextAreaId(pattern);
@@ -285,56 +272,46 @@ export default Shopware.Component.wrapComponentConfig({
                 (this.$el as HTMLElement).querySelector<HTMLButtonElement>(`[data-area-id="${id}"]`)?.focus();
             });
         },
-        setBreakpoint(name: string): void {
-            this.breakpoint = name as Breakpoint;
+        setBreakpoint(breakpoint: GridBreakpoint): void {
+            this.onColumnDragEnd();
+            this.breakpoint = breakpoint;
             this.selected = [];
             this.focusedColumnId = null;
             this.nextId = nextAreaId(this.pattern);
             this.nextColumnId = Math.max(...this.pattern.columns.map((column) => column.id)) + 1;
         },
-        breakInheritance(): void {
-            if (!this.allowEdit || !this.inherited || invalidPattern(this.pattern)) return;
-            this.patterns[this.breakpoint] = copyPattern(this.pattern);
-            this.emitPatterns();
-        },
-        restoreInheritance(): void {
-            if (!this.allowEdit || this.breakpoint === 'xs' || this.inherited) return;
+        resetBreakpoint(): void {
+            if (!this.allowEdit || this.draggingColumnId !== null || !this.overrides.includes(this.breakpoint)) return;
+
             delete this.patterns[this.breakpoint];
-            this.showRestoreModal = false;
-            this.selected = [];
-            this.nextId = nextAreaId(this.pattern);
-            this.nextColumnId = Math.max(...this.pattern.columns.map((column) => column.id)) + 1;
+            this.setBreakpoint(this.breakpoint);
             this.emitPatterns();
-            void this.$nextTick(() => {
-                (this.$el as HTMLElement)
-                    .querySelector<HTMLButtonElement>('.sw-experience-studio-grid-editor__inheritance')
-                    ?.focus();
-            });
         },
-        breakpointInvalid(name: Breakpoint): boolean {
-            return invalidPattern(resolvePattern(this.patterns, name));
-        },
-        breakpointHasInvalidWidth(name: Breakpoint): boolean {
-            return this.patterns[name]?.columns.some(invalidWidth) ?? false;
+        getEditablePattern(): Pattern {
+            this.patterns[this.breakpoint] ??= copyPattern(this.pattern);
+            return this.pattern;
         },
         addColumn(): void {
-            if (!this.editable || this.pattern.columns.length >= 12) return;
-            this.pattern.columns.push({ id: this.nextColumnId++, type: 'auto', value: null });
-            this.pattern.cells.forEach((row) => row.push(this.nextId++));
+            if (!this.allowEdit || this.pattern.columns.length >= 12) return;
+            const pattern = this.getEditablePattern();
+            pattern.columns.push({ id: this.nextColumnId++, type: 'auto', value: null });
+            pattern.cells.forEach((row) => row.push(this.nextId++));
             this.selected = [];
             this.commitPattern();
             this.focusArea(this.pattern.cells[0]?.at(-1));
         },
         addRow(): void {
-            if (!this.editable || this.pattern.cells.length >= 12) return;
-            this.pattern.cells.push(this.pattern.columns.map(() => this.nextId++));
+            if (!this.allowEdit || this.pattern.cells.length >= 12) return;
+            const pattern = this.getEditablePattern();
+            pattern.cells.push(pattern.columns.map(() => this.nextId++));
             this.selected = [];
             this.commitPattern();
             this.focusArea(this.pattern.cells.at(-1)?.[0]);
         },
         removeRow(index: number): void {
-            if (!this.editable || this.pattern.cells.length <= 1) return;
-            this.pattern.cells.splice(index, 1);
+            if (!this.allowEdit || this.pattern.cells.length <= 1) return;
+            const pattern = this.getEditablePattern();
+            pattern.cells.splice(index, 1);
             this.selected = [];
             this.commitPattern();
             this.focusArea(this.pattern.cells[Math.min(index, this.pattern.cells.length - 1)]?.[0]);
@@ -342,7 +319,7 @@ export default Shopware.Component.wrapComponentConfig({
         canRemoveColumn(index: number): boolean {
             const remaining = this.pattern.columns.filter((_, position) => position !== index);
             return (
-                this.editable &&
+                this.allowEdit &&
                 remaining.length > 0 &&
                 (!remaining.some((column) => column.type === 'px') || remaining.some((column) => column.type !== 'px'))
             );
@@ -360,22 +337,27 @@ export default Shopware.Component.wrapComponentConfig({
         },
         removeColumn(index: number): void {
             if (!this.canRemoveColumn(index)) return;
-            this.pattern.columns.splice(index, 1);
-            this.pattern.cells.forEach((row) => row.splice(index, 1));
+            const pattern = this.getEditablePattern();
+            pattern.columns.splice(index, 1);
+            pattern.cells.forEach((row) => row.splice(index, 1));
             this.selected = [];
             this.commitPattern();
             this.focusArea(this.pattern.cells[0]?.[Math.min(index, this.pattern.columns.length - 1)]);
         },
         moveColumn(from: number, to: number): void {
             if (!this.canMove || to < 0 || to >= this.pattern.columns.length || from === to) return;
-            const column = this.pattern.columns.splice(from, 1)[0];
-            this.pattern.columns.splice(to, 0, column);
+            const pattern = this.getEditablePattern();
+            const column = pattern.columns.splice(from, 1)[0];
+            pattern.columns.splice(to, 0, column);
             if (this.draggingColumnId === null) this.commitPattern();
         },
         onColumnDragStart(config: { data: number }): void {
             this.onColumnDragEnd();
+            if (!this.canMove) return;
+
             this.draggingColumnId = config.data;
             this.dragStartPattern = JSON.stringify(encodePattern(this.pattern));
+            this.dragStartedInherited = this.patterns[this.breakpoint] === undefined;
             this.lastDragY = null;
             this.dragMoveListener = (event) => this.onColumnDragMove(event as MouseEvent | TouchEvent);
             this.dragEndListener = () => this.onColumnDragEnd();
@@ -421,11 +403,15 @@ export default Shopware.Component.wrapComponentConfig({
             this.removeDragListeners();
             if (this.draggingColumnId !== null) {
                 this.draggingColumnId = null;
-                if (this.dragStartPattern !== JSON.stringify(encodePattern(this.pattern))) this.commitPattern();
+                if (this.dragStartPattern !== JSON.stringify(encodePattern(this.pattern))) {
+                    this.commitPattern();
+                } else if (this.dragStartedInherited) {
+                    delete this.patterns[this.breakpoint];
+                }
             }
         },
         toggleArea(id: number): void {
-            if (!this.editable) return;
+            if (!this.allowEdit) return;
             if (this.selected.includes(id)) {
                 this.selected = this.selected.filter((item) => item !== id);
                 return;
@@ -437,11 +423,10 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
         merge(): void {
-            if (!this.editable || !this.canMerge) return;
+            if (!this.allowEdit || !this.canMerge) return;
+            const pattern = this.getEditablePattern();
             const id = this.selected[0];
-            this.pattern.cells = this.pattern.cells.map((row) =>
-                row.map((value) => (this.selected.includes(value) ? id : value)),
-            );
+            pattern.cells = pattern.cells.map((row) => row.map((value) => (this.selected.includes(value) ? id : value)));
             this.selected = [id];
             this.commitPattern();
             this.focusArea(this.selected[0]);
@@ -449,15 +434,16 @@ export default Shopware.Component.wrapComponentConfig({
         split(direction: 'all' | 'columns' | 'rows'): void {
             const area = this.selectedArea;
             if (
-                !this.editable ||
+                !this.allowEdit ||
                 !area ||
                 (direction === 'columns' && area.columnSpan < 2) ||
                 (direction === 'rows' && area.rowSpan < 2) ||
                 (direction === 'all' && area.columnSpan === 1 && area.rowSpan === 1)
             )
                 return;
+            const pattern = this.getEditablePattern();
             const ids = new Map<string, number>();
-            this.pattern.cells = this.pattern.cells.map((row, y) =>
+            pattern.cells = pattern.cells.map((row, y) =>
                 row.map((value, x) => {
                     if (value !== area.id) return value;
                     const key = direction === 'all' ? `${x}:${y}` : String(direction === 'columns' ? x : y);
@@ -470,29 +456,32 @@ export default Shopware.Component.wrapComponentConfig({
             this.focusArea(this.selected[0]);
         },
         setColumnType(index: number, type: Column['type']): void {
-            const column = this.pattern.columns[index];
             if (
-                this.editable &&
+                this.allowEdit &&
+                type !== this.pattern.columns[index].type &&
                 (type !== 'px' || this.pattern.columns.some((other, position) => position !== index && other.type !== 'px'))
             ) {
+                const column = this.getEditablePattern().columns[index];
                 column.type = type;
                 column.value = type === 'fraction' ? '1' : null;
                 this.focusedColumnId = type === 'px' || type === 'percent' ? column.id : null;
                 if (type === 'px' || type === 'percent') {
                     void this.$nextTick(() => {
                         const row = (this.$el as HTMLElement).querySelector(`[data-column-id="${column.id}"]`);
-                        row?.querySelector<HTMLInputElement>('.mt-text-field input')?.focus();
+                        row?.querySelector<HTMLInputElement>(
+                            '.sw-experience-studio-grid-editor__column-width input',
+                        )?.focus();
                     });
                 }
                 this.commitPattern();
             }
         },
         setColumnValue(index: number, value: string | number | null): void {
-            const column = this.pattern.columns[index];
-            if (this.editable) {
-                column.value = typeof value === 'number' ? String(value) : value;
-                this.commitPattern();
-            }
+            const normalized = typeof value === 'number' ? String(value) : value;
+            if (!this.allowEdit || this.pattern.columns[index].value === normalized) return;
+
+            this.getEditablePattern().columns[index].value = normalized;
+            this.commitPattern();
         },
         invalidColumn(column: Column): boolean {
             return invalidWidth(column);

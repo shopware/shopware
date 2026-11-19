@@ -1,4 +1,4 @@
-import { createWrapper, layout } from './index.spec/helpers';
+import { createWrapper, layout, selectBreakpoint } from './index.spec/helpers';
 
 describe('grid pattern settings', () => {
     let wrapper: ReturnType<typeof createWrapper>;
@@ -53,13 +53,13 @@ describe('grid pattern settings', () => {
 
     it('renders bounds and allocates new ids for a grid with many distinct areas', async () => {
         const rows = Array.from({ length: 100 }, (_, index) => [`left${index}`, `right${index}`]);
-        wrapper = createWrapper({ gridLayout: { xs: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: rows } } });
+        wrapper = createWrapper({ gridLayout: { lg: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: rows } } });
         const areas = wrapper.findAll('.sw-experience-studio-grid-editor__area');
         expect(areas).toHaveLength(200);
         expect(areas[199].attributes('style')).toContain('grid-row: 100 / span 1');
         await wrapper.findAll('.sw-experience-studio-grid-editor__add button')[0].trigger('click');
-        const emitted = wrapper.emitted('update:gridLayout')?.at(-1)?.[0] as { xs: { areas: string[][] } };
-        expect(emitted.xs.areas[99]).toEqual(['a298', 'a299', 'a300']);
+        const emitted = wrapper.emitted('update:gridLayout')?.at(-1)?.[0] as { lg: { areas: string[][] } };
+        expect(emitted.lg.areas[99]).toEqual(['a298', 'a299', 'a300']);
     });
 
     it('names native width inputs distinctly and requests a numeric keyboard', () => {
@@ -72,15 +72,18 @@ describe('grid pattern settings', () => {
         expect(inputs.map((input) => input.attributes('inputmode'))).toEqual(['numeric', 'numeric']);
     });
 
-    it('starts with one area and emits the dimensions after adding a column and a row', async () => {
+    it('opens the content arrangement directly when a second column is added', async () => {
         wrapper = createWrapper();
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
+        expect(wrapper.find('section').exists()).toBe(false);
 
-        const add = wrapper.findAll('.sw-experience-studio-grid-editor__add button');
-        await add[0].trigger('click');
-        await add[1].trigger('click');
+        await wrapper.get('.sw-experience-studio-grid-editor__add button').trigger('click');
 
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(4);
+        const arrangement = wrapper.get('section');
+        expect(arrangement.get('h3').text()).toBe('sw-experience-studio.gridEditor.pattern');
+        expect(arrangement.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(2);
+        await arrangement.get('.sw-experience-studio-grid-editor__add button').trigger('click');
+
+        expect(arrangement.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(4);
         expect(wrapper.emitted('update:gridLayout')).toEqual([
             [layout('auto auto|a1 a2')],
             [layout('auto auto|a1 a2;a3 a4')],
@@ -103,7 +106,7 @@ describe('grid pattern settings', () => {
         await wrapper.findAll('.sw-experience-studio-grid-editor__area')[0].trigger('click');
 
         await wrapper.setProps({
-            gridLayout: { xs: { areas: [['a1', 'a2']], columns: [{ value: 300, type: 'px' }, { type: 'auto' }] } },
+            gridLayout: { lg: { areas: [['a1', 'a2']], columns: [{ value: 300, type: 'px' }, { type: 'auto' }] } },
         });
         expect(wrapper.findAll('.sw-experience-studio-grid-editor__area[aria-pressed="true"]')).toHaveLength(1);
 
@@ -119,69 +122,105 @@ describe('grid pattern settings', () => {
 
         await wrapper.findAll('.sw-experience-studio-grid-editor__column')[0].findAll('button')[4].trigger('click');
         expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('auto|a1')]);
+        expect(wrapper.find('section').exists()).toBe(false);
     });
 
-    it('keeps the final row and column', () => {
-        wrapper = createWrapper();
+    it('keeps the final row and column', async () => {
+        wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2') });
         expect(wrapper.get('.sw-experience-studio-grid-editor__rows button').attributes('disabled')).toBeDefined();
+
+        await wrapper.setProps({ gridLayout: layout('auto|a1') });
         const columnButtons = wrapper.get('.sw-experience-studio-grid-editor__column').findAll('button');
         expect(columnButtons.at(-1)?.attributes('disabled')).toBeDefined();
-        expect(
-            wrapper
-                .get('.sw-experience-studio-grid-editor__breakpoints button[aria-pressed="false"]')
-                .attributes('disabled'),
-        ).toBeUndefined();
-        expect(wrapper.get('.sw-experience-studio-grid-editor__actions button').attributes('disabled')).toBeDefined();
     });
 
-    it('copies and edits complete inherited patterns, and undo restores the override', async () => {
-        wrapper = createWrapper({ gridLayout: layout('percent:20 auto|a1 a2;a1 a2') });
-        const tabs = wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button');
-        await tabs[2].trigger('click');
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(2);
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')[0].attributes('disabled')).toBeDefined();
-        await wrapper.get('.sw-experience-studio-grid-editor__inheritance').trigger('click');
-        const copied = 'percent:20 auto|a1 a2;a1 a2~md=percent:20 auto|a1 a2;a1 a2';
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout(copied)]);
-        await wrapper.setProps({ gridLayout: layout(copied) });
-        await wrapper.findAll('.sw-experience-studio-grid-editor__add button')[1].trigger('click');
-        const changed = 'percent:20 auto|a1 a2;a1 a2~md=percent:20 auto|a1 a2;a1 a2;a3 a4';
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout(changed)]);
-        await wrapper.setProps({ gridLayout: layout(changed) });
-        await tabs[3].trigger('click');
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(4);
-        await wrapper.setProps({ gridLayout: layout(copied) });
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(2);
-    });
+    it('creates a breakpoint override on the first edit and returns to the base grid on undo', async () => {
+        const base = layout('percent:20 auto|a1 a2;a1 a2');
+        wrapper = createWrapper({ gridLayout: base });
+        const select = wrapper.getComponent({ name: 'BreakpointSelect' });
+        const areas = () => wrapper.findAll('.sw-experience-studio-grid-editor__area');
 
-    it('confirms restoring inheritance and preserves other breakpoint overrides', async () => {
-        wrapper = createWrapper({ gridLayout: layout('auto|a1~md=auto auto|a1 a2~xl=percent:50 auto|a1 a2') });
-        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[2].trigger('click');
-        await wrapper.get('.sw-experience-studio-grid-editor__inheritance').trigger('click');
+        await selectBreakpoint(wrapper, 'md');
+        expect(areas()).toHaveLength(2);
+        expect(select.props('overrides')).toEqual([]);
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
-        await wrapper.get('.sw-experience-studio-grid-editor__modal-footer button:last-child').trigger('click');
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([
-            layout('auto|a1~xl=percent:50 auto|a1 a2'),
-        ]);
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
-        expect(document.activeElement).toBe(wrapper.get('.sw-experience-studio-grid-editor__inheritance').element);
+        await areas()[0].trigger('click');
+        expect(select.props('overrides')).toEqual([]);
+        await wrapper.findAll('.sw-experience-studio-grid-editor__add button')[1].trigger('click');
+
+        const changed = layout('percent:20 auto|a1 a2;a1 a2~md=percent:20 auto|a1 a2;a1 a2;a3 a4');
+        expect(wrapper.emitted('update:gridLayout')).toEqual([[changed]]);
+        expect(select.props('overrides')).toEqual(['md']);
+        await wrapper.setProps({ gridLayout: changed });
+        await selectBreakpoint(wrapper, 'xl');
+        expect(areas()).toHaveLength(2);
+        await selectBreakpoint(wrapper, 'md');
+        expect(areas()).toHaveLength(4);
+        await wrapper.setProps({ gridLayout: base });
+        expect(areas()).toHaveLength(2);
+        expect(select.props('overrides')).toEqual([]);
     });
 
-    it('keeps invalid draft values across breakpoints and prevents copying them', async () => {
-        wrapper = createWrapper({ gridLayout: layout('percent: auto|a1 a2') });
-        const tabs = wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button');
-        await tabs[1].trigger('click');
-        expect(wrapper.get('.sw-experience-studio-grid-editor__inheritance').attributes('disabled')).toBeDefined();
-        await tabs[0].trigger('click');
-        expect((wrapper.get('.sw-experience-studio-grid-editor__column input').element as HTMLInputElement).value).toBe('');
+    it('only shows the arrangement for breakpoints that resolve to multiple columns', async () => {
+        wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2~sm=auto|a1~xl=auto auto auto|a1 a2 a3') });
+        const select = wrapper.getComponent({ name: 'BreakpointSelect' });
+        const areas = () => wrapper.findAll('.sw-experience-studio-grid-editor__area');
+
+        expect(select.props('modelValue')).toBe('lg');
+        expect(select.props('overrides')).toEqual(['sm', 'xl']);
+        expect(areas()).toHaveLength(2);
+
+        await selectBreakpoint(wrapper, 'sm');
+        expect(wrapper.find('section').exists()).toBe(false);
+        await selectBreakpoint(wrapper, 'md');
+        expect(areas()).toHaveLength(2);
+        await selectBreakpoint(wrapper, 'xxl');
+        expect(areas()).toHaveLength(3);
+        await selectBreakpoint(wrapper, 'xs');
+        expect(wrapper.find('section').exists()).toBe(false);
+        expect(select.props('overrides')).toEqual(['sm', 'xl']);
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+    });
+
+    it('resets the selected grid to its inherited SM pattern and preserves other overrides', async () => {
+        const base = 'auto auto|a1 a2~sm=auto|a1~xxl=auto auto|a1 a1';
+        wrapper = createWrapper({ gridLayout: layout(`${base}~xs=auto auto auto|a1 a2 a3`) });
+        const selector = wrapper.getComponent({ name: 'BreakpointSelect' });
+
+        await selectBreakpoint(wrapper, 'xs');
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(3);
+        await selector.get('button').trigger('click');
+
+        expect(wrapper.emitted('update:gridLayout')).toEqual([[layout(base)]]);
+        expect(selector.props('modelValue')).toBe('xs');
+        expect(selector.props('overrides')).toEqual(['sm', 'xxl']);
+        expect(wrapper.find('section').exists()).toBe(false);
+    });
+
+    it('keeps invalid drafts local to the breakpoint being edited', async () => {
+        wrapper = createWrapper({ gridLayout: layout('percent:20 auto|a1 a2~xl=auto|a1') });
+        const input = () => wrapper.get<HTMLInputElement>('.sw-experience-studio-grid-editor__column input');
+
+        await selectBreakpoint(wrapper, 'sm');
+        await input().setValue('');
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+
+        await selectBreakpoint(wrapper, 'lg');
+        expect(input().element.value).toBe('20');
+        await selectBreakpoint(wrapper, 'sm');
+        expect(input().element.value).toBe('');
+        await input().setValue('30');
+        expect(wrapper.emitted('update:gridLayout')).toEqual([
+            [layout('percent:20 auto|a1 a2~sm=percent:30 auto|a1 a2~xl=auto|a1')],
+        ]);
     });
 
     it('preserves incomplete input containing a breakpoint separator', async () => {
         wrapper = createWrapper({ gridLayout: layout('percent:20 auto|a1 a2') });
         await wrapper.get('.sw-experience-studio-grid-editor__column input').setValue('~');
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
-        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1].trigger('click');
-        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[0].trigger('click');
+        await selectBreakpoint(wrapper, 'sm');
+        await selectBreakpoint(wrapper, 'lg');
         expect((wrapper.get('.sw-experience-studio-grid-editor__column input').element as HTMLInputElement).value).toBe('~');
     });
 
@@ -241,7 +280,7 @@ describe('grid pattern settings', () => {
     });
 
     it('does not allow splitting a single-cell area', async () => {
-        wrapper = createWrapper();
+        wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2') });
         await wrapper.get('.sw-experience-studio-grid-editor__area').trigger('click');
         const split = wrapper.get('.sw-experience-studio-grid-editor__actions button');
         expect(split.attributes('disabled')).toBeDefined();
@@ -249,22 +288,32 @@ describe('grid pattern settings', () => {
         await split.trigger('click');
         // eslint-disable-next-line sw-test-rules/no-vm-access -- The UI hides split-all for a single-cell area, so call it to cover the defensive handler guard.
         (wrapper.vm as unknown as { split: (direction: 'all') => void }).split('all');
-        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(1);
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__area')).toHaveLength(2);
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
     });
 
-    it('does not split when no area is selected', async () => {
-        wrapper = createWrapper();
-        const split = wrapper.get('.sw-experience-studio-grid-editor__actions button');
-        split.element.removeAttribute('disabled');
-        await split.trigger('click');
+    it('shows secondary Split and Merge actions only while an area is selected', async () => {
+        wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2') });
+        const area = wrapper.get('.sw-experience-studio-grid-editor__area');
+        const actions = '.sw-experience-studio-grid-editor__actions';
 
+        expect(wrapper.find(actions).exists()).toBe(false);
+        await area.trigger('click');
+        const buttons = wrapper.get(actions).findAll('button');
+        expect(buttons.map((button) => button.text())).toEqual([
+            'sw-experience-studio.gridEditor.split',
+            'sw-experience-studio.gridEditor.merge',
+        ]);
+        expect(buttons.every((button) => button.attributes('variant') === 'secondary')).toBe(true);
+
+        await area.trigger('click');
+        expect(wrapper.find(actions).exists()).toBe(false);
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
     });
 
     it('handles focusing an area when the current layout has no cells', async () => {
         wrapper = createWrapper({
-            gridLayout: { xs: { columns: [{ type: 'auto' }], areas: [] } },
+            gridLayout: { lg: { columns: [{ type: 'auto' }], areas: [] } },
         });
 
         await wrapper.findAll('.sw-experience-studio-grid-editor__add button')[0].trigger('click');
@@ -273,13 +322,13 @@ describe('grid pattern settings', () => {
     });
 
     it('splits a one-column area with multiple rows in all directions', async () => {
-        wrapper = createWrapper({ gridLayout: layout('auto|a1;a1') });
+        wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2;a1 a2') });
         await wrapper.get('.sw-experience-studio-grid-editor__area').trigger('click');
         // eslint-disable-next-line sw-test-rules/no-vm-access -- Exercise the split-all handler with an area shape whose UI only exposes row splitting.
         (wrapper.vm as unknown as { split: (direction: 'all') => void }).split('all');
         await Promise.resolve();
 
-        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('auto|a1;a2')]);
+        expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('auto auto|a1 a2;a3 a2')]);
         expect(wrapper.findAll('.sw-experience-studio-grid-editor__area[aria-pressed="true"]')).toHaveLength(2);
     });
 
@@ -324,7 +373,7 @@ describe('grid pattern settings', () => {
         expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
         await column.get('input').setValue('300');
         expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([
-            { xs: { columns: [{ type: 'px', value: 300 }, { type: 'auto' }], areas: [['a1', 'a2']] } },
+            { lg: { columns: [{ type: 'px', value: 300 }, { type: 'auto' }], areas: [['a1', 'a2']] } },
         ]);
         await wrapper.setProps({ gridLayout: layout('px:300 auto|a1 a2') });
         await wrapper.setProps({ gridLayout: layout('px:- auto|a1 a2') });
@@ -355,25 +404,6 @@ describe('grid pattern settings', () => {
         await input.trigger('blur');
         expect(entry.find('.sw-experience-studio-grid-editor__column-error').exists()).toBe(false);
         expect(input.element.parentElement?.classList.contains('has--error')).toBe(false);
-    });
-
-    it.each([
-        ['percent:100 auto|a1 a2', false],
-        ['percent:101 auto|a1 a2', true],
-        ['fraction:12 auto|a1 a2', false],
-        ['fraction:13 auto|a1 a2', true],
-        ['px:9007199254740992 auto|a1 a2', true],
-        ['px:300 px:200|a1 a2', true],
-    ])('validates inherited layout %s before allowing an override', async (configuration, invalid) => {
-        wrapper = createWrapper({ gridLayout: layout(configuration) });
-        await wrapper.findAll('.sw-experience-studio-grid-editor__breakpoints button')[1].trigger('click');
-
-        const button = wrapper.get('.sw-experience-studio-grid-editor__inheritance');
-        expect(button.attributes('disabled') !== undefined).toBe(invalid);
-        await button.trigger('click');
-        expect(wrapper.emitted('update:gridLayout')).toEqual(
-            invalid ? undefined : [[layout(`${configuration}~sm=${configuration}`)]],
-        );
     });
 
     it('shows a pixel-specific message for an invalid pixel width', () => {

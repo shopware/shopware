@@ -35,10 +35,11 @@
 
 {% set listingLayout = app.request.get('listingLayout') %}
 {% set listingGrid = {
-    xs: { columns: [{ type: 'auto' }], areas: [['a1']] },
+    lg: { columns: [{ type: 'auto' }], areas: [['a1']] },
 } %}
 {% if listingLayout != 'horizontal' %}
     {% set listingGrid = listingGrid|merge({
+        xs: listingGrid.lg,
         sm: { columns: [{ type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2']] },
         md: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3']] },
         lg: { columns: [{ type: 'auto' }, { type: 'auto' }, { type: 'auto' }, { type: 'auto' }], areas: [['a1', 'a2', 'a3', 'a4']] },
@@ -71,7 +72,6 @@
                 <twig:Sw:Grid:Container
                     class="sw-product-listing__grid"
                     :margin="{ xs: '0 0 24px 0', sm: '0 0 24px 0', md: '0 0 24px 0', lg: '0 0 24px 0', xl: '0 0 24px 0', xxl: '0 0 24px 0' }"
-                    mode="explicit"
                     :gridLayout="listingGrid"
                     gap="16">
                     {% for product in listing.entities.elements %}

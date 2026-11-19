@@ -919,12 +919,9 @@ class InfoControllerTest extends TestCase
     {
         [$typesByName] = $this->requestElementTypesWithStorageSchema();
 
-        // grid/container.yaml declares `mode` as a plain string, so the flag is omitted rather than published
-        // as false — the same treatment `default` gets where none is declared.
-        static::assertArrayHasKey('Sw:Grid:Container', $typesByName);
         static::assertArrayNotHasKey(
             'translatable',
-            $typesByName['Sw:Grid:Container']['storageSchema']['mode'],
+            $typesByName['Sw:Grid:Container']['storageSchema']['maxWidth'],
         );
     }
 
@@ -933,8 +930,22 @@ class InfoControllerTest extends TestCase
         [$typesByName] = $this->requestElementTypesWithStorageSchema();
         $grid = $typesByName['Sw:Grid:Container'];
 
+        $mode = $grid['properties']['mode'];
+        static::assertSame('explicit', $mode['default']);
+        static::assertSame(['explicit', 'auto-fit', 'max-content'], $mode['enum']);
+        static::assertSame($mode['enum'], array_column($mode['adminUI']['props']['options'], 'value'));
+        static::assertSame(
+            ['field' => 'mode', 'equals' => 'auto-fit'],
+            $grid['properties']['itemMinWidth']['adminUI']['visibleWhen'],
+        );
+
         $layout = $grid['properties']['gridLayout'];
+        static::assertSame('general', $layout['adminUI']['panel']);
+        static::assertSame(['field' => 'mode', 'equals' => 'explicit'], $layout['adminUI']['visibleWhen']);
         static::assertSame('object', $layout['type']);
+        static::assertTrue($layout['properties']['lg']['required']);
+        static::assertFalse($layout['properties']['xs']['required']);
+        static::assertSame('object', $layout['properties']['xxl']['type']);
         static::assertSame('array', $layout['properties']['xs']['properties']['columns']['type']);
         static::assertSame('object', $layout['properties']['xs']['properties']['columns']['items']['type']);
         static::assertSame('array', $layout['properties']['xs']['properties']['areas']['items']['type']);

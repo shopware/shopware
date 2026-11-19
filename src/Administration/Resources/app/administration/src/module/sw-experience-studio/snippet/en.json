@@ -229,25 +229,25 @@
         "mode": {
           "title": "Mode",
           "options": {
+            "explicit": {
+              "label": "Custom grid",
+              "description": "Choose the number and width of columns and where content appears."
+            },
             "auto-fit": {
-              "label": "Auto fit",
-              "description": "Automatically fits as many columns as possible."
+              "label": "Auto",
+              "description": "Fit as many columns as the minimum item width allows."
             },
             "max-content": {
-              "label": "Max content",
-              "description": "Size columns based on their maximum content size."
-            },
-            "explicit": {
-              "label": "Explicit",
-              "description": "Use explicit columns and rows configuration."
+              "label": "Max-content",
+              "description": "Size each column to its maximum content width."
             }
           }
         },
         "itemMinWidth": {
-          "title": "Item Min Width"
+          "title": "Minimum item width"
         },
         "gridLayout": {
-          "title": "Grid layout",
+          "title": "Grid",
           "xs": {
             "title": "XS grid"
           },
@@ -262,6 +262,9 @@
           },
           "xl": {
             "title": "XL grid"
+          },
+          "xxl": {
+            "title": "XXL grid"
           },
           "columns": {
             "title": "Columns"
@@ -1230,18 +1233,10 @@
       "fewer": "Show fewer sizes"
     },
     "gridEditor": {
-      "breakpoints": "Breakpoints",
-      "breakpointInheritanceDescription": "Larger breakpoints inherit settings from smaller ones unless overridden.",
       "invalidPercentWidth": "Enter a whole number from 1 to 100.",
       "invalidPixelWidth": "Enter a whole number greater than 0.",
-      "tooMuch": "The total share exceeds 100%.",
-      "noAutoSpace": "The Auto column has no remaining space.",
-      "inherited": "Inherited",
-      "own": "Custom",
-      "breakInheritance": "Remove inheritance",
-      "restoreInheritance": "Restore inheritance",
-      "restoreConfirmation": "The configuration for this breakpoint will be discarded. Other breakpoints remain unchanged.",
-      "columns": "Columns",
+      "tooMuch": "Relative column widths add up to more than 100%.",
+      "noAutoSpace": "Auto columns have no space left.",
       "width": "Width",
       "type": "Width type",
       "columnActions": "Column actions",
@@ -1249,9 +1244,9 @@
       "moveUp": "Move up",
       "moveDown": "Move down",
       "addColumn": "Add column",
-      "pattern": "Repeated pattern",
-      "patternHelp": "Elements follow the numbered areas. Then the pattern repeats.",
-      "areaLabel": "Area {number}, row {row}, column {column}, spans {rows} rows and {columns} columns",
+      "pattern": "Content arrangement",
+      "patternHelp": "Select areas to customize the arrangement.",
+      "areaLabel": "Area {number}, row {row}, column {column}, size {columns} by {rows}",
       "removeRow": "Remove row {number}",
       "addRow": "Add row",
       "split": "Split",

@@ -47,8 +47,8 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
         Prompts before running. Pass <info>-f</info> / <info>--force</info> for
         non-interactive use (CI, deploy scripts).
 
-        Re-dispatches every <info>queued</info> / <info>pending_retry</info> row in
-        <info>webhook_delivery</info>. Rows the new async worker already has an envelope for
+        Re-dispatches every <info>queued</info> / <info>pending_retry</info> / <info>paused</info>
+        row in <info>webhook_delivery</info>. Rows the new async worker already has an envelope for
         (post-flip traffic) will be sent again — delivery is at-least-once and receivers are
         expected to deduplicate via <info>X-Shopware-Event-Id</info>.
         HELP,
@@ -157,6 +157,8 @@ final readonly class WebhookDrainToAsyncCommand
                 'claimable' => [
                     WebhookEventLogDefinition::STATUS_QUEUED,
                     WebhookEventLogDefinition::STATUS_PENDING_RETRY,
+                    // Flag-off has no health tick to release held rows.
+                    WebhookEventLogDefinition::STATUS_PAUSED,
                 ],
                 'terminal' => [
                     WebhookEventLogDefinition::STATUS_SUCCESS,

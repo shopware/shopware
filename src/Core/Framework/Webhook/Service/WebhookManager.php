@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Health\WebhookDispatchDecision;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -53,6 +54,7 @@ class WebhookManager implements ResetInterface
         private readonly WebhookDeliveryService $webhookDeliveryService,
         private readonly WebhookOutboxStore $webhookOutboxStore,
         private readonly PolicyRegistry $policies,
+        private readonly WebhookHealthService $webhookHealthService,
     ) {
     }
 
@@ -90,11 +92,10 @@ class WebhookManager implements ResetInterface
         $userLocale = $this->appLocaleProvider->getLocaleFromContext($context);
 
         if (Feature::isActive('WEBHOOKS_REWORK')) {
-            $messages = $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale);
-
-            if ($messages !== []) {
-                Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($messages, forceSynchronous: $event instanceof AppLifecycleEvent));
-            }
+            $this->dispatchWebhooksWithHealth(
+                $this->collectMessages($webhooksForEvent, $event, $languageId, $userLocale),
+                $event,
+            );
 
             return;
         }
@@ -113,6 +114,42 @@ class WebhookManager implements ResetInterface
             'webhook::dispatch-async',
             fn () => $this->dispatchWebhooksToQueue($webhooksForEvent, $event, $languageId, $userLocale)
         );
+    }
+
+    /**
+     * @param list<WebhookEventMessage> $messages
+     */
+    private function dispatchWebhooksWithHealth(
+        array $messages,
+        Hookable $event,
+    ): void {
+        $deliver = [];
+        $hold = [];
+
+        foreach ($messages as $message) {
+            $decision = $this->webhookHealthService->gateFor($message->getWebhookId());
+            if ($decision === WebhookDispatchDecision::Skip) {
+                continue;
+            }
+
+            if ($decision === WebhookDispatchDecision::Hold) {
+                $hold[] = $message;
+
+                continue;
+            }
+
+            $deliver[] = $message;
+        }
+
+        if ($hold !== []) {
+            $this->webhookDeliveryService->hold($hold);
+        }
+
+        if ($deliver === []) {
+            return;
+        }
+
+        Feature::silent('v6.8.0.0', fn () => $this->webhookDeliveryService->process($deliver, forceSynchronous: $event instanceof AppLifecycleEvent));
     }
 
     /**

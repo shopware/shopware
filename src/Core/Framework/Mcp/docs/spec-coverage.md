@@ -2,13 +2,12 @@
 
 Reference spec: [Model Context Protocol server specification 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/server)
 
-Shopware serves the handshake era only. mcp/sdk 0.8 added the 2026-07-28 revision and serves it from
-the same endpoint by default, but both Shopware servers are pinned back to the handshake era with
-`Builder::withoutModernEra()` in `McpServerBuilderCompilerPass`. That era is stateless: it mints no
-`Mcp-Session-Id`, which the toolset session storage and the list-changed notifications are built on,
-and a handler returning an `InputRequiredResult` additionally needs a signed request-state key shared
-across every worker that might serve the retry. Adopting it is its own piece of work, not a
-side effect of a dependency bump.
+Shopware serves the handshake era by default.
+`shopware.mcp.protocol_era.admin` and `shopware.mcp.protocol_era.store_api` switch an endpoint to `auto`, which also serves the stateless 2026-07-28 revision from the same URL, and the client picks.
+`McpServerBuilderCompilerPass` applies the setting; `legacy` keeps `Builder::withoutModernEra()`.
+What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
+On the stateless era `tools/list` does not advertise `shopware-toolset-enable` and `shopware-toolsets-list`, because there is no session to keep a toolset in; a direct call answers `isError`, and the `server/discover` instructions and `shopware-tool-search` point to `?toolsets=` instead.
+No request state key is configured, because no Shopware handler asks the client for input more than once; the rules are in "Request state on the stateless era" of `AGENTS.md`, the key itself is planned in #22081.
 
 This doc is the compact matrix for one question:
 
@@ -49,7 +48,7 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|---|---|
 | Transport | Streamable HTTP at `/api/_mcp` via `symfony/mcp-bundle` and `McpServerController` | clear | Keep docs aligned with the actual bundle behavior after upgrades |
 | Session lifecycle and JSON-RPC routing | Delegated to `symfony/mcp-bundle` / MCP PHP SDK | partial | Document the exact boundary between bundle behavior and Shopware-specific additions |
-| Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules | clear | Keep docs and tests aligned with the real enforcement path |
+| Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules. OAuth per the MCP authorization spec on `/api/_mcp`: `401` with `WWW-Authenticate` pointing to the protected resource metadata (RFC 9728), authorization server metadata (RFC 8414), PKCE `S256`, and tokens bound to the MCP resource (RFC 8707). Clients are registered by the operator in `shopware.api.oauth_clients`; see `## Authentication` in `AGENTS.md` | clear | Client ID metadata documents or dynamic client registration (#22047); keep docs and tests aligned with the real enforcement path |
 
 ## Client-side spec areas that are not server features here
 
@@ -57,7 +56,7 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|
 | Client roots | Implemented by MCP clients, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
 | Client sampling | The client or model provider handles this, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
-| Client elicitation | Client-side interactive UX, not a shop server feature |
+| Client elicitation | The form is client-side UX. URL elicitation as a confirmation path for destructive tools is planned in #19972, with a stored confirmation record instead of request state |
 
 ## Response model review
 

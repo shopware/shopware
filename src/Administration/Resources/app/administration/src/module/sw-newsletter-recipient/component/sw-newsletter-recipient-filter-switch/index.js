@@ -6,7 +6,6 @@ import './sw-newsletter-recipient-filter-switch.scss';
  *
  * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

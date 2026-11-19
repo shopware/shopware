@@ -71,8 +71,10 @@ A new line item rule condition `LineItemDimensionLongestAndGirthRule` (`cartLine
 
 ### Mails and documents list every shipment
 
-`OrderDeliveryCollection::getShipments()` returns the deliveries that are not shipping discounts, in the order the Administration lists them: the primary delivery first when its id is passed, then by shipping costs.
-The cart's `DeliveryCollection::getShipments()` returns the cart deliveries that are not shipping discounts, highest shipping costs first.
+`OrderDeliveryCollection::getShipments()` returns the deliveries that are not shipping discounts, sorted by their `position`.
+Deliveries with the same position, like every delivery of an order placed before 6.7.17.0, list the primary delivery first when its id is passed, then by shipping costs.
+The cart's `DeliveryCollection::getShipments()` returns the cart deliveries that are not shipping discounts in cart order, which becomes their `position` when the order is placed.
+The storefront, the mails, the documents and, with `v6.8.0.0`, the Administration list shipments in this order, so a shipment has the same number everywhere.
 When an order has more than one shipment, the default order confirmation, payment received and payment reminder mails list each shipment with its shipping method, address, shipping costs and delivery period.
 The delivery status mails name the shipment whose state changed when the flow provides `orderDelivery`, and list every shipment with its state otherwise.
 A migration updates these mail templates unless they were changed in the Administration.
@@ -179,6 +181,15 @@ The session stays valid when the client gets a new access token for the same use
 
 Sessions opened before the update have no owner and are answered with `404` once.
 MCP clients start a new session on `404`, so no action is needed.
+The stateless protocol era and `/store-api/_mcp` are not affected.
+
+### The `/api/_mcp` rate limit counts per user or integration
+
+The `mcp_admin_api` rate limit now counts the requests of a user or integration, no longer of a single access token.
+A new or refreshed access token continues in the same bucket, and all MCP clients of one user share it.
+An integration has one bucket, whichever user it acts for with `sw-app-user-id`.
+Clients that requested a new token to get a fresh limit are throttled sooner.
+Requests without a known user or integration are still counted per client IP.
 The stateless protocol era is not affected.
 On `/store-api/_mcp`, a `DELETE` of an unknown session now gets `404` instead of `200`.
 
@@ -425,6 +436,35 @@ On `PATCH /store-api/account/address/{addressId}`, `getData()` of `framework.val
 At checkout, only the Storefront confirm page checks these rules and shows their violations.
 Neither `POST /store-api/checkout/order` nor the Storefront order request checks them, so a rule that must block an order needs a cart validator (`CartValidatorInterface`).
 
+### MCP endpoints can serve the stateless 2026-07-28 protocol revision
+
+Both MCP endpoints can now serve the stateless 2026-07-28 revision next to the handshake revisions, from the same URL.
+It is off by default.
+Switch it on per endpoint:
+
+```yaml
+shopware:
+    mcp:
+        protocol_era:
+            admin: auto
+            store_api: auto
+```
+
+`legacy`, the default, serves the handshake revisions up to 2025-11-25 only.
+With `auto`, the client picks the revision, and clients on the handshake revisions are not affected.
+`bin/console debug:mcp` shows the era of each endpoint.
+
+On the stateless revision there is no MCP session:
+
+* Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
+  `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
+  The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
+* List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
+  The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
+* Each open `subscriptions/listen` stream occupies a PHP worker for up to 25 seconds before the client reconnects.
+  Account for it in `pm.max_children`.
+  The Store API endpoint publishes no notifications, so it answers `subscriptions/listen` with the JSON-RPC error `-32601` instead of opening a stream.
+
 ### Import keeps CSV values of `0`
 
 The import no longer treats a CSV cell containing `0` as empty.
@@ -432,6 +472,12 @@ Rows whose cells only contain `0` are imported instead of skipped.
 A `0` is no longer replaced by the mapping's default value and satisfies a required field.
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
+
+### Manifest validation runs on every app install and update
+
+Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
+Errors make the install or update fail, and all of them are reported at once.
+Notices no longer stop `app:install` and `app:refresh`, run `app:validate` to see them.
 
 ### Event once all line items of an add are in the cart
 
@@ -446,7 +492,12 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 ### Deprecated `PluginZipImportCommand::$cacheClearer`
 
 The property is unused and will be removed in 6.8.
+`--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
+### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
+
+The constant is unused and will be removed in 6.8.
+The imitation token is signed by the internal `HmacSigner`.
 ### Order deliveries keep the order of the cart deliveries
 
 Order deliveries have a new `position` field with the order of the cart deliveries when the order was placed, starting at 1.
@@ -530,6 +581,15 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Event before a media file is replaced
+
+`Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media.
+It carries the media ID and the extension, MIME type and size of the new file.
+A listener can throw an exception to stop the replacement, and the media keeps its old file.
+Presigned replacements dispatch it in `prepare()` with the file the client declares, before the upload, and again in `finalize()` with the stored file.
+The new optional `fileSize` of `POST /api/_action/media/presign-upload` fills the size in `prepare()`; without it, the size is `null`.
+With `shopware.cdn.path_cache_buster` disabled, a presigned upload of the same file name and extension has already overwritten the old file when `finalize()` stops it.
+
 ### Split cart delivery positions by quantity
 
 `Shopware\Core\Checkout\Cart\Delivery\DeliveryPositionSplitter::split()` splits a cart delivery position into a part with the given quantity and a remainder, each with its own line item clone, price, taxes and delivery date.
@@ -541,8 +601,55 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
 
+### Default tax rules use the current VAT rates
+
+The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania, Romania and Slovakia to the current VAT rates, and adds a 5% rule for "Reduced rate 2" in Slovakia and Slovenia.
+Only rules of the default tax groups that still have their original rate and were never edited are changed.
+Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
+
 ## API
 
+### MCP clients can log in with OAuth
+
+MCP clients can now discover how to log in to `/api/_mcp` and get a token that only works there.
+Access keys, integration tokens and all existing OAuth tokens keep working unchanged.
+
+* **Discovery:** A `401` from `/api/_mcp` now carries `WWW-Authenticate: Bearer resource_metadata="..."`, with `error="invalid_token"` when credentials were sent.
+  The protected resource metadata (RFC 9728) is served at `/.well-known/oauth-protected-resource/api/_mcp` and the authorization server metadata (RFC 8414) at `/.well-known/oauth-authorization-server/api`.
+  The issuer is `<shop URL>/api`, and the authorization response now contains `iss` (RFC 9207).
+  The URLs use the request host when it is an allowed MCP host, otherwise `APP_URL`.
+  When the MCP URL has a query, e.g. `/api/_mcp?toolsets=orders`, the metadata URL and the `resource` of the metadata keep it unchanged, as RFC 9728 requires; the token audience ignores it.
+* **Installations in a subdirectory:** The well-known URIs sit at the host root, e.g. `/.well-known/oauth-protected-resource/shop/api/_mcp`.
+  Rewrite them in the web server to `/shop/.well-known/oauth-protected-resource/api/_mcp` and `/shop/.well-known/oauth-authorization-server/api`.
+* **Audience-bound tokens:** `/api/oauth/authorize` and `/api/oauth/token` accept the `resource` parameter (RFC 8707).
+  The only accepted value is the shop's MCP endpoint; any other value is answered with `invalid_target`.
+  A token issued with `resource` is accepted on `/api/_mcp` only and gets `401` on every other Admin API route, including `/api/_info/system-health-check`.
+  A refresh keeps the resource.
+  The JWT keeps the client id as the first `aud` entry and lists the resource after it.
+  Requests without `resource` behave as before.
+* **OAuth error members:** Every OAuth error of the Admin API, e.g. from `/api/oauth/token`, now also carries `error`, `error_description` and, when known, `hint` at the top level of the body, as RFC 6749 (section 5.2) defines them.
+  The `errors` array stays unchanged, so existing clients keep working.
+* **Consent page:** The Administration consent page forwards `resource` and says that access is limited to the MCP endpoint.
+  Rebuild the Administration when you build it yourself.
+  A build from before this change drops `resource`, and the token request of the MCP client then fails with `invalid_target`.
+* **Clients:** There is no dynamic client registration.
+  To let an MCP client with a configurable client id log in, add it to `shopware.api.oauth_clients`:
+
+  ```yaml
+  shopware:
+      api:
+          oauth_clients:
+              claude-code:
+                  name: 'Claude Code'
+                  redirect_uris:
+                      - 'http://localhost:53682/callback'
+  ```
+
+  Redirect URIs on `http://127.0.0.1` and `http://[::1]` accept any port; all others, including `http://localhost:<port>`, must match exactly.
+  Redirect URIs must now use `https`, or a private-use scheme of a native app such as `cursor://`.
+  Plain `http` is only accepted for `localhost`, `127.0.0.1` and `[::1]`, or for every host when the kernel runs in the `dev` environment.
+  An authorization request to another `http` redirect URI is rejected with `FRAMEWORK__OAUTH_INSECURE_REDIRECT_URI`, so change registered `http` redirect URIs on other hosts to `https`.
+  Claude Code calls back on `http://localhost:<port>/callback`, so register a fixed port and add the server with `claude mcp add --transport http --client-id claude-code --callback-port 53682 shopware <shop URL>/api/_mcp`.
 ### Order deliveries and order transactions have a `payload` field
 
 Order deliveries and order transactions in the Admin API and Store API have a new `payload` field, and so do the deliveries and transactions of the Store API cart.
@@ -656,6 +763,7 @@ Clients can compare these hashes to find out which cookies were added or changed
 ### Order deliveries have a `position` field
 
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
+A delivery created without a `position` gets the next free position of its order, so a delivery added to a placed order is listed last.
 Deliveries of orders placed before this release have position `0` until the order is recalculated.
 
 ### Price definitions are validated so that they can be read again
@@ -736,6 +844,32 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
+
+### `blocks-list.json` is replaced by the public API snapshot
+
+The Administration no longer ships `blocks-list.json`.
+The block names are now in `public-api/index.json`, listed per component.
+All `blocks` arrays of that file together hold the names of the old list.
+Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
+
+Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
+The format of the files in `public-api/` can still change while the snapshot is being built.
+Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
+### Administration HTTP client runs on a single Axios 1.x transport
+
+The Administration `httpClient` is now one Axios 1.x instance (1.20.0).
+The legacy Axios 0.x dependency and the `axios-v1` package alias were removed, which drops the second Axios copy from the Administration bundle.
+The opt-out survives the removal: `useAxiosV1: false` now selects a compatibility mode on the single client that keeps `[` and `]` literal in query strings, including `httpClient.getUri()`, and returns `response.headers` as a plain object.
+The defaults are unchanged, legacy behaviour on 6.7 and Axios 1.x once `V6_8_0_0` is active.
+Request interceptors now run on Axios 1.x on 6.7 too, and no opt-out restores how they see headers.
+`config.headers` is one flat `AxiosHeaders` instance, so an interceptor that writes `config.headers.common[...]` or `config.headers.post[...]` fails with a `TypeError`.
+Set such headers on `config.headers` directly.
+Repository requests return plain response headers again on 6.7, as they did before 6.7.14.
+This applies to every response a `Repository` method returns, for example from `save()`, `delete()`, `assign()`, `mergeVersion()` and `deleteVersion()`, and to `error.response.headers` of every failed repository request.
+`useAxiosV1`, `httpClient.CancelToken`, the `cancelToken` option, passing a `CancelToken` to `messageQueueService.consume()`, and the `axiosV0`, `axiosV1`, `interceptorsV0`, `interceptorsV1`, `defaultsV0` and `defaultsV1` aliases are deprecated and removed in 6.8.
+They log a development-mode warning on first use.
+Use `AbortController` with the `signal` request option to cancel requests and `httpClient.isCancel(error)` to detect cancellations.
+Details are in `UPGRADE-6.8.md` and the migration guide at `src/Administration/Resources/app/administration/technical-docs/09-security/axios-migration-guide.md`.
 
 ### Order viewers no longer receive delete privileges
 
@@ -865,6 +999,14 @@ export default shopwareAdminJestConfig({
 
 `composer admin:setup-extension-tooling` (or `bin/console administration:setup-extension-tooling` in a Composer install) generates the `.shopware/jest.mjs` bridge for every extension.
 The harness works in a platform checkout and in a Composer install: the `shopware/administration` package now ships the Administration's Jest setup files (without spec files).
+Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types`.
+Run the specs with the Administration's own Jest through `composer admin:test-extensions -- --only=MyPlugin`, or `bin/console administration:test-extensions -- --only=MyPlugin` in a Composer install, so the extension needs no Jest installation of its own.
+`--all` tests every extension with a Jest config, vendor-installed ones included.
+As in `admin:check-extensions`, a failing vendor-installed extension fails the run only with `--strict-vendor`.
+A Jest config that does not build on the harness runs on the Jest the extension installs itself;
+when its `package.json` declares Jest that is not installed, the command skips the config and names the `npm ci` or `npm install` that installs it.
+`admin:test-extensions` generates the component import map when it is missing;
+when you call Jest directly, generate it with `npm run unit-setup` in the Administration directory.
 Before the first run, generate the entity schema with `bin/console administration:generate-entity-schema-types` and the component import map with `npm run unit-setup` in the Administration directory.
 The factory is part of the experimental extension tooling, so the terms of [Opt-in TypeScript and ESLint configuration for Administration extensions](#opt-in-typescript-and-eslint-configuration-for-administration-extensions-experimental) apply to it as well.
 ### Meteor apps get their own path in the Administration watcher
@@ -1043,7 +1185,7 @@ Check your Administration extensions for these changes:
 With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
 A delivery with negative shipping costs is a discount, every other delivery is a shipment.
 Until now, every delivery besides the primary one was shown as a shipping discount.
-The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, the primary delivery first.
+The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, sorted like `OrderDeliveryCollection::getShipments()`.
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
 
 ## API

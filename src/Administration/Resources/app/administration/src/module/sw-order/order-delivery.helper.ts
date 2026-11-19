@@ -18,14 +18,11 @@ export function getShipments(order: Entity<'order'>): OrderDelivery[] {
     }
 
     const deliveries: OrderDelivery[] = order.deliveries ?? [];
-    const shipments = deliveries.filter((delivery) => !isShippingDiscount(delivery));
-    const primary = shipments.find((delivery) => delivery.id === order.primaryOrderDeliveryId);
+    const isPrimary = (delivery: OrderDelivery) => Number(delivery.id === order.primaryOrderDeliveryId);
 
-    if (!primary) {
-        return shipments;
-    }
-
-    return [primary, ...shipments.filter((delivery) => delivery !== primary)];
+    return deliveries
+        .filter((delivery) => !isShippingDiscount(delivery))
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0) || isPrimary(b) - isPrimary(a));
 }
 
 /**

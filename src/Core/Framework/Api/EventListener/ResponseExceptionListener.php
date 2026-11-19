@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\EventListener;
 
 use Doctrine\DBAL\Exception\ConnectionException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -53,6 +54,15 @@ class ResponseExceptionListener implements EventSubscriberInterface
             $exception = new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, Response::$statusTexts[Response::HTTP_INTERNAL_SERVER_ERROR], $exception);
         }
 
-        $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
+        $response = (new ErrorResponseFactory())->getResponseFromException($exception, $this->debug);
+
+        // routes wrap the rate limit exception in their own, the throttled exceptions share the status and the seconds parameter
+        if ($exception instanceof ShopwareHttpException
+            && $exception->getStatusCode() === Response::HTTP_TOO_MANY_REQUESTS
+            && \is_int($seconds = $exception->getParameter('seconds'))) {
+            $response->headers->set('Retry-After', (string) max(0, $seconds));
+        }
+
+        $event->setResponse($response);
     }
 }

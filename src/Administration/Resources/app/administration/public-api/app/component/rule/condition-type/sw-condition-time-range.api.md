@@ -12,8 +12,17 @@ component sw-condition-time-range  public  js
   template src/app/component/rule/condition-type/sw-condition-time-range/sw-condition-time-range.html.twig
 
 blocks
-  sw_condition_value_content
-    sw_condition_time_range_field_from_time
-    sw_condition_time_range_field_timezone
-    sw_condition_time_range_field_to_time
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced]
+        sw_condition_time_range_field_from_time
+        sw_condition_time_range_field_timezone
+        sw_condition_time_range_field_to_time
+    sw_condition_base_error  [inherited]
 ```

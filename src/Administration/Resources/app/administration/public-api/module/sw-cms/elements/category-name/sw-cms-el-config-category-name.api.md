@@ -10,4 +10,17 @@ component sw-cms-el-config-category-name  private  js  [private]
   registered src/module/sw-cms/elements/category-name/index.ts  [private]
   source src/module/sw-cms/elements/category-name/config/index.js  [private]
   visibility-source export  [private]
+
+blocks
+  sw_cms_el_config_text  [inherited] [private]
+    sw_cms_el_config_text_mt_tabs  [inherited] [from v6.8.0] [private]
+    sw_cms_el_config_text_tab_content  [inherited] [until v6.8.0] [private]
+    sw_cms_el_text_config_content  [inherited] [until v6.8.0] [private]
+    sw_cms_el_text_config_mt_content  [inherited] [from v6.8.0] [private]
+      sw_cms_el_text_config_mt_content_field  [inherited] [from v6.8.0] [private]
+    sw_cms_el_text_config_mt_settings  [inherited] [from v6.8.0] [private]
+      sw_cms_el_text_config_mt_settings_vertical_align  [inherited] [from v6.8.0] [private]
+    sw_cms_el_text_config_settings  [inherited] [until v6.8.0] [private]
+      sw_cms_el_text_config_settings_vertical_align  [inherited] [until v6.8.0] [private]
+    sw_cms_el_text_config_tab_options  [inherited] [until v6.8.0] [private]
 ```

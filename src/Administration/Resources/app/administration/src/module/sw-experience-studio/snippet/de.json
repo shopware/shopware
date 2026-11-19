@@ -1157,8 +1157,12 @@
         "description": "Preis, Bewertung, Lieferinformationen, Variantenauswahl, Mengenauswahl und Kaufen-Button für ein Produkt, untereinander in einem Rastercontainer."
       },
       "category-page": {
-        "name": "Kategorieseite",
+        "name": "Kategorieseite - mit Seitenleiste",
         "description": "Zusammenstellung der Komponenten einer Kategorieseite."
+      },
+      "category-page-full-width": {
+        "name": "Kategorieseite - volle Breite",
+        "description": "Ein Filterbereich über einer Produktliste in voller Breite."
       },
       "image-slider": {
         "name": "Bild-Slider",

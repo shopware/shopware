@@ -1,4 +1,4 @@
-name: "Category page"
+name: "Category page - with sidebar"
 nameSnippet: "sw-experience-studio.presets.category-page.name"
 description: "Collection of components that make up the category page."
 descriptionSnippet: "sw-experience-studio.presets.category-page.description"
@@ -32,6 +32,3 @@ layout:
               lg: 3
               xl: 3
               xxl: 3
-          slots:
-            filters-panel:
-              - component: Sw:Filter:Panel

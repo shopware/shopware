@@ -1,0 +1,13 @@
+name: "Category page - full width"
+nameSnippet: "sw-experience-studio.presets.category-page-full-width.name"
+description: "A filter panel above a full-width product listing."
+descriptionSnippet: "sw-experience-studio.presets.category-page-full-width.description"
+icon: "regular-boxes"
+illustration: "preset-category-page-full-width"
+category: "commerce"
+priority: 190
+layout:
+  - component: Sw:Product:Listing
+    slots:
+      filters-panel:
+        - component: Sw:Filter:Panel

@@ -1157,8 +1157,12 @@
         "description": "Price, rating, delivery information, variant selection, quantity selector and buy button for a product, stacked in a grid container."
       },
       "category-page": {
-        "name": "Category page",
+        "name": "Category page - with sidebar",
         "description": "Collection of components that make up the category page."
+      },
+      "category-page-full-width": {
+        "name": "Category page - full width",
+        "description": "A filter panel above a full-width product listing."
       },
       "image-slider": {
         "name": "Image slider",

@@ -56,6 +56,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.asset.asset'),
             service('kernel'),
             service('filesystem'),
+            service('shopware.filesystem.asset'),
         ]);
 
     $services->set(SystemLanguageChangedSubscriber::class)

@@ -59,7 +59,7 @@
                 {% endif %}
 
                 {% if showLayoutSwitch %}
-                    <twig:Sw:Product:LayoutSwitch />
+                    <twig:Sw:Product:LayoutSwitch :horizontal="listingLayout == 'horizontal'" />
                 {% endif %}
             </div>
         </twig:Sw:Grid:Container>

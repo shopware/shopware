@@ -20,16 +20,22 @@ function createLayoutSwitch() {
 
 function createProductListing() {
     const el = document.createElement('div');
+    el.dataset.elementId = 'listing';
     el.innerHTML = `
+        <div class="sw-product-layout-switch">
+            <button data-layout="horizontal"></button>
+            <button data-layout="default"></button>
+        </div>
         <div class="sw-product-listing__grid">
             <div class="sw-grid-container__inner">
                 <div class="sw-product-card"></div>
             </div>
         </div>
     `;
+    document.body.append(el);
 
     // The `ShopwareComponent` test double does not call `init()` from its constructor.
-    const listing = new ProductListing(el);
+    const listing = new ProductListing(el, { contentUrl: '/content/category/test?elementId=listing' });
     listing.init();
 
     return listing;
@@ -49,10 +55,10 @@ describe('Sw:Product:LayoutSwitch', () => {
     });
 
     afterEach(() => {
-        delete globalThis.event;
+        document.body.replaceChildren();
         window.location.search = '';
         vi.restoreAllMocks();
-        vi.useRealTimers();
+        vi.unstubAllGlobals();
     });
 
     it('declares listingLayout as the query parameter it emits', () => {
@@ -62,30 +68,49 @@ describe('Sw:Product:LayoutSwitch', () => {
     it('emits the listingLayout parameter name together with the clicked layout', () => {
         const { component, horizontalButton } = createLayoutSwitch();
 
-        // `changeLayout` reads `event.currentTarget` off the legacy global that a browser populates during
-        // event dispatch and happy-dom does not, so this shim supplies what the browser would.
-        globalThis.event = { currentTarget: horizontalButton };
-
-        component.onChangeLayout({ currentTarget: horizontalButton });
+        horizontalButton.click();
 
         expect(Shopware.emit).toHaveBeenCalledWith('LayoutSwitch:Change', LISTING_LAYOUT_PARAM, 'horizontal');
+        expect(horizontalButton.getAttribute('aria-pressed')).toBe('true');
+        expect(component.el.querySelector('[data-layout="default"]').getAttribute('aria-pressed')).toBe('false');
     });
 
-    // `ProductListing` writes the layout key twice from two independent option objects — once under the name
-    // `LayoutSwitch` emitted, once under its own `layoutParamName`. Asserting the whole pushed parameter map
-    // is what makes a half rename fail: it would write `layout` alongside `listingLayout`, overwriting the
-    // seeded legacy value, while a key-presence check on `listingLayout` alone would still pass.
-    it('writes only listingLayout and carries a seeded legacy layout parameter through untouched', () => {
-        vi.useFakeTimers();
-        window.location.search = '?layout=default';
+    it.each([
+        ['horizontal', 'minmax(0, 1fr)'],
+        ['default', 'repeat(4, minmax(0, 1fr))'],
+    ])('replaces the grid when switching to the %s presentation', async (layout, tracks) => {
+        window.location.search = '?layout=legacy&order=name-asc&p=2';
         const pushState = vi.spyOn(window.history, 'pushState');
+        const fetchListing = vi.fn().mockResolvedValue({
+            text: async () => `
+                <div data-element-id="listing">
+                    <div class="sw-product-layout-switch">
+                        <button class="is--active" data-layout="${layout}"></button>
+                    </div>
+                    <div class="sw-grid-container__inner" style="--sw-grid-columns-lg: ${tracks}">
+                        <div class="sw-product-card is--layout-${layout}"></div>
+                    </div>
+                </div>
+            `,
+        });
+        vi.stubGlobal('fetch', fetchListing);
         const listing = createProductListing();
+        listing.el.querySelector(`[data-layout="${layout}"]`).focus();
 
-        listing.handleLayoutChange(LayoutSwitch.options.paramName, 'horizontal');
-        // The second write sits behind a 200ms grid-transition timeout.
-        vi.advanceTimersByTime(200);
+        listing.handleLayoutChange(LayoutSwitch.options.paramName, layout);
 
+        const expectedParams = { layout: 'legacy', order: 'name-asc', p: '2', listingLayout: layout };
         expect(pushState).toHaveBeenCalledOnce();
-        expect(lastPushedParams(pushState)).toEqual({ layout: 'default', listingLayout: 'horizontal' });
+        expect(lastPushedParams(pushState)).toEqual(expectedParams);
+        const [url] = fetchListing.mock.calls[0];
+        expect(Object.fromEntries(url.searchParams)).toEqual({ elementId: 'listing', ...expectedParams });
+
+        await vi.waitFor(() => {
+            const fresh = document.querySelector('[data-element-id="listing"]');
+            expect(fresh).not.toBe(listing.el);
+            expect(fresh.querySelector('.sw-grid-container__inner').style.getPropertyValue('--sw-grid-columns-lg')).toBe(tracks);
+            expect(fresh.querySelector(`.is--layout-${layout}`)).not.toBeNull();
+            expect(document.activeElement).toBe(fresh.querySelector('[data-layout].is--active'));
+        });
     });
 });

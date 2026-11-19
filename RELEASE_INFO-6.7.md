@@ -701,6 +701,13 @@ Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
+### Error responses no longer expose database connection errors
+
+With `APP_DEBUG=0`, a failed database connection, for example invalid credentials or an unreachable database server, is no longer rendered with its raw exception message.
+Requests that prefer HTML, like a storefront request while the database is not reachable, get Symfony's generic error page.
+Other requests get a JSON error with `Internal Server Error` as detail.
+The original exception is still logged.
+
 ### SSO logins can carry the `user-verified` scope
 
 The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).

@@ -44,7 +44,16 @@ Response:
         "<referenceStorageKey>": { "kind": "resolvedByStorage", "type": "string", "required": true }
       }
     }
-  ]
+  ],
+  "styleOptions": {},
+  "breakpointFallbacks": {
+    "xs": ["sm", "lg"],
+    "sm": ["lg"],
+    "md": ["lg"],
+    "lg": [],
+    "xl": ["lg"],
+    "xxl": ["xl", "lg"]
+  }
 }
 ```
 
@@ -65,7 +74,11 @@ Primitives and non-`Collection` classes accept `single`; `array` and `Collection
 A union combines its members' kinds: `string|integer` accepts only `single`, while a union mixing collection and non-collection classes accepts both.
 The client filters a candidate's `contextType` against this list; the server still checks effective-type assignability.
 
-Each type entry carries a folded `bindingSpecifications` catalogue. The response also carries one top-level `styleOptions` catalogue. See [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
+Each type entry carries a folded `bindingSpecifications` catalogue.
+The response also carries a top-level `styleOptions` catalogue and a `breakpointFallbacks` map.
+Each breakpoint maps to an ordered list of fallback keys.
+Clients check the field's own value first, then use the first set value in the list.
+See [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
 
 ## `storageSchema`
 

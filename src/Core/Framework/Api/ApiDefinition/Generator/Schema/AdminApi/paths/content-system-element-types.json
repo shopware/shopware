@@ -20,8 +20,19 @@
                             "application\/json": {
                                 "schema": {
                                     "type": "object",
-                                    "required": ["types", "styleOptions"],
+                                    "required": ["types", "styleOptions", "breakpointFallbacks"],
                                     "properties": {
+                                        "breakpointFallbacks": {
+                                            "type": "object",
+                                            "description": "Ordered fallback keys for each breakpoint. A field's own value takes precedence. An empty list means the breakpoint has no fallback.",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": ["xs", "sm", "md", "lg", "xl", "xxl"]
+                                                }
+                                            }
+                                        },
                                         "types": {
                                             "type": "array",
                                             "items": {

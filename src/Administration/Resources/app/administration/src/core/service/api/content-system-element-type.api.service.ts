@@ -126,8 +126,16 @@ export interface ContentSystemElementTypeSpecification {
 /**
  * @private
  */
+export type ContentSystemBreakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+
+/**
+ * @private
+ */
+export type ContentSystemBreakpointFallbacks = Partial<Record<ContentSystemBreakpoint, readonly ContentSystemBreakpoint[]>>;
+
 interface ContentSystemElementTypeResponse {
     types: ContentSystemElementTypeSpecification[];
+    breakpointFallbacks: ContentSystemBreakpointFallbacks;
 }
 
 /**
@@ -140,6 +148,10 @@ class ContentSystemElementTypeApiService extends ApiService {
     }
 
     getTypes(): Promise<ContentSystemElementTypeSpecification[]> {
+        return this.getMetadata().then(({ types }) => types);
+    }
+
+    getMetadata(): Promise<ContentSystemElementTypeResponse> {
         const headers = this.getBasicHeaders();
 
         return this.httpClient
@@ -149,7 +161,10 @@ class ContentSystemElementTypeApiService extends ApiService {
             .then((response) => {
                 const payload = ApiService.handleResponse<ContentSystemElementTypeResponse>(response);
 
-                return Array.isArray(payload.types) ? payload.types : [];
+                return {
+                    types: Array.isArray(payload.types) ? payload.types : [],
+                    breakpointFallbacks: payload.breakpointFallbacks ?? {},
+                };
             });
     }
 }

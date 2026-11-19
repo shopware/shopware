@@ -1,10 +1,14 @@
-import type { ContentSystemElementTypeSpecification } from 'src/core/service/api/content-system-element-type.api.service';
+import type {
+    ContentSystemBreakpointFallbacks,
+    ContentSystemElementTypeSpecification,
+} from 'src/core/service/api/content-system-element-type.api.service';
 
 type ExperienceStudioElementTypeState = {
     isLoading: boolean;
     hasLoaded: boolean;
     loadError: string | null;
     typesByName: Record<string, ContentSystemElementTypeSpecification>;
+    breakpointFallbacks: ContentSystemBreakpointFallbacks;
 };
 
 /**
@@ -19,6 +23,7 @@ const experienceStudioElementTypeStore = Shopware.Store.register({
         hasLoaded: false,
         loadError: null,
         typesByName: {},
+        breakpointFallbacks: {},
     }),
 
     getters: {
@@ -48,7 +53,7 @@ const experienceStudioElementTypeStore = Shopware.Store.register({
 
             try {
                 const service = Shopware.Service('contentSystemElementTypeService');
-                const types = await service.getTypes();
+                const { types, breakpointFallbacks } = await service.getMetadata();
                 const nextMap: Record<string, ContentSystemElementTypeSpecification> = {};
 
                 for (const type of types) {
@@ -56,6 +61,7 @@ const experienceStudioElementTypeStore = Shopware.Store.register({
                 }
 
                 this.typesByName = nextMap;
+                this.breakpointFallbacks = breakpointFallbacks;
                 this.hasLoaded = true;
             } catch (error) {
                 this.loadError = (error as Error)?.message ?? 'Failed to load content system element types.';

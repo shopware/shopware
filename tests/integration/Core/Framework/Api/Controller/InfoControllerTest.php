@@ -860,6 +860,10 @@ class InfoControllerTest extends TestCase
         static::assertIsArray($data);
         static::assertArrayHasKey('types', $data);
         static::assertIsArray($data['types']);
+        static::assertSame(
+            ['xs' => ['sm', 'lg'], 'sm' => ['lg'], 'md' => ['lg'], 'lg' => [], 'xl' => ['lg'], 'xxl' => ['xl', 'lg']],
+            $data['breakpointFallbacks'],
+        );
 
         $typesByName = [];
         foreach ($data['types'] as $type) {

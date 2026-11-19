@@ -6,7 +6,6 @@ import template from './sw-in-app-purchase-checkout.html.twig';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 

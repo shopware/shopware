@@ -110,6 +110,10 @@ Existing log entries and stored sample data are not modified.
 Previously queued flows retain their original classification.
 Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
+### Customer language check on sales channel change
+
+The customer language check from [#14836](https://github.com/shopware/shopware/pull/14836) now also runs when only the sales channel changes.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
@@ -480,6 +484,7 @@ Check import files that relied on `0` being ignored.
 Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
 Errors make the install or update fail, and all of them are reported at once.
 Notices no longer stop `app:install` and `app:refresh`, run `app:validate` to see them.
+`app:validate` now fails only on errors and exits with 0 when an app has notices only.
 
 ### Event once all line items of an add are in the cart
 
@@ -1609,6 +1614,20 @@ shopware:
 ```
 
 The option defaults to `true`, preserving the existing behavior for all existing installations.
+
+### Elasticsearch searches use at most 10 words of a search term
+
+Searches over Elasticsearch or OpenSearch now use only the first 10 distinct words of a search term, because longer terms made OpenSearch reject the query with `too_many_nested_clauses`.
+Punctuation and one-letter words do not count.
+Change the limit with `elasticsearch.search.term_max_words`:
+
+```yaml
+elasticsearch:
+    search:
+        term_max_words: 10
+```
+
+Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
 
 # 6.7.16.1
 

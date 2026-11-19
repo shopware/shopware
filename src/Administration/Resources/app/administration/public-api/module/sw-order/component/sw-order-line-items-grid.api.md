@@ -25,36 +25,45 @@ blocks
           sw_order_line_items_grid_bulk_actions_delete
           sw_order_line_items_grid_bulk_actions_extension
         sw_order_line_items_grid_grid_actions
-          sw_order_line_items_grid_grid_actions_delete
-            sw_order_line_items_grid_grid_actions_delete_label
-          sw_order_line_items_grid_grid_actions_extension
-          sw_order_line_items_grid_grid_actions_show
-            sw_order_line_items_grid_grid_actions_show_label
+          sw_order_line_items_grid_grid_actions_delete  [scope: item]
+            sw_order_line_items_grid_grid_actions_delete_label  [scope: item]
+          sw_order_line_items_grid_grid_actions_extension  [scope: item]
+          sw_order_line_items_grid_grid_actions_show  [scope: item]
+            sw_order_line_items_grid_grid_actions_show_label  [scope: item]
         sw_order_line_items_grid_grid_actions_modals
-          sw_order_line_items_grid_grid_actions_modals_items
+          sw_order_line_items_grid_grid_actions_modals_items  [scope: item]
         sw_order_line_items_grid_grid_columns_label
-          sw_order_line_items_grid_grid_columns_label_content
-          sw_order_line_items_grid_grid_columns_label_inline_edit
-          sw_order_line_items_grid_grid_columns_label_link
-            sw_order_line_items_grid_column_payload_options
-              sw_order_line_items_grid_column_payload_options_link
-              sw_order_line_items_grid_column_payload_options_linkless
-            sw_order_line_items_grid_grid_columns_label_nested_modal_button
-              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon
+          sw_order_line_items_grid_grid_columns_label_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_inline_edit  [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_label_link  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_column_payload_options  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_link  [after v-if] [scope: isInlineEdit, item]
+              sw_order_line_items_grid_column_payload_options_linkless  [after v-if] [scope: isInlineEdit, item]
+            sw_order_line_items_grid_grid_columns_label_nested_modal_button  [scope: isInlineEdit, item]
+              sw_order_line_items_grid_grid_columns_label_nested_modal_button_icon  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_quantity
-          sw_order_line_items_grid_grid_columns_quantity_content
-          sw_order_line_items_grid_grid_columns_quantity_inline_edit
+          sw_order_line_items_grid_grid_columns_quantity_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_quantity_inline_edit  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_tax
-          sw_order_line_items_grid_grid_columns_tax_content
-          sw_order_line_items_grid_grid_columns_tax_content_tooltip
-          sw_order_line_items_grid_grid_columns_tax_inline_edit
+          sw_order_line_items_grid_grid_columns_tax_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_content_tooltip  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_tax_inline_edit  [scope: isInlineEdit, item]
         sw_order_line_items_grid_grid_columns_total_price
-          sw_order_line_items_grid_grid_columns_total_price_content
+          sw_order_line_items_grid_grid_columns_total_price_content  [scope: item]
         sw_order_line_items_grid_grid_columns_type
-          sw_order_line_items_grid_grid_columns_type_content
+          sw_order_line_items_grid_grid_columns_type_content  [scope: item]
         sw_order_line_items_grid_grid_columns_unit_price
-          sw_order_line_items_grid_grid_columns_unit_price_content
-          sw_order_line_items_grid_grid_columns_unit_price_inline_edit
+          sw_order_line_items_grid_grid_columns_unit_price_content  [after v-if] [scope: isInlineEdit, item]
+          sw_order_line_items_grid_grid_columns_unit_price_inline_edit  [scope: isInlineEdit, item]
     sw_order_line_items_grid_pagination
     sw_order_line_items_nested_line_item_modal
+
+crossings
+  v-if  sw_order_line_items_grid_column_payload_options_link -> sw_order_line_items_grid_column_payload_options_linkless
+  v-if  sw_order_line_items_grid_grid_columns_label_inline_edit -> sw_order_line_items_grid_grid_columns_label_link
+  v-if  sw_order_line_items_grid_grid_columns_label_link -> sw_order_line_items_grid_grid_columns_label_content
+  v-if  sw_order_line_items_grid_grid_columns_quantity_inline_edit -> sw_order_line_items_grid_grid_columns_quantity_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_content_tooltip -> sw_order_line_items_grid_grid_columns_tax_content
+  v-if  sw_order_line_items_grid_grid_columns_tax_inline_edit -> sw_order_line_items_grid_grid_columns_tax_content_tooltip
+  v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -> sw_order_line_items_grid_grid_columns_unit_price_content
 ```

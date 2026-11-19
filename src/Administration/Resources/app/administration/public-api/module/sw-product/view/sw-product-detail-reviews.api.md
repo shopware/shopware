@@ -14,16 +14,16 @@ blocks
   sw_product_detail_reviews
     sw_product_detail_reviews_data
       sw_product_detail_reviews_data_action
-        sw_product_detail_reviews_data_action_delete
-        sw_product_detail_reviews_data_action_edit
+        sw_product_detail_reviews_data_action_delete  [scope: item]
+        sw_product_detail_reviews_data_action_edit  [scope: item]
       sw_product_detail_reviews_data_created_at
       sw_product_detail_reviews_data_pagination
       sw_product_detail_reviews_data_stars
-        sw_product_detail_reviews_data_stars_content
+        sw_product_detail_reviews_data_stars_content  [scope: item]
       sw_product_detail_reviews_data_status
     sw_product_detail_reviews_empty_state
       sw_product_detail_reviews_empty_state_button
-    sw_product_detail_reviews_modal_delete
+    sw_product_detail_reviews_modal_delete  [after v-if]
       sw_product_detail_reviews_modal_delete_body
       sw_product_detail_reviews_modal_delete_footer
         sw_product_detail_reviews_modal_delete_button_cancel

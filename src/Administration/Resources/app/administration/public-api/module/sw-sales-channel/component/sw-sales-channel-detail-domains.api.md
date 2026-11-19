@@ -22,7 +22,7 @@ blocks
         sw_sales_channel_detail_domains_input_snippet_set
         sw_sales_channel_detail_domains_input_url
         sw_sales_channel_detail_domains_is_external_storefront
-    sw_sales_channel_detail_domains_delete_modal
+    sw_sales_channel_detail_domains_delete_modal  [after v-if]
       sw_sales_channel_detail_domains_delete_modal_confirm_text
       sw_sales_channel_detail_domains_delete_modal_footer
         sw_sales_channel_detail_domains_delete_modal_abort
@@ -30,8 +30,8 @@ blocks
     sw_sales_channel_detail_domains_grid
       sw_sales_channel_detail_domains_columns_template
         sw_sales_channel_detail_domains_column_actions
-          sw_sales_channel_detail_domains_column_action_domain_delete
-          sw_sales_channel_detail_domains_column_action_domain_edit
+          sw_sales_channel_detail_domains_column_action_domain_delete  [scope: item]
+          sw_sales_channel_detail_domains_column_action_domain_edit  [scope: item]
         sw_sales_channel_detail_domains_column_currency_id
         sw_sales_channel_detail_domains_column_language_id
         sw_sales_channel_detail_domains_column_measurement_system_name
@@ -40,4 +40,7 @@ blocks
     sw_sales_channel_detail_domains_meta
       sw_sales_channel_detail_domains_add_button
       sw_sales_channel_detail_domains_headline
+
+crossings
+  <template>  sw_sales_channel_detail_domains -> sw_sales_channel_detail_domains_grid
 ```

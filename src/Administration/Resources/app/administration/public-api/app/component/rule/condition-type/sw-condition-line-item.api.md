@@ -20,10 +20,10 @@ blocks
         sw_condition_base_field_delete_action  [inherited]
       sw_condition_base_field_condition  [inherited]
       sw_condition_value_before_content  [inherited]
-      sw_condition_value_content  [replaced]
+      sw_condition_value_content  [replaced] [after v-if]
         sw_condition_line_item_field_identifier
-          sw_condition_line_item_results_list_result_label
-          sw_condition_line_item_results_variant_info
+          sw_condition_line_item_results_list_result_label  [scope: highlightSearchTerm, index, isSelected, item, searchTerm]
+          sw_condition_line_item_results_variant_info  [scope: item]
         sw_condition_line_item_field_operator
     sw_condition_base_error  [inherited]
 ```

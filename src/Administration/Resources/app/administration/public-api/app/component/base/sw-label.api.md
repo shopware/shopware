@@ -16,6 +16,6 @@ blocks
     sw_label_dismiss  [private]
       sw_select_selection_dismiss_icon  [private]
     sw_label_status_color_badge  [private]
-    sw_label_text_holder  [private]
+    sw_label_text_holder  [after v-if] [private]
       sw_label_slot_default  [private]
 ```

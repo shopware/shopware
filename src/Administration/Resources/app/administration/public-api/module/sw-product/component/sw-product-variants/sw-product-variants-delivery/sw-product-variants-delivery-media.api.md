@@ -13,11 +13,11 @@ component sw-product-variants-delivery-media  public  js
 blocks
   sw_product_variants_delivery_media
     sw_product_variants_delivery_media_groups
-    sw_product_variants_delivery_media_loader
+    sw_product_variants_delivery_media_loader  [after v-if]
     sw_product_variants_delivery_media_media
       sw_product_variants_delivery_media_data_grid
         sw_product_variants_delivery_media_data_grid_column_name
         sw_product_variants_delivery_media_data_grid_column_option_media
-          sw_product_variants_delivery_media_data_grid_column_option_media_listener
-          sw_product_variants_delivery_media_data_grid_column_option_media_upload
+          sw_product_variants_delivery_media_data_grid_column_option_media_listener  [scope: compact, isInlineEdit, item]
+          sw_product_variants_delivery_media_data_grid_column_option_media_upload  [scope: compact, isInlineEdit, item]
 ```

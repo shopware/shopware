@@ -17,10 +17,10 @@ blocks
       sw_import_export_activity_result_modal_activity_headline
       sw_import_export_activity_result_modal_activity_table
         sw_import_export_activity_result_modal_activity_table_columns
-          sw_import_export_activity_result_modal_activity_table_columns_changes
-          sw_import_export_activity_result_modal_activity_table_columns_errors
-          sw_import_export_activity_result_modal_activity_table_columns_label
-          sw_import_export_activity_result_modal_activity_table_columns_skipped
+          sw_import_export_activity_result_modal_activity_table_columns_changes  [scope: item]
+          sw_import_export_activity_result_modal_activity_table_columns_errors  [scope: item]
+          sw_import_export_activity_result_modal_activity_table_columns_label  [scope: item]
+          sw_import_export_activity_result_modal_activity_table_columns_skipped  [scope: item]
     sw_import_export_activity_result_modal_download
       sw_import_export_activity_result_modal_download_invalid_records_button
       sw_import_export_activity_result_modal_download_records_button

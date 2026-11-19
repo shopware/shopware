@@ -15,8 +15,8 @@ blocks
     sw_property_detail_content
       sw_property_detail_content_detail_base
       sw_property_detail_content_language_info
-      sw_property_detail_content_option_list
-      sw_property_detail_custom_field_sets
+      sw_property_detail_content_option_list  [after v-if]
+      sw_property_detail_custom_field_sets  [after v-if]
     sw_property_detail_language_switch
     sw_property_detail_smart_bar_actions
       sw_property_detail_smart_bar_actions_cancel

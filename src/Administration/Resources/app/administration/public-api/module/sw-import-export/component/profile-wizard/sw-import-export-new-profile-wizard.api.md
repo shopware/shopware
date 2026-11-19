@@ -14,7 +14,7 @@ blocks
   sw_import_export_new_profile_wizard
     sw_import_export_new_profile_wizard_footer_right_button
       sw_import_export_new_profile_wizard_footer_right_button_finish
-      sw_import_export_new_profile_wizard_footer_right_button_next
+      sw_import_export_new_profile_wizard_footer_right_button_next  [after v-if]
       sw_import_export_new_profile_wizard_footer_right_button_skip
     sw_import_export_new_profile_wizard_page_csv
     sw_import_export_new_profile_wizard_page_general
@@ -24,4 +24,7 @@ blocks
       sw_import_export_new_profile_wizard_violation_modal_message
       sw_import_export_new_profile_wizard_violation_modal_required_fields
         sw_import_export_new_profile_wizard_violation_modal_required_field
+
+crossings
+  v-if  sw_import_export_new_profile_wizard_footer_right_button_finish -> sw_import_export_new_profile_wizard_footer_right_button
 ```

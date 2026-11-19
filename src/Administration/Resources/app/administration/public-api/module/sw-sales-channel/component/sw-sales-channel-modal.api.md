@@ -12,12 +12,15 @@ component sw-sales-channel-modal  public  js
 
 blocks
   sw_sales_channel_modal
-    sw_sales_channel_modal_detail
+    sw_sales_channel_modal_detail  [after v-if]
     sw_sales_channel_modal_footer
-      sw_sales_channel_modal_footer_actions
-        sw_sales_channel_modal_footer_cancel
+      sw_sales_channel_modal_footer_actions  [after v-if]
+        sw_sales_channel_modal_footer_cancel  [after v-if]
       sw_sales_channel_modal_footer_detail_actions
-        sw_sales_channel_modal_footer_add_channel
+        sw_sales_channel_modal_footer_add_channel  [after v-if]
         sw_sales_channel_modal_footer_back
     sw_sales_channel_modal_grid
+
+crossings
+  v-if  sw_sales_channel_modal_grid -> sw_sales_channel_modal_detail
 ```

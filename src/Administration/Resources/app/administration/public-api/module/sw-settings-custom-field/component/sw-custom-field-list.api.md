@@ -12,26 +12,30 @@ component sw-custom-field-list  public  js
 
 blocks
   sw_custom_field_list
-    sw_custom_field_list_custom_field_delete
+    sw_custom_field_list_custom_field_delete  [after v-if]
       sw_custom_field_list_custom_field_delete_actions
         sw_custom_field_list_custom_field_delete_action_cancel
         sw_custom_field_list_custom_field_delete_action_confirm
       sw_custom_field_list_custom_field_delete_text
-    sw_custom_field_list_custom_field_detail
-    sw_custom_field_list_empty_state
+    sw_custom_field_list_custom_field_detail  [after v-if]
+    sw_custom_field_list_empty_state  [after v-if]
     sw_custom_field_list_grid
-      sw_custom_field_list_grid_column_actions
-        sw_custom_field_list_grid_column_actions_delete
-        sw_custom_field_list_grid_column_actions_edit
-        sw_custom_field_list_grid_column_actions_reset_delete
-      sw_custom_field_list_grid_column_custom_field_position
-        sw_custom_field_list_grid_column_custom_field_position_edit
-      sw_custom_field_list_grid_column_label
-      sw_custom_field_list_grid_column_type
+      sw_custom_field_list_grid_column_actions  [scope: item]
+        sw_custom_field_list_grid_column_actions_delete  [after v-if] [scope: item]
+        sw_custom_field_list_grid_column_actions_edit  [scope: item]
+        sw_custom_field_list_grid_column_actions_reset_delete  [scope: item]
+      sw_custom_field_list_grid_column_custom_field_position  [scope: item]
+        sw_custom_field_list_grid_column_custom_field_position_edit  [scope: item]
+      sw_custom_field_list_grid_column_label  [scope: item]
+      sw_custom_field_list_grid_column_type  [scope: item]
       sw_custom_field_list_grid_pagination
-    sw_custom_field_list_loader
+    sw_custom_field_list_loader  [after v-if]
     sw_custom_field_list_toolbar
       sw_custom_field_list_toolbar_add
       sw_custom_field_list_toolbar_delete
       sw_custom_field_list_toolbar_searchfield
+
+crossings
+  v-if  sw_custom_field_list_grid -> sw_custom_field_list_empty_state
+  v-if  sw_custom_field_list_grid_column_actions_reset_delete -> sw_custom_field_list_grid_column_actions_delete
 ```

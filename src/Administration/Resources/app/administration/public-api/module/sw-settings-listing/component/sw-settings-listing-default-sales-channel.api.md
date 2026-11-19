@@ -19,4 +19,7 @@ blocks
     sw_settings_listing_default_sales_channeld_setting
       sw_settings_listing_default_sales_channel_setting_active
       sw_settings_listing_default_sales_channel_setting_visibility
+
+crossings
+  v-if  sw_settings_listing_default_sales_channel_loader -> sw_settings_listing_default_sales_channel
 ```

@@ -12,7 +12,7 @@ component sw-media-breadcrumbs  public  js
 
 blocks
   sw_media_breadcrumbs
-    sw_media_breadcrumbs_current_folder
+    sw_media_breadcrumbs_current_folder  [after v-if]
     sw_media_breadcrumbs_parent_folder
     sw_media_breadcrumbs_root_folder
 ```

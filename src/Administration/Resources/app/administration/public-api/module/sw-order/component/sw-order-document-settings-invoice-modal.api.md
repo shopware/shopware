@@ -13,8 +13,8 @@ component sw-order-document-settings-invoice-modal  public  js
 
 blocks
   sw_order_document_settings_modal  [inherited]
-    sw_order_document_settings_modal_form_additional_content  [inherited]
-    sw_order_document_settings_modal_form_document_comment  [inherited]
+    sw_order_document_settings_modal_form_additional_content  [inherited] [after v-if]
+    sw_order_document_settings_modal_form_document_comment  [inherited] [after v-if]
     sw_order_document_settings_modal_form_document_footer  [inherited]
       sw_order_document_settings_modal_form_document_footer_cancel  [inherited]
       sw_order_document_settings_modal_form_document_footer_preview  [inherited]
@@ -30,5 +30,5 @@ blocks
     sw_order_document_settings_modal_form_first_row  [inherited]
       sw_order_document_settings_modal_form_document_date  [inherited]
       sw_order_document_settings_modal_form_document_number  [replaced]
-    sw_order_document_settings_modal_media_modal  [inherited]
+    sw_order_document_settings_modal_media_modal  [inherited] [after v-if]
 ```

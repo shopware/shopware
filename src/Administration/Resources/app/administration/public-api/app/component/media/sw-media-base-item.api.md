@@ -12,16 +12,16 @@ component sw-media-base-item  public  js
 
 blocks
   sw_media_base_item
-    sw_media_base_item_context_menu
+    sw_media_base_item_context_menu  [after v-if]
       sw_media_base_item_context_items
         sw_media_base_item_slot_media_item_context_menu
-    sw_media_base_item_list_selected_indicator
-    sw_media_base_item_loading_indicator
+    sw_media_base_item_list_selected_indicator  [after v-if]
+    sw_media_base_item_loading_indicator  [after v-if]
     sw_media_base_item_metadata_container
       sw_media_base_item_metadata
         sw_media_base_item_slot_media_item_metadata
     sw_media_base_item_name_container
-    sw_media_base_item_preview
+    sw_media_base_item_preview  [after v-if]
       sw_media_base_item_slot_media_preview
       sw_media_base_spatial_label_indicator
     sw_media_base_item_selected_indicator

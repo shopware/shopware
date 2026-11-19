@@ -16,13 +16,16 @@ blocks
     sw_custom_field_set_renderer_card  [inherited]
       sw_custom_field_set_renderer_card_mt_tabs  [inherited] [from v6.8.0]
       sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [from v6.8.0]
-        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [replaced] [from v6.8.0]
+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [replaced] [scope: set] [from v6.8.0]
       sw_custom_field_set_renderer_card_tabs  [inherited] [until v6.8.0]
       sw_custom_field_set_renderer_card_tabs_content  [inherited] [until v6.8.0]
-        sw_custom_field_set_renderer_card_form_renderer  [replaced] [until v6.8.0]
-          sw_custom_field_set_renderer_card_form_renderer_change_field  [until v6.8.0]
-          sw_custom_field_set_renderer_card_form_renderer_custom_field  [until v6.8.0]
-    sw_custom_field_set_renderer_media  [inherited]
-      sw_custom_field_set_renderer_media_button_save  [inherited]
-      sw_custom_field_set_renderer_media_form_renderer  [inherited]
+        sw_custom_field_set_renderer_card_form_renderer  [replaced] [scope: active, set] [until v6.8.0]
+          sw_custom_field_set_renderer_card_form_renderer_change_field  [scope: active, customField, set] [until v6.8.0]
+          sw_custom_field_set_renderer_card_form_renderer_custom_field  [scope: active, customField, set] [until v6.8.0]
+    sw_custom_field_set_renderer_media  [inherited] [after v-if]
+      sw_custom_field_set_renderer_media_button_save  [inherited] [scope: set]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited] [scope: customField, set]
+
+crossings
+  v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media
 ```

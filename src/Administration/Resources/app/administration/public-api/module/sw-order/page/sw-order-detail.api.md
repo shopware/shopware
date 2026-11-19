@@ -18,8 +18,8 @@ blocks
         sw_order_detail_actions_save
     sw_order_detail_content
       sw_order_detail_content_leave_page_modal
-      sw_order_detail_content_save_changes_beforehand_modal
-      sw_order_detail_content_tabs
+      sw_order_detail_content_save_changes_beforehand_modal  [after v-if]
+      sw_order_detail_content_tabs  [after v-if]
         sw_order_detail_content_mt_tabs  [from v6.8.0]
         sw_order_detail_content_tabs_details  [until v6.8.0]
         sw_order_detail_content_tabs_documents  [until v6.8.0]
@@ -29,6 +29,9 @@ blocks
     sw_order_detail_header
       sw_order_detail_header_title
         sw_order_detail_header_label_manual_order
-      sw_order_detail_header_title_new
+      sw_order_detail_header_title_new  [after v-if]
     sw_order_detail_language_switch
+
+crossings
+  v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
 ```

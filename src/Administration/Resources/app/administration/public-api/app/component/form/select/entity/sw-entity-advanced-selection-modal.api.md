@@ -16,7 +16,7 @@ blocks
     sw_entity_advanced_selection_modal_button_apply  [private]
     sw_entity_advanced_selection_modal_button_cancel  [private]
     sw_entity_advanced_selection_modal_content_card  [private]
-      sw_entity_advanced_selection_modal_list_empty_state  [private]
+      sw_entity_advanced_selection_modal_list_empty_state  [after v-if] [private]
       sw_entity_advanced_selection_modal_list_grid  [private]
         sw_entity_advanced_selection_modal_list_grid_slots  [private]
       sw_entity_advanced_selection_modal_toolbar  [private]
@@ -25,4 +25,7 @@ blocks
           sw_entity_advanced_selection_modal_toolbar_filter_panel_filters  [private]
           sw_entity_advanced_selection_modal_toolbar_filter_panel_footer  [private]
           sw_entity_advanced_selection_modal_toolbar_filter_panel_headline  [private]
+
+crossings
+  v-if  sw_entity_advanced_selection_modal_list_grid -> sw_entity_advanced_selection_modal_list_empty_state  [private]
 ```

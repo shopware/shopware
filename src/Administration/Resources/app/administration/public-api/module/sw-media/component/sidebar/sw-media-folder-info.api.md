@@ -12,11 +12,11 @@ component sw-media-folder-info  public  js
 
 blocks
   sw_media_folder_info
-    sw_media_folder_info_dissolve_modal
-    sw_media_folder_info_modal_delete
-    sw_media_folder_info_move_modal
+    sw_media_folder_info_dissolve_modal  [after v-if]
+    sw_media_folder_info_modal_delete  [after v-if]
+    sw_media_folder_info_move_modal  [after v-if]
     sw_media_folder_info_settings_modal
-    sw_media_quickinfo_folder_metadata
+    sw_media_quickinfo_folder_metadata  [after v-if]
       sw_media_quickinfo_folder_metadata_content
         sw_media_quickinfo_folder_metadata_content_base
     sw_media_quickinfo_folder_quickactions

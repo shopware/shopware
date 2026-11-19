@@ -16,20 +16,20 @@ blocks
       sw_users_permissions_permissions_grid_header_all_roles
         sw_users_permissions_permissions_grid_header_all_roles_name
       sw_users_permissions_permissions_grid_header_roles
-        sw_users_permissions_permissions_grid_header_roles_name
+        sw_users_permissions_permissions_grid_header_roles_name  [scope: role]
       sw_users_permissions_permissions_grid_header_title
         sw_users_permissions_permissions_grid_header_title_content
     sw_users_permissions_permissions_grid_permissions
-      sw_users_permissions_permissions_grid_parent_all_roles
-        sw_users_permissions_permissions_grid_parent_all_roles_field
-      sw_users_permissions_permissions_grid_parent_roles
-        sw_users_permissions_permissions_grid_parent_roles_field
-      sw_users_permissions_permissions_grid_parent_title
-        sw_users_permissions_permissions_grid_parent_title_content
-      sw_users_permissions_permissions_grid_permissions_all_roles
-        sw_users_permissions_permissions_grid_permissions_all_roles_field
-      sw_users_permissions_permissions_grid_permissions_roles
-        sw_users_permissions_permissions_grid_permissions_roles_field
-      sw_users_permissions_permissions_grid_permissions_title
-        sw_users_permissions_permissions_grid_permissions_title_content
+      sw_users_permissions_permissions_grid_parent_all_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_parent_all_roles_field  [scope: permission]
+      sw_users_permissions_permissions_grid_parent_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_parent_roles_field  [scope: permission, role]
+      sw_users_permissions_permissions_grid_parent_title  [scope: permission]
+        sw_users_permissions_permissions_grid_parent_title_content  [scope: permission]
+      sw_users_permissions_permissions_grid_permissions_all_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_all_roles_field  [scope: permission]
+      sw_users_permissions_permissions_grid_permissions_roles  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_roles_field  [scope: permission, role]
+      sw_users_permissions_permissions_grid_permissions_title  [scope: permission]
+        sw_users_permissions_permissions_grid_permissions_title_content  [scope: permission]
 ```

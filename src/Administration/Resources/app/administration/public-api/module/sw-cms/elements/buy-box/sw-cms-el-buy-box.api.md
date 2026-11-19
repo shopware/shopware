@@ -14,7 +14,7 @@ component sw-cms-el-buy-box  private  js  [private]
 blocks
   sw_cms_el_buy_box  [private]
     sw_cms_el_buy_box_product_info  [private]
-      sw_cms_el_buy_box_form  [private]
+      sw_cms_el_buy_box_form  [after v-if] [private]
         sw_cms_element_buy_box_form_action  [private]
         sw_cms_element_buy_box_form_select_quantity  [private]
       sw_cms_el_buy_box_product_price  [private]

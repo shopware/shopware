@@ -16,7 +16,7 @@ blocks
       sw_product_settings_mode_devider  [until v6.8.0]
       sw_product_settings_mode_list  [until v6.8.0]
         sw_product_settings_mode_item  [until v6.8.0]
-          sw_product_settings_mode_item_visibility_checkbox  [until v6.8.0]
+          sw_product_settings_mode_item_visibility_checkbox  [scope: index, item] [until v6.8.0]
       sw_product_settings_mode_loader  [until v6.8.0]
       sw_product_settings_mode_main  [until v6.8.0]
         sw_product_settings_mode_advanced_switch  [until v6.8.0]

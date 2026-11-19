@@ -14,33 +14,33 @@ blocks
   sw_product_list
     sw_product_list_content
       sw_product_list_empty_state
-      sw_product_list_grid
+      sw_product_list_grid  [after v-if]
         sw_product_list_bulk_edit_modal
-          sw_product_list_bulk_edit_grid_columns_active
-          sw_product_list_bulk_edit_grid_columns_name
-          sw_product_list_bulk_edit_grid_columns_price
-          sw_product_list_bulk_edit_grid_columns_stock
+          sw_product_list_bulk_edit_grid_columns_active  [scope: selection]
+          sw_product_list_bulk_edit_grid_columns_name  [scope: selection]
+          sw_product_list_bulk_edit_grid_columns_price  [scope: selection]
+          sw_product_list_bulk_edit_grid_columns_stock  [scope: selection]
         sw_product_list_grid_columns
           sw_product_list_grid_columns_actions
-            sw_product_list_grid_columns_actions_duplicate
-            sw_product_list_grid_columns_actions_open_variant
+            sw_product_list_grid_columns_actions_duplicate  [scope: item]
+            sw_product_list_grid_columns_actions_open_variant  [scope: item]
           sw_product_list_grid_columns_active
-            sw_product_list_grid_columns_active_content
-            sw_product_list_grid_columns_active_inline_edit
+            sw_product_list_grid_columns_active_content  [after v-if] [scope: isInlineEdit, item]
+            sw_product_list_grid_columns_active_inline_edit  [scope: isInlineEdit, item]
           sw_product_list_grid_columns_name
-            sw_product_list_grid_columns_name_content
-              sw_product_list_grid_columns_name_content_link
-              sw_product_list_grid_columns_name_content_variant_button
-            sw_product_list_grid_columns_name_inline_edit
+            sw_product_list_grid_columns_name_content  [after v-if] [scope: isInlineEdit, item]
+              sw_product_list_grid_columns_name_content_link  [after v-if] [scope: isInlineEdit, item]
+              sw_product_list_grid_columns_name_content_variant_button  [scope: isInlineEdit, item]
+            sw_product_list_grid_columns_name_inline_edit  [scope: isInlineEdit, item]
           sw_product_list_grid_columns_name_preview
           sw_product_list_grid_columns_price
           sw_product_list_grid_columns_sales
-            sw_product_list_grid_columns_sales_content
+            sw_product_list_grid_columns_sales_content  [scope: item]
           sw_product_list_grid_columns_stock
-            sw_product_list_grid_columns_stock_content
-            sw_product_list_grid_columns_stock_inline_edit
+            sw_product_list_grid_columns_stock_content  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_product_list_grid_columns_stock_inline_edit  [scope: compact, isInlineEdit, item]
     sw_product_list_content_clone_modal
-    sw_product_list_content_variant_modal
+    sw_product_list_content_variant_modal  [after v-if]
     sw_product_list_language_switch
     sw_product_list_search_bar
     sw_product_list_sidebar
@@ -54,4 +54,10 @@ blocks
       sw_product_list_smart_bar_header_title
         sw_product_list_smart_bar_header_amount
         sw_product_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_product_list_empty_state -> sw_product_list_grid
+  v-if  sw_product_list_grid_columns_active_inline_edit -> sw_product_list_grid_columns_active_content
+  v-if  sw_product_list_grid_columns_name_inline_edit -> sw_product_list_grid_columns_name_content
+  v-if  sw_product_list_grid_columns_stock_inline_edit -> sw_product_list_grid_columns_stock_content
 ```

@@ -12,7 +12,7 @@ component sw-media-url-form  public  js
 
 blocks
   sw_media_url_form
-    sw_media_url_form_footer
+    sw_media_url_form_footer  [after v-if]
       sw_media_url_form_cancel_button
       sw_media_url_form_submit_button
     sw_media_url_form_input

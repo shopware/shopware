@@ -1,0 +1,195 @@
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+
+@property --sw-scroll-navigation-offset {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 5rem;
+}
+
+html:has(.sw-scroll-navigation) {
+    @media (prefers-reduced-motion: no-preference) {
+        scroll-behavior: smooth;
+    }
+}
+
+.sw-scroll-navigation__target {
+    scroll-margin-top: var(--sw-scroll-navigation-offset);
+}
+
+/* Base: the flat bar. Sticky above the content, horizontally scrollable, used on every viewport in flat mode
+   and below the lg breakpoint in sidebar mode. */
+.sw-scroll-navigation {
+    --sw-scroll-navigation-surface: color-mix(in srgb, var(--bs-body-bg) 88%, transparent);
+    --sw-scroll-navigation-border: color-mix(in srgb, var(--bs-body-color) 12%, transparent);
+    --sw-scroll-navigation-muted: color-mix(in srgb, var(--bs-body-color) 62%, transparent);
+    --sw-scroll-navigation-accent: var(--bs-primary);
+    --sw-scroll-navigation-accent-soft: color-mix(in srgb, var(--bs-primary) 12%, transparent);
+    --sw-scroll-navigation-shadow: color-mix(in srgb, var(--bs-body-color) 40%, transparent);
+
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin: 0 calc(-1 * var(--sw-grid-container-outer-spacing, 1.5rem)) 1rem;
+    padding: 0.5rem var(--sw-grid-container-outer-spacing, 1.5rem);
+    background: var(--sw-scroll-navigation-surface);
+    border-bottom: 1px solid var(--sw-scroll-navigation-border);
+    backdrop-filter: blur(12px);
+}
+
+.sw-scroll-navigation__list {
+    display: flex;
+    gap: 0.375rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: sw-scroll-navigation;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-target-group: auto;
+}
+
+.sw-scroll-navigation__item {
+    flex: 0 0 auto;
+    counter-increment: sw-scroll-navigation;
+}
+
+.sw-scroll-navigation__link {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    color: var(--sw-scroll-navigation-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: 999px;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+        color: var(--sw-scroll-navigation-accent);
+        background: var(--sw-scroll-navigation-accent-soft);
+        outline: none;
+    }
+}
+
+.sw-scroll-navigation__marker {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: currentcolor;
+    border-radius: 50%;
+    opacity: 0.55;
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.sw-scroll-navigation__label.is--fallback::after {
+    content: ' ' counter(sw-scroll-navigation);
+}
+
+.sw-scroll-navigation__link:is(.is--active, :target-current) {
+    color: var(--sw-scroll-navigation-accent);
+    font-weight: 600;
+    background: var(--sw-scroll-navigation-accent-soft);
+
+    .sw-scroll-navigation__marker {
+        opacity: 1;
+        transform: scale(1.4);
+    }
+}
+
+/* Flat mode centres the bar so it reads as part of the page rather than a toolbar. */
+.sw-scroll-navigation.is--flat .sw-scroll-navigation__list {
+    @include media-breakpoint-up(lg) {
+        justify-content: center;
+    }
+}
+
+/* Sidebar mode: a floating pill beside the content on large viewports, labels slide out on hover or focus. */
+.sw-scroll-navigation.is--sidebar {
+    @include media-breakpoint-up(lg) {
+        position: fixed;
+        top: 50%;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border-bottom: 0;
+        backdrop-filter: none;
+        transform: translateY(-50%);
+
+        &.is--right {
+            right: 1.25rem;
+        }
+
+        &.is--left {
+            left: 1.25rem;
+        }
+
+        .sw-scroll-navigation__inner {
+            padding: 0.5rem;
+            background: var(--sw-scroll-navigation-surface);
+            border: 1px solid var(--sw-scroll-navigation-border);
+            border-radius: 0.75rem;
+            box-shadow: 0 12px 32px -16px var(--sw-scroll-navigation-shadow);
+            backdrop-filter: blur(12px);
+            transition: box-shadow 0.25s ease;
+        }
+
+        &:hover .sw-scroll-navigation__inner,
+        &:focus-within .sw-scroll-navigation__inner {
+            box-shadow: 0 20px 40px -18px var(--sw-scroll-navigation-shadow);
+        }
+
+        .sw-scroll-navigation__list {
+            flex-direction: column;
+            gap: 0.125rem;
+            overflow: visible;
+        }
+
+        /* No flex gap here: a collapsed label would keep the gap and push the marker off centre. */
+        /* row-reverse with flex-start packs marker and label against the right edge; the left variant flips it. */
+        .sw-scroll-navigation__link {
+            flex-direction: row-reverse;
+            gap: 0;
+            justify-content: flex-start;
+            padding: 0.375rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        &.is--left .sw-scroll-navigation__link {
+            flex-direction: row;
+        }
+
+        .sw-scroll-navigation__label {
+            max-width: 0;
+            margin: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition:
+                max-width 0.25s ease,
+                margin 0.25s ease,
+                opacity 0.2s ease;
+        }
+
+        &:hover .sw-scroll-navigation__label,
+        &:focus-within .sw-scroll-navigation__label {
+            max-width: 14rem;
+            margin-inline-end: 0.5rem;
+            opacity: 1;
+        }
+
+        &.is--left:hover .sw-scroll-navigation__label,
+        &.is--left:focus-within .sw-scroll-navigation__label {
+            margin-inline-start: 0.5rem;
+            margin-inline-end: 0;
+        }
+    }
+}

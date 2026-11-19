@@ -27,7 +27,7 @@ class ContentPageEncoderTest extends TestCase
     {
         $body = $this->encode([new RenderedElement('r1', 'section')]);
 
-        static::assertSame(['id', 'name', 'version', 'elements'], array_keys($body));
+        static::assertSame(['id', 'name', 'version', 'settings', 'elements'], array_keys($body));
         static::assertSame('layout-1', $body['id']);
         static::assertSame('Landing', $body['name']);
         static::assertSame('1.0.0', $body['version']);

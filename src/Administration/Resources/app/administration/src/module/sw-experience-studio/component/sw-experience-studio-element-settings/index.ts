@@ -20,6 +20,14 @@ import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
 
+type SettingsTab = 'element' | 'layout' | 'scrollNavigation';
+
+const SETTINGS_TABS: SettingsTab[] = [
+    'element',
+    'layout',
+    'scrollNavigation',
+];
+
 function projectTranslatableValue(
     property: ContentSystemElementTypeProperty,
     value: unknown,
@@ -112,11 +120,12 @@ export default Shopware.Component.wrapComponentConfig({
         'update-style',
         'update-mapping',
         'retry-mapping-candidates',
+        'update-settings',
     ],
 
     data() {
         return {
-            activeSettingsTab: 'element' as 'element' | 'layout',
+            activeSettingsTab: 'element' as SettingsTab,
         };
     },
 
@@ -275,7 +284,7 @@ export default Shopware.Component.wrapComponentConfig({
             return !this.hasStyleOptionLoadError && this.layoutFields.length === 0;
         },
 
-        settingsTabItems(): Array<{ name: 'element' | 'layout'; label: string }> {
+        settingsTabItems(): Array<{ name: SettingsTab; label: string }> {
             return [
                 {
                     name: 'element',
@@ -284,6 +293,10 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     name: 'layout',
                     label: this.$t('sw-experience-studio.detail.elementSettings.tabLayout'),
+                },
+                {
+                    name: 'scrollNavigation',
+                    label: this.$t('sw-experience-studio.detail.elementSettings.tabScrollNavigation'),
                 },
             ];
         },
@@ -297,8 +310,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         onSettingsTabChange(tabName: string): void {
-            if (tabName === 'element' || tabName === 'layout') {
-                this.activeSettingsTab = tabName;
+            if ((SETTINGS_TABS as string[]).includes(tabName)) {
+                this.activeSettingsTab = tabName as SettingsTab;
             }
         },
 
@@ -360,6 +373,14 @@ export default Shopware.Component.wrapComponentConfig({
                     [payload.key]: payload.value,
                 },
             });
+        },
+
+        onUpdatePageSettings(payload: { settings: Record<string, unknown> }): void {
+            if (!this.allowEdit) {
+                return;
+            }
+
+            this.$emit('update-settings', payload);
         },
     },
 });

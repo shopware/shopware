@@ -17,10 +17,22 @@ describe('Experience Studio structural draft mutations', () => {
             id: 'element-2',
             component: 'Sw:Content:Text',
         };
-        const layout = { id: 'layout-1', layout: previousLayout };
+        const layout = {
+            id: 'layout-1',
+            layout: previousLayout,
+            settings: {
+                scrollNavigation: {
+                    active: true,
+                    mode: 'sidebar',
+                    position: 'right',
+                    anchors: { 'element-1': { label: 'Removed' }, 'element-2': { label: 'Kept' } },
+                },
+            },
+        };
         const vm = {
             layout,
             openLayouts: [{ layout, selectedElementId: 'element-1' }],
+            pruneStaleScrollNavigationAnchors: methods.pruneStaleScrollNavigationAnchors,
             resolveMutationRootSource: () => null,
             allowSave: true,
             mutationQueue: Promise.resolve(),
@@ -57,6 +69,7 @@ describe('Experience Studio structural draft mutations', () => {
         expect(pushToHistory).toHaveBeenCalledWith(previousLayout, 'element-1', 'layout-1');
         expect(vm.selectedElementId).toBe('element-2');
         expect(vm.layout.layout).toEqual([respondedElement]);
+        expect(vm.layout.settings.scrollNavigation.anchors).toEqual({ 'element-2': { label: 'Kept' } });
         expect(vm.isLoading).toBe(false);
     });
 

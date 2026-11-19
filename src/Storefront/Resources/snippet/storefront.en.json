@@ -833,6 +833,10 @@
     "shrinkLabel": "show less"
   },
   "component": {
+    "scrollNavigation": {
+      "title": "Page sections",
+      "fallbackLabel": "Section"
+    },
     "product": {
       "feature": {
         "label": {

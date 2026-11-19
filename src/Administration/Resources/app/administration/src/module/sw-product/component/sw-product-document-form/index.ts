@@ -6,9 +6,8 @@ import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import documentColumns from './document-form.config';
 import { getDocumentTranslationChanges, getDocumentEditChanges } from './document-translation.utils';
-import { refreshDocumentPositions } from './document-changes.helper';
+import { copyInheritedDocuments, refreshDocumentPositions } from './document-changes.helper';
 import useDocumentChanges from './use-document-changes';
-import { copyInheritedDocuments } from './document-inheritance.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -129,7 +128,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.canEdit && !this.isApplyingDocumentEdit && (!this.isSystemDefaultLanguage || hasRequiredFields);
         },
 
-        documentNameError(): { code: string; detail: string } | null {
+        documentTitleError(): { code: string; detail: string } | null {
             return this.isSystemDefaultLanguage && this.hasSubmittedDocumentEdit && !this.documentTitle.trim()
                 ? { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: this.$t('sw-product.documentForm.errorNameRequired') }
                 : null;

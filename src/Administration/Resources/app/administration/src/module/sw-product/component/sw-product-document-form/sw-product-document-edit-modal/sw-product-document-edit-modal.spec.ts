@@ -114,7 +114,7 @@ describe('sw-product-document-edit-modal', () => {
     it('passes required-field errors to the corresponding inputs', async () => {
         const nameError = { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: 'Enter a name.' };
         const fileError = { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: 'Select a file.' };
-        const wrapper = await createWrapper({ documentNameError: nameError, documentFileError: fileError });
+        const wrapper = await createWrapper({ documentTitleError: nameError, documentFileError: fileError });
 
         expect(wrapper.getComponent<ComponentPublicInstance>('.sw-product-document-form__name-input').props()).toMatchObject(
             { error: nameError },

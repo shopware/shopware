@@ -40,7 +40,7 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: undefined,
         },
-        documentNameError: {
+        documentTitleError: {
             type: Object as PropType<FieldError | null>,
             required: false,
             default: null,
@@ -110,7 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
                 : this.$t('sw-product.documentForm.editTitle');
         },
 
-        documentNameHint(): string | undefined {
+        documentTitleHint(): string | undefined {
             return this.allowFallback ? undefined : this.$t('sw-product.documentForm.nameHint');
         },
 

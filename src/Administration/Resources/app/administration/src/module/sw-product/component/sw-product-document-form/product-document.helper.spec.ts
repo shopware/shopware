@@ -9,12 +9,14 @@ function createDocument(values: Partial<Entity<'product_document'>> = {}): Entit
 
 describe('product-document.helper', () => {
     describe('getDocumentTitle', () => {
-        it('returns the title of the document', () => {
-            expect(getDocumentTitle(createDocument({ title: 'Manual', translated: { title: 'Handbuch' } }))).toBe('Manual');
+        it('returns the translated title of the document', () => {
+            expect(getDocumentTitle(createDocument({ title: 'Manual', translated: { title: 'Handbuch' } }))).toBe(
+                'Handbuch',
+            );
         });
 
-        it('returns the translated title when the document has no own title', () => {
-            expect(getDocumentTitle(createDocument({ translated: { title: 'Manual' } }))).toBe('Manual');
+        it('returns the own title when the document has no translated title', () => {
+            expect(getDocumentTitle(createDocument({ title: 'Manual' }))).toBe('Manual');
         });
 
         it('does not fall back to the file name', () => {

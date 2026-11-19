@@ -315,15 +315,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         setDocumentValues(document: Entity<'product_document'>, changes: DocumentChanges, media: Entity<'media'> | null) {
-            const resets = (['title', 'mediaId'] as const).filter((field) => changes[field] === null);
-            const fallbacks = Object.fromEntries(resets.map((field) => [field, getFallbackTranslation(document, field)]));
+            const translated = Object.fromEntries(
+                (['title', 'mediaId'] as const)
+                    .filter((field) => changes[field] !== undefined)
+                    .map((field) => [field, changes[field] ?? getFallbackTranslation(document, field)?.[field] ?? null]),
+            );
             Object.assign(document, changes);
-            if (resets.length) {
-                document.translated = {
-                    ...document.translated,
-                    ...Object.fromEntries(resets.map((field) => [field, fallbacks[field]?.[field] ?? null])),
-                };
-            }
+            document.translated = { ...document.translated, ...translated };
             if (changes.mediaId !== undefined) {
                 setDocumentMedia(document, changes.mediaId ? media : null);
             }
@@ -401,6 +399,7 @@ export default Shopware.Component.wrapComponentConfig({
                     translation.customFields = Shopware.Utils.object.cloneDeep(sourceTranslation.customFields);
                     document.translations.add(translation);
                 });
+                setDocumentMedia(document, getDocumentMedia(source) ?? null);
                 this.documents.add(document);
             });
 

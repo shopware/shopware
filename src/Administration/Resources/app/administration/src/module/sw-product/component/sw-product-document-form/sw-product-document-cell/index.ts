@@ -3,14 +3,47 @@
  */
 import type { PropType } from 'vue';
 import { getDocumentMedia } from '../product-document.helper';
-import template from './sw-product-document-cell.html.twig';
 import './sw-product-document-cell.scss';
 
 const { Store } = Shopware;
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
-    template,
+    template: `
+        {% block sw_product_document_cell %}
+        <span
+            class="sw-product-document-cell"
+            :class="{ 'sw-product-document-cell--fallback': isFallback }"
+        >
+            {% block sw_product_document_cell_text %}
+            <span
+                class="sw-product-document-cell__text"
+                :title="value"
+            >{{ value }}</span>
+            {% endblock %}
+            {% block sw_product_document_cell_language_badge %}
+            <mt-badge
+                v-if="!isFallback && languageCode"
+                v-tooltip="{ message: $t('sw-product.documentForm.changedForLanguage'), width: 'auto' }"
+                variant="neutral"
+                size="s"
+            >
+                {{ languageCode }}
+            </mt-badge>
+            {% endblock %}
+            {% block sw_product_document_cell_variant_badge %}
+            <mt-badge
+                v-if="isVariantOnly"
+                class="sw-product-document-cell__variant-badge"
+                variant="info"
+                size="s"
+            >
+                {{ $t('sw-product.documentForm.variantOnly') }}
+            </mt-badge>
+            {% endblock %}
+        </span>
+        {% endblock %}
+    `,
 
     props: {
         document: {

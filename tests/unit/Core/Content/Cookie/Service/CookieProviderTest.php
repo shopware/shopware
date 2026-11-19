@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Unit\Core\Content\Cookie\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Framework\Cookie\AppCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProvider as LegacyCookieProvider;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
@@ -64,7 +66,7 @@ class CookieProviderTest extends TestCase
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(static fn (string $key): string => 'Translated: ' . $key);
         $legacy = new CompatibilityCookieDecorator(new AppCookieProvider(new LegacyCookieProvider(['name' => 'custom-session'])));
-        $provider = new CookieProvider($dispatcher, $translator, static::createStub(ScriptExecutor::class), ['name' => 'custom-session'], $legacy);
+        $provider = new CookieProvider($dispatcher, $translator, static::createStub(ScriptExecutor::class), new StaticSystemConfigService(), ['name' => 'custom-session'], $legacy);
 
         $groups = $provider->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
@@ -100,7 +102,7 @@ class CookieProviderTest extends TestCase
         $legacy->expects($this->never())->method('getCookieGroups');
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
-        $provider = new CookieProvider(new EventDispatcher(), $translator, static::createStub(ScriptExecutor::class), ['name' => 'modern-session'], $legacy);
+        $provider = new CookieProvider(new EventDispatcher(), $translator, static::createStub(ScriptExecutor::class), new StaticSystemConfigService(), ['name' => 'modern-session'], $legacy);
 
         $groups = $provider->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
 
@@ -128,6 +130,7 @@ class CookieProviderTest extends TestCase
             $eventDispatcher,
             $translator,
             $scriptExecutor,
+            new StaticSystemConfigService(),
             ['name' => 'test-session-name-']
         )
         )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -189,6 +192,7 @@ class CookieProviderTest extends TestCase
             $eventDispatcher,
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             ['name' => 'test-session-name-']
         )
         )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -224,6 +228,7 @@ class CookieProviderTest extends TestCase
             $eventDispatcher,
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             ['name' => 'test-session-name-']
         )
         )->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -243,6 +248,7 @@ class CookieProviderTest extends TestCase
             new EventDispatcher(),
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             [],
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -310,6 +316,7 @@ class CookieProviderTest extends TestCase
             new EventDispatcher(),
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             [],
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -333,6 +340,7 @@ class CookieProviderTest extends TestCase
             new EventDispatcher(),
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             [],
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -363,6 +371,7 @@ class CookieProviderTest extends TestCase
             new EventDispatcher(),
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             [],
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -391,6 +400,7 @@ class CookieProviderTest extends TestCase
             new EventDispatcher(),
             $translator,
             static::createStub(ScriptExecutor::class),
+            new StaticSystemConfigService(),
             [],
             $legacyCookieProvider,
         ))->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
@@ -486,5 +496,61 @@ class CompatibilityCookieDecorator implements CookieProviderInterface
         ];
 
         return $groups;
+    }
+
+    /**
+     * @param list<string> $expected
+     */
+    #[DataProvider('videoEntryProvider')]
+    public function testDisabledVideoEntriesAreRemoved(bool $disableYoutube, bool $disableVimeo, array $expected): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(CookieGroupCollectEvent::class, static function (CookieGroupCollectEvent $event): void {
+            $event->cookieGroupCollection->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries()?->add(new CookieEntry('other'));
+        });
+        $context = Generator::generateSalesChannelContext();
+        $config = new StaticSystemConfigService([
+            $context->getSalesChannelId() => [
+                'core.basicInformation.disableYoutubeVideoCookie' => $disableYoutube,
+                'core.basicInformation.disableVimeoVideoCookie' => $disableVimeo,
+            ],
+        ]);
+
+        $groups = (new CookieProvider($dispatcher, $translator, static::createStub(ScriptExecutor::class), $config))
+            ->getCookieGroups(new Request(), $context);
+
+        $entries = $groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries();
+        static::assertNotNull($entries);
+        static::assertSame($expected, array_values(array_map(static fn (CookieEntry $e): string => $e->cookie, $entries->getElements())));
+    }
+
+    /**
+     * @return iterable<string, array{bool, bool, list<string>}>
+     */
+    public static function videoEntryProvider(): iterable
+    {
+        yield 'both enabled' => [false, false, ['youtube-video', 'vimeo-video', 'other']];
+        yield 'youtube disabled' => [true, false, ['vimeo-video', 'other']];
+        yield 'both disabled' => [true, true, ['other']];
+    }
+
+    public function testComfortGroupIsDroppedWhenAllEntriesAreDisabled(): void
+    {
+        $translator = static::createStub(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
+        $context = Generator::generateSalesChannelContext();
+        $config = new StaticSystemConfigService([
+            $context->getSalesChannelId() => [
+                'core.basicInformation.disableYoutubeVideoCookie' => true,
+                'core.basicInformation.disableVimeoVideoCookie' => true,
+            ],
+        ]);
+
+        $groups = (new CookieProvider(new EventDispatcher(), $translator, static::createStub(ScriptExecutor::class), $config))
+            ->getCookieGroups(new Request(), $context);
+
+        static::assertNull($groups->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES));
     }
 }

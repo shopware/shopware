@@ -845,6 +845,18 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Admin OpenSearch insertion-order sorting in 6.8
+
+With the `v6.8.0.0` and `ENABLE_OPENSEARCH_FOR_ADMIN_API` flags enabled, the product, customer and order Admin OpenSearch indexes include `autoIncrement` for insertion-order sorting.
+Rebuild these indexes with `bin/console es:admin:index` when enabling 6.8; see `UPGRADE-6.8.md`.
+
+### Product listing count index
+
+Added `idx.product.parent_type` on `product(parent_id, parent_version_id, type)` to accelerate exact counts in the default product list.
+The migration requires online index creation using `ALGORITHM=INPLACE, LOCK=NONE`.
+On large installations, create this index before the update using `ALGORITHM=INPLACE, LOCK=NONE` to keep the update's migration step short.
+The migration detects the existing index and leaves the Administration pagination unchanged.
+
 ### `blocks-list.json` is replaced by the public API snapshot
 
 The Administration no longer ships `blocks-list.json`.
@@ -904,6 +916,12 @@ Use the new `customFieldRepository` computed property instead.
 
 The `mediaDefaultFolderRepository` and `mediaDefaultFolderCriteria` computed properties of `sw-product-detail-base` and `sw-bulk-edit-product-media` are deprecated and will be removed.
 Use `mediaDefaultFolderService.getDefaultFolderId(entityName)` instead.
+
+### Faster default sorting for products, customers and orders
+
+Product, customer and order lists now default to newest database entries first using their indexed insertion order.
+Imported records with historical creation or order dates can appear ahead of records with newer dates.
+Select a date column to restore chronological ordering.
 
 ### Deprecated the custom field set lookup of `sw-settings-listing-option-criteria-grid`
 

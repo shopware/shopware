@@ -1623,6 +1623,12 @@ Use `'sha256'` directly if you computed the imitation token hash yourself.
 
 # Administration
 
+## Rebuild Admin OpenSearch indexes for insertion-order sorting
+
+The product, customer and order Admin OpenSearch indexes gained the numeric `autoIncrement` field.
+If `ENABLE_OPENSEARCH_FOR_ADMIN_API` is enabled, rebuild the Admin OpenSearch indexes with `bin/console es:admin:index` after upgrading to 6.8 or enabling `v6.8.0.0`.
+Custom decorators that replace index mappings or documents must include this field to support insertion-order sorting.
+
 ## Jest helper `test/_helper_/majorFeatureFlags` removed
 
 Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.

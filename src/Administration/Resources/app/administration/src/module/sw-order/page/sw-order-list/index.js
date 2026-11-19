@@ -25,7 +25,7 @@ export default {
     data() {
         return {
             orders: [],
-            sortBy: 'orderDateTime',
+            sortBy: 'autoIncrement',
             sortDirection: 'DESC',
             isLoading: false,
             /**

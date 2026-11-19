@@ -18,6 +18,21 @@ function buildCriteria(overrides = {}) {
 }
 
 describe('module/sw-product/page/sw-product-list criteria', () => {
+    it('defaults to indexed insertion order without a redundant tie-breaker', () => {
+        const criteria = buildCriteria(swProductList.data.call({ $t: (key) => key }));
+
+        expect(criteria.sortings).toEqual([
+            expect.objectContaining({ field: 'autoIncrement', order: 'DESC', naturalSorting: false }),
+        ]);
+    });
+
+    it('keeps natural sorting for the product number column', () => {
+        const columns = swProductList.methods.getProductColumns.call({ $t: (key) => key, currenciesColumns: [] });
+
+        expect(columns.find((column) => column.property === 'productNumber').naturalSorting).toBe(true);
+        expect(columns.some((column) => column.property === 'autoIncrement')).toBe(false);
+    });
+
     it('appends a deterministic id tie-breaker when sorting by stock', () => {
         const criteria = buildCriteria({ sortBy: 'stock' });
 

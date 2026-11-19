@@ -286,7 +286,7 @@ export default Shopware.Component.wrapComponentConfig({
                     document.mediaId = media.id;
                     document.title = media.fileName ?? '';
                     document.translated = { title: document.title, mediaId: media.id };
-                    document.position = this.documents.length;
+                    document.position = Math.max(-1, ...this.documents.map((item) => item.position ?? -1)) + 1;
                     setDocumentMedia(document, media);
                     this.documents.add(document);
                 });

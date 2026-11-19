@@ -1,4 +1,4 @@
-import { DOMWrapper, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import type { Component, ComponentPublicInstance } from 'vue';
 import Entity from 'src/core/data/entity.data';
 import type Criteria from 'src/core/data/criteria.data';
@@ -127,14 +127,15 @@ describe('multiple previews of one layout', () => {
         jest.restoreAllMocks();
     });
 
-    async function openFrameMenu(frameId = 'first-preview') {
-        await view.wrapper.get(`[data-frame-id="${frameId}"] button[aria-haspopup="dialog"]`).trigger('click');
+    async function activateFrameToolbar(frameId = 'first-preview') {
+        const frame = view.wrapper.get(`[data-frame-id="${frameId}"]`);
+        await frame.get('.sw-experience-studio-canvas__move-handle').trigger('click');
         await flushPromises();
-        return new DOMWrapper(document.body).get('.sw-experience-studio-frame-menu__content');
+        return frame.get('.sw-experience-studio-canvas__frame-toolbar');
     }
 
     async function openAnotherPreview() {
-        const menu = await openFrameMenu();
+        const menu = await activateFrameToolbar();
         await menu.get('.sw-experience-studio-frame-menu__open-another').trigger('click');
         await flushPromises();
         return view.wrapper.findAll('.sw-experience-studio-canvas__frame')[1];
@@ -148,7 +149,7 @@ describe('multiple previews of one layout', () => {
             const germanLanguage = 'a'.repeat(32);
             const parentLanguage = 'b'.repeat(32);
             const adminLanguage = Shopware.Context.api.languageId;
-            const firstMenu = await openFrameMenu();
+            await activateFrameToolbar();
             const languageSelector = () =>
                 view.wrapper.getComponent<ComponentPublicInstance<{ value: string; criteria: Criteria }>>(
                     '.test-entity-select[data-entity="language"]',
@@ -159,7 +160,6 @@ describe('multiple previews of one layout', () => {
 
             languageSelector().vm.$emit('update:value', germanLanguage, { parentId: parentLanguage });
             await flushPromises();
-            await firstMenu.trigger('keydown', { key: 'Escape' });
             await view.wrapper.get('[data-frame-id="first-preview"] .test-preview').trigger('click');
             expect(
                 view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-chain'),
@@ -174,12 +174,11 @@ describe('multiple previews of one layout', () => {
                     .findAllComponents({ name: 'test-preview' })
                     .map((preview) => preview.props('languageId') as string),
             ).toEqual([germanLanguage, germanLanguage]);
-            const secondMenu = await openFrameMenu(second.attributes('data-frame-id'));
+            await activateFrameToolbar(second.attributes('data-frame-id'));
             expect(languageSelector().props('criteria').term).not.toBe('German');
             expect(languageSelector().props('criteria').page).toBe(1);
             languageSelector().vm.$emit('update:value', systemLanguage, { parentId: null });
             await flushPromises();
-            await secondMenu.trigger('keydown', { key: 'Escape' });
             await second.get('.test-preview').trigger('click');
 
             expect(
@@ -199,7 +198,7 @@ describe('multiple previews of one layout', () => {
         },
     );
 
-    it('opens another preview from the frame flyout and copies custom dimensions without copying the layout', async () => {
+    it('opens another preview from the floating toolbar and copies custom dimensions without copying the layout', async () => {
         view = await createWrapper();
         const canvas = view.wrapper.getComponent({ ref: 'experienceStudioCanvas' });
         await canvas.setData({ frameWidth: 640, frameHeight: 700 });
@@ -257,7 +256,7 @@ describe('multiple previews of one layout', () => {
         view = await createWrapper();
         const second = await openAnotherPreview();
         await second.get('button[aria-label="sw-experience-studio.detail.toolbar.viewportMobile"]').trigger('click');
-        const menu = await openFrameMenu(second.attributes('data-frame-id'));
+        await activateFrameToolbar(second.attributes('data-frame-id'));
         view.wrapper
             .getComponent<ComponentPublicInstance>('.test-entity-select[data-entity="language"]')
             .vm.$emit('update:value', 'a'.repeat(32), { parentId: null });
@@ -285,14 +284,12 @@ describe('multiple previews of one layout', () => {
                 .getComponent<ComponentPublicInstance<{ value: string }>>('.test-entity-select[data-entity="product"]')
                 .props('value'),
         ).toBe('product-b');
-        await menu.trigger('keydown', { key: 'Escape' });
-        const firstMenu = await openFrameMenu();
+        await activateFrameToolbar();
         expect(
             view.wrapper
                 .getComponent<ComponentPublicInstance<{ value: string }>>('.test-entity-select[data-entity="product"]')
                 .props('value'),
         ).toBe('product-a');
-        await firstMenu.trigger('keydown', { key: 'Escape' });
         await view.wrapper.findAll('.sw-experience-studio-preview-list__select')[0].trigger('click');
         expect(first.classes()).toContain('is--active');
         expect(second.classes()).not.toContain('is--active');
@@ -301,10 +298,12 @@ describe('multiple previews of one layout', () => {
 
     it('uses the same Meteor icon button appearance for all frame actions', async () => {
         view = await createWrapper();
-        const actions = view.wrapper.get('[data-frame-id="first-preview"] .sw-experience-studio-canvas__frame-actions');
-        const buttons = actions.findAll('button');
+        const frame = view.wrapper.get('[data-frame-id="first-preview"]');
+        const buttons = frame.findAll(
+            '.sw-experience-studio-canvas__frame-history button, .sw-experience-studio-frame-menu button, .sw-experience-studio-canvas__close-frame',
+        );
 
-        expect(buttons).toHaveLength(4);
+        expect(buttons).toHaveLength(5);
         for (const button of buttons) {
             expect(button.classes()).toEqual(
                 expect.arrayContaining([
@@ -315,46 +314,10 @@ describe('multiple previews of one layout', () => {
                 ]),
             );
         }
-        expect(view.wrapper.findComponent({ name: 'test-entity-select' }).exists()).toBe(false);
-    });
-
-    it.each([
-        ['panning the canvas', '.sw-experience-studio-canvas__background'],
-        ['moving a frame', '.sw-experience-studio-canvas__move-handle'],
-    ])('closes the frame flyout when %s starts, before releasing the pointer', async (_action, selector) => {
-        view = await createWrapper();
-        await openFrameMenu();
-
-        await view.wrapper.get(selector).trigger('pointerdown', {
-            button: 0,
-            pointerId: 1,
-            clientX: 400,
-            clientY: 300,
-        });
-
-        expect(view.wrapper.get('.sw-experience-studio-canvas').classes()).toContain('is--gesturing');
-        expect(document.body.querySelector('.sw-experience-studio-frame-menu__content')).toBeNull();
-    });
-
-    it('closes the frame flyout when scrolling to zoom the canvas', async () => {
-        view = await createWrapper();
-        await openFrameMenu();
-        const world = view.wrapper.get('.sw-experience-studio-canvas__world');
-        const previousTransform = world.attributes('style');
-
-        view.wrapper.get('.sw-experience-studio-canvas__background').element.dispatchEvent(
-            new WheelEvent('wheel', {
-                bubbles: true,
-                cancelable: true,
-                deltaY: -120,
-                clientX: 400,
-                clientY: 300,
-            }),
-        );
-        await flushPromises();
-
-        expect(world.attributes('style')).not.toBe(previousTransform);
-        expect(document.body.querySelector('.sw-experience-studio-frame-menu__content')).toBeNull();
+        expect(frame.findAll('.test-entity-select').map((select) => select.attributes('data-entity'))).toEqual([
+            'product',
+            'language',
+        ]);
     });
 
     it('shares edits and undo history across previews and saves the layout once', async () => {
@@ -374,11 +337,13 @@ describe('multiple previews of one layout', () => {
             'Updated copy',
         ]);
         const first = view.wrapper.get('[data-frame-id="first-preview"]');
+        await first.get('.sw-experience-studio-canvas__move-handle').trigger('click');
         await first.get('button[aria-label="sw-experience-studio.detail.toolbar.undo"]').trigger('click');
         expect(view.wrapper.findAll('.test-preview').map((preview) => preview.text())).toEqual([
             'Original copy',
             'Original copy',
         ]);
+        await second.get('.sw-experience-studio-canvas__move-handle').trigger('click');
         await second.get('button[aria-label="sw-experience-studio.detail.toolbar.redo"]').trigger('click');
         view.wrapper.getComponent<ComponentPublicInstance>('sw-experience-studio-toolbar-stub').vm.$emit('save');
         await flushPromises();

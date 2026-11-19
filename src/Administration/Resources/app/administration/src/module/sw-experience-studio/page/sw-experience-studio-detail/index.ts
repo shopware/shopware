@@ -1440,25 +1440,18 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            if (this.layout?.id !== frame.layoutId) {
-                this.selectedElementId = null;
-                frame.selectedElementId = null;
-            }
+            // Settings belong to the current activation, including previews of the same layout.
+            this.selectedElementId = null;
+            this.settingsPanelMode = 'element';
+            frame.selectedElementId = null;
             this.syncActiveLayoutState();
             this.activeFrameId = frameId;
             this.layout = openLayout.layout;
-            this.selectedElementId = frame.selectedElementId;
             this.currentViewport = frame.viewport;
             this.previewEntityId = frame.previewEntityId;
             this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
             const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
-            if (this.settingsPanelMode === 'translations') {
-                canvas?.openSettingsPanel(false);
-            } else if (this.selectedElementId) {
-                canvas?.openSettingsPanel();
-            } else {
-                canvas?.closeSettingsPanel();
-            }
+            canvas?.closeSettingsPanel();
             this.editorStore.initialize(frame.layoutId);
             this.showDiagnostics = false;
             void this.diagnoseLayout();

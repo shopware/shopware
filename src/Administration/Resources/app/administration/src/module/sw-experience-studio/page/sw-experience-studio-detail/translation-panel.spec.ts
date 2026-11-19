@@ -187,14 +187,15 @@ describe('frame layout translation panel', () => {
         jest.restoreAllMocks();
     });
 
-    async function openFrameMenu(frameId: string) {
-        await view.wrapper.get(`[data-frame-id="${frameId}"] button[aria-haspopup="dialog"]`).trigger('click');
+    async function activateFrameToolbar(frameId: string) {
+        const frame = view.wrapper.get(`[data-frame-id="${frameId}"]`);
+        await frame.get('.sw-experience-studio-canvas__move-handle').trigger('click');
         await flushPromises();
-        return new DOMWrapper(document.body).get('.sw-experience-studio-frame-menu__content');
+        return frame.get('.sw-experience-studio-canvas__frame-toolbar');
     }
 
     async function openTranslations(frameId = 'german-frame') {
-        const menu = await openFrameMenu(frameId);
+        const menu = await activateFrameToolbar(frameId);
         await menu.get('.sw-experience-studio-frame-menu__translate').trigger('click');
         await flushPromises();
     }
@@ -223,7 +224,7 @@ describe('frame layout translation panel', () => {
         await openTranslations();
 
         expect(view.wrapper.get('[data-frame-id="german-frame"]').classes()).toContain('is--active');
-        expect(document.body.querySelector('.sw-experience-studio-frame-menu__content')).toBeNull();
+        expect(view.wrapper.findAll('.sw-experience-studio-canvas__frame-toolbar')).toHaveLength(1);
         expect(view.wrapper.get('.sw-experience-studio-canvas__panel-header h2').text()).toBe(
             'sw-experience-studio.detail.translationSettings.title',
         );
@@ -272,23 +273,24 @@ describe('frame layout translation panel', () => {
         expect(Shopware.Context.api.languageId).toBe(adminLanguage);
     });
 
-    it('follows frame and language changes while remaining in translation mode', async () => {
+    it('closes on frame changes and follows language changes after explicitly reopening translations', async () => {
         view = await createWrapper();
         await openTranslations();
         expect(languageSwitch().props('modelValue')).toBe(german);
         await view.wrapper.get('[data-frame-id="english-frame"]').trigger('click');
+        expect(view.wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(false);
+        await openTranslations('english-frame');
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('First');
         expect(view.wrapper.find('.sw-experience-studio-translation-settings').exists()).toBe(true);
         expect(languageSwitch().props('modelValue')).toBe(english);
 
-        const menu = await openFrameMenu('english-frame');
+        await activateFrameToolbar('english-frame');
         view.wrapper
             .getComponent<ComponentPublicInstance>('.test-entity-select[data-entity="language"]')
             .vm.$emit('update:value', german, { parentId: null });
         await flushPromises();
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('Erster');
         expect(languageSwitch().props('modelValue')).toBe(german);
-        await menu.trigger('keydown', { key: 'Escape' });
     });
 
     it('switches the frame and fields from a toolbar outside the scrolling list without changing the draft', async () => {
@@ -309,13 +311,12 @@ describe('frame layout translation panel', () => {
         await selectLanguage('English');
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('First');
         expect(view.wrapper.findAll('.test-preview-title').map((preview) => preview.text())).toEqual(['First', 'First']);
-        const menu = await openFrameMenu('german-frame');
+        await activateFrameToolbar('german-frame');
         expect(
             view.wrapper
                 .getComponent<ComponentPublicInstance<{ value: string }>>('.test-entity-select[data-entity="language"]')
                 .props('value'),
         ).toBe(english);
-        await menu.trigger('keydown', { key: 'Escape' });
 
         await selectLanguage('German');
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('Erster');
@@ -385,6 +386,8 @@ describe('frame layout translation panel', () => {
         );
 
         await view.wrapper.get('[data-frame-id="english-frame"]').trigger('click');
+        expect(view.wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(false);
+        await openTranslations('english-frame');
         await view.wrapper.findAll('input[aria-label="Title"]')[0].trigger('focusin');
         expect(englishPreview.attributes('data-scroll-target')).toBe('first-text');
         expect(germanPreview.attributes('data-scroll-target')).toBe('rich-text');
@@ -431,7 +434,7 @@ describe('frame layout translation panel', () => {
             await openTranslations();
         }
         expect(view.wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(true);
-        const menu = await openFrameMenu(source);
+        const menu = await activateFrameToolbar(source);
         await menu.get('.sw-experience-studio-frame-menu__open-another').trigger('click');
         await flushPromises();
 

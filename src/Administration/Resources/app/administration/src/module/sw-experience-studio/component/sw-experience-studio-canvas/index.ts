@@ -1,3 +1,5 @@
+import { useElementSize } from '@vueuse/core';
+import { ref } from 'vue';
 import type { Viewport, ViewportPreset, ResizeDirection, CanvasGesture, CanvasFrame } from './canvas.config';
 import {
     VIEWPORT_WIDTHS,
@@ -94,6 +96,13 @@ export default Shopware.Component.wrapComponentConfig({
         'create-layout',
     ],
 
+    setup() {
+        const workspace = ref<HTMLElement | null>(null);
+        const { width: workspaceWidth } = useElementSize(workspace, undefined, { box: 'border-box' });
+
+        return { workspace, workspaceWidth };
+    },
+
     data() {
         return {
             viewportIcons: VIEWPORT_ICONS,
@@ -117,14 +126,9 @@ export default Shopware.Component.wrapComponentConfig({
             isViewportTransitioning: false,
             viewportTransitionTimer: null as number | null,
             resizeDirections: [
-                'n',
-                'ne',
-                'e',
-                'se',
-                's',
-                'sw',
                 'w',
-                'nw',
+                'e',
+                's',
             ] as ResizeDirection[],
             frameStates: {} as Record<string, { x: number; y: number; width: number; height: number }>,
         };
@@ -155,6 +159,7 @@ export default Shopware.Component.wrapComponentConfig({
         worldStyle(): Record<string, string> {
             return {
                 transform: `translate3d(${this.canvasPanX}px, ${this.canvasPanY}px, 0) scale(${this.canvasZoom})`,
+                '--canvas-controls-scale': `${1 / this.canvasZoom}`,
             };
         },
 
@@ -402,11 +407,16 @@ export default Shopware.Component.wrapComponentConfig({
                 width: VIEWPORT_WIDTHS[frame.viewport === 'custom' ? 'desktop' : frame.viewport],
                 height: this.getDefaultFrameHeight(),
             };
+            const workspaceWidth = this.workspaceWidth || this.getWorkspace()?.clientWidth || 0;
+            const toolbarCenter = workspaceWidth / 2 + this.canvasPanX + state.x * this.canvasZoom;
 
             return {
                 width: `${state.width}px`,
                 height: `${state.height}px`,
                 transform: `translate(-50%, -50%) translate(${state.x}px, ${state.y}px)`,
+                '--frame-toolbar-min-x': `${16 - toolbarCenter}px`,
+                '--frame-toolbar-max-x': `${workspaceWidth - 16 - toolbarCenter}px`,
+                '--frame-toolbar-max-width': `${Math.max(1, workspaceWidth - 32)}px`,
             };
         },
 

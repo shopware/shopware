@@ -305,23 +305,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
         expect(vm.canvasZoom).toBe(1);
     });
 
-    it('resets the canvas zoom to 100% and centers the frame', () => {
-        const vm = {
-            startViewportTransition: jest.fn(),
-            frameX: 20,
-            frameY: -10,
-            canvasZoom: 0.75,
-            canvasPanX: 50,
-            canvasPanY: -50,
-        };
-
-        methods.resetCanvasZoom.call(vm);
-
-        expect(vm.canvasZoom).toBe(1);
-        expect(vm.canvasPanX).toBe(-20);
-        expect(vm.canvasPanY).toBe(10);
-    });
-
     it('fits one frame into the available canvas area and centers it', () => {
         const workspace = { clientWidth: 1200, clientHeight: 800 } as HTMLElement;
         const vm = {
@@ -341,34 +324,37 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
         const expectedZoom = (workspace.clientWidth - 96) / vm.frameWidth;
         expect(vm.canvasZoom).toBeCloseTo(expectedZoom);
         expect(vm.canvasPanX).toBeCloseTo(-vm.frameX * expectedZoom);
-        expect(vm.canvasPanY).toBeCloseTo(-vm.frameY * expectedZoom);
+        expect(vm.canvasPanY).toBeCloseTo(50 - vm.frameY * expectedZoom);
     });
 
     it.each([
         { canvas: { width: 800, height: 600 }, frame: { x: 400, y: -200, width: 1480, height: 640 } },
         { canvas: { width: 1600, height: 1000 }, frame: { x: -250, y: 300, width: 375, height: 900 } },
         { canvas: { width: 2560, height: 1440 }, frame: { x: 1000, y: -400, width: 768, height: 900 } },
-    ])('anchors the frame 20px from canvas edges ($canvas.width × $canvas.height) at 100% zoom', ({ canvas, frame }) => {
-        const activateFrame = jest.fn();
-        const startViewportTransition = jest.fn();
-        const vm = {
-            frameStates: { 'layout-2': frame },
-            getWorkspace: () => ({ clientWidth: canvas.width, clientHeight: canvas.height }),
-            canvasZoom: 0.5,
-            canvasPanX: 0,
-            canvasPanY: 0,
-            activateFrame,
-            startViewportTransition,
-        };
+    ])(
+        'leaves space for the floating toolbar when focusing a frame ($canvas.width × $canvas.height) at 100% zoom',
+        ({ canvas, frame }) => {
+            const activateFrame = jest.fn();
+            const startViewportTransition = jest.fn();
+            const vm = {
+                frameStates: { 'layout-2': frame },
+                getWorkspace: () => ({ clientWidth: canvas.width, clientHeight: canvas.height }),
+                canvasZoom: 0.5,
+                canvasPanX: 0,
+                canvasPanY: 0,
+                activateFrame,
+                startViewportTransition,
+            };
 
-        methods.focusFrame.call(vm, 'layout-2');
+            methods.focusFrame.call(vm, 'layout-2');
 
-        expect(activateFrame).toHaveBeenCalledWith('layout-2');
-        expect(startViewportTransition).toHaveBeenCalledTimes(1);
-        expect(vm.canvasZoom).toBe(1);
-        expect(canvas.width / 2 + vm.canvasPanX + frame.x - frame.width / 2).toBe(20);
-        expect(canvas.height / 2 + vm.canvasPanY + frame.y - frame.height / 2).toBe(20);
-    });
+            expect(activateFrame).toHaveBeenCalledWith('layout-2');
+            expect(startViewportTransition).toHaveBeenCalledTimes(1);
+            expect(vm.canvasZoom).toBe(1);
+            expect(canvas.width / 2 + vm.canvasPanX + frame.x - frame.width / 2).toBe(20);
+            expect(canvas.height / 2 + vm.canvasPanY + frame.y - frame.height / 2).toBe(120);
+        },
+    );
 
     it('does not zoom or prevent scrolling when the wheel event is outside the free canvas background', () => {
         const background = document.createElement('div');

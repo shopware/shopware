@@ -55,7 +55,7 @@
                 :aria-label="frame.ariaLabel ?? frame.label ?? frame.layout.name"
                 @click.stop="activateFrame(frame.id)"
             >
-                <header class="sw-experience-studio-canvas__frame-toolbar">
+                <header class="sw-experience-studio-canvas__frame-header">
                     <button
                         class="sw-experience-studio-canvas__move-handle"
                         type="button"
@@ -79,9 +79,45 @@
                         </span>
                     </button>
 
+                    <mt-button
+                        class="sw-experience-studio-canvas__close-frame"
+                        variant="tertiary"
+                        size="x-small"
+                        square
+                        :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
+                        :title="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
+                        @pointerdown.stop
+                        @click.stop="$emit('frame-close', frame.id)"
+                    >
+                        <template #iconFront>
+                            <mt-icon
+                                name="regular-times"
+                                size="16px"
+                                decorative
+                            />
+                        </template>
+                    </mt-button>
+                </header>
+
+                <div
+                    v-if="frame.isActive"
+                    class="sw-experience-studio-canvas__frame-toolbar"
+                    role="toolbar"
+                    :aria-label="$t('sw-experience-studio.detail.canvas.previewActions', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
+                >
+                    <div
+                        v-if="$slots['frame-controls']"
+                        class="sw-experience-studio-canvas__frame-history"
+                    >
+                        <slot
+                            name="frame-controls"
+                            :frame="frame"
+                        ></slot>
+                    </div>
+
                     <div
                         class="sw-experience-studio-canvas__viewport-controls"
-                        role="toolbar"
+                        role="group"
                         :aria-label="$t('sw-experience-studio.detail.canvas.viewportToolbar')"
                     >
                         <span
@@ -126,11 +162,6 @@
                     </div>
 
                     <div class="sw-experience-studio-canvas__frame-actions">
-                        <slot
-                            name="frame-controls"
-                            :frame="frame"
-                        ></slot>
-
                         <sw-experience-studio-frame-menu
                             :label="$t('sw-experience-studio.detail.canvas.previewActions', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
                             @open-another="$emit('frame-open-another', frame.id)"
@@ -147,27 +178,8 @@
                                 ></slot>
                             </template>
                         </sw-experience-studio-frame-menu>
-
-                        <mt-button
-                            class="sw-experience-studio-canvas__close-frame"
-                            variant="tertiary"
-                            size="x-small"
-                            square
-                            :aria-label="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
-                            :title="$t('sw-experience-studio.detail.canvas.closeFrame', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
-                            @pointerdown.stop
-                            @click.stop="$emit('frame-close', frame.id)"
-                        >
-                            <template #iconFront>
-                                <mt-icon
-                                    name="regular-times"
-                                    size="16px"
-                                    decorative
-                                />
-                            </template>
-                        </mt-button>
                     </div>
-                </header>
+                </div>
 
                 <div class="sw-experience-studio-canvas__preview">
                     <slot

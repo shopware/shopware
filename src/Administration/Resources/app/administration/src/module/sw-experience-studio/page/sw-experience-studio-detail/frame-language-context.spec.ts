@@ -110,7 +110,7 @@ describe('frame language contexts', () => {
     }
 
     function productLabel(frameId: string) {
-        return selectors(frameId)[1].get('.sw-entity-single-select__selection-text').text();
+        return selectors(frameId)[0].get('.sw-entity-single-select__selection-text').text();
     }
 
     it('loads the same preview entity in each frame language despite the global Admin language', async () => {
@@ -130,7 +130,7 @@ describe('frame language contexts', () => {
             expect.anything(),
             undefined,
         );
-        expect(selectors('english-frame')[0].props('context')).toEqual(
+        expect(selectors('english-frame')[1].props('context')).toEqual(
             expect.objectContaining({ languageId: english, language: { name: 'English', parentId: undefined } }),
         );
         expect(Shopware.Context.api.languageId).toBe(german);
@@ -139,7 +139,7 @@ describe('frame language contexts', () => {
     it('reloads the selected entity label when its frame language changes without reopening the menu', async () => {
         view = await createWrapper();
         // Keep the frame active so the test only changes its language.
-        selectors('english-frame')[0].vm.$emit('update:value', german, { parentId: null });
+        selectors('english-frame')[1].vm.$emit('update:value', german, { parentId: null });
         await flushPromises();
 
         expect(productLabel('english-frame')).toBe('Blaues Hemd');
@@ -162,7 +162,7 @@ describe('frame language contexts', () => {
             ['english-frame', english],
             ['german-frame', german],
         ]) {
-            const selector = selectors(frameId)[1];
+            const selector = selectors(frameId)[0];
             selector.getComponent<ComponentPublicInstance>('.test-select-base').vm.$emit('select-expanded');
             await flushPromises();
             expect(view.search).toHaveBeenLastCalledWith(

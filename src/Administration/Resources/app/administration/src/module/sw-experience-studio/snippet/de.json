@@ -1077,8 +1077,7 @@
       "translationSettings": {
         "title": "Übersetzungen",
         "openAction": "Layout übersetzen",
-        "emptyState": "Dieses Layout hat keine übersetzbaren Felder.",
-        "elementLabel": "{name} · {number}"
+        "emptyState": "Dieses Layout hat keine übersetzbaren Felder."
       },
       "elementSettings": {
         "title": "Element-Einstellungen",

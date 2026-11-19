@@ -99,26 +99,29 @@ describe('structural mutations keep their originating layout', () => {
         Shopware.Store.get('experienceStudioEditor').reset();
     });
 
-    it('preserves each preview selection when switching frames of the same layout', () => {
+    it('clears both preview selections when switching frames of the same layout', () => {
         const { editor } = createEditor(jest.fn());
-        editor.frames.push({ ...editor.frames[0], id: 'second-preview' });
+        editor.frames.push({ ...editor.frames[0], id: 'second-preview', selectedElementId: 'a' });
 
         editor.activateFrame('second-preview');
         expect(editor.selectedElementId).toBeNull();
         editor.activateFrame('layout-a');
 
-        expect(editor.selectedElementId).toBe('a');
-        expect(editor.$refs.experienceStudioCanvas.closeSettingsPanel).toHaveBeenCalledTimes(1);
-        expect(editor.$refs.experienceStudioCanvas.openSettingsPanel).toHaveBeenCalledTimes(1);
+        expect(editor.selectedElementId).toBeNull();
+        expect(editor.frames.every((frame) => frame.selectedElementId === null)).toBe(true);
+        expect(editor.$refs.experienceStudioCanvas.closeSettingsPanel).toHaveBeenCalledTimes(2);
+        expect(editor.$refs.experienceStudioCanvas.openSettingsPanel).not.toHaveBeenCalled();
     });
 
     it('updates the shared draft without changing another active preview selection when a response arrives', async () => {
         const pending = deferred<ContentLayoutDraftMutationResponse>();
         const { editor, layouts, editorStore } = createEditor(jest.fn().mockReturnValue(pending.promise));
-        editor.frames.push({ ...editor.frames[0], id: 'second-preview', selectedElementId: 'a' });
+        editor.frames.push({ ...editor.frames[0], id: 'second-preview' });
         const mutation = methods.onDuplicateElement.call(editor, 'a');
         await flushPromises();
         editor.activateFrame('second-preview');
+        editor.selectedElementId = 'a';
+        editor.syncActiveLayoutState();
         const updated = [...layouts[0].layout, { id: 'a-copy', component: 'Sw:Content:Text' }];
 
         pending.resolve(response(updated, 'a-copy'));
@@ -134,7 +137,7 @@ describe('structural mutations keep their originating layout', () => {
     it('keeps a pending edit when its source preview closes while another preview still references the layout', async () => {
         const pending = deferred<ContentLayoutDraftMutationResponse>();
         const { editor, layouts, editorStore } = createEditor(jest.fn().mockReturnValue(pending.promise));
-        editor.frames.push({ ...editor.frames[0], id: 'second-preview', selectedElementId: 'a' });
+        editor.frames.push({ ...editor.frames[0], id: 'second-preview' });
         const mutation = methods.onDuplicateElement.call(editor, 'a');
         await flushPromises();
         editor.frames = editor.frames.filter((frame) => frame.id !== 'layout-a');
@@ -144,7 +147,7 @@ describe('structural mutations keep their originating layout', () => {
         await mutation;
 
         expect(layouts[0].layout.map((element) => element.id)).toEqual(['a', 'copy']);
-        expect(editor.selectedElementId).toBe('a');
+        expect(editor.selectedElementId).toBeNull();
         expect(editorStore.canUndoLayout('layout-a')).toBe(true);
     });
 

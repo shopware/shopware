@@ -1077,8 +1077,7 @@
       "translationSettings": {
         "title": "Translations",
         "openAction": "Translate layout",
-        "emptyState": "This layout has no translatable fields.",
-        "elementLabel": "{name} · {number}"
+        "emptyState": "This layout has no translatable fields."
       },
       "elementSettings": {
         "title": "Element settings",

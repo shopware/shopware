@@ -117,7 +117,7 @@ describe('canvas workspace restoration', () => {
         });
         await flushPromises();
         const frame = wrapper.get('[data-frame-id="layout-a"]');
-        const handle = frame.get('.sw-experience-studio-canvas__resize-handle.is--se');
+        const handle = frame.get('.sw-experience-studio-canvas__resize-handle.is--e');
         const initialStyle = frame.attributes('style');
         expect(handle.attributes('tabindex')).toBe('-1');
 
@@ -135,7 +135,7 @@ describe('canvas workspace restoration', () => {
         await flushPromises();
 
         expect(frame.attributes('style')).toContain('width: 740px');
-        expect(frame.attributes('style')).toContain('height: 520px');
+        expect(frame.attributes('style')).toContain('height: 500px');
         expect(wrapper.emitted('frame-viewport-change')).toContainEqual(['layout-a', 'custom']);
     });
 
@@ -186,6 +186,7 @@ describe('canvas workspace restoration', () => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = [
             {
+                id: 'layout-a',
                 layoutId: 'layout-a',
                 x: 1544.0166560931532,
                 y: 13.271484375,

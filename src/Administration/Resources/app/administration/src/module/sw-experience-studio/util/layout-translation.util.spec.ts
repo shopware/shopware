@@ -26,11 +26,11 @@ describe('layout translation fields', () => {
         const original = Shopware.Utils.object.cloneDeep(layout);
         const fields = getLayoutTranslationFields(layout, (name) => (name === type.name ? type : null));
 
-        expect(fields.map((entry) => [entry.element.id, entry.field.key, entry.elementNumber])).toEqual([
-            ['nested', 'title', 2],
-            ['nested', 'count', 2],
-            ['last', 'title', 3],
-            ['last', 'count', 3],
+        expect(fields.map((entry) => [entry.element.id, entry.field.key])).toEqual([
+            ['nested', 'title'],
+            ['nested', 'count'],
+            ['last', 'title'],
+            ['last', 'count'],
         ]);
         expect(layout).toEqual(original);
         expect(fields[0].element).toBe(layout[0].slots?.content[0]);

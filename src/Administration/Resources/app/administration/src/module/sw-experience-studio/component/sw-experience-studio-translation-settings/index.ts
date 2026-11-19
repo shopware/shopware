@@ -53,16 +53,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         getElementLabel(entry: LayoutTranslationField): string {
-            const name = translateContentSystemText(
-                entry.elementType.labelSnippet,
-                entry.elementType.label,
-                this.$te,
-                this.$t,
-            );
-            return this.$t('sw-experience-studio.detail.translationSettings.elementLabel', {
-                name,
-                number: entry.elementNumber,
-            });
+            return translateContentSystemText(entry.elementType.labelSnippet, entry.elementType.label, this.$te, this.$t);
         },
 
         getValues(entry: LayoutTranslationField): Record<string, unknown> {

@@ -39,6 +39,7 @@ export function translationType(
         priority: 0,
         copilot: { summary: '', hints: [] },
         slots: [],
+        defaultBindingRootSources: null,
         properties,
     };
 }

@@ -8,7 +8,6 @@ import { findPropertyMapping } from './element-mapping.util';
 export type LayoutTranslationField = {
     element: ContentElementNode;
     elementType: ContentSystemElementTypeSpecification;
-    elementNumber: number;
     field: SettingsFieldDefinition;
     mappingPath: string | null;
 };
@@ -19,11 +18,9 @@ export function getLayoutTranslationFields(
     getType: (name: string) => ContentSystemElementTypeSpecification | null,
 ): LayoutTranslationField[] {
     const fields: LayoutTranslationField[] = [];
-    let elementNumber = 0;
 
     function visit(nodes: ContentElementNode[]): void {
         for (const element of nodes) {
-            elementNumber += 1;
             const elementType = getType(element.component);
             for (const [key, property] of Object.entries(elementType?.properties ?? {})) {
                 if (!elementType || !property.translatable || getPropertyControlType(property) === null) {
@@ -32,7 +29,6 @@ export function getLayoutTranslationFields(
                 fields.push({
                     element,
                     elementType,
-                    elementNumber,
                     field: { key, property },
                     mappingPath: findPropertyMapping(element, key)?.path ?? null,
                 });

@@ -274,7 +274,7 @@ describe('Experience Studio sidebar navigation', () => {
             -200,
         ],
     ] as const)(
-        'positions layout %s 20px from the canvas top-left at 100%% and opens its tree',
+        'leaves room for the toolbar when focusing layout %s at 100%% and opens its tree',
         async (index, id, name, x, y) => {
             const canvas = wrapper.getComponent({ ref: 'experienceStudioCanvas' });
             await canvas.setData({
@@ -296,7 +296,7 @@ describe('Experience Studio sidebar navigation', () => {
             await flushPromises();
 
             expect(wrapper.get('.sw-experience-studio-canvas__world').attributes('style')).toContain(
-                `translate3d(${-230 - x}px, ${-80 - y}px, 0) scale(1)`,
+                `translate3d(${-230 - x}px, ${20 - y}px, 0) scale(1)`,
             );
             expect(wrapper.get('.sw-experience-studio-canvas__zoom-controls > span').text()).toBe('100%');
             expect(wrapper.get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe(name);

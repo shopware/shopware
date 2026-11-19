@@ -76,49 +76,97 @@
         flex-direction: column;
         container-name: experience-frame;
         container-type: inline-size;
-        outline: 2px solid var(--color-border-primary-default);
-        border-radius: 6px;
+        border-radius: var(--border-radius-m);
         background: var(--color-elevation-surface-default);
         box-shadow: 0 4px 18px 0 var(--color-elevation-shadow-default);
         pointer-events: auto;
+
+        &::before {
+            position: absolute;
+            z-index: -1;
+            inset: calc(-1 * var(--scale-size-40)) calc(-1 * var(--scale-size-8)) calc(-1 * var(--scale-size-8));
+            border-radius: var(--border-radius-l);
+            background: var(--color-background-tertiary-default);
+            content: "";
+        }
+    }
+
+    &__frame:hover::before,
+    &__frame:focus-within::before,
+    &__frame.is--active::before {
+        background:
+            color-mix(
+                in srgb,
+                var(--color-border-brand-default) 22%,
+                var(--color-elevation-surface-default)
+            );
     }
 
     &__frame.is--active {
-        outline-color: var(--color-border-brand-default);
+        z-index: 1;
     }
 
     &__frame.is--viewport-transitioning {
         transition: width 300ms ease, height 300ms ease;
     }
 
-    &__frame-toolbar {
+    &__frame-header {
+        position: absolute;
         z-index: 2;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-        flex: 0 0 48px;
+        right: 0;
+        bottom: 100%;
+        left: 0;
+        display: flex;
         align-items: center;
-        column-gap: 8px;
+        justify-content: space-between;
+        gap: var(--scale-size-8);
+        height: var(--scale-size-40);
         min-width: 0;
-        padding: 0 12px;
-        border-bottom: 1px solid var(--color-border-primary-default);
-        border-radius: 5px 5px 0 0;
+        padding: var(--scale-size-4) 0;
+    }
+
+    &__frame-toolbar {
+        position: absolute;
+        z-index: 4;
+        bottom: calc(100% + var(--scale-size-40) + var(--scale-size-16));
+        left: 50%;
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        width: max-content;
+        max-width: var(--frame-toolbar-max-width);
+        padding: var(--scale-size-4) var(--scale-size-8);
+        overflow-x: auto;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: var(--border-radius-m);
         background: var(--color-elevation-surface-default);
+        box-shadow: 0 4px 16px 0 var(--color-elevation-shadow-default);
+
+        // Cancel the canvas zoom and keep the toolbar inside the visible canvas.
+        transform:
+            scale(var(--canvas-controls-scale))
+            translateX(
+                clamp(var(--frame-toolbar-min-x), -50%, calc(var(--frame-toolbar-max-x) - 100%))
+            );
+        transform-origin: bottom left;
     }
 
     &__move-handle {
+        position: absolute;
+        inset: 0;
         display: flex;
-        grid-column: 1;
         min-width: 0;
         align-items: center;
         gap: 8px;
-        padding: var(--scale-size-4) var(--scale-size-8);
+        padding: var(--scale-size-4) var(--scale-size-40) var(--scale-size-4) 0;
         overflow: hidden;
         border: 0;
         border-radius: 4px;
         background: transparent;
-        color: var(--color-text-primary-default);
+        color: var(--color-text-secondary-default);
         cursor: grab;
         text-align: left;
+        font-size: var(--font-size-xs);
 
         &:active {
             cursor: grabbing;
@@ -128,6 +176,24 @@
             outline: 2px solid var(--color-border-brand-default);
             outline-offset: 1px;
         }
+    }
+
+    &__frame.is--active &__move-handle {
+        color: var(--color-text-brand-default);
+    }
+
+    &__close-frame {
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        margin-left: auto;
+        visibility: hidden;
+    }
+
+    &__frame:hover &__close-frame,
+    &__frame:focus-within &__close-frame,
+    &__frame.is--active &__close-frame {
+        visibility: visible;
     }
 
     &__frame-heading {
@@ -147,7 +213,9 @@
 
     &__frame-name {
         min-width: 0;
+        font-size: var(--font-size-s);
         font-weight: var(--font-weight-semibold);
+        line-height: var(--font-line-height-xs);
     }
 
     &__frame-language {
@@ -156,19 +224,18 @@
         font-size: var(--font-size-xs);
     }
 
+    &__frame-history,
     &__viewport-controls {
         display: flex;
-        grid-column: 2;
         align-items: center;
-        justify-self: center;
-        gap: 4px;
+        gap: var(--scale-size-4);
+        padding-right: var(--scale-size-8);
+        border-right: 1px solid var(--color-border-primary-default);
     }
 
     &__frame-actions {
         display: flex;
-        grid-column: 3;
         align-items: center;
-        justify-self: end;
         gap: var(--scale-size-4);
         min-width: 0;
     }
@@ -224,93 +291,48 @@
         min-width: 0;
         min-height: 0;
         overflow: hidden;
-        border-radius: 0 0 5px 5px;
+        border-radius: var(--border-radius-m);
     }
 
     &__resize-handle {
         position: absolute;
         z-index: 3;
         display: block;
-        width: 12px;
-        height: 12px;
         padding: 0;
-        border: 1px solid var(--color-elevation-surface-default);
-        border-radius: 50%;
-        background: var(--color-text-secondary-default);
-        opacity: 0;
-        pointer-events: none;
+        border: 0;
+        border-radius: 0;
+        appearance: none;
+        background: transparent;
+        touch-action: none;
 
         &:focus-visible {
-            opacity: 1;
             outline: 2px solid var(--color-border-brand-default);
-            outline-offset: 2px;
+            outline-offset: -2px;
         }
     }
 
-    &__frame:hover &__resize-handle,
-    &__frame:focus-within &__resize-handle {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    &__resize-handle.is--n,
     &__resize-handle.is--s {
-        left: calc(50% - 6px);
+        right: calc(-1 * var(--scale-size-8));
+        bottom: calc(-1 * var(--scale-size-8));
+        left: calc(-1 * var(--scale-size-8));
+        height: var(--scale-size-8);
         cursor: ns-resize;
-    }
-
-    &__resize-handle.is--n {
-        top: -6px;
-    }
-
-    &__resize-handle.is--s {
-        bottom: -6px;
     }
 
     &__resize-handle.is--e,
     &__resize-handle.is--w {
-        top: calc(50% - 6px);
+        top: calc(-1 * var(--scale-size-40));
+        bottom: calc(-1 * var(--scale-size-8));
+        width: var(--scale-size-8);
         cursor: ew-resize;
     }
 
     &__resize-handle.is--e {
-        right: -6px;
+        right: calc(-1 * var(--scale-size-8));
     }
 
     &__resize-handle.is--w {
-        left: -6px;
-    }
-
-    &__resize-handle.is--ne,
-    &__resize-handle.is--se,
-    &__resize-handle.is--sw,
-    &__resize-handle.is--nw {
-        width: 14px;
-        height: 14px;
-    }
-
-    &__resize-handle.is--ne {
-        top: -7px;
-        right: -7px;
-        cursor: nesw-resize;
-    }
-
-    &__resize-handle.is--se {
-        right: -7px;
-        bottom: -7px;
-        cursor: nwse-resize;
-    }
-
-    &__resize-handle.is--sw {
-        bottom: -7px;
-        left: -7px;
-        cursor: nesw-resize;
-    }
-
-    &__resize-handle.is--nw {
-        top: -7px;
-        left: -7px;
-        cursor: nwse-resize;
+        left: calc(-1 * var(--scale-size-8));
     }
 
     &__panel {

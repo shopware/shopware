@@ -7,7 +7,7 @@ const template = readFileSync(
     resolve(__dirname, '../../../../../views/storefront/page/content/preview.html.twig'),
     'utf8',
 );
-const script = template.match(/<script>([\s\S]*?)<\/script>/)[1];
+const script = new DOMParser().parseFromString(template, 'text/html').querySelector('script').textContent;
 
 describe('content layout preview bridge scrolling', () => {
     let iframe;

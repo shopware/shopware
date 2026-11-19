@@ -3,7 +3,7 @@ export type Viewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'custom';
 /** @private @sw-package discovery */
 export type ViewportPreset = Exclude<Viewport, 'custom'>;
 /** @private @sw-package discovery */
-export type ResizeDirection = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
+export type ResizeDirection = 'w' | 'e' | 's';
 /** @private @sw-package discovery */
 export type GestureType = 'move' | 'resize' | 'pan';
 
@@ -55,6 +55,14 @@ export const VIEWPORT_ICONS: Record<Viewport, string> = {
 export const FRAME_GAP = 60;
 /** @private @sw-package discovery */
 export const FRAME_FOCUS_INSET = 20;
+
+/**
+ * Includes the 40px heading, 16px gap, and 42px toolbar, rounded up.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export const FRAME_TOOLBAR_SPACE = 100;
 
 /** @private @sw-package discovery */
 export const DEFAULT_FRAME_HEIGHT = 900;

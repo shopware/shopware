@@ -16,15 +16,16 @@ The workspace stores `previewSalesChannelId` and the canvas camera (`panX`, `pan
 
 Frame configuration contains no layout content or unsaved editor history.
 Changing a viewport, preview entity, or language changes only that frame.
-The frame's actions menu selects its language without changing the Administration's global language.
+The frame's toolbar selects its language without changing the Administration's global language.
 The selectable languages are the active languages assigned to the selected preview sales channel.
 New frames start in that channel's default language; additional previews inherit their source frame's language.
 Changing the preview sales channel keeps supported frame languages and switches unsupported choices to the channel's default language.
 The active frame's element settings resolve translatable properties through its selected language, that language's parent, and the system language.
 Editing a translatable property writes only the selected language's entry, while the draft and undo history remain shared across previews.
 Selecting an already open layout in the layout picker opens another preview of its current working draft.
-Switching to a different layout clears the outgoing and incoming preview selections and closes the settings panel.
-Switching between preview frames of the same layout preserves each frame's selection.
+Switching active frames clears the outgoing and incoming element selections, resets translation mode, and closes the settings panel, including when both previews share a layout.
+Returning to a frame keeps its settings closed until an element is selected or the translation action is invoked explicitly.
+Reselecting the already active frame or changing its language keeps the current settings open.
 Switching frames resets the settings sidebar width, with a wider default for rich-text editing.
 Sidebar widths are not retained per frame.
 Editing, undoing, saving, or discarding layout content affects every frame referencing that layout.

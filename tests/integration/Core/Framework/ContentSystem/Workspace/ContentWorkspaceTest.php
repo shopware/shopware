@@ -74,7 +74,10 @@ class ContentWorkspaceTest extends TestCase
         $workspace = $repository->search(new Criteria([$workspaceId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(ContentWorkspaceEntity::class, $workspace);
-        static::assertSame($configuration, $workspace->getConfiguration());
+        static::assertJsonStringEqualsJsonString(
+            json_encode($configuration, \JSON_THROW_ON_ERROR),
+            json_encode($workspace->getConfiguration(), \JSON_THROW_ON_ERROR)
+        );
     }
 
     public function testLimitedUsersCanShareWorkspacesAndCreatorDeletionPreservesThem(): void

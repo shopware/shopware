@@ -50,6 +50,9 @@ describe('layout translation settings', () => {
     it('shows only translatable controls with frame language fallback, including false and zero values', async () => {
         view = await createWrapper();
         expect(view.wrapper.findAll('li')).toHaveLength(3);
+        expect(
+            view.wrapper.findAll('.sw-experience-studio-translation-settings__context').map((context) => context.text()),
+        ).toEqual(['Text', 'Text', 'Text']);
         expect(view.wrapper.get<HTMLInputElement>('input[aria-label="Title"]').element.value).toBe('Hello');
         expect(view.wrapper.get<HTMLInputElement>('input[type="checkbox"]').element.checked).toBe(false);
         expect(view.wrapper.get<HTMLInputElement>('.mt-number-field input').element.value).toBe('0');
@@ -77,7 +80,7 @@ describe('layout translation settings', () => {
         await view.wrapper.setProps({
             fields: [
                 view.fields[0],
-                { ...view.fields[0], element: { ...view.fields[0].element, id: 'nested' }, elementNumber: 2 },
+                { ...view.fields[0], element: { ...view.fields[0].element, id: 'nested' } },
             ],
         });
         const inputs = view.wrapper.findAll('input[aria-label="Title"]');

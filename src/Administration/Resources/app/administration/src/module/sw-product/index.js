@@ -52,10 +52,6 @@ Shopware.Component.register(
     () => import('./component/sw-product-document-form/sw-product-document-language-hint'),
 );
 Shopware.Component.register(
-    'sw-product-document-cell',
-    () => import('./component/sw-product-document-form/sw-product-document-cell'),
-);
-Shopware.Component.register(
     'sw-product-document-add-button',
     () => import('./component/sw-product-document-form/sw-product-document-add-button'),
 );

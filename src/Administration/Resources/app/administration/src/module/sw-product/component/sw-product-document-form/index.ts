@@ -143,6 +143,15 @@ export default Shopware.Component.wrapComponentConfig({
             return (document) => this.canEditDocuments && !this.isMissingLanguageVersion(document);
         },
 
+        languageCode(): string {
+            const language = this.contextLanguage;
+            if (this.isSystemDefaultLanguage || language?.id !== this.languageId) {
+                return '';
+            }
+
+            return language.locale?.code.split('-')[0].toUpperCase() ?? '';
+        },
+
         contentLanguageName(): string {
             const language = this.contextLanguage;
             const code = language?.locale?.code.split('-')[0];
@@ -225,6 +234,28 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         getDocumentMedia,
+
+        getFileName(document: Entity<'product_document'>): string {
+            const media = getDocumentMedia(document);
+            return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
+        },
+
+        isFallbackValue(document: Entity<'product_document'>, field: 'title' | 'mediaId'): boolean {
+            return !this.isSystemDefaultLanguage && !document[field];
+        },
+
+        isVariantOnly(document: Entity<'product_document'>): boolean {
+            const mediaId = document.translated?.mediaId;
+            return (
+                !!this.product.parentId &&
+                !!mediaId &&
+                !this.parentProduct.documents?.some(
+                    (parentDocument) =>
+                        parentDocument.translated?.mediaId === mediaId ||
+                        parentDocument.translations?.some((translation) => translation.mediaId === mediaId),
+                )
+            );
+        },
 
         getFileSize(document: Entity<'product_document'>): string {
             const fileSize = getDocumentMedia(document)?.fileSize;

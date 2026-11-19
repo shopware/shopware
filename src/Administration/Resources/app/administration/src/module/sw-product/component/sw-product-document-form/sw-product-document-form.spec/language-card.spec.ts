@@ -58,14 +58,14 @@ describe('sw-product-document-form language markers', () => {
             'sw-product.documentForm.contextDownload',
             ...(nameTranslated || fileTranslated ? ['sw-product.documentForm.removeLanguageVersion'] : []),
         ]);
-        const values = wrapper.findAll('.sw-product-document-cell');
+        const values = wrapper.findAll('.sw-product-document-form__cell');
         expect(values).toHaveLength(2);
         expect(values[0].text()).toContain(nameTranslated ? 'Deutscher Name' : 'English name');
         expect(values[1].text()).toContain(fileTranslated ? 'german-file.pdf' : 'english-file.pdf');
         expect(values[0].find('.mt-badge').exists()).toBe(nameTranslated);
         expect(values[1].find('.mt-badge').exists()).toBe(fileTranslated);
-        expect(values[0].classes('sw-product-document-cell--fallback')).toBe(!nameTranslated);
-        expect(values[1].classes('sw-product-document-cell--fallback')).toBe(!fileTranslated);
+        expect(values[0].classes('sw-product-document-form__cell--fallback')).toBe(!nameTranslated);
+        expect(values[1].classes('sw-product-document-form__cell--fallback')).toBe(!fileTranslated);
         expect(wrapper.find('.sw-product-document-form__language-hint').exists()).toBe(false);
         expect(wrapper.get('.sw-product-document-form__add-button button').attributes('aria-disabled')).toBe('true');
         expect(Array.from(wrapper.findAll('.mt-badge'), (badge) => badge.text())).toEqual(
@@ -83,9 +83,9 @@ describe('sw-product-document-form language markers', () => {
         const actions = wrapper.findAll('sw-context-menu-item-stub');
         expect(actions[0].text()).toBe('global.default.edit');
         expect(actions.at(-1)!.text()).toBe('global.default.remove');
-        expect(wrapper.findAll('.sw-product-document-cell')).toHaveLength(2);
-        expect(wrapper.find('.sw-product-document-cell .mt-badge').exists()).toBe(false);
-        expect(wrapper.find('.sw-product-document-cell--fallback').exists()).toBe(false);
+        expect(wrapper.findAll('.sw-product-document-form__cell')).toHaveLength(2);
+        expect(wrapper.find('.sw-product-document-form__cell .mt-badge').exists()).toBe(false);
+        expect(wrapper.find('.sw-product-document-form__cell--fallback').exists()).toBe(false);
         expect(wrapper.get<HTMLButtonElement>('.sw-product-document-form__add-button button').element.disabled).toBe(false);
     });
 });

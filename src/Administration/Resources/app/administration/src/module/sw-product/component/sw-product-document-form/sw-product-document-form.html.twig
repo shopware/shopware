@@ -154,11 +154,31 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-cell
-                                    :document="item"
-                                    field="title"
-                                    :show-variant-badge="!isInherited"
-                                />
+                                <span
+                                    class="sw-product-document-form__cell"
+                                    :class="{ 'sw-product-document-form__cell--fallback': isFallbackValue(item, 'title') }"
+                                >
+                                    <span
+                                        class="sw-product-document-form__cell-text"
+                                        :title="item.translated?.title"
+                                    >{{ item.translated?.title }}</span>
+                                    <mt-badge
+                                        v-if="!isFallbackValue(item, 'title') && languageCode"
+                                        v-tooltip="{ message: $t('sw-product.documentForm.changedForLanguage'), width: 'auto' }"
+                                        variant="neutral"
+                                        size="s"
+                                    >
+                                        {{ languageCode }}
+                                    </mt-badge>
+                                    <mt-badge
+                                        v-if="!isInherited && isVariantOnly(item)"
+                                        class="sw-product-document-form__variant-badge"
+                                        variant="info"
+                                        size="s"
+                                    >
+                                        {{ $t('sw-product.documentForm.variantOnly') }}
+                                    </mt-badge>
+                                </span>
                             </mt-link>
                         </template>
                     {% endblock %}
@@ -171,10 +191,23 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-cell
-                                    :document="item"
-                                    field="mediaId"
-                                />
+                                <span
+                                    class="sw-product-document-form__cell"
+                                    :class="{ 'sw-product-document-form__cell--fallback': isFallbackValue(item, 'mediaId') }"
+                                >
+                                    <span
+                                        class="sw-product-document-form__cell-text"
+                                        :title="getFileName(item)"
+                                    >{{ getFileName(item) }}</span>
+                                    <mt-badge
+                                        v-if="!isFallbackValue(item, 'mediaId') && languageCode"
+                                        v-tooltip="{ message: $t('sw-product.documentForm.changedForLanguage'), width: 'auto' }"
+                                        variant="neutral"
+                                        size="s"
+                                    >
+                                        {{ languageCode }}
+                                    </mt-badge>
+                                </span>
                             </mt-link>
                         </template>
                     {% endblock %}

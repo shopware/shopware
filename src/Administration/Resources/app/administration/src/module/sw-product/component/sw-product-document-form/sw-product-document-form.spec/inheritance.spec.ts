@@ -218,7 +218,7 @@ describe('sw-product-document-form inheritance', () => {
         });
         store.parentProduct.documents!.add(document);
         const wrapper = await createWrapper();
-        const getFileNameCell = () => wrapper.findAll('.document-row .sw-product-document-cell')[1];
+        const getFileNameCell = () => wrapper.findAll('.document-row .sw-product-document-form__cell')[1];
 
         await wrapper.get('.sw-inheritance-switch--is-inherited .mt-icon').trigger('click');
         expect(getFileNameCell().text()).toBe('language-file.pdf');
@@ -231,9 +231,42 @@ describe('sw-product-document-form inheritance', () => {
             translated: { title: 'Default language title', mediaId: defaultMedia.id },
         });
         expect(getFileNameCell().text()).toBe('default-language-file.pdf');
-        expect(getFileNameCell().classes()).toContain('sw-product-document-cell--fallback');
+        expect(getFileNameCell().classes()).toContain('sw-product-document-form__cell--fallback');
         expect(document).toMatchObject({ title: 'Language title', mediaId: languageMedia.id });
     });
+
+    it.each([
+        { parentHasFile: false, isVariantOnly: true },
+        { parentHasFile: true, isVariantOnly: false },
+    ])(
+        'marks a variant document as variant only ($isVariantOnly) when the parent has its file: $parentHasFile',
+        async ({ parentHasFile, isVariantOnly }) => {
+            const store = Shopware.Store.get('swProductDetail');
+            store.product.parentId = store.parentProduct.id;
+            const media = createMedia();
+            const variantDocument = repositoryFactory.create('product_document').create();
+            Object.assign(variantDocument, {
+                title: 'Variant manual',
+                mediaId: media.id,
+                position: 0,
+                translated: { title: 'Variant manual', mediaId: media.id },
+            });
+            store.product.documents?.add(variantDocument);
+            const parentMediaId = parentHasFile ? media.id : createMedia('parent').id;
+            const parentDocument = repositoryFactory.create('product_document').create();
+            Object.assign(parentDocument, {
+                title: 'Parent manual',
+                mediaId: parentMediaId,
+                translated: { title: 'Parent manual', mediaId: parentMediaId },
+            });
+            store.parentProduct.documents?.add(parentDocument);
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.text()).toContain('Variant manual');
+            expect(wrapper.find('.sw-product-document-form__variant-badge').exists()).toBe(isVariantOnly);
+        },
+    );
 
     it('detaches an empty inherited list and restores inheritance without adding assignments', async () => {
         const store = Shopware.Store.get('swProductDetail');

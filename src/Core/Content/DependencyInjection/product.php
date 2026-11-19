@@ -457,9 +457,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('product_document.repository'),
             service(Connection::class),
-        ])
-        ->call('setContainer', [
-            service('service_container'),
         ]);
 
     $services->set(ProductVisibilityDefinition::class)

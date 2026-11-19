@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,14 +23,14 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 #[Package('inventory')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
-class ProductDocumentVariantController extends AbstractController
+readonly class ProductDocumentVariantController
 {
     /**
      * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
      */
     public function __construct(
-        private readonly EntityRepository $productDocumentRepository,
-        private readonly Connection $connection,
+        private EntityRepository $productDocumentRepository,
+        private Connection $connection,
     ) {
     }
 

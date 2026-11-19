@@ -180,6 +180,9 @@ class InfoControllerTest extends TestCase
         $expected['versionHistory'] = $decodedResponse['versionHistory'];
         unset($decodedResponse['settings']['private_allowed_mime_types_by_extension']);
 
+        ksort($expected);
+        ksort($decodedResponse);
+
         static::assertSame($expected, $decodedResponse);
     }
 

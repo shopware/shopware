@@ -106,13 +106,14 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
         Shopware.Context.app.config.settings = { ...Shopware.Context.app.config.settings, appEnv: 'prod' };
     });
 
-    async function mountPage() {
+    async function mountPage(mocks = {}) {
         const pinia = createPinia();
         setActivePinia(pinia);
         useShopwareServicesStore();
 
         return mount(SwSettingsServicesIndex, {
             global: {
+                mocks,
                 stubs: {
                     'sw-page': {
                         template: `
@@ -379,13 +380,20 @@ describe('/src/module/sw-setting-services/page/sw-settings-services-index', () =
             ]);
             const availableServicesCalls = shopwareServicesService.getAvailableServices.mock.calls.length;
 
-            const page = await mountPage();
+            const page = await mountPage({
+                $t(key, { installed, total } = {}) {
+                    if (key === 'sw-settings-services.index.installing-services-progress') {
+                        return `${installed} of ${total} services installed`;
+                    }
+
+                    return key;
+                },
+            });
             await flushPromises();
 
             expect(page.findAll('sw-settings-services-service-card-stub')).toHaveLength(1);
-            expect(page.vm.installedServicesCount).toBe(1);
             expect(page.get('.sw-settings-services-index__installing-card-progress').text()).toBe(
-                'sw-settings-services.index.installing-services-progress',
+                '1 of 2 services installed',
             );
 
             jest.advanceTimersByTime(10_000);

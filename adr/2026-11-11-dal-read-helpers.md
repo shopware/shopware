@@ -95,17 +95,20 @@ public function get(string $id, Context $context, ?Criteria $criteria = null): ?
 }
 ```
 
-### Administration: `exists()` and `firstId()` on `Repository`
+### Administration: `exists()`, `firstId()` and `first()` on `Repository`
 
-We add two methods to `src/core/data/repository.data.ts`, with the same read options as `searchIds()`:
+We add three methods to `src/core/data/repository.data.ts`, with the same read options as `search()` and `searchIds()`:
 
 ```ts
 exists(criteria: Criteria, contextOrOptions?: apiContext | RepositoryCacheOptions, cacheOptions?: RepositoryCacheOptions): Promise<boolean>;
 
 firstId(criteria: Criteria, contextOrOptions?: apiContext | RepositoryCacheOptions, cacheOptions?: RepositoryCacheOptions): Promise<string | null>;
+
+first(criteria: Criteria, contextOrOptions?: apiContext | RepositoryCacheOptions, cacheOptions?: RepositoryCacheOptions): Promise<Entity<EntityName> | null>;
 ```
 
-Both copy the criteria with `Criteria.fromCriteria()`, set the limit to 1 and the total count mode to 0, and call `searchIds()`.
+Each copies the criteria with `Criteria.fromCriteria()` and sets the limit to 1 and the total count mode to 0.
+`exists()` and `firstId()` call `searchIds()`, and `first()` calls `search()`.
 
 `get()` copies its criteria with `Criteria.fromCriteria()` and sets the total count mode to 0 on the copy.
 It returns one entity and never reads the total.
@@ -130,5 +133,5 @@ Today it changes the ids of the caller's criteria, and after this change it leav
 ### Administration
 
 * Every `get()` that finds its entity runs one query fewer on the server.
-* `exists()` and `firstId()` make the cheap read the short one.
+* `exists()`, `firstId()` and `first()` make the cheap read the short one.
   The JS `Criteria` default for `search()` and `searchIds()` does not change.

@@ -41,10 +41,18 @@
             />
 
             <mt-empty-state
-                v-else-if="hasNoDeliveries"
+                v-else-if="hasNoDeliveries && canSeeDeliveries"
                 icon="regular-bolt"
                 :headline="$t('sw-settings-webhook.deliveries.emptyStateHeadline')"
                 :description="$t('sw-settings-webhook.deliveries.emptyStateDescription')"
+            />
+
+            <mt-empty-state
+                v-else-if="hasNoDeliveries"
+                class="sw-settings-webhook-deliveries-modal__hidden"
+                icon="regular-lock"
+                :headline="$t('sw-settings-webhook.deliveries.hiddenHeadline')"
+                :description="$t('sw-settings-webhook.deliveries.hiddenDescription')"
             />
 
             <sw-data-grid

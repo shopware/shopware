@@ -45,6 +45,8 @@
       "durationUnderOneSecond": "< 1 s",
       "emptyStateHeadline": "Noch keine Zustellungen",
       "emptyStateDescription": "Zustellungen erscheinen hier, sobald das Ereignis eintritt.",
+      "hiddenHeadline": "Keine Zustellungen sichtbar",
+      "hiddenDescription": "Nur der Besitzer dieses Webhooks oder ein Administrator kann seine Zustellungen sehen.",
       "loadErrorHeadline": "Die Zustellungen konnten nicht geladen werden",
       "loadErrorDescription": "Schließe die Zustellungen und öffne sie erneut, um es noch einmal zu versuchen.",
       "status": {

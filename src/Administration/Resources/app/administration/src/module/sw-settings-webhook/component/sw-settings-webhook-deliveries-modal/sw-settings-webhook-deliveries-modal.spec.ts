@@ -62,6 +62,7 @@ async function createWrapper({
         queued,
     ] as Delivery[],
     search = jest.fn(() => Promise.resolve(createCollection(deliveries))),
+    isAdmin = true,
 } = {}) {
     const wrapper = mount(await wrapTestComponent('sw-settings-webhook-deliveries-modal', { sync: true }), {
         props: { webhook },
@@ -69,6 +70,9 @@ async function createWrapper({
             provide: {
                 repositoryFactory: {
                     create: () => ({ search }),
+                },
+                acl: {
+                    isAdmin: () => isAdmin,
                 },
             },
             stubs: {
@@ -247,6 +251,12 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-deliverie
 
         expect(wrapper.find('mt-empty-state-stub').exists()).toBe(true);
         expect(wrapper.find('.sw-data-grid').exists()).toBe(false);
+    });
+
+    it('tells a user who does not own the webhook that its deliveries are hidden', async () => {
+        const { wrapper } = await createWrapper({ deliveries: [], isAdmin: false });
+
+        expect(wrapper.find('.sw-settings-webhook-deliveries-modal__hidden').exists()).toBe(true);
     });
 
     it('shows an error instead of loading forever when the deliveries cannot be loaded', async () => {

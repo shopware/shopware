@@ -16,7 +16,10 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     emits: ['modal-close'],
 
@@ -116,6 +119,13 @@ export default Component.wrapComponentConfig({
             }
 
             return this.$t('sw-settings-webhook.deliveries.noBody');
+        },
+
+        canSeeDeliveries(): boolean {
+            return (
+                this.acl.isAdmin() ||
+                (!!this.webhook.ownerUserId && this.webhook.ownerUserId === Shopware.Store.get('session').currentUser?.id)
+            );
         },
     },
 

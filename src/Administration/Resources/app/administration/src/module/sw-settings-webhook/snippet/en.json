@@ -45,6 +45,8 @@
       "durationUnderOneSecond": "< 1 s",
       "emptyStateHeadline": "No deliveries yet",
       "emptyStateDescription": "Deliveries show up here once the event happens.",
+      "hiddenHeadline": "No deliveries to show",
+      "hiddenDescription": "Only the owner of this webhook or an administrator can see its deliveries.",
       "loadErrorHeadline": "The deliveries could not be loaded",
       "loadErrorDescription": "Close the deliveries and open them again to retry.",
       "status": {

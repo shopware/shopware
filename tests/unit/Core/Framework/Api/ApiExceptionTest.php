@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingReverseAssociation;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
@@ -85,6 +86,15 @@ class ApiExceptionTest extends TestCase
         static::assertSame('The Content-Type "jpeg" is unsupported.', $exception->getMessage());
     }
 
+    public function testUnsupportedResponseMediaTypes(): void
+    {
+        $exception = ApiException::unsupportedResponseMediaTypes(['text/plain', 'application/xml']);
+
+        static::assertSame(0, $exception->getCode());
+        static::assertSame(Response::HTTP_UNSUPPORTED_MEDIA_TYPE, $exception->getStatusCode());
+        static::assertSame('All provided media types are unsupported. (text/plain, application/xml)', $exception->getMessage());
+    }
+
     public function testNotExistingRelation(): void
     {
         $exception = ApiException::notExistingRelation('demo');
@@ -123,6 +133,15 @@ class ApiExceptionTest extends TestCase
 
         static::assertInstanceOf(NoEntityClonedException::class, $exception);
         static::assertSame('Could not clone entity order with id 1234.', $exception->getMessage());
+    }
+
+    public function testInvalidCloneOverwrite(): void
+    {
+        $exception = ApiException::invalidCloneOverwrite('media.0.media.path');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ApiException::API_INVALID_CLONE_OVERWRITE, $exception->getErrorCode());
+        static::assertSame('The value of "media.0.media.path" is not allowed in clone overwrites.', $exception->getMessage());
     }
 
     public function testExpectationFailed(): void
@@ -293,6 +312,15 @@ class ApiExceptionTest extends TestCase
         static::assertSame($previous, $exception->getPrevious());
     }
 
+    public function testInsecureOAuthRedirectUri(): void
+    {
+        $exception = ApiException::insecureOAuthRedirectUri();
+
+        static::assertSame(ApiException::API_OAUTH_INSECURE_REDIRECT_URI, $exception->getErrorCode());
+        static::assertSame(400, $exception->getStatusCode());
+        static::assertSame('Redirect URL must use https. Plain http is only allowed for localhost and loopback IP addresses.', $exception->getMessage());
+    }
+
     public function testSalesChannelInMaintenanceMode(): void
     {
         $exception = ApiException::salesChannelInMaintenanceMode();
@@ -361,5 +389,24 @@ class ApiExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
         static::assertSame('A definition generator for format "foo" was not found.', $exception->getMessage());
         static::assertSame('foo', $exception->getParameter('format'));
+    }
+
+    public function testOauthInvalidTarget(): void
+    {
+        $exception = ApiException::oauthInvalidTarget('hint');
+
+        static::assertSame('invalid_target', $exception->getErrorType());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getHttpStatusCode());
+        static::assertSame(OAuthResource::ERROR_CODE_INVALID_TARGET, $exception->getCode());
+        static::assertSame('hint', $exception->getHint());
+    }
+
+    public function testOauthTokenNotValidForResource(): void
+    {
+        $exception = ApiException::oauthTokenNotValidForResource();
+
+        static::assertSame('invalid_token', $exception->getErrorType());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $exception->getHttpStatusCode());
+        static::assertSame(9, $exception->getCode());
     }
 }

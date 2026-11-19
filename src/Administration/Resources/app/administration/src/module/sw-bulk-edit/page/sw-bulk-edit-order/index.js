@@ -1,5 +1,7 @@
 import template from './sw-bulk-edit-order.html.twig';
 import './sw-bulk-edit-order.scss';
+import { deprecatedComputed } from './deprecated-members';
+import { collectStatusTransitionFailures, toFailedStatusItems } from './status-transition-failures';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -37,6 +39,7 @@ export default {
             customFieldSets: [],
             itemsPerRequest: 100,
             processStatus: '',
+            statusTransitionFailures: [],
             order: {},
         };
     },
@@ -48,6 +51,8 @@ export default {
     },
 
     computed: {
+        ...deprecatedComputed,
+
         selectedIds() {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
@@ -58,20 +63,6 @@ export default {
 
         orderRepository() {
             return this.repositoryFactory.create('order');
-        },
-
-        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
-        customFieldSetRepository() {
-            return this.repositoryFactory.create('custom_field_set');
-        },
-
-        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
-        customFieldSetCriteria() {
-            const criteria = new Criteria(1, null);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
-
-            return criteria;
         },
 
         hasChanges() {
@@ -518,33 +509,37 @@ export default {
 
         onSave() {
             this.isLoading = true;
+            this.statusTransitionFailures = [];
 
             const { statusData, syncData } = this.onProcessData();
             const bulkEditOrderHandler = this.bulkEditApiFactory.getHandler('order');
 
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
-            const requests = [];
+            const statusRequest = statusData.length
+                ? collectStatusTransitionFailures(bulkEditOrderHandler, this.selectedIds, statusData)
+                : Promise.resolve([]);
 
-            payloadChunks.forEach((payload) => {
-                if (statusData.length) {
-                    requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
-                }
+            return statusRequest
+                .then((statusFailures) => {
+                    this.statusTransitionFailures = toFailedStatusItems(statusFailures, (key) => this.$t(key));
 
-                if (syncData.length) {
-                    requests.push(bulkEditOrderHandler.bulkEdit(payload, syncData));
-                }
-            });
+                    const syncRequests = syncData.length
+                        ? payloadChunks.map((payload) => bulkEditOrderHandler.bulkEdit(payload, syncData))
+                        : [];
 
-            return Promise.all(requests)
-                .then(() => {
-                    this.processStatus = 'success';
+                    return Promise.allSettled(syncRequests);
+                })
+                .then((syncResults) => {
+                    const hasStatusFailures = this.statusTransitionFailures.length > 0;
+                    const hasSyncFailures = syncResults.some((result) => result.status === 'rejected');
+
+                    this.processStatus = hasStatusFailures || hasSyncFailures ? 'fail' : 'success';
                 })
                 .catch(() => {
                     this.processStatus = 'fail';
                 })
                 .finally(() => {
-                    this.isLoading = false;
-                    this.getLatestOrderStatus().finally(() => {
+                    return this.getLatestOrderStatus().finally(() => {
                         this.isLoading = false;
                     });
                 });

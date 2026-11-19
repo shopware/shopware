@@ -8,7 +8,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Reads the toolsets a client pinned in its connect URL: `/api/_mcp?toolsets=order,media`.
+ * Reads the toolsets a client pinned in its connect URL: `/api/_mcp?toolsets=order,media`. The parameter
+ * name is public: {@see McpToolsetRegistry::QUERY_PARAMETER}.
  * See "Tool discovery" in Mcp/AGENTS.md for why the URL is the only place this can be fixed.
  *
  * @internal
@@ -16,8 +17,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 class McpRequestedToolsetResolver
 {
-    final public const QUERY_PARAMETER = 'toolsets';
-
     public function __construct(private readonly RequestStack $requestStack)
     {
     }
@@ -39,7 +38,7 @@ class McpRequestedToolsetResolver
         // all() rather than get(): InputBag::get() throws a BadRequestException on a non-scalar
         // value, so `?toolsets[]=order` would fail the whole tools/list instead of being ignored.
         // A malformed parameter must never cost a client its tool list.
-        $raw = $request->query->all()[self::QUERY_PARAMETER] ?? null;
+        $raw = $request->query->all()[McpToolsetRegistry::QUERY_PARAMETER] ?? null;
         if (!\is_string($raw)) {
             return [];
         }

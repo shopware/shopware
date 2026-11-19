@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Notification;
 
+use Mcp\Exception\SessionStoreException;
 use Mcp\Server\Session\InMemorySessionStore;
 use Mcp\Server\Session\SessionStoreInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -149,6 +150,20 @@ class McpListChangedNotifierTest extends TestCase
         $logger->expects($this->once())->method('warning');
 
         (new McpListChangedNotifier($store, $this->listVersions(), $logger))->syncSession(Uuid::v4()->toRfc4122());
+    }
+
+    public function testSkipsTheSessionWhileTheSessionStoreIsUnavailable(): void
+    {
+        $store = $this->createMock(SessionStoreInterface::class);
+        $store->method('exists')->willThrowException(new SessionStoreException('Session store is unavailable: connection refused'));
+        $store->expects($this->never())->method('write');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(2))->method('warning');
+
+        $notifier = new McpListChangedNotifier($store, $this->listVersions(), $logger);
+        $notifier->syncSession(Uuid::v4()->toRfc4122());
+        $notifier->notifySession(Uuid::v4()->toRfc4122(), new McpListChangedNotificationSet(tools: true, resources: false, prompts: false));
     }
 
     public function testNotifySessionQueuesForThatSessionOnly(): void

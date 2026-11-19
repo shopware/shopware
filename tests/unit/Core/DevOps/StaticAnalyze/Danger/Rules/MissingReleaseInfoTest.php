@@ -57,7 +57,7 @@ class MissingReleaseInfoTest extends TestCase
     /**
      * @param list<string> $touchedFiles
      */
-    #[TestDox('Pull requests confined to tests or static-analysis tooling are never relevant for external developers and skip the warning')]
+    #[TestDox('Pull requests confined to tests, static-analysis tooling or GitHub automation are never relevant for external developers and skip the warning')]
     #[DataProvider('neverExternallyRelevantFilesProvider')]
     public function testNeverExternallyRelevantPullRequests(array $touchedFiles, bool $expectWarning): void
     {
@@ -87,6 +87,20 @@ class MissingReleaseInfoTest extends TestCase
         yield 'static-analysis tooling change skips the warning' => [
             ['src/Core/DevOps/StaticAnalyze/Danger/Rules/MissingReleaseInfo.php'],
             false,
+        ];
+        yield 'GitHub automation change skips the warning' => [
+            [
+                '.github/workflows/integration-major.yml',
+                '.github/bin/js/auto-label-major-tests.ts',
+            ],
+            false,
+        ];
+        yield 'GitHub automation mixed with src changes still warns' => [
+            [
+                '.github/workflows/integration-major.yml',
+                'src/Core/Checkout/Cart/CartCalculator.php',
+            ],
+            true,
         ];
         yield 'tests mixed with src changes still warn' => [
             [

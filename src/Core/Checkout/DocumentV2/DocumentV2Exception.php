@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\DocumentV2;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,6 +28,10 @@ class DocumentV2Exception extends HttpException
     public const ORDER_NOT_FOUND = 'DOCUMENT_V2__ORDER_NOT_FOUND';
 
     public const DOCUMENT_NOT_FOUND = 'DOCUMENT_V2__DOCUMENT_NOT_FOUND';
+
+    public const MEDIA_NOT_FOUND = 'DOCUMENT_V2__MEDIA_NOT_FOUND';
+
+    public const DOCUMENT_MEDIA_NOT_ALLOWED = 'DOCUMENT_V2__DOCUMENT_MEDIA_NOT_ALLOWED';
 
     public const RENDERER_NOT_FOUND = 'DOCUMENT_V2__RENDERER_NOT_FOUND';
 
@@ -91,6 +97,8 @@ class DocumentV2Exception extends HttpException
 
     public const NO_UNPROCESSED_CREDIT_LINE_ITEMS = 'DOCUMENT_V2__NO_UNPROCESSED_CREDIT_LINE_ITEMS';
 
+    public const ORDER_DELIVERY_NOT_FOUND = 'DOCUMENT_V2__ORDER_DELIVERY_NOT_FOUND';
+
     public const DOCUMENT_TYPE_ALREADY_REGISTERED = 'DOCUMENT_V2__DOCUMENT_TYPE_ALREADY_REGISTERED';
 
     public const DOCUMENT_TYPE_SHADOWS_CORE_TYPE = 'DOCUMENT_V2__DOCUMENT_TYPE_SHADOWS_CORE_TYPE';
@@ -99,6 +107,14 @@ class DocumentV2Exception extends HttpException
      * @deprecated tag:v6.9.0 - Remove with the `app_provided` sentinel once `document.document_type_id` is dropped.
      */
     public const DOCUMENT_TYPE_RESERVED_IDENTIFIER = 'DOCUMENT_V2__DOCUMENT_TYPE_RESERVED_IDENTIFIER';
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivileges(array $privileges): ShopwareHttpException
+    {
+        return new MissingPrivilegeException($privileges);
+    }
 
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
@@ -156,6 +172,26 @@ class DocumentV2Exception extends HttpException
             self::DOCUMENT_NOT_FOUND,
             'Document with id "{{ documentId }}" not found.',
             ['documentId' => $documentId],
+        );
+    }
+
+    public static function mediaNotFound(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_NOT_FOUND,
+            'Media with id "{{ mediaId }}" not found.',
+            ['mediaId' => $mediaId],
+        );
+    }
+
+    public static function documentMediaNotAllowed(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::DOCUMENT_MEDIA_NOT_ALLOWED,
+            'Media with id "{{ mediaId }}" is private and not a document media file.',
+            ['mediaId' => $mediaId],
         );
     }
 
@@ -328,13 +364,13 @@ class DocumentV2Exception extends HttpException
         );
     }
 
-    public static function documentNumberAlreadyExists(string $documentNumber): self
+    public static function documentNumberAlreadyExists(string $documentNumber, string $documentType): self
     {
         return new self(
             Response::HTTP_CONFLICT,
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
-            'Document with number "{{ documentNumber }}" already exists.',
-            ['documentNumber' => $documentNumber],
+            'Document with number "{{ documentNumber }}" already exists for document type "{{ documentType }}".',
+            ['documentNumber' => $documentNumber, 'documentType' => $documentType],
         );
     }
 
@@ -534,6 +570,16 @@ class DocumentV2Exception extends HttpException
             self::NO_UNPROCESSED_CREDIT_LINE_ITEMS,
             'Cannot generate credit note because every credit line item of order "{{ orderId }}" is already invoiced or credited.',
             ['orderId' => $orderId],
+        );
+    }
+
+    public static function orderDeliveryNotFound(string $orderDeliveryId, string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_DELIVERY_NOT_FOUND,
+            'Delivery with id "{{ orderDeliveryId }}" does not belong to order "{{ orderId }}".',
+            ['orderDeliveryId' => $orderDeliveryId, 'orderId' => $orderId],
         );
     }
 }

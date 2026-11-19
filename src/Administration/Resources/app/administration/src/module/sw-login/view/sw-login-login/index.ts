@@ -79,7 +79,7 @@ export default Component.wrapComponentConfig({
                 this.loginConfig = await this.loginService.getLoginTemplateConfig();
             } catch {
                 // Fall back to the password login when the SSO config cannot be loaded.
-                this.loginConfig = { useDefault: true, url: '' };
+                this.loginConfig = { useDefault: true, url: '', passwordRecoveryEnabled: true };
             }
 
             this.$emit('config-loaded', this.loginConfig);
@@ -99,6 +99,8 @@ export default Component.wrapComponentConfig({
             this.ssoLoading = true;
             window.sessionStorage.setItem('redirectFromLogin', 'true');
             window.sessionStorage.setItem('sw-sso-session', 'true');
+            // The router guard restores the previously requested route once the SSO login returns
+            window.sessionStorage.setItem('sw-sso-restore-previous-route', 'true');
             this._navigateTo(this.loginConfig.url);
         },
 

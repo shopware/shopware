@@ -2148,4 +2148,37 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(wrapper.vm.getSearchTypeManifest('unknown')).toBeUndefined();
         });
     });
+
+    it('should load recently searched items with the criteria supplied by their search type', async () => {
+        const criteriaFactory = jest.fn((limit) => new Criteria(1, limit).addAssociation('coupon'));
+        const searchQuery = jest.fn(() => Promise.resolve({ data: {} }));
+
+        wrapper = await createWrapper(
+            {},
+            {
+                ...searchTypeServiceTypes,
+                custom_entity: {
+                    entityName: 'custom_entity',
+                    criteria: criteriaFactory,
+                },
+            },
+            ['custom_entity:read'],
+            {
+                searchService: { searchQuery },
+                recentlySearchService: {
+                    get: () => [{ entity: 'custom_entity', id: 'customId', timestamp: Date.now() }],
+                },
+            },
+        );
+
+        await wrapper.find('.sw-search-bar__input').trigger('focus');
+        await flushPromises();
+
+        const [queries] = searchQuery.mock.calls[0];
+
+        expect(criteriaFactory).toHaveBeenCalledWith(11);
+        expect(Object.keys(queries)).toEqual(['custom_entity']);
+        expect(queries.custom_entity.hasAssociation('coupon')).toBe(true);
+        expect(queries.custom_entity.ids).toEqual(['customId']);
+    });
 });

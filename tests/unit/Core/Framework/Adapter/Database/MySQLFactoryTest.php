@@ -7,11 +7,14 @@ use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
+use Pdo\Mysql;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -21,6 +24,149 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 class MySQLFactoryTest extends TestCase
 {
     use EnvTestBehaviour;
+
+    public function testMultiStatementsAreDisabledForApplicationConnections(): void
+    {
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertFalse($params['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    #[DisabledFeatures(['DISABLE_SQL_MULTI_STATEMENTS'])]
+    public function testDisablingTheRestrictionStillUsesASeparateMigrationConnection(): void
+    {
+        $connection = MySQLFactory::create();
+
+        $params = $connection->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayNotHasKey(Mysql::ATTR_MULTI_STATEMENTS, $params['driverOptions']);
+        $migrationConnection = MySQLFactory::createMigrationConnection($connection);
+
+        static::assertNotSame($connection, $migrationConnection);
+        static::assertTrue($migrationConnection->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    #[DisabledFeatures(['DISABLE_SQL_MULTI_STATEMENTS'])]
+    public function testExplicitMultiStatementRestrictionIsPreservedWhenTheFeatureIsDisabled(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?driverOptions[' . Mysql::ATTR_MULTI_STATEMENTS . ']=false',
+        ]);
+
+        $connection = MySQLFactory::create();
+
+        static::assertFalse($connection->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertTrue(MySQLFactory::createMigrationConnection($connection)->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    public function testMajorFlagDisablesMultiStatementsBeforeTheFeatureRegistryIsInitialized(): void
+    {
+        Feature::resetRegisteredFeatures();
+        $this->setEnvVars([
+            'V6_8_0_0' => '1',
+            'DISABLE_SQL_MULTI_STATEMENTS' => null,
+        ]);
+
+        static::assertFalse(MySQLFactory::create()->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    public function testRestrictionCanBeDisabledDuringEarlyBootDespiteTheMajorFlag(): void
+    {
+        Feature::resetRegisteredFeatures();
+        $this->setEnvVars([
+            'V6_8_0_0' => '1',
+            'DISABLE_SQL_MULTI_STATEMENTS' => '0',
+        ]);
+
+        $params = MySQLFactory::create()->getParams();
+
+        static::assertArrayHasKey('driverOptions', $params);
+        static::assertArrayNotHasKey(Mysql::ATTR_MULTI_STATEMENTS, $params['driverOptions']);
+    }
+
+    public function testRestrictionCanBeEnabledWithoutTheMajorFlag(): void
+    {
+        Feature::resetRegisteredFeatures();
+        $this->setEnvVars([
+            'V6_8_0_0' => '0',
+            'DISABLE_SQL_MULTI_STATEMENTS' => '1',
+        ]);
+
+        static::assertFalse(MySQLFactory::create()->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    public function testFeatureAllEnablesTheRestrictionDuringEarlyBootDespiteADisabledMajorFlag(): void
+    {
+        Feature::resetRegisteredFeatures();
+        $this->setEnvVars([
+            'FEATURE_ALL' => '1',
+            'V6_8_0_0' => '0',
+            'DISABLE_SQL_MULTI_STATEMENTS' => null,
+        ]);
+
+        static::assertFalse(MySQLFactory::create()->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    public function testMigrationConnectionAllowsMultiStatementsWithoutChangingApplicationConnection(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@localhost:3306/shopware?persistent=1',
+            'DATABASE_PERSISTENT_CONNECTION' => '1',
+        ]);
+
+        $connection = MySQLFactory::create([new MyMiddleware()]);
+        $migrationConnection = MySQLFactory::createMigrationConnection($connection);
+
+        static::assertNotSame($connection, $migrationConnection);
+        static::assertTrue($migrationConnection->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertFalse($migrationConnection->getParams()['driverOptions'][\PDO::ATTR_PERSISTENT] ?? null);
+        static::assertFalse($migrationConnection->getParams()['persistent'] ?? null);
+        static::assertFalse($connection->getParams()['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertTrue($connection->getParams()['driverOptions'][\PDO::ATTR_PERSISTENT] ?? null);
+        static::assertSame($connection->getConfiguration(), $migrationConnection->getConfiguration());
+        static::assertInstanceOf(MyDriver::class, $migrationConnection->getDriver());
+    }
+
+    public function testMigrationConnectionUsesThePrimaryDatabase(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@primary:3306/shopware',
+            'DATABASE_REPLICA_0_URL' => 'mysql://replica:pass@replica:3306/shopware',
+        ]);
+
+        $connection = MySQLFactory::create();
+        $migrationConnection = MySQLFactory::createMigrationConnection($connection);
+        $params = $migrationConnection->getParams();
+
+        static::assertNotInstanceOf(PrimaryReadReplicaConnection::class, $migrationConnection);
+        static::assertSame('primary', $params['host'] ?? null);
+        static::assertSame('user', $params['user'] ?? null);
+        static::assertTrue($params['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertFalse($connection->getParams()['primary']['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+        static::assertFalse($connection->getParams()['replica'][0]['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS] ?? null);
+    }
+
+    public function testFactoriesUseTheSameBaseParameters(): void
+    {
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://user:pass@primary:3306/shopware?charset=latin1',
+            'DATABASE_REPLICA_0_URL' => null,
+            'DATABASE_SSL_CA' => '/ca.pem',
+            'DATABASE_SSL_CERT' => '/cert.pem',
+            'DATABASE_SSL_KEY' => '/key.pem',
+            'DATABASE_PROTOCOL_COMPRESSION' => '1',
+        ]);
+
+        $connection = MySQLFactory::create();
+        $applicationParams = $connection->getParams();
+        $migrationParams = MySQLFactory::createMigrationConnection($connection)->getParams();
+
+        unset($applicationParams['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS], $applicationParams['driverOptions'][\PDO::ATTR_PERSISTENT], $applicationParams['persistent']);
+        unset($migrationParams['driverOptions'][Mysql::ATTR_MULTI_STATEMENTS], $migrationParams['driverOptions'][\PDO::ATTR_PERSISTENT], $migrationParams['persistent']);
+
+        static::assertSame($applicationParams, $migrationParams);
+    }
 
     public function testMiddlewaresAreUsed(): void
     {

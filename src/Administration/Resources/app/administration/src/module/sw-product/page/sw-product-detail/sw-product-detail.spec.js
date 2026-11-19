@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
     value: {
@@ -57,6 +58,8 @@ const defaultSalesChannelData = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
+    const updateCanonicalUrlMock = jest.fn(() => Promise.resolve());
+
     async function createWrapper(
         searchFunction = () => Promise.resolve([]),
         getFunction = () => {
@@ -85,7 +88,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     numberRangeService: {
                         reserve: () => Promise.resolve({ number: 1 }),
                     },
-                    seoUrlService: {},
+                    seoUrlService: { updateCanonicalUrl: updateCanonicalUrlMock },
                     mediaService: {},
                     repositoryFactory: {
                         create: (entity) => ({
@@ -109,6 +112,14 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                                 if (product && !product._origin) {
                                     product._origin = {};
+                                }
+
+                                if (product && !product.isNew) {
+                                    product.isNew = () => false;
+                                }
+
+                                if (product && !product.getOrigin) {
+                                    product.getOrigin = () => product._origin;
                                 }
 
                                 return product;
@@ -591,7 +602,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                 name: 'general',
             };
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         settings.forEach((entry) => {
             expect(entry.enabled).toBe(!keys.includes(entry.key));
@@ -605,7 +616,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
     });
 
     it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.unmount();
         wrapper = await createWrapper(() =>
             Promise.resolve([
@@ -693,6 +704,38 @@ describe('module/sw-product/page/sw-product-detail', () => {
         await flushPromises();
         await flushPromises();
         expect(wrapper.vm.product.visibilities).toHaveLength(1);
+    });
+
+    it('should request every default sales channel by id', async () => {
+        await flushPromises();
+        await wrapper.unmount();
+
+        const searchedCriteria = [];
+
+        wrapper = await createWrapper(
+            (criteria) => {
+                searchedCriteria.push(criteria);
+
+                return Promise.resolve([
+                    {
+                        id: '98432def39fc4624b33213a56b8c944d',
+                        name: 'Headless',
+                    },
+                ]);
+            },
+            undefined,
+            null,
+        );
+
+        await flushPromises();
+        await flushPromises();
+
+        const salesChannelCriteria = searchedCriteria.find((criteria) =>
+            criteria.ids.includes('98432def39fc4624b33213a56b8c944d'),
+        );
+
+        expect(salesChannelCriteria).toBeDefined();
+        expect(salesChannelCriteria.limit).toBeNull();
     });
 
     it('should run custom validation service and handle errors', async () => {
@@ -839,6 +882,60 @@ describe('module/sw-product/page/sw-product-detail', () => {
         // Previous units should not be updated on error
         expect(wrapper.vm.previousLengthUnit).toBe('cm');
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
+    });
+
+    describe('saving SEO URLs', () => {
+        async function saveWithSeoUrl({ foreignKey = 'product-id', seoPathInfo, isModified }) {
+            updateCanonicalUrlMock.mockClear();
+
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, () => Promise.resolve({ id: 'product-id', variation: [] }));
+            await flushPromises();
+
+            const original = {
+                id: 'sc',
+                foreignKey,
+                salesChannelId: 'sc',
+                languageId: 'lang',
+                seoPathInfo: 'Custom/Path',
+                isModified,
+            };
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [original];
+            seoStore.seoUrlCollection = [{ ...original, seoPathInfo }];
+
+            // eslint-disable-next-line sw-test-rules/no-vm-access -- the save button sits inside the stubbed sw-button-group
+            await wrapper.vm.saveProduct();
+        }
+
+        afterEach(() => {
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [];
+            seoStore.seoUrlCollection = null;
+        });
+
+        it.each([
+            { state: 'cleared', seoPathInfo: '', originalIsModified: true, isModified: false },
+            { state: 'whitespace-only', seoPathInfo: '  ', originalIsModified: true, isModified: false },
+            { state: 'edited', seoPathInfo: 'New/Path', originalIsModified: false, isModified: true },
+        ])(
+            'should send a $state SEO URL with isModified=$isModified',
+            async ({ seoPathInfo, originalIsModified, isModified }) => {
+                await saveWithSeoUrl({ seoPathInfo, isModified: originalIsModified });
+
+                expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+                expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                    expect.objectContaining({ id: 'sc', seoPathInfo, isModified }),
+                    'lang',
+                );
+            },
+        );
+
+        it('should not send SEO URLs left over from another product', async () => {
+            await saveWithSeoUrl({ foreignKey: 'other-product-id', seoPathInfo: '', isModified: true });
+
+            expect(updateCanonicalUrlMock).not.toHaveBeenCalled();
+        });
     });
 
     it('should set isSaveSuccessful to true when no SEO promises exist', () => {

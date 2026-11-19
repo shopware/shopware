@@ -51,15 +51,22 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         clearTimeout(this._timeout);
 
         this._timeout = setTimeout(() => {
-            if (this._isInputInvalid()) {
-                this._setError(this._getErrorMessageTemplate('filterRangeErrorMessage') );
-            } else if (this._isInputLowerBoundInvalid()) {
-                this._setError(this._getErrorMessageTemplate('filterRangeLowerBoundErrorMessage'));
-            } else {
-                this._removeError();
-            }
+            this._validateInputs();
             this.listing.changeListing();
         }, this.options.inputTimeout);
+    }
+
+    /**
+     * @private
+     */
+    _validateInputs() {
+        if (this._isInputInvalid()) {
+            this._setError(this._getErrorMessageTemplate('filterRangeErrorMessage'));
+        } else if (this._isInputLowerBoundInvalid()) {
+            this._setError(this._getErrorMessageTemplate('filterRangeLowerBoundErrorMessage'));
+        } else {
+            this._removeError();
+        }
     }
 
     /**
@@ -140,17 +147,14 @@ export default class FilterRangePlugin extends FilterBasePlugin {
      * @return {boolean}
      */
     setValuesFromUrl(params) {
-        let stateChanged = false;
-        Object.keys(params).forEach(key => {
-            if (key === this.options.minKey) {
-                this._inputMin.value = params[key];
-                stateChanged = true;
-            }
-            if (key === this.options.maxKey) {
-                this._inputMax.value = params[key];
-                stateChanged = true;
-            }
-        });
+        const min = params[this.options.minKey] ?? '';
+        const max = params[this.options.maxKey] ?? '';
+        const stateChanged = this._inputMin.value !== min || this._inputMax.value !== max;
+
+        clearTimeout(this._timeout);
+        this._inputMin.value = min;
+        this._inputMax.value = max;
+        this._validateInputs();
 
         return stateChanged;
     }

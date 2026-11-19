@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin;
 use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -246,6 +247,19 @@ class AdminSearcherTest extends TestCase
         static::assertSame(1, $data['product']['total']);
     }
 
+    public function testSearchStripsBracketsAroundWords(): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with($this->getQueryBody('tennis cap*'))
+            ->willReturn($this->getMockResponse('tennis cap'));
+
+        $data = $this->searcher->search('tennis (cap', ['product'], Context::createDefaultContext());
+
+        static::assertSame(1, $data['product']['total']);
+    }
+
     public function testSearchNormalizesTermLevelQueries(): void
     {
         $this->client
@@ -297,6 +311,34 @@ class AdminSearcherTest extends TestCase
         $this->expectExceptionObject($exception);
 
         $this->searcher->search('elasticsearch', ['product'], Context::createDefaultContext());
+    }
+
+    #[DataProvider('booleanSearchTerms')]
+    public function testSearchReplacesBooleanOperators(string $term, string $expected): void
+    {
+        $this->client
+            ->expects($this->once())
+            ->method('msearch')
+            ->with(static::callback(static function (array $params) use ($expected): bool {
+                static::assertSame($expected, $params['body'][1]['query']['bool']['should'][0]['match']['completion']['query']);
+
+                return true;
+            }))
+            ->willReturn($this->getMockResponse('product'));
+
+        $data = $this->searcher->search($term, ['product'], Context::createDefaultContext());
+
+        static::assertSame(1, $data['product']['total']);
+    }
+
+    public static function booleanSearchTerms(): \Generator
+    {
+        yield 'OR ignores case' => ['cap oR hat', 'cap|hat'];
+        yield 'AND ignores case' => ['cap AnD hat', 'cap + hat'];
+        yield 'NOT ignores case' => ['cap nOt hat', 'cap -hat'];
+        yield 'Unicode whitespace separates operators' => ["cap\u{00A0}OR\u{00A0}hat", 'cap|hat'];
+        yield 'Unicode words are preserved' => ['mütze AND hut', 'mütze + hut'];
+        yield 'operators inside words are preserved' => ['candy orange', 'candy orange'];
     }
 
     private function createSearcher(AdminSearchRegistry&Stub $registry, DefinitionInstanceRegistry&Stub $definitionRegistry): AdminSearcher

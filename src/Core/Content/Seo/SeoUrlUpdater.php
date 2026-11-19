@@ -45,6 +45,99 @@ class SeoUrlUpdater
      */
     public function update(string $routeName, array $ids): void
     {
+        $this->doUpdate($routeName, $ids, false, null);
+    }
+
+    /**
+     * Regenerates the SEO URLs only for the sales channels that use the given template,
+     * so changing one template does not regenerate every sales channel.
+     *
+     * @internal
+     *
+     * @param list<string> $ids
+     * @param string|null $templateSalesChannelId the sales channel whose own template changed (also when it now inherits the default template),
+     *                                            `null` for the default template, which regenerates the sales channels without an own template
+     */
+    public function updateForTemplate(string $routeName, array $ids, ?string $templateSalesChannelId): void
+    {
+        $this->doUpdate($routeName, $ids, true, $templateSalesChannelId);
+    }
+
+    /**
+     * Replaces the canonical SEO URL of one entity in one sales channel and language with the URL generated from its
+     * template, also when it is write-protected. Returns false and writes nothing when the template generates no URL there.
+     *
+     * @internal
+     */
+    public function resetToTemplate(string $routeName, string $id, string $salesChannelId, string $languageId, bool $isHeadless): bool
+    {
+        if ($routeName === '') {
+            return false;
+        }
+
+        $id = strtolower($id);
+        $salesChannelId = strtolower($salesChannelId);
+        $languageId = strtolower($languageId);
+
+        if ($isHeadless) {
+            $entityRoute = $this->findEntitySeoUrlRoute($routeName);
+            $route = $entityRoute === null ? null : new ConfiguredEntitySeoUrlRoute($entityRoute);
+        } else {
+            $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
+        }
+
+        if ($route === null) {
+            throw SeoException::seoUrlRouteNotFound($routeName);
+        }
+
+        $template = null;
+        foreach ($this->loadUrlTemplate($routeName, $isHeadless, true, $salesChannelId) as $config) {
+            if ($config['languageId'] === $languageId) {
+                $template = $config['template'];
+            }
+        }
+
+        if ($template === null) {
+            return false;
+        }
+
+        $context = Context::createDefaultContext();
+        $chain = $this->fetchLanguageChains($context)[$languageId] ?? null;
+        $criteria = new Criteria([$salesChannelId]);
+        $criteria->addAssociation('domains');
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
+
+        if ($chain === null || $salesChannel === null) {
+            return false;
+        }
+
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
+        $languageContext->setConsiderInheritance(true);
+
+        $urls = [];
+        foreach ($this->seoUrlGenerator->generate([$id], $template, $route, $languageContext, $salesChannel) as $url) {
+            if (($url->getError() ?? '') !== '' || $url->getSeoPathInfo() === '') {
+                continue;
+            }
+
+            $url->setIsModified(false);
+            $urls[] = $url;
+        }
+
+        if ($urls === []) {
+            return false;
+        }
+
+        $this->seoUrlPersister->forceUpdateSeoUrls($languageContext, $routeName, [$id], $urls, $salesChannel);
+
+        return true;
+    }
+
+    /**
+     * @param list<string> $ids
+     */
+    private function doUpdate(string $routeName, array $ids, bool $onlyChangedTemplate, ?string $templateSalesChannelId): void
+    {
         if ($routeName === '') {
             return;
         }
@@ -52,7 +145,7 @@ class SeoUrlUpdater
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
 
         if ($route !== null) {
-            $templates = $this->loadUrlTemplate($routeName, false);
+            $templates = $this->loadUrlTemplate($routeName, false, $onlyChangedTemplate, $templateSalesChannelId);
             if ($templates !== []) {
                 $this->generateAndPersist($route, $routeName, $templates, $ids);
             }
@@ -66,7 +159,7 @@ class SeoUrlUpdater
             throw SeoException::seoUrlRouteNotFound($routeName);
         }
 
-        $templates = $this->loadUrlTemplate($routeName, true);
+        $templates = $this->loadUrlTemplate($routeName, true, $onlyChangedTemplate, $templateSalesChannelId);
         if ($templates === []) {
             return;
         }
@@ -133,7 +226,7 @@ class SeoUrlUpdater
      *
      * @return list<array{salesChannelId: string, languageId: string, template: string}>
      */
-    private function loadUrlTemplate(string $routeName, bool $isHeadless): array
+    private function loadUrlTemplate(string $routeName, bool $isHeadless, bool $onlyChangedTemplate, ?string $templateSalesChannelId): array
     {
         $query = 'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
@@ -172,9 +265,19 @@ class SeoUrlUpdater
 
         $result = [];
         foreach ($domains as $domain) {
-            $template = $salesChannelTemplates[$domain['salesChannelId']] ?? $default;
+            $ownTemplate = $salesChannelTemplates[$domain['salesChannelId']] ?? null;
+            $template = $ownTemplate ?? $default;
 
             if ($template === null) {
+                continue;
+            }
+
+            // a sales channel whose own template changed is regenerated even when it now inherits the default template
+            $affected = $templateSalesChannelId === null
+                ? $ownTemplate === null
+                : $domain['salesChannelId'] === $templateSalesChannelId;
+
+            if ($onlyChangedTemplate && !$affected) {
                 continue;
             }
 

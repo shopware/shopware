@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
@@ -102,7 +103,9 @@ abstract class Plugin extends Bundle
         }
 
         $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
-        Kernel::getConnection()->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
+        $connection = $this->container?->get('doctrine.dbal.migration_connection')
+            ?? MySQLFactory::createMigrationConnection(Kernel::getConnection());
+        $connection->executeStatement('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
     public function getBasePath(): string

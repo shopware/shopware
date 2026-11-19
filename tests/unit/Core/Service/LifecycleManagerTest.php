@@ -5,21 +5,14 @@ namespace Shopware\Tests\Unit\Core\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\AllServiceInstaller;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceLifecycle;
-use Shopware\Core\Service\ServiceRegistry\Client;
-use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServicesAvailability;
-use Shopware\Core\Service\ServiceStorage;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
-use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 
 /**
  * @internal
@@ -36,8 +29,6 @@ class LifecycleManagerTest extends TestCase
 
     private PermissionsService $permissionsService;
 
-    private Client $client;
-
     private Context $context;
 
     protected function setUp(): void
@@ -46,7 +37,6 @@ class LifecycleManagerTest extends TestCase
         $this->serviceLifecycle = static::createStub(ServiceLifecycle::class);
         $this->serviceInstaller = static::createStub(AllServiceInstaller::class);
         $this->permissionsService = static::createStub(PermissionsService::class);
-        $this->client = static::createStub(Client::class);
         $this->context = Context::createDefaultContext();
     }
 
@@ -57,7 +47,7 @@ class LifecycleManagerTest extends TestCase
         $installer->expects($this->once())->method('scheduleInstall');
         $this->serviceInstaller = $installer;
 
-        $manager = $this->createManager($this->createAppRepository());
+        $manager = $this->createManager();
 
         $manager->enable();
 
@@ -78,40 +68,36 @@ class LifecycleManagerTest extends TestCase
             ->with($this->context);
         $this->permissionsService = $permissions;
 
-        $this->createManager($this->createAppRepository())->disable($this->context);
+        $this->createManager()->disable($this->context);
 
         static::assertTrue($this->systemConfigService->getBool(LifecycleManager::CONFIG_KEY_SERVICES_DISABLED));
     }
 
-    public function testSync(): void
+    public function testSyncUninstallsRetiredServicesBeforeReevaluating(): void
     {
-        $services = new AppCollection([
-            $this->createServiceEntity(id: 'service1', name: 'SwagService1'),
-            $this->createServiceEntity(id: 'service2', name: 'SwagService2'),
-            $this->createServiceEntity(id: 'service3', name: 'OrphanedService'),
-        ]);
+        $calls = [];
 
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('getAll')
-            ->willReturn([
-                new ServiceEntry('SwagService1', 'Swag Service 1', 'https://example.com', '/app-endpoint'),
-                new ServiceEntry('SwagService2', 'Swag Service 2', 'https://swag-service2.example.com', '/app-endpoint'),
-            ]);
-        $this->client = $client;
+        $installer = $this->createMock(AllServiceInstaller::class);
+        $installer->expects($this->once())
+            ->method('uninstallRetired')
+            ->with($this->context)
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'uninstallRetired';
+            });
+        $this->serviceInstaller = $installer;
 
         $lifecycle = $this->createMock(ServiceLifecycle::class);
         $lifecycle->expects($this->once())
-            ->method('uninstall')
-            ->with('OrphanedService', $this->context);
-        $lifecycle->expects($this->once())
             ->method('reevaluateInstalled')
-            ->with($this->context);
+            ->with($this->context)
+            ->willReturnCallback(static function () use (&$calls): void {
+                $calls[] = 'reevaluateInstalled';
+            });
         $this->serviceLifecycle = $lifecycle;
 
-        $manager = $this->createManager($this->createAppRepository($services));
+        $this->createManager()->sync($this->context);
 
-        $manager->sync($this->context);
+        static::assertSame(['uninstallRetired', 'reevaluateInstalled'], $calls);
     }
 
     public function testReconcileDelegatesToInstallerAndDoesNotRemoveOrphansWhenEnabled(): void
@@ -133,7 +119,7 @@ class LifecycleManagerTest extends TestCase
             ->method('uninstall');
         $this->serviceLifecycle = $lifecycle;
 
-        $manager = $this->createManager($this->createAppRepository());
+        $manager = $this->createManager();
 
         static::assertSame($expectedServices, $manager->reconcile($this->context));
     }
@@ -149,7 +135,7 @@ class LifecycleManagerTest extends TestCase
             ->method('reevaluateInstalled');
         $this->serviceLifecycle = $lifecycle;
 
-        $manager = $this->createManager($this->createAppRepository(), setting: 'false');
+        $manager = $this->createManager(setting: 'false');
 
         static::assertSame([], $manager->reconcile($this->context));
     }
@@ -162,7 +148,7 @@ class LifecycleManagerTest extends TestCase
     {
         $this->systemConfigService = new StaticSystemConfigService($systemConfig);
 
-        $manager = $this->createManager($this->createAppRepository(), setting: $setting, appEnv: $appEnv);
+        $manager = $this->createManager(setting: $setting, appEnv: $appEnv);
 
         static::assertSame($expectedEnabled, $manager->enabled());
     }
@@ -193,67 +179,19 @@ class LifecycleManagerTest extends TestCase
 
     public function testAvailabilityIsBuiltFromTheEnvironment(): void
     {
-        $manager = $this->createManager($this->createAppRepository(), setting: ServicesAvailability::AUTO, appEnv: 'dev');
+        $manager = $this->createManager(setting: ServicesAvailability::AUTO, appEnv: 'dev');
 
         static::assertEquals(new ServicesAvailability(ServicesAvailability::AUTO, 'dev'), $manager->availability());
     }
 
-    /**
-     * @param StaticEntityRepository<AppCollection> $repository
-     */
-    private function createManager(
-        StaticEntityRepository $repository,
-        string $setting = 'true',
-        string $appEnv = 'prod',
-    ): LifecycleManager {
+    private function createManager(string $setting = 'true', string $appEnv = 'prod'): LifecycleManager
+    {
         return new LifecycleManager(
             new ServicesAvailability($setting, $appEnv),
             $this->systemConfigService,
-            new ServiceStorage($repository),
             $this->serviceLifecycle,
             $this->serviceInstaller,
             $this->permissionsService,
-            $this->client,
         );
-    }
-
-    /**
-     * @return StaticEntityRepository<AppCollection>
-     */
-    private function createAppRepository(AppCollection $apps = new AppCollection()): StaticEntityRepository
-    {
-        return new StaticEntityRepository([$apps]);
-    }
-
-    /**
-     * @param list<string> $requirements
-     */
-    private function createServiceEntity(string $id, string $name, array $requirements = ['service_consent']): AppEntity
-    {
-        return AppFixture::createAppEntity(name: $name, id: $id)->assign([
-            'version' => '1.0.0',
-            'aclRoleId' => 'acl-role-id-' . $id,
-            'active' => true,
-            'selfManaged' => true,
-            'sourceConfig' => $this->createSourceConfig($requirements),
-        ]);
-    }
-
-    /**
-     * @param list<string> $requirements
-     *
-     * @return array<string, mixed>
-     */
-    private function createSourceConfig(array $requirements = ['service_consent']): array
-    {
-        return [
-            'version' => '1.0.0',
-            'hash' => 'a453f',
-            'revision' => '1.0.0-a453f',
-            'zip-url' => 'https://example.com/zip',
-            'hash-algorithm' => 'sha256',
-            'min-shop-supported-version' => '6.6.0.0',
-            'requirements' => $requirements,
-        ];
     }
 }

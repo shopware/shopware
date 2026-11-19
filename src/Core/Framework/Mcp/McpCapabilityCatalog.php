@@ -242,7 +242,11 @@ class McpCapabilityCatalog
             $resolvedGroups[$toolName] = $group;
         }
 
-        return $resolvedGroups;
+        // `?toolsets=all` selects every toolset, so a group of that name could never be selected on its own.
+        return array_map(
+            static fn (string $group): string => $group === McpToolsetRegistry::ALL_TOOLSETS ? McpToolsetRegistry::FALLBACK_GROUP : $group,
+            $resolvedGroups,
+        );
     }
 
     /**

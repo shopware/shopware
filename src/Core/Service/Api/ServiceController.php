@@ -177,7 +177,7 @@ class ServiceController
     {
         return new JsonResponse(array_map(static fn (ServiceEntry $entry) => [
             'name' => $entry->name,
-        ], array_values($this->serviceRegistryClient->getAll())));
+        ], $this->serviceRegistryClient->getActive()));
     }
 
     #[Route(

@@ -1,0 +1,313 @@
+diff --git a/RELEASE_INFO-6.7.md b/RELEASE_INFO-6.7.md
+index 2406b48b99f..988bd3f8b56 100644
+--- a/RELEASE_INFO-6.7.md
++++ b/RELEASE_INFO-6.7.md
+@@ -378,6 +378,10 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
+ ### Generated document number in the V2 creation response
+ 
+ The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.
++### Sync API reports missing references as a client error
++### Sync API reports missing references as write errors
++
++Sync API writes that reference a missing entity or version now return a field-specific write error with HTTP 400 instead of exposing a database error as HTTP 500.
+ 
+ ### HTML in customer name and address fields is rejected with a dedicated violation
+ 
+diff --git a/src/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandler.php b/src/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandler.php
+new file mode 100644
+index 00000000000..05753c9d392
+--- /dev/null
++++ b/src/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandler.php
+@@ -0,0 +1,80 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
++
++use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
++use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
++use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidForeignKeyReferenceException;
++use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
++use Shopware\Core\Framework\Log\Package;
++use Symfony\Component\Validator\ConstraintViolation;
++use Symfony\Component\Validator\ConstraintViolationList;
++
++/**
++ * @internal
++ */
++#[Package('framework')]
++class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerInterface
++{
++    public function __construct(private readonly DefinitionInstanceRegistry $registry)
++    {
++    }
++
++    public function getPriority(): int
++    {
++        return ExceptionHandlerInterface::PRIORITY_LATE;
++    }
++
++    public function matchException(\Throwable $e): ?\Throwable
++    {
++        if (!$e instanceof ForeignKeyConstraintViolationException) {
++            return null;
++        }
++
++        if (!\str_contains($e->getMessage(), 'Integrity constraint violation: 1452')) {
++            return null;
++        }
++
++        if (!\preg_match('/CONSTRAINT [`"]fk(?<separator>\.|__)(?<entity>.+?)\\k<separator>(?<field>[^`"]+)[`"] FOREIGN KEY/i', $e->getMessage(), $matches)) {
++            return $this->createGenericException();
++        }
++
++        try {
++            $definition = $this->registry->getByEntityName($matches['entity']);
++            $field = $definition->getFields()->getByStorageName($matches['field']);
++        } catch (\Throwable) {
++            return $this->createGenericException();
++        }
++
++        if (!$field instanceof FkField) {
++            return $this->createGenericException();
++        }
++
++        return $this->createSpecificException(
++            $matches['entity'],
++            $field->getPropertyName(),
++            $field->getReferenceDefinition()->getEntityName(),
++        );
++    }
++
++    private function createGenericException(): InvalidForeignKeyReferenceException
++    {
++        $message = 'A referenced entity or version does not exist.';
++
++        return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
++            new ConstraintViolation($message, $message, [], null, '', null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
++        ]));
++    }
++
++    private function createSpecificException(string $entity, string $field, string $referencedEntity): InvalidForeignKeyReferenceException
++    {
++        $message = \sprintf('The field "%s" on "%s" references a missing "%s" entity or version.', $field, $entity, $referencedEntity);
++        $template = 'The field "{{ field }}" on "{{ entity }}" references a missing "{{ reference }}" entity or version.';
++        $parameters = ['{{ field }}' => $field, '{{ entity }}' => $entity, '{{ reference }}' => $referencedEntity];
++        $propertyPath = '/' . $field;
++
++        return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
++            new ConstraintViolation($message, $template, $parameters, null, $propertyPath, null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
++        ]));
++    }
++}
+diff --git a/src/Core/Framework/DataAbstractionLayer/Exception/InvalidForeignKeyReferenceException.php b/src/Core/Framework/DataAbstractionLayer/Exception/InvalidForeignKeyReferenceException.php
+new file mode 100644
+index 00000000000..7902516fb20
+--- /dev/null
++++ b/src/Core/Framework/DataAbstractionLayer/Exception/InvalidForeignKeyReferenceException.php
+@@ -0,0 +1,14 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
++
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
++
++/**
++ * @internal
++ */
++#[Package('framework')]
++class InvalidForeignKeyReferenceException extends WriteConstraintViolationException
++{
++}
+diff --git a/src/Core/Framework/DependencyInjection/data-abstraction-layer.php b/src/Core/Framework/DependencyInjection/data-abstraction-layer.php
+index ac33f03f367..85754bf7ea2 100644
+--- a/src/Core/Framework/DependencyInjection/data-abstraction-layer.php
++++ b/src/Core/Framework/DependencyInjection/data-abstraction-layer.php
+@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAs
+ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver;
+ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
+ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
++use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ForeignKeyConstraintViolationExceptionHandler;
+ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
+ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
+ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+@@ -899,6 +900,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+     $services->set(TechnicalNameExceptionHandler::class)
+         ->tag('shopware.dal.exception_handler');
+ 
++    $services->set(ForeignKeyConstraintViolationExceptionHandler::class)
++        ->args([
++            service(DefinitionInstanceRegistry::class),
++        ])
++        ->tag('shopware.dal.exception_handler');
++
+     $services->set(EntityProtectionValidator::class)
+         ->args([
+             service(DefinitionInstanceRegistry::class),
+diff --git a/tests/integration/Core/Content/ImportExport/Command/ImportEntityCommandTest.php b/tests/integration/Core/Content/ImportExport/Command/ImportEntityCommandTest.php
+index 8f1119a59c7..9add4b8dda6 100644
+--- a/tests/integration/Core/Content/ImportExport/Command/ImportEntityCommandTest.php
++++ b/tests/integration/Core/Content/ImportExport/Command/ImportEntityCommandTest.php
+@@ -134,7 +134,7 @@ class ImportEntityCommandTest extends TestCase
+ 
+         $message = $commandTester->getDisplay();
+         static::assertStringContainsString(\sprintf('[ERROR] Errors on import. Rolling back transactions for %d records.', $num), $message);
+-        static::assertStringContainsString('Integrity constraint violation', $message);
++        static::assertStringContainsString('Caught 1 constraint violation errors.', $message);
+ 
+         $repository = static::getContainer()->get('product.repository');
+         $result = $repository->searchIds(new Criteria(), Context::createDefaultContext());
+diff --git a/tests/integration/Core/Content/ImportExport/ImportExportTest.php b/tests/integration/Core/Content/ImportExport/ImportExportTest.php
+index ea358f1a86b..60f9b709824 100644
+--- a/tests/integration/Core/Content/ImportExport/ImportExportTest.php
++++ b/tests/integration/Core/Content/ImportExport/ImportExportTest.php
+@@ -905,11 +905,11 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
+ 
+         $first = $invalid[0];
+         static::assertSame('e5c8b8f701034e8dbea72ac0fc32521e', $first['id']);
+-        static::assertStringContainsString('CONSTRAINT `fk.product_', $first['_error']);
++        static::assertStringContainsString('Caught 1 constraint violation errors.', $first['_error']);
+ 
+         $second = $invalid[1];
+         static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
+-        static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
++        static::assertStringContainsString('Caught 1 constraint violation errors.', $second['_error']);
+     }
+ 
+     public function testFinishedImportDoesNothing(): void
+@@ -1915,11 +1915,11 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
+ 
+         $first = $invalid[0];
+         static::assertSame('e5c8b8f701034e8dbea72ac0fc32521e', $first['id']);
+-        static::assertStringContainsString('CONSTRAINT `fk.product_', $first['_error']);
++        static::assertStringContainsString('Caught 1 constraint violation errors.', $first['_error']);
+ 
+         $second = $invalid[1];
+         static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
+-        static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
++        static::assertStringContainsString('Caught 1 constraint violation errors.', $second['_error']);
+     }
+ 
+     #[TestWith([false])]
+diff --git a/tests/integration/Core/Framework/Api/Sync/SyncServiceTest.php b/tests/integration/Core/Framework/Api/Sync/SyncServiceTest.php
+index a21c30da417..e276f92399b 100644
+--- a/tests/integration/Core/Framework/Api/Sync/SyncServiceTest.php
++++ b/tests/integration/Core/Framework/Api/Sync/SyncServiceTest.php
+@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
+ use Shopware\Core\Framework\Api\Sync\SyncService;
+ use Shopware\Core\Framework\Context;
+ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
++use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidForeignKeyReferenceException;
+ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+ use Shopware\Core\Framework\Log\Package;
+@@ -297,6 +298,32 @@ class SyncServiceTest extends TestCase
+         static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
+     }
+ 
++    public function testInvalidProductCategoryReferenceIsReportedWithAFieldSpecificWriteError(): void
++    {
++        $ids = new IdsCollection();
++        static::getContainer()->get('product.repository')->create([
++            (new ProductBuilder($ids, 'product'))->price(100)->build(),
++        ], Context::createDefaultContext());
++
++        $operation = new SyncOperation('mapping', 'product_category', SyncOperation::ACTION_UPSERT, [[
++            'productId' => $ids->get('product'),
++            'categoryId' => Uuid::randomHex(),
++        ]]);
++
++        $exception = null;
++        try {
++            $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior());
++        } catch (InvalidForeignKeyReferenceException $exception) {
++        }
++
++        static::assertInstanceOf(InvalidForeignKeyReferenceException::class, $exception, 'The invalid reference should be reported as a write error.');
++        $error = $exception->getErrors()->current();
++        static::assertSame('FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE', $error['code']);
++        static::assertSame('/categoryId', $error['source']['pointer']);
++        static::assertStringContainsString('product_category', (string) $error['detail']);
++        static::assertStringContainsString('category', (string) $error['detail']);
++    }
++
+     public function testDeleteWithWildCards(): void
+     {
+         $ids = new IdsCollection();
+diff --git a/tests/unit/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandlerTest.php b/tests/unit/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandlerTest.php
+new file mode 100644
+index 00000000000..9b4b0b7e0f1
+--- /dev/null
++++ b/tests/unit/Core/Framework/DataAbstractionLayer/Dbal/ForeignKeyConstraintViolationExceptionHandlerTest.php
+@@ -0,0 +1,71 @@
++<?php declare(strict_types=1);
++
++namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
++
++use Doctrine\DBAL\Driver\PDO\Exception as PdoDriverException;
++use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
++use PHPUnit\Framework\Attributes\CoversClass;
++use PHPUnit\Framework\TestCase;
++use Shopware\Core\Content\Category\CategoryDefinition;
++use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
++use Shopware\Core\Content\Product\ProductDefinition;
++use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
++use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ForeignKeyConstraintViolationExceptionHandler;
++use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidForeignKeyReferenceException;
++use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
++use Shopware\Core\Framework\Log\Package;
++use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
++use Symfony\Component\Validator\Validator\ValidatorInterface;
++
++/**
++ * @internal
++ */
++#[Package('framework')]
++#[CoversClass(ForeignKeyConstraintViolationExceptionHandler::class)]
++class ForeignKeyConstraintViolationExceptionHandlerTest extends TestCase
++{
++    public function testForeignKeyViolationBecomesAFieldSpecificShopwareError(): void
++    {
++        $driverException = PdoDriverException::new(new \PDOException('SQLSTATE[23000]: Integrity constraint violation: 1452 foreign key constraint fails (`shopware`.`product_category`, CONSTRAINT `fk.product_category.category_id` FOREIGN KEY (`category_id`, `category_version_id`) REFERENCES `category` (`id`, `version_id`))'));
++
++        $registry = new StaticDefinitionInstanceRegistry(
++            [ProductCategoryDefinition::class, ProductDefinition::class, CategoryDefinition::class],
++            static::createStub(ValidatorInterface::class),
++            static::createStub(EntityWriteGatewayInterface::class),
++        );
++        $handler = new ForeignKeyConstraintViolationExceptionHandler($registry);
++
++        $exception = $handler->matchException(new ForeignKeyConstraintViolationException($driverException, null));
++
++        static::assertInstanceOf(InvalidForeignKeyReferenceException::class, $exception);
++        $error = $exception->getErrors()->current();
++        static::assertSame('FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE', $error['code']);
++        static::assertSame('/categoryId', $error['source']['pointer']);
++        static::assertStringContainsString('product_category', (string) $error['detail']);
++        static::assertStringContainsString('category', (string) $error['detail']);
++    }
++
++    public function testUnrelatedExceptionIsNotHandled(): void
++    {
++        $handler = new ForeignKeyConstraintViolationExceptionHandler(new StaticDefinitionInstanceRegistry(
++            [],
++            static::createStub(ValidatorInterface::class),
++            static::createStub(EntityWriteGatewayInterface::class),
++        ));
++
++        static::assertSame(ExceptionHandlerInterface::PRIORITY_LATE, $handler->getPriority());
++        static::assertNull($handler->matchException(new \RuntimeException('Unrelated failure')));
++    }
++
++    public function testDeleteRestrictionIsNotTreatedAsAMissingReference(): void
++    {
++        $driverException = PdoDriverException::new(new \PDOException('SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`shopware`.`product_category`, CONSTRAINT `fk.product_category.category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`))'));
++        $handler = new ForeignKeyConstraintViolationExceptionHandler(new StaticDefinitionInstanceRegistry(
++            [],
++            static::createStub(ValidatorInterface::class),
++            static::createStub(EntityWriteGatewayInterface::class),
++        ));
++
++        static::assertNull($handler->matchException(new ForeignKeyConstraintViolationException($driverException, null)));
++    }
++}

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\DependencyInjection;
 
+use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
@@ -11,9 +12,13 @@ use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Api\UserValidationController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\Service\UserValidationService;
+use Shopware\Core\System\User\Subscriber\AdminUserWriteValidator;
 use Shopware\Core\System\User\UserDefinition;
+use Shopware\Core\System\User\UserExceptionHandler;
+use Shopware\Core\System\User\Validation\UserPreWriteValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -21,6 +26,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(UserDefinition::class)
         ->tag('shopware.entity.definition');
+
+    $services->set(UserPreWriteValidator::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(UserExceptionHandler::class)
+        ->tag('shopware.dal.exception_handler');
 
     $services->set(UserConfigDefinition::class)
         ->tag('shopware.entity.definition');
@@ -47,6 +58,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(UserRecoveryService::class),
             service('shopware.rate_limiter'),
+            param('shopware.api.user_recovery.enabled'),
         ])
         ->call('setContainer', [
             service('service_container'),
@@ -65,4 +77,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('setContainer', [
             service('service_container'),
         ]);
+
+    $services->set(AdminUserWriteValidator::class)
+        ->args([
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
 };

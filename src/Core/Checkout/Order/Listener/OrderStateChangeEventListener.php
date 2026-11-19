@@ -3,9 +3,13 @@
 namespace Shopware\Core\Checkout\Order\Listener;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Event\OrderDeliveryStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Event\OrderTransactionStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -13,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -51,6 +56,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
             'state_machine.order.state_changed' => 'onOrderStateChange',
             'state_machine.order_delivery.state_changed' => 'onOrderDeliveryStateChange',
             'state_machine.order_transaction.state_changed' => 'onOrderTransactionStateChange',
+            'state_machine.order_transaction_capture.state_changed' => 'onOrderTransactionCaptureStateChange',
+            'state_machine.order_transaction_capture_refund.state_changed' => 'onOrderTransactionCaptureRefundStateChange',
             BusinessEventCollectorEvent::NAME => 'onAddStateEvents',
         ];
     }
@@ -71,9 +78,21 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         }
 
         $context = $this->getContext($orderDelivery->getOrderId(), $event->getContext());
-        $order = $this->getOrder($orderDelivery->getOrderId(), $context);
+        $order = $this->getOrder(
+            $orderDelivery->getOrderId(),
+            $context,
+            ['deliveries.stateMachineState', 'deliveries.positions.orderLineItem']
+        );
 
-        $this->dispatchEvent($event->getStateEventName(), $order, $context);
+        $changedDelivery = $order->getDeliveries()?->get($orderDeliveryId);
+        if (!$changedDelivery) {
+            throw OrderException::orderDeliveryNotFound($orderDeliveryId);
+        }
+
+        $this->eventDispatcher->dispatch(
+            new OrderDeliveryStateMachineStateChangeEvent($event->getStateEventName(), $order, $changedDelivery, $context),
+            $event->getStateEventName()
+        );
     }
 
     /**
@@ -97,6 +116,56 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $context = $this->getContext($orderTransaction->getOrderId(), $event->getContext());
         $order = $this->getOrder($orderTransaction->getOrderId(), $context);
+
+        $changedTransaction = $order->getTransactions()?->get($orderTransactionId);
+        if (!$changedTransaction) {
+            throw OrderException::orderTransactionNotFound($orderTransactionId);
+        }
+
+        $this->eventDispatcher->dispatch(
+            new OrderTransactionStateMachineStateChangeEvent($event->getStateEventName(), $order, $changedTransaction, $context),
+            $event->getStateEventName()
+        );
+    }
+
+    /**
+     * @throws OrderException
+     */
+    public function onOrderTransactionCaptureStateChange(StateMachineStateChangeEvent $event): void
+    {
+        $captureId = $event->getTransition()->getEntityId();
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('transactions.captures.id', $captureId));
+
+        $orderId = $this->orderRepository->searchIds($criteria, $event->getContext())->firstId();
+        if ($orderId === null) {
+            throw OrderException::orderTransactionCaptureNotFound($captureId);
+        }
+
+        $context = $this->getContext($orderId, $event->getContext());
+        $order = $this->getOrder($orderId, $context);
+
+        $this->dispatchEvent($event->getStateEventName(), $order, $context);
+    }
+
+    /**
+     * @throws OrderException
+     */
+    public function onOrderTransactionCaptureRefundStateChange(StateMachineStateChangeEvent $event): void
+    {
+        $refundId = $event->getTransition()->getEntityId();
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('transactions.captures.refunds.id', $refundId));
+
+        $orderId = $this->orderRepository->searchIds($criteria, $event->getContext())->firstId();
+        if ($orderId === null) {
+            throw OrderException::orderTransactionCaptureRefundNotFound($refundId);
+        }
+
+        $context = $this->getContext($orderId, $event->getContext());
+        $order = $this->getOrder($orderId, $context);
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
     }
@@ -133,6 +202,12 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 continue;
             }
 
+            $eventClass = match ($machine->getTechnicalName()) {
+                OrderDeliveryStates::STATE_MACHINE => OrderDeliveryStateMachineStateChangeEvent::class,
+                OrderTransactionStates::STATE_MACHINE => OrderTransactionStateMachineStateChangeEvent::class,
+                default => OrderStateMachineStateChangeEvent::class,
+            };
+
             foreach ($sides as $side) {
                 $name = implode('.', [
                     $side,
@@ -140,7 +215,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                     $state->getTechnicalName(),
                 ]);
 
-                $definition = $this->businessEventCollector->define(OrderStateMachineStateChangeEvent::class, $name);
+                $definition = $this->businessEventCollector->define($eventClass, $name);
 
                 if (!$definition) {
                     continue;
@@ -191,11 +266,13 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     }
 
     /**
+     * @param list<string> $associations
+     *
      * @throws OrderException
      */
-    private function getOrder(string $orderId, Context $context): OrderEntity
+    private function getOrder(string $orderId, Context $context, array $associations = []): OrderEntity
     {
-        $orderCriteria = $this->getOrderCriteria($orderId, $context);
+        $orderCriteria = $this->getOrderCriteria($orderId, $context, $associations);
 
         $order = $this->orderRepository->search($orderCriteria, $context)->getEntities()->first();
         if (!$order) {
@@ -205,7 +282,10 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         return $order;
     }
 
-    private function getOrderCriteria(string $orderId, Context $context): Criteria
+    /**
+     * @param list<string> $associations
+     */
+    private function getOrderCriteria(string $orderId, Context $context, array $associations): Criteria
     {
         $criteria = (new Criteria([$orderId]))
             ->addAssociations([
@@ -219,12 +299,14 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 'language.locale',
                 'transactions.paymentMethod',
                 'transactions.stateMachineState',
+                'transactions.captures.refunds',
                 'lineItems',
                 'lineItems.downloads.media',
                 'currency',
                 'addresses.country',
                 'addresses.countryState',
                 'tags',
+                ...$associations,
             ]);
 
         $this->eventDispatcher->dispatch(new OrderStateChangeCriteriaEvent($orderId, $criteria, $context));

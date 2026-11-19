@@ -13,10 +13,10 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\LegacyTestsInSrc;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingIntegrationTestInSplitSuite;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingMigrationTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingPackageAttributeInTests;
-use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingPullRequestDescription;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingReleaseInfo;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingUnitTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
+use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\ProcessIsolationInTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RedisGroupUsage;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RemovedTwigBlocks;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\RouteSnapshotExtension;
@@ -35,7 +35,6 @@ return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(new DangerConfigChanged())
     ->useRule(new InlineRuleInDangerConfig())
-    ->useRule(new MissingPullRequestDescription())
     ->useRule(new DeprecatedChangelogFormat())
     ->useRule(new MissingReleaseInfo())
     ->useRule(new IgnoredPhpstanErrorsInTouchedFiles())
@@ -47,6 +46,7 @@ return (new Config())
     ->useRule(new MissingPackageAttributeInTests())
     ->useRule(new RedisGroupUsage())
     ->useRule(new SingleCoversClassInTests())
+    ->useRule(new ProcessIsolationInTests())
     ->useRule(new SqlHeredocUsage())
     ->useRule(new RemovedTwigBlocks())
     ->useRule(new InvalidFileNameCharacters())

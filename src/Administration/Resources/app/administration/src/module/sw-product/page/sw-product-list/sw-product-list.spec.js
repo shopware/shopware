@@ -8,6 +8,7 @@ import { mount, config } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -380,6 +381,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('sw-product-list.dateFilter is deprecated');
         jest.restoreAllMocks();
         lastProductSearchCriteria = null;
         jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
@@ -579,7 +581,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         // Setting `term` triggers the listing mixin's search watcher, which runs its own getList.
         // Let that settle against the real service before installing the counting mocks, so the
         // assertion only counts the explicit getList below (otherwise the watcher's call leaks in).
@@ -602,7 +604,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -625,7 +627,7 @@ describe('module/sw-product/page/sw-product-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -749,7 +751,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         await wrapper.setData({
             term: 'SW10001',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.filterCriteria.push(Criteria.equalsAny('manufacturer.id', [manufacturerId]));
 

@@ -111,7 +111,7 @@
 
     {% block sw_product_variant_modal_body_grid %}
     <sw-data-grid
-        v-if="productVariants.length > 0"
+        v-if="currency && productVariants.length > 0"
         ref="variantGrid"
         :is-loading="isLoading"
         :columns="gridColumns"

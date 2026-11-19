@@ -378,6 +378,49 @@ class WebhookManagerTest extends TestCase
         static::assertSame(0, $this->getRequestCount());
     }
 
+    public function testADeliveryTheOwnersRolesDoNotPermitIsRecordedAsNotPermitted(): void
+    {
+        $ownerId = TestUser::createNewTestUser($this->connection, ['customer:read'])->getUserId();
+        $webhookId = WebhookBuilder::ownedByUser($ownerId)
+            ->subscribe(ProductEvents::PRODUCT_WRITTEN_EVENT, 'https://test.com')
+            ->name('hook1')
+            ->insert($this->connection);
+
+        $this->getManager()->dispatch($this->getEntityWrittenEvent(Uuid::randomHex()));
+
+        static::assertSame([[
+            'webhook_id' => $webhookId,
+            'event_name' => ProductEvents::PRODUCT_WRITTEN_EVENT,
+            'delivery_status' => WebhookEventLogDefinition::STATUS_NOT_PERMITTED,
+            'serialized_webhook_message' => null,
+            'delivery_count' => '0',
+        ]], $this->connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(el.webhook_id)) AS webhook_id, el.event_name, el.delivery_status, el.serialized_webhook_message,
+                (SELECT COUNT(*) FROM webhook_delivery d WHERE d.webhook_event_log_id = el.id) AS delivery_count
+             FROM webhook_event_log el'
+        ));
+    }
+
+    public function testADeliveryRefusedForAnInactiveAppIsNotRecorded(): void
+    {
+        $this->createApp(appId: Uuid::randomHex(), active: false);
+
+        $customerId = Uuid::randomHex();
+        $this->createCustomer($customerId);
+
+        $customer = static::getContainer()->get('customer.repository')->search(new Criteria([$customerId]), Context::createDefaultContext())->getEntities()->get($customerId);
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        $event = new CustomerLoginEvent(
+            static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            $customer,
+            'testToken'
+        );
+
+        $this->getManager()->dispatch($event);
+
+        static::assertSame('0', $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_event_log'));
+    }
+
     public function testDispatchedWebhooksDontWrapEventMultipleTimes(): void
     {
         WebhookBuilder::ownedByUser($this->adminId)

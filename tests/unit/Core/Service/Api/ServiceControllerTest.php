@@ -20,10 +20,11 @@ use Shopware\Core\Service\Requirement\RequirementsValidator;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceRegistry\Client;
-use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -375,21 +376,36 @@ class ServiceControllerTest extends TestCase
         $controller->enableServices();
     }
 
-    public function testAvailableListsTheServicesOfTheRegistry(): void
+    public function testAvailableListsOnlyActiveServicesFromTheRegistry(): void
     {
-        $registryClient = static::createStub(Client::class);
-        $registryClient->method('getAll')->willReturn([
-            new ServiceEntry('SwagCopilot', 'Copilot', 'https://copilot.example.com', '/app-endpoint'),
-            new ServiceEntry('MyCoolService', 'My Cool Service', 'https://cool.example.com', '/app-endpoint'),
+        $registryResponse = new JsonMockResponse([
+            'services' => [
+                [
+                    'name' => 'SwagCopilot',
+                    'label' => 'Copilot',
+                    'host' => 'https://copilot.example.com',
+                    'app-endpoint' => '/app-endpoint',
+                    'activate-on-install' => true,
+                    'status' => 'active',
+                ],
+                [
+                    'name' => 'RetiredService',
+                    'label' => 'Retired Service',
+                    'host' => 'https://retired.example.com',
+                    'app-endpoint' => '/app-endpoint',
+                    'activate-on-install' => true,
+                    'status' => 'retired',
+                ],
+            ],
         ]);
+        $registryClient = new Client('https://registry.example.com', 'https://shop.example.com', new MockHttpClient($registryResponse));
 
         $response = $this->createController(serviceRegistryClient: $registryClient)->available();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame([
             ['name' => 'SwagCopilot'],
-            ['name' => 'MyCoolService'],
-        ], json_decode((string) $response->getContent(), true));
+        ], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
     }
 
     public function testReturnsCategorizedPermissions(): void

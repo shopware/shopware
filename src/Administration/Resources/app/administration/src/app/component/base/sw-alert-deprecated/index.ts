@@ -25,6 +25,8 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
+    emits: ['close'],
+
     props: {
         variant: {
             type: String as PropType<NotificationVariant>,

@@ -35,7 +35,7 @@ class MigrationCollectionRuntimeTest extends TestCase
     {
         $container = static::getContainer();
 
-        $this->connection = $container->get(Connection::class);
+        $this->connection = $container->get('doctrine.dbal.migration_connection');
         $loader = $container->get(MigrationCollectionLoader::class);
 
         $this->validMigrationCollection = $loader->collect('_test_migrations_valid_run_time');

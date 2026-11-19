@@ -322,8 +322,8 @@ class VersionManagerTest extends TestCase
             ToOneProductExtension::class
         );
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS `many_to_one_product`');
         $this->connection->executeStatement('
-            DROP TABLE IF EXISTS `many_to_one_product`;
             CREATE TABLE `many_to_one_product` (
                 `id` BINARY(16) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,

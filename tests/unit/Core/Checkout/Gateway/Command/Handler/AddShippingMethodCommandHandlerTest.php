@@ -62,7 +62,6 @@ class AddShippingMethodCommandHandlerTest extends TestCase
                     static function (Criteria $criteria): bool {
                         static::assertCount(1, $criteria->getFilters());
 
-                        /** @var EqualsFilter $filter */
                         $filter = $criteria->getFilters()[0];
 
                         static::assertInstanceOf(EqualsFilter::class, $filter);

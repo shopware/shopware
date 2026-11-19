@@ -79,7 +79,10 @@ export default {
 
                 this.getProductFromCategories(value.getIds())
                     .then((products) => {
-                        this.$emit('selection-change', products, 'categoryProducts');
+                        this.$emit('selection-change', products, 'categoryProducts', {
+                            ids: Array.from(value.getIds()),
+                            total: products.total,
+                        });
                     })
                     .catch((error) => {
                         this.createNotificationError({

@@ -18,6 +18,7 @@ export interface AuthObject {
 export interface LoginConfig {
     useDefault: boolean;
     url: string;
+    passwordRecoveryEnabled?: boolean;
 }
 
 interface TokenResponse {
@@ -686,6 +687,9 @@ export default function createLoginService(
                         }
                         return html2canvas(appElement, {
                             scale: 0.1,
+                            // A cloned iframe keeps its src and loads the embedded page again,
+                            // e.g. an app iframe from a signed URL that expired long ago
+                            ignoreElements: (element) => element.tagName === 'IFRAME',
                         });
                     })
                     .then((canvas) => {

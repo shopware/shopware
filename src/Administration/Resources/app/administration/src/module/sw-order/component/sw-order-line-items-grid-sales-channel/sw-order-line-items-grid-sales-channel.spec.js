@@ -638,7 +638,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
         await deleteAllButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(0);
     });

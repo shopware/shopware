@@ -118,6 +118,7 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
     it('should be able to show the tax free from', async () => {
         const wrapper = await createWrapper(['country.editor'], {
             enabled: true,
+            vatIdPattern: 'DE\\d{9}',
         });
 
         await flushPromises();
@@ -158,9 +159,43 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         expect(countryIsEuField.attributes().disabled).toBeUndefined();
     });
 
+    it('should disable the VAT Reg.No. format check for a non-EU country without a pattern', async () => {
+        const wrapper = await createWrapper(['country.editor'], {
+            vatIdPattern: null,
+            isEu: false,
+        });
+        await flushPromises();
+
+        const checkVatIdFormatField = wrapper.find(
+            '.mt-switch input[aria-label="sw-settings-country.detail.labelCheckVatIdFormat"]',
+        );
+
+        expect(checkVatIdFormatField.attributes().disabled).toBeDefined();
+        expect(wrapper.findComponent('.sw-settings-country-general__field-check-vatid-format').props('helpText')).toBe(
+            'sw-settings-country.detail.helpTextCheckVatIdFormatNoPattern',
+        );
+    });
+
+    it('should keep the VAT Reg.No. format check editable for an EU country without a pattern', async () => {
+        const wrapper = await createWrapper(['country.editor'], {
+            vatIdPattern: null,
+            isEu: true,
+        });
+        await flushPromises();
+
+        const checkVatIdFormatField = wrapper.find(
+            '.mt-switch input[aria-label="sw-settings-country.detail.labelCheckVatIdFormat"]',
+        );
+
+        expect(checkVatIdFormatField.attributes().disabled).toBeUndefined();
+        expect(wrapper.findComponent('.sw-settings-country-general__field-check-vatid-format').props('helpText')).toBe(
+            'sw-settings-country.detail.helpTextCheckVatIdFormat',
+        );
+    });
+
     it('should not able to show the tax free from', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const countryNameField = wrapper.find('.mt-text-field input[aria-label="sw-settings-country.detail.labelName"]');
         const countryPositionField = wrapper.find('mt-number-field-stub[label="sw-settings-country.detail.labelPosition"]');

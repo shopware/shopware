@@ -6,8 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
-use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\App\Url\VerificationState;
 use Shopware\Core\Framework\App\Url\VerificationStatus;
@@ -17,7 +15,9 @@ use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Component\Lock\Exception\LockAcquiringException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\Exception\LockReleasingException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\SharedLockInterface;
 use Symfony\Component\Lock\Store\InMemoryStore;
@@ -36,25 +36,8 @@ class AppUrlVerifierTest extends TestCase
         $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
         $lockFactory = new LockFactory(new InMemoryStore());
 
-        $shopId = ShopId::v2('shop-id');
-
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
-        static::assertTrue($verifier->verify($shopId));
-    }
-
-    public function testVerifyReturnsFalseIfnNoAppUrl(): void
-    {
-        $cache = new ArrayAdapter();
-        $clock = new MockClock();
-        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
-        $lockFactory = new LockFactory(new InMemoryStore());
-
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
-
-        $shopId = ShopId::v2('shop-id');
-        $result = $verifier->verify($shopId);
-
-        static::assertFalse($result);
+        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        static::assertTrue($verifier->verify());
     }
 
     public function testVerifyReturnsTrueIfLockCannotBeAcquired(): void
@@ -69,10 +52,9 @@ class AppUrlVerifierTest extends TestCase
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        static::assertTrue($verifier->verify($shopId));
+        static::assertTrue($verifier->verify());
     }
 
     public function testVerifyReturnsTrueIfCreateLockThrowsException(): void
@@ -88,10 +70,9 @@ class AppUrlVerifierTest extends TestCase
         $lockFactory = static::createStub(LockFactory::class);
         $lockFactory->method('createLock')->willReturn($lock);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        static::assertTrue($verifier->verify($shopId));
+        static::assertTrue($verifier->verify());
     }
 
     #[DataProvider('verifyOutcomeProvider')]
@@ -100,24 +81,24 @@ class AppUrlVerifierTest extends TestCase
         string $url,
         bool $expectedResult,
         VerificationStatus $expectedStatus,
-        ?string $expectedInfo
+        ?string $expectedInfo,
+        ?int $expectedStatusCode,
     ): void {
         $cache = new ArrayAdapter();
         $clock = new MockClock();
         $locks = new LockFactory(new InMemoryStore());
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient($responseFactory), $locks, static::createStub(LoggerInterface::class), $clock);
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => $url]);
-
-        $result = $verifier->verify($shopId);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient($responseFactory), $locks, static::createStub(LoggerInterface::class), $clock, appUrl: $url, appUrlCheckDisabled: false);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
 
         static::assertSame($expectedResult, $result);
         self::assertState(['status' => $expectedStatus, 'info' => $expectedInfo], $state);
+        static::assertSame($expectedStatusCode, $state?->statusCode);
     }
 
     /**
-     * @return iterable<string, array{MockResponse|callable, string, bool, VerificationStatus, string|null}>
+     * @return iterable<string, array{MockResponse|callable, string, bool, VerificationStatus, string|null, int|null}>
      */
     public static function verifyOutcomeProvider(): iterable
     {
@@ -127,6 +108,16 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::PASS,
             null,
+            204,
+        ];
+
+        yield 'http 204 > PASS' => [
+            new MockResponse('', ['http_code' => 204]),
+            'http://example.com',
+            true,
+            VerificationStatus::PASS,
+            null,
+            204,
         ];
 
         yield '500 > SOFT_FAIL' => [
@@ -135,6 +126,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::SOFT_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "500" body: "internal error"',
+            500,
         ];
 
         yield 'TransportException > SOFT_FAIL' => [
@@ -143,6 +135,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::SOFT_FAIL,
             'Failed to connect to APP_URL: network down',
+            null,
         ];
 
         yield 'Generic exception > HARD_FAIL' => [
@@ -151,6 +144,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'boom',
+            null,
         ];
 
         yield '429 > SOFT_FAIL' => [
@@ -159,6 +153,7 @@ class AppUrlVerifierTest extends TestCase
             true,
             VerificationStatus::SOFT_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "429" body: "too many requests"',
+            429,
         ];
 
         yield '404 > HARD_FAIL' => [
@@ -167,6 +162,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "404" body: "not found"',
+            404,
         ];
 
         yield 'invalid URL > HARD_FAIL' => [
@@ -175,6 +171,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'APP_URL is invalid: Invalid URL format.',
+            null,
         ];
 
         yield '200 (non-204) > HARD_FAIL' => [
@@ -183,6 +180,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "200" body: "ok"',
+            200,
         ];
 
         yield '302 > HARD_FAIL' => [
@@ -191,6 +189,7 @@ class AppUrlVerifierTest extends TestCase
             false,
             VerificationStatus::HARD_FAIL,
             'Unexpected response from APP_URL verification endpoint: HTTP code: "302" body: ""',
+            302,
         ];
     }
 
@@ -212,15 +211,13 @@ class AppUrlVerifierTest extends TestCase
             )
         );
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
         foreach ($steps as $step) {
             if ($step['sleep'] > 0) {
                 $clock->sleep($step['sleep']);
             }
 
-            $result = $verifier->verify($shopId);
+            $result = $verifier->verify();
             $state = $verifier->getCurrentState();
 
             $this->assertStep($state, $step, $result, $http->getRequestsCount());
@@ -276,17 +273,15 @@ class AppUrlVerifierTest extends TestCase
 
         $http = new MockHttpClient(new MockResponse('server error', ['http_code' => 500]));
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $result = $verifier->verify($shopId);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
 
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 1], $state);
 
         $clock->sleep(60 - 1);
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 1], $state);
@@ -303,14 +298,12 @@ class AppUrlVerifierTest extends TestCase
             new MockResponse('server error', ['http_code' => 500]),
         ]);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $verifier->verify($shopId);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        $verifier->verify();
         static::assertSame(1, $http->getRequestsCount());
 
         $clock->sleep(60);
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
 
         static::assertTrue($result);
@@ -329,16 +322,14 @@ class AppUrlVerifierTest extends TestCase
             new MockResponse('', ['http_code' => 204]),
         ]);
 
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $result = $verifier->verify($shopId);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL], $state);
 
         $clock->sleep(60);
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
 
         static::assertTrue($result);
@@ -352,10 +343,12 @@ class AppUrlVerifierTest extends TestCase
         $locks = new LockFactory(new InMemoryStore());
 
         $existingState = new VerificationState(
+            'https://example.com',
             VerificationStatus::SOFT_FAIL,
             10,
             $clock->now(),
-            'server error'
+            'server error',
+            statusCode: null,
         );
 
         $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);
@@ -364,24 +357,22 @@ class AppUrlVerifierTest extends TestCase
         $cache->save($item);
 
         $http = new MockHttpClient(new MockResponse('server error', ['http_code' => 500]));
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $result = $verifier->verify($shopId);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 10], $state);
         static::assertSame(0, $http->getRequestsCount());
 
         $clock->sleep(60 * 60 - 1);
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 10], $state);
         static::assertSame(0, $http->getRequestsCount());
 
         $clock->sleep(1);
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         $state = $verifier->getCurrentState();
         static::assertTrue($result);
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 11], $state);
@@ -395,10 +386,12 @@ class AppUrlVerifierTest extends TestCase
         $locks = new LockFactory(new InMemoryStore());
 
         $state = new VerificationState(
+            'https://example.com',
             VerificationStatus::SOFT_FAIL,
             2,
             $clock->now(),
-            'some error'
+            'some error',
+            statusCode: null,
         );
 
         $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);
@@ -407,55 +400,132 @@ class AppUrlVerifierTest extends TestCase
         $cache->save($item);
 
         $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
         $state = $verifier->getCurrentState();
         self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'tries' => 2], $state);
 
         $clock->sleep(2);
 
-        $result = $verifier->forceVerify($shop);
-        $state = $verifier->getCurrentState();
-        static::assertTrue($result);
-        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $state);
+        $result = $verifier->forceVerify();
+        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $result);
+        static::assertEquals($result, $verifier->getCurrentState());
     }
 
-    public function testVerifyNowDoesNothingAndReturnsTrueForNonProdEnvironments(): void
-    {
-        $cache = new ArrayAdapter();
-        $clock = new MockClock();
-        $locks = new LockFactory(new InMemoryStore());
-
-        $http = new MockHttpClient();
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        static::assertTrue($verifier->forceVerify($shop));
-        static::assertSame(0, $http->getRequestsCount());
-    }
-
-    public function testVerifyNowWithSkipEnvCheck(): void
+    public function testVerifyNowRunsInNonProdEnvironments(): void
     {
         $cache = new ArrayAdapter();
         $clock = new MockClock();
         $locks = new LockFactory(new InMemoryStore());
 
         $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
-        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock);
-        $shop = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-
-        $result = $verifier->forceVerify($shop, true);
-        $state = $verifier->getCurrentState();
-        static::assertTrue($result);
-        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $state);
+        $verifier = new AppUrlVerifier('dev', '6.7.1.0', $cache, $http, $locks, static::createStub(LoggerInterface::class), $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        $result = $verifier->forceVerify();
+        self::assertState(['status' => VerificationStatus::PASS, 'tries' => 1, 'at' => $clock->now()], $result);
         static::assertSame(1, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowRecordsASoftFailIfTheLockCannotBeAcquired(): void
+    {
+        $lock = static::createStub(SharedLockInterface::class);
+        $lock->method('acquire')->willThrowException(new LockAcquiringException('store unavailable'));
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $cache = new ArrayAdapter();
+        $cache->save($cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY)->set(
+            new VerificationState('https://example.com', VerificationStatus::PASS, 1, new \DateTimeImmutable(), info: null, statusCode: null)
+        ));
+
+        $http = new MockHttpClient();
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $lockFactory, static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
+
+        $state = $verifier->forceVerify();
+
+        self::assertState(['status' => VerificationStatus::SOFT_FAIL, 'info' => 'Could not acquire the verification lock: store unavailable'], $state);
+        static::assertEquals($state, $verifier->getCurrentState());
+        static::assertSame(0, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowIgnoresLockReleaseFailures(): void
+    {
+        $lock = static::createStub(SharedLockInterface::class);
+        $lock->method('acquire')->willReturn(true);
+        $lock->method('release')->willThrowException(new LockReleasingException('store unavailable'));
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, $lockFactory, static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
+
+        $state = $verifier->forceVerify();
+
+        self::assertState(['status' => VerificationStatus::PASS], $state);
+    }
+
+    public function testVerifyNowReusesAPass(): void
+    {
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 204]));
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        $first = $verifier->forceVerify();
+        $second = $verifier->forceVerify();
+
+        self::assertState(['status' => VerificationStatus::PASS], $second);
+        static::assertSame($first, $second);
+        static::assertSame(1, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowRetriesAfterAFailure(): void
+    {
+        $http = new MockHttpClient([
+            new MockResponse('not found', ['http_code' => 404]),
+            new MockResponse('', ['http_code' => 204]),
+        ]);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        self::assertState(['status' => VerificationStatus::HARD_FAIL], $verifier->forceVerify());
+        self::assertState(['status' => VerificationStatus::PASS], $verifier->forceVerify());
+        static::assertSame(2, $http->getRequestsCount());
+    }
+
+    public function testVerifyNowVerifiesAgainAfterReset(): void
+    {
+        $http = new MockHttpClient([
+            new MockResponse('', ['http_code' => 204]),
+            new MockResponse('not found', ['http_code' => 404]),
+        ]);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
+        self::assertState(['status' => VerificationStatus::PASS], $verifier->forceVerify());
+
+        $verifier->reset();
+
+        self::assertState(['status' => VerificationStatus::HARD_FAIL], $verifier->forceVerify());
+        static::assertSame(2, $http->getRequestsCount());
+    }
+
+    public function testTheAdministrationCheckReportsAFailedVerification(): void
+    {
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 404]));
+
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
+
+        static::assertFalse($verifier->verifyForAdministration());
+    }
+
+    public function testTheAdministrationCheckIsSkippedWhenTheAppUrlCheckIsDisabled(): void
+    {
+        $http = new MockHttpClient(new MockResponse('', ['http_code' => 404]));
+
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', new ArrayAdapter(), $http, new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: true);
+
+        static::assertTrue($verifier->verifyForAdministration());
+        static::assertSame(0, $http->getRequestsCount());
     }
 
     public function testGetCurrentStateReturnsNullWhenCacheEmpty(): void
     {
         $cache = new ArrayAdapter();
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
         static::assertNull($verifier->getCurrentState());
     }
@@ -463,13 +533,15 @@ class AppUrlVerifierTest extends TestCase
     public function testGetCurrentState(): void
     {
         $cache = new ArrayAdapter();
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
         $state = new VerificationState(
+            'https://example.com',
             VerificationStatus::SOFT_FAIL,
             2,
             new \DateTimeImmutable('@1234567890'),
-            'server busy'
+            'server busy',
+            statusCode: null,
         );
 
         $item = $cache->getItem(AppUrlVerifier::VERIFICATION_RESULT_CACHE_KEY);
@@ -482,7 +554,7 @@ class AppUrlVerifierTest extends TestCase
     #[DataProvider('completeVerificationProvider')]
     public function testCompleteVerification(ArrayAdapter $cache, string $runId, string $token, bool $expectedResult): void
     {
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock());
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, new MockHttpClient(), new LockFactory(new InMemoryStore()), static::createStub(LoggerInterface::class), new MockClock(), appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
         $result = $verifier->completeVerification($runId, $token);
 
@@ -555,10 +627,9 @@ class AppUrlVerifierTest extends TestCase
                 ['info' => 'Unexpected response from APP_URL verification endpoint: HTTP code: "404" body: "not found"', 'numTries' => 1]
             );
 
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $logger, $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $logger, $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         static::assertFalse($result);
     }
 
@@ -577,10 +648,9 @@ class AppUrlVerifierTest extends TestCase
                 ['info' => 'Unexpected response from APP_URL verification endpoint: HTTP code: "500" body: "server error"', 'numTries' => 1]
             );
 
-        $shopId = ShopId::v2('shop-id', [AppUrl::IDENTIFIER => 'https://example.com']);
-        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $logger, $clock);
+        $verifier = new AppUrlVerifier('prod', '6.7.1.0', $cache, $http, $locks, $logger, $clock, appUrl: 'https://example.com', appUrlCheckDisabled: false);
 
-        $result = $verifier->verify($shopId);
+        $result = $verifier->verify();
         static::assertTrue($result);
     }
 

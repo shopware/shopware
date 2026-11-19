@@ -14,6 +14,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['acl', 'repositoryFactory'],
 
+    emits: ['modal-close', 'modal-save'],
+
     mixins: [Mixin.getByName('notification')],
 
     props: {

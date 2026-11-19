@@ -47,19 +47,31 @@ class McpToolsetRegistry
     final public const FALLBACK_GROUP = 'other';
 
     /**
-     * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards.
+     * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards. A tool
+     * group with this name is resolved to {@see self::FALLBACK_GROUP} (see McpCapabilityCatalog).
      */
     final public const ALL_TOOLSETS = 'all';
+
+    /**
+     * The query parameter of the MCP connect URL that selects toolsets: `/api/_mcp?toolsets=order,media`
+     * and `/store-api/_mcp?toolsets=all`. The parameter exists since 6.7.15.0, this constant only since 6.7.16.0:
+     * code that also supports 6.7.15 detects the parameter with `\defined(McpToolsetRegistry::class . '::ALL_TOOLSETS')`
+     * and uses the literal `'toolsets'`.
+     */
+    final public const QUERY_PARAMETER = 'toolsets';
 
     /**
      * @internal
      *
      * $allowlistProvider is null in scopes without a per-integration allowlist (e.g. the Store API
      * registry, which advertises all its tools); a null provider leaves toolset generation unscoped.
+     *
+     * @param array<string, string> $toolsetDescriptions group => description, from `#[McpToolGroup(description: ...)]`
      */
     public function __construct(
         private readonly McpCapabilityCatalog $catalog,
         private readonly ?McpAllowlistProvider $allowlistProvider = null,
+        private readonly array $toolsetDescriptions = [],
     ) {
     }
 
@@ -78,38 +90,34 @@ class McpToolsetRegistry
      */
     public function toolsets(): array
     {
-        $toolsByGroup = [];
-
         // Scope discovery to the caller's allowlist: toolsets-list and toolset-enable must never
         // surface tool names outside the caller's allowlist. Null passes through and lists
         // everything; only an administrator user, a scope without allowlists, or a call made outside
         // the request cycle yields it.
         $allowlist = $this->allowlistProvider?->toolsForCurrentRequest();
 
-        foreach ($this->catalog->enrichedTools($allowlist) as $tool) {
-            $group = $tool['group'];
+        $toolsByGroup = $this->toolsByGroup($allowlist);
 
-            // The "discovery" group holds the always-advertised meta-tools and is never an
-            // enable-able toolset. Every other group is, including the "other" catch-all: an
-            // ungrouped tool (e.g. a bundle tool without #[McpToolGroup]) must still have a
-            // guaranteed enable path instead of being reachable through tool-search alone.
-            if ($group === self::DISCOVERY_GROUP) {
-                continue;
-            }
-
-            $toolsByGroup[$group][] = $tool['name'];
-        }
-
-        ksort($toolsByGroup);
+        // An authored description promises the whole toolset. When the allowlist hides some of its
+        // tools, the description could send a model to a toolset for an operation it cannot call,
+        // so the toolset falls back to the generated description.
+        $completeToolsets = $allowlist === null || $this->toolsetDescriptions === []
+            ? null
+            : $this->toolsByGroup(null);
 
         $toolsets = [];
         foreach ($toolsByGroup as $group => $tools) {
             sort($tools);
 
+            $description = $this->toolsetDescriptions[$group] ?? null;
+            if ($description !== null && $completeToolsets !== null && \count($completeToolsets[$group] ?? []) !== \count($tools)) {
+                $description = null;
+            }
+
             $toolsets[] = [
                 'name' => $group,
                 'title' => $this->humanizeToolsetName($group),
-                'description' => \sprintf('Tools explicitly assigned to the "%s" MCP tool group.', $group),
+                'description' => $description ?? \sprintf('Tools explicitly assigned to the "%s" MCP tool group.', $group),
                 'tools' => $tools,
             ];
         }
@@ -178,20 +186,35 @@ class McpToolsetRegistry
      */
     public function advertisedTools(array $enabledToolsets): array
     {
-        $tools = [];
+        return $this->advertisedToolsForNames($enabledToolsets);
+    }
 
-        foreach ($this->toolsets() as $toolset) {
-            if (!\in_array($toolset['name'], $enabledToolsets, true)) {
+    /**
+     * @param list<string>|null $allowlist
+     *
+     * @return array<string, list<string>> group => tool names, sorted by group
+     */
+    private function toolsByGroup(?array $allowlist): array
+    {
+        $toolsByGroup = [];
+
+        foreach ($this->catalog->enrichedTools($allowlist) as $tool) {
+            $group = $tool['group'];
+
+            // The "discovery" group holds the always-advertised meta-tools and is never an
+            // enable-able toolset. Every other group is, including the "other" catch-all: an
+            // ungrouped tool (e.g. a bundle tool without #[McpToolGroup]) must still have a
+            // guaranteed enable path instead of being reachable through tool-search alone.
+            if ($group === self::DISCOVERY_GROUP) {
                 continue;
             }
 
-            array_push($tools, ...$toolset['tools']);
+            $toolsByGroup[$group][] = $tool['name'];
         }
 
-        $tools = array_values(array_unique($tools));
-        sort($tools);
+        ksort($toolsByGroup);
 
-        return $tools;
+        return $toolsByGroup;
     }
 
     private function humanizeToolsetName(string $name): string

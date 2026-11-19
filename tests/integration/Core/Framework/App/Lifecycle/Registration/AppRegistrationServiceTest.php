@@ -21,6 +21,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -217,16 +218,14 @@ class AppRegistrationServiceTest extends TestCase
         ]);
 
         $shopIdProviderMock = $this->createMock(ShopIdProvider::class);
-        $shopIdProviderMock->expects($this->once())
-            ->method('getShopId')
-            ->willReturn($shopId);
+        $shopIdProviderMock->expects($this->never())->method('getShopId');
 
         $handshakeFactory = new HandshakeFactory(
             $this->shopUrl,
             $shopIdProviderMock,
             static::getContainer()->get(StoreClient::class),
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
@@ -243,6 +242,7 @@ class AppRegistrationServiceTest extends TestCase
             Kernel::SHOPWARE_FALLBACK_VERSION,
             new NativeClock(),
             new NullLogger(),
+            static::getContainer()->get(AppUrlVerifier::class),
         );
 
         static::expectException(AppRegistrationException::class);

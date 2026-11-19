@@ -33,6 +33,19 @@ class ConfigurationTest extends TestCase
         static::assertSame('shopware', $tree->buildTree()->getName());
     }
 
+    public function testUserRecoveryIsEnabledByDefaultAndCanBeDisabled(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['api' => []]]);
+
+        static::assertTrue($config['api']['user_recovery']['enabled']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'api' => ['user_recovery' => ['enabled' => false]],
+        ]]);
+
+        static::assertFalse($config['api']['user_recovery']['enabled']);
+    }
+
     public function testFeatureToggleConfigTreeNode(): void
     {
         $configuration = new Configuration();
@@ -251,6 +264,7 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'archive_manifest_url' => null,
             'community_translations_url' => null,
             'documentation_url_snippet_key' => null,
             'completeness_threshold' => null,
@@ -518,6 +532,22 @@ class ConfigurationTest extends TestCase
                     'allowed_private_ip_addresses' => ['not-an-ip'],
                 ],
             ],
+        ]);
+    }
+
+    public function testMediaAllowedProtocolsDefaultToAllSupportedProtocols(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
+
+        static::assertSame(['http', 'https', 'ftp'], $config['media']['allowed_protocols']);
+    }
+
+    public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp".'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['media' => ['allowed_protocols' => ['https', 'gopher']]],
         ]);
     }
 

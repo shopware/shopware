@@ -47,13 +47,13 @@ https://getbootstrap.com/docs/5.2/components/buttons
     --#{$prefix}btn-padding-y: 0;
     --#{$prefix}btn-padding-x: 0;
     --#{$prefix}btn-border-width: 0;
-    text-decoration: underline;
+    text-decoration: $link-decoration;
     vertical-align: baseline;
     text-align: left;
     white-space: normal;
 
     &:hover {
-        text-decoration: underline;
+        text-decoration: $link-hover-decoration;
     }
 }
 

@@ -45,7 +45,7 @@ class Migration1744203319MailTemplateTest extends TestCase
             protected string $assetFolder = '/non/existent/path/';
         };
 
-        $message = 'Could not access mail template asset folder: Failed to read file "/non/existent/path/sso_user_invitation_mail.en-GB.html.twig": file_get_contents(/non/existent/path/sso_user_invitation_mail.en-GB.html.twig): Failed to open stream: No such file or directory';
+        $message = 'Could not access mail template asset folder: Failed to read file "/non/existent/path/sso_user_invitation_mail.en-GB.html.twig"';
 
         $this->expectExceptionObject(MigrationException::migrationError($message));
 

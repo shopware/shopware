@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -34,6 +35,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -92,6 +94,10 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Removed with mail template sample updates.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('mailTemplateTypeProvider')]
     public function testUpdateMailTemplateType(MailTemplateTypeUpdateProvider $provider): void
     {
@@ -103,8 +109,10 @@ class SendMailActionTest extends TestCase
 
         $mailTemplateRepository = $this->createMock(EntityRepository::class);
         $mailTemplateTypeRepository = $this->createMock(EntityRepository::class);
+        $mailService = $this->createMock(AbstractMailService::class);
 
         $action = $this->createAction(
+            mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
             mailTemplateTypeRepository: $mailTemplateTypeRepository,
             connection: $connection,
@@ -159,6 +167,17 @@ class SendMailActionTest extends TestCase
         $flow->setData(CustomerAware::CUSTOMER, $customer);
         $flow->setConfig($config);
 
+        if ($provider->sensitive) {
+            $flow->setData('sensitive', true);
+            $flow->setData(FlowMailVariables::RESET_URL, 'BODY-SECRET');
+        }
+
+        $mailService->expects($this->once())->method('send')->with(
+            static::anything(),
+            $context,
+            ['eventName' => '', ...$flow->data()],
+        );
+
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects($this->once())
             ->method('getEntities')
@@ -168,7 +187,7 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam) {
+        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam && !$provider->sensitive) {
             $mailTemplateTypeRepository->expects($this->once())->method('update')->with([
                 [
                     'id' => $provider->mailTemplateTypeId,
@@ -310,6 +329,12 @@ class SendMailActionTest extends TestCase
         yield 'mail template type id exists' => [new MailTemplateTypeUpdateProvider(
             updateMailTemplateTypeParam: true,
             mailTemplateTypeId: Uuid::randomHex(),
+        )];
+
+        yield 'sensitive mail is sent without persisting its sample data' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: Uuid::randomHex(),
+            sensitive: true,
         )];
     }
 
@@ -454,6 +479,47 @@ class SendMailActionTest extends TestCase
         )->handleFlow($flow);
     }
 
+    public function testSendFailureDoesNotLogBodyOrExceptionContent(): void
+    {
+        $context = Context::createDefaultContext();
+        $templateId = Uuid::randomHex();
+        $this->mailTemplate->setId($templateId);
+        $this->mailTemplate->setTranslated([
+            'subject' => 'Recovery',
+            'contentHtml' => 'BODY-SECRET',
+            'contentPlain' => 'BODY-SECRET',
+        ]);
+        $this->mailTemplateRepository->method('search')->willReturn(new EntitySearchResult(
+            'mail_template',
+            1,
+            new MailTemplateCollection([$this->mailTemplate]),
+            null,
+            new Criteria(),
+            $context,
+        ));
+        $this->mailService->method('send')->willThrowException(new \RuntimeException('BODY-SECRET'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with(
+            'Could not send mail.',
+            static::callback(static function (array $data): bool {
+                static::assertSame('Recovery', $data['subject']);
+                static::assertSame(\RuntimeException::class, $data['exceptionClass']);
+                static::assertStringNotContainsString('BODY-SECRET', json_encode($data, \JSON_THROW_ON_ERROR));
+
+                return true;
+            }),
+        );
+
+        $flow = new StorableFlow('customer.recovery.request', $context);
+        $flow->setData('sensitive', true);
+        $flow->setConfig(['mailTemplateId' => $templateId, 'recipient' => ['type' => 'customer']]);
+        $flow->setData(MailAware::MAIL_STRUCT, new MailRecipientStruct(['customer@example.com' => 'Customer']));
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+
+        $this->createAction(logger: $logger, updateMailTemplateType: false)->handleFlow($flow);
+    }
+
     /**
      * @param EntityRepository<MailTemplateCollection>|null $mailTemplateRepository
      * @param EntityRepository<MailTemplateTypeCollection>|null $mailTemplateTypeRepository
@@ -465,11 +531,12 @@ class SendMailActionTest extends TestCase
         ?Connection $connection = null,
         ?JsonEntityEncoder $encoder = null,
         bool $updateMailTemplateType = true,
+        ?LoggerInterface $logger = null,
     ): SendMailAction {
         return new SendMailAction(
             $mailService ?? $this->mailService,
             $mailTemplateRepository ?? $this->mailTemplateRepository,
-            $this->logger,
+            $logger ?? $this->logger,
             static::createStub(EventDispatcherInterface::class),
             $mailTemplateTypeRepository ?? $this->mailTemplateTypeRepository,
             $connection ?? static::createStub(Connection::class),
@@ -491,6 +558,7 @@ class MailTemplateTypeUpdateProvider
     public function __construct(
         public readonly bool $updateMailTemplateTypeParam,
         public readonly ?string $mailTemplateTypeId,
+        public readonly bool $sensitive = false,
     ) {
     }
 }

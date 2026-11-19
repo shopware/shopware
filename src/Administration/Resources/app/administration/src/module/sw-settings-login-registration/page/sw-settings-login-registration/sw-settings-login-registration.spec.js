@@ -97,7 +97,7 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
     });
 
     it('should contain the settings card system', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         expect(
             wrapper
                 .find(`.${classes.root}`)

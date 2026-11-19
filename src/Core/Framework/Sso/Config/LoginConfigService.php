@@ -39,6 +39,7 @@ readonly class LoginConfigService
     public function __construct(
         private array $rawConfig,
         private RouterInterface $router,
+        private bool $passwordRecoveryEnabled = true,
     ) {
     }
 
@@ -71,6 +72,7 @@ readonly class LoginConfigService
         return new TemplateData(
             $loginConfig->useDefault ?? true,
             $loginConfig ? TrustedOriginUrlGenerator::generate($this->router, 'oauth.sso.auth', ['rdm' => $random]) : null,
+            $this->passwordRecoveryEnabled,
         );
     }
 
@@ -92,7 +94,10 @@ readonly class LoginConfigService
         ];
 
         if ($addLoginPrompt) {
+            // prompt=login shows the login form again, max_age=0 makes the identity provider report the
+            // fresh authentication time in the id token (`auth_time`)
             $params['prompt'] = 'login';
+            $params['max_age'] = '0';
         }
 
         return \sprintf(
@@ -153,25 +158,25 @@ readonly class LoginConfigService
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
                     new Url(message: $invalidUrlMessage, requireTld: false),
-                    new Regex('/\w+(?!\/)$/', 'should not end with "/"'),
+                    new Regex(pattern: '#/$#D', message: 'should not end with "/"', match: false),
                 ],
                 'authorize_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'token_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'jwks_path' => [
                     new NotNull(null, $isNullMessage),
                     new NotBlank(null, $notBlankMessage),
                     new Type('string', $invalidStringMessage),
-                    new Regex('/^[\/].+$/', $invalidPath), // path should start with "/"
+                    new Regex('/^[\/].+$/D', $invalidPath), // path should start with "/"
                 ],
                 'scope' => [
                     new NotNull(null, $isNullMessage),

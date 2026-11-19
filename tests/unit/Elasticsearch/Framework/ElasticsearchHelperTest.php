@@ -8,6 +8,7 @@ use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -20,7 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 
@@ -46,6 +49,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             $logger,
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::expectException(\RuntimeException::class);
@@ -68,6 +73,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             $logger,
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $helper->logAndThrowException(new \RuntimeException('test'));
@@ -92,6 +99,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             $logger,
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::assertFalse($helper->allowIndexing());
@@ -113,6 +122,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::expectException(\RuntimeException::class);
@@ -132,6 +143,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         static::assertSame('prefix_product', $helper->getIndexName(new ProductDefinition()));
@@ -156,6 +169,8 @@ class ElasticsearchHelperTest extends TestCase
             static::createStub(CriteriaParser::class),
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $criteria = new Criteria();
@@ -207,6 +222,8 @@ class ElasticsearchHelperTest extends TestCase
             $parser,
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);
@@ -247,6 +264,8 @@ class ElasticsearchHelperTest extends TestCase
             $parser,
             static::createStub(LoggerInterface::class),
             static::createStub(SystemConfigService::class),
+            10,
+            new ElasticsearchTokenizer(),
         );
 
         $helper->addQueries($definition, $criteria, $search, $context);
@@ -259,5 +278,86 @@ class ElasticsearchHelperTest extends TestCase
                 ],
             ],
         ]], $search->toArray());
+    }
+
+    #[DataProvider('termWordLimitCases')]
+    public function testAddTermLimitsTheTermToTheConfiguredNumberOfDistinctWords(string $term, int $termMaxWords, string $expectedTerm): void
+    {
+        $termOfBuiltQuery = null;
+        $esDefinition = static::createStub(AbstractElasticsearchDefinition::class);
+        $esDefinition->method('buildTermQuery')
+            ->willReturnCallback(static function (Context $context, Criteria $criteria) use (&$termOfBuiltQuery): TermQuery {
+                $termOfBuiltQuery = $criteria->getTerm();
+
+                return new TermQuery('field', 'value');
+            });
+
+        $registry = static::createStub(ElasticsearchRegistry::class);
+        $registry->method('get')->willReturn($esDefinition);
+
+        $helper = new ElasticsearchHelper(
+            'dev',
+            true,
+            true,
+            'prefix',
+            true,
+            static::createStub(Client::class),
+            $registry,
+            static::createStub(CriteriaParser::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(SystemConfigService::class),
+            $termMaxWords,
+            new ElasticsearchTokenizer(),
+        );
+
+        $criteria = new Criteria();
+        $criteria->setTerm($term);
+
+        $helper->addTerm($criteria, new Search(), Context::createDefaultContext(), new ProductDefinition());
+
+        static::assertSame($expectedTerm, $termOfBuiltQuery);
+        static::assertSame($term, $criteria->getTerm());
+    }
+
+    /**
+     * @return iterable<string, array{string, int, string}>
+     */
+    public static function termWordLimitCases(): iterable
+    {
+        yield 'term with 10 distinct words is kept as it is' => [
+            'Red red  Shirt shirt chair table lamp shoes watch phone glass plate',
+            10,
+            'Red red  Shirt shirt chair table lamp shoes watch phone glass plate',
+        ];
+
+        yield 'words after the tenth distinct word are dropped' => [
+            'chair table lamp shirt shoes watch phone glass plate brush knife spoon',
+            10,
+            'chair table lamp shirt shoes watch phone glass plate brush',
+        ];
+
+        yield 'repeated words count once' => [
+            'Chair chair table lamp shirt shoes watch phone glass plate brush knife',
+            10,
+            'Chair chair table lamp shirt shoes watch phone glass plate brush',
+        ];
+
+        yield 'punctuation and one-letter words do not count towards the limit' => [
+            'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
+            10,
+            'Bosch - GSR 18V-55 & Akku - 2 x 5.0Ah - L-BOXX Koffer Set',
+        ];
+
+        yield 'the limited term keeps the words as they were typed' => [
+            'Bosch - GSR 18V-55 & Akku 2 x 5.0Ah  L-BOXX Koffer Set Bohrer (Schrauber) Ladegerät Tasche',
+            10,
+            'Bosch - GSR 18V-55 & Akku 2 x 5.0Ah  L-BOXX Koffer Set Bohrer (Schrauber)',
+        ];
+
+        yield 'a configured limit keeps only that many distinct words' => [
+            'Red red shirt chair table',
+            2,
+            'Red red shirt',
+        ];
     }
 }

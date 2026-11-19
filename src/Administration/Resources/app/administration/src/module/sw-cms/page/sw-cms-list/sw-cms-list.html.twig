@@ -62,7 +62,10 @@
                         {% endblock %}
                     </template>
 
-                    <template v-else>
+                    <sw-silence-deprecations
+                        v-else
+                        flag="V6_9_0_0"
+                    >
                         <sw-tabs
                             :is-vertical="!isCompactLayout"
                             small
@@ -79,7 +82,7 @@
                                 {{ pageType.name }}
                             </sw-tabs-item>
                         </sw-tabs>
-                    </template>
+                    </sw-silence-deprecations>
                     {% endblock %}
                 </div>
                 {% endblock %}

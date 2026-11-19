@@ -458,6 +458,13 @@ export default {
             return this.repositoryFactory.create('language');
         },
 
+        languageCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('locale');
+
+            return criteria;
+        },
+
         language() {
             return Shopware.Store.get('context').api.language;
         },
@@ -1496,13 +1503,11 @@ export default {
                 return;
             }
 
-            const criteria = new Criteria();
-            criteria.addAssociation('locale');
             try {
                 const language = await this.languageRepository.get(
                     newLanguageId,
                     { ...Shopware.Context.api, inheritance: true },
-                    criteria,
+                    this.languageCriteria,
                 );
 
                 if (newLanguageId !== Shopware.Context.api.languageId) {

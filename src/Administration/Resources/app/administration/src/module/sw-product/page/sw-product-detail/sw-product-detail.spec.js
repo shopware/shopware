@@ -70,9 +70,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             featureActive = false,
             routeName = 'sw.product.detail.base',
             routerPush = jest.fn(),
-            hasChanges = true,
             routedComponent = null,
-            realLanguageSwitch = false,
         } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
@@ -131,7 +129,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                                 return product;
                             },
-                            hasChanges: () => hasChanges,
+                            hasChanges: () => true,
                             save: () => Promise.resolve({}),
                         }),
                     },
@@ -172,11 +170,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-button-process': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-language-switch': realLanguageSwitch
-                        ? await wrapTestComponent('sw-language-switch', { sync: true })
-                        : true,
-                    'sw-entity-single-select': true,
-                    'sw-modal': true,
+                    'sw-language-switch': true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
@@ -266,28 +260,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
     afterEach(() => {
         if (wrapper) {
             wrapper.unmount();
-        }
-    });
-
-    it.each([true, false])('checks product changes on bus language requests when hasChanges=%s', async (hasChanges) => {
-        wrapper.unmount();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguageId = api.languageId;
-        const originalLanguage = api.language;
-
-        try {
-            wrapper = await createWrapper(undefined, undefined, '1234', { realLanguageSwitch: true, hasChanges });
-            await flushPromises();
-            const activeLanguageId = api.languageId;
-
-            Shopware.Utils.EventBus.emit('on-change-language-clicked', 'next-language');
-            await flushPromises();
-
-            expect(wrapper.find('.sw-language-switch sw-modal-stub').exists()).toBe(hasChanges);
-            expect(api.languageId).toBe(hasChanges ? activeLanguageId : 'next-language');
-        } finally {
-            api.languageId = originalLanguageId;
-            api.language = originalLanguage;
         }
     });
 

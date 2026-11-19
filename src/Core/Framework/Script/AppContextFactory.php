@@ -42,6 +42,7 @@ final readonly class AppContextFactory
      */
     private function __construct(
         private Context $hookContext,
+        private ?string $appId,
         private ?string $integrationId,
         private ?array $privileges,
     ) {
@@ -58,15 +59,15 @@ final readonly class AppContextFactory
 
     public static function forHookContext(Context $hookContext): self
     {
-        return new self($hookContext, null, null);
+        return new self($hookContext, null, null, null);
     }
 
     /**
      * @param list<string> $privileges
      */
-    public static function forApp(Context $hookContext, string $integrationId, array $privileges): self
+    public static function forApp(Context $hookContext, string $appId, string $integrationId, array $privileges): self
     {
-        return new self($hookContext, $integrationId, $privileges);
+        return new self($hookContext, $appId, $integrationId, $privileges);
     }
 
     public function create(): Context
@@ -76,6 +77,7 @@ final readonly class AppContextFactory
         }
 
         $source = new AdminApiSource(null, $this->integrationId);
+        $source->setAppId((string) $this->appId);
         $source->setIsAdmin(false);
         $source->setPermissions($this->privileges);
 

@@ -4520,6 +4520,7 @@
                 "sw_customer_create_adress_form",
                 "sw_customer_create_base_form",
                 "sw_customer_create_content",
+                "sw_customer_create_custom_field_sets",
                 "sw_customer_create_header",
                 "sw_customer_create_language_switch"
             ]
@@ -15574,6 +15575,12 @@
         "sw-sidebar-renderer": {
             "file": "app/component/structure/sw-sidebar-renderer",
             "visibility": "private",
+            "extends": null,
+            "blocks": []
+        },
+        "sw-silence-deprecations": {
+            "file": "app/component/utils/sw-silence-deprecations",
+            "visibility": "public",
             "extends": null,
             "blocks": []
         },

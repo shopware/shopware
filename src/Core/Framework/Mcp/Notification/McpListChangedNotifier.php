@@ -7,7 +7,6 @@ use Mcp\Schema\Notification\PromptListChangedNotification;
 use Mcp\Schema\Notification\ResourceListChangedNotification;
 use Mcp\Schema\Notification\ToolListChangedNotification;
 use Mcp\Server\Session\SessionStoreInterface;
-use Mcp\Server\Subscription\NotificationBusInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
@@ -23,8 +22,8 @@ use Symfony\Component\Uid\Uuid;
  * Queues `list_changed` notifications in a session's outgoing queue in the session store; the client
  * receives them with its next request. Changes for every session are pulled, not pushed: notify()
  * bumps a shared list version and syncSession() queues the notification when a session sees a version
- * it has not seen yet. Clients on the stateless era have no session; notify() publishes to their
- * `subscriptions/listen` streams through the notification bus instead. See "List change notifications"
+ * it has not seen yet. Clients on the stateless era have no session; their `subscriptions/listen` streams
+ * read the same versions through {@see McpListVersionsNotificationBus}. See "List change notifications"
  * in `Mcp/AGENTS.md`.
  */
 #[Package('framework')]
@@ -49,19 +48,18 @@ class McpListChangedNotifier
      * @param McpListVersions|null $listVersions shared list versions for installation-wide changes. Null for a server
      *                                           whose lists only change per session, such as the Store API one:
      *                                           notify() and syncSession() then do nothing, notifySession() still works
-     * @param NotificationBusInterface|null $notificationBus the bus of the stateless era; null while the server serves the handshake era only
      */
     public function __construct(
         private readonly ?SessionStoreInterface $sessionStore,
         private readonly ?McpListVersions $listVersions,
         private readonly LoggerInterface $logger = new NullLogger(),
-        private readonly ?NotificationBusInterface $notificationBus = null,
     ) {
     }
 
     /**
-     * Announces an installation-wide capability change (e.g. app install or uninstall) to every
-     * session, on every server. Costs one write; each session picks the change up on its next request.
+     * Announces an installation-wide capability change (e.g. app install or uninstall, or an allowlist edit) to every
+     * session, on every server. Costs one write; each session picks the change up on its next request,
+     * and each `subscriptions/listen` stream of the stateless era within about a second.
      */
     public function notify(McpListChangedNotificationSet $notifications): void
     {
@@ -74,7 +72,6 @@ class McpListChangedNotifier
         }
 
         $this->listVersions->bump($notifications);
-        $this->publish($notifications);
     }
 
     /**
@@ -142,33 +139,6 @@ class McpListChangedNotifier
 
         [$uuid, $sessionData] = $session;
         $this->sessionStore->write($uuid, Json::encode($this->appendToQueue($sessionData, $this->buildMessages($notifications))));
-    }
-
-    /**
-     * A bus failure must not fail the change that caused it, such as an app install. Notifications are a
-     * convenience: a stateless client also sees the change on its next list request.
-     */
-    private function publish(McpListChangedNotificationSet $notifications): void
-    {
-        if ($this->notificationBus === null) {
-            return;
-        }
-
-        $messages = array_filter([
-            $notifications->tools ? new ToolListChangedNotification() : null,
-            $notifications->resources ? new ResourceListChangedNotification() : null,
-            $notifications->prompts ? new PromptListChangedNotification() : null,
-        ]);
-
-        try {
-            foreach ($messages as $message) {
-                $this->notificationBus->publish($message);
-            }
-        } catch (\Throwable $exception) {
-            $this->logger->warning('Could not publish an MCP list_changed notification to the stateless era.', [
-                'exception' => $exception,
-            ]);
-        }
     }
 
     /**

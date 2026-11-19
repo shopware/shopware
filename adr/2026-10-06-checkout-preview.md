@@ -52,7 +52,7 @@ It is stored in the existing `sales_channel_api_context` payload. No customer ro
 
 **Validation.** Only `shippingAddress.countryId` is required, so that partial addresses work while the visitor is still typing. A given zip code is validated per country with the same constraint as customer addresses. A given country state must belong to the country. Violations are returned as the standard Store API validation error with a `source.pointer` per field (e.g. `/shippingAddress/zipcode`), the same format `POST /store-api/account/register` uses.
 
-**Logged-in customers.** The struct only exists for contexts without a customer. Sending `shippingAddress`/`billingAddress` for a logged-in customer is rejected; they use `shippingAddressId`/`billingAddressId` as today.
+**Logged-in customers.** The struct only exists for contexts without a customer. Sending `shippingAddress`/`billingAddress` for a logged-in customer is rejected with `400` and the code `SYSTEM__PROSPECTIVE_ADDRESS_WITH_CUSTOMER`; they use `shippingAddressId`/`billingAddressId` as today.
 
 **Lifecycle at login and registration.** The context payload survives login and registration. Without further handling, the stored prospective address would then take precedence over the customer's default address whenever no address id is set. Therefore:
 
@@ -63,7 +63,14 @@ The registered customer's data always wins. Cart, selected shipping method and s
 
 **`ShippingLocation` is not changed.** It is read by the shipping rules, address validation, the delivery builder, the order converter and the tax rule filters, and it is serialized into the public cart response (`cart.deliveries[].location`). Instead, the context factory gains a second source for it: when there is no customer, the `ShippingLocation` is built from `ProspectiveCustomer::shippingAddress`. All consumers keep reading `$context->getShippingLocation()`.
 
-**Caching.** The base context cache is keyed by country and country state only, so a full address must not end up in it. The `ShippingLocation` is built in the non-cached part of the factory, in the same place the existing injected-address handling lives, and a context with a `ProspectiveCustomer` is not cacheable there.
+What changes is the content: for such a visitor, `shippingLocation.address` of the context and `cart.deliveries[].location.address` of the cart now contain an address, while `customer` stays `null`.
+Its ids are derived from the context token, so they stay the same across requests, but it is not a stored customer address and cannot be sent as `shippingAddressId`.
+Clients check `customer` or `prospectiveCustomer` before treating it as a customer address.
+
+**Caching.** The base context cache is keyed by country and country state only, so a full address must not end up in it.
+The `ShippingLocation` is built in the non-cached part of the factory, in the same place the existing injected-address handling lives.
+A context whose payload contains a prospective shipping address is not cacheable there, the same condition under which the factory builds a `ProspectiveCustomer`.
+The HTTP cache requires a `sw-cache-hash` for such a context, like for a logged-in customer, so pages rendered with its rule results do not end up under the anonymous cache key.
 
 The Checkout Gateway app command `ChangeShippingLocationCommand` only resolves ISO codes to ids and writes them into the context parameters, and is not affected.
 
@@ -71,7 +78,9 @@ The Checkout Gateway app command `ChangeShippingLocationCommand` only resolves I
 
 Customer group, guest and history rules, and billing address rules, need a customer. This gap is closed for rule matching only, never for the context itself.
 
-When the context has no customer but a `ProspectiveCustomer`, the checkout rule scope (`CheckoutRuleScope`, inherited by the cart and line item scopes) returns a transient, never persisted `CustomerEntity` built from it. It is built once per calculation with these values:
+When the context has no customer but a `ProspectiveCustomer`, the checkout rule scope (`CheckoutRuleScope`, inherited by the cart and line item scopes) returns a transient, never persisted `CustomerEntity` built from it.
+The context factory builds it once per context, together with the `ProspectiveCustomer`, which holds it behind an internal getter and leaves it out of its serialization.
+It has these values:
 
 | Field | Value |
 |---|---|
@@ -82,7 +91,8 @@ When the context has no customer but a `ProspectiveCustomer`, the checkout rule 
 | order count, order total, number of reviews | `0` |
 | first login, last login, last order date | `null` |
 | `email`, `firstName`, `lastName`, `customerNumber` | `''` |
-| everything else nullable (account type, tags, custom fields, affiliate/campaign code, birthday, …) | `null` |
+| `accountType` | `private` |
+| everything else nullable (company, tags, custom fields, affiliate/campaign code, birthday, …) | `null` |
 
 **The fallback only applies when a `ProspectiveCustomer` exists.** Every anonymous context without one — all sessions today, and every client that keeps only sending `countryId`/`countryStateId` — keeps evaluating rules without a customer, exactly as today. Without this gate, guest and history rules would start matching for every anonymous visitor on every existing shop as soon as this ships, silently changing which methods and promotions apply. Avoiding that is the main constraint of this design.
 
@@ -102,13 +112,26 @@ There are 35 customer rules in `Shopware\Core\Checkout\Customer\Rule`. Cart rule
 | Customer history | `OrderCountRule`, `OrderTotalAmountRule`, `DaysSinceLastOrderRule`, `DaysSinceFirstLoginRule`, `DaysSinceLastLoginRule`, `NumberOfReviewsRule` | Evaluated against zero history |
 | Customer data | `EmailRule`, `LastNameRule`, `CustomerSalutationRule`, `CustomerAgeRule`, `CustomerBirthdayRule`, `CustomerNumberRule`, `CustomerCustomFieldRule`, `CustomerTagRule`, `IsCompanyRule`, `IsNewsletterRecipientRule`, `CustomerCreatedByAdminRule`, `CustomerRequestedGroupRule`, `AffiliateCodeRule`, `CampaignCodeRule` | Not covered |
 
-"Not covered" means the data these rules need — contact details, account type, tags, affiliate/campaign codes — does not exist before registration. They evaluate against empty or `null` values, which for positive conditions gives the same result as for a visitor without a customer today. Outside of rules, two more things depend on a customer and are not part of this: the tax exemption for companies, and promotions restricted to specific customers.
+"Not covered" means the data these rules need — contact details, account type, tags, affiliate/campaign codes — does not exist before registration. They evaluate against empty or `null` values, which for positive conditions gives the same result as for a visitor without a customer today.
+Negative conditions do not: company, newsletter recipient and "created by admin" rules set to "no", and customer custom field rules with "not equal", now match for a prospect, while they do not match without a customer.
+These are the values a new guest registration would have.
+Outside of rules, two more things depend on a customer and are not part of this: the tax exemption for companies, and promotions restricted to specific customers.
 
 The order is always calculated again with the registered customer, so this gap can change what the visitor sees before the order, not what is ordered — see "Customer registration and order placement" for why that still needs an explicit step.
 
 ### New fields on `PATCH /store-api/context`
 
 `ContextSwitchRoute` gains the fields `shippingAddress` and `billingAddress`, which write the `ProspectiveCustomer`. It stays the single place where the context is changed, so `SwitchContextEvent` and `SalesChannelContextSwitchEvent` fire for these fields like for every other context change. Its behaviour for existing fields, including silently ignoring unknown keys, is unchanged.
+
+The address and the context country must not disagree, as the `ShippingLocation` is built from both:
+
+* The country and country state of `shippingAddress` also become the context country and country state.
+* `shippingAddress` together with `countryId` or `countryStateId` is rejected with `400` and the code `SYSTEM__PROSPECTIVE_ADDRESS_WITH_COUNTRY`.
+* A later `countryId` or `countryStateId` that differs from the stored shipping address removes the stored addresses, instead of letting them reappear after switching back.
+* `null` removes an address.
+* The context factory ignores a stored address whose country does not match the context country.
+
+`GET /store-api/context` returns the stored addresses as `prospectiveCustomer`.
 
 ### The `CheckoutDraft` route
 
@@ -120,6 +143,9 @@ PATCH /store-api/checkout/draft
 ```
 
 `PATCH` accepts every field `PATCH /store-api/context` accepts — `shippingMethodId`, `paymentMethodId`, `billingAddressId`, `shippingAddressId`, `countryId`, `countryStateId`, `currencyId`, `languageId`, and the new `shippingAddress` and `billingAddress` — and delegates the change to `ContextSwitchRoute`. Unlike `PATCH /store-api/context`, unknown keys are rejected with `400`, so a client never gets a successful response for a change that did not happen.
+Besides the flags below, only `includes` and `excludes`, which every Store API response reads from the body, and `data` for the app Context Gateway are accepted.
+
+The route class is `@internal`; extensions hook into it through the `CheckoutDraftRouteExtension` extension point.
 
 `GET` has no side effects. It never changes the context or the token.
 
@@ -169,6 +195,8 @@ Optional parts are controlled by flags, so a plain address change stays cheap. N
 
 * The limit is keyed by context token, not by IP address. Server-side rendered clients send all visitors' requests from one IP, so an IP key would limit the whole shop together. Rotating the token to bypass the limit only yields an empty draft, which is cheap to calculate.
 * When the limit is exceeded, the route answers with `429`, the standard Store API error code for rate limits, and a `Retry-After` header.
+  `Retry-After` is sent with every `429` of the Admin API and Store API, not only this one.
+* The default is 60 requests per 60 seconds in a sliding window, configurable as `shopware.api.rate_limiter.checkout_draft`.
 * The limit is a backstop. Clients are expected to debounce input, and to only pass `shippingCosts`, `checkoutGateway`, `contextGateway` or `taxed` when they are about to show a number that needs to be accurate.
 
 ### Customer registration and order placement
@@ -216,7 +244,8 @@ Rejected — see "Why not reuse an existing route as the entry point".
 
 * Store API clients can show available methods, shipping costs per method, taxes and a larger set of customer-dependent rule results (guest status, order history, billing address) for a visitor without a customer, with one route instead of several.
 * No customer data is written before the order, and no unused guests have to be cleaned up. The `ProspectiveCustomer` shares the context's existing lifetime and cleanup.
-* `ShippingLocation`, its consumers, the Store API cart response and the Checkout Gateway app command stay unchanged.
+* `ShippingLocation`, its consumers and the Checkout Gateway app command stay unchanged.
+  The cart response keeps its structure; only `cart.deliveries[].location.address` is now filled for a prospect.
 * All context changes, including the new fields, go through `ContextSwitchRoute` and fire the existing events.
 * Checkout Gateway, Context Gateway, tax providers and the existing routes stay usable on their own for clients that only need one of them.
 
@@ -229,6 +258,5 @@ Rejected — see "Why not reuse an existing route as the entry point".
 ### Open points
 
 * How a tax provider failure should behave for a draft without a customer and without an order has not been tested end-to-end.
-* The concrete rate limit numbers need load testing.
+* The default rate limit of 60 requests per minute has not been load tested.
 * How commercial features and third-party plugins behave with a `ShippingLocation` built from a `ProspectiveCustomer`, and with a transient customer visible only to rule matching, has not been tested.
-* Needs an UPGRADE/release-info entry with the implementation: shops using history, guest, active or billing address rules will see them apply earlier in the funnel once their frontend sends an address.

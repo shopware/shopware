@@ -13,7 +13,7 @@ component sw-cms-product-assignment  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_entity_many_to_many_assignment_card  [private]
+  sw_entity_many_to_many_assignment_card  [replaced] [private]
     sw_cms_product_assignment_content  [private]
       sw_cms_product_assignment_select  [private]
         sw_cms_product_assignment_results_list  [private]

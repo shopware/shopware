@@ -13,7 +13,7 @@ component sw-extension-select-rating  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_text_field  [private]
+  sw_text_field  [replaced] [private]
     sw_select_rating  [private]
       sw_select_rating_input  [private]
         sw_select_rating_input_stars  [private]

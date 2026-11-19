@@ -13,6 +13,5 @@ component sw-password-field-deprecated  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_password_field  [private]
-    sw_text_field  [private]
+  sw_text_field  [replaced] [private]
 ```

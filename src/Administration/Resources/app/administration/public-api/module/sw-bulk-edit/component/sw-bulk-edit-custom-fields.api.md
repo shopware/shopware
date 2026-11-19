@@ -12,8 +12,17 @@ component sw-bulk-edit-custom-fields  public  js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig
 
 blocks
-  sw_custom_field_set_renderer_card_form_renderer
-    sw_custom_field_set_renderer_card_form_renderer_change_field
-    sw_custom_field_set_renderer_card_form_renderer_custom_field
-  sw_custom_field_set_renderer_card_mt_tabs_form_renderer
+  sw_custom_field_set_renderer  [inherited]
+    sw_custom_field_set_renderer_card  [inherited]
+      sw_custom_field_set_renderer_card_mt_tabs  [inherited] [from v6.8.0]
+      sw_custom_field_set_renderer_card_mt_tabs_content  [inherited] [from v6.8.0]
+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [replaced] [from v6.8.0]
+      sw_custom_field_set_renderer_card_tabs  [inherited] [until v6.8.0]
+      sw_custom_field_set_renderer_card_tabs_content  [inherited] [until v6.8.0]
+        sw_custom_field_set_renderer_card_form_renderer  [replaced] [until v6.8.0]
+          sw_custom_field_set_renderer_card_form_renderer_change_field  [until v6.8.0]
+          sw_custom_field_set_renderer_card_form_renderer_custom_field  [until v6.8.0]
+    sw_custom_field_set_renderer_media  [inherited]
+      sw_custom_field_set_renderer_media_button_save  [inherited]
+      sw_custom_field_set_renderer_media_form_renderer  [inherited]
 ```

@@ -520,6 +520,22 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Rules match the address of a visitor without a customer
+
+A visitor who is neither logged in nor registered can now send an address, which is stored on the context as `SalesChannelContext::getProspectiveCustomer()`.
+No customer or address is written, and `SalesChannelContext::getCustomer()` stays `null`.
+The addresses are available as `ProspectiveAddress` structs with readonly properties.
+The shipping location of such a context contains the address, so zip code, city and street rules and zip code tax rules match before registration.
+
+Rule matching sees a customer that only exists for the rules: a guest of the default customer group without order history, with the sent shipping and billing address.
+This affects `CheckoutRuleScope::getCustomer()` and therefore guest, active, order history and billing address rules.
+Company, newsletter recipient and "created by admin" rules set to "no", and customer custom field rules with "not equal", match as well.
+Rules that need contact or account data, such as e-mail, tags or birthday, do not match before registration.
+Custom rules that load the customer by its id find no customer.
+
+Shops with such rules see them apply earlier in the checkout once their frontend sends an address.
+Contexts without an address behave as before.
+The prospective customer is removed when the visitor logs in or registers.
 ### Manifest validation runs on every app install and update
 
 Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
@@ -675,6 +691,33 @@ Only rules of the default tax groups that still have their original rate and wer
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 
 ## API
+
+### Checkout draft route
+
+`GET /store-api/checkout/draft` returns the calculated cart together with the available shipping and payment methods and the stored address of a visitor without a customer.
+`PATCH /store-api/checkout/draft` accepts every field of `PATCH /store-api/context`, applies the change through that route and returns the same response.
+Unlike `PATCH /store-api/context`, unknown fields are rejected with HTTP 400.
+
+The flags `methods`, `shippingCosts`, `checkoutGateway` and `taxed` control the optional, more expensive parts; `contextGateway` with `appName` runs an app Context Gateway on `PATCH`.
+Changes of an address or a method are rate limited per context token, configurable as `shopware.api.rate_limiter.checkout_draft`.
+
+### Address of a visitor without a customer on `PATCH /store-api/context`
+
+`PATCH /store-api/context` accepts `shippingAddress` and `billingAddress` for visitors who are not logged in.
+Only `countryId` is required, the country of the shipping address also becomes the context country, and `null` removes the address.
+Logged-in customers keep using `shippingAddressId` and `billingAddressId`; sending an address for them fails with HTTP 400 and code `SYSTEM__PROSPECTIVE_ADDRESS_WITH_CUSTOMER`.
+A `shippingAddress` together with `countryId` or `countryStateId` fails with HTTP 400 and code `SYSTEM__PROSPECTIVE_ADDRESS_WITH_COUNTRY`.
+A later `countryId` or `countryStateId` that differs from the stored shipping address removes the stored addresses.
+`GET /store-api/context` returns the stored address as `prospectiveCustomer`.
+
+Headless clients should note that `shippingLocation.address` and `cart.deliveries[].location.address` now contain an address for such a visitor, while `customer` is `null`.
+Its ids stay the same for a context token, but it is not a stored customer address and can not be sent as `shippingAddressId`.
+Check `customer` or `prospectiveCustomer` before treating it as a customer address.
+
+### Rate limit responses contain `Retry-After`
+
+Admin API and Store API responses with HTTP 429 now contain a `Retry-After` header with the seconds to wait.
+It is listed in `Access-Control-Expose-Headers`, so browser clients on another origin can read it.
 
 ### MCP clients can log in with OAuth
 
@@ -933,7 +976,8 @@ They are rendered in the new block `sw_customer_create_custom_field_sets` in `sw
 
 The Administration no longer ships `blocks-list.json`.
 The block names are now in `public-api/index.json`, listed per component.
-All `blocks` arrays of that file together hold the names of the old list.
+A component that extends another one also lists the blocks it inherits.
+All `blocks` arrays of that file together hold the names of the old list, except eight blocks of extend templates that the Administration never rendered.
 Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
 
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.

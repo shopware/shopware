@@ -33,7 +33,6 @@ import template from './sw-inherit-wrapper.html.twig';
  *
  * </sw-inherit-wrapper>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

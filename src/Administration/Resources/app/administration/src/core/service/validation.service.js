@@ -62,7 +62,6 @@ export function regex(value, expression) {
  * @param value
  * @returns {boolean}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export function email(value) {
     Shopware.Feature.triggerDeprecationOrThrow(
         'V6_8_0_0',

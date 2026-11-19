@@ -42,7 +42,6 @@ function isIllegalUrlException(error) {
  * @component-example
  * <sw-upload-listener @sw-uploads-added="..."></sw-upload-listener>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template: '<div style="display: none"></div>',
 

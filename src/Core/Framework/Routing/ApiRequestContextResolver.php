@@ -272,6 +272,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
                 throw RoutingException::appIntegrationNotFound($integrationId);
             }
 
+            $source->setAppId($app['id']);
             $appPermissions = $app['privileges'];
             // If both userId and integrationId are provided (HEADER_APP_USER_ID case), intersect user permissions with app permissions
             $user = $userId !== null ? $this->fetchUserState($userId) : null;
@@ -415,7 +416,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     }
 
     /**
-     * @return array{active: bool, privileges: string[]}|null
+     * @return array{id: string, active: bool, privileges: string[]}|null
      */
     private function fetchAppByIntegrationId(?string $integrationId): ?array
     {
@@ -424,7 +425,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         $app = $this->connection->fetchAssociative('
-            SELECT `app`.`active`, `acl_role`.`privileges`
+            SELECT LOWER(HEX(`app`.`id`)) AS `id`, `app`.`active`, `acl_role`.`privileges`
             FROM `acl_role`
             INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
             WHERE `app`.`integration_id` = :integrationId
@@ -435,6 +436,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return [
+            'id' => (string) $app['id'],
             'active' => (bool) $app['active'],
             'privileges' => json_decode((string) $app['privileges'], true, 512, \JSON_THROW_ON_ERROR),
         ];

@@ -41,6 +41,7 @@ class AppContextCreator
 
         return AppContextFactory::forApp(
             $hook->getContext(),
+            $scriptAppInformation->getAppId(),
             $scriptAppInformation->getIntegrationId(),
             $this->getPrivileges($scriptAppInformation->getAppId())
         );

@@ -144,7 +144,10 @@ Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw
 Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
 Shopware.Service().register('productDocumentVariantService', () => {
-    return new ProductDocumentVariantService(Shopware.Service().get('repositoryFactory'));
+    return new ProductDocumentVariantService(
+        Shopware.Service().get('repositoryFactory'),
+        Shopware.Service().get('syncService'),
+    );
 });
 Shopware.Service().register('productStorefrontUrlApiService', () => {
     return new ProductStorefrontUrlApiService(

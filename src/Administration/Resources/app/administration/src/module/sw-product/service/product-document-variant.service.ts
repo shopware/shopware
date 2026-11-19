@@ -10,17 +10,22 @@ export type DocumentChanges = { title?: string | null; mediaId?: EntityKey<'medi
 /** @private */
 export type DocumentVariantOperation = { mediaId: string; title: string | null; changes?: DocumentChanges };
 
+type SyncService = {
+    sync: (payload: object, additionalParams?: object, additionalHeaders?: Record<string, string>) => Promise<unknown>;
+};
+
 const { Context, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-
-const PAGE_SIZE = 100;
 
 /** @private */
 export default class ProductDocumentVariantService {
     private readonly documentRepository: Repository<'product_document'>;
 
-    constructor(repositoryFactory: RepositoryFactory) {
+    private readonly syncService: SyncService;
+
+    constructor(repositoryFactory: RepositoryFactory, syncService: SyncService) {
         this.documentRepository = repositoryFactory.create('product_document');
+        this.syncService = syncService;
     }
 
     async sync(
@@ -50,6 +55,7 @@ export default class ProductDocumentVariantService {
 
         const removesDocuments = languageId === Context.api.systemLanguageId;
         const deletedIds: string[] = [];
+        const updates: object[] = [];
         matches.forEach(({ operation, documents: matched }) => {
             if (!operation.changes && removesDocuments) {
                 deletedIds.push(...matched.map(({ id }) => id));
@@ -57,10 +63,16 @@ export default class ProductDocumentVariantService {
             }
 
             const changes = Utils.object.pick(operation.changes ?? { title: null, mediaId: null }, ['title', 'mediaId']);
-            matched.forEach((document) => Object.assign(document, changes));
+            updates.push(...matched.map(({ id, versionId }) => ({ id, versionId, ...changes })));
         });
 
-        await this.documentRepository.sync(documents, context);
+        if (updates.length) {
+            await this.syncService.sync(
+                { 'product-document-variants': { entity: 'product_document', action: 'upsert', payload: updates } },
+                {},
+                languageId ? { 'sw-language-id': languageId } : {},
+            );
+        }
         if (deletedIds.length) {
             await this.documentRepository.syncDeleted(deletedIds, context);
         }
@@ -68,27 +80,27 @@ export default class ProductDocumentVariantService {
         return variantIds;
     }
 
-    private async loadVariantDocuments(
+    private loadVariantDocuments(
         productId: string,
         operations: DocumentVariantOperation[],
         context: typeof Context.api,
     ): Promise<EntityCollection<'product_document'>> {
-        let page = 1;
-        const criteria = new Criteria(page, PAGE_SIZE);
+        const criteria = new Criteria(1, null);
         criteria.setTotalCountMode(0);
+        criteria.addFields('productId', 'mediaId', 'title');
+        criteria.addIncludes({
+            product_document: [
+                'id',
+                'versionId',
+                'productId',
+                'mediaId',
+                'title',
+                'translated',
+            ],
+        });
         criteria.addFilter(Criteria.equals('product.parentId', productId));
         criteria.addFilter(Criteria.equalsAny('mediaId', [...new Set(operations.map(({ mediaId }) => mediaId))]));
-        criteria.addSorting(Criteria.sort('id'));
 
-        const documents = await this.documentRepository.search(criteria, context);
-        let result = documents;
-        while (result.length === PAGE_SIZE) {
-            page += 1;
-            criteria.setPage(page);
-            result = await this.documentRepository.search(criteria, context);
-            result.forEach((document) => documents.add(document));
-        }
-
-        return documents;
+        return this.documentRepository.search(criteria, context);
     }
 }

@@ -42,24 +42,36 @@ public function get(string $id, Context $context, ?Criteria $criteria = null): ?
 
 `SalesChannelRepository` takes a `SalesChannelContext` instead of a `Context`.
 
-Each method:
+Each method clones the criteria, so the caller's object does not change.
+Filters and associations always apply.
 
-* clones the criteria, so the caller's object does not change,
-* sets the limit to 1 and the total count mode to `TOTAL_COUNT_MODE_NONE`,
-* keeps filters, sortings, the offset and the associations,
-* calls the existing `searchIds()` (`exists()`, `firstId()`) or `search()` (`first()`, `get()`).
+`exists()`, `firstId()` and `first()`:
 
-`get()` also sets the ids of the criteria to `[$id]`, or creates a new criteria with that id.
+* set the limit to 1 and the total count mode to `TOTAL_COUNT_MODE_NONE`,
+* keep sortings and the offset,
+* call the existing `searchIds()` (`exists()`, `firstId()`) or `search()` (`first()`).
+
+`get()`:
+
+* replaces the ids of the criteria with `[$id]`, or creates a new criteria with that id,
+* removes the limit and the offset, and sets the total count mode to `TOTAL_COUNT_MODE_NONE`,
+* calls `search()`, which reads the entity directly, without an id search first.
+
+A limit or an offset would send `get()` through the entity searcher and add an id query.
 The argument order matches `get()` in the Administration.
-It only makes the code shorter:
-in PHP, a search by one id already loads at most one row and runs no count query.
 It is the most common of these reads, with about 140 call sites in core.
-Entities with a combined primary key, such as mapping definitions, keep using `search()`.
+
+`firstId()`, `first()` and `get()` do not support entities with a combined primary key, such as mapping definitions.
+`exists()` supports them.
 
 ```php
 public function exists(Criteria $criteria, Context $context): bool
 {
-    return $this->firstId($criteria, $context) !== null;
+    $criteria = (clone $criteria)
+        ->setLimit(1)
+        ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
+
+    return $this->searchIds($criteria, $context)->getIds() !== [];
 }
 
 public function firstId(Criteria $criteria, Context $context): ?string
@@ -73,10 +85,13 @@ public function firstId(Criteria $criteria, Context $context): ?string
 
 public function get(string $id, Context $context, ?Criteria $criteria = null): ?Entity
 {
-    $criteria = $criteria === null ? new Criteria() : clone $criteria;
-    $criteria->setIds([$id]);
+    $criteria = ($criteria === null ? new Criteria() : clone $criteria)
+        ->setIds([$id])
+        ->setLimit(null)
+        ->setOffset(null)
+        ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
-    return $this->first($criteria, $context);
+    return $this->search($criteria, $context)->getEntities()->get($id);
 }
 ```
 
@@ -92,8 +107,9 @@ firstId(criteria: Criteria, contextOrOptions?: apiContext | RepositoryCacheOptio
 
 Both copy the criteria with `Criteria.fromCriteria()`, set the limit to 1 and the total count mode to 0, and call `searchIds()`.
 
-`get()` sets the total count mode to 0 on its criteria.
+`get()` copies its criteria with `Criteria.fromCriteria()` and sets the total count mode to 0 on the copy.
 It returns one entity and never reads the total.
+Today it changes the ids of the caller's criteria, and after this change it leaves the caller's criteria as it is.
 
 ## Consequences
 

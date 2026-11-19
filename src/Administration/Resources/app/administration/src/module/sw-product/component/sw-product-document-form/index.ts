@@ -5,7 +5,7 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import * as helper from './document-form.helper';
-import documentColumns from './document-form.config';
+import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
@@ -23,6 +23,7 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'entityFactory',
         'acl',
+        'fileValidationService',
         'mediaDefaultFolderService',
     ],
 
@@ -52,6 +53,8 @@ export default Shopware.Component.wrapComponentConfig({
             applyToVariants: false,
             isApplyingDocumentEdit: false,
             hasSubmittedDocumentEdit: false,
+            allowedExtensions: [...allowedExtensions],
+            maxFileSize,
         };
     },
 
@@ -161,21 +164,15 @@ export default Shopware.Component.wrapComponentConfig({
             }));
         },
 
-        allowedExtensions(): string[] {
-            return Shopware.Store.get('context').app.config.settings?.productDocuments?.allowedExtensions ?? [];
+        uploadHint(): string {
+            return this.$t('sw-product.documentForm.uploadHint', helper.getDocumentUploadHintParams(this));
         },
 
         allowedMimeTypesByExtension(): Record<string, string[]> {
-            const config = Shopware.Store.get('context').app.config.settings?.productDocuments;
-            return config?.allowedMimeTypesByExtension ?? {};
-        },
-
-        maxFileSize(): number {
-            return Shopware.Store.get('context').app.config.settings?.productDocuments?.maxFileSize ?? 0;
-        },
-
-        uploadHint(): string {
-            return this.$t('sw-product.documentForm.uploadHint', helper.getDocumentUploadHintParams(this));
+            return helper.getDocumentMimeTypesByExtension(
+                this.fileValidationService.extensionByType,
+                this.allowedExtensions,
+            );
         },
 
         fileAccept(): string {

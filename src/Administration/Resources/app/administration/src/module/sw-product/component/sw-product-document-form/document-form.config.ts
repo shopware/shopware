@@ -46,3 +46,14 @@ export default [
     sortable: false,
     allowResize: !['number', 'position'].includes(column.property),
 }));
+
+/** @private */
+export const allowedExtensions = [
+    'pdf',
+    'docx',
+    'jpg',
+    'jpeg',
+    'png',
+];
+/** @private */
+export const maxFileSize = 20 * 1024 * 1024;

@@ -342,6 +342,17 @@ export function canMoveDocument(
 }
 
 /** @private */
+export function getDocumentMimeTypesByExtension(extensionByType: Record<string, string[]>, allowedExtensions: string[]) {
+    const mimeTypes = Object.entries(extensionByType);
+    return Object.fromEntries(
+        allowedExtensions.map((extension) => [
+            extension,
+            mimeTypes.filter(([, extensions]) => extensions.includes(extension)).map(([mimeType]) => mimeType),
+        ]),
+    );
+}
+
+/** @private */
 export function getDocumentUploadHintParams({
     allowedExtensions,
     maxFileSize,

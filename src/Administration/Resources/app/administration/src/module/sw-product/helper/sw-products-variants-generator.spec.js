@@ -37,11 +37,6 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                 },
             };
         });
-        Shopware.Service().register('cacheApiService', () => {
-            return {
-                indexProducts() {},
-            };
-        });
         variantsGenerator = new VariantsGenerator();
     });
 
@@ -481,7 +476,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' },
+                { 'indexing-behavior': 'disable-indexing' },
             );
 
             const calledRestrictions = syncSpy.mock.calls[0][0][0].payload[0].variantRestrictions;
@@ -602,7 +597,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
+                { 'indexing-behavior': 'use-queue-indexing' },
             );
 
             syncSpy.mockRestore();
@@ -927,7 +922,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
+                { 'indexing-behavior': 'use-queue-indexing' },
             );
 
             const calledConfig = syncSpy.mock.calls[0][0][0].payload[0].variantListingConfig;

@@ -81,7 +81,6 @@ function createQueueItem() {
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-variant-generation generateVariants', () => {
     beforeAll(() => {
         Shopware.Service().register('syncService', () => ({ httpClient: {} }));
-        Shopware.Service().register('cacheApiService', () => ({ indexProducts() {} }));
     });
 
     it('should save the configurator settings, restrictions and listing config before the variants', async () => {

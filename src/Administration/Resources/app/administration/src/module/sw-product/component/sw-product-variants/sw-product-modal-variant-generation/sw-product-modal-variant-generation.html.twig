@@ -22,7 +22,10 @@
             {% endblock %}
         </template>
 
-        <template v-else>
+        <sw-silence-deprecations
+            v-else
+            flag="V6_9_0_0"
+        >
             <sw-tabs
                 is-vertical
                 position-identifier="sw-product-modal-variant-generation"
@@ -63,7 +66,7 @@
 
                 {% endblock %}
             </sw-tabs>
-        </template>
+        </sw-silence-deprecations>
         {% endblock %}
 
         {% block sw_product_modal_variant_generation_sidebar_descriptions %}

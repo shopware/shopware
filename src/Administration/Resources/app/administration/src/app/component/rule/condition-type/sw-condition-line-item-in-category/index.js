@@ -10,6 +10,11 @@ const { EntityCollection, Criteria } = Shopware.Data;
  */
 export default {
     template,
+
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Use sw-condition-generic instead.',
+    },
     inheritAttrs: false,
 
     inject: ['repositoryFactory', 'feature'],

@@ -275,7 +275,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(PromotionDalValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

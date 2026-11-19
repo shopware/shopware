@@ -6,7 +6,7 @@
  * differ from plain Twig. `extend-chain.spec/runtime.spec.ts` compares the result with what that factory builds.
  */
 import { hasBlock, isBlock, placeContent } from './block-tree';
-import type { BlockContent, BlockNode, BlockOrigin } from './block-tree';
+import type { BlockContent, BlockNode, BlockOrigin, ParentCall } from './block-tree';
 import { inBothStates } from './flag-states';
 import type { FlagStates } from './flag-states';
 
@@ -19,9 +19,19 @@ export interface TemplateSource {
 /**
  * @private
  *
- * A component with its Twig template, if it has one, and the templates of its core overrides in the order
- * the runtime applies them. A `native` component keeps its blocks in a `.vue` file instead. `states` are the
- * flag states in which the component is registered.
+ * The template of a core override, with the index the runtime orders the overrides of a component by.
+ */
+export interface OverrideTemplate {
+    index: number;
+    template: TemplateSource;
+}
+
+/**
+ * @private
+ *
+ * A component with its Twig template, if it has one, and the templates of its core overrides in file order.
+ * A `native` component keeps its blocks in a `.vue` file instead. `states` are the flag states in which the
+ * component is registered.
  */
 export interface ComponentTemplate {
     name: string;
@@ -29,7 +39,7 @@ export interface ComponentTemplate {
     native: boolean;
     states: FlagStates;
     template: TemplateSource | null;
-    overrides: TemplateSource[];
+    overrides: OverrideTemplate[];
 }
 
 /**
@@ -59,9 +69,26 @@ export interface ResolvedTemplate {
 
 type MergedTemplate = Omit<ResolvedTemplate, 'states'>;
 
+type ExtendChild = ComponentTemplate & { extends: string };
+
+/** A declaration of a child, resolved against the content of the block it replaces. */
 interface Redeclaration {
     content: BlockContent[];
     keepsParent: boolean;
+}
+
+function isParentCall(item: BlockContent): item is ParentCall {
+    return item.kind === 'parent';
+}
+
+function callsParent(content: BlockContent[]): boolean {
+    return content.some(isParentCall);
+}
+
+function withParentContent(content: BlockContent[], replaced: BlockContent[]): BlockContent[] {
+    return content.flatMap((item) =>
+        isParentCall(item) ? replaced.map((kept) => ({ ...kept, within: inBothStates(kept.within, item.within) })) : [item],
+    );
 }
 
 /**
@@ -69,20 +96,14 @@ interface Redeclaration {
  * block directly inside it. Deeper `{% parent %}` tags stay unresolved.
  */
 function redeclarationOf(replaced: BlockContent[], declared: BlockContent[]): Redeclaration {
-    let keepsParent = false;
-    const withParent = (content: BlockContent[]): BlockContent[] =>
-        content.flatMap((item) => {
-            if (isBlock(item)) {
-                return [item];
-            }
+    const oneBlockDeep = declared.map((item) =>
+        isBlock(item) ? { ...item, content: withParentContent(item.content, replaced) } : item,
+    );
 
-            keepsParent = true;
-
-            return replaced.map((kept) => ({ ...kept, within: inBothStates(kept.within, item.within) }));
-        });
-    const inside = declared.map((item) => (isBlock(item) ? { ...item, content: withParent(item.content) } : item));
-
-    return { content: withParent(inside), keepsParent };
+    return {
+        content: withParentContent(oneBlockDeep, replaced),
+        keepsParent: callsParent(declared) || declared.filter(isBlock).some(({ content }) => callsParent(content)),
+    };
 }
 
 /** An extend child that redeclares what its parent redeclared with `{% parent %}` keeps what the parent kept. */
@@ -192,49 +213,77 @@ function extendTemplate(template: TemplateSource | null, parent: BlockContent[])
     return { tree: extended.tree, dropped: [...dropped, ...extended.dropped] };
 }
 
+/** `applyTemplateOverrides`: by index. Overrides with the same index keep the order they come in. */
+function overridesInOrder({ overrides }: ComponentTemplate): TemplateSource[] {
+    return [...overrides].sort((a, b) => a.index - b.index).map(({ template }) => template);
+}
+
+function rootTemplate({ template, states }: ComponentTemplate): ResolvedTemplate {
+    return { tree: template?.tree ?? [], dropped: [], states };
+}
+
+function childTemplate(child: ExtendChild, parent: ResolvedTemplate): ResolvedTemplate {
+    return { ...extendTemplate(child.template, parent.tree), states: inBothStates(child.states, parent.states) };
+}
+
 /**
  * `applyTemplateOverrides`: the top-level blocks of an override are applied one after another, so a later one
  * can replace what an earlier one kept or added. A block that the component does not have is not unwrapped.
  */
-function overrideTemplate(base: MergedTemplate, { file, tree }: TemplateSource): MergedTemplate {
+function overrideTemplate(base: ResolvedTemplate, { file, tree }: TemplateSource): ResolvedTemplate {
     return tree.filter(isBlock).reduce((resolved, block) => {
         const overridden = applyDeclarations(resolved.tree, new Map([[block.name, block]]), file);
 
-        return { tree: overridden.tree, dropped: [...resolved.dropped, ...overridden.dropped] };
+        return { ...resolved, tree: overridden.tree, dropped: [...resolved.dropped, ...overridden.dropped] };
     }, base);
 }
 
-function hasBlocks(template: TemplateSource | null): template is TemplateSource {
+function declaresBlocks(template: TemplateSource | null): template is TemplateSource {
     return template !== null && template.tree.some(isBlock);
 }
 
-function extendedComponent(
-    component: ComponentTemplate,
-    byName: ReadonlyMap<string, ComponentTemplate>,
-    chain: readonly string[],
-): ComponentTemplate {
-    const parent = byName.get(component.extends ?? '');
+function isExtendChild(component: ComponentTemplate): component is ExtendChild {
+    return component.extends !== null;
+}
 
-    if (parent === undefined || chain.includes(parent.name)) {
-        throw new Error(
-            `${component.name} extends ${component.extends}, which ` +
-                `${parent === undefined ? 'is not registered' : 'extends it in turn'}.`,
-        );
+function parentOf(child: ExtendChild, byName: ReadonlyMap<string, ComponentTemplate>): ComponentTemplate {
+    const parent = byName.get(child.extends);
+
+    if (parent === undefined) {
+        throw new Error(`${child.name} extends ${child.extends}, which is not registered.`);
     }
 
-    if (component.native || parent.native) {
+    return parent;
+}
+
+function assertExtendable(child: ExtendChild, parent: ComponentTemplate, chain: readonly string[]): void {
+    if (chain.includes(parent.name)) {
+        throw new Error(`${child.name} extends ${parent.name}, which extends it in turn.`);
+    }
+
+    if (child.native || parent.native) {
         throw new Error(
-            `${component.name} extends ${parent.name}, and one of them keeps its blocks in a .vue file. ` +
+            `${child.name} extends ${parent.name}, and one of them keeps its blocks in a .vue file. ` +
                 'The snapshot can only merge the blocks of Twig templates along an extend chain so far.',
         );
     }
 
-    if (parent.template === null && parent.extends === null && hasBlocks(component.template)) {
+    if (parent.template === null && parent.extends === null && declaresBlocks(child.template)) {
         throw new Error(
-            `${component.name} extends ${parent.name}, which has no Twig template. ` +
-                `The runtime drops the template of ${component.name} then, so its blocks would never render.`,
+            `${child.name} extends ${parent.name}, which has no Twig template. ` +
+                `The runtime drops the template of ${child.name} then, so its blocks would never render.`,
         );
     }
+}
+
+function extendableParent(
+    child: ExtendChild,
+    byName: ReadonlyMap<string, ComponentTemplate>,
+    chain: readonly string[],
+): ComponentTemplate {
+    const parent = parentOf(child, byName);
+
+    assertExtendable(child, parent, chain);
 
     return parent;
 }
@@ -242,7 +291,7 @@ function extendedComponent(
 function assertOverridable(component: ComponentTemplate): void {
     const hasTwigTemplate = !component.native && (component.template !== null || component.extends !== null);
 
-    if (!hasTwigTemplate && component.overrides.some(hasBlocks)) {
+    if (!hasTwigTemplate && component.overrides.some(({ template }) => declaresBlocks(template))) {
         throw new Error(
             `A core override of ${component.name} brings a Twig template, but ${component.name} has none. ` +
                 'The snapshot cannot tell which blocks the override replaces.',
@@ -269,18 +318,10 @@ export function resolveTemplates(templates: readonly ComponentTemplate[]): Resol
 
         assertOverridable(component);
 
-        const parent =
-            component.extends === null
-                ? null
-                : resolve(extendedComponent(component, byName, chain), [...chain, component.name]);
-        const own =
-            parent === null
-                ? { tree: component.template?.tree ?? [], dropped: [] }
-                : extendTemplate(component.template, parent.tree);
-        const template = {
-            ...component.overrides.reduce(overrideTemplate, own),
-            states: parent === null ? component.states : inBothStates(component.states, parent.states),
-        };
+        const own = isExtendChild(component)
+            ? childTemplate(component, resolve(extendableParent(component, byName, chain), [...chain, component.name]))
+            : rootTemplate(component);
+        const template = overridesInOrder(component).reduce(overrideTemplate, own);
 
         resolved.set(component.name, template);
 

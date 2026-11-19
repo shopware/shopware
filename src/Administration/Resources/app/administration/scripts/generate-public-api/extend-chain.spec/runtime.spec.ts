@@ -105,7 +105,7 @@ function generatorBlocks(components: Component[], flags: FlagContext): Map<strin
             native: false,
             states: BOTH_STATES,
             template: template === null || template === undefined ? null : source(name, template),
-            overrides: [...overrides].sort((a, b) => a.index - b.index).map((override) => source(name, override.template)),
+            overrides: overrides.map(({ index, template: text }) => ({ index, template: source(name, text) })),
         })),
     );
 
@@ -314,8 +314,7 @@ const CASES: [string, Component[]][] = [
             base([
                 {
                     index: 1,
-                    template:
-                        '{% block override_first %}Second{% endblock %}{% block base_header %}[{% parent %}]{% endblock %}',
+                    template: '{% block override_first %}{% block override_second %}{% endblock %}{% endblock %}',
                 },
                 { index: 0, template: '{% block base_header %}First{% block override_first %}{% endblock %}{% endblock %}' },
             ]),

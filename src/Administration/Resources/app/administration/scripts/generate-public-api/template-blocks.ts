@@ -137,15 +137,16 @@ class BlockReader {
 
     private visitComment(content: string): void {
         if (content.startsWith(BLOCK_START)) {
-            this.twigTagsSeen += 1;
             this.openBlock(content.slice(BLOCK_START.length));
         } else if (content === BLOCK_END) {
-            this.twigTagsSeen += 1;
             this.closeBlock();
         } else if (content === PARENT_CALL) {
-            this.twigTagsSeen += 1;
             this.add({ kind: 'parent', ...this.place() });
+        } else {
+            return;
         }
+
+        this.twigTagsSeen += 1;
     }
 
     private visitElement(element: ElementNode): void {

@@ -14491,6 +14491,12 @@
             "extends": null,
             "blocks": []
         },
+        "sw-silence-deprecations": {
+            "file": "app/component/utils/sw-silence-deprecations",
+            "visibility": "public",
+            "extends": null,
+            "blocks": []
+        },
         "sw-simple-search-field": {
             "file": "app/component/base/sw-simple-search-field",
             "visibility": "private",

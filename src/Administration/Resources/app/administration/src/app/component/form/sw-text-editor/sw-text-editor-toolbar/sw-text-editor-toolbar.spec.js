@@ -122,6 +122,26 @@ describe('src/app/component/form/sw-text-editor/sw-text-editor-toolbar', () => {
         expect(document.querySelector('#sw-field--linkTarget').value).toBe(longUrl);
     });
 
+    it.each([
+        { popoverClass: 'mt-floating-ui__content', staysOpen: true },
+        { popoverClass: 'sw-popover__wrapper', staysOpen: true },
+        { popoverClass: 'somewhere-else', staysOpen: false },
+    ])('keeps the link menu open on a click inside $popoverClass: $staysOpen', async ({ popoverClass, staysOpen }) => {
+        wrapper = await createWrapper();
+        await selectEditorContent(wrapper);
+        await clickToolbarButton('link');
+
+        const outsideToolbar = document.createElement('div');
+        outsideToolbar.classList.add(popoverClass);
+        outsideToolbar.innerHTML = '<span>Result</span>';
+        document.body.appendChild(outsideToolbar);
+
+        outsideToolbar.querySelector('span').dispatchEvent(new Event('mouseup', { bubbles: true }));
+        await flushPromises();
+
+        expect(linkMenu() !== null).toBe(staysOpen);
+    });
+
     it('repositions the toolbar on scroll while no menu is open', async () => {
         wrapper = await createWrapper();
         await selectEditorContent(wrapper);

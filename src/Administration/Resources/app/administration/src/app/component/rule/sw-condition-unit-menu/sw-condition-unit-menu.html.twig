@@ -27,7 +27,7 @@
     </div>
 
     <mt-floating-ui
-        :is-opened="showMenu && defaultUnit"
+        :is-opened="showMenu && !!defaultUnit"
         :anchor-element="$refs.unitMenuButton"
         detached
     >

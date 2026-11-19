@@ -2,6 +2,7 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const orderFixture = {
     id: 'order1',
@@ -72,6 +73,7 @@ describe('src/module/sw-order/component/sw-order-document-settings-invoice-modal
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-order-document-settings-invoice-modal" is deprecated');
         wrapper = await createWrapper();
         await flushPromises();
     });

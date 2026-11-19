@@ -110,6 +110,10 @@ Existing log entries and stored sample data are not modified.
 Previously queued flows retain their original classification.
 Previously queued Shopware mails without a stored flag keep the default non-sensitive classification.
 
+### Customer language check on sales channel change
+
+The customer language check from [#14836](https://github.com/shopware/shopware/pull/14836) now also runs when only the sales channel changes.
+
 ### Missing plugin conditions in stored carts
 
 Stored carts can be recalculated when a rule container references a condition whose PHP class is no longer available, for example an uninstalled plugin.
@@ -316,6 +320,11 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Media uploads can set a title and an alt text
+
+`MediaUploadParameters` has the new optional properties `title` and `alt`.
+`MediaUploadService` writes them when it creates the media, so a separate media update for them is no longer needed.
+
 ### Units have a standard unit code
 
 The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
@@ -459,6 +468,15 @@ On the stateless revision there is no MCP session:
 * Choose toolsets in the endpoint URL, for example `/api/_mcp?toolsets=order,media`.
   `shopware-toolset-enable` and `shopware-toolsets-list` are not listed in `tools/list`; called directly, they answer with an error that points to `?toolsets=`.
   The server instructions and `shopware-tool-search` point to `?toolsets=` as well, and each search match names its toolset.
+* List changes on the Admin API endpoint reach clients through `subscriptions/listen` within about a second.
+  They are raised by app installs, updates, activations and removals, by edits of the MCP allowlist of an integration or a user, and by a change of a user's `admin` flag, through any API.
+  The stream reads the list versions from the database, so changes made on the CLI, in queue workers or on another host arrive as well.
+  Each host reads them at most once a second, through a `cache.app` entry.
+  The Store API endpoint does not announce list changes on the stateless revision, because its lists only change per session there.
+  Clients on the session-based revisions receive the same changes as `list_changed` notifications in their session, so an allowlist edit now reaches them as well.
+* Each open `subscriptions/listen` stream holds one PHP-FPM worker for up to 25 seconds, then the server ends it and the client reconnects.
+  A client that keeps listening therefore occupies one worker almost all the time.
+  Account for it in `pm.max_children`, and keep `max_execution_time` and the timeouts of proxies in front of PHP above 25 seconds.
 * List changes on the Admin API endpoint, for example after an app install, reach clients through `subscriptions/listen`.
   The notifications go through `cache.app`, so setups with several hosts need a shared `cache.app`, for example Redis.
 * Each open `subscriptions/listen` stream occupies a PHP worker for up to 25 seconds before the client reconnects.
@@ -478,6 +496,7 @@ Check import files that relied on `0` being ignored.
 Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
 Errors make the install or update fail, and all of them are reported at once.
 Notices no longer stop `app:install` and `app:refresh`, run `app:validate` to see them.
+`app:validate` now fails only on errors and exits with 0 when an app has notices only.
 
 ### Event once all line items of an add are in the cart
 
@@ -494,6 +513,18 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 The property is unused and will be removed in 6.8.
 `--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
+### MCP answers carry cache hints on the 2026-07-28 revision
+
+On the stateless 2026-07-28 revision, both MCP endpoints now tell clients how long they may reuse an answer (`ttlMs` and `cacheScope`, SEP-2549).
+Every hint is `private`, because the allowlist and `?toolsets=` make the answers differ per caller.
+`server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` stay fresh for 60 seconds, so an allowlist change reaches a client within a minute, even if it does not listen for `list_changed`.
+The reference resources stay fresh for one hour (`shopware://state-machines`) or 60 seconds (`shopware://entities`, `shopware://business-events`, `shopware://flow-actions`, `shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+Entities, business events and flow actions can change when an app is installed, so they get the shorter time.
+Everything else, including stored tool results and app resources, is not cached.
+Answers on the handshake revisions carry no hints and are unchanged.
+
+The core reference resources now return a `Mcp\Schema\Result\ReadResourceResult` instead of an array.
+A plugin resource can set its own hint by returning a `ReadResourceResult` with `ttlMs` and `cacheScope`; only do so on the 2026-07-28 revision, as `RequestContext::getProtocolVersion()->isModern()` tells.
 ### Deprecated `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM`
 
 The constant is unused and will be removed in 6.8.
@@ -670,6 +701,13 @@ Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
+### Error responses no longer expose database connection errors
+
+With `APP_DEBUG=0`, a failed database connection, for example invalid credentials or an unreachable database server, is no longer rendered with its raw exception message.
+Requests that prefer HTML, like a storefront request while the database is not reachable, get Symfony's generic error page.
+Other requests get a JSON error with `Internal Server Error` as detail.
+The original exception is still logged.
+
 ### SSO logins can carry the `user-verified` scope
 
 The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
@@ -760,6 +798,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Media upload endpoints accept a title and an alt text
+
+`POST /api/_action/media/upload`, `POST /api/_action/media/upload_by_url` and `POST /api/_action/media/external-link` accept the optional fields `title` and `alt`.
+The new media is created with them, so a separate `PATCH /api/media/{id}` is no longer needed.
+
 ### Order deliveries have a `position` field
 
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
@@ -845,6 +888,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Custom fields on the customer create page
+
+The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.
+They are rendered in the new block `sw_customer_create_custom_field_sets` in `sw-customer-create.html.twig`.
+
 ### `blocks-list.json` is replaced by the public API snapshot
 
 The Administration no longer ships `blocks-list.json`.
@@ -855,6 +903,26 @@ Beside it, one `.api.md` report per component shows its blocks with their nestin
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
 The format of the files in `public-api/` can still change while the snapshot is being built.
 Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
+### Experimental: `Feature.silence()` and `sw-silence-deprecations`
+
+Both silence the deprecations of a major on the pre-major side of a feature-flag branch, so an extension can support both sides of a major without warnings:
+
+```js
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
+}
+```
+
+```html
+<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
+    <sw-deprecated-component />
+</sw-silence-deprecations>
+```
+
+The component silences the first level of components inside of it, ignoring plain HTML, and everything they render themselves.
+Event handlers, watchers and code after an `await` need `Feature.silence()`.
+Once the major is active, both silence nothing.
+
 ### Administration HTTP client runs on a single Axios 1.x transport
 
 The Administration `httpClient` is now one Axios 1.x instance (1.20.0).
@@ -1136,6 +1204,18 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now go through `Shopware.Feature.triggerDeprecationOrThrow()`, so they throw once their major flag is active instead of staying a console message forever.
+This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing`, the Options API compatibility shim and the legacy theme config labels and help texts in `sw-theme-manager-detail`.
+
+Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
+
+### Deprecated Administration APIs warn when they are used
+
+Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used: deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
+In development builds, a use logs a warning naming the API and its replacement.
+With the next major flag active, it throws unless baselined.
 
 ### Unused runtime packages removed from the Administration
 
@@ -1564,6 +1644,20 @@ shopware:
 ```
 
 The option defaults to `true`, preserving the existing behavior for all existing installations.
+
+### Elasticsearch searches use at most 10 words of a search term
+
+Searches over Elasticsearch or OpenSearch now use only the first 10 distinct words of a search term, because longer terms made OpenSearch reject the query with `too_many_nested_clauses`.
+Punctuation and one-letter words do not count.
+Change the limit with `elasticsearch.search.term_max_words`:
+
+```yaml
+elasticsearch:
+    search:
+        term_max_words: 10
+```
+
+Raise it only when your cluster allows more clauses through `indices.query.bool.max_clause_count`, and lower it when searches with fewer words still fail.
 
 # 6.7.16.1
 

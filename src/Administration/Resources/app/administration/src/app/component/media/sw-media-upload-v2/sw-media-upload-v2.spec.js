@@ -7,12 +7,20 @@ import { mount } from '@vue/test-utils';
 import FileValidationService from 'src/app/service/file-validation.service';
 
 let repositoryFactoryMock;
+let mediaServiceMock;
 async function createWrapper(customOptions = {}) {
     repositoryFactoryMock = {
         create: () => ({}),
         save: () => Promise.resolve({}),
         saveAll: () => Promise.resolve({}),
         sync: () => Promise.resolve({}),
+    };
+    mediaServiceMock = {
+        addListener: jest.fn(),
+        addUploads: () => Promise.resolve(),
+        addUpload: () => Promise.resolve(),
+        removeByTag: () => {},
+        removeListener: () => null,
     };
 
     return mount(await wrapTestComponent('sw-media-upload-v2', { sync: true }), {
@@ -59,13 +67,7 @@ async function createWrapper(customOptions = {}) {
                 repositoryFactory: {
                     create: () => repositoryFactoryMock,
                 },
-                mediaService: {
-                    addListener: () => {},
-                    addUploads: () => Promise.resolve(),
-                    addUpload: () => Promise.resolve(),
-                    removeByTag: () => {},
-                    removeListener: () => null,
-                },
+                mediaService: mediaServiceMock,
             },
         },
         ...customOptions,
@@ -785,6 +787,29 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
                 payload: { targetId: 'media-2' },
             });
             expect(wrapper.vm.pendingUploadMediaIds.has('media-2')).toBe(true);
+        });
+
+        it('leaves the media of a duplicated file name to the duplicate dialog', async () => {
+            repositoryFactoryMock.create = () => ({ id: 'media-1' });
+            repositoryFactoryMock.search = jest.fn().mockResolvedValue([{ id: 'media-1', hasFile: false }]);
+
+            fileInputFilesGet.mockReturnValue([new File([''], 'foo.jpg')]);
+            await fileInput.trigger('change');
+            await flushPromises();
+
+            const [[, handleMediaServiceUploadEvent]] = mediaServiceMock.addListener.mock.calls;
+            handleMediaServiceUploadEvent({
+                action: 'media-upload-fail',
+                payload: {
+                    targetId: 'media-1',
+                    error: { response: { data: { errors: [{ code: 'CONTENT__MEDIA_DUPLICATED_FILE_NAME' }] } } },
+                },
+            });
+
+            wrapper.unmount();
+            await flushPromises();
+
+            expect(repositoryFactoryMock.syncDeleted).not.toHaveBeenCalled();
         });
 
         it('deletes empty pending media but keeps media that already has a file', async () => {

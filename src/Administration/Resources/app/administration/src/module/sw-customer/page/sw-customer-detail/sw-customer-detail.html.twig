@@ -136,7 +136,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     class="sw-customer-detail-page__tabs"
                     position-identifier="sw-customer-detail-tabs"
@@ -174,7 +177,7 @@
 
                     {% block sw_customer_detail_content_tab_after %}{% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             <sw-extension-component-section

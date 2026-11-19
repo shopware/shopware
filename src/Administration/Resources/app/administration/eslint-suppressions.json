@@ -2588,7 +2588,7 @@
   },
   "src/app/init-pre/state.init.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/ban-ts-comment": {
       "count": 1
@@ -3795,7 +3795,7 @@
   },
   "src/core/factory/state.factory.ts": {
     "@eslint-community/eslint-comments/require-description": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/no-restricted-types": {
       "count": 4
@@ -6680,14 +6680,6 @@
       "count": 1
     }
   },
-  "src/module/sw-customer/page/sw-customer-create/sw-customer-create.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "sw-test-rules/no-vm-access": {
-      "count": 21
-    }
-  },
   "src/module/sw-customer/page/sw-customer-detail/index.js": {
     "@eslint-community/eslint-comments/require-description": {
       "count": 1
@@ -8879,9 +8871,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-user-card/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }

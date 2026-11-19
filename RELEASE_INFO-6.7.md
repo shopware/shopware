@@ -510,6 +510,7 @@ bin/console dal:migration:create --plugin=SwagExample --auto-translation --auto-
 
 `dal:migration:create` stops with an error for a field class from an extension that extends a registered DAL field, such as `JsonField`, and is not registered itself.
 Such fields now use the column type of their closest registered parent, so the command generates the migration.
+
 ### Manifest validation runs on every app install and update
 
 Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.

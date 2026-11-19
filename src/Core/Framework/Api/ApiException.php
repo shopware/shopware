@@ -73,6 +73,7 @@ class ApiException extends HttpException
     public const API_DEFINITION_GENERATOR_NOT_FOUND = 'FRAMEWORK__API_DEFINITION_GENERATOR_NOT_FOUND';
     public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
     public const API_INVALID_CLONE_OVERWRITE = 'FRAMEWORK__API_INVALID_CLONE_OVERWRITE';
+    public const API_APP_HAS_NO_ROLES = 'FRAMEWORK__API_APP_HAS_NO_ROLES';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -535,6 +536,15 @@ class ApiException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::API_ROUTES_ARE_LOADED_ALREADY,
             'API routes are already loaded',
+        );
+    }
+
+    public static function appHasNoRoles(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::API_APP_HAS_NO_ROLES,
+            'An app has no roles of its own, the roles of its integration have to be used.',
         );
     }
 

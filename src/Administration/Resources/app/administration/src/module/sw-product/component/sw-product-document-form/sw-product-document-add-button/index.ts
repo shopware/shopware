@@ -5,6 +5,8 @@ import { useId } from 'vue';
 import template from './sw-product-document-add-button.html.twig';
 import './sw-product-document-add-button.scss';
 
+const { Store } = Shopware;
+
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -38,7 +40,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         isSystemDefaultLanguage(): boolean {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return Store.get('context').isSystemDefaultLanguage;
         },
 
         triggerLabel(): string {

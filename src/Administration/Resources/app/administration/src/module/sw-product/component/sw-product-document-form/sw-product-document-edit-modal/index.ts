@@ -4,10 +4,13 @@
 import { useId, type PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 import useSnackbar from 'src/app/composables/use-snackbar';
+import type Repository from 'src/core/data/repository.data';
 import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 import { getDocumentMedia } from '../product-document.helper';
 import type { DocumentUploadRules } from '../index';
 import template from './sw-product-document-edit-modal.html.twig';
+
+const { Context, Store } = Shopware;
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
@@ -77,7 +80,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     data() {
-        const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
+        const isSystemDefaultLanguage = Store.get('context').isSystemDefaultLanguage;
 
         return {
             title: (isSystemDefaultLanguage ? this.document.translated?.title : this.document.title) || '',
@@ -91,8 +94,12 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        mediaRepository(): Repository<'media'> {
+            return this.repositoryFactory.create('media');
+        },
+
         isSystemDefaultLanguage(): boolean {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return Store.get('context').isSystemDefaultLanguage;
         },
 
         modalTitle(): string {
@@ -162,7 +169,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         async onUploadFinished({ targetId }: { targetId: EntityKey<'media'> }): Promise<void> {
             try {
-                const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);
+                const media = await this.mediaRepository.get(targetId, Context.api);
                 if (media) {
                     this.selectMedia([media]);
                 }
@@ -218,7 +225,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
             if (hasChanges) {
-                Shopware.Store.get('swProductDetail').documentVariantOperations.push(operation);
+                Store.get('swProductDetail').documentVariantOperations.push(operation);
             }
             useSnackbar().addSnackbar({
                 variant: 'success',

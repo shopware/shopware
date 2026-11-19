@@ -6,6 +6,8 @@ import { getDocumentMedia } from '../product-document.helper';
 import template from './sw-product-document-cell.html.twig';
 import './sw-product-document-cell.scss';
 
+const { Store } = Shopware;
+
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -37,11 +39,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isFallback(): boolean {
-            return !Shopware.Store.get('context').isSystemDefaultLanguage && !this.document[this.field];
+            return !Store.get('context').isSystemDefaultLanguage && !this.document[this.field];
         },
 
         languageCode(): string {
-            const context = Shopware.Store.get('context');
+            const context = Store.get('context');
             const language = context.api.language as Entity<'language'> | null;
             if (context.isSystemDefaultLanguage || language?.id !== context.api.languageId) {
                 return '';
@@ -51,7 +53,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isVariantOnly(): boolean {
-            const { product, parentProduct } = Shopware.Store.get('swProductDetail');
+            const { product, parentProduct } = Store.get('swProductDetail');
             const mediaId = this.document.translated?.mediaId;
             return (
                 this.showVariantBadge &&

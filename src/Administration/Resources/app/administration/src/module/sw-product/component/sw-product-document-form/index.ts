@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import useSnackbar from 'src/app/composables/use-snackbar';
+import type Repository from 'src/core/data/repository.data';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import type { DocumentChanges } from 'src/core/service/api/product-document-variant.api.service';
@@ -36,6 +37,8 @@ const columns = [
     },
 ];
 
+const { Context, Store, Utils } = Shopware;
+
 /**
  * @private
  */
@@ -69,11 +72,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         product(): Entity<'product'> {
-            return Shopware.Store.get('swProductDetail').product;
+            return Store.get('swProductDetail').product;
         },
 
         parentProduct(): Entity<'product'> {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return Store.get('swProductDetail').parentProduct;
         },
 
         documents(): EntityCollection<'product_document'> {
@@ -84,16 +87,20 @@ export default Shopware.Component.wrapComponentConfig({
             return (this.page - 1) * this.limit;
         },
 
-        documentRepository() {
+        documentRepository(): Repository<'product_document'> {
             return this.repositoryFactory.create('product_document');
         },
 
+        mediaRepository(): Repository<'media'> {
+            return this.repositoryFactory.create('media');
+        },
+
         languageId(): string {
-            return Shopware.Store.get('context').api.languageId ?? '';
+            return Store.get('context').api.languageId ?? '';
         },
 
         isSystemDefaultLanguage(): boolean {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return Store.get('context').isSystemDefaultLanguage;
         },
 
         uploadTag(): string {
@@ -101,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         contextLanguage(): Entity<'language'> | null {
-            return Shopware.Store.get('context').api.language as Entity<'language'> | null;
+            return Store.get('context').api.language as Entity<'language'> | null;
         },
 
         canEdit(): boolean {
@@ -116,7 +123,7 @@ export default Shopware.Component.wrapComponentConfig({
         contentLanguageName(): string {
             const language = this.contextLanguage;
             const code = language?.locale?.code.split('-')[0];
-            const locale = Shopware.Store.get('session').currentLocale || 'en-GB';
+            const locale = Store.get('session').currentLocale || 'en-GB';
             const names = new Intl.DisplayNames([locale], { type: 'language' });
             return code ? names.of(code) || '' : language?.name || '';
         },
@@ -141,7 +148,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         uploadRules(): DocumentUploadRules {
-            const config = Shopware.Store.get('context').app.config.settings?.productDocuments;
+            const config = Store.get('context').app.config.settings?.productDocuments;
             const allowedMimeTypesByExtension = config?.allowedMimeTypesByExtension ?? {};
 
             return {
@@ -155,7 +162,7 @@ export default Shopware.Component.wrapComponentConfig({
         uploadHint(): string {
             return this.$t('sw-product.documentForm.uploadHint', {
                 extensions: this.uploadRules.allowedExtensions.join(', ').toUpperCase(),
-                size: Shopware.Utils.format.fileSize(this.uploadRules.maxFileSize),
+                size: Utils.format.fileSize(this.uploadRules.maxFileSize),
             });
         },
 
@@ -197,7 +204,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         getFileSize(document: Entity<'product_document'>): string {
             const fileSize = getDocumentMedia(document)?.fileSize;
-            return typeof fileSize === 'number' ? Shopware.Utils.format.fileSize(fileSize) : '';
+            return typeof fileSize === 'number' ? Utils.format.fileSize(fileSize) : '';
         },
 
         getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
@@ -240,7 +247,7 @@ export default Shopware.Component.wrapComponentConfig({
             totalAmount?: number;
         }): Promise<void> {
             try {
-                const media = await this.repositoryFactory.create('media').get(targetId, Shopware.Context.api);
+                const media = await this.mediaRepository.get(targetId, Context.api);
                 if (media) {
                     const documentCount = this.documents.length;
                     this.addDocuments([media]);
@@ -263,7 +270,7 @@ export default Shopware.Component.wrapComponentConfig({
             mediaItems
                 .filter((media) => this.isValidMedia(media, null))
                 .forEach((media) => {
-                    const document = this.documentRepository.create(Shopware.Context.api);
+                    const document = this.documentRepository.create(Context.api);
                     document.productId = this.product.id;
                     document.mediaId = media.id;
                     document.title = media.fileName ?? '';
@@ -295,7 +302,7 @@ export default Shopware.Component.wrapComponentConfig({
             document: Entity<'product_document'>,
             field: 'title' | 'mediaId',
         ): Entity<'product_document_translation'> | undefined {
-            const { language, systemLanguageId } = Shopware.Store.get('context').api;
+            const { language, systemLanguageId } = Store.get('context').api;
 
             return [language?.parentId, systemLanguageId]
                 .map((languageId) => document.translations?.find((translation) => translation.languageId === languageId))
@@ -392,25 +399,25 @@ export default Shopware.Component.wrapComponentConfig({
             (this.$refs.documentInheritance as DocumentInheritance).forceInheritanceRemove = true;
             const entityFactory = this.entityFactory as EntityFactory;
             inheritedDocuments.forEach((source) => {
-                const document = this.documentRepository.create(Shopware.Context.api);
+                const document = this.documentRepository.create(Context.api);
                 document.productId = this.product.id;
                 document.position = source.position;
                 document.title = source.title;
                 document.mediaId = source.mediaId;
-                document.customFields = Shopware.Utils.object.cloneDeep(source.customFields);
-                document.translated = Shopware.Utils.object.cloneDeep(source.translated);
+                document.customFields = Utils.object.cloneDeep(source.customFields);
+                document.translated = Utils.object.cloneDeep(source.translated);
 
                 source.translations?.forEach((sourceTranslation) => {
                     const translation = entityFactory.create(
                         'product_document_translation',
                         null,
-                        Shopware.Context.api,
+                        Context.api,
                     ) as Entity<'product_document_translation'>;
                     translation.productDocumentId = document.id;
                     translation.languageId = sourceTranslation.languageId;
                     translation.mediaId = sourceTranslation.mediaId;
                     translation.title = sourceTranslation.title;
-                    translation.customFields = Shopware.Utils.object.cloneDeep(sourceTranslation.customFields);
+                    translation.customFields = Utils.object.cloneDeep(sourceTranslation.customFields);
                     document.translations.add(translation);
                 });
                 setDocumentMedia(document, getDocumentMedia(source) ?? null);

@@ -8,6 +8,8 @@ import type { DocumentVariantOperation } from 'src/core/service/api/product-docu
 import template from './sw-product-document-remove-modal.html.twig';
 import './sw-product-document-remove-modal.scss';
 
+const { Store } = Shopware;
+
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
@@ -50,7 +52,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         isSystemDefaultLanguage(): boolean {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return Store.get('context').isSystemDefaultLanguage;
         },
 
         isBulk(): boolean {
@@ -62,7 +64,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         productId(): string {
-            return Shopware.Store.get('swProductDetail').product.id;
+            return Store.get('swProductDetail').product.id;
         },
 
         modalTitle(): string {
@@ -148,7 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
             const message = this.getSuccessMessage(variantCount);
 
             this.$emit('remove');
-            Shopware.Store.get('swProductDetail').documentVariantOperations.push(...operations);
+            Store.get('swProductDetail').documentVariantOperations.push(...operations);
             useSnackbar().addSnackbar({ variant: 'success', message });
         },
     },

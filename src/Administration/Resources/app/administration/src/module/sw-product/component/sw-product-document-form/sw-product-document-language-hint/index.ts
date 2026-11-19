@@ -1,7 +1,10 @@
 /**
  * @sw-package inventory
  */
+import type Repository from 'src/core/data/repository.data';
 import template from './sw-product-document-language-hint.html.twig';
+
+const { Context, Utils } = Shopware;
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
@@ -11,6 +14,12 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: ['close'],
 
+    computed: {
+        languageRepository(): Repository<'language'> {
+            return this.repositoryFactory.create('language');
+        },
+    },
+
     data() {
         return {
             defaultLanguageName: '',
@@ -18,13 +27,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     async created() {
-        const { systemLanguageId } = Shopware.Context.api;
+        const { systemLanguageId } = Context.api;
         if (!systemLanguageId) {
             return;
         }
 
         try {
-            const language = await this.repositoryFactory.create('language').get(systemLanguageId, Shopware.Context.api, {
+            const language = await this.languageRepository.get(systemLanguageId, Context.api, {
                 cacheKey: ['shared-data', 'language', systemLanguageId],
             });
             this.defaultLanguageName = language?.name ?? '';
@@ -35,7 +44,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         switchToDefaultLanguage(): void {
-            Shopware.Utils.EventBus.emit('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
+            Utils.EventBus.emit('on-change-language-clicked', Context.api.systemLanguageId);
             this.$emit('close');
         },
     },

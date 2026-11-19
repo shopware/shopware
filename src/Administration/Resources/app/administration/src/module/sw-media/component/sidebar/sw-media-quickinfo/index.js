@@ -182,19 +182,23 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            this.systemConfigApiService.getConfig('core.media').then((config) => {
-                config
-                    .flat()[0]
-                    .elements.filter((element) => element.name === 'core.media.defaultARPlacement')
-                    .forEach((element) => {
-                        this.arPlacementOptions = element.config.options.map((option) => {
-                            return {
-                                id: option.id,
-                                value: option.id,
-                                label: this.$t(`sw-media.sidebar.actions.${option.id}`),
-                            };
-                        });
-                    });
+            this.systemConfigApiService.getSchema('core.media').then((schema) => {
+                const placementElement = schema
+                    .flatMap((tab) => tab.cards)
+                    .flatMap((card) => card.elements)
+                    .find((element) => element.name === 'core.media.defaultARPlacement');
+
+                if (!placementElement) {
+                    return;
+                }
+
+                this.arPlacementOptions = placementElement.config.options.map((option) => {
+                    return {
+                        id: option.id,
+                        value: option.id,
+                        label: this.$t(`sw-media.sidebar.actions.${option.id}`),
+                    };
+                });
             });
 
             this.mediaRepository.get(this.item.id, Shopware.Context.api).then((entity) => {

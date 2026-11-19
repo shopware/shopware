@@ -5,7 +5,6 @@
  */
 import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
-import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const itemMock = (options = {}) => {
     const itemOptions = {
@@ -30,41 +29,45 @@ const itemMock = (options = {}) => {
 };
 
 const arPlacementOptions = [
-    { id: 'horizontal', value: 'horizontal', label: 'Horizontal' },
-    { id: 'vertical', value: 'vertical', label: 'Vertical' },
+    { id: 'horizontal', name: 'Horizontal' },
+    { id: 'vertical', name: 'Vertical' },
 ];
 const originalCreateObjectURL = window.URL.createObjectURL;
 const originalRevokeObjectURL = window.URL.revokeObjectURL;
 
-/**
- * The real service on a stubbed HTTP client, so the component's `getConfig()` call reaches its deprecation.
- */
 function createSystemConfigApiService() {
-    const httpClient = {
-        get: () =>
+    return {
+        getValues: () =>
             Promise.resolve({
-                data: [
-                    {
-                        elements: [
-                            {
-                                name: 'core.media.defaultARPlacement',
-                                config: {
-                                    options: arPlacementOptions,
-                                },
-                            },
-                        ],
-                    },
-                ],
+                'core.store.media.defaultEnableAugmentedReality': 'false',
             }),
+        getSchema: () =>
+            Promise.resolve([
+                {
+                    name: null,
+                    title: {},
+                    cards: [
+                        {
+                            title: {},
+                            elements: [
+                                {
+                                    name: 'core.media.defaultEnableAugmentedReality',
+                                    type: 'bool',
+                                    config: {},
+                                },
+                                {
+                                    name: 'core.media.defaultARPlacement',
+                                    type: 'single-select',
+                                    config: {
+                                        options: arPlacementOptions,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ]),
     };
-    const service = new SystemConfigApiService(httpClient, { getToken: () => 'token' });
-    service.getValues = () => {
-        return Promise.resolve({
-            'core.store.media.defaultEnableAugmentedReality': 'false',
-        });
-    };
-
-    return service;
 }
 
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
@@ -228,12 +231,25 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
     });
 
     it('should load the AR placement options from the media system config', async () => {
-        const getConfig = jest.spyOn(SystemConfigApiService.prototype, 'getConfig');
-
-        await createWrapper();
+        const wrapper = await createWrapper(
+            {
+                fileName: 'smth.glb',
+                mimeType: 'model/gltf-binary',
+                url: 'http://shopware.example.com/media/file/2b71335f118c4940b425c55352e69e44/media-1-three-d.glb',
+            },
+            {},
+            {
+                get: () => Promise.resolve({ config: { spatial: { arReady: true } } }),
+            },
+        );
         await flushPromises();
 
-        expect(getConfig).toHaveBeenCalledWith('core.media');
+        await wrapper.find('.mt-select__selection').trigger('click');
+
+        expect(wrapper.findAll('.mt-select-result').map((result) => result.text())).toEqual([
+            'sw-media.sidebar.actions.horizontal',
+            'sw-media.sidebar.actions.vertical',
+        ]);
     });
 
     it('should not be able to delete', async () => {

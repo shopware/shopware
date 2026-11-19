@@ -8879,9 +8879,6 @@
     }
   },
   "src/module/sw-order/component/sw-order-user-card/index.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
     "filename-rules/not-match": {
       "count": 1
     }

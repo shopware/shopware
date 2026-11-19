@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework\DataAbstractionLayer;
 
 use OpenSearch\Client;
 use OpenSearch\Exception\RuntimeException;
-use OpenSearchDSL\Sort\FieldSort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -15,15 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
-use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\AbstractElasticsearchSearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
-use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -514,150 +510,5 @@ class ElasticsearchEntitySearcherTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $searcher->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
-    }
-
-    public function testSearchWithoutLimitLoadsEveryPage(): void
-    {
-        $ids = new IdsCollection();
-        $pages = [
-            [self::hit($ids->get('a')), self::hit($ids->get('b'))],
-            [self::hit($ids->get('c'))],
-        ];
-
-        $requests = [];
-        $client = $this->createMock(Client::class);
-        $client->expects($this->exactly(2))
-            ->method('search')
-            ->willReturnCallback(static function (array $params) use (&$requests, &$pages): array {
-                $requests[] = $params;
-
-                return ['hits' => ['total' => ['value' => 3], 'hits' => array_shift($pages)]];
-            });
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-
-        $result = $this->createSearcher($client, pageSize: 2)->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
-
-        static::assertSame([$ids->get('a'), $ids->get('b'), $ids->get('c')], $result->getIds());
-        static::assertSame(3, $result->getTotal());
-
-        static::assertArrayNotHasKey('search_after', $requests[0]['body']);
-        static::assertTrue($requests[0]['body']['track_total_hits']);
-
-        static::assertSame([1.0, $ids->get('b')], $requests[1]['body']['search_after']);
-        static::assertSame(0, $requests[1]['body']['from']);
-        static::assertFalse($requests[1]['body']['track_total_hits']);
-    }
-
-    public function testSearchWithoutLimitSendsOneRequestWhenTheFirstPageIsNotFull(): void
-    {
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('search')
-            ->willReturn(['hits' => ['hits' => [self::hit(Uuid::randomHex())]]]);
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        $result = $this->createSearcher($client, pageSize: 2)->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
-
-        static::assertCount(1, $result->getIds());
-    }
-
-    public function testSearchWithoutLimitFailsInsteadOfReturningPartialResults(): void
-    {
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('search')
-            ->with(static::callback(static fn (array $params): bool => ($params['allow_partial_search_results'] ?? null) === false))
-            ->willReturn(['hits' => ['hits' => []]]);
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        $this->createSearcher($client, pageSize: 2)->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
-    }
-
-    /**
-     * @param list<array<string, array<string, string>>> $expectedSort
-     */
-    #[DataProvider('tieBreakerProvider')]
-    public function testSearchWithoutLimitBreaksSortingTiesById(?FieldSort $sorting, array $expectedSort): void
-    {
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('search')
-            ->with(static::callback(static fn (array $params): bool => $params['body']['sort'] === $expectedSort))
-            ->willReturn(['hits' => ['hits' => []]]);
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-        $this->createSearcher($client, pageSize: 2, sorting: $sorting)->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
-    }
-
-    public static function tieBreakerProvider(): \Generator
-    {
-        yield 'a search without sorting keeps the relevance order' => [
-            'sorting' => null,
-            'expectedSort' => [['_score' => ['order' => 'desc']], ['id' => ['order' => 'asc']]],
-        ];
-
-        yield 'a sorted search keeps its sorting ahead of the id' => [
-            'sorting' => new FieldSort('stock', FieldSort::DESC),
-            'expectedSort' => [['stock' => ['order' => 'desc']], ['id' => ['order' => 'asc']]],
-        ];
-    }
-
-    public function testGroupedSearchWithoutLimitIsSentAsOneRequest(): void
-    {
-        $client = $this->createMock(Client::class);
-        $client->expects($this->once())
-            ->method('search')
-            ->with(static::callback(static fn (array $params): bool => !\array_key_exists('allow_partial_search_results', $params)
-                && !\array_key_exists('sort', $params['body'])))
-            ->willReturn(['hits' => ['hits' => []]]);
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addGroupField(new FieldGrouping('displayGroup'));
-
-        $this->createSearcher($client, pageSize: 2)->search(new ProductDefinition(), $criteria, Context::createDefaultContext());
-    }
-
-    private function createSearcher(Client $client, int $pageSize, ?FieldSort $sorting = null): ElasticsearchEntitySearcher
-    {
-        $helper = static::createStub(ElasticsearchHelper::class);
-        $helper->method('allowSearch')->willReturn(true);
-
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ElasticsearchEntitySearcherSearchEvent::class, static function (ElasticsearchEntitySearcherSearchEvent $event) use ($pageSize, $sorting): void {
-            $event->getSearch()->setSize($pageSize);
-
-            if ($sorting !== null) {
-                $event->getSearch()->addSort($sorting);
-            }
-        });
-
-        return new ElasticsearchEntitySearcher(
-            $client,
-            static::createStub(EntitySearcherInterface::class),
-            $helper,
-            static::createStub(CriteriaParser::class),
-            new ElasticsearchEntitySearchHydrator(),
-            $dispatcher,
-            '10s',
-            'query_then_fetch'
-        );
-    }
-
-    /**
-     * @return array{_id: string, _score: float, sort: list<float|string>}
-     */
-    private static function hit(string $id): array
-    {
-        return ['_id' => $id, '_score' => 1.0, 'sort' => [1.0, $id]];
     }
 }

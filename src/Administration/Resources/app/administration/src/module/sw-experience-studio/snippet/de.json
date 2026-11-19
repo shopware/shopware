@@ -1061,7 +1061,9 @@
         "missingEntityContext": "Dieses Layout ist noch keinem Produkt, keiner Kategorie und keiner Landingpage zugewiesen.",
         "noElements": "Die Vorschau wurde geladen, aber es wurden keine Root-Elemente zurückgegeben.",
         "emptySlot": "Dieser Slot enthält keine Elemente.",
-        "errorLoad": "Die Vorschau konnte nicht geladen werden."
+        "errorLoad": "Die Vorschau konnte nicht geladen werden.",
+        "errorUpdate": "Die Vorschau konnte nicht aktualisiert werden. Sie zeigt noch einen älteren Stand.",
+        "retry": "Erneut versuchen"
       },
       "elementSettings": {
         "title": "Element-Einstellungen",

@@ -28,6 +28,12 @@
         margin: auto;
     }
 
+    // Meteor sets the banner margin with a scoped selector, a single class does not override it.
+    &__frame .mt-banner#{&}__outdated-banner {
+        flex: 0 0 auto;
+        margin: 0;
+    }
+
     &__iframe {
         border: 0;
         width: 100%;

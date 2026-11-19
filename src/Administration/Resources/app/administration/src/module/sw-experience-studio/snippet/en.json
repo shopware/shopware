@@ -1061,7 +1061,9 @@
         "missingEntityContext": "This layout is not assigned to a product, category, or landing page yet.",
         "noElements": "The preview loaded, but no root elements were returned.",
         "emptySlot": "No elements in this slot.",
-        "errorLoad": "Preview could not be loaded."
+        "errorLoad": "Preview could not be loaded.",
+        "errorUpdate": "The preview could not be updated. It still shows an earlier version.",
+        "retry": "Retry"
       },
       "elementSettings": {
         "title": "Element settings",

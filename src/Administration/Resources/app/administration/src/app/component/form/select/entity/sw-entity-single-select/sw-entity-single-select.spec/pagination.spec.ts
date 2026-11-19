@@ -2,18 +2,23 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
+import type Criteria from 'src/core/data/criteria.data';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 describe('components/sw-entity-single-select', () => {
-    it('keeps loading pages without an exact total count', async () => {
+    it('keeps loading pages without an exact total count and stops after a short page', async () => {
         const repository = {
-            search: jest.fn((criteria) => {
+            search: jest.fn((criteria: Criteria) => {
+                const page = criteria.getPage();
                 const entities = [
-                    { id: `${criteria.page}-1`, name: `entry ${criteria.page}-1` },
-                    { id: `${criteria.page}-2`, name: `entry ${criteria.page}-2` },
-                ];
+                    { id: `${page}-1`, name: `entry ${page}-1` },
+                    { id: `${page}-2`, name: `entry ${page}-2` },
+                ].slice(0, page < 3 ? 2 : 1) as unknown as Entity<'product'>[];
 
-                return Promise.resolve(new EntityCollection('/test', 'test', null, {}, entities, entities.length, null));
+                return Promise.resolve(
+                    new EntityCollection('/product', 'product', Shopware.Context.api, null, entities, entities.length),
+                );
             }),
         };
         const wrapper = mount(await wrapTestComponent('sw-entity-single-select', { sync: true }), {
@@ -42,7 +47,7 @@ describe('components/sw-entity-single-select', () => {
             },
             props: {
                 value: null,
-                entity: 'test',
+                entity: 'product',
                 resultLimit: 2,
             },
         });
@@ -51,18 +56,17 @@ describe('components/sw-entity-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const resultList = wrapper.findComponent({ ref: 'resultsList' });
+        const resultList = wrapper.findComponent({ ref: 'resultsList' }) as unknown as {
+            vm: { $emit: (event: string) => void };
+        };
+        resultList.vm.$emit('paginate');
+        await flushPromises();
         resultList.vm.$emit('paginate');
         await flushPromises();
         resultList.vm.$emit('paginate');
         await flushPromises();
 
         expect(repository.search).toHaveBeenCalledTimes(3);
-        expect(repository.search).toHaveBeenLastCalledWith(
-            expect.objectContaining({ page: 3 }),
-            expect.any(Object),
-            undefined,
-        );
-        expect(wrapper.findAll('.sw-select-result')).toHaveLength(6);
+        expect(wrapper.findAll('.sw-select-result')).toHaveLength(5);
     });
 });

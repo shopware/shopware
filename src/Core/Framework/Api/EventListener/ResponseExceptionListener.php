@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Framework\Api\EventListener;
 
+use Doctrine\DBAL\Exception\ConnectionException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -37,6 +41,17 @@ class ResponseExceptionListener implements EventSubscriberInterface
         }
 
         $exception = $event->getThrowable();
+
+        if (!$this->debug && $exception instanceof ConnectionException) {
+            if ($event->getRequest()->getPreferredFormat() === 'html') {
+                $errorPage = (new HtmlErrorRenderer(false))->render($exception);
+                $event->setResponse(new Response($errorPage->getAsString(), $errorPage->getStatusCode(), $errorPage->getHeaders()));
+
+                return;
+            }
+
+            $exception = new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, Response::$statusTexts[Response::HTTP_INTERNAL_SERVER_ERROR], $exception);
+        }
 
         $event->setResponse((new ErrorResponseFactory())->getResponseFromException($exception, $this->debug));
     }

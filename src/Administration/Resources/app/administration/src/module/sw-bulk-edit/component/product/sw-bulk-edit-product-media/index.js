@@ -44,11 +44,23 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         mediaDefaultFolderRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-bulk-edit-product-media.mediaDefaultFolderRepository is deprecated. ' +
+                    'Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             return this.repositoryFactory.create('media_default_folder');
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         mediaDefaultFolderCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-bulk-edit-product-media.mediaDefaultFolderCriteria is deprecated. ' +
+                    'Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             const criteria = new Criteria(1, 1);
 
             criteria.addAssociation('folder');

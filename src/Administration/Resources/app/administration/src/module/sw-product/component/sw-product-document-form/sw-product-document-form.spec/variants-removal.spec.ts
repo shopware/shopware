@@ -7,17 +7,25 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import {
     mockSnackbar,
+    mockVariantSync,
     createProduct,
     cleanupWrappers,
     createWrapper,
     createMedia,
     clickButton,
+    selectMedia,
     getDocuments,
 } from './helpers';
 
 function addPersistedDocument(product: Entity<'product'>, media: Entity<'media'>, position = 0) {
     const document = repositoryFactory.create('product_document').create();
-    const values = { productId: product.id, title: media.fileName, mediaId: media.id, position };
+    const values = {
+        productId: product.id,
+        title: media.fileName,
+        mediaId: media.id,
+        position,
+        translated: { title: media.fileName, mediaId: media.id },
+    };
     Object.assign(document, values);
     Object.assign(document.getOrigin(), values);
     document._isNew = false;
@@ -25,16 +33,6 @@ function addPersistedDocument(product: Entity<'product'>, media: Entity<'media'>
     product.getOrigin().documents = Shopware.Data.EntityCollection.fromCollection(product.documents!);
     product._isNew = false;
     return document;
-}
-
-function createVariant(media: Entity<'media'>, other?: Entity<'media'>) {
-    const variant = createProduct();
-    variant.parentId = Shopware.Store.get('swProductDetail').product.id;
-    addPersistedDocument(variant, media);
-    if (other) {
-        addPersistedDocument(variant, other, 1);
-    }
-    return variant;
 }
 
 describe('sw-product-document-form variant removal', () => {
@@ -53,41 +51,23 @@ describe('sw-product-document-form variant removal', () => {
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
         cleanupWrappers();
+        jest.restoreAllMocks();
     });
 
-    it('stages only document deletions for the parent and matching variant copies', async () => {
+    it('removes only the parent document from the payload and queues the variant removal after a dry run', async () => {
         const store = Shopware.Store.get('swProductDetail');
         const media = createMedia();
         const other = createMedia('other');
         const document = addPersistedDocument(store.product, media);
-        addPersistedDocument(store.product, other, 1);
+        const remaining = addPersistedDocument(store.product, other, 1);
         store.product.childCount = 5;
-        const first = createVariant(media, other);
-        const second = createVariant(media);
-        const custom = createVariant(other);
-        custom.documents![0].title = media.fileName ?? '';
-        custom.documents![0].getOrigin().title = media.fileName ?? '';
-        const renamed = createVariant(media);
-        renamed.documents![0].title = 'Customized name';
-        renamed.documents![0].getOrigin().title = 'Customized name';
-        const inherited = createProduct();
-        const firstDocumentId = first.documents?.[0].id;
-        const secondDocumentId = second.documents?.[0].id;
+        mockVariantSync.mockResolvedValueOnce(['first-variant', 'second-variant']);
         const productRepository = repositoryFactory.create('product');
-        jest.spyOn(productRepository, 'search').mockResolvedValue(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [
-                first,
-                second,
-                custom,
-                renamed,
-                inherited,
-            ]),
-        );
+        const searchSpy = jest.spyOn(productRepository, 'search');
         const saveSpy = jest.spyOn(productRepository, 'save');
         const mediaRepository = repositoryFactory.create('media');
         const deleteMediaSpy = jest.spyOn(mediaRepository, 'delete');
         const translate = jest.spyOn(config.global.mocks, '$t');
-        const notification = mockSnackbar;
         const wrapper = await createWrapper(mediaRepository, undefined, productRepository);
 
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
@@ -97,72 +77,33 @@ describe('sw-product-document-form variant removal', () => {
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
 
+        const operation = { mediaId: media.id, title: 'manual' };
+        expect(mockVariantSync).toHaveBeenCalledTimes(1);
+        expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
+        expect(store.documentVariantOperations).toEqual([operation]);
         expect(getDocuments()).toHaveLength(1);
+        expect(getDocuments()?.[0].id).toBe(remaining.id);
         expect(getDocuments()?.[0]).toMatchObject({ mediaId: other.id, position: 0 });
-        expect(first.documents).toHaveLength(1);
-        expect(first.documents?.[0]).toMatchObject({ mediaId: other.id, position: 0 });
-        expect(second.documents).toHaveLength(0);
-        expect(custom.documents).toHaveLength(1);
-        expect(renamed.documents).toHaveLength(1);
-        expect(renamed.documents![0]).toMatchObject({ title: 'Customized name', mediaId: media.id });
-        expect(inherited.documents).toHaveLength(0);
+        expect(store.product.children).toHaveLength(0);
         const payload = new ChangesetGenerator().generate(store.product);
-        expect(payload).toHaveProperty('deletionQueue.length', 3);
-        expect(payload).toHaveProperty(
-            'deletionQueue',
-            expect.arrayContaining([
-                expect.objectContaining({ entity: 'product_document', key: document.id }),
-                expect.objectContaining({ entity: 'product_document', key: firstDocumentId }),
-                expect.objectContaining({ entity: 'product_document', key: secondDocumentId }),
-            ]),
-        );
-        expect(notification).toHaveBeenCalledTimes(1);
-        expect(notification).toHaveBeenCalledWith(
+        expect(payload.deletionQueue).toEqual([
+            expect.objectContaining({ entity: 'product_document', key: document.id }),
+        ]);
+        expect(payload.changes).not.toHaveProperty('children');
+        expect(mockSnackbar).toHaveBeenCalledTimes(1);
+        expect(mockSnackbar).toHaveBeenCalledWith(
             expect.objectContaining({
                 variant: 'success',
                 message: 'sw-product.documentForm.removeSuccess',
             }),
         );
-        expect(translate).toHaveBeenCalledWith('sw-product.documentForm.removeSuccess', { name: 'manual', count: 2 });
-        translate.mockRestore();
+        expect(translate).toHaveBeenCalledWith(
+            'sw-product.documentForm.removeSuccess',
+            expect.objectContaining({ name: 'manual', count: 2 }),
+        );
+        expect(searchSpy).not.toHaveBeenCalled();
         expect(saveSpy).not.toHaveBeenCalled();
         expect(deleteMediaSpy).not.toHaveBeenCalled();
-    });
-
-    it('preserves the saved order of remaining variant documents when removing a matching copy', async () => {
-        const store = Shopware.Store.get('swProductDetail');
-        const media = createMedia('remove-middle');
-        addPersistedDocument(store.product, media);
-        store.product.childCount = 1;
-        const variant = createProduct();
-        variant.parentId = store.product.id;
-        const first = addPersistedDocument(variant, createMedia('first'), 0);
-        const middle = addPersistedDocument(variant, media, 1);
-        const last = addPersistedDocument(variant, createMedia('last'), 2);
-        const repository = repositoryFactory.create('product');
-        const searchSpy = jest
-            .spyOn(repository, 'search')
-            .mockResolvedValue(
-                new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-            );
-        const wrapper = await createWrapper(undefined, undefined, repository);
-        await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
-        wrapper
-            .getComponent<ComponentPublicInstance>('.sw-product-document-form__remove-from-variants')
-            .vm.$emit('update:checked', true);
-        await clickButton(wrapper, 'global.default.remove');
-        await flushPromises();
-
-        expect(searchSpy.mock.calls[0][0].parse()).toMatchObject({
-            associations: { documents: { sort: [{ field: 'position', order: 'ASC' }] } },
-        });
-        expect(Array.from(variant.documents!, (document) => ({ id: document.id, position: document.position }))).toEqual([
-            { id: first.id, position: 0 },
-            { id: last.id, position: 1 },
-        ]);
-        expect(new ChangesetGenerator().generate(store.product).deletionQueue).toEqual(
-            expect.arrayContaining([expect.objectContaining({ entity: 'product_document', key: middle.id })]),
-        );
     });
 
     it('removes only the parent assignment when the variant option is off', async () => {
@@ -170,9 +111,7 @@ describe('sw-product-document-form variant removal', () => {
         const media = createMedia();
         addPersistedDocument(store.product, media);
         store.product.childCount = 1;
-        const productRepository = repositoryFactory.create('product');
-        const searchSpy = jest.spyOn(productRepository, 'search');
-        const wrapper = await createWrapper(undefined, undefined, productRepository);
+        const wrapper = await createWrapper();
 
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
         await wrapper.get('.sw-product-document-form__remove-from-variants input').setValue(false);
@@ -180,26 +119,24 @@ describe('sw-product-document-form variant removal', () => {
         await flushPromises();
 
         expect(getDocuments()).toHaveLength(0);
-        expect(searchSpy).not.toHaveBeenCalled();
+        expect(mockVariantSync).not.toHaveBeenCalled();
+        expect(store.documentVariantOperations).toEqual([]);
         expect(store.product.children).toHaveLength(0);
     });
 
-    it('keeps nested deletions when a variant already has staged document edits', async () => {
+    it('queues the removal of the edited file after an earlier queued variant edit', async () => {
         const store = Shopware.Store.get('swProductDetail');
         const original = createMedia();
         const replacement = createMedia('replacement');
-        addPersistedDocument(store.product, original);
-        const variant = createVariant(original);
-        const copy = variant.documents![0];
-        getDocuments()![0].mediaId = replacement.id;
-        copy.mediaId = replacement.id;
-        store.product.children!.add(variant);
+        const document = addPersistedDocument(store.product, original);
         store.product.childCount = 1;
-        const productRepository = repositoryFactory.create('product');
-        jest.spyOn(productRepository, 'search').mockResolvedValue(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api),
-        );
-        const wrapper = await createWrapper(undefined, undefined, productRepository);
+        mockVariantSync.mockResolvedValueOnce(['variant-a']).mockResolvedValueOnce(['variant-a']);
+        const wrapper = await createWrapper();
+        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+        await selectMedia(wrapper, [replacement]);
+        await clickButton(wrapper, 'global.default.apply');
+        await flushPromises();
+
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
         wrapper
             .getComponent<ComponentPublicInstance>('.sw-product-document-form__remove-from-variants')
@@ -207,16 +144,18 @@ describe('sw-product-document-form variant removal', () => {
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
 
-        expect(store.product.children).toHaveLength(1);
-        expect(variant.documents).toHaveLength(0);
-        const payload = new ChangesetGenerator().generate(store.product);
-        expect(payload).toHaveProperty('deletionQueue.length', 2);
-        expect(payload).toHaveProperty(
-            'deletionQueue',
-            expect.arrayContaining([
-                expect.objectContaining({ entity: 'product_document', key: copy.id }),
-            ]),
-        );
+        const removal = { mediaId: replacement.id, title: 'manual' };
+        expect(mockVariantSync).toHaveBeenCalledTimes(2);
+        expect(mockVariantSync).toHaveBeenLastCalledWith(store.product.id, [removal], true);
+        expect(store.documentVariantOperations).toEqual([
+            { mediaId: original.id, title: 'manual', changes: { mediaId: replacement.id } },
+            removal,
+        ]);
+        expect(getDocuments()).toHaveLength(0);
+        expect(store.product.children).toHaveLength(0);
+        expect(new ChangesetGenerator().generate(store.product).deletionQueue).toEqual([
+            expect.objectContaining({ entity: 'product_document', key: document.id }),
+        ]);
     });
 
     it('resets the variant option on reopening and preserves assignments on Cancel', async () => {
@@ -239,9 +178,9 @@ describe('sw-product-document-form variant removal', () => {
         const store = Shopware.Store.get('swProductDetail');
         addPersistedDocument(store.product, createMedia());
         store.product.childCount = 1;
-        const productRepository = repositoryFactory.create('product');
-        jest.spyOn(productRepository, 'search').mockRejectedValue(new Error('Load failed'));
-        const wrapper = await createWrapper(undefined, undefined, productRepository);
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        mockVariantSync.mockRejectedValueOnce(new Error('Load failed'));
+        const wrapper = await createWrapper();
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
         wrapper
             .getComponent<ComponentPublicInstance>('.sw-product-document-form__remove-from-variants')
@@ -250,35 +189,51 @@ describe('sw-product-document-form variant removal', () => {
         await flushPromises();
 
         expect(getDocuments()).toHaveLength(1);
+        expect(store.documentVariantOperations).toEqual([]);
         expect(store.product.children).toHaveLength(0);
-        expect(wrapper.find('.sw-product-document-form__confirm-remove').exists()).toBe(true);
+        expect(wrapper.get('.sw-product-document-form__confirm-remove').attributes('disabled')).toBeUndefined();
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
+        );
+        expect(mockSnackbar).not.toHaveBeenCalled();
     });
 
-    it('discards a late variant lookup if the confirmation was cancelled and reopened', async () => {
+    it('keeps the confirmation open with Cancel disabled until the variant dry run resolves', async () => {
         const store = Shopware.Store.get('swProductDetail');
-        addPersistedDocument(store.product, createMedia());
+        const media = createMedia();
+        addPersistedDocument(store.product, media);
         store.product.childCount = 1;
-        const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-        let resolveVariants: (result: typeof variants) => void = () => {};
-        const productRepository = repositoryFactory.create('product');
-        jest.spyOn(productRepository, 'search').mockReturnValue(
-            new Promise((resolve) => {
-                resolveVariants = resolve;
-            }),
+        let resolveSync!: (variantIds: string[]) => void;
+        mockVariantSync.mockImplementationOnce(
+            () =>
+                new Promise((resolve) => {
+                    resolveSync = resolve;
+                }),
         );
-        const wrapper = await createWrapper(undefined, undefined, productRepository);
+        const wrapper = await createWrapper();
         await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
         wrapper
             .getComponent<ComponentPublicInstance>('.sw-product-document-form__remove-from-variants')
             .vm.$emit('update:checked', true);
         await clickButton(wrapper, 'global.default.remove');
-        await clickButton(wrapper, 'global.default.cancel');
-        await wrapper.findAll('sw-context-menu-item-stub')[2].trigger('click');
-        resolveVariants(variants);
         await flushPromises();
 
-        expect(getDocuments()).toHaveLength(1);
-        expect(store.product.children).toHaveLength(0);
+        const cancel = wrapper.findAll('button').find((button) => button.text() === 'global.default.cancel')!;
+        expect(cancel.attributes('disabled')).toBeDefined();
+        expect(wrapper.get('.sw-product-document-form__confirm-remove').attributes('disabled')).toBeDefined();
+        await cancel.trigger('click');
         expect(wrapper.find('.sw-product-document-form__confirm-remove').exists()).toBe(true);
+        expect(getDocuments()).toHaveLength(1);
+        expect(store.documentVariantOperations).toEqual([]);
+
+        resolveSync(['variant-a']);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-product-document-form__confirm-remove').exists()).toBe(false);
+        expect(getDocuments()).toHaveLength(0);
+        expect(store.documentVariantOperations).toEqual([{ mediaId: media.id, title: 'manual' }]);
+        expect(mockSnackbar).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.removeSuccess' }),
+        );
     });
 });

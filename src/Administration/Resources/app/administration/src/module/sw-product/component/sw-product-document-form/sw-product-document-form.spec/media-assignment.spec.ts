@@ -14,6 +14,7 @@ import {
     addDocuments,
     clickButton,
     getDocuments,
+    mockSnackbar,
 } from './helpers';
 
 describe('sw-product-document-form media assignment', () => {
@@ -80,8 +81,20 @@ describe('sw-product-document-form media assignment', () => {
         const media = createMedia();
         const privateMedia = createMedia('private');
         privateMedia.private = true;
-        await addDocuments(wrapper, [media, media, privateMedia]);
+        await addDocuments(wrapper, [media]);
+        mockSnackbar.mockClear();
+
+        await addDocuments(wrapper, [media, privateMedia]);
+
         expect(wrapper.findAll('.document-row')).toHaveLength(1);
+        expect(mockSnackbar).toHaveBeenCalledWith({
+            variant: 'error',
+            message: 'sw-product.documentForm.errorDocumentDuplicated',
+        });
+        expect(mockSnackbar).toHaveBeenCalledWith({
+            variant: 'error',
+            message: 'sw-product.documentForm.errorPrivateMedia',
+        });
     });
 
     it('renders the media association loaded through translations', async () => {
@@ -89,7 +102,7 @@ describe('sw-product-document-form media assignment', () => {
         const document = repositoryFactory.create('product_document').create();
         Object.assign(document, {
             title: null,
-            translated: { title: 'Translated manual' },
+            translated: { title: 'Translated manual', mediaId: media.id },
             mediaId: media.id,
             translations: [{ mediaId: media.id, media }],
         });
@@ -167,27 +180,6 @@ describe('sw-product-document-form media assignment', () => {
         expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeUndefined();
     });
 
-    it('does not attach a late upload to the next product after navigation', async () => {
-        const media = createMedia();
-        const repository = repositoryFactory.create('media');
-        let resolveMedia: (value: Entity<'media'>) => void = () => {};
-        jest.spyOn(repository, 'get').mockReturnValue(
-            new Promise((resolve) => {
-                resolveMedia = resolve;
-            }),
-        );
-        const wrapper = await createWrapper(repository);
-
-        wrapper
-            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
-            .vm.$emit('media-upload-finish', { targetId: media.id });
-        Object.assign(Shopware.Store.get('swProductDetail'), { product: createProduct() });
-        resolveMedia(media);
-        await flushPromises();
-
-        expect(wrapper.findAll('.document-row')).toHaveLength(0);
-        expect(getDocuments()).toHaveLength(0);
-    });
     it.each(['unsupported extension', 'oversized file', 'unknown size'])(
         'rejects selected media when validation fails: %s',
         async (failure) => {

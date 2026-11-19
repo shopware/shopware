@@ -6,6 +6,7 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import {
     mockSnackbar,
+    mockVariantSync,
     withProductStates,
     cleanupWrappers,
     createWrapper,
@@ -118,20 +119,29 @@ describe('sw-product-document-form language-version removal', () => {
         cleanupWrappers();
     });
 
-    it('does not report success when loading variant documents fails', async () => {
+    it('does not report success when checking variant documents fails', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct('Handbuch', germanMedia.id);
         store.product.childCount = 1;
         wrapper = await createWrapper(undefined, undefined, repository);
-        jest.spyOn(repository, 'search').mockRejectedValue(new Error('Variant lookup failed'));
-        const notification = mockSnackbar;
+        mockVariantSync.mockRejectedValueOnce(new Error('Variant lookup failed'));
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
 
-        expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+        expect(mockVariantSync).toHaveBeenCalledWith(
+            store.product.id,
+            [{ mediaId: germanMedia.id, title: 'Handbuch' }],
+            true,
+        );
+        expect(mockSnackbar).not.toHaveBeenCalled();
+        expect(notification).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
+        );
         expect(store.product.documents![0]).toMatchObject({ title: 'Handbuch', mediaId: germanMedia.id });
+        expect(store.documentVariantOperations).toEqual([]);
         expect(wrapper.text()).toContain('sw-product.documentForm.removeLanguageVersionDescription');
     });
 
@@ -166,11 +176,13 @@ describe('sw-product-document-form language-version removal', () => {
             }),
         );
         expect(translate).toHaveBeenCalledWith('sw-product.documentForm.removeLanguageVersionSuccess', {
+            count: 1,
             language: 'German',
             name: title ?? 'Manual',
         });
         expect(store.product.documents).toHaveLength(1);
         expect(document).toMatchObject({ title: null, mediaId: null, position: 4, customFields: { note: 'Keep this' } });
+        expect(document.translated).toEqual({ title: 'Manual', mediaId: englishMedia.id });
         expect(wrapper.find('.document-row').text()).toContain('Manual');
         expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
         expect(wrapper.find('.mt-badge').exists()).toBe(false);
@@ -236,8 +248,9 @@ describe('sw-product-document-form language-version removal', () => {
         const document = store.product.documents![0];
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         await clickButton(wrapper, 'global.default.remove');
-        expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
+        expect(wrapper.find('.document-row').text()).toContain('Manual');
         expect(document).toMatchObject({ title: null, mediaId: null });
+        expect(document.translated).toEqual({ title: 'Manual', mediaId: englishMedia.id });
 
         const postSpy = jest.spyOn(repository.httpClient, 'post').mockResolvedValue({ data: {} });
         await repository.save(store.product, Shopware.Context.api);
@@ -267,50 +280,43 @@ describe('sw-product-document-form language-version removal', () => {
         expect(wrapper.findAll('sw-context-menu-item-stub')).toHaveLength(2);
     });
 
-    it('resets matching variant versions while retaining unrelated documents, files and order', async () => {
+    it('queues the language-version reset for matching variants instead of adding them to the payload', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct('Handbuch', germanMedia.id);
         store.product.childCount = 3;
-        const matching = await loadProduct('Handbuch', germanMedia.id, repository.create().id, store.product.id);
-        const unrelated = await loadProduct('Andere', englishMedia.id, repository.create().id, store.product.id);
-        const inherited = repository.create();
-        inherited.parentId = store.product.id;
-        const searchSpy = jest.spyOn(repository, 'search').mockResolvedValue(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [
-                matching,
-                unrelated,
-                inherited,
-            ]),
-        );
+        mockVariantSync.mockResolvedValueOnce(['matching-variant']);
+        const operation = { mediaId: germanMedia.id, title: 'Handbuch' };
         const saveSpy = jest.spyOn(repository, 'save');
         wrapper = await createWrapper(undefined, undefined, repository);
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         await wrapper.get('.sw-product-document-form__remove-from-variants input').setValue(true);
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
-        expect(matching.documents).toHaveLength(1);
-        expect(matching.documents![0]).toMatchObject({ title: null, mediaId: null, position: 4 });
-        expect(unrelated.documents![0]).toMatchObject({ title: 'Andere', mediaId: englishMedia.id, position: 4 });
-        expect(inherited.documents).toHaveLength(0);
+        expect(mockVariantSync).toHaveBeenCalledTimes(1);
+        expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
+        expect(store.documentVariantOperations).toEqual([operation]);
+        expect(mockSnackbar).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'success',
+                message: 'sw-product.documentForm.removeLanguageVersionSuccess',
+            }),
+        );
+        expect(store.product.documents).toHaveLength(1);
+        expect(store.product.documents![0]).toMatchObject({
+            title: null,
+            mediaId: null,
+            position: 4,
+            translated: { title: 'Manual', mediaId: englishMedia.id },
+        });
         expect(new ChangesetGenerator().generate(store.product).deletionQueue).toEqual([]);
         expect(saveSpy).not.toHaveBeenCalled();
-        expect(searchSpy.mock.calls[0][0].parse()).toMatchObject({
-            associations: { documents: { associations: { translations: { associations: { media: {} } } } } },
-        });
         const patchSpy = jest.spyOn(repository.httpClient, 'patch').mockResolvedValue({ data: {} });
         await repository.save(store.product, Shopware.Context.api);
         expect(patchSpy.mock.calls[0][1]).toMatchObject({
             documents: [{ id: store.product.id, title: null, mediaId: null }],
-            children: [{ id: matching.id, documents: [{ id: matching.id, title: null, mediaId: null }] }],
         });
-        searchSpy.mockRestore();
+        expect(patchSpy.mock.calls[0][1]).not.toHaveProperty('children');
         store.product = await loadProduct(null, null, store.product.id);
-        const reloadedVariant = await loadProduct(null, null, matching.id, store.product.id);
-        expect(reloadedVariant.documents![0]).toMatchObject({
-            title: null,
-            mediaId: null,
-            translated: { title: 'Manual', mediaId: englishMedia.id },
-        });
         expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });
     });
 });

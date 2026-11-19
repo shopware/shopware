@@ -2,9 +2,11 @@
  * @sw-package inventory
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
+import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import {
     mockSnackbar,
+    mockVariantSync,
     createProduct,
     cleanupWrappers,
     createWrapper,
@@ -13,6 +15,23 @@ import {
     clickButton,
     getDocuments,
 } from './helpers';
+
+const dialogs = {
+    edit: {
+        menuIndex: 0,
+        checkbox: '.sw-product-document-form__apply-to-variants',
+        confirm: '.sw-product-document-form__save-document',
+        operation: (mediaId: string) => ({ mediaId, title: 'manual', changes: { title: 'New title' } }),
+        appliedTitles: ['New title'],
+    },
+    remove: {
+        menuIndex: 2,
+        checkbox: '.sw-product-document-form__remove-from-variants',
+        confirm: '.sw-product-document-form__confirm-remove',
+        operation: (mediaId: string) => ({ mediaId, title: 'manual' }),
+        appliedTitles: [],
+    },
+} as const;
 
 describe('sw-product-document-form dialog sessions', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -30,6 +49,7 @@ describe('sw-product-document-form dialog sessions', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        jest.restoreAllMocks();
         cleanupWrappers();
     });
 
@@ -58,9 +78,16 @@ describe('sw-product-document-form dialog sessions', () => {
         },
     );
 
-    it.each([false, true])(
-        'ignores a media request that settles after leaving the tab (request rejects: %s)',
-        async (reject) => {
+    it.each([
+        ['resolves', false, []],
+        [
+            'fails',
+            true,
+            [expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadMedia' })],
+        ],
+    ])(
+        'does not add a document when its media load %s after the form unmounted',
+        async (_outcome, reject, notifications) => {
             const repository = repositoryFactory.create('media');
             const media = createMedia();
             let settle!: () => void;
@@ -79,9 +106,10 @@ describe('sw-product-document-form dialog sessions', () => {
             wrapper.unmount();
             settle();
             await flushPromises();
+
             expect(getDocuments()).toHaveLength(0);
-            expect(notification).not.toHaveBeenCalled();
             expect(mockSnackbar).not.toHaveBeenCalled();
+            expect(notification.mock.calls.map(([config]) => config)).toEqual(notifications);
         },
     );
 
@@ -108,94 +136,109 @@ describe('sw-product-document-form dialog sessions', () => {
         wrapper.unmount();
     });
 
-    describe.each(['edit', 'remove'])('%s dialog', (action) => {
-        it('discards a pending variant lookup after leaving the tab', async () => {
-            const repository = repositoryFactory.create('product');
-            let resolveVariants!: (value: EntityCollection<'product'>) => void;
-            jest.spyOn(repository, 'search').mockImplementationOnce(
-                () =>
-                    new Promise((resolve) => {
-                        resolveVariants = resolve;
-                    }),
-            );
-            const wrapper = await createWrapper(undefined, undefined, repository);
-            await addDocuments(wrapper, [createMedia()]);
-            await wrapper.findAll('sw-context-menu-item-stub')[action === 'edit' ? 0 : 2].trigger('click');
-            if (action === 'edit') {
-                wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Stale title');
-            }
-            const checkbox =
-                action === 'edit'
-                    ? '.sw-product-document-form__apply-to-variants'
-                    : '.sw-product-document-form__remove-from-variants';
-            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
-            await clickButton(wrapper, action === 'edit' ? 'global.default.apply' : 'global.default.remove');
-            wrapper.unmount();
-            resolveVariants(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api));
-            await flushPromises();
-            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(['manual']);
-        });
+    describe.each(['edit', 'remove'] as const)('%s dialog', (action) => {
+        const dialog = dialogs[action];
 
-        it.each([false, true])('ignores cancelled requests during a new request (rejects: %s)', async (rejectOld) => {
-            const repository = repositoryFactory.create('product');
-            const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            let settleOld!: () => void;
-            let settleNew!: () => void;
-            const search = jest.spyOn(repository, 'search');
-            search.mockImplementationOnce(
+        async function confirmWithPendingVariantCheck(wrapper: VueWrapper) {
+            let settle!: (variantIds: string[] | Error) => void;
+            mockVariantSync.mockImplementationOnce(
                 () =>
                     new Promise((resolve, reject) => {
-                        settleOld = () => (rejectOld ? reject(new Error('Cancelled lookup failed')) : resolve(variants));
+                        settle = (result) => (result instanceof Error ? reject(result) : resolve(result));
                     }),
             );
-            search.mockImplementationOnce(
-                () =>
-                    new Promise((resolve) => {
-                        settleNew = () => resolve(variants);
-                    }),
+            await wrapper.findAll('sw-context-menu-item-stub')[dialog.menuIndex].trigger('click');
+            if (action === 'edit') {
+                await wrapper.get('.sw-product-document-form__name-input input').setValue('New title');
+            }
+            expect(wrapper.get<HTMLInputElement>(`${dialog.checkbox} input`).element.checked).toBe(true);
+            await wrapper.get(dialog.confirm).trigger('click');
+            return (result: string[] | Error) => settle(result);
+        }
+
+        function requestDialogClose(wrapper: VueWrapper) {
+            const modalRoot = wrapper.getComponent<ComponentPublicInstance>(
+                wrapper.getCurrentComponent().appContext.components['mt-modal-root'],
             );
-            const wrapper = await createWrapper(undefined, undefined, repository);
+            modalRoot.vm.$emit('change', false);
+        }
+
+        function getCancelButton(wrapper: VueWrapper) {
+            return wrapper.findAll<HTMLButtonElement>('button').find((button) => button.text() === 'global.default.cancel')!;
+        }
+
+        it('keeps the dialog open and locked while the variant check runs', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            const wrapper = await createWrapper();
+            await addDocuments(wrapper, [createMedia()]);
+            const mediaId = getDocuments()![0].mediaId;
+
+            const settle = await confirmWithPendingVariantCheck(wrapper);
+
+            expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [dialog.operation(mediaId)], true);
+            expect(getCancelButton(wrapper).element.disabled).toBe(true);
+            expect(wrapper.get<HTMLButtonElement>(dialog.confirm).element.disabled).toBe(true);
+            await getCancelButton(wrapper).trigger('click');
+            requestDialogClose(wrapper);
+            await flushPromises();
+            expect(wrapper.find(dialog.confirm).exists()).toBe(true);
+            expect(getDocuments()![0].title).toBe('manual');
+            expect(store.documentVariantOperations).toEqual([]);
+
+            settle(['variant-a']);
+            await flushPromises();
+
+            expect(wrapper.find(dialog.confirm).exists()).toBe(false);
+            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(dialog.appliedTitles);
+            expect(store.documentVariantOperations).toEqual([dialog.operation(mediaId)]);
+            expect(mockSnackbar).toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
+        });
+
+        it('unlocks the dialog without applying anything when the variant check fails', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            const wrapper = await createWrapper();
             await addDocuments(wrapper, [createMedia()]);
             const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-            const actionIndex = action === 'edit' ? 0 : 2;
-            const button =
-                action === 'edit' ? '.sw-product-document-form__save-document' : '.sw-product-document-form__confirm-remove';
-            const checkbox =
-                action === 'edit'
-                    ? '.sw-product-document-form__apply-to-variants'
-                    : '.sw-product-document-form__remove-from-variants';
-            const label = action === 'edit' ? 'global.default.apply' : 'global.default.remove';
 
-            await wrapper.findAll('sw-context-menu-item-stub')[actionIndex].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
-            await clickButton(wrapper, label);
-            expect(wrapper.get<HTMLButtonElement>(button).element.disabled).toBe(true);
-            await clickButton(wrapper, 'global.default.cancel');
-            await wrapper.findAll('sw-context-menu-item-stub')[actionIndex].trigger('click');
-            expect(wrapper.get<HTMLButtonElement>(button).element.disabled).toBe(false);
-            if (action === 'edit') {
-                wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New title');
-            }
-            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
-            await clickButton(wrapper, label);
-            expect(search).toHaveBeenCalledTimes(2);
-
-            settleOld();
+            const settle = await confirmWithPendingVariantCheck(wrapper);
+            settle(new Error('Variant check failed'));
             await flushPromises();
 
-            expect(wrapper.get<HTMLButtonElement>(button).element.disabled).toBe(true);
+            expect(notification).toHaveBeenCalledWith(
+                expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
+            );
+            expect(wrapper.get<HTMLButtonElement>(dialog.confirm).element.disabled).toBe(false);
+            expect(getCancelButton(wrapper).element.disabled).toBe(false);
             expect(getDocuments()).toHaveLength(1);
             expect(getDocuments()![0].title).toBe('manual');
-            expect(notification).not.toHaveBeenCalled();
+            expect(store.documentVariantOperations).toEqual([]);
             expect(mockSnackbar).not.toHaveBeenCalled();
 
-            settleNew();
+            requestDialogClose(wrapper);
+            await flushPromises();
+            expect(wrapper.find(dialog.confirm).exists()).toBe(false);
+        });
+
+        it('emits and queues nothing when another product was loaded before the variant check returned', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            const wrapper = await createWrapper();
+            await addDocuments(wrapper, [createMedia()]);
+            const product = store.product;
+            const document = getDocuments()![0];
+
+            const settle = await confirmWithPendingVariantCheck(wrapper);
+            store.product = createProduct();
+            await flushPromises();
+            expect(wrapper.find(dialog.confirm).exists()).toBe(false);
+
+            settle(['variant-a']);
             await flushPromises();
 
-            expect(wrapper.find(button).exists()).toBe(false);
-            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(
-                action === 'edit' ? ['New title'] : [],
-            );
+            expect(product.documents).toHaveLength(1);
+            expect(document.title).toBe('manual');
+            expect(store.product.documents).toHaveLength(0);
+            expect(store.documentVariantOperations).toEqual([]);
+            expect(mockSnackbar).not.toHaveBeenCalled();
         });
     });
 });

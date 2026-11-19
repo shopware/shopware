@@ -40,7 +40,12 @@ describe('sw-product-document-form inheritance', () => {
         store.product.parentId = store.parentProduct.id;
         const parentDocument = repositoryFactory.create('product_document').create();
         const parentMedia = createMedia();
-        Object.assign(parentDocument, { title: 'Parent manual', mediaId: parentMedia.id, position: 0 });
+        Object.assign(parentDocument, {
+            title: 'Parent manual',
+            mediaId: parentMedia.id,
+            position: 0,
+            translated: { title: 'Parent manual', mediaId: parentMedia.id },
+        });
         const translation = new EntityFactory().create(
             'product_document_translation',
             null,
@@ -101,7 +106,11 @@ describe('sw-product-document-form inheritance', () => {
             title: 'Translated manual',
             createdAt: document.createdAt,
         });
-        Object.assign(document, { mediaId: media.id, title: 'Translated manual' });
+        Object.assign(document, {
+            mediaId: media.id,
+            title: 'Translated manual',
+            translated: { title: 'Translated manual', mediaId: media.id },
+        });
         document.translations.add(translation);
         store.parentProduct.documents?.add(document);
         const wrapper = await createWrapper();

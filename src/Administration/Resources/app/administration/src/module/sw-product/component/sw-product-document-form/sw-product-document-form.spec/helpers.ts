@@ -19,6 +19,9 @@ jest.mock('src/app/composables/use-snackbar', () => ({
     default: () => ({ addSnackbar: mockSnackbar, removeSnackbar: jest.fn() }),
 }));
 
+/** @private */
+export const mockVariantSync = jest.fn<Promise<string[]>, [string, unknown[], boolean?, string?]>(() => Promise.resolve([]));
+
 const wrappers: VueWrapper[] = [];
 const originalSettings = Shopware.Store.get('context').app.config.settings;
 /** @private */
@@ -29,6 +32,8 @@ export function cleanupWrappers(): void {
         }
     });
     Shopware.Store.get('context').app.config.settings = originalSettings;
+    mockVariantSync.mockReset();
+    mockVariantSync.mockResolvedValue([]);
 }
 
 /** @private */
@@ -107,7 +112,7 @@ export async function createWrapper(
                     ...mediaService,
                 },
                 mediaPresignedUploadService: {},
-                productDocumentVariantService: { sync: jest.fn().mockResolvedValue([]) },
+                productDocumentVariantService: { sync: mockVariantSync },
                 fileValidationService: fileValidationService(),
                 entityFactory: new EntityFactory(),
                 repositoryFactory: {

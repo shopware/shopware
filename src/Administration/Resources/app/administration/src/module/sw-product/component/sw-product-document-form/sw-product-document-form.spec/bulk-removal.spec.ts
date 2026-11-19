@@ -12,6 +12,7 @@ import {
     addDocuments,
     clickButton,
     getDocuments,
+    mockVariantSync,
 } from './helpers';
 
 async function selectDocuments(wrapper: VueWrapper, documents: Entity<'product_document'>[]) {
@@ -64,47 +65,36 @@ describe('sw-product-document-form bulk removal', () => {
         expect(save).not.toHaveBeenCalled();
     });
 
-    it('loads matching variants together and leaves the draft untouched on failure before retrying', async () => {
-        const repository = repositoryFactory.create('product');
-        const search = jest.spyOn(repository, 'search');
-        const wrapper = await createWrapper(undefined, undefined, repository);
+    it('checks matching variants together and leaves the draft untouched on failure before retrying', async () => {
+        const wrapper = await createWrapper();
         const media = [createMedia('first'), createMedia('second')];
         await addDocuments(wrapper, media);
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
-        const variant = createProduct();
-        variant.parentId = store.product.id;
-        getDocuments()!.forEach((document) => {
-            const copy = repositoryFactory.create('product_document').create();
-            Object.assign(copy, {
-                productId: variant.id,
-                title: document.title,
-                mediaId: document.mediaId,
-                position: document.position,
-            });
-            variant.documents!.add(copy);
-        });
-        search.mockRejectedValueOnce(new Error('Unavailable'));
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        const operations = media.map((file) => ({ mediaId: file.id, title: file.fileName }));
+        mockVariantSync.mockRejectedValueOnce(new Error('Unavailable'));
+
         await selectDocuments(wrapper, [...getDocuments()!]);
         await wrapper.get('.sw-product-document-form__confirm-remove').trigger('click');
         await flushPromises();
-        expect(getDocuments()).toHaveLength(2);
-        expect(variant.documents).toHaveLength(2);
-        expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(true);
 
-        search.mockResolvedValueOnce(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
+        expect(getDocuments()).toHaveLength(2);
+        expect(store.documentVariantOperations).toEqual([]);
+        expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(true);
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
         );
+
+        mockVariantSync.mockResolvedValueOnce(['variant-a']);
         await wrapper.get('.sw-product-document-form__confirm-remove').trigger('click');
         await flushPromises();
-        expect(search).toHaveBeenCalledTimes(2);
-        expect(search.mock.calls[1][0]?.filters).toContainEqual({
-            type: 'equalsAny',
-            field: 'documents.mediaId',
-            value: media.map((file) => file.id).join('|'),
-        });
+
+        expect(mockVariantSync).toHaveBeenCalledTimes(2);
+        expect(mockVariantSync).toHaveBeenLastCalledWith(store.product.id, operations, true);
         expect(getDocuments()).toHaveLength(0);
-        expect(variant.documents).toHaveLength(0);
+        expect(store.documentVariantOperations).toEqual(operations);
+        expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(false);
     });
 
     it('clears only the selected language versions and keeps the assignments', async () => {

@@ -12,10 +12,12 @@ component sw-custom-field-type-number  public  js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-number/sw-custom-field-type-number.html.twig
 
 blocks
-  sw_custom_field_type_base_content
-    sw_custom_field_type_number_container
-      sw_custom_field_type_number_container_max
-      sw_custom_field_type_number_container_min
-      sw_custom_field_type_number_container_numbertype
-      sw_custom_field_type_number_container_step
+  sw_custom_field_type_base  [inherited]
+    sw_custom_field_type_base_content  [keepsParent]
+      sw_custom_field_type_base_labels  [inherited]
+      sw_custom_field_type_number_container
+        sw_custom_field_type_number_container_max
+        sw_custom_field_type_number_container_min
+        sw_custom_field_type_number_container_numbertype
+        sw_custom_field_type_number_container_step
 ```

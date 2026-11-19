@@ -12,5 +12,10 @@ component sw-bulk-edit-order-documents-generate-delivery-note  public  js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-delivery-note/sw-bulk-edit-order-documents-generate-delivery-note.html.twig
 
 blocks
-  sw_bulk_edit_order_documents_generate_invoice_datepicker
+  sw_bulk_edit_order_documents_generate_invoice  [inherited]
+    sw_bulk_edit_order_documents_generate_invoice_datepicker  [replaced]
+    sw_bulk_edit_order_documents_generate_invoice_file_formats  [inherited]
+    sw_bulk_edit_order_documents_generate_invoice_placeholder  [inherited]
+    sw_bulk_edit_order_documents_generate_invoice_textarea  [inherited]
+    sw_bulk_edit_order_documents_generate_invoice_toggle_skip  [inherited]
 ```

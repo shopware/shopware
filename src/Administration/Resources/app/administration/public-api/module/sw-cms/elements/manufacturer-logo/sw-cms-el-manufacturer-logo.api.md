@@ -13,5 +13,6 @@ component sw-cms-el-manufacturer-logo  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_cms_element_image_content  [private]
+  sw_cms_element_image  [inherited] [private]
+    sw_cms_element_image_content  [replaced] [private]
 ```

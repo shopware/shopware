@@ -12,7 +12,11 @@ component sw-media-collapse  public  js
   template src/module/sw-media/component/sw-media-collapse/sw-media-collapse.html.twig
 
 blocks
-  sw_collapse_panel_header_slot
-    sw_media_collapse_buttons
-    sw_media_collapse_title
+  sw_collapse_panel  [inherited]
+    sw_collapse_panel_content  [inherited]
+      sw_collapse_panel_content_slot  [inherited]
+    sw_collapse_panel_header  [inherited]
+      sw_collapse_panel_header_slot  [replaced]
+        sw_media_collapse_buttons
+        sw_media_collapse_title
 ```

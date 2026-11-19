@@ -100,6 +100,15 @@ export default {
             return Shopware.Store.get('swProductDetail').product;
         },
 
+        documentVariantOperations: {
+            get() {
+                return Shopware.Store.get('swProductDetail').documentVariantOperations;
+            },
+            set(operations) {
+                Shopware.Store.get('swProductDetail').documentVariantOperations = operations;
+            },
+        },
+
         parentProduct() {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
@@ -817,7 +826,7 @@ export default {
 
         loadProduct() {
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
-            Shopware.Store.get('swProductDetail').documentVariantOperations = [];
+            this.documentVariantOperations = [];
 
             return this.productRepository
                 .get(this.productId || this.product.id, this.productApiContext, this.productCriteria)
@@ -1344,18 +1353,16 @@ export default {
         },
 
         getDocumentVariantsSaver() {
-            const store = Shopware.Store.get('swProductDetail');
-            const operations = [...store.documentVariantOperations];
+            const operations = [...this.documentVariantOperations];
             if (!operations.length) {
                 return () => {};
             }
 
-            const productId = this.product.id;
             const { languageId } = this.productApiContext;
 
             return async () => {
-                await this.productDocumentVariantService.sync(productId, operations, false, languageId);
-                store.documentVariantOperations = store.documentVariantOperations.filter(
+                await this.productDocumentVariantService.sync(this.product.id, operations, false, languageId);
+                this.documentVariantOperations = this.documentVariantOperations.filter(
                     (operation) => !operations.includes(operation),
                 );
             };

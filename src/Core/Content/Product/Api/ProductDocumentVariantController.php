@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\Api;
 
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -55,10 +54,16 @@ class ProductDocumentVariantController extends AbstractController
                 new EqualsFilter('mediaId', $operation['mediaId']),
                 new EqualsFilter('title', $operation['title']),
             );
+            $criteria->addFields(['productId']);
             $documents = $this->productDocumentRepository->search($criteria, $context)->getEntities();
 
+            $productIds = [];
             foreach ($documents as $document) {
-                $variantIds[$document->getProductId()] = true;
+                $productId = $document->get('productId');
+                if (\is_string($productId)) {
+                    $productIds[$productId] = $productId;
+                    $variantIds[$productId] = true;
+                }
             }
 
             if ($dryRun || $documents->count() === 0) {
@@ -70,7 +75,7 @@ class ProductDocumentVariantController extends AbstractController
 
             if ($changes === null && $context->getLanguageId() === Defaults::LANGUAGE_SYSTEM) {
                 $this->productDocumentRepository->delete($ids, $context);
-                $this->refreshPositions(array_values(array_unique($documents->map(static fn (ProductDocumentEntity $document) => $document->getProductId()))), $context);
+                $this->refreshPositions(array_values($productIds), $context);
 
                 continue;
             }
@@ -93,14 +98,20 @@ class ProductDocumentVariantController extends AbstractController
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', $productIds));
         $criteria->addSorting(new FieldSorting('position'));
+        $criteria->addFields(['productId', 'position']);
 
         $positions = [];
         $updates = [];
         foreach ($this->productDocumentRepository->search($criteria, $context)->getEntities() as $document) {
-            $position = $positions[$document->getProductId()] ?? 0;
-            $positions[$document->getProductId()] = $position + 1;
+            $productId = $document->get('productId');
+            if (!\is_string($productId)) {
+                continue;
+            }
 
-            if ($document->getPosition() !== $position) {
+            $position = $positions[$productId] ?? 0;
+            $positions[$productId] = $position + 1;
+
+            if ($document->get('position') !== $position) {
                 $updates[] = ['id' => $document->getId(), 'position' => $position];
             }
         }

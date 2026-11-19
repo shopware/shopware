@@ -3,26 +3,29 @@
  * @sw-package framework
  */
 export default class RetryHelper {
-    static async retry(fn, maxTries, time) {
-        const wait = (ms) =>
-            new Promise((resolve) => {
-                setTimeout(() => resolve(), ms);
+    static async retry(fn, maxTries = 3, interval = 5000) {
+        try {
+            return await fn();
+        } catch (error) {
+            if (maxTries <= 0 || !RetryHelper.isRetryable(error)) {
+                throw error;
+            }
+
+            await new Promise((resolve) => {
+                setTimeout(resolve, interval);
             });
 
-        const retryWithDelay = async (innerFn, retries = 3, interval = 5000) => {
-            try {
-                return await innerFn();
-            } catch (err) {
-                if (retries <= 0) {
-                    return Promise.reject(err);
-                }
+            return RetryHelper.retry(fn, maxTries - 1, interval);
+        }
+    }
 
-                await wait(interval);
+    static isRetryable(error) {
+        if (!error?.isAxiosError || error.code === 'ERR_CANCELED') {
+            return false;
+        }
 
-                return retryWithDelay(innerFn, retries - 1, interval);
-            }
-        };
+        const status = error.response?.status;
 
-        return retryWithDelay(fn, maxTries, time);
+        return status === undefined || status === 408 || status === 429 || status >= 500;
     }
 }

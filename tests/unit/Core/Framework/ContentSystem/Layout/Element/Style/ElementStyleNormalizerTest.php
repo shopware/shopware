@@ -119,6 +119,13 @@ class ElementStyleNormalizerTest extends TestCase
         static::assertSame(['z-index' => 10], $normalized->toArray());
     }
 
+    public function testPreservesAnAuthoredMapOnAFlatOptionForValidation(): void
+    {
+        $normalized = $this->normalizer($this->zIndexOption())->normalize(new ElementStyle(['z-index' => ['lg' => 10]]));
+
+        static::assertSame(['z-index' => ['lg' => 10]], $normalized->toArray());
+    }
+
     #[TestDox('passes an option with no registry entry through untouched')]
     public function testPassesAnUnregisteredOptionThroughUntouched(): void
     {

@@ -38,6 +38,20 @@ describe('grid editor invalid layouts', () => {
         expect(wrapper.emitted('update:gridLayout')).toEqual([[layout('px:300 auto|a1 a2;a3 a4')]]);
     });
 
+    it('holds a grid with an omitted pixel width until the width is supplied', async () => {
+        wrapper = createWrapper({
+            gridLayout: { lg: { columns: [{ type: 'px' }, { type: 'auto' }], areas: [['a1', 'a2']] } },
+        });
+        expect(wrapper.getComponent({ name: 'BreakpointSelect' }).props('invalidBreakpoints')).toEqual(['lg']);
+
+        await wrapper.get('.sw-experience-studio-grid-editor__column-entry').trigger('dragstart');
+        document.dispatchEvent(new MouseEvent('mouseup'));
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+
+        await wrapper.get('.sw-experience-studio-grid-editor__column input').setValue('200');
+        expect(wrapper.emitted('update:gridLayout')).toEqual([[layout('px:200 auto|a1 a2')]]);
+    });
+
     it('reports only breakpoints with their own invalid draft widths to the selector', async () => {
         wrapper = createWrapper({ gridLayout: layout('auto auto|a1 a2~md=auto auto|a1 a2') });
         const select = wrapper.getComponent({ name: 'BreakpointSelect' });

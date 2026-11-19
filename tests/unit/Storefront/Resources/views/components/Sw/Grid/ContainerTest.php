@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Resources\views\components\Sw\Grid;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
@@ -16,6 +17,41 @@ use Shopware\Storefront\Resources\views\components\Sw\Grid\Container;
 #[CoversClass(Container::class)]
 class ContainerTest extends TestCase
 {
+    #[DataProvider('wrapperClassProvider')]
+    public function testAppliesBorderToBothWrappersAndAlignmentToTheGrid(
+        string $border,
+        string $variant,
+        string $alignment,
+        string $expectedBorderClasses,
+        string $expectedAlignmentClass,
+    ): void {
+        $component = new Container(new UrlEncodingTwigFilter());
+        $component->mode = 'max-content';
+        $component->border = $border;
+        $component->borderVariant = $variant;
+        $component->borderFullWidth = true;
+        $component->justifyContent = $alignment;
+
+        $presentation = $component->getPresentation();
+
+        static::assertSame('sw-grid-container ' . $expectedBorderClasses . ' border-full-width', $presentation['outer']['class']);
+        static::assertSame(
+            'sw-grid-container__inner ' . $expectedBorderClasses . ' ' . $expectedAlignmentClass . ' max-content has-grid-shadow',
+            $presentation['inner']['class'],
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string, string, string, string}>
+     */
+    public static function wrapperClassProvider(): iterable
+    {
+        yield 'all sides and direct alignment' => ['all', 'primary', 'center', 'border border-primary', 'justify-content-center'];
+        yield 'one side and space around' => ['start', 'secondarySubtle', 'spaceAround', 'border-start border-secondary-subtle', 'justify-content-space-around'];
+        yield 'space between' => ['bottom', 'secondary', 'spaceBetween', 'border-bottom border-secondary', 'justify-content-space-between'];
+        yield 'space evenly' => ['end', 'primary', 'spaceEvenly', 'border-end border-primary', 'justify-content-space-evenly'];
+    }
+
     public function testDefaultsNullGapAndIndependentInstances(): void
     {
         $first = new Container(new UrlEncodingTwigFilter());

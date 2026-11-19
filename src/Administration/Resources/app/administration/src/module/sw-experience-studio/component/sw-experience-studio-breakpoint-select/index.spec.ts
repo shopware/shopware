@@ -1,7 +1,7 @@
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import { MtIcon, MtStatusDot } from '@shopware-ag/meteor-component-library';
-import breakpointSelect from './index';
+import { MtDropdownMenuRoot, MtIcon, MtStatusDot } from '@shopware-ag/meteor-component-library';
+import breakpointSelect, { type GridBreakpoint } from './index';
 
 describe('Experience Studio breakpoint selection', () => {
     let wrapper: VueWrapper;
@@ -80,6 +80,61 @@ describe('Experience Studio breakpoint selection', () => {
 
         expect(menu()).toBeNull();
         expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    });
+
+    it('keeps a single blur listener when the dropdown repeats its open event', async () => {
+        wrapper = mount(breakpointSelect, { props: { modelValue: 'md', overrides: [] }, attachTo: document.body });
+        const add = jest.spyOn(window, 'addEventListener');
+
+        try {
+            await openMenu();
+            wrapper.getComponent(MtDropdownMenuRoot).vm.$emit('update:open', true);
+            expect(add.mock.calls.filter(([event]) => event === 'blur')).toHaveLength(1);
+
+            window.dispatchEvent(new Event('blur'));
+            await flushPromises();
+            expect(menu()).toBeNull();
+        } finally {
+            add.mockRestore();
+        }
+    });
+
+    it('shows the override count and ignores a stale reset click after switching to Base', async () => {
+        let deliverResetClick: (() => void) | undefined;
+        wrapper = mount(breakpointSelect, {
+            props: { modelValue: 'sm', overrides: ['sm', 'xl'], canReset: true },
+            global: {
+                stubs: {
+                    'mt-link': {
+                        setup(_, { attrs }) {
+                            deliverResetClick = attrs.onClick as () => void;
+                        },
+                        template: '<button type="button"><slot /></button>',
+                    },
+                },
+                mocks: {
+                    $t: (key: string, values?: { count?: number }) =>
+                        key === 'sw-experience-studio.breakpointSelect.overrideCount' ? String(values?.count) : key,
+                },
+            },
+        });
+        const reset = '.sw-experience-studio-breakpoint-select__reset';
+        expect(wrapper.find(reset).exists()).toBe(true);
+        expect(deliverResetClick).toEqual(expect.any(Function));
+
+        await wrapper.setProps({ modelValue: 'lg' });
+
+        expect(wrapper.get('.sw-experience-studio-breakpoint-select__hint').text()).toBe('2');
+        expect(wrapper.find(reset).exists()).toBe(false);
+        deliverResetClick!();
+        expect(wrapper.emitted('reset')).toBeUndefined();
+    });
+
+    it('shows the desktop size when the selected breakpoint is unrecognized', () => {
+        wrapper = mount(breakpointSelect, { props: { modelValue: 'unknown' as GridBreakpoint, overrides: [] } });
+
+        expect(wrapper.get('button').text()).toBe('LG');
+        expect(wrapper.getComponent(MtIcon).props('name')).toBe('regular-desktop');
     });
 
     it.each(['sm', 'xxl'] as const)('replaces the override status with Reset when %s is selected', async (breakpoint) => {

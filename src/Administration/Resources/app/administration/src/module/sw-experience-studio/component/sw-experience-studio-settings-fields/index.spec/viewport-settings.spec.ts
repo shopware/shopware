@@ -46,6 +46,11 @@ function createWrapper(values: Record<string, unknown>, field = visibility) {
                     emits: ['update:modelValue'],
                     template: `<button class="viewport-switch" @click="$emit('update:modelValue', !modelValue)">{{ modelValue }}</button>`,
                 },
+                'mt-text-field': {
+                    props: ['modelValue'],
+                    emits: ['update:modelValue'],
+                    template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)">',
+                },
             },
         },
     });
@@ -135,5 +140,48 @@ describe('responsive settings field', () => {
 
         await wrapper.get('.viewport-switch').trigger('click');
         expect(wrapper.emitted('update-field')).toEqual([[{ key: 'display', value: { lg: false, xl: true } }]]);
+    });
+
+    it('shows and preserves the declared Base default when adding the first override', async () => {
+        wrapper = createWrapper({});
+        await wrapper.get('select[aria-label="Viewport"]').setValue('sm');
+
+        const control = wrapper.get('.viewport-switch');
+        expect(control.text()).toBe('true');
+        await control.trigger('click');
+
+        expect(wrapper.emitted('update-field')).toEqual([[{ key: 'display', value: { lg: true, sm: false } }]]);
+    });
+
+    it('leaves Base unset when the field has no non-empty default', async () => {
+        const field = {
+            ...visibility,
+            key: 'label',
+            property: { ...visibility.property, type: 'string', default: null, adminUI: { component: 'text' } },
+        };
+        wrapper = createWrapper({}, field);
+        await wrapper.get('select[aria-label="Viewport"]').setValue('sm');
+        await wrapper.get('.sw-experience-studio-settings-fields__responsive-control input').setValue('Mobile');
+
+        expect(wrapper.emitted('update-field')).toEqual([[{ key: 'label', value: { sm: 'Mobile' } }]]);
+    });
+
+    it('clears the field when resetting its only override', async () => {
+        wrapper = createWrapper({ display: { sm: false } });
+        await wrapper.get('select[aria-label="Viewport"]').setValue('sm');
+        await wrapper.get('.reset-viewport').trigger('click');
+
+        expect(wrapper.emitted('update-field')).toEqual([[{ key: 'display', value: null }]]);
+    });
+
+    it('ignores an update from a responsive control in read-only mode', async () => {
+        wrapper = createWrapper({ display: { lg: true } });
+        await wrapper.setProps({ allowEdit: false });
+        const control = wrapper.get<HTMLButtonElement>('.viewport-switch');
+        expect(control.element.disabled).toBe(true);
+        control.element.removeAttribute('disabled');
+        await control.trigger('click');
+
+        expect(wrapper.emitted('update-field')).toBeUndefined();
     });
 });

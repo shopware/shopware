@@ -1,3 +1,5 @@
+import { nextTick } from 'vue';
+import BreakpointSelect from '../../sw-experience-studio-breakpoint-select';
 import { createWrapper, layout, selectBreakpoint } from './helpers';
 
 describe('grid editor edge interactions', () => {
@@ -23,6 +25,45 @@ describe('grid editor edge interactions', () => {
 
         await selectBreakpoint(wrapper, 'sm');
         expect(wrapper.findAll('.sw-experience-studio-grid-editor__column-entry')).toHaveLength(1);
+    });
+
+    it('uses the default grid at a breakpoint when no fallback metadata is available', async () => {
+        wrapper = createWrapper({
+            gridLayout: layout('auto auto|a1 a2'),
+            breakpointFallbacks: undefined,
+        });
+
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__column-entry')).toHaveLength(2);
+
+        await selectBreakpoint(wrapper, 'sm');
+
+        expect(wrapper.findAll('.sw-experience-studio-grid-editor__column-entry')).toHaveLength(1);
+        expect(wrapper.getComponent(BreakpointSelect).props('overrides')).toEqual([]);
+    });
+
+    it('ignores reset while dragging an override', async () => {
+        wrapper = createWrapper({ gridLayout: layout('auto|a1~sm=px:100 auto|a1 a2') });
+        await selectBreakpoint(wrapper, 'sm');
+        const selector = wrapper.getComponent(BreakpointSelect);
+        await wrapper.get('.sw-experience-studio-grid-editor__column-entry').trigger('dragstart');
+
+        expect(selector.props('canReset')).toBe(false);
+        selector.vm.$emit('reset');
+        document.dispatchEvent(new MouseEvent('mouseup'));
+        await nextTick();
+
+        expect(selector.props('overrides')).toEqual(['sm']);
+        expect(selector.props('canReset')).toBe(true);
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+    });
+
+    it('keeps a single-column grid out of drag mode', async () => {
+        wrapper = createWrapper({ gridLayout: layout('auto|a1') });
+
+        await wrapper.get('.sw-experience-studio-grid-editor__column-entry').trigger('dragstart');
+
+        expect(wrapper.getComponent(BreakpointSelect).props('canReset')).toBe(true);
+        expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
     });
 
     it('uses the default grid when lg is missing and keeps read-only controls inert', async () => {
@@ -106,6 +147,39 @@ describe('grid editor edge interactions', () => {
             expect(wrapper.emitted('update:gridLayout')?.at(-1)).toEqual([layout('px:100 auto|a1 a2~sm=auto px:100|a1 a2')]);
         } finally {
             if (originalElementFromPoint) Object.defineProperty(document, 'elementFromPoint', originalElementFromPoint);
+            else Reflect.deleteProperty(document, 'elementFromPoint');
+        }
+    });
+
+    it('removes the temporary override when a drag returns to its inherited order', async () => {
+        const baseLayout = layout('px:100 auto|a1 a2');
+        wrapper = createWrapper({ gridLayout: baseLayout });
+        await selectBreakpoint(wrapper, 'sm');
+
+        const [first, second] = wrapper.findAll('.sw-experience-studio-grid-editor__column-entry');
+        const original = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
+        Object.defineProperty(document, 'elementFromPoint', {
+            configurable: true,
+            value: () => second.element,
+        });
+        const secondBounds = jest.spyOn(second.element, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 10, 10));
+
+        try {
+            await first.trigger('dragstart');
+            document.dispatchEvent(new MouseEvent('mousemove', { clientY: 1 }));
+            document.dispatchEvent(new MouseEvent('mousemove', { clientY: 6 }));
+            await nextTick();
+            expect(wrapper.getComponent(BreakpointSelect).props('overrides')).toEqual(['sm']);
+
+            document.dispatchEvent(new MouseEvent('mousemove', { clientY: 4 }));
+            document.dispatchEvent(new MouseEvent('mouseup'));
+            await nextTick();
+
+            expect(wrapper.getComponent(BreakpointSelect).props('overrides')).toEqual([]);
+            expect(wrapper.emitted('update:gridLayout')).toBeUndefined();
+        } finally {
+            secondBounds.mockRestore();
+            if (original) Object.defineProperty(document, 'elementFromPoint', original);
             else Reflect.deleteProperty(document, 'elementFromPoint');
         }
     });

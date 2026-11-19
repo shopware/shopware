@@ -504,7 +504,7 @@ describe('directives/dragdrop', () => {
 
     it('passes drag and drop data to the drop zone callback', async () => {
         const onDrop = jest.fn();
-        wrapper = await createWrapper({ delay: 0 });
+        wrapper = await createWrapper({ delay: 0, onDrop: undefined });
         const source = wrapper.get('#sw-dragdrop--1');
         const target = wrapper.get('#sw-dragdrop--2');
         droppable.updated(target.element, {
@@ -518,6 +518,7 @@ describe('directives/dragdrop', () => {
 
         expect(onDrop).toHaveBeenCalledTimes(1);
         expect(onDrop).toHaveBeenCalledWith({ id: 1 }, { id: 2 });
+        expect(getCurrentDragElement()).toBeNull();
         wrapper.unmount();
     });
 

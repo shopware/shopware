@@ -13,7 +13,6 @@ const format = Shopware.Utils.format;
 /**
  * @deprecated tag:v6.8.0 - File will be removed. No longer used.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

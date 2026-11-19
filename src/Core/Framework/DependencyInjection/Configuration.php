@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -1757,6 +1758,20 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                     ->defaultValue([])
                 ->end()
+                ->arrayNode('protocol_era')
+                    ->info('MCP protocol revisions each endpoint serves. "legacy" serves the handshake revisions up to 2025-11-25. "auto" also serves the stateless 2026-07-28 revision, and the client picks.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('admin')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                        ->enumNode('store_api')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                    ->end()
+                ->end()
                 ->integerNode('app_tool_timeout')
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
                     ->defaultValue(10)
@@ -1851,6 +1866,10 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('archive_manifest_url')
+                    ->info('Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.')
+                    ->defaultNull()
+                ->end()
                 ->scalarNode('community_translations_url')->defaultNull()->end()
                 ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
                 ->integerNode('completeness_threshold')->defaultNull()->end()

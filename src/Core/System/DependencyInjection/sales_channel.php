@@ -282,6 +282,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service('currency_country_rounding.repository'),
             service(BaseSalesChannelContextFactory::class),
+            service('country.repository'),
         ]);
 
     $services->set(BaseSalesChannelContextFactory::class)

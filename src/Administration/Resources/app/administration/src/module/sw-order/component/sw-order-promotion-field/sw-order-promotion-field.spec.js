@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import OrderApiService from 'src/core/service/api/order.api.service';
 
 /**
  * @sw-package checkout
@@ -68,6 +69,15 @@ const createStateMapper = (customOrder = {}) => {
     Shopware.Store.get('swOrderDetail').order = { ...orderFixture, ...customOrder };
 };
 
+/**
+ * The real order API service, so the deprecated toggle still runs its guard, answering every request with a success.
+ */
+function createOrderApiService() {
+    const httpClient = { post: () => Promise.resolve(successResponseForNotification) };
+
+    return new OrderApiService(httpClient, { getToken: () => 'token' });
+}
+
 async function createWrapper(privileges = []) {
     const notificationMixin = {
         methods: {
@@ -101,10 +111,7 @@ async function createWrapper(privileges = []) {
                         },
                     }),
                 },
-                orderService: {
-                    toggleAutomaticPromotions: () => {
-                        return Promise.resolve(successResponseForNotification);
-                    },
+                orderService: Object.assign(createOrderApiService(), {
                     addPromotionToOrder: (orderId, orderVersionId, code) => {
                         createStateMapper({
                             lineItems: [
@@ -137,7 +144,7 @@ async function createWrapper(privileges = []) {
 
                         return Promise.resolve(successResponseForNotification);
                     },
-                },
+                }),
                 acl: {
                     can: (identifier) => {
                         if (!identifier) {

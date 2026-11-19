@@ -168,7 +168,7 @@ class WriteAuthorizer
 
         $refusals = $this->subscriptionValidator->validate($subscriptions, $privileges, Subscriber::api($caller), $context);
 
-        foreach ([...$refusals->notHookable, ...$refusals->notPermitted] as $webhookId) {
+        foreach ([...array_keys($refusals->notHookable), ...array_keys($refusals->notPermitted)] as $webhookId) {
             $violations[$webhookId] = WebhookException::webhookEventNotPermitted($subscriptions[$webhookId]);
         }
 

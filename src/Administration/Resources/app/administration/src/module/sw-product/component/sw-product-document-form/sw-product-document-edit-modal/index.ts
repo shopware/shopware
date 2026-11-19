@@ -30,10 +30,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: '',
         },
-        uploadTag: {
-            type: String,
-            required: true,
-        },
         uploadRules: {
             type: Object as PropType<DocumentUploadRules>,
             required: true,
@@ -62,11 +58,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        hasVariants: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     emits: [
@@ -85,7 +76,7 @@ export default Shopware.Component.wrapComponentConfig({
             title: (isSystemDefaultLanguage ? this.document.translated?.title : this.document.title) || '',
             replacementMedia: null as Entity<'media'> | null,
             isFileRemoved: false,
-            applyToVariants: this.hasVariants,
+            applyToVariants: true,
             hasSubmitted: false,
             isApplying: false,
             showMediaModal: false,
@@ -95,6 +86,15 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         mediaRepository(): Repository<'media'> {
             return this.repositoryFactory.create('media');
+        },
+
+        uploadTag(): string {
+            return `sw-product-document-edit-modal-${this.listenerId}`;
+        },
+
+        hasVariants(): boolean {
+            const { product } = Store.get('swProductDetail');
+            return !product.parentId && !!product.childCount;
         },
 
         isSystemDefaultLanguage(): boolean {

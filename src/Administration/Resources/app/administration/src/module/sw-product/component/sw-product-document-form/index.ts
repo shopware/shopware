@@ -176,10 +176,6 @@ export default Shopware.Component.wrapComponentConfig({
             return code ? names.of(code) || '' : language?.name || '';
         },
 
-        hasVariants(): boolean {
-            return !this.product.parentId && !!this.product.childCount;
-        },
-
         documentColumns() {
             return columns.map(({ label, ...column }) => ({
                 ...column,

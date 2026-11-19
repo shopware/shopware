@@ -30,11 +30,6 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        hasVariants: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
     },
 
     emits: [
@@ -44,7 +39,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     data() {
         return {
-            removeFromVariants: this.hasVariants,
+            removeFromVariants: true,
             isRemoving: false,
         };
     },
@@ -52,6 +47,11 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         isSystemDefaultLanguage(): boolean {
             return Store.get('context').isSystemDefaultLanguage;
+        },
+
+        hasVariants(): boolean {
+            const { product } = Store.get('swProductDetail');
+            return !product.parentId && !!product.childCount;
         },
 
         isBulk(): boolean {

@@ -67,11 +67,11 @@ function holdDryRun() {
     return (variantIds: string[]) => resolveDryRun(variantIds);
 }
 
-async function createWrapper(props: Record<string, unknown>) {
+async function createWrapper({ hasVariants = false, ...props }: Record<string, unknown>) {
+    Shopware.Store.get('swProductDetail').product.childCount = hasVariants ? 1 : 0;
     wrapper = shallowMount(await wrapTestComponent('sw-product-document-edit-modal', { sync: true }), {
         props: {
             languageName: 'Deutsch',
-            uploadTag: 'product-document',
             uploadRules,
             uploadHint: 'PDF, up to 20 MB',
             titlePlaceholder: 'Manual',
@@ -309,7 +309,7 @@ describe('sw-product-document-edit-modal', () => {
             const modal = await createWrapper({ document, validateMedia });
             const listener = modal.getComponent<ComponentPublicInstance>('sw-upload-listener-stub');
 
-            expect(listener.attributes('upload-tag')).toMatch(/^product-document-/);
+            expect(listener.attributes('upload-tag')).toMatch(/^sw-product-document-edit-modal-/);
             expect(listener.attributes('upload-tag')).toBe(getUpload(modal).props('uploadTag'));
 
             mediaRepository.get.mockRejectedValueOnce(new Error('Not found'));

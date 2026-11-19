@@ -327,14 +327,12 @@
                 v-if="editingDocument"
                 :document="editingDocument"
                 :language-name="contentLanguageName"
-                :upload-tag="`${uploadTag}-replace-${editingDocument.id}`"
                 :upload-rules="uploadRules"
                 :upload-hint="uploadHint"
                 :title-placeholder="editingTitlePlaceholder"
                 :validate-media="isValidMedia"
                 :media-folder-id="mediaFolderId"
                 :can-edit="canEdit"
-                :has-variants="hasVariants"
                 @close="editingDocument = null"
                 @apply="applyDocumentEdit"
             />
@@ -346,7 +344,6 @@
                 :documents="documentsToRemove"
                 :language-name="contentLanguageName"
                 :can-edit="canEdit"
-                :has-variants="hasVariants"
                 @close="documentsToRemove = []"
                 @remove="removeDocuments"
             />

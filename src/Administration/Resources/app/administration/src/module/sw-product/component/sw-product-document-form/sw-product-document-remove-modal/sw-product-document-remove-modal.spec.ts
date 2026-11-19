@@ -55,7 +55,8 @@ function holdDryRun() {
     return (variantIds: string[]) => resolveDryRun(variantIds);
 }
 
-async function createWrapper(props: Record<string, unknown>) {
+async function createWrapper({ hasVariants = false, ...props }: Record<string, unknown>) {
+    Shopware.Store.get('swProductDetail').product.childCount = hasVariants ? 1 : 0;
     wrapper = shallowMount(await wrapTestComponent('sw-product-document-remove-modal', { sync: true }), {
         props: { languageName: 'English', canEdit: true, ...props },
         global: {

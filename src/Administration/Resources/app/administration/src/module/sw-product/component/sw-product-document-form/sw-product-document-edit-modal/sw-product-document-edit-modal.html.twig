@@ -23,14 +23,14 @@
         {% endblock %}
         {% block sw_product_document_form_replace_file %}
             <sw-upload-listener
-                :upload-tag="`${uploadTag}-${listenerId}`"
+                :upload-tag="uploadTag"
                 auto-upload
                 @media-upload-finish="onUploadFinished"
             />
             <div>
                 <sw-media-upload-v2
                     :source="editingMedia"
-                    :upload-tag="`${uploadTag}-${listenerId}`"
+                    :upload-tag="uploadTag"
                     variant="regular"
                     role="group"
                     :aria-label="$t('sw-product.documentForm.columnFileName')"

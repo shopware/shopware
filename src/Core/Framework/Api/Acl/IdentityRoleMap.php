@@ -31,7 +31,7 @@ final readonly class IdentityRoleMap
     {
         return match ($type) {
             IdentityType::User => $this->userRoles[$id] ?? null,
-            IdentityType::Integration => $this->integrationRoles[$id] ?? null,
+            IdentityType::Integration, IdentityType::AppIntegration => $this->integrationRoles[$id] ?? null,
             IdentityType::App => throw ApiException::appHasNoRoles(),
         };
     }

@@ -31,7 +31,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class WriteAuthorizer
 {
-    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id'];
+    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id', 'owner_type'];
 
     public function __construct(
         private readonly SubscriptionValidator $subscriptionValidator,
@@ -192,7 +192,7 @@ class WriteAuthorizer
     {
         $owners = $this->aclRoleLoader->getRoles(
             $this->getOwnerIdsOf($written, IdentityType::User),
-            $this->getOwnerIdsOf($written, IdentityType::Integration),
+            $this->getOwnerIdsOf($written, IdentityType::Integration, IdentityType::AppIntegration),
         );
         $listedRoleIds = array_merge(...array_map(
             static fn (WebhookSubscription $webhook): array => $webhook->aclRoleIds ?? [],
@@ -231,10 +231,10 @@ class WriteAuthorizer
      *
      * @return list<string>
      */
-    private function getOwnerIdsOf(array $written, IdentityType $type): array
+    private function getOwnerIdsOf(array $written, IdentityType ...$types): array
     {
         return array_column(
-            array_filter($written, static fn (WebhookSubscription $webhook): bool => $webhook->ownerType === $type),
+            array_filter($written, static fn (WebhookSubscription $webhook): bool => \in_array($webhook->ownerType, $types, true)),
             'ownerId'
         );
     }

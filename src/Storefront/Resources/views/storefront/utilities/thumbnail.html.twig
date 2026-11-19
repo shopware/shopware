@@ -47,10 +47,6 @@
                 xl: ((theme_config('breakpoint.xxl') - 1) / columns)|round(0, 'ceil') ~'px'
             } %}
 
-            {% if sizes is not defined or sizes == null %}
-                {% set sizes = {} %}
-            {% endif %}
-
             {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
             {% if layout == 'full-width' %}
                 {% set container = 100 %}

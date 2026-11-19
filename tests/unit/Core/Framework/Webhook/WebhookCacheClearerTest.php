@@ -6,6 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\Event\WebhookActivatedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDegradedEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookDisabledEvent;
+use Shopware\Core\Framework\Webhook\Event\WebhookSuspendedEvent;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
@@ -20,6 +24,10 @@ class WebhookCacheClearerTest extends TestCase
     {
         static::assertSame([
             AppEvents::APP_WRITTEN_EVENT => 'clearWebhookCache',
+            WebhookActivatedEvent::class => 'clearWebhookCache',
+            WebhookDegradedEvent::class => 'clearWebhookCache',
+            WebhookSuspendedEvent::class => 'clearWebhookCache',
+            WebhookDisabledEvent::class => 'clearWebhookCache',
         ], WebhookCacheClearer::getSubscribedEvents());
     }
 

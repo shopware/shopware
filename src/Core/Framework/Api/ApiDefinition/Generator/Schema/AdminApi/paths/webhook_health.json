@@ -1,0 +1,354 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Webhook Health API",
+        "version": "v1"
+    },
+    "paths": {
+        "/app-system/webhook/state": {
+            "get": {
+                "tags": [
+                    "App System"
+                ],
+                "summary": "Get webhook endpoint health",
+                "description": "Returns webhook endpoint health for the app that owns the calling integration.",
+                "operationId": "getWebhookHealthState",
+                "security": [
+                    {
+                        "oAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Webhook endpoint health for the calling app.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WebhookHealthStateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request is not associated with an integration."
+                    },
+                    "401": {
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "description": "The authenticated integration cannot access this route."
+                    },
+                    "404": {
+                        "description": "Webhook health is disabled or no app belongs to the integration."
+                    }
+                }
+            }
+        },
+        "/app-system/webhook/reactivate": {
+            "post": {
+                "tags": [
+                    "App System"
+                ],
+                "summary": "Reactivate app webhooks",
+                "description": "Resets eligible webhooks owned by the calling app. Operator-disabled webhooks are refused.",
+                "operationId": "reactivateAppWebhooks",
+                "security": [
+                    {
+                        "oAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "names": {
+                                        "type": "array",
+                                        "maxItems": 50,
+                                        "uniqueItems": true,
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The reactivation result for each owned webhook name.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/WebhookReactivationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The integration or webhook-name payload is invalid."
+                    },
+                    "401": {
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "description": "The authenticated integration cannot access this route."
+                    },
+                    "404": {
+                        "description": "Webhook health is disabled or no app belongs to the integration."
+                    },
+                    "429": {
+                        "description": "The integration exceeded the reactivation rate limit."
+                    }
+                }
+            }
+        },
+        "/_action/webhook/health-status": {
+            "get": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Get webhook health-worker status",
+                "description": "Returns the last health tick and whether it is stale. Requires an authenticated admin user with the `system.plugin_maintain` privilege.",
+                "operationId": "getWebhookHealthStatus",
+                "security": [
+                    {
+                        "oAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Webhook health-worker status.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "lastTickAt",
+                                        "stale"
+                                    ],
+                                    "properties": {
+                                        "lastTickAt": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "stale": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "description": "An authenticated admin user with `system.plugin_maintain` is required."
+                    },
+                    "404": {
+                        "description": "Webhook health is disabled."
+                    }
+                }
+            }
+        },
+        "/_action/webhook/{webhookId}/deactivate": {
+            "post": {
+                "tags": [
+                    "System Operations"
+                ],
+                "summary": "Disable a webhook endpoint",
+                "description": "Disables a webhook with operator provenance. Requires an authenticated admin user with the `system.plugin_maintain` privilege.",
+                "operationId": "deactivateWebhook",
+                "security": [
+                    {
+                        "oAuth": [
+                            "admin"
+                        ]
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "webhookId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-fA-F]{32}$"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Whether the webhook changed to disabled.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "disabled"
+                                    ],
+                                    "properties": {
+                                        "disabled": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication is required."
+                    },
+                    "403": {
+                        "description": "An authenticated admin user with `system.plugin_maintain` is required."
+                    },
+                    "404": {
+                        "description": "Webhook health is disabled or the webhook does not exist."
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "WebhookHealthStateResponse": {
+                "type": "object",
+                "required": [
+                    "webhooks"
+                ],
+                "properties": {
+                    "webhooks": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/WebhookHealthState"
+                        }
+                    }
+                }
+            },
+            "WebhookHealthState": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "endpointState",
+                    "active",
+                    "errorCount",
+                    "cooldownUntil",
+                    "suspendedSince",
+                    "disabledSince",
+                    "disabledOrigin",
+                    "url"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "endpointState": {
+                        "type": "string",
+                        "enum": [
+                            "healthy",
+                            "degraded",
+                            "suspended",
+                            "disabled"
+                        ]
+                    },
+                    "active": {
+                        "type": "boolean"
+                    },
+                    "errorCount": {
+                        "type": "integer"
+                    },
+                    "cooldownUntil": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "suspendedSince": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "disabledSince": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "disabledOrigin": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "enum": [
+                            "operator",
+                            "escalation",
+                            null
+                        ]
+                    },
+                    "url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uri"
+                    }
+                }
+            },
+            "WebhookReactivationResponse": {
+                "type": "object",
+                "required": [
+                    "reactivated"
+                ],
+                "properties": {
+                    "reactivated": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/WebhookReactivationResult"
+                        }
+                    }
+                }
+            },
+            "WebhookReactivationResult": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "url",
+                    "reset"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "uri"
+                    },
+                    "reset": {
+                        "type": "boolean"
+                    },
+                    "refused": {
+                        "type": "string",
+                        "enum": [
+                            "operator_disabled"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

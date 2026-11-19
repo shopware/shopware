@@ -40,6 +40,16 @@ const columns = [
     },
 ];
 
+const documentExtensions = [
+    'pdf',
+    'docx',
+    'jpg',
+    'jpeg',
+    'png',
+];
+
+const documentMaxFileSize = 20 * 1024 * 1024;
+
 const { Context, Store, Utils } = Shopware;
 const { cloneDeep, pick } = Utils.object;
 
@@ -68,6 +78,7 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'entityFactory',
         'acl',
+        'fileValidationService',
         'mediaDefaultFolderService',
     ],
 
@@ -191,13 +202,18 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         uploadRules(): DocumentUploadRules {
-            const config = Store.get('context').app.config.settings?.productDocuments;
-            const allowedMimeTypesByExtension = config?.allowedMimeTypesByExtension ?? {};
+            const mimeTypes = Object.entries(this.fileValidationService.extensionByType);
+            const allowedMimeTypesByExtension = Object.fromEntries(
+                documentExtensions.map((extension) => [
+                    extension,
+                    mimeTypes.filter(([, extensions]) => extensions.includes(extension)).map(([mimeType]) => mimeType),
+                ]),
+            );
 
             return {
-                allowedExtensions: config?.allowedExtensions ?? [],
+                allowedExtensions: documentExtensions,
                 allowedMimeTypesByExtension,
-                maxFileSize: config?.maxFileSize ?? 0,
+                maxFileSize: documentMaxFileSize,
                 fileAccept: [...new Set(Object.values(allowedMimeTypesByExtension).flat())].join(','),
             };
         },

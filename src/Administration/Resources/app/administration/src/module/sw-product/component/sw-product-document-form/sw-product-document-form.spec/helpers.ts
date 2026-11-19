@@ -7,9 +7,6 @@ import { defineComponent, type ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import fileValidationService from 'src/app/service/file-validation.service';
-import type { ContextState } from 'src/app/composables/use-context';
-
-type DocumentConfig = NonNullable<NonNullable<ContextState['app']['config']['settings']>['productDocuments']>;
 
 /** @private */
 export const mockSnackbar = jest.fn((config: Omit<Snackbar, 'id'>): Snackbar => ({ id: 'document-feedback', ...config }));
@@ -23,7 +20,6 @@ jest.mock('src/app/composables/use-snackbar', () => ({
 export const mockVariantSync = jest.fn<Promise<string[]>, [string, unknown[], boolean?, string?]>(() => Promise.resolve([]));
 
 const wrappers: VueWrapper[] = [];
-const originalSettings = Shopware.Store.get('context').app.config.settings;
 /** @private */
 export function cleanupWrappers(): void {
     wrappers.splice(0).forEach((wrapper) => {
@@ -31,7 +27,6 @@ export function cleanupWrappers(): void {
             wrapper.unmount();
         }
     });
-    Shopware.Store.get('context').app.config.settings = originalSettings;
     mockVariantSync.mockReset();
     mockVariantSync.mockResolvedValue([]);
 }
@@ -58,34 +53,8 @@ export async function createWrapper(
         baseView?: boolean;
         isInherited?: boolean;
         getDefaultFolderId?: () => Promise<string | null>;
-        documentConfig?: DocumentConfig;
     } = {},
 ) {
-    const context = Shopware.Store.get('context');
-    context.app.config.settings = {
-        appUrlReachable: true,
-        appsRequireAppUrl: false,
-        disableExtensionManagement: false,
-        minSearchTermLength: 2,
-        ...context.app.config.settings,
-        productDocuments: options.documentConfig ?? {
-            allowedExtensions: [
-                'pdf',
-                'docx',
-                'jpg',
-                'jpeg',
-                'png',
-            ],
-            allowedMimeTypesByExtension: {
-                pdf: ['application/pdf'],
-                docx: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                jpg: ['image/jpeg'],
-                jpeg: ['image/jpeg'],
-                png: ['image/png'],
-            },
-            maxFileSize: 20 * 1024 * 1024,
-        },
-    };
     if (options.isInherited) {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;

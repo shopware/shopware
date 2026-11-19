@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCom
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\PasswordHasher\NativePasswordHasher;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -68,6 +69,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createAppSystemSection())
                 ->append($this->createWebhookSection())
                 ->append($this->createTranslationSection())
+                ->append($this->createPasswordHasherSection())
             ->end();
 
         return $treeBuilder;
@@ -1915,6 +1917,42 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->booleanNode('enabled')->defaultTrue()->end()
                     ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createPasswordHasherSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('password_hasher'))->getRootNode();
+        $rootNode
+            ->info('Password hashing per scope. Existing hashes are verified further and replaced on the next successful login when the settings change.')
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->append($this->createPasswordHasherScopeNode('customer'))
+                ->append($this->createPasswordHasherScopeNode('admin'))
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createPasswordHasherScopeNode(string $scope): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder($scope))->getRootNode();
+        $rootNode
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->enumNode('algorithm')
+                    ->info('"default" uses PHP\'s PASSWORD_DEFAULT. argon2i and argon2id require PHP to be compiled with Argon2 support.')
+                    ->values(NativePasswordHasher::ALGORITHMS)
+                    ->defaultValue(NativePasswordHasher::ALGORITHM_DEFAULT)
+                ->end()
+                ->arrayNode('options')
+                    ->info('Options passed to password_hash(), e.g. "cost" for bcrypt or "memory_cost", "time_cost" and "threads" for argon2.')
+                    ->normalizeKeys(false)
+                    ->integerPrototype()->end()
+                    ->defaultValue([])
                 ->end()
             ->end();
 

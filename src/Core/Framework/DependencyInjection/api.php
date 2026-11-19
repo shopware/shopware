@@ -413,6 +413,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service(LoginConfigService::class),
+            service('shopware.password_hasher.admin'),
+            service('logger'),
         ]);
 
     $services->set(WriteScope::class)

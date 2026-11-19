@@ -33,6 +33,7 @@ Static data the AI client can read. Resources are identified by URIs and provide
 - **Examples**: `shopware://entities`, `shopware://sales-channels`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`
 - **Attribute**: `#[McpResource(uri: '...', name: '...', description: '...')]`
 - **Implementation**: `__invoke()` returns `['uri' => '...', 'mimeType' => '...', 'text' => '...']`
+  or, for a resource with its own cache TTL, `McpResourceCacheHint::read([...], $requestContext, <ttl>)` (see "Cache hints")
 
 ### When to use which
 | Need | Use |
@@ -93,17 +94,26 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 
 ### List change notifications
 
-Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. The notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
+Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. On the handshake era the notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
 
-- **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal calls `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
+- **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal (`AppMcpCapabilityLifecycleSubscriber`) and an edit of an integration's or user's MCP allowlist (`McpAllowlistChangeSubscriber`, on the DAL write, so the allowlist actions, the entity and Sync APIs and repository writes all count) call `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
 - **Removals notify once the app is gone.** `AppManager` dispatches `AppDeactivatedEvent` and `AppDeletedEvent` before it switches the app off or deletes it. `AppMcpCapabilityLifecycleSubscriber` records the app's capabilities at that point and calls `notify()` only on the `app.written` event that stores `active: false` or on the `app.deleted` event. A client that refreshes its lists on the notification therefore no longer sees the app. Install, update and activation notify right away, because their events fire after the app is stored and active.
 - **Session-local changes are queued directly.** `shopware-toolset-enable` sets `McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE`, and the controller calls `notifySession()` for that session only.
 - **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
-- **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, `notify()` also publishes the changed lists to the SDK notification bus, which `subscriptions/listen` streams read. The bus is a PSR-16 view of `cache.app`, so it reaches every worker that shares that pool; on several hosts that needs a shared `cache.app`, for example Redis. A failing bus is logged and never fails the change. The Store API server has no bus: its lists only change per session.
-- **Each `subscriptions/listen` stream closes after 25 seconds, on both servers.**
-  A stream holds one PHP worker for its whole lifetime, and the SDK default of 30 seconds equals the common `max_execution_time`, which kills the worker before the stream closes.
-  `McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME` sets it for every server on `auto`, also the Store API server, which has nothing to publish but still answers `subscriptions/listen`.
+- **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, the Admin API server gets `McpListVersionsNotificationBus` as its SDK notification bus, which `subscriptions/listen` streams read.
+  The bus has no backlog of its own: its cursor packs the three list versions, and `since()` announces each list whose version moved.
+  A failing read never ends a stream: the next successful read announces every list when the stream opened without versions, otherwise the stream stays at its cursor.
+  The stream polls every 250 ms, and the bus reads the versions through a `cache.app` entry that lives one second, so a change reaches an open stream within about a second, from any process and any host, with one table read per host and second.
+  `publish()` bumps the version, so the SDK's registry events end up in the same table as `notify()`; `notify()` only bumps and does not publish a second time.
+  The Store API server has no bus and does not announce `listChanged` on `server/discover`: its lists only change per session.
+  A Store API client that still opens `subscriptions/listen` gets a stream that can carry nothing, and it holds a worker for the full lifetime until the SDK ends such streams at once ([php-sdk#618](https://github.com/modelcontextprotocol/php-sdk/pull/618)).
+- **Each open listen stream holds one PHP-FPM worker** for the subscription lifetime of 25 seconds (`McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME`), on both servers, below the common `max_execution_time` of 30 seconds. The SDK default of 30 seconds would let the worker be killed before the stream closes.
+  The SDK keeps a stream open for the full lifetime even when the client asked for no notification the server offers.
+  `McpListenStreamTest` covers the bump from another process and the flushed first frame through the kernel; a real web server needs the manual check below.
+- **Manual check behind PHP-FPM.** Set `protocol_era.admin: auto`, open a stream with `curl -N` (POST `subscriptions/listen` with `notifications.toolsListChanged: true`, the `MCP-Protocol-Version: 2026-07-28` and `Mcp-Method` headers and the `_meta` envelope), then run `bin/console app:install --activate <app with MCP tools>` or `app:deactivate` on the CLI.
+  The `notifications/subscriptions/acknowledged` frame must arrive at once, and `notifications/tools/list_changed` within about a second of the command, on the filesystem cache and on Redis.
+  If frames only arrive when the stream ends, the web server buffers the response (`X-Accel-Buffering: no` is sent for nginx).
 - **The capabilities are stated, not detected.** `McpServerBuilderCompilerPass::applyCapabilities()` sets them per server, because the SDK announces `resources.subscribe` for every server with resources and nothing in Shopware publishes `notifications/resources/updated`.
   A server that gains a kind of capability, for example prompts on the Store API, has to be added there.
 - **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
@@ -158,6 +168,26 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 The MCP server is **no longer feature-flag gated** — it is always enabled. Classes remain marked `@experimental stableVersion:v6.8.0`, so the API may still change until 6.8.0, but there is no `MCP_SERVER` flag to toggle.
 
 The `=== null` null-checks on injected `mcp.*` dependencies in controllers/commands are a safety net for "`symfony/mcp-bundle` truly absent" (they resolve to `null` via `nullOnInvalid()`), **not** a feature-flag substitute. Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, they never resolve to `null` in practice; the guards will be removed once MCP is stable (v6.8.0).
+
+## Cache hints
+
+The 2026-07-28 revision (SEP-2549) puts `ttlMs` and `cacheScope` on `server/discover`, the four list methods and `resources/read`.
+mcp/sdk 0.9 adds them only on that revision, in `Rev2026Codec`; answers on the handshake revisions up to 2025-11-25 carry none.
+The hints are fields of the JSON-RPC result, not HTTP headers, and every request that receives them is a `POST`, so no HTTP cache or reverse proxy stores an answer.
+
+- **Policy**: `servers.<name>.cache` in `Resources/config/packages/mcp.php`, the same for both servers.
+  Default `private` with `ttlMs: 0`; `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
+  The list TTL is the fallback for clients that do not follow `subscriptions/listen`, so an allowlist change also reaches a client that does not listen within a minute.
+- **Reference resources**: `resources/read` stays at 0, because it also reads stored tool results and app resources.
+  The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for `shopware://state-machines`, which only change with a deployment, and 60 seconds for everything an app install or a shop configuration change can alter (`shopware://entities`, `shopware://business-events`, `shopware://flow-actions`, `shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+  `shopware://extensions` stays at 0: an agent that installs an extension reads it right after.
+  `McpResourceCacheHint` sets the hints only when the request is on a modern revision, so handshake answers stay byte for byte as before.
+- **Never `public`.** The allowlist of the integration or user and `?toolsets=` shape the lists, and every resource is read with the caller's credentials.
+  `public` lets a shared cache hand one caller's answer to another.
+  `McpCachePolicyConfigTest` fails if any cacheable method of either server becomes `public`.
+- **Rate limiting**: `McpRateLimiter` counts every request before the protocol runs, cached or not.
+  A client that honours the hints sends fewer `tools/list` and reference reads, so it uses less of its bucket; the limits need no change.
+  A client that ignores them is limited as before.
 
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0` annotation

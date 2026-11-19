@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigValidator;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -98,6 +101,28 @@ class DocumentBaseConfigValidatorTest extends TestCase
             static::fail('Expected the write to be rejected.');
         } catch (WriteException $exception) {
             static::assertSame(self::BOTH_PDF_FORMATS, $this->duplicateInfixPaths($exception));
+        }
+    }
+
+    public function testChecksInfixesAndADocumentTypeWrittenInTwoWritesOfOneRequestTogether(): void
+    {
+        $config = $this->salesChannelConfig('delivery_note', ['pdf' => '_pdf']);
+        $this->documentBaseConfigRepository->create([$config], $this->context);
+
+        try {
+            static::getContainer()->get(SyncService::class)->sync([
+                new SyncOperation('infixes', 'document_base_config', SyncOperation::ACTION_UPSERT, [[
+                    'id' => $config['id'],
+                    'filenameInfixes' => ['pdf' => '_same', 'zugferd_embedded_pdf' => '_same'],
+                ]]),
+                new SyncOperation('type', 'document_base_config', SyncOperation::ACTION_UPSERT, [[
+                    'id' => $config['id'],
+                    'documentTypeId' => $this->documentTypeId('invoice'),
+                ]]),
+            ], $this->context, new SyncBehavior());
+            static::fail('Expected the write to be rejected.');
+        } catch (WriteException $exception) {
+            static::assertNotSame([], $this->duplicateInfixPaths($exception));
         }
     }
 

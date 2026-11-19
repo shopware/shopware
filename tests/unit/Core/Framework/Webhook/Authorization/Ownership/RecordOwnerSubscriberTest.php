@@ -63,6 +63,34 @@ class RecordOwnerSubscriberTest extends TestCase
         static::assertArrayNotHasKey('owner_user_id', $command->getPayload());
     }
 
+    public function testTheOwnerIsRecordedWithItsType(): void
+    {
+        $userId = Uuid::randomHex();
+        $command = $this->insertWebhook();
+
+        $this->subscriber->recordOwner($this->createEvent(new AdminApiSource($userId), [$command]));
+
+        static::assertSame(
+            [...$command->getPrimaryKey(), 'owner_user_id' => Uuid::fromHexToBytes($userId), 'owner_type' => 'user'],
+            $command->getPayload()
+        );
+    }
+
+    public function testAnAppsIntegrationIsRecordedAsTheAppsIntegration(): void
+    {
+        $integrationId = Uuid::randomHex();
+        $source = new AdminApiSource(null, $integrationId);
+        $source->setAppId(Uuid::randomHex());
+        $command = $this->insertWebhook();
+
+        $this->subscriber->recordOwner($this->createEvent($source, [$command]));
+
+        static::assertSame(
+            [...$command->getPrimaryKey(), 'owner_integration_id' => Uuid::fromHexToBytes($integrationId), 'owner_type' => 'app_integration'],
+            $command->getPayload()
+        );
+    }
+
     #[DataProvider('sourcesWithoutAnOwnerProvider')]
     public function testAnAppLessWebhookWithoutAnOwnerIsRejected(ContextSource $source): void
     {

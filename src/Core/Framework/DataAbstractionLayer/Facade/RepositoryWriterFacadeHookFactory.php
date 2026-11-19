@@ -28,7 +28,7 @@ class RepositoryWriterFacadeHookFactory extends HookServiceFactory
         return new RepositoryWriterFacade(
             $this->registry,
             $this->syncService,
-            $this->appContextCreator->getAppContext($hook, $script)
+            $this->appContextCreator->createAppContextFactory($hook, $script)
         );
     }
 

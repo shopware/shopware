@@ -44,6 +44,8 @@ final class CoreCorsHeaderProvider implements CorsHeaderProviderInterface
         $headers->addAllowed(...self::DEFAULT_HEADERS);
         $headers->addAllowed(...self::MCP_REQUEST_HEADERS);
         $headers->addExposed(...self::DEFAULT_HEADERS);
+        // not CORS-safelisted, so a browser client could not read the wait time of a 429 response otherwise
+        $headers->addExposed('Retry-After');
 
         // A 401 from the Admin API MCP endpoint names its OAuth protected resource metadata here, so a
         // browser client must be able to read it to discover the authorization server.

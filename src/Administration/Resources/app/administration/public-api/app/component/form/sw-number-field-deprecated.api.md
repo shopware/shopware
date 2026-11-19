@@ -13,6 +13,6 @@ component sw-number-field-deprecated  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_text_field  [private]
+  sw_text_field  [replaced] [private]
     sw_number_field  [private]
 ```

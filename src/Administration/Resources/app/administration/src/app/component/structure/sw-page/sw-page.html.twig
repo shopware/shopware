@@ -61,25 +61,40 @@
                 <slot name="smart-bar-back">
                     {% block sw_page_slot_smart_bar_back %}
                     <router-link
-                        v-if="parentRoute"
+                        v-if="backTarget"
                         v-slot="{ href, navigate }"
-                        :to="routerBack"
+                        :to="backTarget"
                         custom
                     >
                         <!-- Rendered as a real link so open-in-new-tab and middle click keep working. -->
+                        <a
+                            v-if="backTitle"
+                            class="smart-bar__back-link"
+                            :href="href"
+                            :aria-label="backButtonLabel"
+                            :title="backButtonLabel"
+                            @click="navigate"
+                        >
+                            <mt-icon
+                                name="solid-chevron-left"
+                                size="12px"
+                            />
+                            <span class="smart-bar__back-link-label">{{ backTitle }}</span>
+                        </a>
                         <mt-button
                             is="a"
                             class="smart-bar__back-btn"
+                            :class="{ 'smart-bar__back-btn--compact': backTitle }"
                             variant="secondary"
                             size="default"
                             square
                             :href="href"
-                            :aria-label="$t('global.sw-page.backButton')"
-                            :title="$t('global.sw-page.backButton')"
+                            :aria-label="backButtonLabel"
+                            :title="backButtonLabel"
                             @click="navigate"
                         >
                             <mt-icon
-                                name="solid-long-arrow-left"
+                                name="solid-chevron-left"
                                 size="12px"
                             />
                         </mt-button>

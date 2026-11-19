@@ -13,7 +13,7 @@ component sw-email-field-deprecated  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_text_field  [private]
+  sw_text_field  [replaced] [private]
     sw_email_field  [private]
       sw_email_field_copyable  [private]
         sw_email_field_copyable_inner  [private]

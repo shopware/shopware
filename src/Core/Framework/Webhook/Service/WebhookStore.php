@@ -31,15 +31,17 @@ class WebhookStore
     /**
      * @param list<string> $roleIds
      *
-     * @return list<string>
+     * @return array<string, list<string>> the names of the webhooks using each role, keyed by role id, for used roles only
      */
-    public function getRoleIdsUsedByWebhooks(array $roleIds): array
+    public function getWebhookNamesByRole(array $roleIds): array
     {
-        $usedRoleIds = [];
-        foreach ($this->connection->fetchFirstColumn('SELECT `acl_role_ids` FROM `webhook` WHERE `acl_role_ids` IS NOT NULL') as $aclRoleIds) {
-            $usedRoleIds = [...$usedRoleIds, ...Json::decodeToList($aclRoleIds)];
+        $webhookNames = [];
+        foreach ($this->connection->fetchAllAssociative('SELECT `name`, `acl_role_ids` FROM `webhook` WHERE `acl_role_ids` IS NOT NULL ORDER BY `name`') as $webhook) {
+            foreach (array_intersect($roleIds, Json::decodeToList($webhook['acl_role_ids'])) as $roleId) {
+                $webhookNames[$roleId][] = $webhook['name'];
+            }
         }
 
-        return array_values(array_intersect($roleIds, $usedRoleIds));
+        return $webhookNames;
     }
 }

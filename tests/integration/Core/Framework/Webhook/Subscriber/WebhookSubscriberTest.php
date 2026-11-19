@@ -72,15 +72,16 @@ class WebhookSubscriberTest extends TestCase
     public function testARoleUsedByAWebhookCannotBeDeleted(): void
     {
         $roleId = $this->createRole();
-        WebhookBuilder::ownedByUser(TestUser::createNewTestUser($this->connection)->getUserId())
-            ->aclRoleIds([$this->createRole(), $roleId])
-            ->insert($this->connection);
+        $ownerId = TestUser::createNewTestUser($this->connection)->getUserId();
+        WebhookBuilder::ownedByUser($ownerId)->name('Order export')->aclRoleIds([$this->createRole(), $roleId])->insert($this->connection);
+        WebhookBuilder::ownedByUser($ownerId)->name('ERP sync')->aclRoleIds([$roleId])->insert($this->connection);
+        WebhookBuilder::ownedByUser($ownerId)->name('Unrelated')->aclRoleIds([$this->createRole()])->insert($this->connection);
 
         try {
             static::getContainer()->get('acl_role.repository')->delete([['id' => $roleId]], Context::createDefaultContext());
             static::fail('The role was deleted.');
         } catch (WriteException $e) {
-            static::assertEquals([WebhookException::aclRoleUsedByWebhook($roleId)], $e->getExceptions());
+            static::assertEquals([WebhookException::aclRoleUsedByWebhook($roleId, ['ERP sync', 'Order export'])], $e->getExceptions());
         }
     }
 

@@ -172,13 +172,16 @@ class WebhookException extends HttpException
         );
     }
 
-    public static function aclRoleUsedByWebhook(string $roleId): self
+    /**
+     * @param list<string> $webhookNames
+     */
+    public static function aclRoleUsedByWebhook(string $roleId, array $webhookNames): self
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::ACL_ROLE_USED_BY_WEBHOOK,
-            'Role "{{ roleId }}" is used by a webhook. Remove it from the webhook before deleting it.',
-            ['roleId' => $roleId]
+            'Role "{{ roleId }}" is used by the webhooks {{ webhookNames }}. Remove it from them before deleting it.',
+            ['roleId' => $roleId, 'webhookNames' => '"' . implode('", "', $webhookNames) . '"']
         );
     }
 }

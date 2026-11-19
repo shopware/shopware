@@ -75,8 +75,8 @@ class WebhookSubscriber implements EventSubscriberInterface
             return;
         }
 
-        foreach ($this->webhookStore->getRoleIdsUsedByWebhooks($roleIds) as $roleId) {
-            $event->getExceptions()->add(WebhookException::aclRoleUsedByWebhook($roleId));
+        foreach ($this->webhookStore->getWebhookNamesByRole($roleIds) as $roleId => $webhookNames) {
+            $event->getExceptions()->add(WebhookException::aclRoleUsedByWebhook($roleId, $webhookNames));
         }
     }
 }

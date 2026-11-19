@@ -114,6 +114,11 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
+        canPreviewWithCustomer(): boolean {
+            // The preview loads a customer with its salutation and billing address
+            return ['customer', 'salutation', 'customer_address'].every((entity) => this.acl.can(`${entity}:read`));
+        },
+
         customerCriteria(): CriteriaType {
             const criteria = new Criteria(1, null);
             criteria

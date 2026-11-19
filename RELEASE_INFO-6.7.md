@@ -871,6 +871,15 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Country viewers no longer read customers
+
+The `country.viewer` permission no longer grants reads on customers, salutations and customer addresses.
+These reads existed only for the customer select of the address format preview in the country detail page, and they let a country viewer read customer data.
+The preview select is now only shown when the user can read customers, salutations and customer addresses, for example with `customer.viewer`.
+Without these reads, the *Address handling* tab shows a hint instead of the select, and everything else in the country settings works as before.
+Stored roles keep their privileges until an admin saves the role again.
+Extensions that rely on these reads through `country.viewer` must request them in their own privilege mapping.
+
 ### `blocks-list.json` is replaced by the public API snapshot
 
 The Administration no longer ships `blocks-list.json`.

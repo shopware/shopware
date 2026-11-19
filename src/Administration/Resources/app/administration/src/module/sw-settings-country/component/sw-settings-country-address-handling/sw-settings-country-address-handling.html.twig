@@ -136,6 +136,7 @@
                 </h3>
 
                 <sw-entity-single-select
+                    v-if="canPreviewWithCustomer"
                     v-model:value="customerId"
                     class="sw-settings-country-address-handling__customer-select"
                     :label="$t('sw-settings-country.detail.labelCustomer')"
@@ -146,6 +147,13 @@
                     :label-callback="customerLabel"
                     @update:value="onChangeCustomer"
                 />
+
+                <p
+                    v-else
+                    class="sw-settings-country-address-handling__preview-hint"
+                >
+                    {{ $t('sw-settings-country.detail.hintPreviewNeedsCustomerRead') }}
+                </p>
 
                 <sw-settings-country-preview-template
                     v-if="customer"

@@ -102,7 +102,6 @@ const FIXTURE: FixtureCase = {
     name: 'example',
     beforeRoot: '/fixtures/example/before',
     afterRoot: '/fixtures/example/after',
-    headVersion: '6.7',
     majorFlags: ['v6.8.0.0'],
     expected: EXPECTED,
 };
@@ -329,7 +328,7 @@ describe('fixtureTests', () => {
             [FIXTURE.afterRoot, { majorFlags: ['v6.8.0.0'] }],
         ]);
         expect(classifyChanges).toHaveBeenCalledTimes(1);
-        expect(classifyChanges).toHaveBeenCalledWith({ files: FILES }, { files: FILES }, { headVersion: '6.7' });
+        expect(classifyChanges).toHaveBeenCalledWith({ files: FILES }, { files: FILES });
     });
 
     it.each([

@@ -6,12 +6,8 @@
 import { NodeTypes, parse } from '@vue/compiler-dom';
 import type { AttributeNode, DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 
-/**
- * @private
- *
- * The directives of a `v-if` chain, by the name Vue gives them.
- */
-export const CHAIN_DIRECTIVES = [
+// The directives of a `v-if` chain, by the name Vue gives them.
+const CHAIN_DIRECTIVES = [
     'if',
     'else-if',
     'else',
@@ -52,4 +48,40 @@ export function contentOf(expression: DirectiveNode['exp']): string | undefined 
 /** @private */
 export function isWhitespace(node: TemplateChildNode): boolean {
     return node.type === NodeTypes.TEXT && node.content.trim() === '';
+}
+
+/**
+ * @private
+ *
+ * An element of a `v-if` chain. The conditional slots of a component are a chain of their own (`ofSlots`): Vue
+ * continues it with another `<template #slot>` only.
+ */
+export interface ChainMember {
+    condition: DirectiveNode;
+    ofSlots: boolean;
+    continues: boolean;
+}
+
+/**
+ * @private
+ *
+ * The chain member that `element` is, given the chain that is `open` before it. Vue attaches a `v-else-if` or
+ * `v-else` to the element before it with only whitespace and comments in between: any other node, and a member
+ * that `endsChain`, leaves no chain open.
+ */
+export function chainMember(element: ElementNode, open: ChainMember | null): ChainMember | null {
+    const condition = directive(element, CHAIN_DIRECTIVES);
+
+    if (condition === undefined) {
+        return null;
+    }
+
+    const ofSlots = element.tag === 'template' && directive(element, ['slot']) !== undefined;
+
+    return { condition, ofSlots, continues: condition.name !== 'if' && open?.ofSlots === ofSlots };
+}
+
+/** @private */
+export function endsChain({ condition }: ChainMember): boolean {
+    return condition.name === 'else';
 }

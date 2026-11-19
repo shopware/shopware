@@ -4,9 +4,10 @@
  * The rules of the break check for blocks. Each one says in its texts what a plugin override of the block
  * notices of the change.
  */
+import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { BlockFacts, ComponentFacts } from './block-facts';
-import { crossingId, sourceLabel } from './block-facts';
-import { blockLabel } from './block-structure';
+import { sourceLabel } from './block-facts';
+import { blockLabel, crossingId } from './block-structure';
 import type { Crossing } from './block-structure';
 import type { FlagContext } from './flag-states';
 import { isMajorOnly } from './flag-states';
@@ -15,11 +16,12 @@ import type { Rule } from './rules';
 
 /** The block as the element of a change, or something `below` it such as `/scope:item`. */
 function blockElement({ name, at }: BlockFacts, below = '') {
-    return {
-        element: `block:${name}${below}`,
-        at,
-        markers: (facts: ComponentFacts) => facts.blocks.get(name)?.markers ?? [],
-    };
+    return { element: `block:${name}${below}`, at, block: name };
+}
+
+/** The markers in the comments before the block of a change, which can announce it. */
+function blockMarkers({ block }: { block: string }, facts: ComponentFacts): Marker[] {
+    return facts.blocks.get(block)?.markers ?? [];
 }
 
 function listed(blocks: (string | null)[]): string {
@@ -49,17 +51,24 @@ function possibleRename(removed: BlockFacts, base: ComponentFacts, head: Compone
     return candidates.length === 1 ? candidates[0].name : undefined;
 }
 
+/** The blocks around the removed block that the head still has. */
+function remainingParents({ parents }: BlockFacts, head: ComponentFacts): BlockFacts[] {
+    return parents.flatMap((parent) => {
+        const block = parent === null ? undefined : head.blocks.get(parent);
+
+        return block === undefined ? [] : [block];
+    });
+}
+
 /** The block of an extend child that stopped keeping the parent content, which held the removed block. */
 function droppedWith(removed: BlockFacts, base: ComponentFacts, head: ComponentFacts): BlockFacts | undefined {
     if (!removed.origins.includes('inherited')) {
         return undefined;
     }
 
-    return removed.parents
-        .flatMap((parent) => (parent === null ? [] : [head.blocks.get(parent)]))
-        .find(
-            (parent) => parent?.origins.includes('replaced') && !base.blocks.get(parent.name)?.origins.includes('replaced'),
-        );
+    return remainingParents(removed, head).find(
+        (parent) => parent.origins.includes('replaced') && !base.blocks.get(parent.name)?.origins.includes('replaced'),
+    );
 }
 
 function deprecation(flags: FlagContext, text: string): string {
@@ -74,20 +83,17 @@ const blockMissing = rule({
             .filter(({ name }) => !head.blocks.has(name))
             .map((removed) => {
                 const dropped = droppedWith(removed, base, head);
-                const parent = removed.parents
-                    .map((name) => head.blocks.get(name ?? ''))
-                    .find((block) => block !== undefined);
+                const [parent] = remainingParents(removed, head);
 
                 return {
                     ...blockElement(removed),
                     // The block has no line at the head, so the finding points to the block that held it.
                     at: (dropped ?? parent)?.at,
-                    name: removed.name,
                     rename: possibleRename(removed, base, head),
                     droppedWith: dropped?.name,
                 };
             }),
-    texts: ({ name, rename, droppedWith: parent }, { flags, component, states }) => {
+    texts: ({ block: name, rename, droppedWith: parent }, { flags, component, states }) => {
         const majorOnly = isMajorOnly(states);
         const explanation = majorOnly
             ? `The block is gone in the major state, so plugin template overrides of ${name} render nothing with ${flags.majorFlag} on.`
@@ -116,6 +122,7 @@ const blockMissing = rule({
     announcement: {
         rule: 'deprecated_removal',
         subject: 'The block',
+        markers: (change, facts) => blockMarkers(change, facts),
         matches: (_change, marker) => marker.tag === 'deprecated',
     },
 });
@@ -166,6 +173,7 @@ const blockMovedParent = rule({
     announcement: {
         rule: 'announced_change',
         subject: 'The block',
+        markers: (change, facts) => blockMarkers(change, facts),
         matches: ({ to }, marker) =>
             marker.tag === 'bc-change' && marker.kind === 'BlockMoved' && to.includes(marker.parameters.parent),
     },
@@ -233,14 +241,9 @@ const blockScopeMissing = rule({
         inBoth(base, head).flatMap(({ was, now }) =>
             [...was.scope]
                 .filter(([variable]) => !now.scope.has(variable))
-                .map(([variable, [{ kind }]]) => ({
-                    ...blockElement(now, `/scope:${variable}`),
-                    name: now.name,
-                    variable,
-                    kind,
-                })),
+                .map(([variable, [{ kind }]]) => ({ ...blockElement(now, `/scope:${variable}`), variable, kind })),
         ),
-    texts: ({ name, variable, kind }, { flags }) => ({
+    texts: ({ block: name, variable, kind }, { flags }) => ({
         explanation:
             `The template variable ${variable} from a ${kind} is no longer available in block ${name}, so plugin ` +
             `overrides that use ${variable} fail at render time.`,
@@ -251,6 +254,7 @@ const blockScopeMissing = rule({
     announcement: {
         rule: 'announced_change',
         subject: 'The block',
+        markers: (change, facts) => blockMarkers(change, facts),
         matches: ({ variable }, marker) =>
             marker.tag === 'bc-change' && marker.kind === 'ScopeVariableRemoval' && marker.parameters.variable === variable,
     },
@@ -268,10 +272,10 @@ const blockScopeSourceChanged = rule({
 
                 return to.length === 0 || from.every((source) => to.includes(source))
                     ? []
-                    : [{ ...blockElement(now, `/scope:${variable}`), name: now.name, variable, from, to }];
+                    : [{ ...blockElement(now, `/scope:${variable}`), variable, from, to }];
             }),
         ),
-    texts: ({ name, variable, from, to }) => ({
+    texts: ({ block: name, variable, from, to }) => ({
         explanation:
             `The template variable ${variable} in block ${name} now comes from ${quoted(to)} instead of ` +
             `${quoted(from)}, so plugin overrides that use ${variable} may get another value.`,

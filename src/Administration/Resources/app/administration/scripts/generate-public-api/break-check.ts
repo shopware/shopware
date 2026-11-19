@@ -17,12 +17,6 @@ import type { FlagContext, FlagState } from './flag-states';
 import type { ComponentUnit, Model } from './model';
 import type { Detection, Rule } from './rules';
 
-/** @private */
-export interface BreakCheckOptions {
-    /** The `major.minor` version the base branch releases next, for example `6.7`. */
-    headVersion: string;
-}
-
 // The unit kinds built so far. `expected-failures.ts` lists what is missing.
 const RULES: readonly Rule[] = BLOCK_RULES;
 
@@ -45,11 +39,6 @@ interface Found {
 interface ComponentFinding {
     component: string;
     finding: Finding;
-}
-
-interface CheckContext {
-    flags: FlagContext;
-    headVersion: string;
 }
 
 function componentChanges(base: Model, head: Model): ComponentChange[] {
@@ -95,13 +84,14 @@ function foundBy(rule: Rule, { base, head, baseFacts, headFacts }: ComponentChan
 }
 
 /**
- * A marker allows its change from the version it names on. A change that only the major state has is allowed
- * by a marker for that major, which is how a change is prepared behind the major flag.
+ * A marker allows its change once a minor before the next major has released the version it names. A change
+ * that only the major state has is allowed by a marker for that major, which is how a change is prepared
+ * behind the major flag.
  */
-function isDue({ version }: Marker, states: FlagState[], { flags, headVersion }: CheckContext): boolean {
+function isDue({ version }: Marker, states: FlagState[], flags: FlagContext): boolean {
     const [major, minor] = version.slice(1).split('.').map(Number);
-    const [headMajor, headMinor] = headVersion.split('.').map(Number);
-    const released = major < headMajor || (major === headMajor && minor <= headMinor);
+    const [nextMajor, nextMinor] = flags.majorVersion.slice(1).split('.').map(Number);
+    const released = major < nextMajor || (major === nextMajor && minor < nextMinor);
 
     return released || (isMajorOnly(states) && version === flags.majorVersion);
 }
@@ -119,7 +109,7 @@ function announcedText(subject: string, marker: Marker): string {
 function announced(
     { detection: { announcement }, states }: Found,
     change: ComponentChange,
-    context: CheckContext,
+    flags: FlagContext,
 ): Pick<Finding, 'group' | 'rule' | 'explanation'> | undefined {
     if (announcement === undefined) {
         return undefined;
@@ -128,7 +118,7 @@ function announced(
     const marker = [
         ...states.flatMap((state) => announcement.markers(change.baseFacts[state])),
         ...announcement.markers(change.headFacts.current),
-    ].find((candidate) => announcement.matches(candidate) && isDue(candidate, states, context));
+    ].find((candidate) => announcement.matches(candidate) && isDue(candidate, states, flags));
 
     return marker && { group: 'Allowed', rule: announcement.rule, explanation: announcedText(announcement.subject, marker) };
 }
@@ -137,12 +127,12 @@ function isPrivate({ base, head }: ComponentChange): boolean {
     return base.visibility === 'private' || head.visibility === 'private';
 }
 
-function findingOf(result: Found, change: ComponentChange, context: CheckContext): Finding {
+function findingOf(result: Found, change: ComponentChange, flags: FlagContext): Finding {
     const { rule, detection, states } = result;
-    const judged = announced(result, change, context) ?? {
+    const judged = announced(result, change, flags) ?? {
         group: rule.group,
         rule: rule.id,
-        ...detection.texts({ component: change.head.name, states, flags: context.flags }),
+        ...detection.texts({ component: change.head.name, states, flags }),
     };
 
     return {
@@ -207,12 +197,11 @@ function inSummaryOrder(a: Finding, b: Finding): number {
  * Classifies the difference between the base and the head commit. Only the components that both commits
  * register are compared.
  */
-export function classifyChanges(base: Model, head: Model, { headVersion }: BreakCheckOptions): Finding[] {
-    const context = { flags: head.flags, headVersion };
+export function classifyChanges(base: Model, head: Model): Finding[] {
     const findings = componentChanges(base, head).flatMap((change) =>
         RULES.flatMap((rule) => foundBy(rule, change)).map((result) => ({
             component: change.head.name,
-            finding: findingOf(result, change, context),
+            finding: findingOf(result, change, head.flags),
         })),
     );
     const parents = new Map(head.components.map((unit) => [unit.name, unit.extends]));

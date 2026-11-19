@@ -6,15 +6,9 @@
  * Administration, or replace the block, and compare what the compiler says with the snapshot.
  */
 import { ErrorCodes, getBaseTransformPreset, NodeTypes, parse, transform } from '@vue/compiler-dom';
-import type {
-    AttributeNode,
-    CompilerError,
-    DirectiveNode,
-    ElementNode,
-    RootNode,
-    TemplateChildNode,
-} from '@vue/compiler-dom';
+import type { CompilerError, DirectiveNode, ElementNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
 import type { ComponentUnit } from '../model';
+import { staticAttribute } from '../template-nodes';
 import { runtimeComponents, vueTemplate } from './runtime-templates';
 import type { RuntimeComponent } from './runtime-templates';
 
@@ -72,11 +66,6 @@ function count(errors: CompilerError[], codes: number[]): number {
 
 function unique(names: string[]): string[] {
     return [...new Set(names)].sort();
-}
-
-function staticAttribute(element: ElementNode, name: string): string | undefined {
-    return element.props.find((prop): prop is AttributeNode => prop.type === NodeTypes.ATTRIBUTE && prop.name === name)
-        ?.value?.content;
 }
 
 /** What Vue made of the bound attributes of a probe: `item` stays `item`, a name of the component gets `_ctx.`. */

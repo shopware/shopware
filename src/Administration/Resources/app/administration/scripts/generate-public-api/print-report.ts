@@ -3,15 +3,12 @@
  *
  * Prints the `.api.md` report of a component: an outline for reviewers that merges both flag states.
  */
-import { byCodePoint } from './code-point-order';
-import { flagStateMarker } from './flag-states';
-import type { FlagContext } from './flag-states';
+import { flagStateMarker, mergeStates } from './flag-states';
+import type { FlagContext, FlagStates } from './flag-states';
 import type { ComponentUnit } from './model';
 import { blockLabel, crossingSubject } from './block-structure';
 import type { Crossing } from './block-structure';
 import type { BlockContext, TemplateBlock } from './block-tree';
-import { inAnyState } from './flag-states';
-import type { FlagStates } from './flag-states';
 
 /** @private */
 export const GENERATE_COMMAND = 'composer admin:generate-public-api';
@@ -53,20 +50,18 @@ function contextMarkers({ afterIf, scope }: BlockContext): string[] {
  * of the chain and where a variable comes from. Entries that differ in those only are one line.
  */
 function printedBlocks(blocks: TemplateBlock[]): PrintedBlock[] {
-    const printed = new Map<string, PrintedBlock>();
-
-    blocks.forEach(({ name, parent, origin, context, states }) => {
-        const markers = [
-            ...(origin === null ? [] : [origin]),
-            ...contextMarkers(context),
-        ];
-        const key = [name, parent ?? '', ...markers].join('\n');
-        const known = printed.get(key);
-
-        printed.set(key, { name, parent, markers, states: known ? inAnyState(known.states, states) : states });
-    });
-
-    return [...printed.entries()].sort(([a], [b]) => byCodePoint(a, b)).map(([, block]) => block);
+    return mergeStates(
+        blocks.map(({ name, parent, origin, context, states }) => ({
+            name,
+            parent,
+            markers: [
+                ...(origin === null ? [] : [origin]),
+                ...contextMarkers(context),
+            ],
+            states,
+        })),
+        ({ name, parent, markers }) => [name, parent ?? '', ...markers].join('\n'),
+    );
 }
 
 function blockTree(unit: ComponentUnit, flags: FlagContext): Line[] {
@@ -92,16 +87,14 @@ function blockTree(unit: ComponentUnit, flags: FlagContext): Line[] {
 }
 
 function crossingLines(crossings: Crossing[], flags: FlagContext): Line[] {
-    return crossings
-        .map((crossing) => {
-            const subject = crossing.kind === 'chain' ? crossingSubject(crossing) : `<${crossingSubject(crossing)}>`;
+    return crossings.map((crossing) => {
+        const subject = crossing.kind === 'chain' ? crossingSubject(crossing) : `<${crossingSubject(crossing)}>`;
 
-            return line(
-                `  ${subject}  ${blockLabel(crossing.opens)} -> ${blockLabel(crossing.closes)}`,
-                flagStateMarker(crossing.states, flags),
-            );
-        })
-        .sort((a, b) => byCodePoint(a.text, b.text));
+        return line(
+            `  ${subject}  ${blockLabel(crossing.opens)} -> ${blockLabel(crossing.closes)}`,
+            flagStateMarker(crossing.states, flags),
+        );
+    });
 }
 
 function header(unit: ComponentUnit, flags: FlagContext): Line[] {

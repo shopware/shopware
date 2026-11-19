@@ -11,9 +11,18 @@ import ts from 'typescript';
 import { isBlock, isMarkup } from './block-tree';
 import type { BlockContent, BlockContext, BlockNode, Markup, ScopeVariable, SourceLine } from './block-tree';
 import { byCodePoint } from './code-point-order';
-import { BOTH_STATES, inAnyState, inBothStates } from './flag-states';
+import { BOTH_STATES, inBothStates, mergeStates } from './flag-states';
 import type { FlagStates } from './flag-states';
-import { CHAIN_DIRECTIVES, contentOf, directive, isWhitespace, parseTemplate, staticAttribute } from './template-nodes';
+import {
+    chainMember,
+    contentOf,
+    directive,
+    endsChain,
+    isWhitespace,
+    parseTemplate,
+    staticAttribute,
+} from './template-nodes';
+import type { ChainMember } from './template-nodes';
 
 /**
  * @private
@@ -50,9 +59,19 @@ export function crossingSubject(crossing: CrossingSubject): string {
     return crossing.kind === 'chain' ? 'v-if' : crossing.tag;
 }
 
+/**
+ * @private
+ *
+ * The part of the element id that names a crossing, `div@sw_card>sw_card_title`. Crossings are sorted by it.
+ */
+export function crossingId(crossing: Crossing): string {
+    return `${crossingSubject(crossing)}@${blockLabel(crossing.opens)}>${blockLabel(crossing.closes)}`;
+}
+
 /** @private */
 export interface TemplateStructure {
     contexts: ReadonlyMap<BlockNode, BlockContext>;
+    /** One per `crossingId`, sorted by it. */
     crossings: Crossing[];
 }
 
@@ -65,14 +84,11 @@ interface RenderedTemplate {
     markup: { offset: number; item: Markup }[];
 }
 
-/**
- * The members of a `v-if` chain so far. `block` is the one the last member opens in. The conditional slots of
- * a component are a chain of their own (`ofSlots`): Vue continues it with another `<template #slot>` only.
- */
+/** The conditions of a `v-if` chain so far. `block` is the one its last `member` opens in. */
 interface OpenChain {
+    member: ChainMember;
     conditions: string[];
     block: BlockNode | null;
-    ofSlots: boolean;
 }
 
 // The comment of a block start holds the number of the block in `RenderedTemplate.blocks`.
@@ -178,15 +194,6 @@ function slotVariables(element: ElementNode, parentTag: string): ScopeVariable[]
     }));
 }
 
-function isSlotTemplate(element: ElementNode): boolean {
-    return element.tag === 'template' && directive(element, ['slot']) !== undefined;
-}
-
-/** The chain that a member with `condition` continues. A `v-if` starts a new one, and so does the other kind. */
-function continuedBy(condition: DirectiveNode, ofSlots: boolean, chain: OpenChain | null): OpenChain | null {
-    return condition.name !== 'if' && chain?.ofSlots === ofSlots ? chain : null;
-}
-
 function conditionsWith(condition: DirectiveNode, earlier: OpenChain | null): string[] {
     return [
         ...(earlier?.conditions ?? []),
@@ -195,15 +202,12 @@ function conditionsWith(condition: DirectiveNode, earlier: OpenChain | null): st
 }
 
 class StructureReader {
-    private readonly contexts = new Map<BlockNode, Omit<BlockContext, 'continuesChain'>>();
+    private readonly contexts = new Map<BlockNode, BlockContext>();
 
     /** The open blocks that have no content yet. */
     private readonly unstarted = new Set<BlockNode>();
 
-    /** The blocks whose content starts with a member of the chain they follow. */
-    private readonly continuing = new Set<BlockNode>();
-
-    private readonly crossings = new Map<string, Crossing>();
+    private readonly crossings: Crossing[] = [];
 
     private readonly open: BlockNode[] = [];
 
@@ -215,15 +219,7 @@ class StructureReader {
     public read(): TemplateStructure {
         this.visit(parseTemplate(this.template.html), '');
 
-        return {
-            contexts: new Map(
-                [...this.contexts].map(([block, context]) => [
-                    block,
-                    { ...context, continuesChain: this.continuing.has(block) },
-                ]),
-            ),
-            crossings: [...this.crossings.entries()].sort(([a], [b]) => byCodePoint(a, b)).map(([, crossing]) => crossing),
-        };
+        return { contexts: this.contexts, crossings: mergeStates(this.crossings, crossingId) };
     }
 
     private visit(nodes: TemplateChildNode[], parentTag: string): void {
@@ -251,9 +247,13 @@ class StructureReader {
     }
 
     private openBlock(block: BlockNode, chain: OpenChain | null): void {
-        this.contexts.set(block, { afterIf: chain?.ofSlots === false ? chain.conditions : null, scope: this.scope() });
-        this.open.push(block);
+        this.contexts.set(block, {
+            afterIf: chain?.member.ofSlots === false ? chain.conditions : null,
+            continuesChain: false,
+            scope: this.scope(),
+        });
         this.unstarted.add(block);
+        this.open.push(block);
     }
 
     private closeBlock(): void {
@@ -288,26 +288,23 @@ class StructureReader {
         }
     }
 
-    /**
-     * The chain after `element`. Vue attaches a `v-else-if` or `v-else` to the element before it, with only
-     * whitespace and comments in between, so a block start or end does not interrupt a chain.
-     */
+    /** The chain after `element`. Block starts and ends are comments, so they do not interrupt a chain. */
     private continueChain(chain: OpenChain | null, element: ElementNode, startsWithIt: BlockNode[]): OpenChain | null {
-        const condition = directive(element, CHAIN_DIRECTIVES);
-        const block = this.currentBlock();
+        const member = chainMember(element, chain?.member ?? null);
 
-        if (condition === undefined) {
+        if (member === null) {
             return null;
         }
 
-        const ofSlots = isSlotTemplate(element);
-        const earlier = continuedBy(condition, ofSlots, chain);
+        const earlier = member.continues ? chain : null;
 
         if (earlier !== null) {
             this.joinChain(earlier, element, startsWithIt);
         }
 
-        return condition.name === 'else' ? null : { conditions: conditionsWith(condition, earlier), block, ofSlots };
+        return endsChain(member)
+            ? null
+            : { member, conditions: conditionsWith(member.condition, earlier), block: this.currentBlock() };
     }
 
     /**
@@ -319,8 +316,16 @@ class StructureReader {
             this.addCrossing({ kind: 'chain' }, earlier.block, this.currentBlock(), member);
         }
 
-        if (!earlier.ofSlots) {
-            startsWithIt.forEach((block) => this.continuing.add(block));
+        if (!earlier.member.ofSlots) {
+            startsWithIt.forEach((block) => this.continueChainIn(block));
+        }
+    }
+
+    private continueChainIn(block: BlockNode): void {
+        const context = this.contexts.get(block);
+
+        if (context !== undefined) {
+            this.contexts.set(block, { ...context, continuesChain: true });
         }
     }
 
@@ -341,22 +346,13 @@ class StructureReader {
     }
 
     private addCrossing(subject: CrossingSubject, opens: BlockNode | null, closes: BlockNode | null, at: ElementNode): void {
-        const key = [crossingSubject(subject), opens?.name ?? '', closes?.name ?? ''].join('\n');
-        const states = inBothStates(opens?.states ?? BOTH_STATES, closes?.states ?? BOTH_STATES);
-        const known = this.crossings.get(key);
-
-        this.crossings.set(
-            key,
-            known
-                ? { ...known, states: inAnyState(known.states, states) }
-                : {
-                      ...subject,
-                      opens: opens?.name ?? null,
-                      closes: closes?.name ?? null,
-                      states,
-                      at: lineAt(this.template, at.loc.start.offset),
-                  },
-        );
+        this.crossings.push({
+            ...subject,
+            opens: opens?.name ?? null,
+            closes: closes?.name ?? null,
+            states: inBothStates(opens?.states ?? BOTH_STATES, closes?.states ?? BOTH_STATES),
+            at: lineAt(this.template, at.loc.start.offset),
+        });
     }
 }
 

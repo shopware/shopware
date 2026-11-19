@@ -9,7 +9,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import { BLOCK_ORIGINS } from './block-tree';
-import type { BreakCheckOptions } from './break-check';
 import { elementKind } from './findings';
 import type { Finding } from './findings';
 import type { SnapshotOptions } from './model';
@@ -31,7 +30,6 @@ export interface FixtureCase {
     name: string;
     beforeRoot: string;
     afterRoot: string;
-    headVersion: string;
     majorFlags: string[];
     expected: CaseOutput;
 }
@@ -78,7 +76,7 @@ export interface ExpectedFailures {
  */
 export interface PublicApiTools<Snapshot extends SnapshotFiles = SnapshotFiles> {
     generateSnapshot: (administrationRoot: string, options: SnapshotOptions) => Snapshot;
-    classifyChanges: (base: Snapshot, head: Snapshot, options: BreakCheckOptions) => Finding[];
+    classifyChanges: (base: Snapshot, head: Snapshot) => Finding[];
 }
 
 interface UnitKind {
@@ -376,15 +374,12 @@ export function loadFixtureCases(fixturesRoot: string): LoadedFixtureCase[] {
         .sort()
         .map((name) => {
             const caseRoot = path.join(fixturesRoot, name);
-            const { headVersion, majorFlags } = readJson<{ headVersion: string; majorFlags: string[] }>(
-                path.join(caseRoot, 'case.json'),
-            );
+            const { majorFlags } = readJson<{ majorFlags: string[] }>(path.join(caseRoot, 'case.json'));
 
             return {
                 name,
                 beforeRoot: path.join(caseRoot, 'before'),
                 afterRoot: path.join(caseRoot, 'after'),
-                headVersion,
                 majorFlags,
                 expected: {
                     before: readTree(path.join(caseRoot, 'expected/before')),
@@ -403,7 +398,7 @@ function runCase<Snapshot extends SnapshotFiles>(fixture: FixtureCase, tools: Pu
     return {
         before: before.files,
         after: after.files,
-        findings: tools.classifyChanges(before, after, { headVersion: fixture.headVersion }),
+        findings: tools.classifyChanges(before, after),
     };
 }
 

@@ -5,7 +5,7 @@
  * declares in several places has one entry, which holds what an override can rely on in every place.
  */
 import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-markers';
-import { blockLabel, crossingSubject } from './block-structure';
+import { crossingId } from './block-structure';
 import type { Crossing } from './block-structure';
 import type { BlockOrigin, ScopeVariable, SourceLine, TemplateBlock } from './block-tree';
 import { byCodePoint } from './code-point-order';
@@ -43,15 +43,6 @@ export interface ComponentFacts {
 /**
  * @private
  *
- * The part of the element id that names a crossing, `div@sw_card>sw_card_title`.
- */
-export function crossingId(crossing: Crossing): string {
-    return `${crossingSubject(crossing)}@${blockLabel(crossing.opens)}>${blockLabel(crossing.closes)}`;
-}
-
-/**
- * @private
- *
  * Where a variable comes from, as a finding words it: `v-for products` or `slot sw-data-grid#actions`.
  */
 export function sourceLabel({ kind, source }: ScopeVariable): string {
@@ -76,7 +67,7 @@ function sharedScope(places: TemplateBlock[]): Map<string, ScopeVariable[]> {
                 .map((variable) => [sourceLabel(variable), variable]),
         );
 
-        return uniqueSorted([...bySource.keys()]).flatMap((label) => bySource.get(label) ?? []);
+        return [...bySource].sort(([a], [b]) => byCodePoint(a, b)).map(([, variable]) => variable);
     };
 
     return new Map(everywhere.map(({ name }) => [name, sourcesOf(name)]));

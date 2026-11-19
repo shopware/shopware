@@ -275,9 +275,7 @@ composer admin:check-public-api -- <base> <head>
 ```
 
 The command prints the summary and fails when the change has unannounced breaks.
-With `--history <range> <result.json>` it checks every commit of the range that changed the Administration sources against its first parent, and writes the findings per commit.
-That run measures the check itself: how many pull requests it would have stopped, and for which reasons.
-An older commit can hold templates that no component uses.
+A commit can hold templates that no component uses.
 The generator rejects those for the committed snapshot, and the check leaves them out, because it prints no snapshot.
 
 ### Rules for blocks

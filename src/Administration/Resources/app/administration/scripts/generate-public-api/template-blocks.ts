@@ -13,7 +13,8 @@ import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-mark
 import type { BlockContent, BlockNode, Markup, Placement, SourceLine } from './block-tree';
 import { BOTH_STATES, ConditionChain, expressionTruths, inBothStates } from './flag-states';
 import type { FlagContext, FlagStates } from './flag-states';
-import { CHAIN_DIRECTIVES, contentOf, directive, isWhitespace, parseTemplate, staticAttribute } from './template-nodes';
+import { chainMember, contentOf, endsChain, isWhitespace, parseTemplate, staticAttribute } from './template-nodes';
+import type { ChainMember } from './template-nodes';
 
 // The runtime reads every tag that starts with `parent` as `{% parent %}`.
 const TWIG_TAG = /\{#[\s\S]*?#\}|\{%\s*block\s+([^%\s}]+)\s*%\}|\{%\s*(endblock)\s*%\}|\{%\s*parent\b[^%]*%\}/g;
@@ -183,7 +184,7 @@ class BlockReader {
     }
 
     private visit(nodes: TemplateChildNode[]): void {
-        let chain: ConditionChain | null = null;
+        let open: { member: ChainMember; chain: ConditionChain } | null = null;
 
         nodes.forEach((node) => {
             if (node.type === NodeTypes.COMMENT) {
@@ -193,25 +194,24 @@ class BlockReader {
             }
 
             if (node.type !== NodeTypes.ELEMENT) {
-                chain = isWhitespace(node) ? chain : null;
+                open = isWhitespace(node) ? open : null;
 
                 return;
             }
 
-            const condition = directive(node, CHAIN_DIRECTIVES);
+            const member = chainMember(node, open?.member ?? null);
 
-            if (!condition) {
-                chain = null;
+            if (member === null) {
+                open = null;
                 this.visitElement(node);
 
                 return;
             }
 
-            if (condition.name === 'if' || chain === null) {
-                chain = new ConditionChain();
-            }
+            const chain = member.continues && open !== null ? open.chain : new ConditionChain();
 
-            this.branches.push(this.branchStates(chain, condition));
+            open = endsChain(member) ? null : { member, chain };
+            this.branches.push(this.branchStates(chain, member.condition));
             this.visitElement(node);
             this.branches.pop();
         });

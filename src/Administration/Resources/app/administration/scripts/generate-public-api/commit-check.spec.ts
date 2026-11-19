@@ -7,8 +7,8 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createCommitCheck } from './commit-check';
-import type { CommitCheck } from './commit-check';
+import { compareCommits } from './commit-check';
+import type { Finding } from './findings';
 import { repositoryOf } from './git-source-tree';
 
 const ADMINISTRATION = 'src/Administration/Resources/app/administration';
@@ -21,7 +21,7 @@ const WITHOUT_TITLE = '{% block sw_example_card %}{% endblock %}';
 
 describe('scripts/generate-public-api/commit-check', () => {
     let root: string;
-    let check: CommitCheck;
+    let compare: (base: string, head: string) => Finding[];
 
     function git(...args: string[]): string {
         return execFileSync(
@@ -67,7 +67,7 @@ describe('scripts/generate-public-api/commit-check', () => {
                 "import template from './sw-example-card.html.twig';\n\nexport default { template };",
             ...template(WITH_TITLE),
         });
-        check = createCommitCheck(repositoryOf(path.join(root, ADMINISTRATION)), ['v6.8.0.0']);
+        compare = (base, head) => compareCommits(repositoryOf(path.join(root, ADMINISTRATION)), ['v6.8.0.0'], base, head);
     });
 
     afterEach(() => {
@@ -80,7 +80,7 @@ describe('scripts/generate-public-api/commit-check', () => {
 
         fs.writeFileSync(path.join(root, ADMINISTRATION, CARD, 'sw-example-card.html.twig'), WITH_TITLE);
 
-        expect(check.compare(base, head)).toEqual([
+        expect(compare(base, head)).toEqual([
             expect.objectContaining({
                 group: 'Break',
                 rule: 'block_missing',
@@ -88,7 +88,7 @@ describe('scripts/generate-public-api/commit-check', () => {
                 at: `${CARD}/sw-example-card.html.twig:1`,
             }),
         ]);
-        expect(check.compare(head, base).map(({ rule }) => rule)).toEqual(['block_added']);
+        expect(compare(head, base).map(({ rule }) => rule)).toEqual(['block_added']);
     });
 
     it('allows a removal that a marker for the version before the next major announced', () => {
@@ -103,14 +103,13 @@ describe('scripts/generate-public-api/commit-check', () => {
         );
         const head = commit('feat: remove the title', template(WITHOUT_TITLE));
 
-        expect(check.compare(base, head).map(({ group, rule }) => `${group} ${rule}`)).toEqual([
+        expect(compare(base, head).map(({ group, rule }) => `${group} ${rule}`)).toEqual([
             'Allowed deprecated_removal',
         ]);
     });
 
     it('rejects a revision that git would read as an option', () => {
-        expect(() => check.compare('--output=stolen', 'HEAD')).toThrow();
-        expect(() => check.history('--output=stolen')).toThrow();
+        expect(() => compare('--output=stolen', 'HEAD')).toThrow();
         expect(fs.existsSync(path.join(root, 'stolen'))).toBe(false);
     });
 
@@ -121,40 +120,6 @@ describe('scripts/generate-public-api/commit-check', () => {
             [`${ADMINISTRATION}/${CARD}/unused.html.twig`]: '{% block sw_example_unused %}{% endblock %}',
         });
 
-        expect(check.compare(base, head)).toEqual([]);
-    });
-
-    it('checks every commit of a range that changed the sources against its parent, newest first', () => {
-        const base = git('rev-parse', 'HEAD');
-
-        commit('feat: remove the title', template(WITHOUT_TITLE));
-        commit('docs: explain the card', { 'README.md': 'The card.' });
-        commit('feat: bring the title back', template(WITH_TITLE));
-
-        expect(
-            check.history(`${base}..HEAD`).map(({ subject, findings, error }) => ({
-                subject,
-                rules: findings.map(({ rule }) => rule),
-                error,
-            })),
-        ).toEqual([
-            { subject: 'feat: bring the title back', rules: ['block_added'], error: undefined },
-            { subject: 'feat: remove the title', rules: ['block_missing'], error: undefined },
-        ]);
-    });
-
-    it('keeps a commit that the generator cannot read in the result, with the reason', () => {
-        const base = git('rev-parse', 'HEAD');
-
-        commit('fix: break the template', template('{% block sw_example_card %}'));
-
-        expect(check.history(`${base}..HEAD`)).toEqual([
-            {
-                commit: git('rev-parse', 'HEAD'),
-                subject: 'fix: break the template',
-                findings: [],
-                error: `${CARD}/sw-example-card.html.twig: the block sw_example_card is never closed.`,
-            },
-        ]);
+        expect(compare(base, head)).toEqual([]);
     });
 });

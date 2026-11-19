@@ -22,22 +22,17 @@ export interface GitRepository {
     administration: string;
 }
 
-function git({ root }: GitRepository, args: string[], input?: string): Buffer {
+function git(root: string, args: string[], input?: string): Buffer {
     return execFileSync('git', ['-C', root, ...args], { input, maxBuffer: MAX_OUTPUT, stdio: ['pipe', 'pipe', 'pipe'] });
+}
+
+function gitLine(root: string, args: string[]): string {
+    return git(root, args).toString().trim();
 }
 
 /** @private */
 export function repositoryOf(administrationRoot: string): GitRepository {
-    const root = execFileSync(
-        'git',
-        [
-            '-C',
-            administrationRoot,
-            'rev-parse',
-            '--show-toplevel',
-        ],
-        { encoding: 'utf8' },
-    ).trim();
+    const root = gitLine(administrationRoot, ['rev-parse', '--show-toplevel']);
 
     return { root, administration: path.relative(root, administrationRoot).split(path.sep).join('/') };
 }
@@ -49,14 +44,12 @@ export function repositoryOf(administrationRoot: string): GitRepository {
  * one that starts with a dash as an option. A hash is safe to pass on.
  */
 export function resolveCommit(repository: GitRepository, revision: string): string {
-    return git(repository, [
+    return gitLine(repository.root, [
         'rev-parse',
         '--verify',
         '--end-of-options',
         `${revision}^{commit}`,
-    ])
-        .toString()
-        .trim();
+    ]);
 }
 
 /**
@@ -64,7 +57,7 @@ export function resolveCommit(repository: GitRepository, revision: string): stri
  * `<hash> blob <size>\n<content>\n`.
  */
 function readBlobs(repository: GitRepository, names: string[]): string[] {
-    const output = git(repository, ['cat-file', '--batch'], names.map((name) => `${name}\n`).join(''));
+    const output = git(repository.root, ['cat-file', '--batch'], names.map((name) => `${name}\n`).join(''));
     let offset = 0;
 
     return names.map((name) => {
@@ -90,7 +83,7 @@ function readBlobs(repository: GitRepository, names: string[]): string[] {
  */
 export function readSourceTreeAt(repository: GitRepository, commit: string): SourceTree {
     const prefix = `${repository.administration}/`;
-    const files = git(repository, [
+    const files = git(repository.root, [
         'ls-tree',
         '-r',
         '-z',
@@ -112,41 +105,4 @@ export function readSourceTreeAt(repository: GitRepository, commit: string): Sou
     );
 
     return sourceTreeOf(files, (file) => contents.get(file) ?? '');
-}
-
-/**
- * @private
- *
- * An id that is the same for two commits with the same Administration sources.
- */
-export function sourcesIdAt(repository: GitRepository, commit: string): string {
-    return git(repository, ['rev-parse', `${commit}:${repository.administration}/src`])
-        .toString()
-        .trim();
-}
-
-/**
- * @private
- *
- * The commits of the range that changed the Administration sources, newest first. Only the first parent is
- * followed, so a squash-merged pull request is one commit.
- */
-export function commitsChanging(repository: GitRepository, range: string): { commit: string; subject: string }[] {
-    return git(repository, [
-        'log',
-        '--first-parent',
-        '--format=%H%x09%s',
-        '--end-of-options',
-        range,
-        '--',
-        `${repository.administration}/src`,
-    ])
-        .toString()
-        .split('\n')
-        .filter((line) => line !== '')
-        .map((line) => {
-            const [commit, ...subject] = line.split('\t');
-
-            return { commit, subject: subject.join('\t') };
-        });
 }

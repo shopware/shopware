@@ -57,17 +57,18 @@ describe('scripts/generate-public-api/break-check verdict', () => {
             ]);
         });
 
-        it('allows the removal of a block whose marker names a version that is released', () => {
-            const deprecated = BEFORE.replace(
-                '{% block sw_example_card_title %}',
-                '{# @deprecated tag:v6.8.0 - Will be removed. #}{% block sw_example_card_title %}',
-            );
+        it('allows the removal of a block whose marker names a version before the next major', () => {
+            const deprecatedFor = (version: string) =>
+                BEFORE.replace(
+                    '{% block sw_example_card_title %}',
+                    `{# @deprecated tag:${version} - Will be removed. #}{% block sw_example_card_title %}`,
+                );
             const removed = BEFORE.replace('{% block sw_example_card_title %}{% endblock %}', '');
 
-            expect(summary(check(deprecated, removed, '6.8'))).toEqual([
+            expect(summary(check(deprecatedFor('v6.7.0'), removed))).toEqual([
                 'Allowed  deprecated_removal  sw-example-card/block:sw_example_card_title  current, major',
             ]);
-            expect(summary(check(deprecated, removed, '6.7'))).toEqual([
+            expect(summary(check(deprecatedFor('v6.8.0'), removed))).toEqual([
                 'Break  block_missing  sw-example-card/block:sw_example_card_title  current, major',
             ]);
         });

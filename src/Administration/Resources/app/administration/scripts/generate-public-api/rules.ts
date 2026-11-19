@@ -60,8 +60,8 @@ export interface Rule {
     detect: (base: ComponentFacts, head: ComponentFacts) => Detection[];
 }
 
-/** The element a change is about. `markers` is only needed when a marker can announce the change. */
-type Element = Pick<Detection, 'element' | 'at'> & Partial<Pick<Announcement, 'markers'>>;
+/** The element a change is about. */
+type Element = Pick<Detection, 'element' | 'at'>;
 
 /**
  * @private
@@ -74,7 +74,10 @@ export interface RuleDefinition<Change> {
     group: FindingGroup;
     changes: (base: ComponentFacts, head: ComponentFacts) => (Change & Element)[];
     texts: (change: Change, context: TextContext) => FindingTexts;
-    announcement?: Pick<Announcement, 'rule' | 'subject'> & { matches: (change: Change, marker: Marker) => boolean };
+    announcement?: Pick<Announcement, 'rule' | 'subject'> & {
+        markers: (change: Change, facts: ComponentFacts) => Marker[];
+        matches: (change: Change, marker: Marker) => boolean;
+    };
 }
 
 /** @private */
@@ -84,15 +87,18 @@ export function rule<Change>({ id, group, changes, texts, announcement }: RuleDe
         group,
         detect: (base, head) =>
             changes(base, head).map((change) => {
-                const { element, at, markers, ...detail } = change;
+                const { element, at, ...detail } = change;
 
                 return {
                     element,
                     at,
                     variant: JSON.stringify(detail),
                     texts: (context) => texts(change, context),
-                    announcement: announcement &&
-                        markers && { ...announcement, markers, matches: (marker) => announcement.matches(change, marker) },
+                    announcement: announcement && {
+                        ...announcement,
+                        markers: (facts) => announcement.markers(change, facts),
+                        matches: (marker) => announcement.matches(change, marker),
+                    },
                 };
             }),
     };

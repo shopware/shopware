@@ -27,7 +27,7 @@ describe('scripts/generate-public-api/break-check rules', () => {
             const { model } = generateCurrentSnapshot();
 
             expect(model.components.length).toBeGreaterThan(700);
-            expect(classifyChanges(model, model, { headVersion: '6.7' })).toEqual([]);
+            expect(classifyChanges(model, model)).toEqual([]);
         });
 
         it('reports nothing when blocks change their order under the same parent', () => {

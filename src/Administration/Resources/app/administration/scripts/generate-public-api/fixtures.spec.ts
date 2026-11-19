@@ -15,7 +15,7 @@ describe('public API fixtures', () => {
 
     const tools: PublicApiTools<Snapshot> = {
         generateSnapshot,
-        classifyChanges: (base, head, options) => classifyChanges(base.model, head.model, options),
+        classifyChanges: (base, head) => classifyChanges(base.model, head.model),
     };
 
     fixtureTests(cases, EXPECTED_FAILURES, tools).forEach((test) => {

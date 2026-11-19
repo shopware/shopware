@@ -14,11 +14,11 @@ import { buildModel } from '../model';
  *
  * The findings for a change. A string is the template of the card.
  */
-export function check(before: ExampleSources | string, after: ExampleSources | string, headVersion = '6.7'): Finding[] {
+export function check(before: ExampleSources | string, after: ExampleSources | string): Finding[] {
     const model = (sources: ExampleSources | string) =>
         buildModel(exampleTree(typeof sources === 'string' ? { card: sources } : sources), OPTIONS);
 
-    return classifyChanges(model(before), model(after), { headVersion });
+    return classifyChanges(model(before), model(after));
 }
 
 /**

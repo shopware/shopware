@@ -5,8 +5,7 @@
  * are resolved on this tree, and `listBlocks` turns it into the entries the snapshot prints.
  */
 import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-markers';
-import { byCodePoint } from './code-point-order';
-import { FLAG_STATES, inAnyState, inBothStates, perState } from './flag-states';
+import { FLAG_STATES, inBothStates, mergeStates, perState } from './flag-states';
 import type { FlagStates } from './flag-states';
 
 /** @private */
@@ -181,30 +180,19 @@ export function listBlocks(
     tree: BlockContent[],
     contexts: ReadonlyMap<BlockNode, BlockContext> = new Map<BlockNode, BlockContext>(),
 ): TemplateBlock[] {
-    const blocks = new Map<string, TemplateBlock>();
-    const visit = (content: BlockContent[], ancestors: readonly BlockNode[]): void => {
-        content.filter(isBlock).forEach((block) => {
-            FLAG_STATES.filter((state) => block.states[state]).forEach((state) => {
-                const placed: TemplateBlock = {
-                    name: block.name,
-                    parent: ancestors.findLast((ancestor) => ancestor.states[state])?.name ?? null,
-                    origin: block.origin,
-                    context: contexts.get(block) ?? NO_CONTEXT,
-                    states: perState((other) => other === state),
-                    at: block.at,
-                    markers: block.markers,
-                };
-                const key = entryKey(placed);
-                const known = blocks.get(key);
+    const visit = (content: BlockContent[], ancestors: readonly BlockNode[]): TemplateBlock[] =>
+        content.filter(isBlock).flatMap((block) => [
+            ...FLAG_STATES.filter((state) => block.states[state]).map((state) => ({
+                name: block.name,
+                parent: ancestors.findLast((ancestor) => ancestor.states[state])?.name ?? null,
+                origin: block.origin,
+                context: contexts.get(block) ?? NO_CONTEXT,
+                states: perState((other) => other === state),
+                at: block.at,
+                markers: block.markers,
+            })),
+            ...visit(block.content, [...ancestors, block]),
+        ]);
 
-                blocks.set(key, known ? { ...known, states: inAnyState(known.states, placed.states) } : placed);
-            });
-
-            visit(block.content, [...ancestors, block]);
-        });
-    };
-
-    visit(tree, []);
-
-    return [...blocks.values()].sort((a, b) => byCodePoint(entryKey(a), entryKey(b)));
+    return mergeStates(visit(tree, []), entryKey);
 }

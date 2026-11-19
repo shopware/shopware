@@ -13,7 +13,6 @@ import template from './sw-error.html.twig';
  * <sw-error :errorObject="{ message: 'Could not load the page' }">
  * </sw-error>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

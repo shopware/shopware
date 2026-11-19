@@ -1,5 +1,6 @@
 repository-url: https://raw.githubusercontent.com/shopware/translations/main/translations
 metadata-url: https://raw.githubusercontent.com/shopware/translations/main/crowdin-metadata.json
+archive-manifest-url: https://github.com/shopware/translations/releases/latest/download/manifest.json
 
 excluded-locales: ['it-IT']
 

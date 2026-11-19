@@ -16,7 +16,9 @@ import { ADMINISTRATION_ROOT } from './committed-snapshot';
 import { formatFindings } from './findings';
 import { repositoryOf } from './git-source-tree';
 
-const USAGE = 'Usage: check.ts <base> <head> | check.ts --history <range> <result.json>';
+const COMMAND = 'composer admin:check-public-api --';
+
+const USAGE = `Usage: ${COMMAND} <base> <head> | ${COMMAND} --history <range> <result.json>`;
 
 const check = createCommitCheck(repositoryOf(ADMINISTRATION_ROOT), majorFlagsOf(loadFeatureConfig()));
 const [first, second, third] = process.argv.slice(2);

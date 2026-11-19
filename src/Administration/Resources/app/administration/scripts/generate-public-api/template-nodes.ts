@@ -43,7 +43,7 @@ export function staticAttribute(element: ElementNode, name: string): string | un
 /**
  * @private
  *
- * The text of a directive's value or argument. A dynamic argument such as `#[name]` has none.
+ * The text of a directive's value or argument. For a dynamic argument such as `#[name]` that is the expression.
  */
 export function contentOf(expression: DirectiveNode['exp']): string | undefined {
     return expression?.type === NodeTypes.SIMPLE_EXPRESSION ? expression.content : undefined;

@@ -108,6 +108,12 @@ describe('scripts/generate-public-api/commit-check', () => {
         ]);
     });
 
+    it('rejects a revision that git would read as an option', () => {
+        expect(() => check.compare('--output=stolen', 'HEAD')).toThrow();
+        expect(() => check.history('--output=stolen')).toThrow();
+        expect(fs.existsSync(path.join(root, 'stolen'))).toBe(false);
+    });
+
     it('ignores specs and a template that no component uses', () => {
         const base = git('rev-parse', 'HEAD');
         const head = commit('test: add a spec and an unused template', {

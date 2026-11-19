@@ -62,7 +62,7 @@ function unique<Value>(values: Value[]): Value[] {
     return [...new Set(values)];
 }
 
-function sorted(values: string[]): string[] {
+function uniqueSorted(values: string[]): string[] {
     return unique(values).sort(byCodePoint);
 }
 
@@ -76,7 +76,7 @@ function sharedScope(places: TemplateBlock[]): Map<string, ScopeVariable[]> {
                 .map((variable) => [sourceLabel(variable), variable]),
         );
 
-        return sorted([...bySource.keys()]).flatMap((label) => bySource.get(label) ?? []);
+        return uniqueSorted([...bySource.keys()]).flatMap((label) => bySource.get(label) ?? []);
     };
 
     return new Map(everywhere.map(({ name }) => [name, sourcesOf(name)]));
@@ -120,7 +120,9 @@ export function factsOf(unit: ComponentUnit, state: FlagState): ComponentFacts {
             origins: unique(placed.map(({ origin }) => origin)),
             afterIf: placed.every(({ context }) => context.afterIf !== null),
             continuesChain: placed.some(({ context }) => context.continuesChain),
-            chains: sorted(placed.flatMap(({ context }) => (context.afterIf === null ? [] : [context.afterIf.join(' ; ')]))),
+            chains: uniqueSorted(
+                placed.flatMap(({ context }) => (context.afterIf === null ? [] : [context.afterIf.join(' ; ')])),
+            ),
             scope: sharedScope(placed),
             markers: placed.flatMap(({ markers }) => markers),
             at: placed[0].at,

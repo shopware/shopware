@@ -43,6 +43,23 @@ export function repositoryOf(administrationRoot: string): GitRepository {
 }
 
 /**
+ * @private
+ *
+ * The hash of the commit that `revision` names. A revision comes from the command line, and git would read
+ * one that starts with a dash as an option. A hash is safe to pass on.
+ */
+export function resolveCommit(repository: GitRepository, revision: string): string {
+    return git(repository, [
+        'rev-parse',
+        '--verify',
+        '--end-of-options',
+        `${revision}^{commit}`,
+    ])
+        .toString()
+        .trim();
+}
+
+/**
  * `git cat-file --batch` answers each name with a header line, the content and a line break:
  * `<hash> blob <size>\n<content>\n`.
  */
@@ -119,6 +136,7 @@ export function commitsChanging(repository: GitRepository, range: string): { com
         'log',
         '--first-parent',
         '--format=%H%x09%s',
+        '--end-of-options',
         range,
         '--',
         `${repository.administration}/src`,

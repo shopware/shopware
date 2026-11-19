@@ -7,7 +7,7 @@
 import { classifyChanges } from './break-check';
 import type { Finding } from './findings';
 import { createFlagContext } from './flag-states';
-import { commitsChanging, readSourceTreeAt, sourcesIdAt } from './git-source-tree';
+import { commitsChanging, readSourceTreeAt, resolveCommit, sourcesIdAt } from './git-source-tree';
 import type { GitRepository } from './git-source-tree';
 import { buildModel } from './model';
 import type { Model } from './model';
@@ -54,7 +54,8 @@ function versionBefore(majorVersion: string): string {
 export function createCommitCheck(repository: GitRepository, majorFlags: readonly string[]): CommitCheck {
     const headVersion = versionBefore(createFlagContext(majorFlags).majorVersion);
     const models = new Map<string, Model>();
-    const modelAt = (commit: string): Model => {
+    const modelAt = (revision: string): Model => {
+        const commit = resolveCommit(repository, revision);
         const id = sourcesIdAt(repository, commit);
         const known = models.get(id);
 

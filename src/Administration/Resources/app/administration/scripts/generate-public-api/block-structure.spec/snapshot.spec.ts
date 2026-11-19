@@ -246,6 +246,15 @@ describe('scripts/generate-public-api/block-structure in the snapshot', () => {
             ]);
         });
 
+        it('keeps the expression of a dynamic slot name in brackets', () => {
+            const template =
+                '<sw-grid><template #[slotName]="{ item }">{% block sw_example_card_item %}{% endblock %}</template></sw-grid>';
+
+            expect(contextOf('sw_example_card_item', template).scope).toEqual([
+                { name: 'item', kind: 'slot', source: 'sw-grid#[slotName]' },
+            ]);
+        });
+
         it('takes the inner variable when two elements declare the same name', () => {
             const template = `
                 <ul v-for="item in groups">

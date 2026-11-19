@@ -245,7 +245,8 @@ The first five kinds have the names of the PHP attributes in `src/Core/Framework
 Their keys are shorter than the PHP arguments, for example `parameter` for `parameterName` and `type` for `newType`.
 `BecomesPrivate` is what PHP calls `BecomesInternal`.
 The other kinds exist only in the Administration.
-The list of kinds can still change until the break check uses them.
+The break check uses `BlockMoved` and `ScopeVariableRemoval` so far.
+The other kinds can still change until it uses them.
 
 `eslint-rules/deprecation-rules/utils/api-markers.ts` holds the grammar and the kinds.
 The ESLint rule `sw-deprecation-rules/valid-api-markers` uses it and reports, in `.js`, `.ts`, `.vue` and `.html.twig` files:
@@ -260,8 +261,9 @@ Without the rule such a comment would stay a plain comment, and the change would
 The PHP test `AnnotationTagTester` checks the version of `@deprecated` in every file of the repository as well, with its own grammar.
 A change to the `@deprecated` grammar has to be made in both places.
 
-Only the format is checked so far.
-Whether a marker sits on an element its kind fits, and whether its version is not released yet, comes with the break check.
+The rule checks the format only.
+The break check reads the markers of a block and decides with them whether a change is announced, see "Break check".
+Nothing reports a marker on an element its kind does not fit, or a marker whose version is released already.
 
 ## Break check
 

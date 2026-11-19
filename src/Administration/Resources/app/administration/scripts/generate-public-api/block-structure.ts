@@ -157,14 +157,25 @@ function loopVariables(element: ElementNode): ScopeVariable[] {
         .map((name) => ({ name, kind: 'v-for', source }));
 }
 
+/** The name of the slot, or the expression of a dynamic name in brackets, as the template writes it. */
+function slotName({ arg }: DirectiveNode): string | undefined {
+    const isDynamic = arg?.type === NodeTypes.SIMPLE_EXPRESSION && !arg.isStatic;
+
+    return isDynamic ? `[${arg.content}]` : contentOf(arg);
+}
+
 /** `owner` is the component the slot belongs to: the element itself, or the one around its `<template>`. */
 function slotVariables(element: ElementNode, parentTag: string): ScopeVariable[] {
     const owner = element.tag === 'template' ? parentTag : element.tag;
     const slot = directive(element, ['slot']);
-    const slotName = slot ? contentOf(slot.arg) : staticAttribute(element, 'slot');
+    const name = slot ? slotName(slot) : staticAttribute(element, 'slot');
     const props = slot ? contentOf(slot.exp) : staticAttribute(element, 'slot-scope');
 
-    return declaredNames(props ?? '').map((name) => ({ name, kind: 'slot', source: `${owner}#${slotName ?? 'default'}` }));
+    return declaredNames(props ?? '').map((variable) => ({
+        name: variable,
+        kind: 'slot',
+        source: `${owner}#${name ?? 'default'}`,
+    }));
 }
 
 function isSlotTemplate(element: ElementNode): boolean {

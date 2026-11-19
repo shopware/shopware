@@ -30,6 +30,13 @@ class ServiceWebhookPolicyTest extends TestCase
         static::assertFalse($this->createPolicy()->handles('checkout.customer.login'));
     }
 
+    public function testItCoversTheServiceConsentEvents(): void
+    {
+        static::assertTrue($this->createPolicy()->handles('consent.service_consent.accepted'));
+        static::assertTrue($this->createPolicy()->handles('consent.service_consent.revoked'));
+        static::assertFalse($this->createPolicy()->handles('consent.product_analytics.accepted'));
+    }
+
     public function testASelfManagedAppMayReceiveIt(): void
     {
         static::assertTrue($this->createPolicy(appIsSelfManaged: true)->permitsDelivery(static::createStub(Hookable::class), $this->createWebhook()));

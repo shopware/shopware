@@ -13,17 +13,20 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Service\AppInfo;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\Permission\PermissionsConsent;
-use Shopware\Core\Service\Permission\PermissionsService;
 use Shopware\Core\Service\ServiceClientFactory;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\Consent\ConsentRepository;
+use Shopware\Core\System\Consent\ConsentScope\System;
+use Shopware\Core\System\Consent\ConsentStatus;
+use Shopware\Core\System\Consent\Service\ConsentService;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
@@ -54,15 +57,17 @@ class ServicesLifecycleTest extends TestCase
 
     private const CONTENT_HASH = '3ab5f0c9e71d42568b0ac3fd19e77b24';
 
-    private const CONFIG_KEY_CONSENT = 'core.services.permissionsConsent';
+    private const CONSENT_REVISIONS_ENDPOINT = self::REGISTRY_URL . '/api/service/permission-revisions';
 
     private LifecycleManager $manager;
 
     private ServiceStorage $storage;
 
-    private PermissionsService $permissions;
+    private ConsentService $consentService;
 
-    private SystemConfigService $config;
+    private ConsentRepository $consentRepository;
+
+    private string $adminUserId;
 
     private Connection $connection;
 
@@ -92,9 +97,10 @@ class ServicesLifecycleTest extends TestCase
         $container = static::getContainer();
         $this->manager = $container->get(LifecycleManager::class);
         $this->storage = $container->get(ServiceStorage::class);
-        $this->permissions = $container->get(PermissionsService::class);
-        $this->config = $container->get(SystemConfigService::class);
+        $this->consentService = $container->get(ConsentService::class);
+        $this->consentRepository = $container->get(ConsentRepository::class);
         $this->connection = $container->get(Connection::class);
+        $this->adminUserId = TestUser::createNewAdminTestUser($this->connection)->getUserId();
         $this->context = Context::createDefaultContext();
     }
 
@@ -139,7 +145,7 @@ class ServicesLifecycleTest extends TestCase
     {
         $this->listed = [self::registryEntry(name: self::TWO, label: 'Example Two', host: 'https://two.services.example.com')];
         $this->appInfo[self::TWO] = self::appInfo(name: self::TWO, version: '1.2.0', requirements: ['services_enabled']);
-        $this->manager->disable($this->context);
+        $this->manager->disable($this->adminContext());
 
         static::assertSame([], $this->manager->reconcile($this->context));
         static::assertNull($this->storage->findByName(self::TWO, $this->context));
@@ -210,7 +216,7 @@ class ServicesLifecycleTest extends TestCase
         $this->assertInstalled(self::TWO, '1.2.0');
 
         $this->appInfo[self::TWO] = self::appInfo(name: self::TWO, version: '1.3.0', requirements: ['services_enabled']);
-        $this->manager->disable($this->context);
+        $this->manager->disable($this->adminContext());
 
         $this->manager->reconcile($this->context);
 
@@ -261,7 +267,7 @@ class ServicesLifecycleTest extends TestCase
         $this->manager->reconcile($this->context);
         $this->assertInstalled(self::TWO, '1.2.0');
 
-        $this->manager->disable($this->context);
+        $this->manager->disable($this->adminContext());
 
         static::assertNull($this->storage->findByName(self::TWO, $this->context));
         $one = $this->assertInstalled(self::ONE, '1.0.0');
@@ -438,6 +444,12 @@ class ServicesLifecycleTest extends TestCase
             ]),
             self::SELECT_APP_ENDPOINT . self::ONE => fn () => new JsonMockResponse($this->appInfo[self::ONE]),
             self::SELECT_APP_ENDPOINT . self::TWO => fn () => new JsonMockResponse($this->appInfo[self::TWO]),
+            self::CONSENT_REVISIONS_ENDPOINT => fn () => new JsonMockResponse([
+                'revisions' => [
+                    'latest-revision' => '2026-09-09',
+                    'available-revisions' => [],
+                ],
+            ]),
         ];
 
         $httpClient = new MockHttpClient(function (string $method, string $url): MockResponse {
@@ -463,27 +475,39 @@ class ServicesLifecycleTest extends TestCase
 
     private function grantConsent(): void
     {
-        $this->permissions->grant('2026-09-09', Context::createDefaultContext(new AdminApiSource('test-user')));
+        $this->consentService->acceptConsent(ServiceConsent::NAME, $this->adminContext());
+    }
+
+    private function adminContext(): Context
+    {
+        $source = new AdminApiSource($this->adminUserId);
+        $source->setIsAdmin(true);
+
+        return Context::createDefaultContext($source);
     }
 
     /**
-     * Writes the config directly so no PermissionsRevokedEvent fires: the drift has to survive until
+     * Writes the consent state directly so no ConsentRevokedEvent fires: the drift has to survive until
      * reconcile runs.
      */
     private function dropConsentWithoutEvents(): void
     {
-        $this->config->delete(self::CONFIG_KEY_CONSENT);
+        $this->connection->executeStatement('DELETE FROM `consent_state` WHERE `name` = :name', ['name' => ServiceConsent::NAME]);
+        $this->consentService->reset();
     }
 
     private function restoreConsentWithoutEvents(): void
     {
-        $consent = new PermissionsConsent(
-            identifier: 'test-consent',
-            revision: '2026-09-09',
-            consentingUserId: 'test-user',
-            grantedAt: new \DateTimeImmutable('2026-09-09T00:00:00+00:00'),
+        $consent = static::getContainer()->get(ServiceConsent::class);
+
+        $this->consentRepository->updateConsentState(
+            $consent,
+            System::NAME,
+            ConsentStatus::ACCEPTED,
+            $this->adminUserId,
+            $consent->getLatestRevision(),
         );
-        $this->config->set(self::CONFIG_KEY_CONSENT, json_encode($consent, \JSON_THROW_ON_ERROR));
+        $this->consentService->reset();
     }
 
     /**

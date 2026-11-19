@@ -17,11 +17,13 @@ use Shopware\Core\Service\Api\ServiceController;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\Requirement\RequirementsValidator;
+use Shopware\Core\Service\ServiceConsentRevisionProvider;
 use Shopware\Core\Service\ServiceException;
 use Shopware\Core\Service\ServiceLifecycle;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -439,12 +441,40 @@ class ServiceControllerTest extends TestCase
         $controller->categorizedPermissions('MyCoolService', Context::createDefaultContext());
     }
 
+    public function testReturnsConsentRevisionMetadata(): void
+    {
+        $revisionProvider = $this->createMock(ServiceConsentRevisionProvider::class);
+        $revisionProvider->expects($this->once())
+            ->method('getMetadata')
+            ->with('de-DE')
+            ->willReturn([
+                'latest-revision' => '2026-05-05',
+                'available-revisions' => [],
+            ]);
+
+        $controller = $this->createController(serviceConsentRevisionProvider: $revisionProvider);
+        $request = Request::create('/api/services/consent-revision', 'GET');
+        $request->headers->set('Accept-Language', 'de-DE,de;q=0.9');
+
+        $response = $controller->consentRevision($request);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertJsonStringEqualsJsonString(
+            (string) json_encode([
+                'latest-revision' => '2026-05-05',
+                'available-revisions' => [],
+            ], \JSON_THROW_ON_ERROR),
+            (string) $response->getContent()
+        );
+    }
+
     private function createController(
         ?ServiceStorage $serviceStorage = null,
         ?MessageBusInterface $bus = null,
         ?ServiceLifecycle $serviceLifecycle = null,
         ?LifecycleManager $manager = null,
         ?RequirementsValidator $requirementsValidator = null,
+        ?ServiceConsentRevisionProvider $serviceConsentRevisionProvider = null,
     ): ServiceController {
         return new ServiceController(
             $serviceStorage ?? new ServiceStorage($this->appRepo),
@@ -452,6 +482,7 @@ class ServiceControllerTest extends TestCase
             $serviceLifecycle ?? static::createStub(ServiceLifecycle::class),
             $manager ?? static::createStub(LifecycleManager::class),
             $requirementsValidator ?? static::createStub(RequirementsValidator::class),
+            $serviceConsentRevisionProvider ?? static::createStub(ServiceConsentRevisionProvider::class),
         );
     }
 }

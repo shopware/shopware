@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Webhook\Authorization\Policy\Policy;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\Webhook;
+use Shopware\Core\Service\Consent\ServiceConsent;
 use Shopware\Core\Service\Event\CommercialLicenseProvidedEvent;
 
 /**
@@ -24,7 +25,11 @@ final class ServiceWebhookPolicy implements Policy
 
     public function handles(string $eventName): bool
     {
-        return $eventName === CommercialLicenseProvidedEvent::NAME;
+        return \in_array($eventName, [
+            CommercialLicenseProvidedEvent::NAME,
+            'consent.' . ServiceConsent::NAME . '.accepted',
+            'consent.' . ServiceConsent::NAME . '.revoked',
+        ], true);
     }
 
     public function permitsSubscription(string $eventName, Subscriber $subscriber): bool

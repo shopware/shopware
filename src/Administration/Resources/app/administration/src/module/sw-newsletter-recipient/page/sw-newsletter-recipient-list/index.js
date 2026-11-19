@@ -12,7 +12,6 @@ const {
  *
  * @deprecated tag:v6.8.0 - Will be private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

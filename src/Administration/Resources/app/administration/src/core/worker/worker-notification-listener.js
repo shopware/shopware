@@ -9,13 +9,11 @@ const { Application, WorkerNotification } = Shopware;
 /**
  * @deprecated tag:v6.8.0 - Will be removed with increment-based message queue statistics
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_BACKGROUND_INTERVAL = 30000;
 
 /**
  * @deprecated tag:v6.8.0 - Will be removed with increment-based message queue statistics
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_FOREGROUND_INTERVAL = 5000;
 
 /**

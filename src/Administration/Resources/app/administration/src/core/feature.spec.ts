@@ -2,14 +2,10 @@
  * @sw-package framework
  */
 
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { parse } from 'yaml';
-
 import Feature, { deprecationBaselineKey, UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
 import deprecationBaseline from 'src/core/deprecation-baseline.json';
-import normalizeFeatureFlag from 'test/_helper_/normalizeFeatureFlag';
 import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
+import { flagsOf, loadFeatureConfig, normalizeFeatureFlag } from '../../scripts/feature-flags';
 
 const listedBaselineKeys: string[] = [];
 
@@ -100,13 +96,7 @@ describe('src/core/feature', () => {
         });
 
         it('lists only upcoming majors the backend does not register yet', () => {
-            const featureConfig = parse(
-                readFileSync(
-                    resolve(process.env.ADMIN_PATH!, '../../../../Core/Framework/Resources/config/packages/feature.yaml'),
-                    'utf8',
-                ),
-            ) as { shopware: { feature: { flags: Array<{ name: string }> } } };
-            const registeredFlags = featureConfig.shopware.feature.flags.map(({ name }) => normalizeFeatureFlag(name));
+            const registeredFlags = flagsOf(loadFeatureConfig()).map(({ name }) => normalizeFeatureFlag(name));
 
             expect(registeredFlags).toContain('V6_8_0_0');
             expect(UNREGISTERED_UPCOMING_MAJORS.filter((flag) => registeredFlags.includes(flag))).toEqual([]);

@@ -4,7 +4,7 @@
 
 import Feature from 'src/core/feature';
 import FeatureService from 'src/app/service/feature.service';
-import normalizeFeatureFlag from '../../_helper_/normalizeFeatureFlag';
+import { isSameFlag } from '../../../scripts/feature-flags';
 import { recordDeprecation, shouldHandleDeprecationsThroughMock } from '../../_helper_/deprecations';
 
 global.activeFeatureFlags = global.activeFeatureFlags ?? [];
@@ -15,9 +15,7 @@ global.activeFeatureFlags = global.activeFeatureFlags ?? [];
  */
 export class FeatureMock extends Feature {
     static isActive(flagName) {
-        const normalizedFlagName = normalizeFeatureFlag(flagName);
-
-        return global.activeFeatureFlags.some((featureFlag) => normalizeFeatureFlag(featureFlag) === normalizedFlagName);
+        return global.activeFeatureFlags.some((featureFlag) => isSameFlag(featureFlag, flagName));
     }
 }
 

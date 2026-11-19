@@ -66,7 +66,7 @@ describe('sw-product-document-form language markers', () => {
         expect(values[0].classes('sw-product-document-language-value--fallback')).toBe(!nameTranslated);
         expect(values[1].classes('sw-product-document-language-value--fallback')).toBe(!fileTranslated);
         expect(wrapper.find('.sw-product-document-form__language-hint').exists()).toBe(false);
-        expect(wrapper.get<HTMLButtonElement>('.sw-product-document-form__add-button button').element.disabled).toBe(true);
+        expect(wrapper.get('.sw-product-document-form__add-button button').attributes('aria-disabled')).toBe('true');
         expect(Array.from(wrapper.findAll('.mt-badge'), (badge) => badge.text())).toEqual(
             Array(Number(nameTranslated) + Number(fileTranslated)).fill('DE'),
         );

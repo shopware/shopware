@@ -9,72 +9,26 @@
     >
         {{ $t('sw-product.documentForm.buttonAdd') }}
     </mt-button>
-    <mt-floating-ui
+    {% block sw_product_document_add_button_language_hint %}
+    <mt-tooltip
         v-else
-        :is-opened="isHintOpen"
-        :floating-ui-options="{ placement: 'top' }"
-        show-arrow
-        @close="closeHint"
+        :content="tooltipContent"
+        :hide-delay-duration-in-ms="600"
+        placement="top"
+        @click="onTooltipClick"
     >
-        <template #trigger>
-            <span
-                ref="trigger"
+        <template #default="tooltip">
+            <mt-button
+                v-bind="tooltip"
                 class="sw-product-document-add-button__trigger"
-                role="button"
-                tabindex="0"
-                :aria-label="triggerLabel"
-                :aria-describedby="isHintOpen ? hintId : undefined"
-                aria-haspopup="dialog"
-                :aria-expanded="isHintOpen"
-                @mouseenter="scheduleOpen"
-                @mouseleave="scheduleClose"
-                @focusin="openHint"
-                @focusout="scheduleClose"
-                @keydown.enter="focusHint"
-                @keydown.space="focusHint"
-                @keydown.esc.stop="closeHint"
+                disabled
+                size="small"
+                variant="secondary"
             >
-                <mt-button
-                    disabled
-                    aria-hidden="true"
-                    size="small"
-                    variant="secondary"
-                >
-                    {{ $t('sw-product.documentForm.buttonAdd') }}
-                </mt-button>
-            </span>
+                {{ $t('sw-product.documentForm.buttonAdd') }}
+            </mt-button>
         </template>
-
-        <template #default>
-            {% block sw_product_document_add_button_language_hint %}
-            <mt-text
-                :id="hintId"
-                ref="languageHint"
-                as="div"
-                size="xs"
-                color="color-text-inverse-default"
-                class="sw-product-document-add-button__hint"
-                role="dialog"
-                tabindex="-1"
-                :aria-label="hintLabel"
-                @vue:mounted="focusHintContent"
-                @mouseenter="openHint"
-                @mouseleave="scheduleClose"
-                @focusin="openHint"
-                @focusout="scheduleClose"
-                @keydown.esc.stop="$refs.trigger.focus(); closeHint()"
-            >
-                <template v-if="isInherited">
-                    {{ $t('sw-product.documentForm.unlinkToAdd') }}
-                </template>
-                <sw-product-document-language-hint
-                    v-else
-                    @vue:mounted="focusHintContent"
-                    @close="closeHint"
-                />
-            </mt-text>
-            {% endblock %}
-        </template>
-    </mt-floating-ui>
+    </mt-tooltip>
+    {% endblock %}
 </span>
 {% endblock %}

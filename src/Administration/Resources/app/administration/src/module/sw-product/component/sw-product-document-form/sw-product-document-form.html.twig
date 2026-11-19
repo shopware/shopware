@@ -310,7 +310,7 @@
             <sw-product-document-remove-modal
                 v-if="documentsToRemove.length"
                 :documents="documentsToRemove"
-                :language-name="isSystemDefaultLanguage ? '' : contentLanguageName"
+                :language-name="contentLanguageName"
                 :can-edit="canEdit"
                 :has-variants="hasVariants"
                 @close="documentsToRemove = []"

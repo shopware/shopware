@@ -41,7 +41,7 @@
                 </mt-button>
                 <mt-button
                     class="sw-product-document-form__confirm-remove"
-                    :variant="languageName ? 'primary' : 'critical'"
+                    :variant="isSystemDefaultLanguage ? 'critical' : 'primary'"
                     size="small"
                     :disabled="isDisabled"
                     @click="remove"

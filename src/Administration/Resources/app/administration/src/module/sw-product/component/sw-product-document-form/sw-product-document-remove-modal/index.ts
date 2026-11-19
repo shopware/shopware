@@ -49,34 +49,50 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
+        isSystemDefaultLanguage(): boolean {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
+
+        isBulk(): boolean {
+            return this.documents.length > 1;
+        },
+
+        documentName(): string {
+            return this.documents[0]?.translated?.title ?? '';
+        },
+
+        productId(): string {
+            return Shopware.Store.get('swProductDetail').product.id;
+        },
+
         modalTitle(): string {
-            const count = this.documents.length;
-            if (count > 1) {
+            const values = { count: this.documents.length, language: this.languageName, name: this.documentName };
+            if (this.isBulk) {
                 return this.$t(
-                    this.languageName
-                        ? 'sw-product.documentForm.bulkRemoveLanguageVersionTitle'
-                        : 'sw-product.documentForm.bulkRemoveTitle',
-                    { count, language: this.languageName },
+                    this.isSystemDefaultLanguage
+                        ? 'sw-product.documentForm.bulkRemoveTitle'
+                        : 'sw-product.documentForm.bulkRemoveLanguageVersionTitle',
+                    values,
                 );
             }
 
-            const name = this.documents[0].translated?.title ?? '';
-            return this.languageName
-                ? this.$t('sw-product.documentForm.removeLanguageVersionTitle', { language: this.languageName, name })
-                : this.$t('sw-product.documentForm.removeTitle', { name });
+            return this.$t(
+                this.isSystemDefaultLanguage
+                    ? 'sw-product.documentForm.removeTitle'
+                    : 'sw-product.documentForm.removeLanguageVersionTitle',
+                values,
+            );
         },
 
         modalDescription(): string {
-            if (this.languageName) {
+            if (!this.isSystemDefaultLanguage) {
                 return this.$t('sw-product.documentForm.removeLanguageVersionDescription', {
                     language: this.languageName,
                 });
             }
 
             return this.$t(
-                this.documents.length > 1
-                    ? 'sw-product.documentForm.bulkRemoveDescription'
-                    : 'sw-product.documentForm.removeDescription',
+                this.isBulk ? 'sw-product.documentForm.bulkRemoveDescription' : 'sw-product.documentForm.removeDescription',
             );
         },
 
@@ -86,6 +102,22 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getSuccessMessage(variantCount: number): string {
+            const values = { count: this.documents.length, language: this.languageName, name: this.documentName };
+            if (this.isBulk) {
+                return this.$t(
+                    this.isSystemDefaultLanguage
+                        ? 'sw-product.documentForm.bulkRemoveSuccess'
+                        : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
+                    values,
+                );
+            }
+
+            return this.isSystemDefaultLanguage
+                ? this.$t('sw-product.documentForm.removeSuccess', { ...values, count: variantCount })
+                : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', values);
+        },
+
         async remove(): Promise<void> {
             if (this.isDisabled) {
                 return;
@@ -103,9 +135,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (operations.length) {
                 this.isRemoving = true;
                 try {
-                    variantCount = (
-                        await this.productDocumentVariantService.sync(this.documents[0].productId, operations, true)
-                    ).length;
+                    variantCount = (await this.productDocumentVariantService.sync(this.productId, operations, true)).length;
                 } catch {
                     this.isRemoving = false;
                     useNotification().createNotificationError({
@@ -115,22 +145,7 @@ export default Shopware.Component.wrapComponentConfig({
                 }
             }
 
-            const count = this.documents.length;
-            const name = this.documents[0].translated?.title ?? '';
-            const language = this.languageName;
-            let message: string;
-            if (count > 1) {
-                message = this.$t(
-                    language
-                        ? 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess'
-                        : 'sw-product.documentForm.bulkRemoveSuccess',
-                    { count, language },
-                );
-            } else {
-                message = language
-                    ? this.$t('sw-product.documentForm.removeLanguageVersionSuccess', { language, name })
-                    : this.$t('sw-product.documentForm.removeSuccess', { name, count: variantCount });
-            }
+            const message = this.getSuccessMessage(variantCount);
 
             this.$emit('remove');
             Shopware.Store.get('swProductDetail').documentVariantOperations.push(...operations);

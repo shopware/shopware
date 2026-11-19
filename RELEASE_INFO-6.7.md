@@ -684,6 +684,15 @@ Extensions that rely on these reads through `tag.viewer` must request them in th
 `POST /api/_admin/tag-filter-ids` now checks the criteria like the generic search does.
 A filter, sorting or aggregation on an association the user cannot read returns 403 instead of a result.
 
+### Product and property roles no longer carry leftover media usage reads
+
+The `product.viewer` permission no longer grants reads on email templates, email template media, document configurations, users, payment methods and shipping methods.
+The `property.editor` permission no longer grants reads on tags, product media, categories, manufacturers and the same six areas.
+These reads were added to show where media is used, and no product or property screen needs them.
+`property.editor` keeps `product:read` unchanged.
+Stored roles keep their privileges until an admin saves the role again.
+Extensions that rely on these reads through the product or property roles must request them in their own privilege mapping.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

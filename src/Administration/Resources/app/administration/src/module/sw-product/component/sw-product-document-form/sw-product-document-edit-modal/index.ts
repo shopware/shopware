@@ -113,7 +113,7 @@ export default Shopware.Component.wrapComponentConfig({
             return this.replacementMedia || (showSavedFile ? getDocumentMedia(this.document) : undefined);
         },
 
-        nameError(): { code: string; detail: string } | null {
+        titleError(): { code: string; detail: string } | null {
             return this.isSystemDefaultLanguage && this.hasSubmitted && !this.title.trim()
                 ? { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: this.$t('sw-product.documentForm.errorNameRequired') }
                 : null;
@@ -197,7 +197,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         async apply(): Promise<void> {
             this.hasSubmitted = true;
-            if (this.isDisabled || (this.isSystemDefaultLanguage && (this.nameError || this.fileError))) {
+            if (this.isDisabled || (this.isSystemDefaultLanguage && (this.titleError || this.fileError))) {
                 return;
             }
 

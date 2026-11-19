@@ -471,6 +471,7 @@ export default {
 
         languageCriteria() {
             const criteria = new Criteria();
+            criteria.setTotalCountMode(0);
             criteria.addAssociation('locale');
 
             return criteria;

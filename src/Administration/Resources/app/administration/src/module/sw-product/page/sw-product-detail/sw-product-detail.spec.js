@@ -66,12 +66,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        {
-            featureActive = false,
-            routeName = 'sw.product.detail.base',
-            routerPush = jest.fn(),
-            routedComponent = null,
-        } = {},
+        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {

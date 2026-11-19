@@ -97,6 +97,35 @@ class MediaFileCleanupServiceTest extends TestCase
         static::assertTrue($this->filesystemPublic->fileExists('media/ab/cd/private.pdf'));
     }
 
+    public function testRemoveOldMediaDataOnlyDeletesThumbnailsOfExternalMedia(): void
+    {
+        $thumbnailService = $this->createMock(ThumbnailService::class);
+        $service = new MediaFileCleanupService(
+            $this->filesystemPublic,
+            $this->filesystemPrivate,
+            $thumbnailService,
+            $this->messageBus,
+            false,
+        );
+
+        $this->filesystemPrivate->write('document/invoice.pdf', 'confidential');
+
+        $context = Context::createDefaultContext();
+        $media = new MediaEntity();
+        $media->setId('media-external');
+        $media->assign(['path' => 'https://cdn.example.com/../../document/invoice.pdf', 'fileName' => 'invoice', 'fileExtension' => 'pdf']);
+        $media->setPrivate(true);
+        $media->setThumbnails(new MediaThumbnailCollection());
+
+        $thumbnailService->expects($this->once())
+            ->method('deleteThumbnails')
+            ->with($media, $context);
+
+        $service->removeOldMediaData($media, $context);
+
+        static::assertTrue($this->filesystemPrivate->fileExists('document/invoice.pdf'));
+    }
+
     public function testRemoveOldMediaDataSkipsWithNoFile(): void
     {
         $thumbnailService = $this->createMock(ThumbnailService::class);

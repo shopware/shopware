@@ -11,6 +11,10 @@ const { md5 } = Shopware.Utils.format;
 
 const SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' };
 
+const RESTRICTIONS_SYNC_HEADERS = { 'single-operation': 1, 'indexing-behavior': 'disable-indexing' };
+
+const CHUNK_SIZE = 100;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class VariantsGenerator extends EventEmitter {
     constructor() {
@@ -109,7 +113,7 @@ export default class VariantsGenerator extends EventEmitter {
                 },
             ],
             {},
-            SYNC_HEADERS,
+            RESTRICTIONS_SYNC_HEADERS,
         );
     }
 
@@ -176,7 +180,7 @@ export default class VariantsGenerator extends EventEmitter {
             });
 
             // send api calls for delete
-            this.processQueue('delete', mapped, 0, 10, resolveDelete, rejectDelete);
+            this.processQueue('delete', mapped, 0, CHUNK_SIZE, resolveDelete, rejectDelete);
         })
             .then(() => {
                 // notify view to refresh progress
@@ -187,7 +191,7 @@ export default class VariantsGenerator extends EventEmitter {
 
                 return new Promise((resolve, reject) => {
                     // send api calls for create
-                    this.processQueue('upsert', queues.createQueue, 0, 10, resolve, reject);
+                    this.processQueue('upsert', queues.createQueue, 0, CHUNK_SIZE, resolve, reject);
                 });
             })
             .then(() => {

@@ -1217,6 +1217,19 @@
         }
       }
     },
+    "breakpointSelect": {
+      "label": "Bildschirmgröße",
+      "extraSmall": "Extra klein",
+      "extraLarge": "Extra groß",
+      "ultrawide": "Ultrawide",
+      "base": "Basis",
+      "reset": "Zurücksetzen",
+      "override": "Eigener Wert",
+      "singleOverride": "{size}: eigener Wert",
+      "overrideCount": "{count} eigene Werte",
+      "more": "{count} weitere Größe anzeigen | {count} weitere Größen anzeigen",
+      "fewer": "Weniger Größen anzeigen"
+    },
     "gridEditor": {
       "breakpoints": "Breakpoints",
       "breakpointInheritanceDescription": "Größere Breakpoints erben die Einstellungen kleinerer Breakpoints, sofern du sie nicht anpasst.",

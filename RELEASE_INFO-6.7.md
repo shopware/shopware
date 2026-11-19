@@ -985,6 +985,11 @@ Extensions have to be adjusted:
   The private `zIndex` prop of `sw-context-button` was removed.
 - The `sw-media-field` picker is mounted to `<body>` also inside a modal, instead of into the modal.
 
+### The smart bar back button names its target
+
+The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
+Without a resolvable title it shows only the icon, labelled "Go back".
+Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
 ### Custom fields on the customer create page
 
 The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.

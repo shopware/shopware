@@ -31,7 +31,7 @@ class AppContextFactoryTest extends TestCase
     {
         $hookContext = $this->createHookContext();
 
-        $context = AppContextFactory::forApp($hookContext, Uuid::randomHex(), [])->create();
+        $context = AppContextFactory::forApp($hookContext, Uuid::randomHex(), Uuid::randomHex(), [])->create();
 
         static::assertSame($hookContext->getRuleIds(), $context->getRuleIds());
         static::assertSame($hookContext->getCurrencyId(), $context->getCurrencyId());
@@ -47,7 +47,7 @@ class AppContextFactoryTest extends TestCase
     {
         $integrationId = Uuid::randomHex();
 
-        $source = AppContextFactory::forApp($this->createHookContext(), $integrationId, ['product:read', 'tax:read'])
+        $source = AppContextFactory::forApp($this->createHookContext(), Uuid::randomHex(), $integrationId, ['product:read', 'tax:read'])
             ->create()
             ->getSource();
 
@@ -60,7 +60,7 @@ class AppContextFactoryTest extends TestCase
 
     public function testChangedPermissionListDoesNotReachALaterContext(): void
     {
-        $factory = AppContextFactory::forApp($this->createHookContext(), Uuid::randomHex(), ['product:read']);
+        $factory = AppContextFactory::forApp($this->createHookContext(), Uuid::randomHex(), Uuid::randomHex(), ['product:read']);
 
         $changedSource = $factory->create()->getSource();
         static::assertInstanceOf(AdminApiSource::class, $changedSource);
@@ -77,7 +77,7 @@ class AppContextFactoryTest extends TestCase
     {
         $hookContext = $this->createHookContext();
 
-        $context = AppContextFactory::forApp($hookContext, Uuid::randomHex(), [])->create();
+        $context = AppContextFactory::forApp($hookContext, Uuid::randomHex(), Uuid::randomHex(), [])->create();
 
         static::assertNotSame($hookContext->getRounding(), $context->getRounding());
     }
@@ -86,7 +86,7 @@ class AppContextFactoryTest extends TestCase
     {
         $hookContext = $this->createHookContext();
         $ruleIds = $hookContext->getRuleIds();
-        $factory = AppContextFactory::forApp($hookContext, Uuid::randomHex(), []);
+        $factory = AppContextFactory::forApp($hookContext, Uuid::randomHex(), Uuid::randomHex(), []);
 
         $hookContext->setRuleIds([Uuid::randomHex()]);
         $hookContext->setTaxState(CartPrice::TAX_STATE_FREE);

@@ -45,6 +45,18 @@ class ApiCallerTest extends TestCase
         static::assertSame('integration-id', $caller->id);
     }
 
+    public function testAnAppCallingThroughItsIntegrationIsTheAppsIntegration(): void
+    {
+        $source = new AdminApiSource(null, 'integration-id');
+        $source->setAppId('app-id');
+
+        $caller = ApiCaller::of($source);
+
+        static::assertNotNull($caller);
+        static::assertSame(IdentityType::AppIntegration, $caller->type);
+        static::assertSame('integration-id', $caller->id);
+    }
+
     public function testASourceWithoutAUserOrIntegrationIsNoCaller(): void
     {
         static::assertNull(ApiCaller::of(new AdminApiSource(null)));

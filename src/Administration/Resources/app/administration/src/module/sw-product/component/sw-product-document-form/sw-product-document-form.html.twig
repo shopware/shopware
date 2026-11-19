@@ -153,21 +153,11 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-language-value
-                                    :value="item.translated?.title ?? ''"
-                                    :is-translated="!!item.title"
-                                >
-                                    {% block sw_product_document_form_variant_badge %}
-                                    <mt-badge
-                                        v-if="!isInherited && isVariantOnly(item)"
-                                        class="sw-product-document-variant-badge"
-                                        variant="info"
-                                        size="s"
-                                    >
-                                        {{ $t('sw-product.documentForm.variantOnly') }}
-                                    </mt-badge>
-                                    {% endblock %}
-                                </sw-product-document-language-value>
+                                <sw-product-document-cell
+                                    :document="item"
+                                    field="title"
+                                    :show-variant-badge="!isInherited"
+                                />
                             </mt-link>
                         </template>
                     {% endblock %}
@@ -180,9 +170,9 @@
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
-                                <sw-product-document-language-value
-                                    :value="getFileName(item)"
-                                    :is-translated="!!item.mediaId"
+                                <sw-product-document-cell
+                                    :document="item"
+                                    field="mediaId"
                                 />
                             </mt-link>
                         </template>

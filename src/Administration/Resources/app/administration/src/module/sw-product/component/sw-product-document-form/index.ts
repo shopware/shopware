@@ -195,27 +195,9 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         getDocumentMedia,
 
-        getFileName(document: Entity<'product_document'>): string {
-            const media = getDocumentMedia(document);
-            return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
-        },
-
         getFileSize(document: Entity<'product_document'>): string {
             const fileSize = getDocumentMedia(document)?.fileSize;
             return typeof fileSize === 'number' ? Shopware.Utils.format.fileSize(fileSize) : '';
-        },
-
-        isVariantOnly(document: Entity<'product_document'>): boolean {
-            const mediaId = document.translated?.mediaId;
-            return (
-                !!this.product.parentId &&
-                !!mediaId &&
-                !this.parentProduct.documents?.some(
-                    (parentDocument) =>
-                        parentDocument.translated?.mediaId === mediaId ||
-                        parentDocument.translations?.some((translation) => translation.mediaId === mediaId),
-                )
-            );
         },
 
         getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {

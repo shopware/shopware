@@ -52,6 +52,9 @@
         "sw-media-field > sw-popover": [
             "default"
         ],
+        "sw-multi-tag-ip-select > sw-popover": [
+            "default"
+        ],
         "sw-multi-tag-select > sw-popover": [
             "default"
         ],

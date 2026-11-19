@@ -367,12 +367,12 @@ export default Shopware.Component.wrapComponentConfig({
             changes,
             media,
             operation,
-            variantCount,
+            message,
         }: {
             changes: DocumentChanges;
             media: Entity<'media'> | null;
             operation: DocumentVariantOperation | null;
-            variantCount: number;
+            message: string | null;
         }): void {
             const document = this.editingDocument;
             this.editingDocument = null;
@@ -383,13 +383,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.setDocumentValues(document, changes, media);
             if (operation) {
                 Store.get('swProductDetail').documentVariantOperations[document.id] = operation;
-                useSnackbar().addSnackbar({
-                    variant: 'success',
-                    message: this.$t('sw-product.documentForm.applySuccess', {
-                        name: document.translated?.title ?? '',
-                        count: variantCount,
-                    }),
-                });
+            }
+            if (message) {
+                useSnackbar().addSnackbar({ variant: 'success', message });
             }
         },
 
@@ -406,36 +402,13 @@ export default Shopware.Component.wrapComponentConfig({
             this.documentsToRemove = documents.filter((item) => !this.isMissingLanguageVersion(item));
         },
 
-        getRemoveSuccessMessage(variantCount: number): string {
-            const isBulk = this.documentsToRemove.length > 1;
-            const values = {
-                count: this.documentsToRemove.length,
-                language: this.contentLanguageName,
-                name: this.documentsToRemove[0]?.translated?.title ?? '',
-            };
-            if (isBulk) {
-                return this.$t(
-                    this.isSystemDefaultLanguage
-                        ? 'sw-product.documentForm.bulkRemoveSuccess'
-                        : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
-                    values,
-                );
-            }
-
-            return this.isSystemDefaultLanguage
-                ? this.$t('sw-product.documentForm.removeSuccess', { ...values, count: variantCount })
-                : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', values);
-        },
-
         removeDocuments({
             operations,
-            variantCount,
+            message,
         }: {
             operations: Record<string, DocumentVariantOperation>;
-            variantCount: number;
+            message: string;
         }): void {
-            const message = this.getRemoveSuccessMessage(variantCount);
-
             this.documentsToRemove.forEach((document) => {
                 if (this.isSystemDefaultLanguage) {
                     this.documents.remove(document.id);

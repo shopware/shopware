@@ -115,6 +115,22 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        getSuccessMessage(variantCount: number): string {
+            const values = { count: this.documents.length, language: this.languageName, name: this.documentName };
+            if (this.isBulk) {
+                return this.$t(
+                    this.isSystemDefaultLanguage
+                        ? 'sw-product.documentForm.bulkRemoveSuccess'
+                        : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
+                    values,
+                );
+            }
+
+            return this.isSystemDefaultLanguage
+                ? this.$t('sw-product.documentForm.removeSuccess', { ...values, count: variantCount })
+                : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', values);
+        },
+
         async remove(): Promise<void> {
             if (this.isDisabled) {
                 return;
@@ -144,7 +160,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.$emit('remove', { operations, variantCount });
+            this.$emit('remove', { operations, message: this.getSuccessMessage(variantCount) });
         },
     },
 });

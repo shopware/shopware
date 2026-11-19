@@ -24,6 +24,10 @@ function translate(key: string, values?: Record<string, unknown>): string {
     return values ? `${key} ${JSON.stringify(values, Object.keys(values).sort())}` : key;
 }
 
+function removeSuccess(count: number) {
+    return translate('sw-product.documentForm.removeSuccess', { count, language: 'English', name: 'Manual' });
+}
+
 function createDocument(title: string, mediaId: string | null = repositoryFactory.create('media').create().id) {
     const document = repositoryFactory.create('product_document').create();
     Object.assign(document, {
@@ -94,7 +98,7 @@ function getVariantOperations() {
 
 function removals(modal: VueWrapper) {
     return modal
-        .emitted<[{ operations: Record<string, DocumentVariantOperation>; variantCount: number }]>('remove')
+        .emitted<[{ operations: Record<string, DocumentVariantOperation>; message: string }]>('remove')
         ?.map(([payload]) => payload);
 }
 
@@ -126,6 +130,8 @@ describe('sw-product-document-remove-modal', () => {
             title: 'removeTitle',
             description: translate('sw-product.documentForm.removeDescription'),
             variant: 'critical',
+            success: 'removeSuccess',
+            successCount: 0,
         },
         {
             scope: 'several documents',
@@ -135,6 +141,8 @@ describe('sw-product-document-remove-modal', () => {
             title: 'bulkRemoveTitle',
             description: translate('sw-product.documentForm.bulkRemoveDescription'),
             variant: 'critical',
+            success: 'bulkRemoveSuccess',
+            successCount: 2,
         },
         {
             scope: 'the language version of one document',
@@ -144,6 +152,8 @@ describe('sw-product-document-remove-modal', () => {
             title: 'removeLanguageVersionTitle',
             description: translate('sw-product.documentForm.removeLanguageVersionDescription', { language: 'Deutsch' }),
             variant: 'primary',
+            success: 'removeLanguageVersionSuccess',
+            successCount: 1,
         },
         {
             scope: 'the language versions of several documents',
@@ -153,10 +163,12 @@ describe('sw-product-document-remove-modal', () => {
             title: 'bulkRemoveLanguageVersionTitle',
             description: translate('sw-product.documentForm.removeLanguageVersionDescription', { language: 'Deutsch' }),
             variant: 'primary',
+            success: 'bulkRemoveLanguageVersionSuccess',
+            successCount: 2,
         },
     ])(
         'asks to remove $scope and removes only after confirmation',
-        async ({ languageId, languageName, documentCount, title, description, variant }) => {
+        async ({ languageId, languageName, documentCount, title, description, variant, success, successCount }) => {
             if (languageId) {
                 Shopware.Context.api.languageId = languageId;
             }
@@ -174,7 +186,8 @@ describe('sw-product-document-remove-modal', () => {
 
             await confirmRemoval(modal);
 
-            expect(removals(modal)).toEqual([{ operations: {}, variantCount: 0 }]);
+            const message = translate(`sw-product.documentForm.${success}`, { ...values, count: successCount });
+            expect(removals(modal)).toEqual([{ operations: {}, message }]);
             expect(modal.emitted('close')).toBeUndefined();
             expect(variantSync).not.toHaveBeenCalled();
             expect(getVariantOperations()).toEqual({});
@@ -219,7 +232,7 @@ describe('sw-product-document-remove-modal', () => {
             const operation = { mediaId: document.mediaId, title: 'Manual' };
             expect(variantSync).toHaveBeenCalledTimes(1);
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
-            expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, variantCount: 2 }]);
+            expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, message: removeSuccess(2) }]);
             expect(getVariantOperations()).toEqual({});
         });
 
@@ -234,7 +247,7 @@ describe('sw-product-document-remove-modal', () => {
 
             const operation = { mediaId: 'old-media', title: 'Old' };
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
-            expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, variantCount: 1 }]);
+            expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, message: removeSuccess(1) }]);
             expect(getVariantOperations()).toEqual({ [document.id]: queued });
         });
 
@@ -250,14 +263,23 @@ describe('sw-product-document-remove-modal', () => {
                 [manual.id]: { mediaId: manual.mediaId, title: 'Manual' },
                 [untitled.id]: { mediaId: untitled.mediaId, title: null },
             };
+            const message = translate('sw-product.documentForm.bulkRemoveSuccess', {
+                count: 3,
+                language: 'English',
+                name: 'Manual',
+            });
             expect(variantSync).not.toHaveBeenCalled();
-            expect(removals(modal)).toEqual([{ operations, variantCount: 0 }]);
+            expect(removals(modal)).toEqual([{ operations, message }]);
         });
 
         it.each([
-            { scope: 'the language version of one document', titles: ['Manual'] },
-            { scope: 'the language versions of several documents', titles: ['Manual', 'Certificate'] },
-        ])('clears $scope on the variants without a dry run', async ({ titles }) => {
+            { scope: 'the language version of one document', titles: ['Manual'], success: 'removeLanguageVersionSuccess' },
+            {
+                scope: 'the language versions of several documents',
+                titles: ['Manual', 'Certificate'],
+                success: 'bulkRemoveLanguageVersionSuccess',
+            },
+        ])('clears $scope on the variants without a dry run', async ({ titles, success }) => {
             Shopware.Context.api.languageId = GERMAN_LANGUAGE_ID;
             const documents = titles.map((title) => createDocument(title));
             const modal = await createWrapper({ documents, languageName: 'Deutsch', hasVariants: true });
@@ -273,8 +295,13 @@ describe('sw-product-document-remove-modal', () => {
                     { mediaId: document.mediaId, title: titles[index], changes },
                 ]),
             );
+            const message = translate(`sw-product.documentForm.${success}`, {
+                count: titles.length,
+                language: 'Deutsch',
+                name: 'Manual',
+            });
             expect(variantSync).not.toHaveBeenCalled();
-            expect(removals(modal)).toEqual([{ operations, variantCount: 0 }]);
+            expect(removals(modal)).toEqual([{ operations, message }]);
         });
 
         it('leaves the variants untouched when removing from variants is unchecked', async () => {
@@ -284,7 +311,7 @@ describe('sw-product-document-remove-modal', () => {
             await confirmRemoval(modal);
 
             expect(variantSync).not.toHaveBeenCalled();
-            expect(removals(modal)).toEqual([{ operations: {}, variantCount: 0 }]);
+            expect(removals(modal)).toEqual([{ operations: {}, message: removeSuccess(0) }]);
             expect(getVariantOperations()).toEqual({});
         });
 
@@ -310,7 +337,7 @@ describe('sw-product-document-remove-modal', () => {
             await flushPromises();
 
             const operations = { [document.id]: { mediaId: document.mediaId, title: 'Manual' } };
-            expect(removals(modal)).toEqual([{ operations, variantCount: 1 }]);
+            expect(removals(modal)).toEqual([{ operations, message: removeSuccess(1) }]);
         });
 
         it('shows an error and keeps the modal open when the dry run fails', async () => {

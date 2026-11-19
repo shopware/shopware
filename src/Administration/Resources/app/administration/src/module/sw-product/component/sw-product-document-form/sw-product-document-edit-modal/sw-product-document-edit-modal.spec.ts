@@ -27,6 +27,7 @@ const uploadRules: DocumentUploadRules = {
 };
 const variantSync = jest.fn<Promise<string[]>, [string, DocumentVariantOperation[], boolean?]>();
 const mediaRepository = { get: jest.fn<Promise<Entity<'media'> | null>, [string, unknown]>() };
+const applySuccess = (count: number) => translate('sw-product.documentForm.applySuccess', { name: 'Handbook', count });
 
 let wrapper: VueWrapper | undefined;
 let savedMedia: Entity<'media'>;
@@ -151,8 +152,8 @@ function appliedEdits(modal: VueWrapper) {
 
 function variantResults(modal: VueWrapper) {
     return modal
-        .emitted<[{ operation: DocumentVariantOperation | null; variantCount: number }]>('apply')
-        ?.map(([{ operation, variantCount }]) => ({ operation, variantCount }));
+        .emitted<[{ operation: DocumentVariantOperation | null; message: string | null }]>('apply')
+        ?.map(([{ operation, message }]) => ({ operation, message }));
 }
 
 async function apply(modal: VueWrapper) {
@@ -404,12 +405,11 @@ describe('sw-product-document-edit-modal', () => {
             const modal = await createWrapper({ document, hasVariants: true });
 
             expect(getApplyToVariants(modal).element.checked).toBe(true);
-
             await apply(modal);
 
             expect(variantSync).not.toHaveBeenCalled();
             expect(appliedEdits(modal)).toEqual([{ changes: {}, media: null }]);
-            expect(variantResults(modal)).toEqual([{ operation: null, variantCount: 0 }]);
+            expect(variantResults(modal)).toEqual([{ operation: null, message: null }]);
 
             variantSync.mockResolvedValueOnce(['variant-a', 'variant-b']);
             await getTitleInput(modal).setValue('Handbook');
@@ -420,7 +420,7 @@ describe('sw-product-document-edit-modal', () => {
             const operation = { mediaId: savedMedia.id, title: 'Manual', changes };
             expect(variantSync.mock.calls).toEqual([[product.id, [operation], true]]);
             expect(appliedEdits(modal)?.[1]).toEqual({ changes, media: replacement });
-            expect(variantResults(modal)?.[1]).toEqual({ operation, variantCount: 2 });
+            expect(variantResults(modal)?.[1]).toEqual({ operation, message: applySuccess(2) });
         });
 
         it('merges the edit into the operation already queued for the document', async () => {
@@ -433,7 +433,7 @@ describe('sw-product-document-edit-modal', () => {
             const operation = { mediaId: 'old-media', title: 'Old', changes: { title: 'Handbook', mediaId: savedMedia.id } };
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
             expect(appliedEdits(modal)).toEqual([{ changes: { title: 'Handbook' }, media: null }]);
-            expect(variantResults(modal)).toEqual([{ operation, variantCount: 0 }]);
+            expect(variantResults(modal)).toEqual([{ operation, message: applySuccess(0) }]);
             expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ [document.id]: queued });
         });
 
@@ -445,7 +445,7 @@ describe('sw-product-document-edit-modal', () => {
 
             expect(variantSync).not.toHaveBeenCalled();
             expect(appliedEdits(modal)).toEqual([{ changes: { title: 'Handbook' }, media: null }]);
-            expect(variantResults(modal)).toEqual([{ operation: null, variantCount: 0 }]);
+            expect(variantResults(modal)).toEqual([{ operation: null, message: null }]);
         });
 
         it.each([

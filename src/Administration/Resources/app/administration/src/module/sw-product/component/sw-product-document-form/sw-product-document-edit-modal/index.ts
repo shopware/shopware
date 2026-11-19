@@ -153,6 +153,14 @@ export default Shopware.Component.wrapComponentConfig({
             return Object.keys(this.changes).length > 0;
         },
 
+        appliedTitle(): string {
+            if (this.changes.title === undefined) {
+                return this.document.translated?.title ?? '';
+            }
+
+            return this.changes.title ?? this.titlePlaceholder;
+        },
+
         variantOperation(): DocumentVariantOperation | null {
             const queuedOperation = Store.get('swProductDetail').documentVariantOperations[this.document.id];
             const { mediaId, title } = queuedOperation ?? this.document.translated ?? {};
@@ -201,7 +209,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            const { changes, replacementMedia: media, variantOperation: operation } = this;
+            const { changes, replacementMedia: media, variantOperation: operation, appliedTitle } = this;
             const { product } = Store.get('swProductDetail');
             let variantCount = 0;
 
@@ -222,7 +230,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.$emit('apply', { changes, media, operation, variantCount });
+            const message = operation
+                ? this.$t('sw-product.documentForm.applySuccess', { name: appliedTitle, count: variantCount })
+                : null;
+            this.$emit('apply', { changes, media, operation, message });
         },
     },
 });

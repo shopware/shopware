@@ -117,7 +117,7 @@ class IndexerQueuerTest extends TestCase
         IndexerQueuer::registerIndexer($connection, 'product.indexer', ['skip-seo']);
     }
 
-    #[TestDox('registerIndexer merges and dedupes required indexers into an existing row')]
+    #[TestDox('registerIndexer merges required indexers into a list without duplicates')]
     public function testRegisterIndexerMergesExistingOptions(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -133,11 +133,9 @@ class IndexerQueuerTest extends TestCase
             ->method('update')
             ->willReturnCallback(static function (string $table, array $data, array $criteria): int {
                 static::assertSame(['id' => 'config-id'], $criteria);
-                // array_unique() preserves keys, so the merged options carry a key gap
-                // and serialize as a JSON object instead of a list
                 static::assertSame(
                     ['_value' => [
-                        'product.indexer' => [0 => 'skip-seo', 2 => 'skip-cheapest-price'],
+                        'product.indexer' => ['skip-seo', 'skip-cheapest-price'],
                         'legacy.indexer' => [],
                     ]],
                     json_decode((string) $data['configuration_value'], true)

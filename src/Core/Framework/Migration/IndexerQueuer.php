@@ -97,7 +97,7 @@ class IndexerQueuer
      * @param array<string>|null $queuedUpdaters
      * @param list<string> $requiredUpdaters
      *
-     * @return array<string>
+     * @return list<string>
      */
     private static function mergeUpdaters(?array $queuedUpdaters, array $requiredUpdaters): array
     {
@@ -109,7 +109,7 @@ class IndexerQueuer
             return [];
         }
 
-        return array_unique(array_merge($queuedUpdaters, $requiredUpdaters));
+        return array_values(array_unique(array_merge($queuedUpdaters, $requiredUpdaters)));
     }
 
     /**

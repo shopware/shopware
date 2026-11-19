@@ -101,4 +101,13 @@ class ProductExceptionTest extends TestCase
         static::assertSame(ProductException::PRODUCT_INVALID_OPTIONS_PARAMETER, $exception->getErrorCode());
         static::assertSame('The parameter options is invalid.', $exception->getMessage());
     }
+
+    public function testInvalidDocumentVariantOperations(): void
+    {
+        $exception = ProductException::invalidDocumentVariantOperations();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(ProductException::PRODUCT_INVALID_DOCUMENT_VARIANT_OPERATIONS, $exception->getErrorCode());
+        static::assertSame('The parameter "operations" is invalid.', $exception->getMessage());
+    }
 }

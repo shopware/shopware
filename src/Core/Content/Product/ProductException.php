@@ -29,6 +29,7 @@ class ProductException extends HttpException
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
     final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
     public const MISSING_REQUEST_PARAMETER_CODE = 'PRODUCT__MISSING_REQUEST_PARAMETER_CODE';
+    final public const PRODUCT_INVALID_DOCUMENT_VARIANT_OPERATIONS = 'PRODUCT__INVALID_DOCUMENT_VARIANT_OPERATIONS';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -152,6 +153,15 @@ class ProductException extends HttpException
     public static function variantNotFound(string $productId, array $options): VariantNotFoundException
     {
         return new VariantNotFoundException($productId, $options);
+    }
+
+    public static function invalidDocumentVariantOperations(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PRODUCT_INVALID_DOCUMENT_VARIANT_OPERATIONS,
+            'The parameter "operations" is invalid.'
+        );
     }
 
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]

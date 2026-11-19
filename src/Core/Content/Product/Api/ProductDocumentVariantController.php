@@ -4,8 +4,11 @@ namespace Shopware\Core\Content\Product\Api;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -42,13 +45,38 @@ readonly class ProductDocumentVariantController
     )]
     public function sync(string $productId, Request $request, Context $context): JsonResponse
     {
-        /** @var list<DocumentVariantOperation> $operations */
-        $operations = $request->request->all('operations');
+        $operations = $this->getOperations($request);
         $dryRun = $request->request->getBoolean('dryRun');
 
-        $variantIds = $this->connection->transactional(fn (): array => $this->applyOperations($productId, $operations, $dryRun, $context));
+        $variantIds = RetryableTransaction::retryable(
+            $this->connection,
+            fn (): array => $this->applyOperations($productId, $operations, $dryRun, $context),
+        );
 
         return new JsonResponse(['variantIds' => array_keys($variantIds)]);
+    }
+
+    /**
+     * @return list<DocumentVariantOperation>
+     */
+    private function getOperations(Request $request): array
+    {
+        $operations = array_values($request->request->all('operations'));
+
+        foreach ($operations as $operation) {
+            $isValid = \is_array($operation)
+                && \is_string($operation['mediaId'] ?? null)
+                && \array_key_exists('title', $operation)
+                && ($operation['title'] === null || \is_string($operation['title']))
+                && (!isset($operation['changes']) || \is_array($operation['changes']));
+
+            if (!$isValid) {
+                throw ProductException::invalidDocumentVariantOperations();
+            }
+        }
+
+        /** @var list<DocumentVariantOperation> $operations */
+        return $operations;
     }
 
     /**
@@ -67,8 +95,9 @@ readonly class ProductDocumentVariantController
                 new EqualsFilter('mediaId', $operation['mediaId']),
                 new EqualsFilter('title', $operation['title']),
             );
-            $criteria->addFields(['productId']);
-            $documents = $this->productDocumentRepository->search($criteria, $context)->getEntities();
+            $criteria->addFields(['productId', 'title']);
+            $documents = $this->productDocumentRepository->search($criteria, $context)->getEntities()
+                ->filter(static fn (Entity $document): bool => $document->getTranslation('title') === $operation['title']);
 
             foreach ($documents as $document) {
                 $variantId = $document->get('productId');

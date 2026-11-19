@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentEntity;
 use Shopware\Core\Content\Product\Api\ProductDocumentVariantController;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -123,7 +125,7 @@ class ProductDocumentVariantControllerTest extends TestCase
 
     public function testRemovesOnlyTheLanguageVersionInOtherLanguages(): void
     {
-        $variantDocument = $this->createVariantDocument('variant-a');
+        $variantDocument = $this->createVariantDocument('variant-a', 'Handbuch');
         $this->documentRepository->addSearch(new ProductDocumentCollection([$variantDocument]));
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Uuid::randomHex(), Defaults::LANGUAGE_SYSTEM]);
 
@@ -138,6 +140,47 @@ class ProductDocumentVariantControllerTest extends TestCase
             $this->documentRepository->getPayloads(StaticEntityRepository::UPDATE),
         );
         static::assertSame([], $this->documentRepository->deletes);
+    }
+
+    public function testSkipsVariantDocumentsWhoseTitleOnlyMatchesIgnoringCase(): void
+    {
+        $this->documentRepository->addSearch(new ProductDocumentCollection([
+            $this->createVariantDocument('variant-a', 'MANUAL'),
+            $this->createVariantDocument('variant-b', 'Manual '),
+        ]));
+
+        $response = $this->controller->sync(
+            self::PRODUCT_ID,
+            $this->createRequest([['mediaId' => self::MEDIA_ID, 'title' => 'Manual']]),
+            Context::createDefaultContext(),
+        );
+
+        static::assertSame(['variantIds' => []], json_decode((string) $response->getContent(), true));
+        static::assertSame([], $this->documentRepository->deletes);
+    }
+
+    /**
+     * @param array<mixed> $operations
+     */
+    #[DataProvider('invalidOperationsProvider')]
+    public function testRejectsInvalidOperations(array $operations): void
+    {
+        $this->expectExceptionObject(ProductException::invalidDocumentVariantOperations());
+
+        $this->controller->sync(self::PRODUCT_ID, $this->createRequest($operations), Context::createDefaultContext());
+    }
+
+    /**
+     * @return iterable<string, array{array<mixed>}>
+     */
+    public static function invalidOperationsProvider(): iterable
+    {
+        yield 'not an object' => [['x']];
+        yield 'missing media id' => [[['title' => 'Manual']]];
+        yield 'media id is not a string' => [[['mediaId' => ['a'], 'title' => 'Manual']]];
+        yield 'missing title' => [[['mediaId' => self::MEDIA_ID]]];
+        yield 'title is not a string' => [[['mediaId' => self::MEDIA_ID, 'title' => ['Manual']]]];
+        yield 'changes are not an object' => [[['mediaId' => self::MEDIA_ID, 'title' => 'Manual', 'changes' => 'x']]];
     }
 
     public function testSkipsWritesWhenNoVariantDocumentMatches(): void
@@ -156,19 +199,21 @@ class ProductDocumentVariantControllerTest extends TestCase
     }
 
     /**
-     * @param list<array<string, mixed>> $operations
+     * @param array<mixed> $operations
      */
     private function createRequest(array $operations, bool $dryRun = false): Request
     {
         return new Request([], ['operations' => $operations, 'dryRun' => $dryRun]);
     }
 
-    private function createVariantDocument(string $variantId): ProductDocumentEntity
+    private function createVariantDocument(string $variantId, string $title = 'Manual'): ProductDocumentEntity
     {
         $document = new ProductDocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setUniqueIdentifier($document->getId());
         $document->setProductId($variantId);
+        $document->setTitle($title);
+        $document->setTranslated(['title' => $title]);
 
         return $document;
     }

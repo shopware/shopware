@@ -39,7 +39,6 @@ export default Shopware.Component.wrapComponentConfig({
             showMediaModal: false,
             showRestoreInheritanceModal: false,
             mediaFolderId: undefined as string | null | undefined,
-            defaultLanguageName: '',
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
             documentsToRemove: [] as Entity<'product_document'>[],
@@ -77,10 +76,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        languageRepository() {
-            return this.repositoryFactory.create('language');
         },
 
         languageId() {
@@ -206,22 +201,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         async createdComponent() {
-            void this.loadDefaultLanguageName();
-
             try {
                 this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
             } catch {
                 this.mediaFolderId = null;
-            }
-        },
-
-        async loadDefaultLanguageName(): Promise<void> {
-            const systemLanguageId = Shopware.Context.api.systemLanguageId;
-            if (systemLanguageId) {
-                const language = await this.languageRepository
-                    .get(systemLanguageId)
-                    .catch(() => /* Keep the fallback label. */ null);
-                this.defaultLanguageName = language?.name || '';
             }
         },
 

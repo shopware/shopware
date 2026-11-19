@@ -9,12 +9,14 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 describe('sw-product-document-add-button', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     let wrapper: VueWrapper;
+    const getLanguage = jest.fn();
 
     async function createWrapper(props = {}) {
         return mount(await wrapTestComponent('sw-product-document-add-button', { sync: true }), {
             attachTo: document.body,
-            props: { defaultLanguageName: 'English', ...props },
+            props,
             global: {
+                provide: { repositoryFactory: { create: () => ({ get: getLanguage }) } },
                 mocks: {
                     $t: (key: string, params?: { language?: string }) =>
                         params?.language ? `${key} ${params.language}` : key,
@@ -30,6 +32,7 @@ describe('sw-product-document-add-button', () => {
 
     beforeEach(() => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
+        getLanguage.mockReset().mockResolvedValue({ name: 'English' });
     });
 
     afterEach(() => {
@@ -45,6 +48,7 @@ describe('sw-product-document-add-button', () => {
 
         expect(wrapper.emitted('documents-add')).toEqual([[]]);
         expect(wrapper.find('.sw-product-document-add-button__trigger').exists()).toBe(false);
+        expect(getLanguage).not.toHaveBeenCalled();
     });
 
     it('prevents upload when adding documents is not allowed', async () => {
@@ -112,7 +116,10 @@ describe('sw-product-document-add-button', () => {
         async (loadsLanguage) => {
             Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
             const emitEvent = jest.spyOn(Shopware.Utils.EventBus, 'emit');
-            wrapper = await createWrapper({ defaultLanguageName: loadsLanguage ? 'English' : '' });
+            if (!loadsLanguage) {
+                getLanguage.mockRejectedValueOnce(new Error('Language unavailable'));
+            }
+            wrapper = await createWrapper();
             await flushPromises();
             wrapper.get<HTMLElement>('.sw-product-document-add-button__trigger').element.focus();
             await nextTick();
@@ -131,7 +138,8 @@ describe('sw-product-document-add-button', () => {
 
     it('renders language names as text instead of tooltip markup', async () => {
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        wrapper = await createWrapper({ defaultLanguageName: '<strong>English</strong>' });
+        getLanguage.mockResolvedValueOnce({ name: '<strong>English</strong>' });
+        wrapper = await createWrapper();
         await flushPromises();
 
         expect(tooltip()?.querySelector('a')?.textContent).toBe("'<strong>English</strong>'");

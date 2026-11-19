@@ -137,7 +137,7 @@ class HttpCacheIntegrationTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
         static::assertStringEndsWith(': miss, store', explode(';', (string) $response->headers->get('x-symfony-cache'))[0]);
-        static::assertStringContainsString('Safe campaign summer', $content);
+        static::assertStringContainsString('Safe campaign {{campaign}} {{utm_source}}', $content);
 
         $cleanRequest = $this->createRequest($appUrl . $path . '?campaign=summer');
         $cleanRequest->attributes->set('sw-skip-transformer', true);

@@ -37,7 +37,7 @@ class RenderingSpecificationResolverTest extends TestCase
 
         $source2 = new StaticSpecificationSource(supports: false);
 
-        $factory = new RenderingSpecificationFactory();
+        $factory = new RenderingSpecificationFactory([]);
 
         $resolver = new RenderingSpecificationResolver([$source1, $source2], $factory);
 
@@ -62,7 +62,7 @@ class RenderingSpecificationResolverTest extends TestCase
             specificationData: new SpecificationData([], PlaceholderValues::from([])),
         );
 
-        $factory = new RenderingSpecificationFactory();
+        $factory = new RenderingSpecificationFactory([]);
 
         $resolver = new RenderingSpecificationResolver([$source1, $source2], $factory);
 
@@ -80,7 +80,7 @@ class RenderingSpecificationResolverTest extends TestCase
 
         $source = new StaticSpecificationSource(supports: false);
 
-        $factory = new RenderingSpecificationFactory();
+        $factory = new RenderingSpecificationFactory([]);
 
         $resolver = new RenderingSpecificationResolver([$source], $factory);
 
@@ -107,7 +107,7 @@ class RenderingSpecificationResolverTest extends TestCase
             supportedEntityType: 'product',
         );
 
-        $resolver = new RenderingSpecificationResolver([$categorySource, $productSource], new RenderingSpecificationFactory());
+        $resolver = new RenderingSpecificationResolver([$categorySource, $productSource], new RenderingSpecificationFactory([]));
 
         $specification = $resolver->resolveWithoutLayout('product', 'prod-1', $request, $context);
 
@@ -128,7 +128,7 @@ class RenderingSpecificationResolverTest extends TestCase
             failOnResolveLayoutId: true,
         );
 
-        $resolver = new RenderingSpecificationResolver([$source], new RenderingSpecificationFactory());
+        $resolver = new RenderingSpecificationResolver([$source], new RenderingSpecificationFactory([]));
 
         $specification = $resolver->resolveWithoutLayout('product', 'prod-1', $request, $context);
 
@@ -143,7 +143,7 @@ class RenderingSpecificationResolverTest extends TestCase
 
         $source = new StaticSpecificationSource(supportedEntityType: 'product');
 
-        $resolver = new RenderingSpecificationResolver([$source], new RenderingSpecificationFactory());
+        $resolver = new RenderingSpecificationResolver([$source], new RenderingSpecificationFactory([]));
 
         $this->expectExceptionObject(ContentSystemException::unknownEntityType('landing_page'));
 

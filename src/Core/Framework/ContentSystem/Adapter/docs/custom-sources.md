@@ -31,13 +31,16 @@ final class BlogPostSpecificationSource extends AbstractSpecificationSource
     { /* Extract post ID from path; query blog_post_content_layout with sales channel fallback; return layout ID */ }
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
-    { /* Build data requirements and placeholder values from the path and request — no layout assignment lookup needed; return SpecificationData */ }
+    { /* Build data requirements and placeholder values from the path — no layout assignment lookup needed; return SpecificationData */ }
 
     public function resolveTargetElementId(string $path, Request $request, SalesChannelContext $context): ?string
     { /* Extract optional elementId from request query parameters */ }
 
     public function resolveCacheTags(string $path, Request $request, SalesChannelContext $context): array
     { /* Return cache tags for the blog post entity */ }
+
+    public function placeholderQueryParameters(): array
+    { /* Optional: list the query parameters a request may pass as placeholders, see placeholders.md */ }
 }
 ```
 

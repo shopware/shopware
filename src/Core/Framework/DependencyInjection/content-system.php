@@ -396,10 +396,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SubTreeExtractor::class);
 
     // Entity Layout Services
-    $services->set(EntityLayoutResolver::class)
-        ->args([
-            param('shopware.http_cache.ignored_url_parameters'),
-        ]);
+    $services->set(EntityLayoutResolver::class);
     $services->set(EntityLayoutContextFactory::class)
         ->args([
             service(EntityLayoutResolver::class),
@@ -430,7 +427,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Rendering Specification Factory
-    $services->set(RenderingSpecificationFactory::class);
+    $services->set(RenderingSpecificationFactory::class)
+        ->args([
+            param('shopware.http_cache.ignored_url_parameters'),
+        ]);
 
     // Section Resolvers
     $services->set(RenderingSpecificationResolver::class)

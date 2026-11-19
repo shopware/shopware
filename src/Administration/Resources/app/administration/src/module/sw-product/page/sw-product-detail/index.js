@@ -30,7 +30,6 @@ export default {
         'systemConfigApiService',
         'customFieldDataProviderService',
         'entityValidationService',
-        'productDocumentVariantService',
     ],
 
     provide() {
@@ -1372,7 +1371,12 @@ export default {
 
             return async () => {
                 try {
-                    await this.productDocumentVariantService.sync(this.product.id, operations, false, languageId);
+                    await Shopware.Service('productDocumentVariantService').sync(
+                        this.product.id,
+                        operations,
+                        false,
+                        languageId,
+                    );
                     this.documentVariantOperations = this.documentVariantOperations.filter(
                         (operation) => !operations.includes(operation),
                     );

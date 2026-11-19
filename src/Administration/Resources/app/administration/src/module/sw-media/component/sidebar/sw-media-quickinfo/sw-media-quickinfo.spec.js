@@ -5,6 +5,7 @@
  */
 import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const itemMock = (options = {}) => {
     const itemOptions = {
@@ -56,23 +57,38 @@ function mediaSchema(elements) {
     return [{ name: null, title: {}, cards: mediaConfigCards(elements) }];
 }
 
-function createSystemConfigApiService(systemConfigApiServiceFunctions) {
+/**
+ * Answers both system config routes with the given `core.media` elements, in the shape of each route.
+ */
+function createSystemConfigHttpClient(elements = [arReadyElement, arPlacementElement]) {
     return {
-        getValues: () =>
+        get: jest.fn((url) =>
             Promise.resolve({
-                'core.store.media.defaultEnableAugmentedReality': 'false',
+                data: url === '_action/system-config/get-schema' ? mediaSchema(elements) : mediaConfigCards(elements),
             }),
-        getConfig: () => Promise.resolve(mediaConfigCards([arReadyElement, arPlacementElement])),
-        getSchema: () => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])),
-        ...systemConfigApiServiceFunctions,
+        ),
     };
+}
+
+/**
+ * The real service on a stubbed HTTP client, so a `getConfig()` call reaches its deprecation.
+ */
+function createSystemConfigApiService(httpClient) {
+    const service = new SystemConfigApiService(httpClient, { getToken: () => 'token' });
+    service.getValues = () => {
+        return Promise.resolve({
+            'core.store.media.defaultEnableAugmentedReality': 'false',
+        });
+    };
+
+    return service;
 }
 
 async function createWrapper(
     itemMockOptions,
     mediaServiceFunctions = {},
     mediaRepositoryProvideFunctions = {},
-    systemConfigApiServiceFunctions = {},
+    systemConfigHttpClient = createSystemConfigHttpClient(),
 ) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
         global: {
@@ -96,7 +112,7 @@ async function createWrapper(
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
-                systemConfigApiService: createSystemConfigApiService(systemConfigApiServiceFunctions),
+                systemConfigApiService: createSystemConfigApiService(systemConfigHttpClient),
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     prepareDownloadMedia: jest.fn(),
@@ -233,7 +249,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
-    async function openArPlacementSelect(systemConfigApiServiceFunctions) {
+    async function openArPlacementSelect(systemConfigHttpClient) {
         const wrapper = await createWrapper(
             {
                 fileName: 'smth.glb',
@@ -244,7 +260,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             {
                 get: () => Promise.resolve({ config: { spatial: { arReady: true } } }),
             },
-            systemConfigApiServiceFunctions,
+            systemConfigHttpClient,
         );
         await flushPromises();
 
@@ -253,46 +269,45 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         return wrapper;
     }
 
-    // @deprecated tag:v6.8.0 - The test will be removed together with systemConfigApiService.getConfig().
-    it.deprecated('v6.8.0.0')('should load the AR placement options from the possibly overridden getConfig', async () => {
-        const getConfig = jest.fn(() => Promise.resolve(mediaConfigCards([arReadyElement, arPlacementElement])));
-        const getSchema = jest.fn();
+    it('should load the AR placement options from the media system config', async () => {
+        const wrapper = await openArPlacementSelect(createSystemConfigHttpClient());
 
-        const wrapper = await openArPlacementSelect({ getConfig, getSchema });
-
-        expect(getConfig).toHaveBeenCalledWith('core.media');
-        expect(getSchema).not.toHaveBeenCalled();
         expect(wrapper.findAll('.mt-select-result').map((result) => result.text())).toEqual([
             'sw-media.sidebar.actions.horizontal',
             'sw-media.sidebar.actions.vertical',
         ]);
     });
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should load the AR placement options from the media system config schema',
-        async () => {
-            const getSchema = jest.fn(() => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])));
+    it('should offer no AR placement options when the media system config has no placement field', async () => {
+        const wrapper = await openArPlacementSelect(createSystemConfigHttpClient([arReadyElement]));
 
-            const wrapper = await openArPlacementSelect({ getSchema });
+        expect(wrapper.findAll('.mt-select-result')).toHaveLength(0);
+    });
 
-            expect(getSchema).toHaveBeenCalledWith('core.media');
-            expect(wrapper.findAll('.mt-select-result').map((result) => result.text())).toEqual([
-                'sw-media.sidebar.actions.horizontal',
-                'sw-media.sidebar.actions.vertical',
-            ]);
-        },
-    );
+    // @deprecated tag:v6.8.0 - The test will be removed together with systemConfigApiService.getConfig().
+    it.deprecated('v6.8.0.0')('should read the AR placement options through getConfig', async () => {
+        const httpClient = createSystemConfigHttpClient();
 
-    it.activeFeatureFlags(['v6.8.0.0'])(
-        'should offer no AR placement options when the media system config has no placement field',
-        async () => {
-            const wrapper = await openArPlacementSelect({
-                getSchema: () => Promise.resolve(mediaSchema([arReadyElement])),
-            });
+        await openArPlacementSelect(httpClient);
 
-            expect(wrapper.findAll('.mt-select-result')).toHaveLength(0);
-        },
-    );
+        expect(httpClient.get).toHaveBeenCalledWith(
+            '_action/system-config/schema',
+            expect.objectContaining({ params: { domain: 'core.media' } }),
+        );
+        expect(httpClient.get).not.toHaveBeenCalledWith('_action/system-config/get-schema', expect.anything());
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should read the AR placement options from the schema', async () => {
+        const httpClient = createSystemConfigHttpClient();
+
+        await openArPlacementSelect(httpClient);
+
+        expect(httpClient.get).toHaveBeenCalledWith(
+            '_action/system-config/get-schema',
+            expect.objectContaining({ params: { domain: 'core.media' } }),
+        );
+        expect(httpClient.get).not.toHaveBeenCalledWith('_action/system-config/schema', expect.anything());
+    });
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();

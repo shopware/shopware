@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,6 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class MissingPermissionError implements Error
 {
+    public const CODE = 'FRAMEWORK__APP_MISSING_PERMISSIONS';
+
     private readonly string $message;
 
     /**
@@ -33,11 +34,16 @@ class MissingPermissionError implements Error
 
     public function getErrorCode(): string
     {
-        return AppException::VALIDATION_FAILED;
+        return self::CODE;
     }
 
     public function getParameters(): array
     {
         return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
     }
 }

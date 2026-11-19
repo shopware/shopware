@@ -16,7 +16,6 @@ import './sw-sidebar-item.scss';
  *     Product in sidebar
  * </sw-sidebar-item>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

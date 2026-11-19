@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\FieldAccessorBui
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityRepositoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ImpossibleWriteOrderException;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryExcep
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingSystemTranslationException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnableToLoadPathException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -675,7 +677,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_AGGREGATION_NAME,
-            'Invalid aggregation name "{{ name }}", cannot contain question marks und colon.',
+            'Invalid aggregation name "{{ name }}". It must not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.',
             ['name' => $name]
         );
     }
@@ -933,6 +935,16 @@ class DataAbstractionLayerException extends HttpException
         return new DefinitionNotFoundException($entity);
     }
 
+    public static function accessorNotAllowedInApiScope(string $accessor): ApiProtectionException
+    {
+        return new ApiProtectionException($accessor);
+    }
+
+    public static function runtimeFieldInCriteria(string $accessor): RuntimeFieldInCriteriaException
+    {
+        return new RuntimeFieldInCriteriaException($accessor);
+    }
+
     public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException
     {
         return new EntityRepositoryNotFoundException($entity);
@@ -1055,13 +1067,13 @@ class DataAbstractionLayerException extends HttpException
     public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
+            return new \InvalidArgumentException('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
         }
 
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DBAL_INVALID_IDENTIFIER,
-            'Backtick, question mark, colon, or control character not allowed in identifier "{{ identifier }}"',
+            'Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier "{{ identifier }}"',
             ['identifier' => $identifier]
         );
     }

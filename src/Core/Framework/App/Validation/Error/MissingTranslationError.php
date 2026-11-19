@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
-use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -10,11 +9,13 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @codeCoverageIgnore
  *
- * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\ManifestValidatorTest
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\AppValidatorTest
  */
 #[Package('framework')]
 class MissingTranslationError implements Error
 {
+    public const CODE = 'FRAMEWORK__APP_MISSING_TRANSLATIONS';
+
     private readonly string $message;
 
     /**
@@ -46,11 +47,16 @@ class MissingTranslationError implements Error
 
     public function getErrorCode(): string
     {
-        return AppException::VALIDATION_FAILED;
+        return self::CODE;
     }
 
     public function getParameters(): array
     {
         return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Notice;
     }
 }

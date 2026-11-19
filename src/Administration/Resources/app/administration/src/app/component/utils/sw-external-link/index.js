@@ -14,7 +14,6 @@ import './sw-external-link.scss';
  *   Ask google
  * </sw-external-link>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

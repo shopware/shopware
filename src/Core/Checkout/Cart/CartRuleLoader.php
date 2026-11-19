@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\AbstractTaxDetector;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
@@ -148,6 +149,16 @@ class CartRuleLoader implements ResetInterface
         // start first cart calculation to have all objects enriched
         $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
 
+        // a cart of only digital products is taxed by the billing address
+        $shippingTaxRules = $salesChannelContext->getTaxRules();
+        $shippingTaxState = $salesChannelContext->getTaxState();
+        $taxCountry = $salesChannelContext->getShippingLocation()->getCountry();
+        $billingTaxRules = $this->isDigitalOnly($cart) ? $salesChannelContext->getBillingTaxRules() : null;
+        if ($billingTaxRules !== null) {
+            $salesChannelContext->assign(['taxRules' => $billingTaxRules]);
+            $taxCountry = $salesChannelContext->getCustomer()?->getActiveBillingAddress()?->getCountry() ?? $taxCountry;
+        }
+
         $iteration = 1;
         do {
             $compare = $cart;
@@ -180,7 +191,13 @@ class CartRuleLoader implements ResetInterface
             ++$iteration;
         } while ($recalculate);
 
-        $cart = $this->validateTaxFree($salesChannelContext, $cart, $cartBehavior);
+        $cart = $this->validateTaxFree($salesChannelContext, $cart, $cartBehavior, $taxCountry);
+
+        // product prices outside the cart keep the taxes of the shipping address
+        if ($billingTaxRules !== null) {
+            $salesChannelContext->assign(['taxRules' => $shippingTaxRules]);
+            $salesChannelContext->setTaxState($shippingTaxState);
+        }
 
         $index = 0;
         foreach ($rules as $rule) {
@@ -216,7 +233,14 @@ class CartRuleLoader implements ResetInterface
             || $previousLineItems->getTypes() !== $currentLineItems->getTypes();
     }
 
-    private function detectTaxType(SalesChannelContext $context, float $cartNetAmount = 0): string
+    private function isDigitalOnly(Cart $cart): bool
+    {
+        $products = $cart->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        return $products !== [] && array_all($products, static fn (LineItem $product): bool => $product->isProductType(ProductDefinition::TYPE_DIGITAL));
+    }
+
+    private function detectTaxType(SalesChannelContext $context, CountryEntity $country, float $cartNetAmount): string
     {
         $currency = $context->getCurrency();
         $currencyTaxFreeAmount = $currency->getTaxFreeFrom();
@@ -225,8 +249,6 @@ class CartRuleLoader implements ResetInterface
         if ($isReachedCurrencyTaxFreeAmount) {
             return CartPrice::TAX_STATE_FREE;
         }
-
-        $country = $context->getShippingLocation()->getCountry();
 
         if ($context->getCustomer()?->getAccountType() === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             $isReachedCompanyTaxFreeAmount = $this->taxDetector->isCompanyTaxFree($context, $country)
@@ -326,13 +348,13 @@ class CartRuleLoader implements ResetInterface
         return $this->currencyFactor[$currencyId] = (float) $currencyFactor;
     }
 
-    private function validateTaxFree(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): Cart
+    private function validateTaxFree(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext, CountryEntity $taxCountry): Cart
     {
         $totalCartNetAmount = $cart->getPrice()->getPositionPrice();
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $totalCartNetAmount -= $cart->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
         }
-        $taxState = $this->detectTaxType($context, $totalCartNetAmount);
+        $taxState = $this->detectTaxType($context, $taxCountry, $totalCartNetAmount);
         $previous = $context->getTaxState();
         if ($taxState === $previous) {
             return $cart;

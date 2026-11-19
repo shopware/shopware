@@ -99,7 +99,11 @@
                 </template>
 
                 <template #column-processingTime="{ item }">
-                    <template v-if="item.processingTime !== null && item.processingTime !== undefined">
+                    <template v-if="item.processingTime === 0">
+                        {{ $t('sw-settings-webhook.deliveries.durationUnderOneSecond') }}
+                    </template>
+
+                    <template v-else-if="item.processingTime !== null && item.processingTime !== undefined">
                         {{ $t('sw-settings-webhook.deliveries.durationSeconds', { seconds: item.processingTime }) }}
                     </template>
                 </template>

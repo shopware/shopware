@@ -173,11 +173,11 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-deliverie
         expect(wrapper.find('.row-delivered .response').text()).toBe('{"received":true}');
     });
 
-    it('shows the duration of a delivery in seconds, also when it took none', async () => {
+    it('shows the duration of a delivery in seconds, and under a second when it took none', async () => {
         const { wrapper } = await createWrapper();
 
         expect(wrapper.find('.row-delivered .duration').text()).toBe('sw-settings-webhook.deliveries.durationSeconds');
-        expect(wrapper.find('.row-rejected .duration').text()).toBe('sw-settings-webhook.deliveries.durationSeconds');
+        expect(wrapper.find('.row-rejected .duration').text()).toBe('sw-settings-webhook.deliveries.durationUnderOneSecond');
         expect(wrapper.find('.row-failed .duration').text()).toBe('');
     });
 

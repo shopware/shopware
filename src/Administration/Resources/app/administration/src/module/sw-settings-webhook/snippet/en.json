@@ -42,6 +42,7 @@
       "columnResponse": "Response",
       "columnDuration": "Duration",
       "durationSeconds": "{seconds} s",
+      "durationUnderOneSecond": "< 1 s",
       "emptyStateHeadline": "No deliveries yet",
       "emptyStateDescription": "Deliveries show up here once the event happens.",
       "loadErrorHeadline": "The deliveries could not be loaded",

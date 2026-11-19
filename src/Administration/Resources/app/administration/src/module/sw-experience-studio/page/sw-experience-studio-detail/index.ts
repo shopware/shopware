@@ -49,6 +49,7 @@ import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.st
 import 'src/module/sw-experience-studio/store/experience-studio-mapping-candidate.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 import { translateContentSystemText } from '../../util/content-system-translation.util';
+import { getLayoutTranslationFields, type LayoutTranslationField } from '../../util/layout-translation.util';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
 
@@ -151,7 +152,7 @@ type ExperienceStudioCanvasFrame = {
 };
 
 type ExperienceStudioCanvasRef = {
-    openSettingsPanel: () => void;
+    openSettingsPanel: (showStructure?: boolean) => void;
     closeSettingsPanel: () => void;
     closePanel: () => void;
     fitCanvasToFrame: () => void;
@@ -225,6 +226,7 @@ type ExperienceStudioDetailState = {
     currentViewport: Viewport;
     selectedElementId: string | null;
     previewSalesChannelId: string | null;
+    settingsPanelMode: 'element' | 'translations';
     previewEntityId: string | null;
     historyKeydownHandler: ((event: KeyboardEvent) => void) | null;
     isElementPickerOpen: boolean;
@@ -301,6 +303,7 @@ export default Shopware.Component.wrapComponentConfig({
             isSaveSuccessful: false,
             currentViewport: 'desktop',
             selectedElementId: null,
+            settingsPanelMode: 'element',
             previewSalesChannelId: null,
             previewEntityId: null,
             historyKeydownHandler: null,
@@ -371,6 +374,16 @@ export default Shopware.Component.wrapComponentConfig({
         activeLanguageName(): string {
             const languageId = this.activeLanguageChain[0];
             return this.previewLanguageContext?.languageNames[languageId] ?? '';
+        },
+
+        previewLanguageOptions(): Array<{ value: string; label: string }> {
+            const context = this.previewLanguageContext;
+            if (!this.isPreviewLanguageContextReady || !context) {
+                return [];
+            }
+            return context.languageIds
+                .map((value) => ({ value, label: context.languageNames[value] ?? value }))
+                .sort((first, second) => first.label.localeCompare(second.label));
         },
 
         languageCriteria(): Record<string, InstanceType<typeof Criteria>> {
@@ -574,6 +587,27 @@ export default Shopware.Component.wrapComponentConfig({
             );
         },
 
+        translationFields(): LayoutTranslationField[] {
+            return getLayoutTranslationFields(this.layout?.layout ?? [], (name) => this.elementTypeStore.getByName(name));
+        },
+
+        translationPanelHasRichText(): boolean {
+            return (
+                this.settingsPanelMode === 'translations' &&
+                this.translationFields.some(
+                    ({ field }) => field.property.inlineMappable || getPropertyControlType(field.property) === 'richtext',
+                )
+            );
+        },
+
+        settingsPanelTitle(): string {
+            return this.$t(
+                this.settingsPanelMode === 'translations'
+                    ? 'sw-experience-studio.detail.translationSettings.title'
+                    : 'sw-experience-studio.detail.canvas.settings',
+            );
+        },
+
         availablePickerElements(): ElementPickerItem[] {
             const payload = this.pendingAddElementPayload;
             const availableTypes = this.getAvailableTypesForPayload(payload);
@@ -634,6 +668,11 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
+        'workspaceStore.saveError'(hasError: boolean): void {
+            if (hasError) {
+                this.notifyWorkspaceSaveError();
+            }
+        },
         'workspaceStore.workspaceMissing'(missing: boolean): void {
             if (missing) {
                 this.isWorkspacePickerOpen = true;
@@ -656,11 +695,20 @@ export default Shopware.Component.wrapComponentConfig({
             this.adjustElementSettingsWidth();
         },
         selectedElementId(): void {
-            this.adjustElementSettingsWidth();
+            if (this.settingsPanelMode !== 'translations') {
+                this.adjustElementSettingsWidth();
+            }
         },
 
         selectedElementType(): void {
-            this.adjustElementSettingsWidth();
+            if (this.settingsPanelMode !== 'translations') {
+                this.adjustElementSettingsWidth();
+            }
+        },
+        translationPanelHasRichText(): void {
+            if (this.settingsPanelMode === 'translations') {
+                this.adjustElementSettingsWidth();
+            }
         },
     },
 
@@ -729,6 +777,25 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        notifyWorkspaceSaveError(): void {
+            this.createNotificationError({
+                message: this.$t('sw-experience-studio.workspace.manager.saveError'),
+                autoClose: false,
+                actions: [
+                    {
+                        label: this.$t('sw-experience-studio.workspace.manager.retry'),
+                        method: () => {
+                            void this.workspaceStore.flush().then((saved) => {
+                                if (!saved) {
+                                    this.notifyWorkspaceSaveError();
+                                }
+                            });
+                        },
+                    },
+                ],
+            });
+        },
+
         async scheduleWorkspaceSetup(): Promise<void> {
             const workspaceId = this.workspaceStore?.activeWorkspace?.id;
             if (!this.allowSave || !workspaceId || this.isRestoringWorkspace) {
@@ -1008,6 +1075,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.layout = null;
             this.selectedElementId = null;
             this.currentViewport = 'desktop';
+            this.settingsPanelMode = 'element';
             this.previewEntityId = null;
             this.diagnostics = [];
             this.showDiagnostics = false;
@@ -1275,6 +1343,7 @@ export default Shopware.Component.wrapComponentConfig({
                 languageId: source.languageId ?? anchorLanguageId(),
             };
             const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
+            canvas?.closeSettingsPanel();
             canvas?.copyFrameState(source.id, frame.id);
             this.frames.push(frame);
             this.activateFrame(frame.id);
@@ -1383,7 +1452,9 @@ export default Shopware.Component.wrapComponentConfig({
             this.previewEntityId = frame.previewEntityId;
             this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
             const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
-            if (this.selectedElementId) {
+            if (this.settingsPanelMode === 'translations') {
+                canvas?.openSettingsPanel(false);
+            } else if (this.selectedElementId) {
                 canvas?.openSettingsPanel();
             } else {
                 canvas?.closeSettingsPanel();
@@ -1397,6 +1468,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.activeFrameId = null;
             this.layout = null;
             this.selectedElementId = null;
+            this.settingsPanelMode = 'element';
             this.editorStore.activeLayoutId = null;
             this.diagnostics = [];
             this.showDiagnostics = false;
@@ -1504,9 +1576,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         adjustElementSettingsWidth(): void {
-            this.setElementSettingsWidth(
-                this.selectedElementHasRichText ? RICH_TEXT_ELEMENT_SETTINGS_WIDTH : this.elementSettingsWidth,
-            );
+            const hasRichText =
+                this.settingsPanelMode === 'translations'
+                    ? this.translationPanelHasRichText
+                    : this.selectedElementHasRichText;
+            this.setElementSettingsWidth(hasRichText ? RICH_TEXT_ELEMENT_SETTINGS_WIDTH : this.elementSettingsWidth);
         },
 
         getElementSettingsMaxWidth(): number {
@@ -1558,6 +1632,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         onSettingsPanelClose(): void {
             this.elementSettingsWidth = MIN_ELEMENT_SETTINGS_WIDTH;
+            this.settingsPanelMode = 'element';
         },
 
         canManageLayoutAssignments(openLayout: ExperienceStudioOpenLayout): boolean {
@@ -1920,10 +1995,38 @@ export default Shopware.Component.wrapComponentConfig({
             this.onElementSelect(elementId);
         },
 
+        onFrameTranslate(frameId: string): void {
+            this.activateFrame(frameId);
+            if (this.activeFrameId !== frameId) {
+                return;
+            }
+            this.settingsPanelMode = 'translations';
+            this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
+            this.adjustElementSettingsWidth();
+            const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
+            canvas?.openSettingsPanel(false);
+        },
+
+        onTreeElementSelect(elementId: string): void {
+            this.onElementSelect(elementId);
+            this.scrollActivePreviewToElement(elementId);
+        },
+
+        scrollActivePreviewToElement(elementId: string): void {
+            if (!this.activeFrameId) {
+                return;
+            }
+            const preview = this.$refs[`preview-${this.activeFrameId}`] as
+                | { scrollToElement: (id: string) => void }
+                | undefined;
+            preview?.scrollToElement(elementId);
+        },
+
         onElementSelect(elementId: string | null): void {
+            const wasTranslations = this.settingsPanelMode === 'translations';
             const wasRichText = this.selectedElementHasRichText;
             this.selectedElementId = elementId;
-            if (wasRichText && !this.selectedElementHasRichText) {
+            if (!wasTranslations && wasRichText && !this.selectedElementHasRichText) {
                 this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
             }
             this.syncActiveLayoutState();
@@ -1932,7 +2035,12 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
+            this.settingsPanelMode = 'element';
             const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
+            if (wasTranslations) {
+                this.elementSettingsWidth = DEFAULT_ELEMENT_SETTINGS_WIDTH;
+                this.adjustElementSettingsWidth();
+            }
             canvas?.openSettingsPanel();
         },
 

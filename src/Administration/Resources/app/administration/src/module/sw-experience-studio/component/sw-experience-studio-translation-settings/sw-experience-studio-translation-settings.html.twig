@@ -1,0 +1,52 @@
+{% block sw_experience_studio_translation_settings %}
+<div class="sw-experience-studio-translation-settings">
+    <mt-empty-state
+        v-if="isLoadingTypes"
+        icon="regular-hourglass"
+        :description="$t('sw-experience-studio.detail.elementSettings.loading')"
+    />
+    <mt-empty-state
+        v-else-if="typeLoadError"
+        icon="regular-exclamation-triangle"
+        :description="$t('sw-experience-studio.detail.elementSettings.typeLoadError')"
+    />
+    <mt-empty-state
+        v-else-if="!fields.length"
+        icon="regular-globe"
+        :description="$t('sw-experience-studio.detail.translationSettings.emptyState')"
+    />
+    <ol
+        v-else
+        class="sw-experience-studio-translation-settings__fields"
+    >
+        <li
+            v-for="entry in fields"
+            :key="`${entry.element.id}-${entry.field.key}`"
+            class="sw-experience-studio-translation-settings__field"
+            @focusin="$emit('focus-element', entry.element.id)"
+        >
+            <div class="sw-experience-studio-translation-settings__context">
+                <mt-icon
+                    :name="entry.elementType.icon || 'regular-puzzle-piece'"
+                    size="12px"
+                    decorative
+                />
+                {{ getElementLabel(entry) }}
+            </div>
+            <sw-experience-studio-settings-fields
+                :fields="[entry.field]"
+                :field-id-prefix="entry.element.id"
+                :values="getValues(entry)"
+                :language-name="languageName"
+                :allow-edit="allowEdit && entry.mappingPath === null"
+                :allow-mapping="false"
+                :selected-element-type="entry.elementType"
+                :mapping-candidates="mappingCandidates"
+                :mappings="getMappings(entry)"
+                :violations="violations.filter(violation => violation.elementId === entry.element.id)"
+                @update-field="onUpdateField(entry, $event)"
+            />
+        </li>
+    </ol>
+</div>
+{% endblock %}

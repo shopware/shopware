@@ -83,6 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
             loadingFrame: null as 'a' | 'b' | null,
             latestRequestId: 0,
             pendingScrollPosition: null as PreviewScrollPosition | null,
+            pendingScrollElementId: null as string | null,
             scrollRequestSequence: 0,
             debouncedLoadPreview: null as ReturnType<typeof Shopware.Utils.debounce> | null,
             previewMessageHandler: null as ((event: MessageEvent) => void) | null,
@@ -247,6 +248,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.activeFrame = null;
             this.loadingFrame = null;
             this.pendingScrollPosition = null;
+            this.pendingScrollElementId = null;
         },
 
         getFrameUrl(frame: 'a' | 'b'): string | null {
@@ -287,6 +289,25 @@ export default Shopware.Component.wrapComponentConfig({
             this.activeFrame = frame;
             this.loadingFrame = null;
             this.pendingScrollPosition = null;
+            if (this.pendingScrollElementId) {
+                this.scrollToElement(this.pendingScrollElementId);
+                this.pendingScrollElementId = null;
+            }
+        },
+
+        scrollToElement(elementId: string): void {
+            const frameWindow = this.getActiveFrameElement()?.contentWindow;
+            const frameOrigin = this.getActiveFrameOrigin();
+            this.pendingScrollElementId =
+                !frameWindow || !frameOrigin || this.isPreviewLoading || this.loadingFrame ? elementId : null;
+
+            if (!frameWindow || !frameOrigin) {
+                return;
+            }
+            frameWindow.postMessage(
+                { source: 'sw-experience-studio-admin', type: 'scroll-to-element', elementId },
+                frameOrigin,
+            );
         },
 
         captureActiveFrameScrollPosition(): PreviewScrollPosition | null {

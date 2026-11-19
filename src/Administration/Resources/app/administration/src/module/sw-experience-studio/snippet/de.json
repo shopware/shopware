@@ -46,6 +46,8 @@
         "manage": "Arbeitsbereiche verwalten",
         "rename": "Arbeitsbereich umbenennen",
         "name": "Name des Arbeitsbereichs",
+        "createdBy": "Erstellt von {name}",
+        "unknownCreator": "Unbekannter Benutzer",
         "empty": "Noch keine Arbeitsbereiche vorhanden. Erstelle einen, um Layouts anzuordnen.",
         "loadError": "Die Arbeitsbereiche konnten nicht geladen werden.",
         "saveError": "Die Canvas-Konfiguration konnte nicht gespeichert werden. Versuche es erneut, bevor Du den Arbeitsbereich wechselst.",
@@ -1071,6 +1073,12 @@
         "errorLoad": "Die Vorschau konnte nicht geladen werden.",
         "errorUpdate": "Die Vorschau konnte nicht aktualisiert werden. Sie zeigt noch einen älteren Stand.",
         "retry": "Erneut versuchen"
+      },
+      "translationSettings": {
+        "title": "Übersetzungen",
+        "openAction": "Layout übersetzen",
+        "emptyState": "Dieses Layout hat keine übersetzbaren Felder.",
+        "elementLabel": "{name} · {number}"
       },
       "elementSettings": {
         "title": "Element-Einstellungen",

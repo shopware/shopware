@@ -18,7 +18,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    emits: ['open-another'],
+    emits: ['open-another', 'translate'],
 
     setup(_props, { emit }) {
         const isOpen = ref(false);
@@ -86,6 +86,11 @@ export default Shopware.Component.wrapComponentConfig({
             emit('open-another');
         }
 
-        return { isOpen, trigger, panel, panelId, popoverClass, toggle, close, openAnother };
+        function openTranslations(): void {
+            close(true);
+            emit('translate');
+        }
+
+        return { isOpen, trigger, panel, panelId, popoverClass, toggle, close, openAnother, openTranslations };
     },
 });

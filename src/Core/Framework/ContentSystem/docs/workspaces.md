@@ -4,6 +4,9 @@ A `content_workspace` stores the canvas setup independently of layout content.
 Several preview frames can reference the same `content_layout`.
 The Administration keeps one working draft, saved baseline, and undo history for each layout, shared by all its frames.
 
+Translation editing uses the regular Experience Studio editor permissions.
+A dedicated translator role is deferred until a translation-only workflow is available.
+
 ## Frame identity and preview state
 
 Each entry in `configuration.frames` has its own UUID `id` and a `layoutId` referencing the shared layout.

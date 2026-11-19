@@ -72,4 +72,13 @@ describe('Experience Studio frame menu', () => {
         expect(wrapper.emitted('open-another')).toEqual([[]]);
         expect(document.body.querySelector('.sw-experience-studio-frame-menu__content')).toBeNull();
     });
+
+    it('closes the flyout and requests layout translations from its action', async () => {
+        wrapper = await createWrapper();
+        const dialog = await openMenu();
+        await dialog.get('.sw-experience-studio-frame-menu__translate').trigger('click');
+
+        expect(wrapper.emitted('translate')).toEqual([[]]);
+        expect(document.body.querySelector('.sw-experience-studio-frame-menu__content')).toBeNull();
+    });
 });

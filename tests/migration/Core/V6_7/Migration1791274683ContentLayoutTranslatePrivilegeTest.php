@@ -56,7 +56,7 @@ class Migration1791274683ContentLayoutTranslatePrivilegeTest extends TestCase
             $this->createRole(['experience_studio.creator']),
             $this->createRole(['experience_studio.deleter']),
             $this->createRole(['experience_studio.viewer']),
-            $this->createRole(['experience_studio.translator']),
+            $this->createRole(['product.viewer']),
         ];
         $before = $this->fetchRoles($roleIds);
 

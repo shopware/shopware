@@ -134,6 +134,7 @@
                         <sw-experience-studio-frame-menu
                             :label="$t('sw-experience-studio.detail.canvas.previewActions', { name: frame.ariaLabel ?? frame.label ?? frame.layout.name })"
                             @open-another="$emit('frame-open-another', frame.id)"
+                            @translate="$emit('frame-translate', frame.id)"
                         >
                             <template
                                 v-if="$slots['frame-menu']"
@@ -199,7 +200,7 @@
             :class="{ 'is--resizing': isResizingSettings }"
             :style="{ width: settingsWidth + 'px' }"
             role="region"
-            :aria-label="$t('sw-experience-studio.detail.canvas.settings')"
+            :aria-label="settingsTitle || $t('sw-experience-studio.detail.canvas.settings')"
         >
             <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
             <div
@@ -214,7 +215,7 @@
                 @keydown="$emit('settings-resize-keydown', $event)"
             ></div>
             <header class="sw-experience-studio-canvas__panel-header">
-                <h2>{{ $t('sw-experience-studio.detail.canvas.settings') }}</h2>
+                <h2>{{ settingsTitle || $t('sw-experience-studio.detail.canvas.settings') }}</h2>
                 <button
                     class="sw-experience-studio-canvas__close-panel"
                     type="button"
@@ -224,6 +225,7 @@
                     <mt-icon name="regular-times" />
                 </button>
             </header>
+            <slot name="settings-toolbar"></slot>
             <div class="sw-experience-studio-canvas__panel-content">
                 <slot name="settings"></slot>
             </div>

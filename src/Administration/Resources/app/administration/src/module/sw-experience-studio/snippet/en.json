@@ -46,6 +46,8 @@
         "manage": "Manage workspaces",
         "rename": "Rename workspace",
         "name": "Workspace name",
+        "createdBy": "Created by {name}",
+        "unknownCreator": "Unknown user",
         "empty": "No workspaces yet. Create one to start arranging layouts.",
         "loadError": "Workspaces could not be loaded.",
         "saveError": "The canvas setup could not be saved. Retry before switching workspaces.",
@@ -1071,6 +1073,12 @@
         "errorLoad": "Preview could not be loaded.",
         "errorUpdate": "The preview could not be updated. It still shows an earlier version.",
         "retry": "Retry"
+      },
+      "translationSettings": {
+        "title": "Translations",
+        "openAction": "Translate layout",
+        "emptyState": "This layout has no translatable fields.",
+        "elementLabel": "{name} · {number}"
       },
       "elementSettings": {
         "title": "Element settings",

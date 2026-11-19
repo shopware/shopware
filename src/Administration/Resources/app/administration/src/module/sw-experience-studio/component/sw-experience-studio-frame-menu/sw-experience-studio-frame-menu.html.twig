@@ -43,6 +43,22 @@
                 <slot :popover-class="popoverClass"></slot>
             </div>
             <mt-button
+                class="sw-experience-studio-frame-menu__translate"
+                variant="tertiary"
+                size="small"
+                block
+                @click="openTranslations"
+            >
+                <template #iconFront>
+                    <mt-icon
+                        name="regular-globe"
+                        size="16px"
+                        decorative
+                    />
+                </template>
+                {{ $t('sw-experience-studio.detail.translationSettings.openAction') }}
+            </mt-button>
+            <mt-button
                 class="sw-experience-studio-frame-menu__open-another"
                 variant="tertiary"
                 size="small"

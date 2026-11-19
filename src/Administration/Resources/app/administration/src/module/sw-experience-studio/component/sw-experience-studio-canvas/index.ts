@@ -11,6 +11,7 @@ import {
     VIEWPORT_TRANSITION_DURATION,
 } from './canvas.config';
 import { canvasInteractionHandlers, isCanvasFrameVisible } from './canvas-interaction-handlers';
+import { canvasPanelHandlers } from './canvas-panel-handlers';
 import type { WorkspaceConfiguration } from '../../types/workspace.types';
 import {
     hasExperienceStudioCanvasPositionBeenManuallyPlaced,
@@ -61,6 +62,10 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: 320,
         },
+        settingsTitle: {
+            type: String,
+            default: '',
+        },
         settingsMaxWidth: {
             type: Number,
             required: false,
@@ -79,6 +84,7 @@ export default Shopware.Component.wrapComponentConfig({
         'frame-activate',
         'frame-close',
         'frame-open-another',
+        'frame-translate',
         'frame-viewport-change',
         'settings-resize-start',
         'settings-resize-keydown',
@@ -278,6 +284,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         ...canvasInteractionHandlers,
+        ...canvasPanelHandlers,
 
         onCanvasContextMenu(event: MouseEvent): void {
             if (event.target !== this.$refs.background) {
@@ -538,37 +545,6 @@ export default Shopware.Component.wrapComponentConfig({
             this.frameWidth = VIEWPORT_WIDTHS[viewport];
             this.frameHeight = this.getDefaultFrameHeight();
             this.saveCanvasPosition?.();
-        },
-
-        openStructure(layoutId: string): void {
-            this.focusFrame(layoutId);
-            this.activePanel = 'structure';
-        },
-
-        openSettingsPanel(): void {
-            this.activePanel = 'structure';
-            if (!this.isSettingsOpen) {
-                this.isSettingsOpen = true;
-                this.$emit('settings-open');
-            }
-        },
-
-        closeStructurePanel(): void {
-            this.activePanel = 'layouts';
-        },
-
-        closeSettingsPanel(): void {
-            if (!this.isSettingsOpen) {
-                return;
-            }
-
-            this.isSettingsOpen = false;
-            this.$emit('settings-close');
-        },
-
-        closePanel(): void {
-            this.activePanel = 'layouts';
-            this.closeSettingsPanel();
         },
     },
 });

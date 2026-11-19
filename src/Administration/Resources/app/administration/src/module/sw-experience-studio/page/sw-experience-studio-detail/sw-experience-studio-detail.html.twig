@@ -29,18 +29,6 @@
             </sw-experience-studio-toolbar>
             {% endblock %}
 
-            <mt-banner
-                v-if="workspaceStore.saveError"
-                variant="critical"
-            >
-                {{ $t('sw-experience-studio.workspace.manager.saveError') }}
-                <mt-button
-                    variant="secondary"
-                    @click="workspaceStore.flush()"
-                >
-                    {{ $t('sw-experience-studio.workspace.manager.retry') }}
-                </mt-button>
-            </mt-banner>
             {% block sw_experience_studio_detail_workspace %}
             <div
                 ref="workspace"
@@ -58,6 +46,7 @@
                     :layout-name="layout?.name ?? ''"
                     :viewport="currentViewport"
                     :settings-width="elementSettingsWidth"
+                    :settings-title="settingsPanelTitle"
                     :settings-max-width="getElementSettingsMaxWidth()"
                     :is-resizing-settings="isResizingElementSettings"
                     @open-layout="openLayoutPicker"
@@ -68,6 +57,7 @@
                     @frame-activate="activateFrame"
                     @frame-close="closeFrame"
                     @frame-open-another="openAnotherPreview"
+                    @frame-translate="onFrameTranslate"
                     @settings-resize-start="onElementSettingsResizeStart"
                     @settings-resize-keydown="onElementSettingsResizeKeydown"
                     @settings-open="adjustElementSettingsWidth"
@@ -77,6 +67,7 @@
                     <template #preview="{ frame }">
                         <sw-experience-studio-preview
                             :key="frame.id"
+                            :ref="`preview-${frame.id}`"
                             :layout="frame.layout"
                             :viewport="frame.viewport"
                             :sales-channel-id="isPreviewLanguageContextReady ? previewSalesChannelId : null"
@@ -164,7 +155,7 @@
                             show-back-button
                             :validate-move-target="validateMoveTarget"
                             @back="backToLayouts"
-                            @select-element="onElementSelect"
+                            @select-element="onTreeElementSelect"
                             @add-element="onAddElement"
                             @duplicate-element="onDuplicateElement"
                             @delete-element="onDeleteElement"
@@ -250,9 +241,46 @@
                         />
                     </template>
 
+                    <template
+                        v-if="settingsPanelMode === 'translations' && activeFrameId"
+                        #settings-toolbar
+                    >
+                        <div
+                            class="sw-experience-studio-detail__translation-toolbar"
+                            role="toolbar"
+                            :aria-label="$t('sw-experience-studio.detail.translationSettings.title')"
+                        >
+                            <mt-select
+                                :key="activeFrameId"
+                                class="sw-experience-studio-detail__translation-language"
+                                :label="$t('sw-experience-studio.detail.toolbar.previewLanguage')"
+                                :model-value="activeLanguageChain[0]"
+                                :options="previewLanguageOptions"
+                                :disabled="isLoading || !isPreviewLanguageContextReady"
+                                small
+                                hide-clearable-button
+                                @update:model-value="onFrameLanguageChange(activeFrameId, $event)"
+                            />
+                        </div>
+                    </template>
+
                         {% block sw_experience_studio_detail_element_settings %}
                     <template #settings>
+                        <sw-experience-studio-translation-settings
+                            v-if="settingsPanelMode === 'translations'"
+                            :fields="translationFields"
+                            :language-chain="activeLanguageChain"
+                            :language-name="activeLanguageName"
+                            :allow-edit="allowSave && (!previewSalesChannelId || isPreviewLanguageContextReady)"
+                            :is-loading-types="elementTypeStore.isLoading"
+                            :type-load-error="elementTypeStore.loadError"
+                            :mapping-candidates="mappingCandidates"
+                            :violations="showDiagnostics ? diagnostics : []"
+                            @focus-element="scrollActivePreviewToElement"
+                            @update-properties="onElementSettingsChange"
+                        />
                         <sw-experience-studio-element-settings
+                            v-else
                             :layout="layout"
                             :language-chain="activeLanguageChain"
                             :language-name="activeLanguageName"

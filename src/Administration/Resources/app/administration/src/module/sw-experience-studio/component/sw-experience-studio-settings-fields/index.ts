@@ -91,10 +91,18 @@ export default Shopware.Component.wrapComponentConfig({
             type: String,
             default: '',
         },
+        fieldIdPrefix: {
+            type: String,
+            default: '',
+        },
         allowEdit: {
             type: Boolean,
             required: false,
             default: false,
+        },
+        allowMapping: {
+            type: Boolean,
+            default: true,
         },
         selectedElementType: {
             type: Object,
@@ -309,7 +317,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canMapField(field: SettingsFieldDefinition): boolean {
-            return !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
+            return this.allowMapping && !this.isFieldMapped(field) && this.getMappingCandidatesForField(field).length > 0;
         },
 
         getFieldViolation(field: SettingsFieldDefinition): ContentSystemViolation | null {
@@ -830,10 +838,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         getRadioPanelOptionId(key: string, optionValue: string): string {
-            const normalizedKey = key.replace(/[^a-zA-Z0-9_-]/g, '-');
+            const scopedKey = this.fieldIdPrefix ? `${this.fieldIdPrefix}-${key}` : key;
+            const normalizedKey = scopedKey.replace(/[^a-zA-Z0-9_-]/g, '-');
             const normalizedOptionValue = optionValue.replace(/[^a-zA-Z0-9_-]/g, '-');
 
             return `sw-experience-studio-radio-panel-${normalizedKey}-${normalizedOptionValue}`;
+        },
+
+        getFieldControlKey(key: string): string {
+            return this.fieldIdPrefix ? `${this.fieldIdPrefix}-${key}` : key;
         },
 
         getRadioPanelLabelTargetId(

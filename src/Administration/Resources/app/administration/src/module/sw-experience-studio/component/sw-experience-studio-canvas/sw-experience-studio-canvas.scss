@@ -28,9 +28,15 @@
 
     &__stage {
         position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
         flex: 1;
+        justify-items: end;
+        gap: var(--scale-size-16);
         min-width: 0;
         min-height: 0;
+        padding: var(--scale-size-24) var(--scale-size-20);
         overflow: hidden;
     }
 
@@ -308,15 +314,17 @@
     }
 
     &__panel {
-        position: absolute;
+        position: relative;
         z-index: 9;
-        top: 24px;
-        bottom: auto;
         display: flex;
+        grid-column: 1;
+        grid-row: 1;
         flex-direction: column;
+        align-self: start;
         width: 320px;
         height: auto;
-        max-height: calc(100% - 48px);
+        min-height: 0;
+        max-height: 100%;
         overflow: hidden;
         border: 1px solid var(--color-border-primary-default);
         border-radius: 8px;
@@ -325,10 +333,8 @@
     }
 
     &__panel--settings {
-        right: 24px;
-        left: auto;
         min-width: 320px;
-        max-width: min(800px, calc(100% - 48px));
+        max-width: min(800px, 100%);
     }
 
     &__panel--settings.is--resizing {
@@ -386,11 +392,11 @@
     }
 
     &__zoom-controls {
-        position: absolute;
+        position: relative;
         z-index: 8;
-        right: 24px;
-        bottom: 24px;
         display: flex;
+        grid-column: 1;
+        grid-row: 2;
         align-items: center;
         gap: 8px;
         padding: 6px 8px;
@@ -418,21 +424,12 @@
             flex-basis: 280px;
         }
 
-        &__panel {
-            top: 12px;
-            max-height: calc(100% - 24px);
+        &__stage {
+            padding: var(--scale-size-12) var(--scale-size-20);
         }
 
         &__panel--settings {
-            right: 12px;
-            left: auto;
             min-width: 280px;
-            max-width: min(800px, calc(100% - 24px));
-        }
-
-        &__zoom-controls {
-            right: 12px;
-            bottom: 12px;
         }
     }
 

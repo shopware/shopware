@@ -61,6 +61,11 @@ async function createWrapper(renderMenus = false, role: 'viewer' | 'editor' | 'c
                     'sw-experience-studio-preview': {
                         name: 'test-preview',
                         props: ['layout', 'entityId'],
+                        methods: {
+                            scrollToElement(this: ComponentPublicInstance, elementId: string) {
+                                this.$emit('scroll-element', elementId);
+                            },
+                        },
                         template: `<button class="test-preview" :data-layout-id="layout.id" :data-entity-id="entityId" @click="$emit('select-element', layout.layout[0]?.id ?? null)">Select element</button>`,
                     },
                     'sw-experience-studio-element-settings': true,
@@ -402,6 +407,7 @@ describe('Experience Studio sidebar navigation', () => {
         'opens the corresponding settings from the %s without a settings button',
         async (source) => {
             await wrapper.findAll('.sw-experience-studio-layout-tree__select')[0].trigger('click');
+            await wrapper.get('button[aria-label="sw-experience-studio.detail.canvas.fit"]').trigger('click');
             expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(false);
 
             if (source === 'tree') {
@@ -416,6 +422,13 @@ describe('Experience Studio sidebar navigation', () => {
             expect(wrapper.get('sw-experience-studio-element-settings-stub').attributes('selected-element-id')).toBe(
                 'element-a',
             );
+            const previews = wrapper.findAllComponents({ name: 'test-preview' });
+            expect(previews[0].emitted('scroll-element')).toEqual(source === 'tree' ? [['element-a']] : undefined);
+            expect(previews[1].emitted('scroll-element')).toBeUndefined();
+            if (source === 'tree') {
+                await wrapper.get('.sw-experience-studio-sidebar-tree-node__element').trigger('click');
+            }
+            expect(previews[0].emitted('scroll-element') ?? []).toHaveLength(source === 'tree' ? 2 : 0);
 
             await wrapper.get('.sw-experience-studio-sidebar-tree__back-button').trigger('click');
             expect(wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(true);

@@ -91,6 +91,12 @@ Shopware.Component.register(
     () => import('./component/sw-experience-studio-element-settings'),
 );
 
+/** @private @sw-package discovery */
+Shopware.Component.register(
+    'sw-experience-studio-translation-settings',
+    () => import('./component/sw-experience-studio-translation-settings'),
+);
+
 /**
  * @private
  * @sw-package discovery

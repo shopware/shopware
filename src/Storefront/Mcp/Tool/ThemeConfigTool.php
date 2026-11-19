@@ -29,7 +29,7 @@ use Shopware\Storefront\Theme\ThemeService;
     annotations: new ToolAnnotations(readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false),
     description: 'Read or update theme appearance settings (colors, logos, fonts) for a sales channel. Use action "get" to read the current theme config. Use action "update" with a config JSON to change values; dryRun=true (default) previews changes. salesChannelId accepts either the sales channel UUID or its name as shown in the admin, e.g. "Storefront". See shopware://sales-channels for the full list.'
 )]
-#[McpToolGroup('theme')]
+#[McpToolGroup('theme', description: 'Read and change the storefront look of a sales channel: theme colors, logos and fonts.')]
 #[McpToolRequires('theme:read')]
 #[McpToolRequires('theme:update')]
 class ThemeConfigTool extends McpToolResponse

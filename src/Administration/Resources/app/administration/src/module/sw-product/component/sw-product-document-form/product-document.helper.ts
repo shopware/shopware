@@ -43,7 +43,7 @@ export function setDocumentMedia(document: Entity<'product_document'>, media: En
 
 /** @private */
 export function getDocumentTitle(document: Entity<'product_document'>): string {
-    return document.title || getTranslated(document).title || getDocumentMedia(document)?.fileName || '';
+    return getTranslated(document).title ?? document.title ?? '';
 }
 
 /** @private */

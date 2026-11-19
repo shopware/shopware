@@ -190,7 +190,7 @@ describe('SFC migration runtime equivalence', () => {
 
             press('f');
             press('Escape');
-            (wrapper.vm as unknown as { enabled: boolean }).enabled = true;
+            vmOf(wrapper).enabled = true;
             await flushPromises();
             press('Escape');
             wrapper.unmount();

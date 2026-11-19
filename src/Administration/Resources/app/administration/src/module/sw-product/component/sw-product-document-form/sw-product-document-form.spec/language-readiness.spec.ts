@@ -69,7 +69,7 @@ describe('sw-product-document-form delayed language metadata', () => {
             const loading = new Promise<Entity<'language'>>((resolve) => {
                 resolveLanguage = resolve;
             }).then((loaded) => {
-                store.documentLanguage = loaded;
+                Shopware.Store.get('context').api.language = loaded;
             });
             wrapper = await createWrapper();
             const menuIndex = operation === 'remove version' ? -1 : 0;

@@ -81,8 +81,6 @@ export async function createWrapper(
             maxFileSize: 20 * 1024 * 1024,
         },
     };
-    Shopware.Store.get('swProductDetail').documentLanguage = Shopware.Store.get('context').api
-        .language as Entity<'language'> | null;
     if (options.isInherited) {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;

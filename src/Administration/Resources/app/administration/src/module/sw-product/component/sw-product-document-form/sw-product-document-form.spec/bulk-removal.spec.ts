@@ -115,7 +115,6 @@ describe('sw-product-document-form bulk removal', () => {
         Object.assign(language, { name: 'German' });
         Shopware.Context.api.languageId = language.id;
         Shopware.Store.get('context').api.language = language;
-        Shopware.Store.get('swProductDetail').documentLanguage = language;
         await flushPromises();
 
         await selectDocuments(wrapper, documents);

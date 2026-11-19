@@ -76,6 +76,7 @@
       "previewTitle": "Vorschau",
       "labelCustomer": "Kunde",
       "placeholderSelectCustomer": "Wähle einen Kunden aus ...",
+      "hintPreviewNeedsCustomerRead": "Kundenvorschauen sind nur mit Leserechten für Kunden, Anreden und Kundenadressen verfügbar.",
       "buttonResetMarkup": "Addressformat zurücksetzen",
       "newSnippetModalTitle": "Werte einfügen",
       "buttonInsertSnippet": "Wert einfügen",

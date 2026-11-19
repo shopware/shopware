@@ -513,6 +513,13 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 The property is unused and will be removed in 6.8.
 `--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
 
+### System config cache is invalidated per sales channel
+
+Saving the system config of one sales channel now only drops the cached config of that sales channel.
+A change of the global config still drops the cached config of all sales channels.
+`CachedSystemConfigLoader` tags each cached sales channel config additionally with `CachedSystemConfigLoader::buildSalesChannelTag($salesChannelId)`.
+Invalidating `CachedSystemConfigLoader::CACHE_TAG` still drops the whole cached config.
+
 ### MCP answers carry cache hints on the 2026-07-28 revision
 
 On the stateless 2026-07-28 revision, both MCP endpoints now tell clients how long they may reuse an answer (`ttlMs` and `cacheScope`, SEP-2549).

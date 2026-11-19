@@ -1494,6 +1494,39 @@ If you have a decorator that extends `AbstractTranslationLoader`, remove your `p
  ```
 
 The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
+## MCP tools returning the legacy `{"success": …}` string deprecated
+
+Returning the `{"success": …}` JSON string from an MCP tool was deprecated, whether it was built with `McpToolResponse::success()`, `::error()` and the other string helpers or by hand.
+The string can't carry a summary or error details, and a PHP tool that returns it fails.
+The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` of `McpToolResponse` are removed.
+Return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead, built with the helper of the same name plus `Result`.
+Two helpers drop their `Error` suffix: `invalidCriteriaError()` becomes `invalidCriteriaResult()` and `missingPrivilegesError()` becomes `missingPrivilegesResult()`.
+
+```php
+// Before
+public function __invoke(string $id): string
+{
+    return $this->success(['id' => $id]);
+}
+
+// After
+public function __invoke(string $id): McpToolResult
+{
+    return $this->successResult(['id' => $id]);
+}
+```
+
+A PHP tool that returns any other string, such as plain text, fails as well.
+Return `McpToolResult::text('…')` for a result that is only text for the model; every client gets the text as is.
+App tools are not affected: their responses keep the `{"success": …}` envelope or plain text.
+
+**Troubleshooting:** a plugin tool that fails with `MCP tool "…" returned a string` or `returned the legacy {"success": …} JSON string` still returns a string.
+Change the return type of `__invoke()` to `McpToolResult` and return `McpToolResult::text()` or the `…Result()` helper instead.
+
+The counterparts are `successResult()`, `errorResult()`, `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
+App tools are not affected and keep their response format.
+
 ## `MediaUploadService::validateExternalUrl()` deprecated
 
 Use the new `assertValidExternalUrl()` instance method instead:

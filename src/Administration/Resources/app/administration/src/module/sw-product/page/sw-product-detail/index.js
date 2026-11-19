@@ -100,6 +100,11 @@ export default {
         },
 
         /** @private */
+        productDocumentVariantService() {
+            return Shopware.Service('productDocumentVariantService');
+        },
+
+        /** @private */
         documentVariantOperations: {
             get() {
                 return Shopware.Store.get('swProductDetail').documentVariantOperations;
@@ -1374,7 +1379,7 @@ export default {
                 }
 
                 try {
-                    await Shopware.Service('productDocumentVariantService').sync(productId, operations, false, languageId);
+                    await this.productDocumentVariantService.sync(productId, operations, false, languageId);
                     this.documentVariantOperations = {};
                 } catch {
                     this.createNotificationError({

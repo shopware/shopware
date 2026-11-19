@@ -1,7 +1,7 @@
 # Public API snapshot generator
 
 This folder generates the snapshot of the Administration public API in `public-api/`.
-It also holds the fixtures and the first parts of the break check that will compare two snapshots.
+It also holds the break check, which compares the snapshots of two commits, and the fixtures for both.
 
 The format of the generated files, the markers, and the steps to add a new part are described in `technical-docs/11-code-quality/03-public-api-snapshot.md`.
 This file explains how the code is organised.
@@ -51,6 +51,28 @@ When a redeclaration moves content to another place, `states` is computed again 
 What an override can rely on depends on the template Vue compiles, and a block of an extend child sits between markup of its parent.
 Reading the structure after the merge needs no rules of its own for `{% parent %}` or for a block that moved.
 
+## How the break check works
+
+```mermaid
+flowchart TD
+    git["git-source-tree.ts<br/>reads the sources of a commit out of git"]
+    commits["commit-check.ts<br/>generates the snapshots of two commits, or of a whole range"]
+    facts["block-facts.ts<br/>the blocks and crossings of a component in one flag state"]
+    rules["rules.ts, block-rules.ts<br/>what a rule is made of, and one rule per kind of change to a block"]
+    check["break-check.ts<br/>runs the rules per component and state, then decides the group"]
+    findings["findings.ts<br/>prints the summary"]
+
+    git --> commits --> check
+    facts --> rules --> check --> findings
+```
+
+`classifyChanges` in `break-check.ts` takes the models of two commits and returns findings, without touching git or the disk.
+A rule knows nothing about flag states, markers or visibility.
+It gets the facts of one component in one state at the base and at the head, and returns the changes with the element each one is about.
+`break-check.ts` joins what a rule found in both states, and then decides whether a marker announced the change, whether the component is private, and whether an extend child only inherits the finding.
+A new rule for blocks is one entry in `BLOCK_RULES`.
+The rules of another unit kind get a file of their own and join `RULES` in `break-check.ts`.
+
 ## Rules the code follows
 
 - The generator throws when it cannot read something, for example a block that belongs to no registered component.
@@ -70,10 +92,13 @@ Reading the structure after the merge needs no rules of its own for `{% parent %
 | `extend-chain.spec/runtime.spec.ts` | The merged blocks against the runtime: one case per merge rule, and every component of the real Administration |
 | `block-structure.spec/snapshot.spec.ts` | How the snapshot shows the context of a block and the crossings, also for extend children |
 | `block-structure.spec/compiler.spec.ts` | The context and the crossings against the Vue compiler, for every block of the real Administration |
+| `break-check.spec/rules.spec.ts` | What each rule of the break check reports for a change |
+| `break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
+| `commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
 | `committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |
 | `fixture-runner.spec.ts`, `findings.spec.ts` | The fixture comparison and the summary of the break check |
 
-`example-components.ts` builds the small source tree that the specs of the block structure use.
+`example-components.ts` builds the small source tree that the specs of the block structure and of the break check share.
 
 Run them in the Administration folder:
 

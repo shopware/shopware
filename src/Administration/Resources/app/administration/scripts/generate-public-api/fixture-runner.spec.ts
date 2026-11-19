@@ -5,7 +5,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { fixtureTests } from './fixture-runner';
 import type { CaseOutput, ExpectedFailures, FixtureCase } from './fixture-runner';
 import type { Finding } from './findings';
-import type { Snapshot } from './snapshot';
+import type { SnapshotFiles } from './snapshot';
 
 const REPORT = [
     '# Component sw-example-card',
@@ -113,7 +113,7 @@ const NO_FAILURES: ExpectedFailures = { views: [], comparisons: [] };
  * The comparison `name` of the example case, against a generator and a break check that produce `output`.
  */
 function comparison(name: string, output: CaseOutput, expectedFailures = NO_FAILURES) {
-    const snapshots: Record<string, Snapshot> = {
+    const snapshots: Record<string, SnapshotFiles> = {
         [FIXTURE.beforeRoot]: { files: output.before },
         [FIXTURE.afterRoot]: { files: output.after },
     };

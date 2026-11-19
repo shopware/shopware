@@ -9,10 +9,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 import { BLOCK_ORIGINS } from './block-tree';
-import type { ClassifyChanges } from './break-check';
+import type { BreakCheckOptions } from './break-check';
 import { elementKind } from './findings';
 import type { Finding } from './findings';
-import type { GenerateSnapshot } from './snapshot';
+import type { SnapshotOptions } from './model';
+import type { SnapshotFiles } from './snapshot';
 
 /**
  * @private
@@ -72,11 +73,12 @@ export interface ExpectedFailures {
 /**
  * @private
  *
- * The generator and the break check that the comparisons run.
+ * The generator and the break check that the comparisons run. The runner reads the files of a snapshot and
+ * hands the rest of it to the break check unseen.
  */
-export interface PublicApiTools {
-    generateSnapshot: GenerateSnapshot;
-    classifyChanges: ClassifyChanges;
+export interface PublicApiTools<Snapshot extends SnapshotFiles = SnapshotFiles> {
+    generateSnapshot: (administrationRoot: string, options: SnapshotOptions) => Snapshot;
+    classifyChanges: (base: Snapshot, head: Snapshot, options: BreakCheckOptions) => Finding[];
 }
 
 interface UnitKind {
@@ -394,7 +396,7 @@ export function loadFixtureCases(fixturesRoot: string): LoadedFixtureCase[] {
         });
 }
 
-function runCase(fixture: FixtureCase, tools: PublicApiTools): CaseOutput {
+function runCase<Snapshot extends SnapshotFiles>(fixture: FixtureCase, tools: PublicApiTools<Snapshot>): CaseOutput {
     const before = tools.generateSnapshot(fixture.beforeRoot, { majorFlags: fixture.majorFlags });
     const after = tools.generateSnapshot(fixture.afterRoot, { majorFlags: fixture.majorFlags });
 
@@ -474,10 +476,10 @@ function expectedFailureProblems(expectedFailures: ExpectedFailures, tests: Fixt
  * The comparisons of every case: one per unit kind and one of the complete output. A comparison on the
  * expected-fail list is marked, and the caller asserts it with `it.failing`.
  */
-export function fixtureTests(
+export function fixtureTests<Snapshot extends SnapshotFiles>(
     cases: FixtureCase[],
     expectedFailures: ExpectedFailures,
-    tools: PublicApiTools,
+    tools: PublicApiTools<Snapshot>,
 ): FixtureTest[] {
     const tests = cases.flatMap((fixture) => {
         const output = once(() => runCase(fixture, tools));

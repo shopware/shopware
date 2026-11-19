@@ -17,11 +17,5 @@ export const EXPECTED_FAILURES: ExpectedFailures = {
         'block-contract',
         'complete',
     ],
-    comparisons: [
-        'block-context/block-findings',
-        'block-moved/block-findings',
-        'block-renamed-major-only/block-findings',
-        'element-crosses-block/block-findings',
-        'extend-child-drops-parent/block-findings',
-    ],
+    comparisons: [],
 };

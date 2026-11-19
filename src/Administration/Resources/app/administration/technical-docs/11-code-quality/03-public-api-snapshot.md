@@ -4,7 +4,7 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-Four parts exist so far: the snapshot of the components with the blocks they render, the markers that announce a change, the summary the break check prints, and the fixtures that the generator and the break check have to satisfy.
+Four parts exist so far: the snapshot of the components with the blocks they render, the markers that announce a change, the break check for blocks, and the fixtures that the generator and the break check have to satisfy.
 The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
 
 ## Snapshot
@@ -22,7 +22,8 @@ composer admin:generate-public-api
 `scripts/generate-public-api/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
 When a block of the committed snapshot is gone from the templates, it reports that as a breaking change and names the block.
 Regenerating the snapshot makes both tests pass, because they compare files and judge no change.
-The break check that blocks an unannounced break is not built yet.
+The break check judges a change, see "Break check".
+It runs on demand so far and blocks nothing.
 
 ### Files
 
@@ -148,6 +149,10 @@ The structure is read from the template a component renders, after the merge alo
 An inherited block has the context of its place in the parent, and a block the child adds has the context of the place it renders in.
 `scripts/generate-public-api/block-structure.spec/compiler.spec.ts` asks the Vue compiler the same questions about every block of the Administration and compares the answers.
 
+The generator also keeps the conditions of the chain a block follows, whether the content of the block continues that chain, and where each variable comes from, for example `v-for products` or `slot sw-data-grid#actions`.
+The break check compares them, see "Break check".
+The files do not contain them, so an edit to a condition changes no file.
+
 ### Flag states
 
 The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
@@ -172,6 +177,7 @@ A private component stays in the snapshot, and its report marks every line `[pri
 - A core `Component.override` adds no entry of its own, and the report does not say which blocks come from one.
 - A component that keeps its blocks in a `.vue` file cannot be extended, and cannot be overridden with a Twig template.
 - The other parts of a component, such as props, methods and slots, are missing.
+- The report does not show the `@deprecated` and `@bc-change` markers of a block, although the break check reads them.
 - The `.d.ts` contracts are not generated yet.
   They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
   Until then, the fixture view `block-contract` is on the expected-fail list.
@@ -257,10 +263,87 @@ A change to the `@deprecated` grammar has to be made in both places.
 Only the format is checked so far.
 Whether a marker sits on an element its kind fits, and whether its version is not released yet, comes with the break check.
 
-## Findings
+## Break check
+
+The break check compares the snapshot of a base commit with that of a head commit and reports what changed for plugins.
+It generates both snapshots with the generator and the major flags of the checkout, and it ignores the committed files.
+
+```bash
+composer admin:check-public-api -- <base> <head>
+```
+
+The command prints the summary and fails when the change has unannounced breaks.
+With `--history <range> <result.json>` it checks every commit of the range that changed the Administration sources against its first parent, and writes the findings per commit.
+That run measures the check itself: how many pull requests it would have stopped, and for which reasons.
+An older commit can hold templates that no component uses.
+The generator rejects those for the committed snapshot, and the check leaves them out, because it prints no snapshot.
+
+### Rules for blocks
+
+`block-rules.ts` holds one rule per kind of change.
+A rule compares the blocks of one component in one flag state, and its text says what an override of the block notices.
+
+| Rule | Group | Reported when | An override notices |
+|---|---|---|---|
+| `block_missing` | Break | A block is gone | It replaces nothing and renders nothing |
+| `block_moved_parent` | Break | A block left a block that still exists, or entered one that existed before | Overrides of that block without `{% parent %}` render without it or drop it |
+| `element_crosses_block` | Break | A new element crossing | Replacing either block leaves a tag without its partner |
+| `if_chain_crosses_block` | Break | A new `v-if` crossing | Replacing the first block leaves a `v-else` without its `v-if` |
+| `block_if_context_lost` | Break | A block lost `[after v-if]`, and its content continued the chain | An override that starts with `v-else-if` or `v-else`, as the content of the block did, no longer compiles |
+| `block_scope_missing` | Break | A block lost a variable | An override that uses the variable fails at render time |
+| `block_added` | Addition | A new block | Nothing, plugins can rely on it from now on |
+| `block_if_neighbour_lost` | Info | A block lost `[after v-if]`, and its content did not continue the chain | Nothing, unless it starts with `v-else-if` or `v-else` on its own |
+| `block_if_chain_changed` | Info | The conditions of the chain before a block changed | Its `v-else` may render under another condition |
+| `block_scope_source_changed` | Info | A variable comes from another `v-for` expression or slot | The variable may hold another value |
+| `crossing_resolved` | Info | A crossing is gone | Nothing |
+
+- A block that only got a new block around it did not move, and neither did one whose parent is gone: every existing override renders as before.
+  The blocks inside a moved block are not reported.
+- A crossing that the base commit has already is no finding.
+- A block continues a chain when its content starts with the `v-else-if` or `v-else` of that chain.
+  Plugins copy that into their override, so losing the chain breaks them.
+  Most blocks with `[after v-if]` only stand behind a conditional element, and an override has no reason to continue that chain.
+  In the history of the Administration this second case is far more common, and reporting it as a break would mostly raise false alarms.
+- `block_if_chain_changed` and `block_scope_source_changed` compare text.
+  A changed condition can be the same condition under a new name, so they never fail the check.
+- A removed block with exactly one new block under the same parent gets a `Possible rename`.
+- Only components that both commits register are compared, in the flag states both register them in.
+  A component that comes or goes is not reported yet.
+
+### Groups
+
+The rule of a finding names the change, and its group says what the change counts as.
+
+| Group | Meaning |
+|---|---|
+| `Break` | An unannounced break. Only this group fails the check |
+| `Addition` | New public API |
+| `Allowed` | A change that a marker on the block announced |
+| `Private` | A change to a component that is `@private` in one of the commits |
+| `Info` | A change that a reviewer may want to look at |
+
+A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag:
+
+| Marker | Announces | Rule of the finding |
+|---|---|---|
+| `@deprecated tag:vX.Y.Z` | `block_missing` | `deprecated_removal` |
+| `@bc-change BlockMoved` with the new `parent` | `block_moved_parent` | `announced_change` |
+| `@bc-change ScopeVariableRemoval` with the `variable` | `block_scope_missing` | `announced_change` |
+
+The marker counts from the version it names on.
+A change that happens in the major state only counts as announced when the marker names that major, also when the marker comes with the same pull request.
+The command takes the version the base branch releases next from the major flag: `v6.8.0.0` gives `6.7`.
+
+An extend child inherits the blocks of its parent, so a change to the parent shows up in the child too.
+It is reported once, on the parent, and the finding lists the children under `Also affects`.
+A public child of a private parent keeps its own finding, because the change is a break for the child only.
+
+An accepted break, which a file in the repository would allow, does not exist yet.
+
+### Summary
 
 `classifyChanges` in `break-check.ts` returns the findings as data, and `formatFindings` in `findings.ts` prints them as the summary of the break check.
-A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename and the location in the head commit.
+A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children it also affects and the location in the head commit.
 
 ```text
 Public API check failed: 1 unannounced break.
@@ -273,12 +356,13 @@ Break (1)
 ```
 
 - The first line is the verdict: `Public API check failed: <n> unannounced break(s).` or `Public API check passed: no breaks.`
-- The groups follow in the order `Break`, `Addition`, `Info`, each with its count.
+- The groups follow in the order `Break`, `Addition`, `Allowed`, `Private`, `Info`, each with its count.
   Empty groups are left out.
 - A finding line is `<rule>  <element id>  <states>`.
-  Below it, indented four spaces, follow the explanation, `Fix:`, `Possible rename:` and `At:`, each only when the finding has it.
+  Below it, indented four spaces, follow the explanation, `Fix:`, `Possible rename:`, `Also affects:` and `At:`, each only when the finding has it.
 
 The element id names the owner first and the element below it, for example `component:sw-example-card/block:sw_example_card_list_item/scope:item`.
+A crossing is named `crossing:<tag>@<opening block>><closing block>`, with `v-if` as the tag of a chain.
 The kind of the element below the owner, `block` in this example, decides which unit kind the finding belongs to.
 
 ## Fixtures

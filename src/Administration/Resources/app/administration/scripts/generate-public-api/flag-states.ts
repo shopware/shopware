@@ -75,6 +75,11 @@ export function inBothStates(a: FlagStates, b: FlagStates): FlagStates {
 }
 
 /** @private */
+export function isMajorOnly(states: readonly FlagState[]): boolean {
+    return states.length === 1 && states[0] === 'major';
+}
+
+/** @private */
 export function inAnyState(a: FlagStates, b: FlagStates): FlagStates {
     return perState((state) => a[state] || b[state]);
 }

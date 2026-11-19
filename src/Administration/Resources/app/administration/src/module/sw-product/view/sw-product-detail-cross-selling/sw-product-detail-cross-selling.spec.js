@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 async function createWrapper() {
     return mount(
@@ -55,6 +56,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('sw-product-detail-cross-selling.assetFilter is deprecated');
         Shopware.Store.get('swProductDetail').$reset();
 
         if (Shopware.Store.get('context')) {

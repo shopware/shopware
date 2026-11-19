@@ -33,6 +33,7 @@ Static data the AI client can read. Resources are identified by URIs and provide
 - **Examples**: `shopware://entities`, `shopware://sales-channels`, `shopware://state-machines`, `shopware://business-events`, `shopware://flow-actions`
 - **Attribute**: `#[McpResource(uri: '...', name: '...', description: '...')]`
 - **Implementation**: `__invoke()` returns `['uri' => '...', 'mimeType' => '...', 'text' => '...']`
+  or, for a resource with its own cache TTL, `McpResourceCacheHint::read([...], $requestContext, <ttl>)` (see "Cache hints")
 
 ### When to use which
 | Need | Use |
@@ -46,8 +47,8 @@ Static data the AI client can read. Resources are identified by URIs and provide
 The Admin API endpoint uses progressive disclosure: `tools/list` advertises only a small set (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`, plus anything the connection advertises up front or has enabled), not the full catalogue. There are three ways to reach a deferred tool, and they differ in what they demand of the client:
 
 - **Connect-time selection (works on every client).** Naming toolsets in the MCP URL as `?toolsets=order,media` or `?toolsets=all`, on `/api/_mcp` and `/store-api/_mcp` alike, advertises those tools from the first `tools/list` of the connection. The only client behaviour this relies on is posting to the URL it was configured with, which is the Streamable HTTP transport itself. `McpRequestedToolsetResolver` reads the parameter off the main request, and `McpToolsetRegistry::advertisedToolsForNames()` validates it and resolves `all`. The result is paginated like any other list (`shopware.mcp.pagination_limit`, 50), so a client that ignores `nextCursor` sees the first page only — a constraint `?toolsets=all` can reach once enough apps contribute toolsets.
-- **`shopware-toolset-enable` + `listChanged` (only for clients that re-read `tools/list`).** Enabling a toolset stores it on the session, advertises its tools, and emits a `tools/listChanged` notification. The notification is advisory: a client MAY refresh, and nothing obliges it to. claude.ai reads `tools/list` once per connection and ignores the notification, so an enable mid-conversation never becomes visible there. Claude Code re-lists but does not re-index its deferred-tool store ([claude-code#66084](https://github.com/anthropics/claude-code/issues/66084)). Treat this path as an optimisation for well-behaved clients.
-- **`shopware-tool-search` inline definitions (only for tool-search-capable clients).** Search returns full tool definitions inline. This requires the client to promote inline results into its callable set. Anthropic expands a `tool_reference` only for tools already present in the request's top-level `tools` array, so a tool that was never advertised cannot be promoted this way. `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends, though a client that treats `tools/list` as the immutable callable set will loop. The admin `shopware-tool-search` result carries a `_meta.usage` hint pointing at the enable path.
+- **`shopware-toolset-enable` + `listChanged` (only for clients that re-read `tools/list`).** Enabling a toolset stores it on the session, advertises its tools, and emits a `tools/listChanged` notification. The notification is advisory: a client MAY refresh, and nothing obliges it to. claude.ai reads `tools/list` once per connection and ignores the notification, so an enable mid-conversation never becomes visible there. Claude Code re-lists but does not re-index its deferred-tool store ([claude-code#66084](https://github.com/anthropics/claude-code/issues/66084)). Treat this path as an optimisation for well-behaved clients. On the stateless era (2026-07-28) there is no session to keep a toolset in, so `shopware-toolset-enable` and `shopware-toolsets-list` are not advertised there (`McpProtocolEra::HIDDEN_ON_STATELESS_ERA`, filtered in `McpAllowlistListRequestHandler` before paginating). A client that kept either name from a handshake connection and calls it directly gets `isError` pointing to `?toolsets=` and `shopware-tool-search`; both tools answer that way, because a tool the era does not list is not callable on it either. The stateless `server/discover` instructions (`McpServerInstructions`), the stateless `shopware-context` prompt and the stateless `shopware-tool-search` result name the same two ways instead, and the search result carries the `toolset` of every match. The SDK builds `server/discover` from the same configured instructions as `initialize`, so both controllers swap the shipped text for its stateless twin in non-streamed JSON `server/discover` answers; this is a workaround until mcp/sdk supports instructions per protocol era, and it leaves instructions a project configured itself alone. Removing toolset enable on both eras is tracked in [#22049](https://github.com/shopware/shopware/issues/22049).
+- **`shopware-tool-search` inline definitions (only for tool-search-capable clients).** Search returns full tool definitions inline. This requires the client to promote inline results into its callable set. Anthropic expands a `tool_reference` only for tools already present in the request's top-level `tools` array, so a tool that was never advertised cannot be promoted this way. `tools/call` itself never blocks an allowlisted tool for being unadvertised, so the server never dead-ends, though a client that treats `tools/list` as the immutable callable set will loop. The `shopware-tool-search` result of both endpoints carries a `_meta.usage` hint pointing at the enable path on the handshake era and at `?toolsets=` on the stateless era.
 
 Every registered tool belongs to a group, and group membership is the single source of truth for visibility. The `discovery` group holds the always-advertised meta-tools (`shopware-tool-search`, `shopware-toolsets-list`, `shopware-toolset-enable`) and is never an enable-able toolset; it is the only thing on a fresh `tools/list` of a connection without `?toolsets=`. Every other tool is **deferred** — advertised only once its toolset is enabled — so no domain tool can leak into the default surface and the model is forced through discovery. Core and plugin tools declare their group with `#[McpToolGroup]` at compile time (`McpToolDiscoveryCompilerPass` derives `shopware.mcp.advertised_tools` from the `discovery` group); app tools (loaded at runtime, so they carry no attribute) are grouped under their owning app's technical name via `AppMcpPrivilegeProvider::getAppToolGroups()`, so each app forms its own toolset. Anything still without a group falls to the `other` catch-all, which is itself an enable-able toolset so that no allowlisted tool is ever reachable through `shopware-tool-search` alone.
 
@@ -93,12 +94,28 @@ The Store API endpoint (`/store-api/_mcp`) uses the same progressive disclosure 
 
 ### List change notifications
 
-Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. The notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
+Clients learn about changed tool, prompt and resource lists through `notifications/*/list_changed`. On the handshake era the notification is never sent live: `McpListChangedNotifier` appends it to the session's outgoing queue in the session store, and the client receives it with its next request.
 
-- **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal calls `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
+- **Installation-wide changes are pulled, not pushed.** An app install, update, activation, deactivation or removal (`AppMcpCapabilityLifecycleSubscriber`) and an edit of an integration's or user's MCP allowlist (`McpAllowlistChangeSubscriber`, on the DAL write, so the allowlist actions, the entity and Sync APIs and repository writes all count) call `McpListChangedNotifier::notify()`, which increments one version per changed list in the `mcp_list_version` table (`McpListVersions`). After every Admin API MCP request, `McpServerController` calls `syncSession()`, which compares those versions with the ones stored in the session data (`shopware_list_versions`) and queues `list_changed` for the lists that moved. A new session starts at the current versions.
+- **Removals notify once the app is gone.** `AppManager` dispatches `AppDeactivatedEvent` and `AppDeletedEvent` before it switches the app off or deletes it. `AppMcpCapabilityLifecycleSubscriber` records the app's capabilities at that point and calls `notify()` only on the `app.written` event that stores `active: false` or on the `app.deleted` event. A client that refreshes its lists on the notification therefore no longer sees the app. Install, update and activation notify right away, because their events fire after the app is stored and active.
 - **Session-local changes are queued directly.** `shopware-toolset-enable` sets `McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE`, and the controller calls `notifySession()` for that session only.
 - **Both run after `Server::run()`**, because the SDK saves its in-memory session at the end of the run and would otherwise overwrite the queued notification.
 - **Only the Admin API server compares versions.** App capabilities are only registered there, so the Store API notifier has no `McpListVersions` and only handles toolset enables.
+- **The stateless era has no session to queue into.** With `shopware.mcp.protocol_era.admin: auto`, the Admin API server gets `McpListVersionsNotificationBus` as its SDK notification bus, which `subscriptions/listen` streams read.
+  The bus has no backlog of its own: its cursor packs the three list versions, and `since()` announces each list whose version moved.
+  A failing read never ends a stream: the next successful read announces every list when the stream opened without versions, otherwise the stream stays at its cursor.
+  The stream polls every 250 ms, and the bus reads the versions through a `cache.app` entry that lives one second, so a change reaches an open stream within about a second, from any process and any host, with one table read per host and second.
+  `publish()` bumps the version, so the SDK's registry events end up in the same table as `notify()`; `notify()` only bumps and does not publish a second time.
+  The Store API server has no bus and does not announce `listChanged` on `server/discover`: its lists only change per session.
+  A Store API client that still opens `subscriptions/listen` gets a stream that can carry nothing, and it holds a worker for the full lifetime until the SDK ends such streams at once ([php-sdk#618](https://github.com/modelcontextprotocol/php-sdk/pull/618)).
+- **Each open listen stream holds one PHP-FPM worker** for the subscription lifetime of 25 seconds (`McpServerBuilderCompilerPass::SUBSCRIPTION_LIFETIME`), on both servers, below the common `max_execution_time` of 30 seconds. The SDK default of 30 seconds would let the worker be killed before the stream closes.
+  The SDK keeps a stream open for the full lifetime even when the client asked for no notification the server offers.
+  `McpListenStreamTest` covers the bump from another process and the flushed first frame through the kernel; a real web server needs the manual check below.
+- **Manual check behind PHP-FPM.** Set `protocol_era.admin: auto`, open a stream with `curl -N` (POST `subscriptions/listen` with `notifications.toolsListChanged: true`, the `MCP-Protocol-Version: 2026-07-28` and `Mcp-Method` headers and the `_meta` envelope), then run `bin/console app:install --activate <app with MCP tools>` or `app:deactivate` on the CLI.
+  The `notifications/subscriptions/acknowledged` frame must arrive at once, and `notifications/tools/list_changed` within about a second of the command, on the filesystem cache and on Redis.
+  If frames only arrive when the stream ends, the web server buffers the response (`X-Accel-Buffering: no` is sent for nginx).
+- **The capabilities are stated, not detected.** `McpServerBuilderCompilerPass::applyCapabilities()` sets them per server, because the SDK announces `resources.subscribe` for every server with resources and nothing in Shopware publishes `notifications/resources/updated`.
+  A server that gains a kind of capability, for example prompts on the Store API, has to be added there.
 - **The `initialize` answer declares `listChanged` for every advertised list, on both servers.**
   mcp/sdk 0.9 strips the flag from every `initialize` answer, because it delivers list changes only through `subscriptions/listen` of the stateless era.
   `McpHandshakeListChangedSubscriber` sets it again on the SDK's `ResponseEvent`.
@@ -107,6 +124,20 @@ Invariants:
 - No state per server and no list of session ids. Every server reads the same versions from the database and writes only to the session store the SDK already uses, so this works with any session store and any number of servers, without a shared lock. The registry of session ids that this replaced had to be shared exactly as widely as the session store, which a compiler pass could only guess (#21284).
 - A notification costs one write per change; checking costs one small read per request, plus a session write only when something changed.
 - Don't add a mechanism that pushes to all sessions. It needs the list of sessions again. On the stateless era, clients read the SDK notification bus through `subscriptions/listen`, and the versions feed that bus (see `adr/2026-09-24-mcp-stateless-era-degradation-policy.md`).
+
+### Request state on the stateless era
+
+On 2026-07-28 a tool that needs input returns `InputRequiredResult`, and the client repeats the whole call with the answer and an opaque `requestState`.
+mcp/sdk signs that state with one HMAC key (`request_state.key` of the bundle); it does not encrypt it, binds nothing to it and cannot rotate the key.
+Without a key, `RequestContext::mintRequestState()` throws and every incoming `requestState` is refused.
+
+- Shopware configures no key.
+  A handler that asks once needs none, so core tools ask at most once per call and never call `mintRequestState()`.
+- A one-time action (a confirmed delete, a state transition) is enforced by a stored record on the server, never by the state: signing does not make a state single-use.
+  URL elicitation is planned this way, with a confirmation record bound to principal, tool and an argument digest ([#19972](https://github.com/shopware/shopware/issues/19972)).
+- The first feature that needs state across rounds brings the key, as planned in [#22081](https://github.com/shopware/shopware/issues/22081): a dedicated `SHOPWARE_MCP_REQUEST_STATE_KEY`, one HKDF subkey per server, the binding of principal, method, tool and arguments, and features that switch off without the key.
+  Do not derive it from `APP_SECRET`, store it in the database or generate it per process: a retry can reach another worker or host.
+- The state is readable by the client, so it never carries personal data.
 
 ## Naming convention
 All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots):
@@ -137,6 +168,26 @@ All capability names use hyphen-separated prefixes (`a-zA-Z0-9_-` only, no dots)
 The MCP server is **no longer feature-flag gated** — it is always enabled. Classes remain marked `@experimental stableVersion:v6.8.0`, so the API may still change until 6.8.0, but there is no `MCP_SERVER` flag to toggle.
 
 The `=== null` null-checks on injected `mcp.*` dependencies in controllers/commands are a safety net for "`symfony/mcp-bundle` truly absent" (they resolve to `null` via `nullOnInvalid()`), **not** a feature-flag substitute. Because the bundle is in `require` and registered unconditionally in `config/bundles.php`, they never resolve to `null` in practice; the guards will be removed once MCP is stable (v6.8.0).
+
+## Cache hints
+
+The 2026-07-28 revision (SEP-2549) puts `ttlMs` and `cacheScope` on `server/discover`, the four list methods and `resources/read`.
+mcp/sdk 0.9 adds them only on that revision, in `Rev2026Codec`; answers on the handshake revisions up to 2025-11-25 carry none.
+The hints are fields of the JSON-RPC result, not HTTP headers, and every request that receives them is a `POST`, so no HTTP cache or reverse proxy stores an answer.
+
+- **Policy**: `servers.<name>.cache` in `Resources/config/packages/mcp.php`, the same for both servers.
+  Default `private` with `ttlMs: 0`; `server/discover`, `tools/list`, `prompts/list`, `resources/list` and `resources/templates/list` are `private` for 60 seconds.
+  The list TTL is the fallback for clients that do not follow `subscriptions/listen`, so an allowlist change also reaches a client that does not listen within a minute.
+- **Reference resources**: `resources/read` stays at 0, because it also reads stored tool results and app resources.
+  The reference resources return a `ReadResourceResult` with their own TTL through `McpResourceCacheHint`: one hour for `shopware://state-machines`, which only change with a deployment, and 60 seconds for everything an app install or a shop configuration change can alter (`shopware://entities`, `shopware://business-events`, `shopware://flow-actions`, `shopware://currencies`, `shopware://languages`, `shopware://sales-channels`).
+  `shopware://extensions` stays at 0: an agent that installs an extension reads it right after.
+  `McpResourceCacheHint` sets the hints only when the request is on a modern revision, so handshake answers stay byte for byte as before.
+- **Never `public`.** The allowlist of the integration or user and `?toolsets=` shape the lists, and every resource is read with the caller's credentials.
+  `public` lets a shared cache hand one caller's answer to another.
+  `McpCachePolicyConfigTest` fails if any cacheable method of either server becomes `public`.
+- **Rate limiting**: `McpRateLimiter` counts every request before the protocol runs, cached or not.
+  A client that honours the hints sends fewer `tools/list` and reference reads, so it uses less of its bucket; the limits need no change.
+  A client that ignores them is limited as before.
 
 ## Conventions
 - All classes use `@experimental stableVersion:v6.8.0` annotation
@@ -284,7 +335,7 @@ Open questions before implementing:
 ### SDK-ready features (no upstream changes needed)
 symfony/mcp-bundle and mcp/sdk (see `composer.json` for the versions in use) already implement the following — Shopware just needs to wire them up:
 
-- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change.
+- **Resource subscriptions** — SDK has `ResourceSubscribeHandler` and `ResourceUnsubscribeHandler` (`vendor/mcp/sdk`). Resource templates (`#[McpResourceTemplate]`) are already wired up in core — see `ToolResultResource` and `Resource/AGENTS.md`. Subscriptions remain to be wired up if clients need push notifications when resources change; until then `McpServerBuilderCompilerPass::applyCapabilities()` keeps `resources.subscribe` off, and wiring them up includes turning it on there.
 - **Protocol-level pagination** — `RegistryInterface::getTools(?int $limit, ?string $cursor)` etc. already support cursor-based pagination; bundle has a `mcp.pagination_limit` config param. Shopware doesn't configure or expose it — relevant once tool/resource counts grow large.
 - **Completion utility** — SDK has `CompletionCompleteHandler` + `CompletionProvider` interface with built-in `EnumCompletionProvider` / `ListCompletionProvider` (`vendor/mcp/sdk/src/Capability/Attribute/CompletionProvider.php`). Register providers on tool/prompt arguments to power autocomplete in MCP clients (e.g. entity name suggestions for the `entity` parameter on entity tools).
 

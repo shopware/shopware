@@ -321,15 +321,17 @@ export default {
             this.showAddLanguageModal = false;
 
             const criteria = new Criteria(1, 1);
-            criteria.addAssociation('locale');
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('locale.code', locale));
 
-            const language = (await this.languageRepository.search(criteria)).first();
+            const {
+                data: [languageId],
+            } = await this.languageRepository.searchIds(criteria);
 
-            if (language) {
+            if (languageId) {
                 this.$router.push({
                     name: 'sw.settings.language.detail',
-                    params: { id: language.id },
+                    params: { id: languageId },
                     query: { languageCreated: 'true' },
                 });
 

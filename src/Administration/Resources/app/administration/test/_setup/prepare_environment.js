@@ -79,7 +79,14 @@ import findByLabel from '../_helper_/find-by-label';
 import findByPlaceholder from '../_helper_/find-by-placeholder';
 import { getDefaultActiveFeatureFlags, setDefaultActiveFeatureFlags } from '../_helper_/defaultActiveFeatureFlags';
 import { endDeprecationLog, startDeprecationLog } from '../_helper_/deprecations';
+import registerFeatureFlags from '../_helper_/registerFeatureFlags';
 import CacheService from '../../src/app/service/cache.service';
+
+// An extension's Jest config may skip `setup-feature-flags.js`, and without registered flags every deprecation
+// guard reports a typo as a console error, which fails the test.
+if (Object.keys(FeatureMock.getAll()).length === 0) {
+    registerFeatureFlags(global.activeFeatureFlags);
+}
 
 setDefaultActiveFeatureFlags([...global.activeFeatureFlags]);
 
@@ -101,6 +108,7 @@ import '../../src/app/store/main-module.store';
 import '../../src/app/store/marketing.store';
 import '../../src/app/store/sdk-location.store';
 import '../../src/app/store/rule-conditions-config.store';
+import '../../src/app/store/whats-new.store';
 import '../../src/app/store/settings-item.store';
 import '../../src/app/store/shopware-apps.store';
 import '../../src/app/store/system.store';

@@ -55,11 +55,12 @@ export default {
             }
 
             // Check if a set with the same name exists
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
-            this.customFieldSetRepository.search(criteria).then((res) => {
-                if (res.length === 0) {
+            this.customFieldSetRepository.searchIds(criteria).then((res) => {
+                if (res.data.length === 0) {
                     this.$super('onSave');
 
                     return;

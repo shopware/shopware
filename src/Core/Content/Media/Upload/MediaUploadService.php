@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,6 +38,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Package('discovery')]
 readonly class MediaUploadService
 {
+    private FileNameValidator $fileNameValidator;
+
     /**
      * @internal
      *
@@ -56,6 +60,7 @@ readonly class MediaUploadService
         private bool $enableUrlValidation = true,
         private float $externalLinkTimeout = 0.0,
     ) {
+        $this->fileNameValidator = new FileNameValidator();
     }
 
     /**
@@ -146,6 +151,15 @@ readonly class MediaUploadService
         MediaUploadParameters $params = new MediaUploadParameters()
     ): string {
         $decodedUrl = urldecode($url);
+        if (!ExternalMediaUrl::isStrict($decodedUrl)) {
+            throw MediaException::invalidUrl($url);
+        }
+
+        // A name derived from the strictly validated URL has no separators, but may contain query characters the file name validator rejects
+        if ($params->fileName) {
+            $this->fileNameValidator->validateFileName($params->getFileNameWithoutExtension());
+        }
+
         $params->fillDefaultFileName(basename($decodedUrl));
 
         if ($params->mimeType === null) {
@@ -357,6 +371,9 @@ readonly class MediaUploadService
         foreach ($thumbnails as $thumbnail) {
             $this->assertValidExternalUrl($thumbnail->url);
             $decodedUrl = urldecode($thumbnail->url);
+            if (!ExternalMediaUrl::isStrict($decodedUrl)) {
+                throw MediaException::invalidUrl($thumbnail->url);
+            }
 
             $sizeId = $this->getOrCreateThumbnailSize($thumbnail->width, $thumbnail->height, $context);
 

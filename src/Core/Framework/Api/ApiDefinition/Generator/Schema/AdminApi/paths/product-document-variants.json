@@ -1,0 +1,116 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/_action/product/{productId}/document-variants": {
+            "post": {
+                "tags": [
+                    "Product",
+                    "Experimental"
+                ],
+                "summary": "Apply product document changes to variants",
+                "description": "Applies changes of a parent product's documents to the documents of its variants that still match the parent's file and title. Without `changes`, the matching documents are removed in the system language, or their language version is removed in other languages. With `dryRun`, only the matching variant IDs are returned. Requires the `product:update` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "operationId": "syncProductDocumentVariants",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Identifier of the parent product.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "operations"
+                                ],
+                                "properties": {
+                                    "operations": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "mediaId",
+                                                "title"
+                                            ],
+                                            "properties": {
+                                                "mediaId": {
+                                                    "type": "string",
+                                                    "pattern": "^[0-9a-f]{32}$",
+                                                    "description": "File of the parent document the variant documents must match."
+                                                },
+                                                "title": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "description": "Title of the parent document the variant documents must match."
+                                                },
+                                                "changes": {
+                                                    "type": "object",
+                                                    "description": "New values for the matching variant documents. Omit it to remove them.",
+                                                    "properties": {
+                                                        "title": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "mediaId": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ],
+                                                            "pattern": "^[0-9a-f]{32}$"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "dryRun": {
+                                        "type": "boolean",
+                                        "default": false,
+                                        "description": "Only return the matching variant IDs without changing anything."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "IDs of the variants whose documents match.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "variantIds"
+                                    ],
+                                    "properties": {
+                                        "variantIds": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "pattern": "^[0-9a-f]{32}$"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

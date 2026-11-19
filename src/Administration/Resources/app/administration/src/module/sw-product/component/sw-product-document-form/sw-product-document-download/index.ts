@@ -11,14 +11,13 @@ export default Shopware.Component.wrapComponentConfig({
     inject: ['acl', 'mediaService'],
     props: {
         media: {
-            type: Object as PropType<Entity<'media'> | null>,
-            required: false,
+            type: Object as PropType<Entity<'media'>>,
             default: null,
         },
     },
     methods: {
         async downloadDocument(): Promise<void> {
-            const { media } = this;
+            const media = this.media;
             if (!this.acl.can('media.viewer') || !media) {
                 return;
             }

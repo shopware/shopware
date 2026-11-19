@@ -653,6 +653,7 @@
       "applyToVariantsHelp": "Variants that inherit the parent product's documents are updated automatically. This also updates variants where the inheritance was removed, as long as their copy of this document still has the same name and file.",
       "draftHint": "The changes are applied after saving the product.",
       "errorLoadVariants": "The variant documents could not be loaded. Please try again.",
+      "errorSaveVariants": "The product was saved, but its variants could not be updated.",
       "applySuccess": "Document \"{name}\" has been applied. | Document \"{name}\" has been applied and updated in {count} variant. | Document \"{name}\" has been applied and updated in {count} variants.",
       "removeSuccess": "\"{name}\" has been removed. | \"{name}\" has been removed, also from {count} variant. | \"{name}\" has been removed, also from {count} variants.",
       "bulkRemoveTitle": "Remove {count} documents?",

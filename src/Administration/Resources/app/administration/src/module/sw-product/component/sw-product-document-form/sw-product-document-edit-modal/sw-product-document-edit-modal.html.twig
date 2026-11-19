@@ -1,7 +1,7 @@
 {% block sw_product_document_edit_modal %}
 <mt-modal-root
     :is-open="true"
-    @change="!$event && $emit('close')"
+    @change="!$event && !isApplying && $emit('close')"
 >
     <mt-modal
         :title="modalTitle"
@@ -89,6 +89,7 @@
                 <mt-button
                     size="small"
                     variant="secondary"
+                    :disabled="isApplying"
                     @click="$emit('close')"
                 >
                     {{ $t('global.default.cancel') }}

@@ -454,7 +454,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductDocumentVariantController::class)
         ->public()
-        ->args([service('product_document.repository')])
+        ->args([
+            service('product_document.repository'),
+            service(Connection::class),
+        ])
         ->call('setContainer', [
             service('service_container'),
         ]);

@@ -132,12 +132,13 @@ export default Shopware.Component.wrapComponentConfig({
                           return mediaId ? [{ mediaId, title: title || null }] : [];
                       })
                     : [];
+            const productId = this.productId;
             let variantCount = 0;
 
             if (operations.length) {
                 this.isRemoving = true;
                 try {
-                    variantCount = (await this.productDocumentVariantService.sync(this.productId, operations, true)).length;
+                    variantCount = (await this.productDocumentVariantService.sync(productId, operations, true)).length;
                 } catch {
                     this.isRemoving = false;
                     useNotification().createNotificationError({
@@ -145,6 +146,10 @@ export default Shopware.Component.wrapComponentConfig({
                     });
                     return;
                 }
+            }
+
+            if (this.productId !== productId) {
+                return;
             }
 
             const message = this.getSuccessMessage(variantCount);

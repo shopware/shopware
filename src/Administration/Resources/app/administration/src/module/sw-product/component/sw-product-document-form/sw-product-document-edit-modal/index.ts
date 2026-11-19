@@ -204,6 +204,8 @@ export default Shopware.Component.wrapComponentConfig({
             const { changes, hasChanges, variantOperation: operation } = this;
             let variantCount = 0;
 
+            const productId = Store.get('swProductDetail').product.id;
+
             if (operation && hasChanges) {
                 this.isApplying = true;
                 try {
@@ -217,6 +219,10 @@ export default Shopware.Component.wrapComponentConfig({
                     });
                     return;
                 }
+            }
+
+            if (Store.get('swProductDetail').product.id !== productId) {
+                return;
             }
 
             this.$emit('apply', { changes, media: this.replacementMedia });

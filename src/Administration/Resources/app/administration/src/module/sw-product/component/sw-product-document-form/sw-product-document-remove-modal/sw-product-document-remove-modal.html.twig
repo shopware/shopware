@@ -1,7 +1,7 @@
 {% block sw_product_document_remove_modal %}
 <mt-modal-root
     :is-open="true"
-    @change="!$event && $emit('close')"
+    @change="!$event && !isRemoving && $emit('close')"
 >
     <mt-modal
         :title="modalTitle"
@@ -35,6 +35,7 @@
                 <mt-button
                     size="small"
                     variant="secondary"
+                    :disabled="isRemoving"
                     @click="$emit('close')"
                 >
                     {{ $t('global.default.cancel') }}

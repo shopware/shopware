@@ -100,6 +100,7 @@ export default {
             return Shopware.Store.get('swProductDetail').product;
         },
 
+        /** @private */
         documentVariantOperations: {
             get() {
                 return Shopware.Store.get('swProductDetail').documentVariantOperations;
@@ -1359,6 +1360,7 @@ export default {
             });
         },
 
+        /** @private */
         getDocumentVariantsSaver() {
             const operations = [...this.documentVariantOperations];
             if (!operations.length) {
@@ -1368,10 +1370,16 @@ export default {
             const { languageId } = this.productApiContext;
 
             return async () => {
-                await this.productDocumentVariantService.sync(this.product.id, operations, false, languageId);
-                this.documentVariantOperations = this.documentVariantOperations.filter(
-                    (operation) => !operations.includes(operation),
-                );
+                try {
+                    await this.productDocumentVariantService.sync(this.product.id, operations, false, languageId);
+                    this.documentVariantOperations = this.documentVariantOperations.filter(
+                        (operation) => !operations.includes(operation),
+                    );
+                } catch {
+                    this.createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorSaveVariants'),
+                    });
+                }
             };
         },
 

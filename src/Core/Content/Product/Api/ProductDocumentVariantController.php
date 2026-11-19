@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Api;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -28,8 +29,10 @@ class ProductDocumentVariantController extends AbstractController
     /**
      * @param EntityRepository<ProductDocumentCollection> $productDocumentRepository
      */
-    public function __construct(private readonly EntityRepository $productDocumentRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $productDocumentRepository,
+        private readonly Connection $connection,
+    ) {
     }
 
     #[Route(
@@ -38,11 +41,24 @@ class ProductDocumentVariantController extends AbstractController
         defaults: [PlatformRequest::ATTRIBUTE_ACL => ['product:update']],
         methods: ['POST'],
     )]
-    public function update(string $productId, Request $request, Context $context): JsonResponse
+    public function sync(string $productId, Request $request, Context $context): JsonResponse
     {
         /** @var list<DocumentVariantOperation> $operations */
         $operations = $request->request->all('operations');
         $dryRun = $request->request->getBoolean('dryRun');
+
+        $variantIds = $this->connection->transactional(fn (): array => $this->applyOperations($productId, $operations, $dryRun, $context));
+
+        return new JsonResponse(['variantIds' => array_keys($variantIds)]);
+    }
+
+    /**
+     * @param list<DocumentVariantOperation> $operations
+     *
+     * @return array<string, true>
+     */
+    private function applyOperations(string $productId, array $operations, bool $dryRun, Context $context): array
+    {
         $variantIds = [];
 
         foreach ($operations as $operation) {
@@ -82,6 +98,6 @@ class ProductDocumentVariantController extends AbstractController
             );
         }
 
-        return new JsonResponse(['variantIds' => array_keys($variantIds)]);
+        return $variantIds;
     }
 }

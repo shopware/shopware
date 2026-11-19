@@ -20,10 +20,10 @@ describe('sw-product-document-language-hint', () => {
         Shopware.Context.api.languageId = originalLanguageId;
     });
 
-    async function createWrapper(getLanguage: jest.Mock) {
+    async function createWrapper(defaultLanguageName = '') {
         wrapper = shallowMount(await wrapTestComponent('sw-product-document-language-hint', { sync: true }), {
+            props: { defaultLanguageName },
             global: {
-                provide: { repositoryFactory: { create: () => ({ get: getLanguage }) } },
                 stubs: { 'i18n-t': { template: '<span><slot name="language" /></span>' } },
             },
         });
@@ -32,16 +32,14 @@ describe('sw-product-document-language-hint', () => {
     }
 
     it('shows the default language name and requests a language switch when its link is clicked', async () => {
-        const getLanguage = jest.fn().mockResolvedValue({ name: 'English' });
-        await createWrapper(getLanguage);
-        expect(getLanguage).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
+        await createWrapper('English');
         expect(wrapper.text()).toContain('English');
         await wrapper.get('button').trigger('click');
         expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
     });
 
-    it('keeps the language switch available when the default language cannot be loaded', async () => {
-        await createWrapper(jest.fn().mockRejectedValue(new Error('Unavailable')));
+    it('keeps the language switch available when no language name is provided', async () => {
+        await createWrapper();
         expect(wrapper.text()).toContain('sw-product.documentForm.defaultLanguage');
         await wrapper.get('button').trigger('click');
         expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);

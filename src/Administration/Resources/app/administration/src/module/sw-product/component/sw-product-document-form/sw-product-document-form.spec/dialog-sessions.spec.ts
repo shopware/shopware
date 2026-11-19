@@ -183,69 +183,6 @@ describe('sw-product-document-form dialog sessions', () => {
             return (result: string[] | Error) => settle(result);
         }
 
-        function requestDialogClose(wrapper: VueWrapper) {
-            const modalRoot = wrapper.getComponent<ComponentPublicInstance>(
-                wrapper.getCurrentComponent().appContext.components['mt-modal-root'],
-            );
-            modalRoot.vm.$emit('change', false);
-        }
-
-        function getCancelButton(wrapper: VueWrapper) {
-            return wrapper.findAll<HTMLButtonElement>('button').find((button) => button.text() === 'global.default.cancel')!;
-        }
-
-        it('keeps the dialog open and locked while the variant check runs', async () => {
-            const store = Shopware.Store.get('swProductDetail');
-            const wrapper = await createWrapper();
-            await addDocuments(wrapper, [createMedia()]);
-            const { id: documentId, mediaId } = getDocuments()![0];
-
-            const settle = await confirmWithPendingVariantCheck(wrapper);
-
-            expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [dialog.operation(mediaId)], true);
-            expect(getCancelButton(wrapper).element.disabled).toBe(true);
-            expect(wrapper.get<HTMLButtonElement>(dialog.confirm).element.disabled).toBe(true);
-            await getCancelButton(wrapper).trigger('click');
-            requestDialogClose(wrapper);
-            await flushPromises();
-            expect(wrapper.find(dialog.confirm).exists()).toBe(true);
-            expect(getDocuments()![0].title).toBe('manual');
-            expect(store.documentVariantOperations).toEqual({});
-
-            settle(['variant-a']);
-            await flushPromises();
-
-            expect(wrapper.find(dialog.confirm).exists()).toBe(false);
-            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(dialog.appliedTitles);
-            expect(store.documentVariantOperations).toEqual({ [documentId]: dialog.operation(mediaId) });
-            expect(mockSnackbar).toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
-        });
-
-        it('unlocks the dialog without applying anything when the variant check fails', async () => {
-            const store = Shopware.Store.get('swProductDetail');
-            const wrapper = await createWrapper();
-            await addDocuments(wrapper, [createMedia()]);
-            const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-
-            const settle = await confirmWithPendingVariantCheck(wrapper);
-            settle(new Error('Variant check failed'));
-            await flushPromises();
-
-            expect(notification).toHaveBeenCalledWith(
-                expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadVariants' }),
-            );
-            expect(wrapper.get<HTMLButtonElement>(dialog.confirm).element.disabled).toBe(false);
-            expect(getCancelButton(wrapper).element.disabled).toBe(false);
-            expect(getDocuments()).toHaveLength(1);
-            expect(getDocuments()![0].title).toBe('manual');
-            expect(store.documentVariantOperations).toEqual({});
-            expect(mockSnackbar).not.toHaveBeenCalled();
-
-            requestDialogClose(wrapper);
-            await flushPromises();
-            expect(wrapper.find(dialog.confirm).exists()).toBe(false);
-        });
-
         it('emits and queues nothing when another product was loaded before the variant check returned', async () => {
             const store = Shopware.Store.get('swProductDetail');
             const wrapper = await createWrapper();

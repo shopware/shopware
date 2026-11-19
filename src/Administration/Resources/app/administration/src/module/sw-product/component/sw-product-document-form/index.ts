@@ -2,7 +2,6 @@
  * @sw-package inventory
  */
 import useSnackbar from 'src/app/composables/use-snackbar';
-import type Repository from 'src/core/data/repository.data';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import type {
@@ -82,6 +81,10 @@ export default Shopware.Component.wrapComponentConfig({
         'mediaDefaultFolderService',
     ],
 
+    props: {
+        disabled: { type: Boolean, required: false, default: false },
+    },
+
     data() {
         return {
             page: 1,
@@ -91,6 +94,7 @@ export default Shopware.Component.wrapComponentConfig({
             showRestoreInheritanceModal: false,
             isInheritanceRemoved: false,
             mediaFolderId: undefined as string | null | undefined,
+            defaultLanguageName: '',
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
             documentsToRemove: [] as Entity<'product_document'>[],
@@ -99,11 +103,38 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         product(): Entity<'product'> {
-            return Store.get('swProductDetail').product;
+            return Shopware.Store.get('swProductDetail').product;
         },
 
         parentProduct(): Entity<'product'> {
-            return Store.get('swProductDetail').parentProduct;
+            return Shopware.Store.get('swProductDetail').parentProduct;
+        },
+
+        documentRepository() {
+            return this.repositoryFactory.create('product_document');
+        },
+
+        mediaRepository() {
+            return this.repositoryFactory.create('media');
+        },
+
+        languageRepository() {
+            return this.repositoryFactory.create('language');
+        },
+
+        languageId() {
+            return Shopware.Store.get('context').api.languageId;
+        },
+
+        isSystemDefaultLanguage(): boolean {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
+
+        documentContext() {
+            return {
+                ...Shopware.Context.api,
+                language: Shopware.Store.get('context').api.language as Entity<'language'> | null,
+            };
         },
 
         documents(): EntityCollection<'product_document'> {
@@ -128,41 +159,21 @@ export default Shopware.Component.wrapComponentConfig({
             return this.currentDocuments.slice(this.pageOffset, this.pageOffset + this.limit);
         },
 
-        documentRepository(): Repository<'product_document'> {
-            return this.repositoryFactory.create('product_document');
-        },
-
-        mediaRepository(): Repository<'media'> {
-            return this.repositoryFactory.create('media');
-        },
-
-        languageId(): string {
-            return Store.get('context').api.languageId ?? '';
-        },
-
-        isSystemDefaultLanguage(): boolean {
-            return Store.get('context').isSystemDefaultLanguage;
-        },
-
         uploadTag(): string {
             return `product-documents-${this.product.id}-${this.languageId}`;
         },
 
-        contextLanguage(): Entity<'language'> | null {
-            return Store.get('context').api.language as Entity<'language'> | null;
-        },
-
         canEdit(): boolean {
-            const isLanguageReady = this.isSystemDefaultLanguage || this.contextLanguage?.id === this.languageId;
-            return this.acl.can('product.editor') && isLanguageReady;
-        },
-
-        canEditDocuments(): boolean {
-            return this.canEdit && !this.isInherited;
+            const isLanguageReady = this.isSystemDefaultLanguage || this.documentContext.language?.id === this.languageId;
+            return !this.disabled && this.acl.can('product.editor') && isLanguageReady;
         },
 
         canAddDocuments(): boolean {
             return this.canEditDocuments && this.isSystemDefaultLanguage;
+        },
+
+        canEditDocuments(): boolean {
+            return this.canEdit && !this.isInherited;
         },
 
         isDocumentSelectable(): (document: Entity<'product_document'>) => boolean {
@@ -170,7 +181,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         languageCode(): string {
-            const language = this.contextLanguage;
+            const language = this.documentContext.language;
             if (this.isSystemDefaultLanguage || language?.id !== this.languageId) {
                 return '';
             }
@@ -179,7 +190,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         contentLanguageName(): string {
-            const language = this.contextLanguage;
+            const language = this.documentContext.language;
             const code = language?.locale?.code.split('-')[0];
             const locale = Store.get('session').currentLocale || 'en-GB';
             const names = new Intl.DisplayNames([locale], { type: 'language' });
@@ -252,14 +263,30 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     async created() {
-        try {
-            this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
-        } catch {
-            this.mediaFolderId = null;
-        }
+        await this.createdComponent();
     },
 
     methods: {
+        async createdComponent() {
+            void this.loadDefaultLanguageName();
+
+            try {
+                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
+            } catch {
+                this.mediaFolderId = null;
+            }
+        },
+
+        async loadDefaultLanguageName(): Promise<void> {
+            const systemLanguageId = Shopware.Context.api.systemLanguageId;
+            if (systemLanguageId) {
+                const language = await this.languageRepository
+                    .get(systemLanguageId)
+                    .catch(() => /* Keep the fallback label. */ null);
+                this.defaultLanguageName = language?.name || '';
+            }
+        },
+
         getDocumentMedia,
 
         getFileName(document: Entity<'product_document'>): string {

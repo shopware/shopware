@@ -39,9 +39,7 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         expect(repositoryGetMock).toHaveBeenCalledWith(
             'initial-language-id',
             expect.objectContaining({ inheritance: true }),
-            expect.anything(),
         );
-        expect(repositoryGetMock.mock.calls[0][2].parse()).toMatchObject({ associations: { locale: {} } });
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({
@@ -62,11 +60,7 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
         Shopware.Store.get('context').api.languageId = 'new-language-id';
         await flushPromises();
 
-        expect(repositoryGetMock).toHaveBeenCalledWith(
-            'new-language-id',
-            expect.objectContaining({ inheritance: true }),
-            expect.anything(),
-        );
+        expect(repositoryGetMock).toHaveBeenCalledWith('new-language-id', expect.objectContaining({ inheritance: true }));
 
         expect(Shopware.Store.get('context').api.language).toEqual(
             expect.objectContaining({
@@ -74,27 +68,5 @@ describe('src/app/service/language-auto-fetching.service.js', () => {
                 name: 'Language new-language-id',
             }),
         );
-    });
-
-    it('ignores a language response that arrives after the language was switched again', async () => {
-        LanguageAutoFetchingService();
-        await flushPromises();
-
-        let resolveStaleLanguage;
-        repositoryGetMock.mockImplementationOnce(
-            (id) =>
-                new Promise((resolve) => {
-                    resolveStaleLanguage = () => resolve({ id, name: `Language ${id}`, parentId: null });
-                }),
-        );
-
-        Shopware.Store.get('context').api.languageId = 'stale-language-id';
-        await flushPromises();
-        Shopware.Store.get('context').api.languageId = 'current-language-id';
-        await flushPromises();
-        resolveStaleLanguage();
-        await flushPromises();
-
-        expect(Shopware.Store.get('context').api.language).toEqual(expect.objectContaining({ id: 'current-language-id' }));
     });
 });

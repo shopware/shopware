@@ -3,7 +3,7 @@
  */
 import type { PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
-import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import type { DocumentVariantOperation } from 'src/module/sw-product/service/product-document-variant.service';
 import template from './sw-product-document-remove-modal.html.twig';
 import './sw-product-document-remove-modal.scss';
 

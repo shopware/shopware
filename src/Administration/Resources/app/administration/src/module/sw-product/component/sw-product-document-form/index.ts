@@ -5,7 +5,10 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 import type Repository from 'src/core/data/repository.data';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import type {
+    DocumentChanges,
+    DocumentVariantOperation,
+} from 'src/module/sw-product/service/product-document-variant.service';
 import { getDocumentMedia, setDocumentMedia } from './product-document.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';

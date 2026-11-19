@@ -4,7 +4,7 @@
 import { shallowMount, type VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import type { DocumentVariantOperation } from 'src/module/sw-product/service/product-document-variant.service';
 
 const mockCreateNotificationError = jest.fn();
 

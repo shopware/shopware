@@ -4,7 +4,10 @@
 import { useId, type PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 import type Repository from 'src/core/data/repository.data';
-import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import type {
+    DocumentChanges,
+    DocumentVariantOperation,
+} from 'src/module/sw-product/service/product-document-variant.service';
 import { getDocumentMedia } from '../product-document.helper';
 import type { DocumentUploadRules } from '../index';
 import template from './sw-product-document-edit-modal.html.twig';

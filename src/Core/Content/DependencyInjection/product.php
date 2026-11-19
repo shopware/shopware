@@ -49,7 +49,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Api\ProductActionController;
-use Shopware\Core\Content\Product\Api\ProductDocumentVariantController;
 use Shopware\Core\Content\Product\Api\ProductNumberFkResolver;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator;
@@ -450,13 +449,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->call('setContainer', [
             service('service_container'),
-        ]);
-
-    $services->set(ProductDocumentVariantController::class)
-        ->public()
-        ->args([
-            service('product_document.repository'),
-            service(Connection::class),
         ]);
 
     $services->set(ProductVisibilityDefinition::class)

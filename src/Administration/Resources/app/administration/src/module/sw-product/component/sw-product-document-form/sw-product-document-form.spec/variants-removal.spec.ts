@@ -6,7 +6,7 @@ import { config } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
-import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import type { DocumentVariantOperation } from 'src/module/sw-product/service/product-document-variant.service';
 import {
     mockSnackbar,
     mockVariantSync,

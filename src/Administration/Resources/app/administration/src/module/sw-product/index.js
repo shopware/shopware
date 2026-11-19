@@ -5,6 +5,7 @@
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 import ProductStorefrontUrlApiService from './service/product-storefront-url.api.service';
+import ProductDocumentVariantService from './service/product-document-variant.service';
 
 const { Module } = Shopware;
 
@@ -142,6 +143,9 @@ Shopware.Component.register('sw-product-detail-cross-selling', () => import('./v
 Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw-product-detail-reviews'));
 Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
+Shopware.Service().register('productDocumentVariantService', () => {
+    return new ProductDocumentVariantService(Shopware.Service().get('repositoryFactory'));
+});
 Shopware.Service().register('productStorefrontUrlApiService', () => {
     return new ProductStorefrontUrlApiService(
         Shopware.Application.getContainer('init').httpClient,

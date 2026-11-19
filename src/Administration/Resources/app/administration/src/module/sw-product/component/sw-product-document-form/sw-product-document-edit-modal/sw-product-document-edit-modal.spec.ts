@@ -4,7 +4,7 @@
 import { shallowMount, type VueWrapper } from '@vue/test-utils';
 import { toRaw, type ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import type { DocumentChanges, DocumentVariantOperation } from '../../../service/product-document-variant.service';
 import { setDocumentMedia } from '../product-document.helper';
 import type { DocumentUploadRules } from '../index';
 

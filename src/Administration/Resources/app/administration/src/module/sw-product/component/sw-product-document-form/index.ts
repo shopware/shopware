@@ -38,6 +38,22 @@ const columns = [
 ];
 
 const { Context, Store, Utils } = Shopware;
+const { cloneDeep, pick } = Utils.object;
+
+const documentCopyFields = [
+    'position',
+    'title',
+    'mediaId',
+    'customFields',
+    'translated',
+] as const;
+
+const translationCopyFields = [
+    'languageId',
+    'mediaId',
+    'title',
+    'customFields',
+] as const;
 
 /**
  * @private
@@ -468,28 +484,19 @@ export default Shopware.Component.wrapComponentConfig({
             const entityFactory = this.entityFactory as EntityFactory;
             inheritedDocuments.forEach((source) => {
                 const document = this.documentRepository.create(Context.api);
-                document.productId = this.product.id;
-                document.position = source.position;
-                document.title = source.title;
-                document.mediaId = source.mediaId;
-                document.customFields = Utils.object.cloneDeep(source.customFields);
-                document.translated = Utils.object.cloneDeep(source.translated);
-
+                Object.assign(document, cloneDeep(pick(source, documentCopyFields)), { productId: this.product.id });
                 source.translations?.forEach((sourceTranslation) => {
                     const translation = entityFactory.create(
                         'product_document_translation',
                         null,
                         Context.api,
                     ) as Entity<'product_document_translation'>;
-                    translation.productDocumentId = document.id;
-                    translation.languageId = sourceTranslation.languageId;
-                    translation.mediaId = sourceTranslation.mediaId;
-                    translation.media = sourceTranslation.media;
-                    translation.title = sourceTranslation.title;
-                    translation.customFields = Utils.object.cloneDeep(sourceTranslation.customFields);
+                    Object.assign(translation, cloneDeep(pick(sourceTranslation, translationCopyFields)), {
+                        productDocumentId: document.id,
+                        media: sourceTranslation.media,
+                    });
                     document.translations.add(translation);
                 });
-                setDocumentMedia(document, getDocumentMedia(source) ?? null);
                 this.documents.add(document);
             });
 

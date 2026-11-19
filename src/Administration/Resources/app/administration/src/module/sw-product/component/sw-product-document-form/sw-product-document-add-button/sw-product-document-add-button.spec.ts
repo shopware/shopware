@@ -48,6 +48,7 @@ describe('sw-product-document-add-button', () => {
 
         expect(wrapper.emitted('documents-add')).toEqual([[]]);
         expect(wrapper.find('.sw-product-document-add-button__trigger').exists()).toBe(false);
+        expect(getLanguage).not.toHaveBeenCalled();
     });
 
     it('prevents upload when adding documents is not allowed', async () => {

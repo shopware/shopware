@@ -25,11 +25,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 
-    setup(props) {
-        return useDocumentDefaultLanguage(() => !props.isInherited);
+    setup() {
+        return useDocumentDefaultLanguage();
     },
 
     computed: {
+        isSystemDefaultLanguage(): boolean {
+            return Shopware.Store.get('context').isSystemDefaultLanguage;
+        },
         tooltipContent(): string {
             if (this.isInherited) {
                 return this.$t('sw-product.documentForm.unlinkToAdd');

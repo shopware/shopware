@@ -1,34 +1,27 @@
 /**
  * @sw-package inventory
  */
-import { inject, ref, watch } from 'vue';
-import { storeToRefs } from 'pinia';
+import { inject, ref } from 'vue';
 
 /** @private */
-export default function useDocumentDefaultLanguage(enabled: () => boolean = () => true) {
+export default function useDocumentDefaultLanguage() {
     const context = Shopware.Store.get('context');
     const repositoryFactory = inject('repositoryFactory', () => Shopware.Service('repositoryFactory'), true);
-    const defaultLanguageName = ref<string | null>(null);
-    const { isSystemDefaultLanguage } = storeToRefs(context);
+    const defaultLanguageName = ref('');
+    const { systemLanguageId } = context.api;
 
-    watch(
-        () => (enabled() && !isSystemDefaultLanguage.value ? context.api.systemLanguageId : null),
-        async (systemLanguageId) => {
-            if (!systemLanguageId || defaultLanguageName.value !== null) {
-                return;
-            }
+    if (systemLanguageId && !context.isSystemDefaultLanguage) {
+        void repositoryFactory
+            .create('language')
+            .get(systemLanguageId)
+            .catch(() => {
+                // The fallback label still switches to the known system language ID.
+                return null;
+            })
+            .then((language) => {
+                defaultLanguageName.value = language?.name ?? '';
+            });
+    }
 
-            const language = await repositoryFactory
-                .create('language')
-                .get(systemLanguageId)
-                .catch(() => {
-                    // The fallback label still switches to the known system language ID.
-                    return null;
-                });
-            defaultLanguageName.value = language?.name || '';
-        },
-        { immediate: true },
-    );
-
-    return { defaultLanguageName, isSystemDefaultLanguage };
+    return { defaultLanguageName };
 }

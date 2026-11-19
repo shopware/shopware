@@ -49,7 +49,7 @@ properties:
 
   itemMinWidth:
     type: string
-    title: "Item Min Width"
+    title: "Minimum item width"
     titleSnippet: "sw-experience-studio.elements.grid-container.itemMinWidth.title"
     description: "Minimum item width in Auto mode."
     default: "400px"

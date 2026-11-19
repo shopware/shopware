@@ -29,7 +29,12 @@ describe('grid editor field', () => {
                     'sw-collapse': { template: '<div><slot name="content" /></div>' },
                     'sw-experience-studio-grid-editor': {
                         name: 'sw-experience-studio-grid-editor',
-                        props: ['gridLayout', 'label', 'allowEdit', 'breakpointFallbacks'],
+                        props: [
+                            'gridLayout',
+                            'label',
+                            'allowEdit',
+                            'breakpointFallbacks',
+                        ],
                         emits: ['update:gridLayout'],
                         template: '<button @click="$emit(\'update:gridLayout\', next)"><slot /></button>',
                         data: () => ({ next: updated }),

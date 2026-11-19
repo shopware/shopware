@@ -62,7 +62,13 @@ final readonly class StoredValue implements \JsonSerializable
     public static function ofFloat(float $value): self
     {
         if (!\is_finite($value)) {
-            throw ContentSystemException::invalidFieldValueType('StoredValue', 'finite float', (string) $value);
+            $actual = match (true) {
+                is_nan($value) => 'NAN',
+                $value < 0 => '-INF',
+                default => 'INF',
+            };
+
+            throw ContentSystemException::invalidFieldValueType('StoredValue', 'finite float', $actual);
         }
 
         return new self(self::VARIANT_FLOAT, $value, []);

@@ -3,7 +3,6 @@
  */
 
 import EntityValidationService from 'src/app/service/entity-validation.service';
-import { syncDocumentVariants } from '../../component/sw-product-document-form/product-document.helper';
 import template from './sw-product-detail.html.twig';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
@@ -31,6 +30,7 @@ export default {
         'systemConfigApiService',
         'customFieldDataProviderService',
         'entityValidationService',
+        'productDocumentVariantService',
     ],
 
     provide() {
@@ -1347,10 +1347,10 @@ export default {
             const store = Shopware.Store.get('swProductDetail');
             const operations = [...store.documentVariantOperations];
             const productId = this.product.id;
-            const context = { ...this.productApiContext };
+            const { languageId } = this.productApiContext;
 
             return async () => {
-                await syncDocumentVariants(productId, operations, false, context);
+                await this.productDocumentVariantService.sync(productId, operations, false, languageId);
                 store.documentVariantOperations = store.documentVariantOperations.filter(
                     (operation) => !operations.includes(operation),
                 );

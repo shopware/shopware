@@ -4,7 +4,7 @@
 
 import type EntityCollection from '@shopware-ag/meteor-admin-sdk/es/_internals/data/EntityCollection';
 import type { ContextStore } from '../../../../app/store/context.store';
-import type { DocumentVariantOperation } from '../../component/sw-product-document-form/product-document.helper';
+import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 
 type LoadingProperties =
     | 'init'

@@ -56,6 +56,7 @@ import type { ComponentConfig } from './core/factory/async-component.factory';
 import type StoreApiService from './core/service/api/store.api.service';
 import type ShopwareDiscountCampaignService from './app/service/discount-campaign.service';
 import type AppModulesService from './core/service/api/app-modules.service';
+import type ProductDocumentVariantApiService from './core/service/api/product-document-variant.api.service';
 import type AclService from './app/service/acl.service';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
@@ -253,6 +254,7 @@ declare global {
         appAclService: $TSFixMe;
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
+        productDocumentVariantService: ProductDocumentVariantApiService;
         businessEventService: BusinessEventsApiService;
         cacheService: CacheService;
         cartStoreService: CartStoreService;

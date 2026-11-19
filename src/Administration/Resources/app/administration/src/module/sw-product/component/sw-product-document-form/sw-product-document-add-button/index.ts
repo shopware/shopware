@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { useId, type PropType } from 'vue';
+import { useId } from 'vue';
 import template from './sw-product-document-add-button.html.twig';
 import './sw-product-document-add-button.scss';
 
@@ -21,11 +21,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
-        },
-        defaultLanguageName: {
-            type: String as PropType<string | null>,
-            required: false,
-            default: null,
         },
     },
 
@@ -51,7 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isHintOpen(): boolean {
-            return this.isHintRequested && (this.isInherited || this.defaultLanguageName !== null);
+            return this.isHintRequested;
         },
 
         hintLabel(): string {

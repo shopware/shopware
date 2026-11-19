@@ -48,7 +48,6 @@
                         class="sw-product-document-form__add-button"
                         :is-inherited="isInherited"
                         :disabled="isInherited || !canAddDocuments"
-                        :default-language-name="defaultLanguageName"
                         @documents-add="showUploadModal = true"
                     />
                 {% endblock %}
@@ -60,46 +59,20 @@
                         v-if="!currentValue.length"
                         class="sw-product-document-form__empty-state"
                     >
-                    {% block sw_product_document_empty_state %}
-                        <div
-                            class="sw-product-document-empty-state"
-                            :class="{ 'sw-product-document-empty-state--translated': !isSystemDefaultLanguage }"
-                        >
-                            <mt-empty-state
-                                centered
-                                icon="regular-file-text"
-                                :headline="$t('sw-product.documentForm.emptyState')"
-                                :description="isSystemDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
-                            >
-                                <template
-                                    v-if="isSystemDefaultLanguage"
-                                    #button
+                        <sw-product-document-empty-state>
+                            <template #add-button>
+                                {% block sw_product_document_form_empty_add %}
+                                <mt-button
+                                    :disabled="isInherited || !canAddDocuments"
+                                    size="small"
+                                    variant="secondary"
+                                    @click="showUploadModal = true"
                                 >
-                                    {% block sw_product_document_empty_state_add %}
-                                    <mt-button
-                                        :disabled="isInherited || !canAddDocuments"
-                                        size="small"
-                                        variant="secondary"
-                                        @click="showUploadModal = true"
-                                    >
-                                        {{ $t('sw-product.documentForm.buttonAdd') }}
-                                    </mt-button>
-                                    {% endblock %}
-                                </template>
-                            </mt-empty-state>
-
-                            {% block sw_product_document_empty_state_language_hint %}
-                            <mt-text
-                                v-if="!isSystemDefaultLanguage"
-                                size="xs"
-                                color="color-text-secondary-default"
-                                class="sw-product-document-empty-state__language-hint"
-                            >
-                                <sw-product-document-language-hint :default-language-name="defaultLanguageName ?? ''" />
-                            </mt-text>
-                            {% endblock %}
-                        </div>
-                    {% endblock %}
+                                    {{ $t('sw-product.documentForm.buttonAdd') }}
+                                </mt-button>
+                                {% endblock %}
+                            </template>
+                        </sw-product-document-empty-state>
                     </div>
                 {% endblock %}
 
@@ -181,7 +154,7 @@
                                 @keydown.enter="openDocumentEditor(item)"
                             >
                                 <sw-product-document-language-value
-                                    :value="getDocumentTitle(item)"
+                                    :value="item.translated?.title ?? ''"
                                     :is-translated="!!item.title"
                                 >
                                     {% block sw_product_document_form_variant_badge %}
@@ -331,6 +304,10 @@
                 :document="editingDocument"
                 :language-name="contentLanguageName"
                 :upload-tag="`${uploadTag}-replace-${editingDocument.id}`"
+                :upload-rules="uploadRules"
+                :upload-hint="uploadHint"
+                :title-placeholder="editingTitlePlaceholder"
+                :validate-media="isValidMedia"
                 :media-folder-id="mediaFolderId"
                 :can-edit="canEdit"
                 :has-variants="hasVariants"

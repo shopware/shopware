@@ -4,19 +4,15 @@
 import type { PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 import useSnackbar from 'src/app/composables/use-snackbar';
-import {
-    getDocumentTitle,
-    getTranslated,
-    getDocumentMediaId,
-    syncDocumentVariants,
-    type DocumentVariantOperation,
-} from '../product-document.helper';
+import type { DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
 import template from './sw-product-document-remove-modal.html.twig';
 import './sw-product-document-remove-modal.scss';
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
+
+    inject: ['productDocumentVariantService'],
 
     props: {
         documents: {
@@ -64,7 +60,7 @@ export default Shopware.Component.wrapComponentConfig({
                 );
             }
 
-            const name = getDocumentTitle(this.documents[0]);
+            const name = this.documents[0].translated?.title ?? '';
             return this.languageName
                 ? this.$t('sw-product.documentForm.removeLanguageVersionTitle', { language: this.languageName, name })
                 : this.$t('sw-product.documentForm.removeTitle', { name });
@@ -98,9 +94,8 @@ export default Shopware.Component.wrapComponentConfig({
             const operations: DocumentVariantOperation[] =
                 this.removeFromVariants && this.hasVariants
                     ? this.documents.flatMap((document) => {
-                          const mediaId = getDocumentMediaId(document);
-                          const { title } = getTranslated(document);
-                          return mediaId ? [{ mediaId, title: document.title || title || null }] : [];
+                          const { mediaId, title } = document.translated ?? {};
+                          return mediaId ? [{ mediaId, title: title || null }] : [];
                       })
                     : [];
             let variantCount = 0;
@@ -108,7 +103,9 @@ export default Shopware.Component.wrapComponentConfig({
             if (operations.length) {
                 this.isRemoving = true;
                 try {
-                    variantCount = (await syncDocumentVariants(this.documents[0].productId, operations, true)).length;
+                    variantCount = (
+                        await this.productDocumentVariantService.sync(this.documents[0].productId, operations, true)
+                    ).length;
                 } catch {
                     this.isRemoving = false;
                     useNotification().createNotificationError({
@@ -119,7 +116,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const count = this.documents.length;
-            const name = getDocumentTitle(this.documents[0]);
+            const name = this.documents[0].translated?.title ?? '';
             const language = this.languageName;
             let message: string;
             if (count > 1) {

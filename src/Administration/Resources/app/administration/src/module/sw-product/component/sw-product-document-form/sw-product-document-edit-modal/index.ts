@@ -4,19 +4,9 @@
 import { useId, type PropType } from 'vue';
 import useNotification from 'src/app/composables/use-notification';
 import useSnackbar from 'src/app/composables/use-snackbar';
-import {
-    getUploadHint,
-    getUploadRules,
-    isValidDocumentMedia,
-    getFallbackTranslation,
-    getDocumentTitle,
-    getTranslated,
-    getDocumentMedia,
-    getDocumentMediaId,
-    syncDocumentVariants,
-    type DocumentChanges,
-    type DocumentVariantOperation,
-} from '../product-document.helper';
+import type { DocumentChanges, DocumentVariantOperation } from 'src/core/service/api/product-document-variant.api.service';
+import { getDocumentMedia } from '../product-document.helper';
+import type { DocumentUploadRules } from '../index';
 import template from './sw-product-document-edit-modal.html.twig';
 
 /** @private */
@@ -25,6 +15,7 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: [
         'repositoryFactory',
+        'productDocumentVariantService',
     ],
 
     props: {
@@ -39,6 +30,24 @@ export default Shopware.Component.wrapComponentConfig({
         },
         uploadTag: {
             type: String,
+            required: true,
+        },
+        uploadRules: {
+            type: Object as PropType<DocumentUploadRules>,
+            required: true,
+        },
+        uploadHint: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        titlePlaceholder: {
+            type: String,
+            required: false,
+            default: '',
+        },
+        validateMedia: {
+            type: Function as PropType<(media: Entity<'media'>, exceptDocument: Entity<'product_document'>) => boolean>,
             required: true,
         },
         mediaFolderId: {
@@ -71,7 +80,7 @@ export default Shopware.Component.wrapComponentConfig({
         const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
 
         return {
-            title: isSystemDefaultLanguage ? getDocumentTitle(this.document) : this.document.title || '',
+            title: (isSystemDefaultLanguage ? this.document.translated?.title : this.document.title) || '',
             replacementMedia: null as Entity<'media'> | null,
             isFileRemoved: false,
             applyToVariants: this.hasVariants,
@@ -92,17 +101,9 @@ export default Shopware.Component.wrapComponentConfig({
                 : this.$t('sw-product.documentForm.editTitle');
         },
 
-        titlePlaceholder(): string {
-            if (this.isSystemDefaultLanguage) {
-                return '';
-            }
-
-            return getFallbackTranslation(this.document, 'title')?.title || '';
-        },
-
         editingMedia(): Entity<'media'> | undefined {
             const showSavedFile = !this.isFileRemoved && (this.isSystemDefaultLanguage || this.document.mediaId);
-            return this.replacementMedia || (showSavedFile ? getDocumentMedia(this.document) || undefined : undefined);
+            return this.replacementMedia || (showSavedFile ? getDocumentMedia(this.document) : undefined);
         },
 
         nameError(): { code: string; detail: string } | null {
@@ -118,13 +119,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         fileHint(): string {
-            return this.isSystemDefaultLanguage
-                ? getUploadHint(this.$t)
-                : this.$t('sw-product.documentForm.fileFallbackHint');
-        },
-
-        uploadRules(): ReturnType<typeof getUploadRules> {
-            return getUploadRules();
+            return this.isSystemDefaultLanguage ? this.uploadHint : this.$t('sw-product.documentForm.fileFallbackHint');
         },
 
         isDisabled(): boolean {
@@ -148,7 +143,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         selectMedia(mediaItems: Entity<'media'>[]): void {
             mediaItems
-                .filter((media) => isValidDocumentMedia(media, this.document, this.$t))
+                .filter((media) => this.validateMedia(media, this.document))
                 .forEach((media) => {
                     this.replacementMedia = media;
                     this.isFileRemoved = false;
@@ -164,7 +159,9 @@ export default Shopware.Component.wrapComponentConfig({
         getChanges(): DocumentChanges {
             const title = this.title.trim();
             const newTitle =
-                this.isSystemDefaultLanguage && title === getDocumentTitle(this.document).trim() ? undefined : title || null;
+                this.isSystemDefaultLanguage && title === (this.document.translated?.title ?? '').trim()
+                    ? undefined
+                    : title || null;
             const newMediaId = this.replacementMedia?.id ?? (this.isFileRemoved ? null : undefined);
             const changes: DocumentChanges = {};
 
@@ -178,6 +175,11 @@ export default Shopware.Component.wrapComponentConfig({
             return changes;
         },
 
+        getVariantOperation(changes: DocumentChanges): DocumentVariantOperation | null {
+            const { mediaId, title } = this.document.translated ?? {};
+            return this.applyToVariants && this.hasVariants && mediaId ? { mediaId, title: title || null, changes } : null;
+        },
+
         async apply(): Promise<void> {
             this.hasSubmitted = true;
             if (this.isDisabled || (this.isSystemDefaultLanguage && (this.nameError || this.fileError))) {
@@ -185,18 +187,15 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const changes = this.getChanges();
-            const mediaId = getDocumentMediaId(this.document);
-            const { title } = getTranslated(this.document);
-            const operation: DocumentVariantOperation | null =
-                this.applyToVariants && this.hasVariants && mediaId
-                    ? { mediaId, title: this.document.title || title || null, changes }
-                    : null;
+            const operation = this.getVariantOperation(changes);
             let variantCount = 0;
 
             if (operation && Object.keys(changes).length) {
                 this.isApplying = true;
                 try {
-                    variantCount = (await syncDocumentVariants(this.document.productId, [operation], true)).length;
+                    variantCount = (
+                        await this.productDocumentVariantService.sync(this.document.productId, [operation], true)
+                    ).length;
                 } catch {
                     this.isApplying = false;
                     useNotification().createNotificationError({
@@ -217,7 +216,7 @@ export default Shopware.Component.wrapComponentConfig({
             useSnackbar().addSnackbar({
                 variant: 'success',
                 message: this.$t('sw-product.documentForm.applySuccess', {
-                    name: getDocumentTitle(this.document),
+                    name: this.document.translated?.title ?? '',
                     count: variantCount,
                 }),
             });

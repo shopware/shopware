@@ -38,9 +38,22 @@ let deviceHelper: DeviceHelper | null = null;
  * registration carry one. `$device` is an Options API global the registry cannot reach anyway.
  */
 function systemKey(): string {
-    deviceHelper ??= new Shopware.Helper.DeviceHelper() as unknown as DeviceHelper;
+    if (!deviceHelper) {
+        const helper: object = new Shopware.Helper.DeviceHelper();
+
+        if (!isDeviceHelper(helper)) {
+            throw new Error('Shopware.Helper.DeviceHelper does not provide getSystemKey()');
+        }
+
+        deviceHelper = helper;
+    }
 
     return deviceHelper.getSystemKey();
+}
+
+/** `DeviceHelper` is a JS constructor function, so TypeScript cannot see the methods on its prototype. */
+function isDeviceHelper(helper: object): helper is DeviceHelper {
+    return 'getSystemKey' in helper && typeof helper.getSystemKey === 'function';
 }
 
 function areShortcutsDisabled(): boolean {
@@ -141,57 +154,60 @@ function getMatchedShortcut(shortcutKey: string, allowSequence: boolean): Shortc
     return findShortcut(shortcutKey);
 }
 
+function isSystemKeyPressed(event: KeyboardEvent): boolean {
+    return systemKey() === 'CTRL' ? event.ctrlKey : event.altKey;
+}
+
+function combinedKeyOf(event: KeyboardEvent): string {
+    return (isSystemKeyPressed(event) ? 'SYSTEMKEY+' : '') + event.key.toUpperCase();
+}
+
+/** Keystrokes that may never fire a shortcut. They also drop a half-typed sequence. */
+function isBlockedKeystroke(event: KeyboardEvent): boolean {
+    if (areShortcutsDisabled()) {
+        return true;
+    }
+
+    if (event.target instanceof Element && event.target.closest('.sw-modal, .sw-modal__dialog, .mt-modal')) {
+        return true;
+    }
+
+    return !isSystemKeyPressed(event) && isRestrictedSource(event);
+}
+
+/** Blur editable fields, rich text and code editor inputs on save so the handler reads their committed value. */
+function blurEditableTargetOnSave(event: KeyboardEvent, shortcut: ShortcutRegistration): void {
+    const target = event.target instanceof HTMLElement ? event.target : null;
+
+    if (!target || shortcut.key.toUpperCase() !== 'SYSTEMKEY+S') {
+        return;
+    }
+
+    if (target.isContentEditable || isRestrictedSource(event) || target.classList.contains('ace_text-input')) {
+        target.blur();
+    }
+}
+
 function handleKeyDown(event: KeyboardEvent): void {
     if (event.repeat) {
         return;
     }
 
-    if (areShortcutsDisabled()) {
-        resetSequence();
-
-        return;
-    }
-
-    const eventTarget = event.target instanceof Element ? event.target : null;
-
-    if (eventTarget?.closest('.sw-modal, .sw-modal__dialog, .mt-modal')) {
-        resetSequence();
-
-        return;
-    }
-
-    const { key, altKey, ctrlKey, metaKey } = event;
-    const systemKeyPressed = systemKey() === 'CTRL' ? ctrlKey : altKey;
-    const combinedKey = (systemKeyPressed ? 'SYSTEMKEY+' : '') + key.toUpperCase();
-
-    if (!isSystemShortcut(combinedKey) && isRestrictedSource(event)) {
+    if (isBlockedKeystroke(event)) {
         resetSequence();
 
         return;
     }
 
     // Browser shortcuts like Ctrl+C keep matching single keys, but never start or continue a key sequence
-    const isModifiedKey = altKey || ctrlKey || metaKey;
-    const matchedShortcut = getMatchedShortcut(combinedKey, !isModifiedKey);
+    const isModifiedKey = event.altKey || event.ctrlKey || event.metaKey;
+    const matchedShortcut = getMatchedShortcut(combinedKeyOf(event), !isModifiedKey);
 
-    if (!matchedShortcut || !matchedShortcut.active(event)) {
+    if (!matchedShortcut?.active(event)) {
         return;
     }
 
-    // Blur editable fields, rich text and code editor inputs on save so their changes are committed
-    // before the handler reads them.
-    const editableTarget = eventTarget as HTMLElement | null;
-
-    if (
-        matchedShortcut.key.toUpperCase() === 'SYSTEMKEY+S' &&
-        (editableTarget?.isContentEditable ||
-            isRestrictedSource(event) ||
-            editableTarget?.classList.contains('ace_text-input')) &&
-        typeof editableTarget?.blur === 'function'
-    ) {
-        editableTarget.blur();
-    }
-
+    blurEditableTargetOnSave(event, matchedShortcut);
     matchedShortcut.handler();
 }
 
@@ -207,7 +223,7 @@ export function registerShortcut(registration: ShortcutRegistration): () => void
 
     if (!listenerAttached) {
         listenerAttached = true;
-        // eslint-disable-next-line listeners/no-missing-remove-event-listener
+        // eslint-disable-next-line listeners/no-missing-remove-event-listener -- the listener lives as long as the app
         document.addEventListener('keydown', handleKeyDown);
     }
 

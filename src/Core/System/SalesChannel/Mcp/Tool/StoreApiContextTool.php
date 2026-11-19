@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
     annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Read the current Store API sales-channel context for this MCP session, including sales channel, language, currency, context token, and whether a customer is authenticated.'
 )]
-#[McpToolGroup('store-api')]
+#[McpToolGroup('store-api', description: 'Read the shopper context of this session: sales channel, language, currency and whether a customer is logged in.')]
 class StoreApiContextTool extends McpToolResponse
 {
     public function __construct(

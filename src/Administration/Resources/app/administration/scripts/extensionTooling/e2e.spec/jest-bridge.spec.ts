@@ -13,6 +13,7 @@ import { execFileSync, spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { setupExtensionTooling } from '../setup';
+import { createJestRunner, testExtensions } from '../test';
 import {
     cleanupTempProject,
     createTempProject,
@@ -32,12 +33,13 @@ const generatedFiles = [
 ];
 
 /**
- * Unpacks the Administration's `test/` folder from the committed bundle into
+ * Unpacks the Jest harness (the Administration's `test/` and `scripts/`
+ * folders) from the committed bundle into
  * `packageRoot`, exactly as `git archive` packs it for the Composer package.
  * Files the package must not ship are absent, so the e2e catches a harness
  * file that `.gitattributes` excludes by mistake.
  */
-function extractPackagedTests(packageRoot: string): void {
+function extractPackagedHarness(packageRoot: string): void {
     const repositoryRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], {
         cwd: realAdministrationRoot,
         encoding: 'utf8',
@@ -45,32 +47,29 @@ function extractPackagedTests(packageRoot: string): void {
     const bundlePath = path.relative(repositoryRoot, realBundleRoot);
 
     // The archive root is the bundle, so its .gitattributes applies the way the package split applies it.
-    const packagedTests = execFileSync(
+    const packagedHarness = execFileSync(
         'git',
         [
             'archive',
             '--format=tar',
             `HEAD:${bundlePath}`,
             'Resources/app/administration/test',
+            'Resources/app/administration/scripts',
         ],
         { cwd: repositoryRoot, maxBuffer: 64 * 1024 * 1024 },
     );
-    execFileSync('tar', ['-x', '-C', packageRoot], { input: packagedTests });
+    execFileSync('tar', ['-x', '-C', packageRoot], { input: packagedHarness });
 }
 
 /**
  * Stands in for a Composer install: the shopware/administration package with
- * its `test/` folder exactly as `git archive` packs it, the files every
+ * its Jest harness exactly as `git archive` packs it, the files every
  * installation generates itself, and the Core bundle in lowercase
  * `vendor/shopware/core`.
  */
 function createComposerInstall(projectRoot: string): string {
     const administrationRoot = createVendorAdmin(projectRoot, { entitySchema: 'none' });
-    extractPackagedTests(path.resolve(administrationRoot, '../../..'));
-
-    // The meta-glob transform matches the real path of src/, which per-entry symlinks would move out of it.
-    fs.rmSync(path.join(administrationRoot, 'src'), { recursive: true });
-    fs.symlinkSync(path.join(realAdministrationRoot, 'src'), path.join(administrationRoot, 'src'), 'dir');
+    extractPackagedHarness(path.resolve(administrationRoot, '../../..'));
 
     // The harness reads these committed sources, which the package ships but createVendorAdmin does not copy.
     fs.symlinkSync(path.join(realAdministrationRoot, 'build'), path.join(administrationRoot, 'build'), 'dir');
@@ -97,6 +96,7 @@ describe.each([
     ['a Composer install', createComposerInstall],
 ])('extension tooling jest bridge in %s (e2e)', (_layout, installAdministration) => {
     let projectRoot: string;
+    let administrationRoot: string;
     let adminFolder: string;
 
     beforeAll(() => {
@@ -171,7 +171,8 @@ describe.each([
             },
         ]);
 
-        setupExtensionTooling({ projectRoot, administrationRoot: installAdministration(projectRoot) });
+        administrationRoot = installAdministration(projectRoot);
+        setupExtensionTooling({ projectRoot, administrationRoot });
     }, JEST_TIMEOUT);
 
     afterAll(() => {
@@ -196,6 +197,29 @@ describe.each([
             // A major lane skips the `it.deprecated` test, so only the total is fixed.
             expect(run.stderr).toMatch(/Tests:.* 5 total/);
             expect(run.status).toBe(0);
+        },
+        JEST_TIMEOUT,
+    );
+
+    it(
+        'runs the extension spec through admin:test-extensions',
+        async () => {
+            const result = await testExtensions({
+                projectRoot,
+                administrationRoot,
+                only: 'JestPlugin',
+                runJest: createJestRunner(administrationRoot, 'ignore'),
+            });
+
+            expect(result.runs).toMatchObject([
+                {
+                    extension: 'JestPlugin',
+                    config: 'custom/plugins/JestPlugin/src/Resources/app/administration/jest.config.mjs',
+                    exitCode: 0,
+                },
+            ]);
+            expect(result.runs[0].testCount).toBeGreaterThan(0);
+            expect(result.exitCode).toBe(0);
         },
         JEST_TIMEOUT,
     );

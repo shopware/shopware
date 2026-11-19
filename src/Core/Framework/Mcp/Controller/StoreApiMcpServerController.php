@@ -2,19 +2,29 @@
 
 namespace Shopware\Core\Framework\Mcp\Controller;
 
+use Mcp\Exception\SessionStoreException;
+use Mcp\Schema\JsonRpc\Error;
 use Mcp\Server;
+use Mcp\Server\Session\SessionStoreInterface;
+use Mcp\Server\Stateless\StatelessProtocol;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
+use Shopware\Core\Framework\Mcp\McpServerInstructions;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -47,6 +57,7 @@ class StoreApiMcpServerController
         private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?LoggerInterface $logger = null,
         private readonly ?McpListChangedNotifier $listChangedNotifier = null,
+        private readonly ?SessionStoreInterface $sessionStore = null,
     ) {
     }
 
@@ -65,15 +76,81 @@ class StoreApiMcpServerController
         $this->sessionIdValidator->validate($request);
         $this->rateLimiter->enforceForStoreApi($request);
 
+        if ($this->deletesUnknownSession($request)) {
+            return $this->transportFactory->createResponse(
+                $this->server->run($this->transportFactory->createTransport($request, sessionNotFound: true)),
+            );
+        }
+
         $this->logger?->debug('Store API MCP request', [
             'method' => $request->getMethod(),
             'clientIp' => $request->getClientIp(),
         ]);
 
+        if (($declined = $this->declineListen($request)) !== null) {
+            return $declined;
+        }
+
         $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
         $this->flushPendingToolsListChanged($request);
 
-        return $this->transportFactory->createResponse($psrResponse);
+        $response = $this->transportFactory->createResponse($psrResponse);
+        McpServerInstructions::applyToStatelessDiscover($request, $response);
+
+        return $response;
+    }
+
+    /**
+     * The Store API server has no notification bus and announces no list changes, so a
+     * `subscriptions/listen` stream can never carry anything. mcp/sdk 0.9 still holds such a stream,
+     * and the PHP worker with it, for the whole subscription lifetime. It is answered here like a
+     * method the server does not serve, before a stream is opened.
+     *
+     * @todo Remove once mcp/sdk is raised to ^0.10.0, which ends a listen stream that can carry
+     *       nothing right after its acknowledgment (https://github.com/modelcontextprotocol/php-sdk/pull/618).
+     */
+    private function declineListen(Request $request): ?JsonResponse
+    {
+        if (!$request->isMethod(Request::METHOD_POST) || !McpProtocolEra::isStateless($request)) {
+            return null;
+        }
+
+        try {
+            $message = Json::decodeToArray($request->getContent());
+        } catch (JsonDecodingException) {
+            return null;
+        }
+
+        if (($message['method'] ?? null) !== StatelessProtocol::LISTEN_METHOD) {
+            return null;
+        }
+
+        $id = $message['id'] ?? null;
+        $error = Error::forMethodNotFound(
+            'The Store API MCP server publishes no notifications, so it does not serve subscriptions/listen.',
+            \is_string($id) || \is_int($id) ? $id : null,
+        );
+
+        return new JsonResponse($error, Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * The SDK answers a DELETE without checking its session store, and `McpSessionCleanupSubscriber`
+     * then drops the cached results and toolsets of the named session. Session ids are not scoped per
+     * endpoint in those tables, so a DELETE here must not end a session of the Admin API endpoint.
+     */
+    private function deletesUnknownSession(Request $request): bool
+    {
+        $sessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '';
+        if ($this->sessionStore === null || !$request->isMethod(Request::METHOD_DELETE) || !Uuid::isValid($sessionId)) {
+            return false;
+        }
+
+        try {
+            return !$this->sessionStore->exists(Uuid::fromString($sessionId));
+        } catch (SessionStoreException) {
+            return true;
+        }
     }
 
     /**

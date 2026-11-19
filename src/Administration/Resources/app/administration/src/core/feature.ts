@@ -57,6 +57,17 @@ function isBaselined(message: string): boolean {
 }
 
 /**
+ * The spelling-independent key of a major flag, so `v6.8.0.0` and `V6_8_0_0` silence the same deprecations.
+ *
+ * @private
+ * @example
+ * silenceKey('v6.8.0.0'); // 'V6_8_0_0'
+ */
+export function silenceKey(majorFlag: string): string {
+    return majorFlag.toUpperCase().replace(/\./g, '_');
+}
+
+/**
  * A static registry containing a list of all registered flags and the associated activation state
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -64,6 +75,11 @@ export default class Feature {
     static flags: { [featureName: string]: boolean } = {};
 
     private static reportedDeprecations = new Set<string>();
+
+    /** How deep the `Feature.silence()` calls of each major are nested, by `silenceKey()`. */
+    private static silencedMajors = new Map<string, number>();
+
+    private static silenceChecks = new Map<string, (majorFlag: string) => boolean>();
 
     static init(flagConfig: { [featureName: string]: boolean }): void {
         Object.entries(flagConfig).forEach(([flagName, isActive]) => {
@@ -106,11 +122,100 @@ export default class Feature {
     }
 
     /**
+     * Runs `callback` with the deprecations of `majorFlag` silenced and returns its result, like the PHP
+     * `Feature::silent()`. Use it on the pre-major side of a feature-flag branch, where the old path still calls
+     * deprecated APIs on purpose. Calls of the same APIs outside of it still report.
+     *
+     * Silencing ends when `callback` returns, so it must be synchronous: a returned promise throws. Once
+     * `majorFlag` is active nothing is silenced, so a call outside of its branch still throws. An unknown flag, like
+     * the typo `V6_8_0`, silences nothing and logs an error.
+     *
+     * @experimental stableVersion:v6.8.0 feature:ADMIN_DEPRECATION_SILENCE
+     * @example
+     * if (!Shopware.Feature.isActive('V6_8_0_0')) {
+     *     Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
+     * } else {
+     *     registerModuleLocales();
+     * }
+     */
+    static silence<TResult>(majorFlag: string, callback: () => TResult): TResult {
+        const flag = silenceKey(majorFlag);
+
+        if (this.isActive(flag)) {
+            return callback();
+        }
+
+        if (!this.isKnownMajor(flag)) {
+            error(
+                'Feature',
+                `Feature.silence('${majorFlag}') silences nothing: "${majorFlag}" is an unknown feature flag. Please fix it.`,
+            );
+
+            return callback();
+        }
+
+        this.silencedMajors.set(flag, (this.silencedMajors.get(flag) ?? 0) + 1);
+
+        try {
+            const result = callback();
+
+            if (result instanceof Promise) {
+                throw new Error(
+                    `Feature.silence('${majorFlag}') silences only synchronous code: await outside of the callback.`,
+                );
+            }
+
+            return result;
+        } finally {
+            const depth = (this.silencedMajors.get(flag) ?? 1) - 1;
+
+            if (depth === 0) {
+                this.silencedMajors.delete(flag);
+            } else {
+                this.silencedMajors.set(flag, depth);
+            }
+        }
+    }
+
+    /**
+     * Sets a check that silences deprecations beyond `Feature.silence()`, replacing the one of the same name, so a
+     * module that runs again does not add a second one. The app layer sets the one of the `sw-silence-deprecations`
+     * component here, as `src/core` does not know Vue. A check gets the flag as `silenceKey()` spells it, and only
+     * while the major is inactive.
+     *
+     * @private
+     * @example
+     * Feature.setSilenceCheck('sw-silence-deprecations', (majorFlag) => isSilencedByScope(majorFlag));
+     */
+    static setSilenceCheck(name: string, check: (majorFlag: string) => boolean): void {
+        this.silenceChecks.set(name, check);
+    }
+
+    /**
+     * Whether the deprecations of `majorFlag` are silenced right now: inside a `Feature.silence()` callback, or
+     * by a check like the one of the `sw-silence-deprecations` component. Never once `majorFlag` is active.
+     *
+     * @private
+     * @example
+     * Feature.isSilenced('V6_8_0_0'); // true inside `Feature.silence('V6_8_0_0', callback)`
+     */
+    static isSilenced(majorFlag: string): boolean {
+        const flag = silenceKey(majorFlag);
+
+        if (this.isActive(flag)) {
+            return false;
+        }
+
+        return this.silencedMajors.has(flag) || [...this.silenceChecks.values()].some((check) => check(flag));
+    }
+
+    /**
      * Guards a deprecated API where it is used, like the PHP `Feature::triggerDeprecationOrThrow()`:
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
      * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.
      * An unregistered flag can never become active, so it logs an error instead of the warning, unless it is
-     * an upcoming major the backend does not register yet.
+     * an upcoming major the backend does not register yet. While `Feature.silence()` or `sw-silence-deprecations`
+     * silence `majorFlag` it does nothing.
      *
      * @example
      * Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
@@ -123,8 +228,9 @@ export default class Feature {
             throw new Error(`Tried to access deprecated functionality: ${message}`);
         }
 
-        // A deprecated computed property is read on every render, so report only once per message.
-        if (this.reportedDeprecations.has(message)) {
+        // A deprecated computed property is read on every render, so report only once per message, and check that
+        // before `isSilenced()`, which walks up the component tree.
+        if (this.reportedDeprecations.has(message) || this.isSilenced(majorFlag)) {
             return;
         }
 

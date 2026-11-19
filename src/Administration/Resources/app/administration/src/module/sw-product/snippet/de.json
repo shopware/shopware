@@ -670,7 +670,6 @@
       "removeFromVariants": "Auch aus Varianten entfernen, bei denen die Dokumentvererbung aufgehoben wurde",
       "removeFromVariantsHelp": "Varianten, die die Dokumente des übergeordneten Produkts erben, verlieren es automatisch. Dies entfernt es auch aus Varianten, bei denen die Vererbung aufgehoben wurde, solange ihre Kopie dieses Dokuments noch denselben Namen und dieselbe Datei hat.",
       "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Bitte versuche es erneut.",
-      "errorPrivateMedia": "Produktdokumente müssen öffentliche Mediendateien verwenden.",
       "errorDocumentDuplicated": "Diese Datei ist dem Produkt bereits zugewiesen.",
       "languageHint": "Füge Dokumente in der Standardsprache hinzu. Wechsle die Inhaltssprache, um ihre Namen und Dateien zu übersetzen.",
       "fileUploadLabel": "Datei-Upload",

@@ -78,40 +78,67 @@ describe('sw-product-document-form dialog sessions', () => {
         },
     );
 
-    it.each([
-        ['resolves', false, []],
-        [
-            'fails',
-            true,
-            [expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadMedia' })],
-        ],
-    ])(
-        'does not add a document when its media load %s after the form unmounted',
-        async (_outcome, reject, notifications) => {
-            const repository = repositoryFactory.create('media');
-            const media = createMedia();
-            let settle!: () => void;
-            jest.spyOn(repository, 'get').mockImplementationOnce(
-                () =>
-                    new Promise((resolve, rejectRequest) => {
-                        settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
-                    }),
-            );
-            const wrapper = await createWrapper(repository);
-            const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-            wrapper
-                .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
-                .vm.$emit('media-upload-finish', { targetId: media.id });
-            await flushPromises();
-            wrapper.unmount();
-            settle();
-            await flushPromises();
+    function mockLateMedia(reject = false) {
+        const repository = repositoryFactory.create('media');
+        const media = createMedia();
+        let settle!: () => void;
+        jest.spyOn(repository, 'get').mockImplementationOnce(
+            () =>
+                new Promise((resolve, rejectRequest) => {
+                    settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
+                }),
+        );
 
-            expect(getDocuments()).toHaveLength(0);
-            expect(mockSnackbar).not.toHaveBeenCalled();
-            expect(notification.mock.calls.map(([config]) => config)).toEqual(notifications);
-        },
-    );
+        return { repository, media, settle: () => settle() };
+    }
+
+    async function finishUpload(wrapper: VueWrapper, mediaId: string) {
+        wrapper
+            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
+            .vm.$emit('media-upload-finish', { targetId: mediaId });
+        await flushPromises();
+    }
+
+    it('adds the uploaded document to the same product when its media load resolves after the form unmounted', async () => {
+        const { repository, media, settle } = mockLateMedia();
+        const wrapper = await createWrapper(repository);
+        await finishUpload(wrapper, media.id);
+        wrapper.unmount();
+        settle();
+        await flushPromises();
+
+        expect(getDocuments()).toHaveLength(1);
+        expect(getDocuments()?.first()?.mediaId).toBe(media.id);
+    });
+
+    it('does not add the uploaded document when another product was loaded before its media load resolves', async () => {
+        const { repository, media, settle } = mockLateMedia();
+        const wrapper = await createWrapper(repository);
+        const product = Shopware.Store.get('swProductDetail').product;
+        await finishUpload(wrapper, media.id);
+        Shopware.Store.get('swProductDetail').product = createProduct();
+        settle();
+        await flushPromises();
+
+        expect(product.documents).toHaveLength(0);
+        expect(getDocuments()).toHaveLength(0);
+    });
+
+    it('shows an error when the media load fails after the form unmounted', async () => {
+        const { repository, media, settle } = mockLateMedia(true);
+        const wrapper = await createWrapper(repository);
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        await finishUpload(wrapper, media.id);
+        wrapper.unmount();
+        settle();
+        await flushPromises();
+
+        expect(getDocuments()).toHaveLength(0);
+        expect(mockSnackbar).not.toHaveBeenCalled();
+        expect(notification.mock.calls.map(([config]) => config)).toEqual([
+            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadMedia' }),
+        ]);
+    });
 
     it('adds the uploaded document after another document editor is opened and cancelled', async () => {
         const repository = repositoryFactory.create('media');

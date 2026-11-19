@@ -76,24 +76,18 @@ describe('sw-product-document-form media assignment', () => {
         expect(checkByType(new File(['video'], 'video.mp4', { type: 'video/mp4' }), accept)).toBe(false);
     });
 
-    it('rejects duplicate and private media', async () => {
+    it('rejects duplicate media', async () => {
         const wrapper = await createWrapper();
         const media = createMedia();
-        const privateMedia = createMedia('private');
-        privateMedia.private = true;
         await addDocuments(wrapper, [media]);
         mockSnackbar.mockClear();
 
-        await addDocuments(wrapper, [media, privateMedia]);
+        await addDocuments(wrapper, [media]);
 
         expect(wrapper.findAll('.document-row')).toHaveLength(1);
         expect(mockSnackbar).toHaveBeenCalledWith({
             variant: 'error',
             message: 'sw-product.documentForm.errorDocumentDuplicated',
-        });
-        expect(mockSnackbar).toHaveBeenCalledWith({
-            variant: 'error',
-            message: 'sw-product.documentForm.errorPrivateMedia',
         });
     });
 

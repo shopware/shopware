@@ -12,7 +12,7 @@ import './sw-product-document-form.scss';
 
 type DocumentGrid = { resetSelection: () => void };
 
-type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean; restoreInheritance: () => void };
+type DocumentInheritance = { restoreInheritance: () => void };
 
 /** @private */
 export type DocumentUploadRules = {
@@ -63,6 +63,7 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             showRestoreInheritanceModal: false,
+            isInheritanceRemoved: false,
             mediaFolderId: undefined as string | null | undefined,
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
@@ -83,8 +84,22 @@ export default Shopware.Component.wrapComponentConfig({
             return this.product.documents as EntityCollection<'product_document'>;
         },
 
+        isInherited(): boolean {
+            return !!this.product.parentId && !this.isInheritanceRemoved && !this.documents.length;
+        },
+
+        currentDocuments(): EntityCollection<'product_document'> {
+            return this.isInherited
+                ? (this.parentProduct.documents as EntityCollection<'product_document'>)
+                : this.documents;
+        },
+
         pageOffset(): number {
             return (this.page - 1) * this.limit;
+        },
+
+        paginatedDocuments(): Entity<'product_document'>[] {
+            return this.currentDocuments.slice(this.pageOffset, this.pageOffset + this.limit);
         },
 
         documentRepository(): Repository<'product_document'> {
@@ -116,8 +131,16 @@ export default Shopware.Component.wrapComponentConfig({
             return !this.disabled && this.acl.can('product.editor') && isLanguageReady;
         },
 
+        canEditDocuments(): boolean {
+            return this.canEdit && !this.isInherited;
+        },
+
         canAddDocuments(): boolean {
-            return this.canEdit && this.isSystemDefaultLanguage;
+            return this.canEditDocuments && this.isSystemDefaultLanguage;
+        },
+
+        isDocumentSelectable(): (document: Entity<'product_document'>) => boolean {
+            return (document) => this.canEditDocuments && !this.isMissingLanguageVersion(document);
         },
 
         contentLanguageName(): string {
@@ -185,6 +208,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.page = 1;
             this.showUploadModal = false;
             this.showRestoreInheritanceModal = false;
+            this.isInheritanceRemoved = false;
             this.editingDocument = null;
             this.documentsToRemove = [];
             this.selectedDocuments = [];
@@ -207,14 +231,6 @@ export default Shopware.Component.wrapComponentConfig({
             return typeof fileSize === 'number' ? Utils.format.fileSize(fileSize) : '';
         },
 
-        getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
-            return documents.slice(this.pageOffset, this.pageOffset + this.limit);
-        },
-
-        getDocumentSelectionFilter(isInherited: boolean): (document: Entity<'product_document'>) => boolean {
-            return (document) => this.canEdit && !isInherited && !this.isMissingLanguageVersion(document);
-        },
-
         canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
             const index = this.documents.indexOf(document);
             const newIndex = index + offset;
@@ -224,11 +240,6 @@ export default Shopware.Component.wrapComponentConfig({
         onPageChange({ page, limit }: { page: number; limit: number }): void {
             this.page = page;
             this.limit = limit;
-        },
-
-        canChangeDocuments(): boolean {
-            const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
-            return this.canEdit && inheritance?.isInherited === false;
         },
 
         refreshPositions(documents: EntityCollection<'product_document'>): void {
@@ -246,9 +257,10 @@ export default Shopware.Component.wrapComponentConfig({
             successAmount?: number;
             totalAmount?: number;
         }): Promise<void> {
+            const productId = this.product.id;
             try {
                 const media = await this.mediaRepository.get(targetId, Context.api);
-                if (media) {
+                if (media && Store.get('swProductDetail').product.id === productId) {
                     const documentCount = this.documents.length;
                     this.addDocuments([media]);
                     if (this.documents.length > documentCount && successAmount === totalAmount) {
@@ -262,12 +274,12 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        addDocuments(mediaItems: Entity<'media'>[]): void {
-            if (!this.canChangeDocuments() || !this.isSystemDefaultLanguage) {
+        addDocuments(documentFiles: Entity<'media'>[]): void {
+            if (!this.canAddDocuments) {
                 return;
             }
 
-            mediaItems
+            documentFiles
                 .filter((media) => this.isValidMedia(media, null))
                 .forEach((media) => {
                     const document = this.documentRepository.create(Context.api);
@@ -283,7 +295,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         moveDocument(document: Entity<'product_document'>, offset: number): void {
-            if (!this.canChangeDocuments() || !this.canMoveDocument(document, offset)) {
+            if (!this.canEditDocuments || !this.canMoveDocument(document, offset)) {
                 return;
             }
 
@@ -293,7 +305,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openDocumentEditor(document: Entity<'product_document'>): void {
-            if (this.canChangeDocuments()) {
+            if (this.canEditDocuments) {
                 this.editingDocument = document;
             }
         },
@@ -317,9 +329,7 @@ export default Shopware.Component.wrapComponentConfig({
             );
             let message: string | null = null;
 
-            if (media.private) {
-                message = this.$t('sw-product.documentForm.errorPrivateMedia');
-            } else if (!allowedExtensions.includes(extension) || (media.fileSize ?? Infinity) > maxFileSize) {
+            if (!allowedExtensions.includes(extension) || (media.fileSize ?? Infinity) > maxFileSize) {
                 message = this.uploadHint;
             } else if (isDuplicate) {
                 message = this.$t('sw-product.documentForm.errorDocumentDuplicated');
@@ -365,7 +375,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openRemoveDocumentModal(document: Entity<'product_document'> | Entity<'product_document'>[]): void {
-            if (!this.canChangeDocuments()) {
+            if (!this.canEditDocuments) {
                 return;
             }
 
@@ -396,7 +406,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return this.documents;
             }
 
-            (this.$refs.documentInheritance as DocumentInheritance).forceInheritanceRemove = true;
+            this.isInheritanceRemoved = true;
             const entityFactory = this.entityFactory as EntityFactory;
             inheritedDocuments.forEach((source) => {
                 const document = this.documentRepository.create(Context.api);
@@ -431,6 +441,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.showRestoreInheritanceModal = false;
             (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
             this.selectedDocuments = [];
+            this.isInheritanceRemoved = false;
             (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
             useSnackbar().addSnackbar({
                 variant: 'success',

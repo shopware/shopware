@@ -8,9 +8,10 @@
     :has-parent="!!product.parentId"
     :disabled="!canEdit"
     :custom-remove-inheritance-function="removeDocumentInheritance"
+    :custom-inheritation-check-function="() => isInherited"
     is-association
 >
-    <template #content="{ currentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
+    <template #content="{ isInheritField, removeInheritance }">
         <div
             class="sw-product-document-form-wrapper"
             :class="{ 'is--disabled': disabled || isInherited }"
@@ -35,7 +36,7 @@
                             @inheritance-remove="removeInheritance"
                         />
                         <h3 class="mt-card__title">
-                            {{ $t('sw-product.documentForm.cardTitle', { count: currentValue.length }) }}
+                            {{ $t('sw-product.documentForm.cardTitle', { count: currentDocuments.length }) }}
                         </h3>
                     </div>
                 {% endblock %}
@@ -44,10 +45,10 @@
                 <template #headerRight>
                 {% block sw_product_document_form_add %}
                     <sw-product-document-add-button
-                        v-if="currentValue.length"
+                        v-if="currentDocuments.length"
                         class="sw-product-document-form__add-button"
                         :is-inherited="isInherited"
-                        :disabled="isInherited || !canAddDocuments"
+                        :disabled="!canAddDocuments"
                         @documents-add="showUploadModal = true"
                     />
                 {% endblock %}
@@ -56,14 +57,14 @@
                 <template #grid>
                 {% block sw_product_document_form_empty %}
                     <div
-                        v-if="!currentValue.length"
+                        v-if="!currentDocuments.length"
                         class="sw-product-document-form__empty-state"
                     >
                         <sw-product-document-empty-state>
                             <template #add-button>
                                 {% block sw_product_document_form_empty_add %}
                                 <mt-button
-                                    :disabled="isInherited || !canAddDocuments"
+                                    :disabled="!canAddDocuments"
                                     size="small"
                                     variant="secondary"
                                     @click="showUploadModal = true"
@@ -78,10 +79,10 @@
 
                 {% block sw_product_document_form_grid %}
                     <sw-data-grid
-                        v-if="currentValue.length"
+                        v-if="currentDocuments.length"
                         ref="documentGrid"
                         identifier="sw-product-document-grid"
-                        :data-source="getPaginatedDocuments(currentValue)"
+                        :data-source="paginatedDocuments"
                         :columns="documentColumns"
                         :show-selection="true"
                         :show-settings="true"
@@ -89,7 +90,7 @@
                         :allow-column-edit="false"
                         :compact-mode="true"
                         :plain-appearance="false"
-                        :is-record-selectable="getDocumentSelectionFilter(isInherited)"
+                        :is-record-selectable="isDocumentSelectable"
                         @select-item="onDocumentSelectionChange"
                         @select-all-items="onDocumentSelectionChange"
                     >
@@ -97,7 +98,7 @@
                             <sw-pagination
                                 :page="page"
                                 :limit="limit"
-                                :total="currentValue.length"
+                                :total="currentDocuments.length"
                                 @page-change="onPageChange"
                             />
                         </template>
@@ -105,7 +106,7 @@
                             <mt-link
                                 as="button"
                                 variant="critical"
-                                :disabled="!canEdit || isInherited || !selectedDocuments.length"
+                                :disabled="!canEditDocuments || !selectedDocuments.length"
                                 @click="openRemoveDocumentModal(selectedDocuments)"
                             >
                                 {{ removeActionLabel }}
@@ -123,7 +124,7 @@
                                     square
                                     size="x-small"
                                     :aria-label="$t('sw-product.documentForm.contextMoveDown')"
-                                    :disabled="!canEdit || isInherited || !canMoveDocument(item, 1)"
+                                    :disabled="!canEditDocuments || !canMoveDocument(item, 1)"
                                     variant="secondary"
                                     @click="moveDocument(item, 1)"
                                 ><mt-icon
@@ -134,7 +135,7 @@
                                     square
                                     size="x-small"
                                     :aria-label="$t('sw-product.documentForm.contextMoveUp')"
-                                    :disabled="!canEdit || isInherited || !canMoveDocument(item, -1)"
+                                    :disabled="!canEditDocuments || !canMoveDocument(item, -1)"
                                     variant="secondary"
                                     @click="moveDocument(item, -1)"
                                 ><mt-icon
@@ -149,7 +150,7 @@
                             <mt-link
                                 as="a"
                                 class="sw-product-document-form__edit-link"
-                                :disabled="!canEdit || isInherited"
+                                :disabled="!canEditDocuments"
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
@@ -166,7 +167,7 @@
                             <mt-link
                                 as="a"
                                 class="sw-product-document-form__edit-link"
-                                :disabled="!canEdit || isInherited"
+                                :disabled="!canEditDocuments"
                                 @click="openDocumentEditor(item)"
                                 @keydown.enter="openDocumentEditor(item)"
                             >
@@ -190,7 +191,7 @@
                     {% block sw_product_document_form_actions %}
                         <template #actions="{ item }">
                             <sw-context-menu-item
-                                :disabled="!canEdit || isInherited"
+                                :disabled="!canEditDocuments"
                                 @click="openDocumentEditor(item)"
                             >
                                 {{ getEditActionLabel(item) }}
@@ -202,7 +203,7 @@
                             <sw-context-menu-item
                                 v-if="isSystemDefaultLanguage || item.title || item.mediaId"
                                 variant="danger"
-                                :disabled="!canEdit || isInherited"
+                                :disabled="!canEditDocuments"
                                 @click="openRemoveDocumentModal(item)"
                             >
                                 {{ removeActionLabel }}
@@ -246,7 +247,7 @@
                         :extension-mime-types-by-extension="uploadRules.allowedMimeTypesByExtension"
                         :max-file-size="uploadRules.maxFileSize"
                         default-folder="product_document"
-                        :disabled="isInherited || !canAddDocuments"
+                        :disabled="!canAddDocuments"
                         @media-upload-sidebar-open="showMediaModal = true; showUploadModal = false"
                     />
                     {% endblock %}

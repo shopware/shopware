@@ -168,10 +168,11 @@ export default {
                     );
                     const apiError = error?.response?.data?.errors?.[0];
                     const reasonKey = `sw-users-permissions.roles.role-grid.notification.deleteError.${apiError?.code}`;
+                    const parameters = apiError?.meta?.parameters ?? {};
 
                     this.createNotificationError({
                         message: this.$te(reasonKey)
-                            ? `${message} ${this.$t(reasonKey, apiError.meta?.parameters ?? {})}`
+                            ? `${message} ${this.$t(reasonKey, parameters, parameters.count ?? 1)}`
                             : message,
                     });
                 });

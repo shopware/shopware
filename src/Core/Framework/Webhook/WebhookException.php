@@ -181,7 +181,7 @@ class WebhookException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::ACL_ROLE_USED_BY_WEBHOOK,
             'Role "{{ roleId }}" is used by the webhooks {{ webhookNames }}. Remove it from them before deleting it.',
-            ['roleId' => $roleId, 'webhookNames' => '"' . implode('", "', $webhookNames) . '"']
+            ['roleId' => $roleId, 'webhookNames' => '"' . implode('", "', $webhookNames) . '"', 'count' => \count($webhookNames)]
         );
     }
 }

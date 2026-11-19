@@ -52,7 +52,7 @@
                     },
                     "deleteError": {
                         "message": "Die Rolle \"{name}\" konnte nicht gelöscht werden.",
-                        "FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK": "Die Webhooks {webhookNames} verwenden sie."
+                        "FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK": "Der Webhook {webhookNames} verwendet sie. | Die Webhooks {webhookNames} verwenden sie."
                     }
                 }
             },

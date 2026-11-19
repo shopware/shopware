@@ -481,7 +481,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1 },
+                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
             );
 
             const calledRestrictions = syncSpy.mock.calls[0][0][0].payload[0].variantRestrictions;
@@ -602,7 +602,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1 },
+                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
             );
 
             syncSpy.mockRestore();
@@ -911,7 +911,7 @@ describe('/src/module/sw-product/helper/sw-products-variants-generator.spec.js',
                     },
                 ],
                 {},
-                { 'single-operation': 1 },
+                { 'single-operation': 1, 'indexing-behavior': 'use-queue-indexing' },
             );
 
             const calledConfig = syncSpy.mock.calls[0][0][0].payload[0].variantListingConfig;

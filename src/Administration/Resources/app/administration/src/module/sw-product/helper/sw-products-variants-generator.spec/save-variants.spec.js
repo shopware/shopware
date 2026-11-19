@@ -18,6 +18,26 @@ describe('src/module/sw-product/helper/sw-products-variants-generator saveVarian
         Shopware.Service().register('cacheApiService', () => ({ indexProducts() {} }));
     });
 
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
+    it('should reject when a chunk still fails after the retries', async () => {
+        jest.useFakeTimers();
+        const error = new Error('timeout of 30000ms exceeded');
+        const generator = new VariantsGenerator();
+        const sync = jest.fn(() => Promise.reject(error));
+        generator.syncService = { sync };
+
+        const onRejected = jest.fn();
+        generator.saveVariants({ deleteQueue: [], createQueue: createVariants(12) }).catch(onRejected);
+        await jest.advanceTimersByTimeAsync(15000);
+
+        expect(onRejected).toHaveBeenCalledWith(error);
+        // the first chunk plus three retries, the second chunk is never sent
+        expect(sync).toHaveBeenCalledTimes(4);
+    });
+
     it('should send indexing-behavior as a header with every request', async () => {
         const generator = new VariantsGenerator();
         const sync = jest.fn(() => Promise.resolve({ data: {}, deleted: {} }));

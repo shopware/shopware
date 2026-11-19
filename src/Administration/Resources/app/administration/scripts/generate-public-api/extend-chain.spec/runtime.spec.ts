@@ -3,95 +3,25 @@
  *
  * The generator merges the blocks along an extend chain itself, without running the Administration. These
  * tests register the same templates with the factory the Administration uses at runtime and compare the two
- * results, so the generator cannot drift from the rules of `template.factory.js`.
+ * results, the origin of every block included, so the generator cannot drift from the rules of `template.factory.js`.
  */
-import type { TwigToken } from 'src/core/factory/reconstruct-twig-template';
-import TemplateFactory from 'src/core/factory/template.factory';
 import { loadFeatureConfig, majorFlagsOf } from '../../feature-flags';
 import { listBlocks } from '../block-tree';
 import type { TemplateBlock } from '../block-tree';
 import { ADMINISTRATION_ROOT } from '../committed-snapshot';
 import { componentCalls } from '../component-registry';
 import { resolveTemplates } from '../extend-chain';
-import { BOTH_STATES, createFlagContext, FLAG_STATES, inBothStates } from '../flag-states';
+import { BOTH_STATES, createFlagContext, inBothStates } from '../flag-states';
 import type { FlagContext, FlagStates } from '../flag-states';
 import { buildModel } from '../model';
 import { readSourceTree } from '../source-tree';
 import { templateTree } from '../template-blocks';
-
-/** A component as both sides get it: the text of its Twig template and of its override templates. */
-interface Component {
-    name: string;
-    extends?: string | null;
-    template?: string | null;
-    overrides?: { index: number; template: string }[];
-}
+import { blockLines, fileOf, runtimeBlocks } from './runtime-blocks';
+import type { Component } from './runtime-blocks';
 
 const MAJOR = "feature.isActive('v6.8.0.0')";
 
 const FLAGS = createFlagContext(['v6.8.0.0']);
-
-function fileOf(name: string): string {
-    return `${name}.html.twig`;
-}
-
-/** One line per block and parent, so a difference names the block. */
-function blockLines(blocks: Pick<TemplateBlock, 'name' | 'parent' | 'states'>[]): string[] {
-    const states = new Map<string, Set<string>>();
-
-    blocks.forEach((block) => {
-        const key = `${block.parent ?? '(top level)'} > ${block.name}`;
-
-        states.set(key, new Set([...(states.get(key) ?? []), ...FLAG_STATES.filter((state) => block.states[state])]));
-    });
-
-    return [...states]
-        .filter(([, existsIn]) => existsIn.size > 0)
-        .map(([key, existsIn]) => `${key}  [${[...existsIn].sort().join(', ')}]`)
-        .sort();
-}
-
-/** The template the runtime built, as Twig source again, so the generator can read its blocks. */
-function twigSource(tokens: TwigToken[]): string {
-    return tokens
-        .map((token) => {
-            if (token.type === 'raw') {
-                return token.value ?? '';
-            }
-
-            if (token.token?.blockName !== undefined) {
-                return `{% block ${token.token.blockName} %}${twigSource(token.token.output ?? [])}{% endblock %}`;
-            }
-
-            return token.token?.type === 'parent' ? '{% parent %}' : '';
-        })
-        .join('');
-}
-
-function runtimeBlocks(components: Component[], flags: FlagContext): Map<string, TemplateBlock[]> {
-    TemplateFactory.getTemplateRegistry().clear();
-    TemplateFactory.getNormalizedTemplateRegistry().clear();
-    TemplateFactory.disableTwigCache();
-
-    components.forEach(({ name, extends: parent, template, overrides = [] }) => {
-        if (parent) {
-            TemplateFactory.extendComponentTemplate(name, parent, template ?? null);
-        } else if (template !== null && template !== undefined) {
-            TemplateFactory.registerComponentTemplate(name, template);
-        }
-
-        overrides.forEach((override) => TemplateFactory.registerTemplateOverride(name, override.template, override.index));
-    });
-
-    const resolved = TemplateFactory.resolveTemplates() as Map<string, { template: { tokens: TwigToken[] } }>;
-
-    return new Map(
-        [...resolved].map(([name, { template }]) => [
-            name,
-            listBlocks(templateTree(twigSource(template.tokens), fileOf(name), flags)),
-        ]),
-    );
-}
 
 function generatorBlocks(components: Component[], flags: FlagContext): Map<string, TemplateBlock[]> {
     const source = (name: string, template: string) => ({

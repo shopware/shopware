@@ -391,7 +391,9 @@ describe('scripts/generate-public-api/extend-chain in the snapshot', () => {
                         '}',
                     ].join('\n'),
                 }),
-                'the override of sw-example-card is registered in one flag state only.',
+                'the override of sw-example-card is registered in one flag state only. ' +
+                    'The snapshot cannot apply an override to one state of a template so far. ' +
+                    `Register the override in both states and branch its template with v-if="${MAJOR}".`,
             ],
             [
                 'an override whose index is not a number',

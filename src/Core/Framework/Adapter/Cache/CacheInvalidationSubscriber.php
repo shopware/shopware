@@ -475,6 +475,14 @@ class CacheInvalidationSubscriber
     }
 
     /**
+     * The fast path reads up to 100,000 joined rows for all requested media without sorting.
+     * A result below the limit is complete and can be yielded directly.
+     * Reaching the limit may truncate the result, so the probe is discarded and each media item
+     * is read using ordered keyset pagination over product and variant IDs.
+     * This scopes sorting to one media item's matches and lets the caller invalidate each batch
+     * before fetching the next, keeping PHP memory bounded as the number of matches grows.
+     * Duplicate cursor pairs produce identical tags and can safely be skipped on subsequent pages.
+     *
      * @param list<string> $mediaIds
      *
      * @return \Generator<int, list<array{product_id: string, variant_id: string|null}>>

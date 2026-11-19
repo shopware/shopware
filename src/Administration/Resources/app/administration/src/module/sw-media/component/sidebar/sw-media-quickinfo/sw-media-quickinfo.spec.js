@@ -35,42 +35,40 @@ const arPlacementOptions = [
 const originalCreateObjectURL = window.URL.createObjectURL;
 const originalRevokeObjectURL = window.URL.revokeObjectURL;
 
-function createSystemConfigApiService() {
+const arReadyElement = {
+    name: 'core.media.defaultEnableAugmentedReality',
+    type: 'bool',
+    config: {},
+};
+const arPlacementElement = {
+    name: 'core.media.defaultARPlacement',
+    type: 'single-select',
+    config: {
+        options: arPlacementOptions,
+    },
+};
+
+function mediaSchema(elements) {
+    return [{ name: null, title: {}, cards: [{ title: {}, elements }] }];
+}
+
+function createSystemConfigApiService(systemConfigApiServiceFunctions) {
     return {
         getValues: () =>
             Promise.resolve({
                 'core.store.media.defaultEnableAugmentedReality': 'false',
             }),
-        getSchema: () =>
-            Promise.resolve([
-                {
-                    name: null,
-                    title: {},
-                    cards: [
-                        {
-                            title: {},
-                            elements: [
-                                {
-                                    name: 'core.media.defaultEnableAugmentedReality',
-                                    type: 'bool',
-                                    config: {},
-                                },
-                                {
-                                    name: 'core.media.defaultARPlacement',
-                                    type: 'single-select',
-                                    config: {
-                                        options: arPlacementOptions,
-                                    },
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ]),
+        getSchema: () => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])),
+        ...systemConfigApiServiceFunctions,
     };
 }
 
-async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
+async function createWrapper(
+    itemMockOptions,
+    mediaServiceFunctions = {},
+    mediaRepositoryProvideFunctions = {},
+    systemConfigApiServiceFunctions = {},
+) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
         global: {
             mocks: {
@@ -93,7 +91,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
-                systemConfigApiService: createSystemConfigApiService(),
+                systemConfigApiService: createSystemConfigApiService(systemConfigApiServiceFunctions),
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     prepareDownloadMedia: jest.fn(),
@@ -230,7 +228,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
-    it('should load the AR placement options from the media system config', async () => {
+    async function openArPlacementSelect(getSchema) {
         const wrapper = await createWrapper(
             {
                 fileName: 'smth.glb',
@@ -241,15 +239,31 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             {
                 get: () => Promise.resolve({ config: { spatial: { arReady: true } } }),
             },
+            { getSchema },
         );
         await flushPromises();
 
         await wrapper.find('.mt-select__selection').trigger('click');
 
+        return wrapper;
+    }
+
+    it('should load the AR placement options from the media system config', async () => {
+        const getSchema = jest.fn(() => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])));
+
+        const wrapper = await openArPlacementSelect(getSchema);
+
+        expect(getSchema).toHaveBeenCalledWith('core.media');
         expect(wrapper.findAll('.mt-select-result').map((result) => result.text())).toEqual([
             'sw-media.sidebar.actions.horizontal',
             'sw-media.sidebar.actions.vertical',
         ]);
+    });
+
+    it('should offer no AR placement options when the media system config has no placement field', async () => {
+        const wrapper = await openArPlacementSelect(() => Promise.resolve(mediaSchema([arReadyElement])));
+
+        expect(wrapper.findAll('.mt-select-result')).toHaveLength(0);
     });
 
     it('should not be able to delete', async () => {

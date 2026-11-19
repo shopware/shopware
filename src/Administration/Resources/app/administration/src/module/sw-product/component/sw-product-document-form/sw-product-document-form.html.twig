@@ -13,7 +13,7 @@
     <template #content="{ currentValue, isInherited, isInheritField, restoreInheritance, removeInheritance }">
         <div
             class="sw-product-document-form-wrapper"
-            :class="{ 'is--disabled': disabled || isInherited }"
+            :class="{ 'is--disabled': !acl.can('product.editor') || isInherited }"
         >
             <mt-card
                 class="sw-product-document-form"

@@ -1112,6 +1112,27 @@ class ThemeServiceTest extends TestCase
         );
     }
 
+    public function testUpdateThemeWithSkipCompileStateDoesNotCompile(): void
+    {
+        $themeId = Uuid::randomHex();
+        $theme = new ThemeEntity();
+        $theme->setId($themeId);
+        $theme->setSalesChannels(new SalesChannelCollection());
+        $repository = new StaticEntityRepository([new ThemeCollection([$theme])]);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([['id' => $themeId, 'saleschannelId' => TestDefaults::SALES_CHANNEL]]);
+        $themeCompiler = $this->createMock(ThemeCompiler::class);
+        $themeCompiler->expects($this->never())->method('compileTheme');
+
+        $this->context->state(
+            fn () => $this->getThemeService(themeRepository: $repository, themeCompiler: $themeCompiler, connection: $connection)
+                ->updateTheme($themeId, null, null, $this->context),
+            ThemeService::STATE_SKIP_COMPILE,
+        );
+
+        static::assertSame([[['id' => $themeId]]], $repository->updates);
+    }
+
     public function testUpdateThemeNoTheme(): void
     {
         $themeId = Uuid::randomHex();

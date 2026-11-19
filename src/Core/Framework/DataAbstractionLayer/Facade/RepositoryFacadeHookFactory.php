@@ -34,7 +34,7 @@ class RepositoryFacadeHookFactory extends HookServiceFactory
             $this->registry,
             $this->criteriaBuilder,
             $this->criteriaValidator,
-            $this->appContextCreator->getAppContext($hook, $script)
+            $this->appContextCreator->createAppContextFactory($hook, $script)
         );
     }
 

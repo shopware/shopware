@@ -137,4 +137,45 @@ describe('canvas workspace restoration', () => {
         );
         expect(wrapper.emitted('configuration-change')).toBeUndefined();
     });
+
+    it('places a new frame next to a frame whose fractional position rounds into the gap', async () => {
+        const configuration = createWorkspaceConfiguration();
+        configuration.frames = [
+            {
+                layoutId: 'layout-a',
+                x: 1544.0166560931532,
+                y: 13.271484375,
+                width: 1480,
+                height: 1118,
+                viewport: 'desktop',
+                previewEntityId: null,
+            },
+        ];
+        const existingFrame = {
+            id: 'layout-a',
+            layout: { name: 'Layout' },
+            viewport: 'desktop',
+            previewEntityId: null,
+            isActive: true,
+        };
+        wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
+            props: {
+                workspaceConfiguration: configuration,
+                frames: [existingFrame],
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setProps({
+            frames: [
+                existingFrame,
+                { id: 'layout-b', layout: { name: 'New' }, viewport: 'desktop', previewEntityId: null, isActive: false },
+            ],
+        });
+        await flushPromises();
+
+        expect(wrapper.get('[data-frame-id="layout-b"]').attributes('style')).toContain(
+            'translate(3084.016656093153px, 13.271484375px)',
+        );
+    });
 });

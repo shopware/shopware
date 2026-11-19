@@ -384,7 +384,12 @@ export default Shopware.Component.wrapComponentConfig({
                         Math.abs(state.y - other.y) < (state.height + other.height) / 2 + FRAME_GAP,
                 );
                 if (overlappingFrame) {
-                    x = overlappingFrame.x + (overlappingFrame.width + state.width) / 2 + FRAME_GAP;
+                    const nextX = overlappingFrame.x + (overlappingFrame.width + state.width) / 2 + FRAME_GAP;
+                    // Float rounding can leave the pushed frame a hair inside the gap, so it would never move on.
+                    if (nextX <= x) {
+                        break;
+                    }
+                    x = nextX;
                 }
             } while (overlappingFrame);
             return x;

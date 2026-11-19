@@ -31,10 +31,6 @@ export default class ProductDocumentVariantApiService extends ApiService {
         dryRun = false,
         languageId = Shopware.Context.api.languageId,
     ): Promise<string[]> {
-        if (!operations.length) {
-            return [];
-        }
-
         const { data } = await this.httpClient.post<{ variantIds: string[] }>(
             `${this.getApiBasePath(productId)}/document-variants`,
             { operations, dryRun },

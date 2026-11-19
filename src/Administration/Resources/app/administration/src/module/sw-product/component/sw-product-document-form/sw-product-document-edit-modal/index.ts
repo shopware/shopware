@@ -122,6 +122,38 @@ export default Shopware.Component.wrapComponentConfig({
             return this.isSystemDefaultLanguage ? this.uploadHint : this.$t('sw-product.documentForm.fileFallbackHint');
         },
 
+        newTitle(): string | null | undefined {
+            const title = this.title.trim();
+            const isUnchanged = this.isSystemDefaultLanguage && title === (this.document.translated?.title ?? '').trim();
+            return isUnchanged ? undefined : title || null;
+        },
+
+        newMediaId(): EntityKey<'media'> | null | undefined {
+            return this.replacementMedia?.id ?? (this.isFileRemoved ? null : undefined);
+        },
+
+        changes(): DocumentChanges {
+            const changes: DocumentChanges = {};
+            if (this.newTitle !== undefined && this.newTitle !== (this.document.title ?? null)) {
+                changes.title = this.newTitle;
+            }
+            if (this.newMediaId !== undefined && this.newMediaId !== (this.document.mediaId ?? null)) {
+                changes.mediaId = this.newMediaId;
+            }
+            return changes;
+        },
+
+        hasChanges(): boolean {
+            return Object.keys(this.changes).length > 0;
+        },
+
+        variantOperation(): DocumentVariantOperation | null {
+            const { mediaId, title } = this.document.translated ?? {};
+            return this.applyToVariants && this.hasVariants && mediaId
+                ? { mediaId, title: title || null, changes: this.changes }
+                : null;
+        },
+
         isDisabled(): boolean {
             return !this.canEdit || this.isApplying;
         },
@@ -156,41 +188,16 @@ export default Shopware.Component.wrapComponentConfig({
             this.isFileRemoved = true;
         },
 
-        getChanges(): DocumentChanges {
-            const title = this.title.trim();
-            const newTitle =
-                this.isSystemDefaultLanguage && title === (this.document.translated?.title ?? '').trim()
-                    ? undefined
-                    : title || null;
-            const newMediaId = this.replacementMedia?.id ?? (this.isFileRemoved ? null : undefined);
-            const changes: DocumentChanges = {};
-
-            if (newTitle !== undefined && newTitle !== (this.document.title ?? null)) {
-                changes.title = newTitle;
-            }
-            if (newMediaId !== undefined && newMediaId !== (this.document.mediaId ?? null)) {
-                changes.mediaId = newMediaId;
-            }
-
-            return changes;
-        },
-
-        getVariantOperation(changes: DocumentChanges): DocumentVariantOperation | null {
-            const { mediaId, title } = this.document.translated ?? {};
-            return this.applyToVariants && this.hasVariants && mediaId ? { mediaId, title: title || null, changes } : null;
-        },
-
         async apply(): Promise<void> {
             this.hasSubmitted = true;
             if (this.isDisabled || (this.isSystemDefaultLanguage && (this.nameError || this.fileError))) {
                 return;
             }
 
-            const changes = this.getChanges();
-            const operation = this.getVariantOperation(changes);
+            const { changes, hasChanges, variantOperation: operation } = this;
             let variantCount = 0;
 
-            if (operation && Object.keys(changes).length) {
+            if (operation && hasChanges) {
                 this.isApplying = true;
                 try {
                     variantCount = (
@@ -210,7 +217,7 @@ export default Shopware.Component.wrapComponentConfig({
             if (!operation) {
                 return;
             }
-            if (Object.keys(changes).length) {
+            if (hasChanges) {
                 Shopware.Store.get('swProductDetail').documentVariantOperations.push(operation);
             }
             useSnackbar().addSnackbar({

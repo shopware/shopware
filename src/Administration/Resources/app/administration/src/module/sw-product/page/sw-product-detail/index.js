@@ -1346,6 +1346,10 @@ export default {
         getDocumentVariantsSaver() {
             const store = Shopware.Store.get('swProductDetail');
             const operations = [...store.documentVariantOperations];
+            if (!operations.length) {
+                return () => {};
+            }
+
             const productId = this.product.id;
             const { languageId } = this.productApiContext;
 

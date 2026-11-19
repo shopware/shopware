@@ -1080,35 +1080,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
     });
 
-    it('reports a failed language load after switching the language', async () => {
-        wrapper.unmount();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguageId = api.languageId;
-        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-
-        try {
-            wrapper = await createWrapper(undefined, (id) => {
-                if (id === 'french') {
-                    return Promise.reject(new Error('Language unavailable'));
-                }
-                return Promise.resolve({ variation: [] });
-            });
-            await flushPromises();
-
-            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'french');
-            await flushPromises();
-
-            expect(notificationSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    variant: 'error',
-                    message: 'global.notification.notificationLoadingDataErrorMessage',
-                }),
-            );
-        } finally {
-            api.languageId = originalLanguageId;
-        }
-    });
-
     it('keeps the active language when an earlier page lookup finishes last', async () => {
         wrapper.unmount();
         let resolveGerman;

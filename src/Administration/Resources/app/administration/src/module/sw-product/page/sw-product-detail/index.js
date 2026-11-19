@@ -1536,26 +1536,14 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            if (!newLanguageId) {
-                return;
-            }
+            const language = await this.languageRepository.get(
+                newLanguageId,
+                { ...Shopware.Context.api, inheritance: true },
+                this.languageCriteria,
+            );
 
-            try {
-                const language = await this.languageRepository.get(
-                    newLanguageId,
-                    { ...Shopware.Context.api, inheritance: true },
-                    this.languageCriteria,
-                );
-
-                if (newLanguageId === Shopware.Context.api.languageId) {
-                    Shopware.Store.get('context').api.language = language;
-                }
-            } catch {
-                if (newLanguageId === Shopware.Context.api.languageId) {
-                    this.createNotificationError({
-                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
-                    });
-                }
+            if (newLanguageId === Shopware.Context.api.languageId) {
+                Shopware.Store.get('context').api.language = language;
             }
         },
 

@@ -94,6 +94,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $billingAddress->setCountry($country);
         $shippingAddress = new CustomerAddressEntity();
         $shippingAddress->setId($customer->getDefaultShippingAddressId());
         $shippingAddress->setCountry($country);
@@ -225,6 +226,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $billingAddress->setCountry($country);
         $shippingAddress = new CustomerAddressEntity();
         $shippingAddress->setId($customer->getDefaultShippingAddressId());
         $shippingAddress->setCountry($country);
@@ -333,6 +335,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
         $billingAddress = new CustomerAddressEntity();
         $billingAddress->setId($customer->getDefaultBillingAddressId());
+        $billingAddress->setCountry($country);
         $shippingAddress = new CustomerAddressEntity();
         $shippingAddress->setId($customer->getDefaultShippingAddressId());
         $shippingAddress->setCountry($country);
@@ -660,6 +663,27 @@ class SalesChannelContextFactoryTest extends TestCase
         static::assertNull($context->getCustomer());
         static::assertSame($injectedAddress, $context->getShippingLocation()->getAddress());
         static::assertSame($injectedAddress->getCountry(), $context->getShippingLocation()->getCountry());
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    #[DataProvider('billingTaxRulesProvider')]
+    public function testBillingTaxRulesAreOnlyBuiltForABillingAddressThatIsNotTheShippingAddress(array $options, bool $withCustomer, bool $hasBillingTaxRules): void
+    {
+        $context = $this->createContext($options, $withCustomer);
+
+        static::assertSame($hasBillingTaxRules, $context->getBillingTaxRules() !== null);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, bool, bool}>
+     */
+    public static function billingTaxRulesProvider(): iterable
+    {
+        yield 'billing address is not the shipping address' => [[], true, true];
+        yield 'billing address is the shipping address' => [[SalesChannelContextService::SHIPPING_ADDRESS_ID => self::CUSTOMER_BILLING_ADDRESS_ID], true, false];
+        yield 'no customer' => [[], false, false];
     }
 
     public function testProspectiveCustomerDefinesTheShippingLocationAndTheRuleCustomer(): void

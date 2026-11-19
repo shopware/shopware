@@ -35,6 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleEntity;
 use Shopware\Core\System\Tax\TaxCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -152,6 +153,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $salesChannelContext->setMeasurementSystem($base->getMeasurementSystemInfo());
         $salesChannelContext->setProspectiveCustomer($prospectiveCustomer);
+        $salesChannelContext->setBillingTaxRules($this->getBillingTaxRules($base, $customer, $shippingLocation));
 
         if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
@@ -186,9 +188,20 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         return $sellerCountry === null ? $shippingLocation : ShippingLocation::createFromCountry($sellerCountry);
     }
 
+    private function getBillingTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ?TaxCollection
+    {
+        $billingAddress = $customer?->getActiveBillingAddress();
+        if ($billingAddress === null || $billingAddress->getId() === $shippingLocation->getAddress()?->getId()) {
+            return null;
+        }
+
+        return $this->getTaxRules($context, $customer, $this->getTaxLocation($context, $customer, ShippingLocation::createFromAddress($billingAddress)));
+    }
+
     private function getTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
-        $taxes = $context->getTaxRules()->getElements();
+        // the taxes of the base context are matched against the shipping and the billing address
+        $taxes = array_map(static fn (TaxEntity $tax): TaxEntity => clone $tax, $context->getTaxRules()->getElements());
 
         foreach ($taxes as $tax) {
             $taxRules = $tax->getRules();

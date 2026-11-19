@@ -1,11 +1,6 @@
 import type { ContentSystemStyleOptionSpecification } from 'src/core/service/api/content-system-style-option.api.service';
 import { getPropertyControlType } from './element-settings.util';
-import {
-    compareStyleFieldKeys,
-    getEditableStyleFields,
-    isViewportSpecificBreakpointMap,
-    styleOptionToElementProperty,
-} from './style-settings.util';
+import { compareStyleFieldKeys, getEditableStyleFields, styleOptionToElementProperty } from './style-settings.util';
 
 describe('module/sw-experience-studio/util/style-settings.util', () => {
     const colSpanOption: ContentSystemStyleOptionSpecification = {
@@ -191,21 +186,5 @@ describe('module/sw-experience-studio/util/style-settings.util', () => {
         expect(compareStyleFieldKeys('brand-gap', 'z-index')).toBeLessThan(0);
         expect(compareStyleFieldKeys('display', 'align-self')).toBeLessThan(0);
         expect(compareStyleFieldKeys('align-self', 'display')).toBeGreaterThan(0);
-    });
-
-    it('detects viewport-specific breakpoint maps', () => {
-        expect(isViewportSpecificBreakpointMap({ lg: 6, xl: 8, xxl: 10 })).toBe(true);
-        expect(isViewportSpecificBreakpointMap({ lg: 6 })).toBe(true);
-        expect(
-            isViewportSpecificBreakpointMap({
-                xs: 6,
-                sm: 6,
-                md: 6,
-                lg: 6,
-                xl: 6,
-                xxl: 6,
-            }),
-        ).toBe(false);
-        expect(isViewportSpecificBreakpointMap(6)).toBe(false);
     });
 });

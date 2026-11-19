@@ -1063,7 +1063,6 @@
         "noEditableProperties": "This element does not provide editable primitive properties.",
         "noEditableStyleOptions": "No layout style options are available.",
         "panelGeneral": "General",
-        "viewportSettings": "Viewport settings",
         "boxSpacingTop": "Top",
         "boxSpacingRight": "Right",
         "boxSpacingBottom": "Bottom",

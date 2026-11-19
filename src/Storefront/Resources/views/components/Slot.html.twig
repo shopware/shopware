@@ -33,6 +33,7 @@
 {% endif %}
 
 {% if elements is not empty %}
+    {% set breakpoints = enum_cases('Shopware\\Core\\Framework\\ContentSystem\\Layout\\Element\\Style\\Breakpoint') %}
     {% block elements %}
         {% for element in elements %}
             {% set elementProperties = element.properties %}
@@ -52,20 +53,28 @@
 
             {% if element.style.values is not empty %}
                 {% for optionName, optionValue in element.style.values %}
-                    {% if optionValue is mapping %}
-                        {% for viewport, value in optionValue %}
+                    {% if optionName == 'display' and optionValue is mapping %}
+                        {% set visibilityClasses = '' %}
+                        {% for breakpoint in breakpoints %}
+                            {% if breakpoint.resolve(optionValue) ?? true %}
+                                {% set visibilityClasses = visibilityClasses ~ ' display-' ~ breakpoint.value %}
+                            {% endif %}
+                        {% endfor %}
+                        {% set visibilityClasses = visibilityClasses ?: ' d-none' %}
+                        {% if gridItems %}
+                            {% set gridItemDisplayClasses = visibilityClasses %}
+                        {% else %}
+                            {% set elementStyleClasses = elementStyleClasses ~ visibilityClasses %}
+                        {% endif %}
+                    {% elseif optionValue is mapping %}
+                        {% for breakpoint in breakpoints %}
+                            {% set viewport = breakpoint.value %}
+                            {% set value = breakpoint.resolve(optionValue) %}
                             {% if value is not empty and value is not null and value is not same as(false) %}
                                 {% if value is same as(true) %}
-                                    {% if optionName == 'display' %}
-                                        {% set gridItemDisplayClasses = gridItemDisplayClasses ~ ' display-' ~ viewport %}
-                                        {% if not gridItems %}
-                                            {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                        {% endif %}
-                                    {% else %}
-                                        {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                        {% if gridItems and optionName in ['align-self', 'justify-self'] %}
-                                            {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
-                                        {% endif %}
+                                    {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
+                                    {% if gridItems and optionName in ['align-self', 'justify-self'] %}
+                                        {% set gridItemAlignmentClasses = gridItemAlignmentClasses ~ ' ' ~ optionName ~ '-' ~ viewport %}
                                     {% endif %}
                                 {% else %}
                                     {% set elementStyleClasses = elementStyleClasses ~ ' ' ~ optionName ~ '-' ~ viewport ~ '-' ~ value %}

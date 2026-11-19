@@ -44,18 +44,12 @@ class ElementStylePersistenceTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $id = $this->ids->get('layout');
-        // `display` declares a default, so the write boundary fills its unspecified breakpoints from it;
-        // `test-responsive-integer` declares none, so its partial map is stored exactly as authored.
-        $style = ['test-responsive-integer' => ['md' => 6, 'lg' => 4], 'display' => ['xs' => false]];
-        $expected = [
-            'test-responsive-integer' => ['md' => 6, 'lg' => 4],
-            'display' => ['xs' => false, 'sm' => true, 'md' => true, 'lg' => true, 'xl' => true, 'xxl' => true],
-        ];
+        $style = ['test-responsive-integer' => ['md' => 6, 'lg' => 4], 'display' => ['lg' => true, 'sm' => false]];
 
         $this->repository()->create([$this->layout($id, $style)], $context);
 
         static::assertSame(
-            $this->byKey($expected),
+            $this->byKey($style),
             $this->byKey($this->readElement($id, $context)->style->toArray()),
         );
     }

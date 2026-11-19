@@ -193,21 +193,19 @@
     }
 
     @each $value in (auto, start, center, end, stretch, baseline) {
-        &.align-self-#{$value},
-        &.align-self-xs-#{$value} {
+        &.align-self-#{$value} {
             align-self: $value;
         }
     }
 
     @each $value in (auto, start, center, end, stretch) {
-        &.justify-self-#{$value},
-        &.justify-self-xs-#{$value} {
+        &.justify-self-#{$value} {
             justify-self: $value;
         }
     }
 
-    @each $breakpoint in (sm, md, lg, xl, xxl) {
-        @include media-breakpoint-up($breakpoint) {
+    @each $breakpoint, $width in $grid-breakpoints {
+        @include media-breakpoint-only($breakpoint) {
             @each $value in (auto, start, center, end, stretch, baseline) {
                 &.align-self-#{$breakpoint}-#{$value} {
                     align-self: $value;

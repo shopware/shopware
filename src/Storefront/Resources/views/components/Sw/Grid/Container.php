@@ -107,8 +107,9 @@ class Container
      */
     private function buildPlacementRules(string $class, string $breakpoint, array $areas): string
     {
+        // WHY: Hidden children must not consume a position in the repeating pattern.
         $displayClasses = '.display-xs, .display-sm, .display-md, .display-lg, .display-xl, .display-xxl';
-        $visible = ':is(:not(' . $displayClasses . '), .display-' . $breakpoint . '):not(.d-' . $breakpoint . '-hidden):not(:has(> .grid-column.d-' . $breakpoint . '-hidden)):not(style)';
+        $visible = ':is(:not(' . $displayClasses . '), .display-' . $breakpoint . '):not(.d-none):not(.d-' . $breakpoint . '-hidden):not(:has(> .grid-column.d-' . $breakpoint . '-hidden)):not(style)';
         $breakpointRules = '';
         $count = \count($areas);
         $index = 0;

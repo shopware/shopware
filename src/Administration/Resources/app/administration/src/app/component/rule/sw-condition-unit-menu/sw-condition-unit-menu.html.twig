@@ -26,8 +26,10 @@
         {{ $t(`global.sw-condition-generic.units.${type}`) }}
     </div>
 
+    {# Mounted only while open: the deprecated sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
     <mt-floating-ui
-        :is-opened="showMenu && !!defaultUnit"
+        v-if="showMenu && defaultUnit"
+        :is-opened="true"
         :anchor-element="$refs.unitMenuButton"
         detached
     >

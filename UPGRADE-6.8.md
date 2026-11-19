@@ -168,6 +168,11 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
+## `--no-validate` removed from `app:install` and `app:refresh`
+
+The option had no effect since 6.7.
+Passing it now fails with an unknown-option error.
+
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
@@ -928,7 +933,7 @@ Get the latest order transaction with `order.primaryOrderTransaction` so you sho
 
 The Administration's order detail no longer treats every delivery besides the primary one as a shipping discount.
 A delivery with negative shipping costs is a discount, every other delivery is a shipment, which matches how `Shopware\Core\Checkout\Cart\Order\RecalculationService` already tells the two apart.
-The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, the primary delivery first.
+The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, sorted by delivery `position` like the storefront, mails and documents.
 The order overview, the order list, the state history and the bulk edit keep showing and changing the primary delivery.
 
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` run once per shipment and must use the loop variable `shipment` instead of the `delivery` computed, which still points at the primary delivery.
@@ -1617,6 +1622,22 @@ The constant was unused.
 Use `'sha256'` directly if you computed the imitation token hash yourself.
 
 # Administration
+
+## Jest helper `test/_helper_/majorFeatureFlags` removed
+
+Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.
+It registers the feature flags of the installed Shopware version, including the major flags of a major run.
+
+```js
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
+See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
 
 ## Sales channel detail components load fewer visibilities and sales channels
 

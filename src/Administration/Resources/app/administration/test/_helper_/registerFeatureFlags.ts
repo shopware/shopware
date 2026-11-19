@@ -4,8 +4,7 @@
  */
 
 import Feature from 'src/core/feature';
-import { loadFeatureConfig, type FeatureConfig } from './majorFeatureFlags';
-import normalizeFeatureFlag from './normalizeFeatureFlag';
+import { flagsOf, loadFeatureConfig, normalizeFeatureFlag, type FeatureConfig } from '../../scripts/feature-flags';
 
 /**
  * Registers every flag of `feature.yaml` in both spellings, like `window._features_` in the browser, so a
@@ -20,7 +19,7 @@ export default function registerFeatureFlags(
     featureConfig: FeatureConfig = loadFeatureConfig(),
 ): void {
     const active = new Set(activeFlags.map(normalizeFeatureFlag));
-    const flagNames = (featureConfig.shopware?.feature?.flags ?? []).flatMap(({ name }) => [
+    const flagNames = flagsOf(featureConfig).flatMap(({ name }) => [
         name,
         normalizeFeatureFlag(name),
     ]);

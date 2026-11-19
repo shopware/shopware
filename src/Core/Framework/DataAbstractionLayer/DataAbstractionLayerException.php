@@ -62,6 +62,7 @@ class DataAbstractionLayerException extends HttpException
     public const VERSION_NOT_EXISTS = 'FRAMEWORK__VERSION_NOT_EXISTS';
     public const ENTITY_NOT_VERSION_AWARE = 'FRAMEWORK__ENTITY_NOT_VERSION_AWARE';
     public const MIGRATION_STUB_NOT_FOUND = 'FRAMEWORK__MIGRATION_STUB_NOT_FOUND';
+    public const DAL_MIGRATION_PLUGIN_NOT_UNIQUE = 'FRAMEWORK__DAL_MIGRATION_PLUGIN_NOT_UNIQUE';
     /**
      * @deprecated tag:v6.8.0 - Will be removed with the next major as it is unused
      */
@@ -434,6 +435,23 @@ class DataAbstractionLayerException extends HttpException
             self::MIGRATION_STUB_NOT_FOUND,
             'Unable to load stub file from: {{ path }}.',
             ['path' => $path]
+        );
+    }
+
+    /**
+     * @param list<string> $matchingPluginNames
+     */
+    public static function migrationPluginNotUnique(string $pluginName, array $matchingPluginNames): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DAL_MIGRATION_PLUGIN_NOT_UNIQUE,
+            'Expected exactly one plugin matching "{{ pluginName }}", but found {{ count }}: {{ plugins }}',
+            [
+                'pluginName' => $pluginName,
+                'count' => \count($matchingPluginNames),
+                'plugins' => implode(';', $matchingPluginNames),
+            ],
         );
     }
 

@@ -48,8 +48,12 @@ const arPlacementElement = {
     },
 };
 
+function mediaConfigCards(elements) {
+    return [{ title: {}, elements }];
+}
+
 function mediaSchema(elements) {
-    return [{ name: null, title: {}, cards: [{ title: {}, elements }] }];
+    return [{ name: null, title: {}, cards: mediaConfigCards(elements) }];
 }
 
 function createSystemConfigApiService(systemConfigApiServiceFunctions) {
@@ -58,6 +62,7 @@ function createSystemConfigApiService(systemConfigApiServiceFunctions) {
             Promise.resolve({
                 'core.store.media.defaultEnableAugmentedReality': 'false',
             }),
+        getConfig: () => Promise.resolve(mediaConfigCards([arReadyElement, arPlacementElement])),
         getSchema: () => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])),
         ...systemConfigApiServiceFunctions,
     };
@@ -228,7 +233,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
-    async function openArPlacementSelect(getSchema) {
+    async function openArPlacementSelect(systemConfigApiServiceFunctions) {
         const wrapper = await createWrapper(
             {
                 fileName: 'smth.glb',
@@ -239,7 +244,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
             {
                 get: () => Promise.resolve({ config: { spatial: { arReady: true } } }),
             },
-            { getSchema },
+            systemConfigApiServiceFunctions,
         );
         await flushPromises();
 
@@ -248,23 +253,46 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         return wrapper;
     }
 
-    it('should load the AR placement options from the media system config', async () => {
-        const getSchema = jest.fn(() => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])));
+    // @deprecated tag:v6.8.0 - The test will be removed together with systemConfigApiService.getConfig().
+    it.deprecated('v6.8.0.0')('should load the AR placement options from the possibly overridden getConfig', async () => {
+        const getConfig = jest.fn(() => Promise.resolve(mediaConfigCards([arReadyElement, arPlacementElement])));
+        const getSchema = jest.fn();
 
-        const wrapper = await openArPlacementSelect(getSchema);
+        const wrapper = await openArPlacementSelect({ getConfig, getSchema });
 
-        expect(getSchema).toHaveBeenCalledWith('core.media');
+        expect(getConfig).toHaveBeenCalledWith('core.media');
+        expect(getSchema).not.toHaveBeenCalled();
         expect(wrapper.findAll('.mt-select-result').map((result) => result.text())).toEqual([
             'sw-media.sidebar.actions.horizontal',
             'sw-media.sidebar.actions.vertical',
         ]);
     });
 
-    it('should offer no AR placement options when the media system config has no placement field', async () => {
-        const wrapper = await openArPlacementSelect(() => Promise.resolve(mediaSchema([arReadyElement])));
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should load the AR placement options from the media system config schema',
+        async () => {
+            const getSchema = jest.fn(() => Promise.resolve(mediaSchema([arReadyElement, arPlacementElement])));
 
-        expect(wrapper.findAll('.mt-select-result')).toHaveLength(0);
-    });
+            const wrapper = await openArPlacementSelect({ getSchema });
+
+            expect(getSchema).toHaveBeenCalledWith('core.media');
+            expect(wrapper.findAll('.mt-select-result').map((result) => result.text())).toEqual([
+                'sw-media.sidebar.actions.horizontal',
+                'sw-media.sidebar.actions.vertical',
+            ]);
+        },
+    );
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should offer no AR placement options when the media system config has no placement field',
+        async () => {
+            const wrapper = await openArPlacementSelect({
+                getSchema: () => Promise.resolve(mediaSchema([arReadyElement])),
+            });
+
+            expect(wrapper.findAll('.mt-select-result')).toHaveLength(0);
+        },
+    );
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();

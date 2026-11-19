@@ -182,9 +182,20 @@ export default {
                 this.defaultArPlacement = values['core.media.defaultARPlacement'];
             });
 
-            this.systemConfigApiService.getSchema('core.media').then((schema) => {
-                const placementElement = schema
-                    .flatMap((tab) => tab.cards)
+            let mediaConfigCards;
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                mediaConfigCards = this.systemConfigApiService
+                    .getSchema('core.media')
+                    .then((schema) => schema.flatMap((tab) => tab.cards));
+            } else {
+                // @deprecated tag:v6.8.0 - Extensions may still override getConfig, so it stays the source until then.
+                Shopware.Feature.silence('V6_8_0_0', () => {
+                    mediaConfigCards = this.systemConfigApiService.getConfig('core.media');
+                });
+            }
+
+            mediaConfigCards.then((cards) => {
+                const placementElement = cards
                     .flatMap((card) => card.elements)
                     .find((element) => element.name === 'core.media.defaultARPlacement');
 

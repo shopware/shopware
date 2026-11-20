@@ -18,7 +18,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { shopwareAdminJest } from './extension-tooling/jest.mjs';
-import { isMajorRun, loadFeatureConfig } from './test/_helper_/majorFeatureFlags';
+import { isMajorRun, loadFeatureConfig } from './scripts/feature-flags';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

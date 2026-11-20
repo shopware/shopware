@@ -4,8 +4,150 @@
 
 The Administration gets a generated snapshot of its public API and a check that blocks unannounced breaks, see [#22591](https://github.com/shopware/shopware/issues/22591).
 Both are built in steps.
-Three parts exist so far: the markers that announce a change, the summary the break check prints, and the fixtures that the generator and the break check have to satisfy.
+Four parts exist so far: the snapshot of the components with the blocks they render, the markers that announce a change, the summary the break check prints, and the fixtures that the generator and the break check have to satisfy.
 The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-markers.ts`, the code of the generator in `scripts/generate-public-api/`.
+
+## Snapshot
+
+The snapshot is committed in `public-api/`.
+It lists every component that core registers, with the blocks of the template it renders and their nesting.
+A pull request that adds, renames, moves or removes a block therefore shows that change in its diff.
+
+Regenerate it after such a change and commit the result:
+
+```bash
+composer admin:generate-public-api
+```
+
+`scripts/generate-public-api/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
+When a block of the committed snapshot is gone from the templates, it reports that as a breaking change and names the block.
+Regenerating the snapshot makes both tests pass, because they compare files and judge no change.
+The break check that blocks an unannounced break is not built yet.
+
+### Files
+
+A component has one report, named after the component and placed beside its folder, without the leading `src/`.
+`src/module/sw-order/page/sw-order-detail/index.js` gives `public-api/module/sw-order/page/sw-order-detail.api.md`.
+
+| File | Content |
+|---|---|
+| `<name>.api.md` | The report for reviewers, which merges both flag states |
+| `index.json` | The components with their file, visibility, parent and the names of the blocks they render, for tools such as ESLint rules |
+
+The `.d.ts` contracts follow once they can be type-checked, see "Not covered yet".
+All files are marked as generated, so GitHub collapses them in a diff.
+Names and lines are sorted by code point, and the files contain no line numbers, so a change to a template only changes the lines of the blocks it touches.
+
+```text
+component sw-example-field-set  public  js
+  registered src/app/component/index.ts
+  source src/app/component/form/sw-example-field-set/index.js
+  template src/app/component/form/sw-example-field-set/sw-example-field-set.html.twig
+
+blocks
+  sw_example_field_set
+    sw_example_field_set_content
+    sw_example_field_set_mt_tabs  [from v6.8.0]
+    sw_example_field_set_tabs  [until v6.8.0]
+```
+
+- The report shows the blocks as a tree, two spaces per level, with the blocks of one parent sorted by name.
+- A block that the template declares under several parents is listed under each of them.
+- Twig blocks and `<sw-block name="...">` elements share one tree.
+  A `.vue` component is found through the file that re-exports it, or through a registration that imports the `.vue` file directly.
+  A bound `:name` has no literal name and is left out.
+
+### Extend children and core overrides
+
+The report of a component shows the template it renders.
+For an extend child that includes the blocks it inherits, so a block change in a parent changes the reports of its extend children too.
+Each block of an extend child carries its origin as the first marker:
+
+| Marker | Meaning |
+|---|---|
+| `[inherited]` | Taken unchanged from the component it extends |
+| `[replaced]` | Redeclared without `{% parent %}`, so the blocks inside the parent block are gone |
+| `[keepsParent]` | Redeclared with `{% parent %}` |
+| none | A block the child adds inside a block it redeclares |
+
+```text
+component sw-example-tile  public  js
+  extends sw-example-card
+  ...
+
+blocks
+  sw_example_card  [inherited]
+    sw_example_card_content  [inherited]
+      sw_example_card_text  [replaced]
+    sw_example_card_header  [keepsParent]
+      sw_example_card_title  [inherited]
+      sw_example_tile_badge
+```
+
+The origin is relative to the direct parent: a grandchild marks a block `[inherited]` whatever its parent did with it.
+The inherited blocks of a public child are public, also when the parent is private.
+A child is limited to the flag states in which every component of its chain is registered.
+
+The generator merges the templates by the rules of `src/core/factory/template.factory.js`, which differ from plain Twig:
+
+- Only the top-level blocks of a child template replace blocks of the parent.
+  A block inside them is a new block at that place, even when the parent has a block of that name elsewhere.
+- A top-level block that the parent does not have is dropped, and the blocks directly inside it count as top-level blocks.
+  This lets a child wrap its template in a block of its own, which is then no block of the component.
+- A redeclaration replaces the whole block.
+  `{% parent %}` brings the parent content back, directly in the redeclaration or one block deeper.
+- Below a block that a child redeclares, the same template cannot redeclare another block, with or without `{% parent %}`.
+- A block the child declares twice uses the first declaration.
+  A block the parent has several times is replaced in every place, and `{% parent %}` takes the content of the first one.
+- The flag state of a block comes from the place where it renders.
+  A `v-if` around a top-level block of a child template has no effect, because only the content of that block is used.
+
+A core `Component.override` has no report of its own yet.
+Its template is applied to the component it overrides, as at runtime, so the blocks it adds or removes show up in the report of that component and of its extend children.
+Core overrides apply before a child extends the component, ordered by their index.
+The runtime applies overrides with the same index in the order they are registered, which the generator cannot know, so it takes them in the order of their file paths.
+Unlike an extend template, each top-level block of an override is applied on its own, so a later block can replace one that an earlier block kept or added.
+
+Some blocks of an extend or override template never render: the runtime drops a block that replaces nothing, without a warning.
+Such a block is in no report, and `scripts/generate-public-api/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
+The same spec registers every template with the runtime factory and compares the blocks of each component with the snapshot, their origin included.
+
+### Flag states
+
+The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
+A break behind the major flag would be invisible in a single state.
+
+- A block inside a `v-if`, `v-else-if` or `v-else` branch that only one state renders exists in that state only.
+  The report marks it `[until v6.8.0]` or `[from v6.8.0]`.
+  The marker names the release, so it stays readable in old commits.
+- Only `feature.isActive('<flag>')` with `!`, `&&` and `||` is evaluated, in both spellings of a flag, `v6.8.0.0` and `V6_8_0_0`.
+  Any other condition can be true in both states.
+- A component that is registered inside `if (!Shopware.Feature.isActive('v6.8.0.0'))` exists in the current state only.
+  Its report marks the `component` line and its blocks `[until v6.8.0]`.
+
+### Visibility
+
+Everything without `@private` is public.
+A component is private when the comment directly above its `export default`, or directly above its registration, has an `@private` tag.
+A private component stays in the snapshot, and its report marks every line `[private]`.
+
+### Not covered yet
+
+- A core `Component.override` adds no entry of its own, and the report does not say which blocks come from one.
+- A component that keeps its blocks in a `.vue` file cannot be extended, and cannot be overridden with a Twig template.
+- The other parts of a component, such as props, methods and slots, are missing.
+- The `.d.ts` contracts are not generated yet.
+  They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
+  Until then, the fixture view `block-contract` is on the expected-fail list.
+
+The generator stops with an error when it cannot read something:
+
+- a block in a template that no registered component or core override uses
+- a block or `{% parent %}` tag in a place the HTML parser cannot see
+- a registration or override whose component name, import or index it cannot read
+- a component name that is registered twice
+- an extend chain that names an unregistered component, loops, or has a child with blocks below a parent without a Twig template
+- a core override of an unregistered component, or one that is registered in one flag state only
 
 ## Markers
 
@@ -128,15 +270,16 @@ The expected snapshots hold whole files with every unit kind, while the generato
   The comparison takes the kind's sections of the `.api.md` reports, its members of the `.d.ts` contracts, its keys in `index.json` and the findings on its elements, and ignores the rest.
 - Once as `complete`, which compares every file and all findings.
 
-The blocks have three unit kinds, because they are built in three steps:
+The blocks have four unit kinds, because they are built in four steps:
 
 | Unit kind | Compares |
 |---|---|
-| `block-tree` | The block names, their parents and their flag states |
+| `block-tree` | The block names, their parents, their flag states and their origin in an extend child in the reports, and the block names in the index |
+| `block-contract` | The same in the `blocks` member of the `.d.ts` contracts |
 | `block-structure` | The crossings, and the `v-if` chain and scope markers of the blocks |
 | `block-findings` | The findings on blocks and crossings |
 
-The markers of a block line other than its flag state, such as `[after v-if]` and `[scope: item]`, and the type arguments of `Block<>` after the parent belong to `block-structure`.
+The other markers of a block line, such as `[after v-if]` and `[scope: item]`, and the other facets of `Block<>` belong to `block-structure`.
 The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
 
 `expected-failures.ts` lists what cannot pass yet, in two lists:
@@ -153,8 +296,10 @@ To build the next part:
 1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `fixture-runner.ts` when it is a new one.
    A new unit kind goes into `views` of `expected-failures.ts`.
 2. Implement it behind `generateSnapshot` in `snapshot.ts` and `classifyChanges` in `break-check.ts`.
+   The generator reads the sources into the model of `model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
 3. Once some cases pass the kind, remove it from `views` and list the cases that still fail in `comparisons`.
    The part is done when its entries are gone.
+4. Run `composer admin:generate-public-api` and commit the changed files in `public-api/`.
 
 Run the comparisons in `src/Administration/Resources/app/administration`:
 

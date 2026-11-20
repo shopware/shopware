@@ -74,9 +74,6 @@ return $config
     /** Optional dependency */
     ->ignoreErrorsOnExtension('ext-redis', [ErrorType::SHADOW_DEPENDENCY])
 
-    /** Used for debugging */
-    ->ignoreErrorsOnPackage('symfony/error-handler', [ErrorType::UNUSED_DEPENDENCY])
-
     /** Only used in dev envs. @see config/bundles.php which is scanned as prod */
     ->ignoreErrorsOnPackage('symfony/web-profiler-bundle', [ErrorType::DEV_DEPENDENCY_IN_PROD])
 

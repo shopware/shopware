@@ -1081,6 +1081,7 @@ class RecalculationServiceTest extends TestCase
             static::assertNotNull($deliveries);
             static::assertSame(1, $deliveries->get($cheapId)?->getPosition());
             static::assertSame(2, $deliveries->get($expensiveId)?->getPosition());
+            static::assertSame([$cheapId, $expensiveId], $deliveries->getShipments($order->getPrimaryOrderDeliveryId())->getKeys());
         }
     }
 

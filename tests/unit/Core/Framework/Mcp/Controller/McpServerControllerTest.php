@@ -2,7 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Controller;
 
+use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Server;
+use Mcp\Server\Stateless\RequestMeta;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -19,6 +21,7 @@ use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\McpAllowedHostsProvider;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
@@ -26,6 +29,7 @@ use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface;
@@ -196,6 +200,34 @@ class McpServerControllerTest extends TestCase
 
         $request = new Request();
         $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+
+        $controller->handle($request);
+    }
+
+    public function testAStatelessRequestDoesNotSyncTheSessionItNames(): void
+    {
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->never())->method('syncSession');
+
+        $psrRequest = new ServerRequest('GET', 'http://localhost/api/_mcp');
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $controller = $this->buildController(
+            $psrRequest,
+            $httpFoundationFactory,
+            listChangedNotifier: $notifier,
+        );
+
+        $request = new Request(content: Json::encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/list',
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ]));
+        $request->setMethod('POST');
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, '0198c0de-0000-7000-8000-000000000001');
+        static::assertTrue(McpProtocolEra::isStateless($request));
 
         $controller->handle($request);
     }

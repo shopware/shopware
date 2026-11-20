@@ -124,7 +124,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $ids = [];
         $expected = [];
 
-        for ($index = 0; $index < 251; ++$index) {
+        for ($index = 0; $index < 501; ++$index) {
             $id = Uuid::randomHex();
             $ids[] = $id;
             $this->connection->insert('product', [
@@ -154,11 +154,11 @@ class ProductCategoryDenormalizerTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $version],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertCount(251, $trees);
+        static::assertCount(501, $trees);
         foreach ($trees as $id => $tree) {
             static::assertSame($expected[$id], $tree === null ? null : json_decode($tree, true, 512, \JSON_THROW_ON_ERROR));
         }
-        static::assertSame(126 * ($ancestorCount + 1), (int) $this->connection->fetchOne(
+        static::assertSame(251 * ($ancestorCount + 1), (int) $this->connection->fetchOne(
             'SELECT COUNT(*) FROM product_category_tree WHERE product_id IN (:ids) AND product_version_id = :version',
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $version],
             ['ids' => ArrayParameterType::BINARY]

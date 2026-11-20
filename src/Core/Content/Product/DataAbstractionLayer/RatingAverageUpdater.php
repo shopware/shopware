@@ -54,7 +54,7 @@ class RatingAverageUpdater
 
         $averages = $query->executeQuery()->fetchAllAssociative();
 
-        foreach (array_chunk($averages, 250) as $batch) {
+        foreach (array_chunk($averages, 500) as $batch) {
             $cases = [];
             $params = ['ids' => array_column($batch, 'id'), 'version' => $versionId];
             foreach ($batch as $index => $average) {

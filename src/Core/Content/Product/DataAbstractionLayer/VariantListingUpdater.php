@@ -112,7 +112,7 @@ class VariantListingUpdater
             ['ids' => $hideParentIds, 'column' => 'id', 'value' => 'NULL'],
             ['ids' => $singleVariantIds, 'column' => 'parent_id', 'value' => 'SHA2(HEX(product.parent_id), 256)'],
         ] as $update) {
-            foreach (array_chunk($update['ids'], 250) as $batch) {
+            foreach (array_chunk($update['ids'], 500) as $batch) {
                 RetryableQuery::retryable($this->connection, function () use ($update, $batch, $versionBytes): void {
                     $this->connection->executeStatement(
                         'UPDATE product SET display_group = ' . $update['value'] . ' WHERE ' . $update['column'] . ' IN (:ids) AND version_id = :versionId',

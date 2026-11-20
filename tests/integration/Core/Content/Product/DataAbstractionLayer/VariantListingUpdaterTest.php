@@ -37,7 +37,7 @@ class VariantListingUpdaterTest extends TestCase
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
         $ids = [];
         $expected = [];
-        for ($index = 0; $index < 251; ++$index) {
+        for ($index = 0; $index < 501; ++$index) {
             $standalone = Uuid::randomHex();
             $parent = Uuid::randomHex();
             $variant = Uuid::randomHex();

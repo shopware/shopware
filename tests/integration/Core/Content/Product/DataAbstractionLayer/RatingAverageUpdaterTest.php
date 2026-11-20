@@ -9,7 +9,8 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\RatingAverageUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 
@@ -19,7 +20,8 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('framework')]
 class RatingAverageUpdaterTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     public function testBatchUpdateKeepsEachProductsAverage(): void
     {
@@ -27,7 +29,7 @@ class RatingAverageUpdaterTest extends TestCase
         $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
         $ids = [];
         $expected = [];
-        for ($index = 0; $index < 251; ++$index) {
+        for ($index = 0; $index < 501; ++$index) {
             $id = Uuid::randomHex();
             $ids[] = $id;
             $connection->insert('product', [
@@ -62,7 +64,7 @@ class RatingAverageUpdaterTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $version],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertCount(251, $averages);
+        static::assertCount(501, $averages);
         foreach ($averages as $id => $average) {
             static::assertSame($expected[$id], (float) $average);
         }

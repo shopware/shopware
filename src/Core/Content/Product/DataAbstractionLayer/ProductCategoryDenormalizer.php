@@ -82,7 +82,7 @@ class ProductCategoryDenormalizer
             }
 
             // Keep large category trees from multiplying into oversized SQL packets.
-            $batchSize = max(1, min(250, intdiv(1_048_576, $maxTreeBytes)));
+            $batchSize = max(1, min(500, intdiv(1_048_576, $maxTreeBytes)));
             foreach (array_chunk($updates, $batchSize) as $batch) {
                 $cases = [];
                 $params = ['ids' => array_column($batch, 'id'), 'version' => $versionId];

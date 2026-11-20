@@ -19,7 +19,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
-use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -84,7 +83,6 @@ class OrderRepositoryTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
 
-        /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
@@ -201,6 +199,51 @@ class OrderRepositoryTest extends TestCase
 
         $count = static::getContainer()->get(Connection::class)->fetchAllAssociative('SELECT * FROM `order` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
         static::assertCount(0, $count);
+    }
+
+    public function testDeliveriesCreatedWithoutPositionGetTheNextFreePositionOfTheirOrderVersion(): void
+    {
+        $orderId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $this->orderRepository->create($this->getOrderData($orderId), $context);
+        $this->addDeliveryWithoutPosition($orderId, $context);
+
+        $versionContext = $context->createWithVersionId($this->orderRepository->createVersion($orderId, $context));
+        $this->addDeliveryWithoutPosition($orderId, $versionContext);
+        $this->addDeliveryWithoutPosition($orderId, $context);
+
+        static::assertSame([1, 2, 3], $this->getDeliveryPositions($orderId, $context));
+        static::assertSame([1, 2, 3], $this->getDeliveryPositions($orderId, $versionContext));
+    }
+
+    private function addDeliveryWithoutPosition(string $orderId, Context $context): void
+    {
+        $placedDelivery = $this->orderRepository->search((new Criteria([$orderId]))->addAssociation('deliveries'), $context)
+            ->getEntities()->first()?->getDeliveries()?->first();
+        static::assertNotNull($placedDelivery);
+
+        $this->orderRepository->update([[
+            'id' => $orderId,
+            'deliveries' => [[
+                'stateId' => $placedDelivery->getStateId(),
+                'shippingMethodId' => $placedDelivery->getShippingMethodId(),
+                'shippingOrderAddressId' => $placedDelivery->getShippingOrderAddressId(),
+                'shippingCosts' => $placedDelivery->getShippingCosts(),
+                'shippingDateEarliest' => $placedDelivery->getShippingDateEarliest(),
+                'shippingDateLatest' => $placedDelivery->getShippingDateLatest(),
+            ]],
+        ]], $context);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function getDeliveryPositions(string $orderId, Context $context): array
+    {
+        return array_map(intval(...), static::getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT position FROM order_delivery WHERE order_id = :orderId AND order_version_id = :versionId ORDER BY position',
+            ['orderId' => Uuid::fromHexToBytes($orderId), 'versionId' => Uuid::fromHexToBytes($context->getVersionId())]
+        ));
     }
 
     private function createCustomer(): string

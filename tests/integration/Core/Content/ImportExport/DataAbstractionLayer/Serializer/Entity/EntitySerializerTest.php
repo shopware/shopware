@@ -56,7 +56,6 @@ class EntitySerializerTest extends TestCase
 
     public function testEnsureIdFields(): void
     {
-        /** @var EntityDefinition $productDefinition */
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         [$expectedData, $importData] = require __DIR__ . '/_fixtures/ensure_ids_for_products.php';
@@ -72,7 +71,6 @@ class EntitySerializerTest extends TestCase
 
     public function testEnsureIdFieldsWithMixedContent(): void
     {
-        /** @var EntityDefinition $productDefinition */
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
 
         [$expectedData, $importData] = require __DIR__ . '/_fixtures/ensure_ids_for_products.php';
@@ -282,7 +280,6 @@ class EntitySerializerTest extends TestCase
         $exportData = $productRepo->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         // do the serialization
-        /** @var EntityDefinition $productDefinition */
         $productDefinition = static::getContainer()->get(ProductDefinition::class);
         $serializer = new EntitySerializer();
         $serializerRegistry = static::getContainer()->get(SerializerRegistry::class);

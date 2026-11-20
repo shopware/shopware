@@ -10,6 +10,9 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Api\Sync\SyncBehavior;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
+use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -65,8 +68,8 @@ class RuleValidatorTest extends TestCase
         $criteria = new Criteria([$ruleId]);
         $criteria->addAssociation('conditions');
 
-        /** @var RuleEntity $rule */
         $rule = $this->ruleRepository->search($criteria, $this->context)->getEntities()->get($ruleId);
+        static::assertInstanceOf(RuleEntity::class, $rule);
 
         /** @var RuleConditionCollection $ruleConditions */
         $ruleConditions = $rule->getConditions();
@@ -258,9 +261,9 @@ class RuleValidatorTest extends TestCase
             ],
         ], $this->context);
 
-        /** @var RuleConditionEntity $updatedCondition */
         $updatedCondition = $this->ruleConditionRepository->search(new Criteria([$customerOderCountId]), $this->context)
             ->getEntities()->get($customerOderCountId);
+        static::assertInstanceOf(RuleConditionEntity::class, $updatedCondition);
 
         static::assertSame('customerOrderCount', $updatedCondition->getType());
         static::assertSame($newValue, $updatedCondition->getValue());
@@ -339,6 +342,48 @@ class RuleValidatorTest extends TestCase
         static::assertInstanceOf(RuleConditionEntity::class, $updatedCondition);
         static::assertSame(AlwaysValidRule::RULE_NAME, $updatedCondition->getType());
         static::assertNull($updatedCondition->getValue());
+    }
+
+    public function testATypeAndAValueWrittenInTwoWritesOfOneRequestAreCheckedTogether(): void
+    {
+        $conditionId = Uuid::randomHex();
+
+        $this->ruleRepository->create([
+            [
+                'name' => 'super rule',
+                'priority' => 15,
+                'conditions' => [
+                    [
+                        'id' => $conditionId,
+                        'type' => 'customerOrderCount',
+                        'value' => [
+                            'operator' => '=',
+                            'count' => 6,
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        try {
+            static::getContainer()->get(SyncService::class)->sync([
+                new SyncOperation('type', 'rule_condition', SyncOperation::ACTION_UPSERT, [[
+                    'id' => $conditionId,
+                    'type' => CustomerGroupRule::RULE_NAME,
+                    'value' => ['customerGroupIds' => [Uuid::randomHex()], 'operator' => CustomerGroupRule::OPERATOR_EQ],
+                ]]),
+                new SyncOperation('value', 'rule_condition', SyncOperation::ACTION_UPSERT, [[
+                    'id' => $conditionId,
+                    'value' => ['operator' => '=', 'count' => 6],
+                ]]),
+            ], $this->context, new SyncBehavior());
+            static::fail('Expected the write to be rejected.');
+        } catch (WriteException $exception) {
+            static::assertSame(
+                ['/value/0/value/count', '/value/0/value/customerGroupIds'],
+                array_column(array_column(iterator_to_array($exception->getErrors()), 'source'), 'pointer')
+            );
+        }
     }
 
     /**

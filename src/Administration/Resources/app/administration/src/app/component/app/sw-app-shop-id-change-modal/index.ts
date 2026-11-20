@@ -29,8 +29,15 @@ export default Shopware.Component.wrapComponentConfig({
         return {
             strategies: [] as Strategy[],
             selectedStrategy: null as Strategy | null,
+            showMoveShopPermanentlyConfirm: false,
             isLoading: true,
         };
+    },
+
+    computed: {
+        isMoveShopPermanentlySelected(): boolean {
+            return this.selectedStrategy?.name === 'move-shop-permanently';
+        },
     },
 
     created() {
@@ -70,6 +77,22 @@ export default Shopware.Component.wrapComponentConfig({
             return {
                 'sw-app-shop-id-change-modal__button-strategy--active': name === this.selectedStrategy?.name,
             };
+        },
+
+        onConfirm() {
+            if (this.isMoveShopPermanentlySelected) {
+                this.showMoveShopPermanentlyConfirm = true;
+
+                return;
+            }
+
+            void this.confirm();
+        },
+
+        onMoveShopPermanentlyConfirmed() {
+            this.showMoveShopPermanentlyConfirm = false;
+
+            void this.confirm();
         },
 
         async confirm() {

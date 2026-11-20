@@ -33,8 +33,8 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertTrue($container->has(ReverseProxyCache::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
-        /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(DummyService::class, $dummy);
         static::assertInstanceOf(FastlyService::class, $dummy->get());
     }
 
@@ -53,8 +53,8 @@ class ReverseProxyCompilerPassTest extends TestCase
 
         static::assertInstanceOf(PluginService::class, $container->get(FastlyReverseProxyGateway::class));
 
-        /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(DummyService::class, $dummy);
         static::assertInstanceOf(PluginService::class, $dummy->get());
     }
 
@@ -68,8 +68,8 @@ class ReverseProxyCompilerPassTest extends TestCase
         static::assertTrue($container->has(ReverseProxyCache::class));
         static::assertTrue($container->has(FastlyReverseProxyGateway::class));
 
-        /** @var DummyService $dummy */
         $dummy = $container->get(DummyService::class);
+        static::assertInstanceOf(DummyService::class, $dummy);
         static::assertInstanceOf(VarnishService::class, $dummy->get());
     }
 

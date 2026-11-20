@@ -9,7 +9,6 @@ import template from './sw-datepicker.html.twig';
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-datepicker instead
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 

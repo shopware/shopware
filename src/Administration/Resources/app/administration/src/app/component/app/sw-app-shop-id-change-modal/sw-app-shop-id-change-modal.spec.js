@@ -22,12 +22,23 @@ const strategies = [
 describe('sw-app-shop-id-change-modal', () => {
     let wrapper = null;
     let stubs;
+    let shopIdChangeService;
+    let reloadPage;
 
     async function createWrapper() {
+        shopIdChangeService = {
+            getChangeStrategies: () => Promise.resolve(strategies),
+            checkShopId: jest.fn(() => Promise.resolve()),
+            changeShopId: jest.fn(() => Promise.resolve()),
+        };
+
+        reloadPage = jest.fn();
+        const component = await wrapTestComponent('sw-app-shop-id-change-modal', {
+            sync: true,
+        });
+
         return mount(
-            await wrapTestComponent('sw-app-shop-id-change-modal', {
-                sync: true,
-            }),
+            { ...component, methods: { ...component.methods, _reloadPage: reloadPage } },
             {
                 props: {
                     shopIdCheck: {
@@ -62,11 +73,7 @@ describe('sw-app-shop-id-change-modal', () => {
                 global: {
                     stubs,
                     provide: {
-                        shopIdChangeService: {
-                            getChangeStrategies: () => Promise.resolve(strategies),
-                            checkShopId: jest.fn(() => Promise.resolve()),
-                            changeShopId: jest.fn(() => Promise.resolve()),
-                        },
+                        shopIdChangeService,
                         shortcutService: {
                             startEventListener() {},
                             stopEventListener() {},
@@ -75,6 +82,14 @@ describe('sw-app-shop-id-change-modal', () => {
                 },
             },
         );
+    }
+
+    function strategyButtons() {
+        return wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
+    }
+
+    function isActive(button) {
+        return button.classes('sw-app-shop-id-change-modal__button-strategy--active');
     }
 
     beforeAll(async () => {
@@ -95,75 +110,92 @@ describe('sw-app-shop-id-change-modal', () => {
             'sw-loader': await wrapTestComponent('sw-loader'),
             'router-link': true,
             'sw-help-text': true,
+            'sw-confirm-modal': {
+                template: '<div class="sw-confirm-modal"></div>',
+                emits: ['confirm', 'cancel', 'close'],
+            },
         };
     });
 
     beforeEach(async () => {
         wrapper = await createWrapper();
+        await flushPromises();
     });
 
     it('should select the first strategy by default', async () => {
-        const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
-        expect(strategyButtons).toHaveLength(3);
-
-        expect(strategyButtons[0].classes('sw-app-shop-id-change-modal__button-strategy--active')).toBe(true);
+        expect(strategyButtons()).toHaveLength(3);
+        expect(isActive(strategyButtons().at(0))).toBe(true);
     });
 
     it('emits modal-close if modal is closed', async () => {
-        const modal = wrapper.findComponent(stubs['sw-modal']);
-
-        modal.vm.$emit('modal-close');
+        wrapper.findComponent(stubs['sw-modal']).vm.$emit('modal-close');
 
         expect(wrapper.emitted('modal-close')).toBeTruthy();
     });
 
     it('selects clicked strategy', async () => {
-        const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__content-migration-strategy');
+        await strategyButtons().at(1).trigger('click');
+        expect(strategyButtons().map(isActive)).toStrictEqual([false, true, false]);
 
-        await strategyButtons.at(1).trigger('click');
+        await strategyButtons().at(2).trigger('click');
+        expect(strategyButtons().map(isActive)).toStrictEqual([false, false, true]);
 
-        expect(wrapper.vm.selectedStrategy).toStrictEqual(strategies[1]);
-
-        await strategyButtons.at(2).trigger('click');
-
-        expect(wrapper.vm.selectedStrategy).toStrictEqual(strategies[2]);
-
-        await strategyButtons.at(0).trigger('click');
-
-        expect(wrapper.vm.selectedStrategy).toStrictEqual(strategies[0]);
+        await strategyButtons().at(0).trigger('click');
+        expect(strategyButtons().map(isActive)).toStrictEqual([true, false, false]);
     });
 
     it('should send the selected strategy', async () => {
-        const changeShopIdMock = wrapper.vm.shopIdChangeService.changeShopId;
-
-        const strategyButtons = wrapper.findAll('.sw-app-shop-id-change-modal__button-strategy');
-
-        expect(strategyButtons).toHaveLength(3);
-        await strategyButtons.at(1).trigger('click');
-
-        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
-
+        await strategyButtons().at(1).trigger('click');
         await wrapper.get('.mt-button--primary').trigger('click');
+        await flushPromises();
 
-        expect(changeShopIdMock.mock.calls[0][0].name).toMatch(strategies[1].name);
-        expect(wrapper.vm._reloadPage).toHaveBeenCalled();
+        expect(shopIdChangeService.changeShopId.mock.calls[0][0].name).toBe(strategies[1].name);
+        expect(reloadPage).toHaveBeenCalled();
     });
 
     it('shows why the shop identifier change failed', async () => {
-        wrapper.vm.shopIdChangeService.changeShopId.mockRejectedValueOnce({
+        const createNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        shopIdChangeService.changeShopId.mockRejectedValueOnce({
             response: {
                 data: {
                     errors: [{ detail: 'APP_URL "https://shop.test" could not be verified right now, try again later' }],
                 },
             },
         });
-        wrapper.vm.createNotificationError = jest.fn();
 
+        await strategyButtons().at(1).trigger('click');
         await wrapper.get('.mt-button--primary').trigger('click');
         await flushPromises();
 
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'APP_URL "https://shop.test" could not be verified right now, try again later',
-        });
+        expect(createNotificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                message: 'APP_URL "https://shop.test" could not be verified right now, try again later',
+                variant: 'error',
+            }),
+        );
+    });
+
+    it('asks for confirmation before keeping the shop identifier', async () => {
+        await strategyButtons().at(0).trigger('click');
+        await wrapper.get('.mt-button--primary').trigger('click');
+
+        expect(shopIdChangeService.changeShopId).not.toHaveBeenCalled();
+
+        wrapper.findComponent(stubs['sw-confirm-modal']).vm.$emit('confirm');
+        await flushPromises();
+
+        expect(shopIdChangeService.changeShopId.mock.calls[0][0].name).toBe('move-shop-permanently');
+        expect(wrapper.find('.sw-confirm-modal').exists()).toBe(false);
+    });
+
+    it('keeps the shop identifier unchanged when the confirmation is cancelled', async () => {
+        await strategyButtons().at(0).trigger('click');
+        await wrapper.get('.mt-button--primary').trigger('click');
+
+        wrapper.findComponent(stubs['sw-confirm-modal']).vm.$emit('cancel');
+        await flushPromises();
+
+        expect(shopIdChangeService.changeShopId).not.toHaveBeenCalled();
+        expect(wrapper.find('.sw-confirm-modal').exists()).toBe(false);
     });
 });

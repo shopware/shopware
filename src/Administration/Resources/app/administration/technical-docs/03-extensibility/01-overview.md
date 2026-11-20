@@ -87,9 +87,9 @@ Template extension mechanism using TwigJS for overriding template blocks:
 {% endblock %}
 ```
 
-### 3. Native Block System + Composition API Extension System (Experimental, 6.8+)
+### 3. Native Block System + Composition API Extension System (Experimental until 6.9)
 
-Both systems are available behind the feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM` and will become stable in v6.8.0.
+Both systems are available behind the feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM` and will become stable in v6.9.0 at the latest.
 
 Vue-native block system replacing TwigJS blocks:
 
@@ -130,11 +130,11 @@ Shopware.Component.overrideComponentSetup()('originalComponent', (previousState,
 
 ## Evolution Journey & Migration Path
 
-### Phase 1: Legacy System (Shopware 6.0 - 6.7)
+### Phase 1: Legacy System (Shopware 6.0 - 6.8)
 - TwigJS-based template blocks for UI customization
 - Vue 2 Options API component system with Component Factory
 
-### Phase 2: Hybrid Transition (Shopware 6.8+, Current)
+### Phase 2: Hybrid Transition (Shopware 6.9+, Current)
 - **Native Vue Block System**: `sw-block` components partially replace TwigJS blocks
 - **Composition API Extensions**: `overrideComponentSetup()` partially replaces Component Factory
 - **Options API Backward-Compatibility Shim**: Options API overrides targeting Composition API components automatically pass through a compatibility shim so existing plugins continue to work without modification
@@ -156,8 +156,8 @@ Guaranteed backward compatibility within major versions:
 
 ### Experimental APIs (Subject to Change)
 New features under active development:
-- **Composition API Extension System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.8.0
-- **Native Block System** (6.8+) — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.8.0
+- **Composition API Extension System** — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.9.0 at the latest
+- **Native Block System** — feature flag `ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; stable in v6.9.0 at the latest
 - Advanced component lifecycle hooks
 
 ## Key Architecture Decision Records

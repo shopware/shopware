@@ -2,7 +2,7 @@ const { remove } = Shopware.Utils.array;
 const { Service } = Shopware;
 const { Criteria } = Shopware.Data;
 const DEFAULT_TTL = 5 * 60 * 1000;
-const DEFAULT_LIMIT = 25;
+const DEFAULT_LIMIT = null;
 
 /**
  * @sw-package framework
@@ -14,7 +14,6 @@ const DEFAULT_LIMIT = 25;
  * @method createCustomFieldTypeService
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createCustomFieldService() {
     const $typeStore = {
         select: {

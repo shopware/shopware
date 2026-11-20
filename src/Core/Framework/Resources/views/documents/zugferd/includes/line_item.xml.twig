@@ -25,12 +25,12 @@
             of the net unit price multiplies with higher quantities.
             #}
             <ram:ChargeAmount>{{ item.netUnitPrice|zugferd_decimal(4) }}</ram:ChargeAmount>
-            <ram:BasisQuantity unitCode="{{ item.unitCode.value }}">{{ item.basisQuantity|zugferd_decimal }}</ram:BasisQuantity>
+            <ram:BasisQuantity unitCode="{{ item.unitCode }}">{{ item.basisQuantity|zugferd_decimal }}</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
     </ram:SpecifiedLineTradeAgreement>
 
     <ram:SpecifiedLineTradeDelivery>
-        <ram:BilledQuantity unitCode="{{ item.unitCode.value }}">{{ item.quantity|zugferd_decimal }}</ram:BilledQuantity>
+        <ram:BilledQuantity unitCode="{{ item.unitCode }}">{{ item.quantity|zugferd_decimal }}</ram:BilledQuantity>
     </ram:SpecifiedLineTradeDelivery>
 
     <ram:SpecifiedLineTradeSettlement>

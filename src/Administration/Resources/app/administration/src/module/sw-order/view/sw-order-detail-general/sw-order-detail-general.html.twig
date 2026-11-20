@@ -56,7 +56,7 @@
 
                         {% block sw_order_detail_general_line_items_summary_shipping_cost %}
                         <div
-                            v-if="delivery"
+                            v-if="delivery && !hasMultipleShipments"
                             class="sw-order-detail-general__summary-row"
                         >
                             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
@@ -82,6 +82,35 @@
                                 {{ currencyFilter(delivery.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
                             </sw-order-saveable-field>
                         </div>
+
+                        <template v-else>
+                            <div
+                                v-for="(shipment, index) in shipments"
+                                :key="shipment.id"
+                                class="sw-order-detail-general__summary-row"
+                            >
+                                <span>
+                                    {{ $t('sw-order.detailBase.summaryLabelShipmentShippingCosts', { count: index + 1, shippingMethod: shipment.shippingMethod.translated.name }) }}
+                                </span>
+
+                                <sw-order-saveable-field
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: getShippingCostsDetail(shipment.shippingCosts),
+                                        disabled: taxStatus === 'tax-free'
+                                    }"
+                                    type="number"
+                                    :editable="acl.can('order.editor')"
+                                    :step="1"
+                                    :min="0"
+                                    :value="shipment.shippingCosts.totalPrice"
+                                    @value-change="onShipmentShippingChargeEdited(shipment)"
+                                    @update:value="(amount) => onShipmentShippingChargeUpdated(shipment, amount)"
+                                >
+                                    {{ currencyFilter(shipment.shippingCosts.totalPrice, currency.isoCode, order.totalRounding.decimals) }}
+                                </sw-order-saveable-field>
+                            </div>
+                        </template>
 
                         <div
                             v-for="(deliveryDiscount, index) in deliveryDiscounts"

@@ -6,7 +6,6 @@ import template from './sw-media-modal-renderer.html.twig';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -17,6 +16,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         saveMediaModal(): SaveMediaModalConfig | null {
             return Shopware.Store.get('mediaModal').saveMediaModal;
+        },
+
+        /**
+         * The app tabs of the open modal; only when the app that opened it is known.
+         */
+        extensionTabs(): NonNullable<MediaModalConfig['tabs']> {
+            if (!this.mediaModal?.baseUrl) {
+                return [];
+            }
+
+            return this.mediaModal.tabs ?? [];
         },
     },
 

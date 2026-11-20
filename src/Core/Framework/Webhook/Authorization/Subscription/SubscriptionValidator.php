@@ -41,13 +41,13 @@ class SubscriptionValidator
 
         foreach ($subscriptions as $key => $eventName) {
             if (!isset($hookableEvents[$eventName])) {
-                $notHookable[] = $key;
+                $notHookable[$key] = $eventName;
 
                 continue;
             }
 
             if (!$this->policies->permitsSubscription($eventName, $subscriber)) {
-                $notPermitted[] = $key;
+                $notPermitted[$key] = $eventName;
 
                 continue;
             }

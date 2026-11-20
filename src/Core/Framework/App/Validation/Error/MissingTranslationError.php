@@ -6,38 +6,40 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\App\Validation\AppValidatorTest
  */
 #[Package('framework')]
-class MissingTranslationError extends Error
+class MissingTranslationError implements Error
 {
-    private const KEY = 'manifest-missing-translation';
+    public const CODE = 'FRAMEWORK__APP_MISSING_TRANSLATIONS';
 
     /**
-     * @param array<string, array<string>> $missingTranslations
+     * @param list<string> $locales
      */
-    public function __construct(
-        string $xmlElementClass,
-        array $missingTranslations
-    ) {
-        $path = explode('\\', $xmlElementClass);
-        $xmlClassName = array_pop($path);
-
-        $validations = [];
-        foreach ($missingTranslations as $field => $missingTranslation) {
-            $validations[] = $field . ': ' . implode(', ', $missingTranslation);
-        }
-
-        $message = \sprintf(
-            "Missing translations for \"%s\":\n- %s",
-            $xmlClassName,
-            implode("\n- ", $validations)
-        );
-
-        parent::__construct($message);
+    public function __construct(private readonly array $locales)
+    {
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return \sprintf('Missing label translations: %s', implode(', ', $this->locales));
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::CODE;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Notice;
     }
 }

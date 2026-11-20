@@ -13,7 +13,11 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
         wrapper = mount(await wrapTestComponent('sw-media-modal-renderer', { sync: true }), {
             global: {
                 stubs: {
-                    'sw-media-modal-v2': true,
+                    'sw-media-modal-v2': {
+                        props: ['extensionTabs', 'extensionBaseUrl'],
+                        emits: ['media-modal-selection-change', 'modal-close'],
+                        template: '<sw-media-modal-v2-stub />',
+                    },
                     'sw-media-save-modal': true,
                 },
             },
@@ -59,6 +63,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
     });
 
     it('should able to get selected media data', async () => {
+        const callback = jest.fn();
         store.openModal({
             allowMultiSelect: false,
             fileAccepted: 'image/*',
@@ -68,7 +73,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
                 'metaData.width',
                 'metaData.height',
             ],
-            callback: jest.fn(),
+            callback,
         });
 
         await flushPromises();
@@ -89,7 +94,7 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
         ]);
 
         await flushPromises();
-        expect(wrapper.vm.mediaModal.callback).toHaveBeenCalledWith([
+        expect(callback).toHaveBeenCalledWith([
             {
                 fileName: 'test.jpg',
                 fileSize: 123456,
@@ -99,5 +104,26 @@ describe('src/app/component/structure/sw-media-modal-renderer', () => {
                 },
             },
         ]);
+    });
+
+    it('should pass the app tabs of the opening app to the media modal', async () => {
+        store.openModal({
+            tabs: [{ label: 'Primitives', locationId: 'primitives-tab' }],
+            baseUrl: 'https://app.example',
+        });
+        await flushPromises();
+
+        const modal = wrapper.findComponent('sw-media-modal-v2-stub');
+        expect(modal.props('extensionTabs')).toEqual([{ label: 'Primitives', locationId: 'primitives-tab' }]);
+        expect(modal.props('extensionBaseUrl')).toBe('https://app.example');
+    });
+
+    it('should not pass app tabs when the opening app is unknown', async () => {
+        store.openModal({
+            tabs: [{ label: 'Primitives', locationId: 'primitives-tab' }],
+        });
+        await flushPromises();
+
+        expect(wrapper.findComponent('sw-media-modal-v2-stub').props('extensionTabs')).toEqual([]);
     });
 });

@@ -30,6 +30,7 @@
                     v-hide="activeTab === 'singleProducts'"
                     :sales-channel="salesChannel"
                     :container-style="productContainerStyle"
+                    @vue:mounted="getProductContainerStyle"
                     @selection-change="onChangeSelection"
                 />
                 {% endblock %}
@@ -40,6 +41,7 @@
                     v-hide="activeTab === 'categories'"
                     :sales-channel="salesChannel"
                     :container-style="categoryContainerStyle"
+                    @vue:mounted="getCategoryContainerStyle"
                     @selection-change="onChangeSelection"
                     @product-loading="setProductLoading"
                 />
@@ -51,6 +53,7 @@
                     v-hide="activeTab === 'dynamicProductGroups'"
                     :sales-channel="salesChannel"
                     :container-style="productGroupContainerStyle"
+                    @vue:mounted="getProductGroupContainerStyle"
                     @selection-change="onChangeSelection"
                     @product-loading="setProductLoading"
                 />
@@ -111,6 +114,7 @@
                             v-hide="active === 'singleProducts'"
                             :sales-channel="salesChannel"
                             :container-style="productContainerStyle"
+                            @vue:mounted="getProductContainerStyle"
                             @selection-change="onChangeSelection"
                         />
                         {% endblock %}
@@ -121,6 +125,7 @@
                             v-hide="active === 'categories'"
                             :sales-channel="salesChannel"
                             :container-style="categoryContainerStyle"
+                            @vue:mounted="getCategoryContainerStyle"
                             @selection-change="onChangeSelection"
                             @product-loading="setProductLoading"
                         />
@@ -132,6 +137,7 @@
                             v-hide="active === 'dynamicProductGroups'"
                             :sales-channel="salesChannel"
                             :container-style="productGroupContainerStyle"
+                            @vue:mounted="getProductGroupContainerStyle"
                             @selection-change="onChangeSelection"
                             @product-loading="setProductLoading"
                         />

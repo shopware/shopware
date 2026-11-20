@@ -10,8 +10,8 @@ The grammar of the markers is in `eslint-rules/deprecation-rules/utils/api-marke
 ## Snapshot
 
 The snapshot is committed in `public-api/`.
-It lists every component that core registers, with the blocks of the template it renders and their nesting.
-A pull request that adds, renames, moves or removes a block therefore shows that change in its diff.
+It lists every component that core registers, with the members its options object declares and the blocks of the template it renders.
+A pull request that adds, renames, moves or removes a block, a prop or a method therefore shows that change in its diff.
 
 Regenerate it after such a change and commit the result:
 
@@ -153,6 +153,92 @@ The generator also keeps the conditions of the chain a block follows, whether th
 The break check compares them, see "Break check".
 The files do not contain them, so an edit to a condition changes no file.
 
+### Members
+
+The report lists what a plugin reaches besides the blocks: the members of the options object, and the slots, template refs and CSS classes of the template.
+
+```text
+mixins
+  notification, listing
+
+inject
+  acl
+  factory from repositoryFactory
+
+props
+  entity: string
+  value?: string  default=literal
+
+emits
+  update:value(...args: any[])
+
+slots
+  footer  { item }  block=sw_example_card_footer
+
+data
+  pagination: object
+    page: any
+
+computed
+  hasTitle: any
+
+methods
+  onDeleteItem(item: any, itemIndex?: any): any  [bc-change ParameterRemoval v6.8.0 itemIndex]
+  onSave(): Promise<any>  [deprecated tag:v6.8.0]
+
+refs
+  grid  -> sw-data-grid
+  rows  -> sw-data-grid-row  list
+
+classes
+  sw-example-card
+
+notes
+  unresolved computed ...mapPageErrors(errorConfig)
+```
+
+| Section | A line holds |
+|---|---|
+| `mixins` | The registered mixins on one line, in the order the component applies them |
+| `inject` | The local name, and the injected key when it differs |
+| `provide` | The provided key |
+| `props` | The name with `?` for an optional prop, its type, and `default=literal` or `default=factory` |
+| `emits` | The event with the parameters of its validator, `...args: any[]` for the array form |
+| `slots` | The name, the props the slot passes, and the block around it |
+| `data` | The key, and the keys of a nested object literal indented below it |
+| `computed` | The name and the type its getter declares |
+| `methods` | The signature. A parameter with a default is optional, a destructured one is named `arg<position>`, and an `async` method returns `Promise<any>` |
+| `refs` | The ref and the tag it sits on, with `list` for a ref inside a `v-for` |
+| `classes` | The classes of static `class` attributes and the literal names of a bound `:class` |
+| `notes` | What the generator could not read, see below |
+
+The sections stand in this order, with `blocks` and `crossings` between `methods` and `refs`.
+
+- A component lists its own members.
+  The members of its mixins and of the component it extends are in their units.
+- Only the syntax is read, so code inside a method changes nothing.
+  A JavaScript member is `any`.
+  A TypeScript member keeps the text of its annotation, and a prop the type argument of `PropType<...>`.
+- The prop constructors map to `string`, `number`, `boolean`, `object`, `any[]` and `(...args: any[]) => any`.
+- The options object is found behind `wrapComponentConfig`, `defineComponent` and a `const` of the same file.
+- `mapPropertyErrors`, `mapCollectionPropertyErrors`, `mapState`, `mapGetters`, `mapWritableState`, `mapActions` and `mapMutations` add the members they list as literals.
+  A method keeps its parameters when a helper such as `debounce` wraps the function.
+- Slots, refs and classes are read from the template after the merge along the extend chain, so an extend child lists what its parent renders too.
+- A marker in the comment directly above a member follows its line: `[deprecated tag:vX]`, `[bc-change <Kind> vX]` with the parameter it names, and `[private]`.
+  The comment can be a JSDoc comment or a `//` line.
+  A block shows its markers the same way, behind its context.
+
+A note says that a section may miss members, with the start of the source the generator could not read:
+
+| Note | Meaning |
+|---|---|
+| `unresolved <section> <source>` | A spread, a computed key or a name that is no literal in that section |
+| `unresolved options <source>` | A spread into the options object, a `setup` function, or a source without an options object, such as a native component |
+| `dynamic-ref <expression>`, `dynamic-slot <expression>` | A bound `:ref` or a `<slot :name>` |
+
+`scripts/generate-public-api/component-members.spec/runtime.spec.ts` loads every component of the Administration and compares the names with the options object at runtime.
+A section with a note may hold fewer names than the runtime, every other section has to hold the same.
+
 ### Flag states
 
 The snapshot covers two flag states: `current`, with the next major flag off, and `major`, with that flag and every flag that names it as its `major` in `feature.yaml` on.
@@ -176,11 +262,14 @@ A private component stays in the snapshot, and its report marks every line `[pri
 
 - A core `Component.override` adds no entry of its own, and the report does not say which blocks come from one.
 - A component that keeps its blocks in a `.vue` file cannot be extended, and cannot be overridden with a Twig template.
-- The other parts of a component, such as props, methods and slots, are missing.
-- The report does not show the `@deprecated` and `@bc-change` markers of a block, although the break check reads them.
+- A native component declares its members in `<script setup>`, which is not read yet.
+  Its report has the note `unresolved options` instead.
+- A mixin has no unit of its own, so a member that a mixin loses is not reported.
+- The members of a core `Component.override` are missing.
+- The constructors from `Shopware.Data` are no prop types yet, and the keys of `data()` have no types.
 - The `.d.ts` contracts are not generated yet.
   They arrive together with the entry points `current.d.ts` and `major.d.ts`, so they can be type-checked from the start.
-  Until then, the fixture view `block-contract` is on the expected-fail list.
+  Until then, the fixture views `block-contract` and `member-contract` are on the expected-fail list.
 
 The generator stops with an error when it cannot read something:
 
@@ -310,6 +399,39 @@ A rule compares the blocks of one component in one flag state, and its text says
 - Only components that both commits register are compared, in the flag states both register them in.
   A component that comes or goes is not reported yet, and neither is a component that becomes `@private`.
 
+### Rules for members
+
+`member-rules.ts` builds one rule per kind of member for a member that is gone and one for a new member, from the table of kinds in `component-members.ts`.
+The rules below those are about what only one kind has.
+
+| Rule | Group | Reported when | A plugin notices |
+|---|---|---|---|
+| `<kind>_missing` | Break | A mixin, injection, provided value, prop, event, slot, data key, computed property, method or template ref is gone | Its override reads `undefined`, or `$super` throws |
+| `class_missing` | Info | A CSS class is gone from the template | Its styles and selectors stop matching |
+| `<kind>_added` | Addition | A new member, except a ref or a class | Nothing, plugins can rely on it from now on |
+| `prop_now_required` | Break | An optional prop became required | Templates that do not pass it fail prop validation |
+| `param_missing` | Break | A method lost a parameter at its end | Overrides that read the parameter get `undefined` |
+| `param_now_required` | Break | A new parameter without a default, or a parameter that lost its default | Calls with the old arguments leave it `undefined` |
+| `param_added` | Addition | A new optional or rest parameter | `$super` calls with explicit arguments do not pass it on |
+| `method_signature_changed` | Break | A method switched between sync and `async`, or its parameters changed their order | The return value is a Promise, or values arrive in the wrong place |
+| `method_param_renamed` | Info | A parameter has another name at the same position | Nothing |
+| `ref_target_changed` | Break | A ref sits on another tag, or moved into or out of a `v-for` | Methods it calls on the ref are gone |
+| `type_changed` | Info | The declared type of a prop, a computed property or the return of a method changed | Depends on the types |
+| `type_widened` | Info | An untyped member got a type | Nothing |
+| `deprecation_added`, `bc_change_added` | Info | A member got a new marker | Nothing yet, the upgrade notes should name it |
+
+- Parameters are compared by position, as a caller passes them.
+  A method that is no function in the source, such as an imported one, has no parameters to compare.
+- `type_changed` compares the text of the declaration.
+  Whether another type still fits needs the type checker, so the rule never fails the check.
+- A removed member with exactly one new member of the same kind that differs in the name only gets a `Possible rename`.
+- A removed member has no line in the head commit.
+  The finding points to the option that held it, and for a slot, a ref or a class to the closest block around it that is left.
+- The id of a member is `<kind>:<name>`, with the kinds `mixin`, `inject`, `provide`, `prop`, `emit`, `slot`, `data`, `computed`, `method`, `ref` and `class`.
+  A nested data key is named by its path, `data:pagination.limit`, and a parameter below its method, `method:onDeleteItem/param:itemIndex`.
+- The arguments of an event and the props of a slot are not compared yet.
+- The break check does not validate markers yet: a `@bc-change` that names a parameter the method does not have is reported as `bc_change_added`.
+
 ### Groups
 
 The rule of a finding names the change, and its group says what the change counts as.
@@ -318,17 +440,20 @@ The rule of a finding names the change, and its group says what the change count
 |---|---|
 | `Break` | An unannounced break. Only this group fails the check |
 | `Addition` | New public API |
-| `Allowed` | A change that a marker on the block announced |
-| `Private` | A change to a component that is `@private` in the base commit |
+| `Allowed` | A change that a marker on the block or the member announced |
+| `Private` | A change to a component that is `@private` in the base commit, or to a `@private` member of a public component |
 | `Info` | A change that a reviewer may want to look at |
 
-A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag:
+A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag, or in the comment directly above the member:
 
 | Marker | Announces | Rule of the finding |
 |---|---|---|
-| `@deprecated tag:vX.Y.Z` | `block_missing` | `deprecated_removal` |
+| `@deprecated tag:vX.Y.Z` | `block_missing`, `<kind>_missing` | `deprecated_removal` |
 | `@bc-change BlockMoved` with the new `parent` | `block_moved_parent` | `announced_change` |
 | `@bc-change ScopeVariableRemoval` with the `variable` | `block_scope_missing` | `announced_change` |
+| `@bc-change ParameterRemoval` with the `parameter`, on the method | `param_missing` | `announced_change` |
+| `@bc-change NewRequiredParameter` with the `parameter`, on the method | `param_now_required` | `announced_change` |
+| `@bc-change PropBecomesRequired`, on the prop | `prop_now_required` | `announced_change` |
 
 The marker counts from the version it names on.
 A change that happens in the major state only counts as announced when the marker names that major, also when the marker comes with the same pull request.
@@ -403,6 +528,17 @@ The blocks have four unit kinds, because they are built in four steps:
 
 The other markers of a block line, such as `[after v-if]` and `[scope: item]`, belong to `block-structure`, and the other facets of `Block<>` to `block-contract`.
 The comparison moves them out of the block tree into a section `block-context` and a member `blockContext`, which exist only in the comparison.
+
+The members have three unit kinds:
+
+| Unit kind | Compares |
+|---|---|
+| `component-members` | The sections `inject`, `props`, `emits`, `slots`, `data`, `computed`, `methods`, `refs` and `classes` in the reports |
+| `member-contract` | The members of a component besides its blocks in the `.d.ts` contracts |
+| `member-findings` | The findings on props, computed properties, methods, refs and classes |
+
+A unit kind can only list a part that some case expects.
+No case has mixins, provided values or notes, so `component-members.spec/snapshot.spec.ts` covers those sections.
 
 `expected-failures.ts` lists what cannot pass yet, in two lists:
 

@@ -106,7 +106,11 @@ const PART_LABELS: Record<keyof UnitKind, (value: string) => string> = {
  */
 const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockContext' } as const;
 
-// The block tree, its contract, the block structure and the findings on blocks are built in separate steps.
+/*
+ * The block tree, its contract, the block structure and the findings on blocks are built in separate steps, and
+ * so are the members of a component, their contract and the findings on them. A part can only be listed once a
+ * case expects it: the `mixins`, `provide` and `notes` sections of a report are covered by the specs instead.
+ */
 const UNIT_KINDS: Record<string, UnitKind> = {
     'block-tree': {
         ...NO_PARTS,
@@ -133,6 +137,46 @@ const UNIT_KINDS: Record<string, UnitKind> = {
         elementKinds: [
             'block',
             'crossing',
+        ],
+    },
+    'component-members': {
+        ...NO_PARTS,
+        reportSections: [
+            'inject',
+            'props',
+            'emits',
+            'slots',
+            'data',
+            'computed',
+            'methods',
+            'refs',
+            'classes',
+        ],
+    },
+    'member-contract': {
+        ...NO_PARTS,
+        contractMembers: [
+            'props',
+            'emits',
+            'slots',
+            'mixins',
+            'inject',
+            'provide',
+            'data',
+            'computed',
+            'methods',
+            'refs',
+            'classes',
+        ],
+    },
+    'member-findings': {
+        ...NO_PARTS,
+        elementKinds: [
+            'prop',
+            'computed',
+            'method',
+            'ref',
+            'class',
         ],
     },
 };

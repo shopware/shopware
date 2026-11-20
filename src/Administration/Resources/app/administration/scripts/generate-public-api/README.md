@@ -15,15 +15,20 @@ flowchart TD
     registry["component-registry.ts<br/>finds the registered components and the core overrides"]
     blocks["template-blocks.ts<br/>reads the blocks of a template as a tree"]
     chain["extend-chain.ts<br/>merges the trees along the extend chains and applies the overrides"]
+    rendered["rendered-template.ts<br/>the merged template of a component as HTML, parsed once"]
     structure["block-structure.ts<br/>reads the v-if chains, variables and crossings of a merged template"]
+    templateMembers["template-members.ts<br/>reads the slots, refs and classes of a merged template"]
+    options["component-options.ts, option-members.ts<br/>find the options object and read the members it declares"]
     flags["flag-states.ts<br/>current state, major state or both"]
     model["model.ts<br/>one unit per component"]
-    printers["print-report.ts, print-index.ts<br/>print the files"]
+    printers["print-report.ts, print-members.ts, print-index.ts<br/>print the files"]
     snapshot["snapshot.ts<br/>collects all printed files"]
     committed["committed-snapshot.ts<br/>writes them to public-api/"]
 
     tree --> registry --> chain
-    tree --> blocks --> chain --> structure --> model
+    tree --> blocks --> chain --> rendered --> structure --> model
+    rendered --> templateMembers --> model
+    registry --> options --> model
     flags -.-> registry
     flags -.-> blocks
     model --> printers --> snapshot --> committed
@@ -47,9 +52,17 @@ The tree also keeps the HTML between the Twig tags as markup, which the merge ca
 A block keeps two flag state values: `within`, the conditions between it and the block around it, and `states`, where it renders.
 When a redeclaration moves content to another place, `states` is computed again from `within`, because the conditions around the old place no longer apply.
 
-`block-structure.ts` puts the merged tree of a component together as one template again and parses it once more.
+`rendered-template.ts` puts the merged tree of a component together as one template again and parses it once more.
 What an override can rely on depends on the template Vue compiles, and a block of an extend child sits between markup of its parent.
-Reading the structure after the merge needs no rules of its own for `{% parent %}` or for a block that moved.
+`block-structure.ts` and `template-members.ts` both read that template, so neither needs rules of its own for `{% parent %}` or for a block that moved.
+
+`component-members.ts` describes a member of a component: a prop, a method, a slot, a class and so on.
+Every kind is a list of named members with a few details of its own, so the printer and the rules of the break check handle all kinds the same way.
+A new kind is one entry in `MEMBER_KINDS`, a reader, and a line format in `print-members.ts`.
+`option-members.ts` reads the kinds of the options object from the syntax tree, with one reader per option in `SECTIONS`, and never runs the source.
+`option-helpers.ts` lists the helpers that components spread into `computed` and `methods`, with the names each call adds.
+What the reader cannot resolve becomes a note in the report, because a member that silently goes missing would look like a removed API.
+`script-nodes.ts` holds the node helpers for scripts, as `template-nodes.ts` does for templates.
 
 ## How the break check works
 
@@ -57,8 +70,8 @@ Reading the structure after the merge needs no rules of its own for `{% parent %
 flowchart TD
     git["git-source-tree.ts<br/>reads the sources of a commit out of git"]
     commits["commit-check.ts<br/>generates the snapshots of two commits, or of a whole range"]
-    facts["component-facts.ts, block-facts.ts<br/>what the rules compare about a component in one flag state"]
-    rules["rules.ts, block-rules.ts<br/>what a rule is made of, and one rule per kind of change to a block"]
+    facts["component-facts.ts, block-facts.ts, member-facts.ts<br/>what the rules compare about a component in one flag state"]
+    rules["rules.ts, block-rules.ts, member-rules.ts<br/>what a rule is made of, and the rules per kind of change"]
     check["break-check.ts<br/>runs the rules per component and state, then decides the group"]
     findings["findings.ts<br/>prints the summary"]
 
@@ -70,7 +83,8 @@ flowchart TD
 A rule knows nothing about flag states, markers or visibility.
 It gets the facts of one component in one state at the base and at the head, and returns the changes with the element each one is about.
 `break-check.ts` joins what a rule found in both states, and then decides whether a marker announced the change, whether the component is private, and whether an extend child only inherits the finding.
-A new rule for blocks is one entry in `BLOCK_RULES`.
+A new rule for blocks is one entry in `BLOCK_RULES`, and one for members an entry in `MEMBER_RULES`.
+`member-rules.ts` builds the rules for a member that is gone or new from `MEMBER_KINDS`, so a new kind gets them without a rule of its own.
 The rules of another unit kind get a file of their own and join `RULES` in `break-check.ts`.
 Its facts get a file of their own too and join `ComponentFacts` in `component-facts.ts`.
 
@@ -93,7 +107,10 @@ Its facts get a file of their own too and join `ComponentFacts` in `component-fa
 | `extend-chain.spec/runtime.spec.ts` | The merged blocks against the runtime: one case per merge rule, and every component of the real Administration |
 | `block-structure.spec/snapshot.spec.ts` | How the snapshot shows the context of a block and the crossings, also for extend children |
 | `block-structure.spec/compiler.spec.ts` | The context and the crossings against the Vue compiler, for every block of the real Administration |
-| `break-check.spec/rules.spec.ts` | What each rule of the break check reports for a change |
+| `component-members.spec/snapshot.spec.ts` | How the snapshot shows each kind of member, in every form the sources write one |
+| `component-members.spec/runtime.spec.ts` | The member names against the options objects at runtime, for every component of the real Administration |
+| `break-check.spec/rules.spec.ts` | What each rule of the break check reports for a change to the blocks |
+| `break-check.spec/member-rules.spec.ts` | What each rule of the break check reports for a change to the members |
 | `break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
 | `commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
 | `committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |

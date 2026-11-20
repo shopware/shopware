@@ -3,38 +3,29 @@
  *
  * Prints the `.api.md` report of a component: an outline for reviewers that merges both flag states.
  */
-import { flagStateMarker, mergeStates } from './flag-states';
-import type { FlagContext, FlagStates } from './flag-states';
-import type { ComponentUnit } from './model';
 import { blockLabel, crossingSubject } from './block-structure';
 import type { Crossing } from './block-structure';
 import type { BlockContext, TemplateBlock } from './block-tree';
+import { byCodePoint } from './code-point-order';
+import { flagStateMarker, mergeStates } from './flag-states';
+import type { FlagContext, FlagStates } from './flag-states';
+import type { ComponentUnit } from './model';
+import { kindsPlaced, memberSections } from './print-members';
+import { line, markerLabels } from './report-outline';
+import type { Line, Section } from './report-outline';
 
 /** @private */
 export const GENERATE_COMMAND = 'composer admin:generate-public-api';
 
 const FORMAT_DOCUMENT = 'technical-docs/11-code-quality/03-public-api-snapshot.md';
 
-/** A line of the outline. Its markers follow the text in brackets, without the brackets here. */
-interface Line {
-    text: string;
-    markers: string[];
-}
-
-interface Section {
-    heading: string;
-    lines: Line[];
-}
-
-function line(text: string, ...markers: (string | null)[]): Line {
-    return { text, markers: markers.filter((marker) => marker !== null) };
-}
-
 /** A block under one parent as the report shows it. `markers` holds what follows its name, without its flag states. */
 interface PrintedBlock {
     name: string;
     parent: string | null;
     markers: string[];
+    /** The `@deprecated` and `@bc-change` markers of the block, which follow its flag states. */
+    announced: string[];
     states: FlagStates;
 }
 
@@ -51,16 +42,23 @@ function contextMarkers({ afterIf, scope }: BlockContext): string[] {
  */
 function printedBlocks(blocks: TemplateBlock[]): PrintedBlock[] {
     return mergeStates(
-        blocks.map(({ name, parent, origin, context, states }) => ({
+        blocks.map(({ name, parent, origin, context, states, markers }) => ({
             name,
             parent,
             markers: [
                 ...(origin === null ? [] : [origin]),
                 ...contextMarkers(context),
             ],
+            announced: markerLabels(markers),
             states,
         })),
-        ({ name, parent, markers }) => [name, parent ?? '', ...markers].join('\n'),
+        ({ name, parent, markers, announced }) =>
+            [
+                name,
+                parent ?? '',
+                ...markers,
+                ...announced,
+            ].join('\n'),
     );
 }
 
@@ -72,8 +70,8 @@ function blockTree(unit: ComponentUnit, flags: FlagContext): Line[] {
     );
 
     const below = (parent: string | null, ancestors: readonly string[]): Line[] =>
-        (children.get(parent) ?? []).flatMap(({ name, markers, states }) => [
-            line(`${'  '.repeat(ancestors.length + 1)}${name}`, ...markers, flagStateMarker(states, flags)),
+        (children.get(parent) ?? []).flatMap(({ name, markers, announced, states }) => [
+            line(`${'  '.repeat(ancestors.length + 1)}${name}`, ...markers, flagStateMarker(states, flags), ...announced),
             // A block that sits inside itself would repeat forever.
             ...(ancestors.includes(name)
                 ? []
@@ -97,6 +95,11 @@ function crossingLines(crossings: Crossing[], flags: FlagContext): Line[] {
     });
 }
 
+/** What the generator could not read, so a reviewer sees that the sections above may miss a member. */
+function noteLines(notes: string[]): Line[] {
+    return [...new Set(notes)].sort(byCodePoint).map((note) => line(`  ${note}`));
+}
+
 function header(unit: ComponentUnit, flags: FlagContext): Line[] {
     return [
         line(`component ${unit.name}  ${unit.visibility}  ${unit.language}`, flagStateMarker(unit.states, flags)),
@@ -115,8 +118,11 @@ function header(unit: ComponentUnit, flags: FlagContext): Line[] {
  */
 function outline(unit: ComponentUnit, flags: FlagContext): string[] {
     const sections: Section[] = [
+        ...memberSections(unit.members, kindsPlaced('beforeBlocks'), flags),
         { heading: 'blocks', lines: blockTree(unit, flags) },
         { heading: 'crossings', lines: crossingLines(unit.crossings, flags) },
+        ...memberSections(unit.members, kindsPlaced('afterBlocks'), flags),
+        { heading: 'notes', lines: noteLines(unit.notes) },
     ];
     const unitMarkers = unit.visibility === 'private' ? ['private'] : [];
     const print = ({ text, markers }: Line): string => {

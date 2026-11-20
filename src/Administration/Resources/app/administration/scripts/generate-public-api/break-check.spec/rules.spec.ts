@@ -43,7 +43,7 @@ describe('scripts/generate-public-api/break-check rules', () => {
             expect(
                 check(
                     '{% block sw_example_card %}<h2 class="title">{{ title }}</h2>{% endblock %}',
-                    '{% block sw_example_card %}<section><h3 :title="title">{{ headline }}</h3><p v-if="text"></p></section>{% endblock %}',
+                    '{% block sw_example_card %}<section><h3 class="title" :title="title">{{ headline }}</h3><p v-if="text"></p></section>{% endblock %}',
                 ),
             ).toEqual([]);
         });

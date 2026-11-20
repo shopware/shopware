@@ -13,8 +13,26 @@ const REPORT = [
     '```text',
     'component sw-example-card  public  js',
     '',
+    'inject',
+    '  acl',
+    '',
     'props',
     '  title?: string',
+    '',
+    'emits',
+    '  close(...args: any[])',
+    '',
+    'slots',
+    '  default  {}  block=sw_example_card',
+    '',
+    'data',
+    '  isOpen: any',
+    '',
+    'computed',
+    '  hasTitle: any',
+    '',
+    'methods',
+    '  onClose(): any',
     '',
     'blocks',
     '  sw_example_card',
@@ -22,6 +40,12 @@ const REPORT = [
     '',
     'crossings',
     '  div  sw_example_card -> sw_example_card_title',
+    '',
+    'refs',
+    '  title  -> h3',
+    '',
+    'classes',
+    '  sw-example-card__title',
     '```',
     '',
 ].join('\n');
@@ -34,6 +58,13 @@ const CONTRACT = [
     "                title: Prop<string, false, 'literal'>;",
     '            };',
     '            emits: {};',
+    '            slots: {};',
+    '            mixins: readonly [];',
+    '            inject: {};',
+    '            provide: {};',
+    '            data: {};',
+    '            computed: {};',
+    '            methods: {};',
     '            blocks: {',
     '                sw_example_card: Block<null>;',
     "                sw_example_card_title: Block<'sw_example_card', 'scope:item'>;",
@@ -41,6 +72,8 @@ const CONTRACT = [
     '            crossings: readonly [',
     "                readonly ['div', 'sw_example_card', 'sw_example_card_title'],",
     '            ];',
+    '            refs: {};',
+    '            classes: readonly [];',
     '        };',
     '    }',
     '}',
@@ -83,10 +116,25 @@ const CLASS_FINDING: Finding = {
     explanation: 'The CSS class sw-example-card__title is no longer in the template.',
 };
 
+/** One finding per kind of member that the cases expect findings on, besides the class. */
+const MEMBER_FINDINGS: Finding[] = [
+    'prop:title',
+    'computed:hasTitle',
+    'method:onClose',
+    'ref:title',
+].map((member) => ({
+    group: 'Break',
+    rule: `${member.split(':')[0]}_missing`,
+    element: `component:sw-example-card/${member}`,
+    states: ['current', 'major'],
+    explanation: 'The member is gone.',
+}));
+
 const FINDINGS = [
     BLOCK_FINDING,
     CROSSING_FINDING,
     CLASS_FINDING,
+    ...MEMBER_FINDINGS,
 ];
 
 const FILES = {
@@ -133,6 +181,9 @@ const VIEWS = [
     'block-contract',
     'block-structure',
     'block-findings',
+    'component-members',
+    'member-contract',
+    'member-findings',
     'complete',
 ];
 
@@ -270,21 +321,42 @@ describe('fixtureTests', () => {
                 'block-tree',
                 'block-contract',
                 'block-structure',
+                'component-members',
+                'member-contract',
                 'complete',
             ],
         ],
         [
             'the props in the report',
             withFile('app/component/base/sw-example-card.api.md', 'title?: string', 'title: string'),
-            ['complete'],
+            ['component-members', 'complete'],
+        ],
+        [
+            'a template ref in the report',
+            withFile('app/component/base/sw-example-card.api.md', 'title  -> h3', 'title  -> h4'),
+            ['component-members', 'complete'],
         ],
         [
             'the emits in the contract',
             withFile('app/component/base/sw-example-card.d.ts', 'emits: {};', 'emits: { change: [] };'),
+            ['member-contract', 'complete'],
+        ],
+        [
+            'the header of the report',
+            withFile('app/component/base/sw-example-card.api.md', 'public  js', 'private  js'),
             ['complete'],
         ],
         ['the visibility in the index', withFile('index.json', '"public"', '"private"'), ['complete']],
-        ['a finding on a class', withFinding(CLASS_FINDING, { rule: 'class_added' }), ['complete']],
+        [
+            'a finding on a class',
+            withFinding(CLASS_FINDING, { rule: 'class_added' }),
+            ['member-findings', 'complete'],
+        ],
+        [
+            'a finding on a method parameter',
+            withFinding(MEMBER_FINDINGS[2], { element: `${MEMBER_FINDINGS[2].element}/param:event` }),
+            ['member-findings', 'complete'],
+        ],
         ['an entry point', withFile('current.d.ts', 'sw-example-card.d.ts', 'sw-example-panel.d.ts'), ['complete']],
     ])('fails only the views that cover a difference in %s', (_, output, expectedFailingViews) => {
         expect(failingViews(output)).toEqual(expectedFailingViews);

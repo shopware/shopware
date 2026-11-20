@@ -14,11 +14,15 @@ import { FINDING_GROUPS } from './findings';
 import type { Finding } from './findings';
 import { FLAG_STATES, isMajorOnly, perState } from './flag-states';
 import type { FlagContext, FlagState } from './flag-states';
+import { MEMBER_RULES } from './member-rules';
 import type { ComponentUnit, Model } from './model';
 import type { Announcement, Detection, Rule } from './rules';
 
 // The unit kinds built so far. `expected-failures.ts` lists what is missing.
-const RULES: readonly Rule[] = BLOCK_RULES;
+const RULES: readonly Rule[] = [
+    ...BLOCK_RULES,
+    ...MEMBER_RULES,
+];
 
 /** A component that both commits register, with its facts in each flag state. */
 interface ComponentChange {
@@ -130,9 +134,12 @@ function announced(
     return marker && { group: 'Allowed', rule: announcement.rule, explanation: announcedText(announcement.subject, marker) };
 }
 
-/** A component that becomes private in the change was public API until then, so its changes still break plugins. */
-function isPrivate({ base }: ComponentChange): boolean {
-    return base.visibility === 'private';
+/**
+ * A component that becomes private in the change was public API until then, so its changes still break plugins.
+ * A private element of a public component never was public API.
+ */
+function isPrivate({ base }: ComponentChange, detection: Detection): boolean {
+    return base.visibility === 'private' || detection.isPrivate === true;
 }
 
 function findingOf(result: Found, change: ComponentChange, flags: FlagContext): Finding {
@@ -145,7 +152,7 @@ function findingOf(result: Found, change: ComponentChange, flags: FlagContext): 
 
     return {
         ...judged,
-        group: isPrivate(change) ? 'Private' : judged.group,
+        group: isPrivate(change, detection) ? 'Private' : judged.group,
         element: detection.element,
         states,
         ...(detection.at === undefined ? {} : { at: `${detection.at.file}:${detection.at.line}` }),

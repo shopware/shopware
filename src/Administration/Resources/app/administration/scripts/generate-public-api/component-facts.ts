@@ -7,10 +7,12 @@
 import { blockStructureFactsOf } from './block-facts';
 import type { BlockStructureFacts } from './block-facts';
 import type { FlagState } from './flag-states';
+import { memberFactsOf } from './member-facts';
+import type { MemberFacts } from './member-facts';
 import type { ComponentUnit } from './model';
 
 /** @private */
-export type ComponentFacts = BlockStructureFacts;
+export type ComponentFacts = BlockStructureFacts & MemberFacts;
 
 /**
  * @private
@@ -18,5 +20,5 @@ export type ComponentFacts = BlockStructureFacts;
  * The facts of the component that exist in `state`.
  */
 export function factsOf(unit: ComponentUnit, state: FlagState): ComponentFacts {
-    return blockStructureFactsOf(unit, state);
+    return { ...blockStructureFactsOf(unit, state), ...memberFactsOf(unit, state) };
 }

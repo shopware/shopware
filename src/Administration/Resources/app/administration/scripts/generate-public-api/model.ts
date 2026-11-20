@@ -9,14 +9,20 @@ import type { Crossing } from './block-structure';
 import { listBlocks } from './block-tree';
 import type { TemplateBlock } from './block-tree';
 import { byCodePoint } from './code-point-order';
+import { mergeMembers, NO_MEMBERS } from './component-members';
+import type { ComponentMembers } from './component-members';
+import { componentOptions } from './component-options';
 import { componentCalls, markupOf } from './component-registry';
 import type { ComponentCalls, Override, Registration } from './component-registry';
 import { resolveTemplates } from './extend-chain';
 import type { ComponentTemplate, DroppedBlock, OverrideTemplate, ResolvedTemplate, TemplateSource } from './extend-chain';
 import { createFlagContext, FLAG_STATES, inBothStates } from './flag-states';
 import type { FlagContext, FlagStates } from './flag-states';
+import { readOptionMembers } from './option-members';
+import { renderTemplate } from './rendered-template';
 import type { SourceTree } from './source-tree';
 import { templateTree } from './template-blocks';
+import { readTemplateMembers } from './template-members';
 
 /** @private */
 export interface SnapshotOptions {
@@ -30,13 +36,15 @@ export interface SnapshotOptions {
  * One registered component. `file` is the path of its snapshot files below `public-api/`, without extension.
  * `blocks` holds the blocks of the template it renders, with those it inherits along its extend chain and the
  * core overrides applied, limited to the flag states in which the whole chain is registered. `crossings` holds
- * the elements and `v-if` chains of that template that cross a block boundary.
+ * the elements and `v-if` chains of that template that cross a block boundary. `members` holds what the options
+ * object declares and what that template offers besides blocks, and `notes` what could not be read of either.
  */
-export type ComponentUnit = Registration & {
-    file: string;
-    blocks: TemplateBlock[];
-    crossings: Crossing[];
-};
+export type ComponentUnit = Registration &
+    ComponentMembers & {
+        file: string;
+        blocks: TemplateBlock[];
+        crossings: Crossing[];
+    };
 
 /**
  * @private
@@ -172,14 +180,32 @@ function componentTemplates(
     });
 }
 
-function componentUnit(registration: Registration, { tree, states }: ResolvedTemplate): ComponentUnit {
-    const { contexts, crossings } = readStructure(tree);
+/** A source without an options object that can be read declares members the snapshot does not know. */
+function declaredMembers(registration: Registration, sources: SourceTree): ComponentMembers {
+    const options = componentOptions(registration, sources);
+
+    return options === undefined
+        ? { ...NO_MEMBERS, notes: [`unresolved options ${registration.sfc ?? registration.source}`] }
+        : readOptionMembers(options);
+}
+
+function componentUnit(
+    registration: Registration,
+    { tree, states }: ResolvedTemplate,
+    sources: SourceTree,
+    flags: FlagContext,
+): ComponentUnit {
+    const template = renderTemplate(tree);
+    const { contexts, crossings } = readStructure(template);
+    const members = mergeMembers(declaredMembers(registration, sources), readTemplateMembers(template, flags));
 
     return {
         ...registration,
+        ...members,
         file: snapshotFile(registration.name, registration.source),
         blocks: existingIn(states, listBlocks(tree, contexts)),
         crossings: existingIn(states, crossings),
+        members: existingIn(states, members.members),
     };
 }
 
@@ -200,7 +226,7 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
 
     const resolved = resolveTemplates(componentTemplates(calls, templates));
     const components = registrations
-        .map((registration, index) => componentUnit(registration, resolved[index]))
+        .map((registration, index) => componentUnit(registration, resolved[index], tree, flags))
         .sort((a, b) => byCodePoint(a.name, b.name));
     const droppedBlocks = resolved
         .flatMap(({ dropped }) => dropped)

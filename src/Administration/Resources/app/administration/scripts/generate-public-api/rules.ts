@@ -43,11 +43,13 @@ export interface Announcement {
  *
  * One change a rule found in one flag state. `element` is the element id below the component, for example
  * `block:sw_card_title/scope:item`. Two flag states with the same `element` and `variant` are one finding,
- * so `variant` holds everything the texts are made of.
+ * so `variant` holds everything the texts are made of. `isPrivate` says that the element itself is `@private`
+ * inside a public component.
  */
 export interface Detection {
     element: string;
     at?: SourceLine;
+    isPrivate?: boolean;
     variant: string;
     texts: (context: TextContext) => FindingTexts;
     announcement?: Announcement;
@@ -61,7 +63,7 @@ export interface Rule {
 }
 
 /** The element a change is about. */
-type Element = Pick<Detection, 'element' | 'at'>;
+type Element = Pick<Detection, 'element' | 'at' | 'isPrivate'>;
 
 /**
  * @private
@@ -87,11 +89,12 @@ export function rule<Change>({ id, group, changes, texts, announcement }: RuleDe
         group,
         detect: (base, head) =>
             changes(base, head).map((change) => {
-                const { element, at, ...detail } = change;
+                const { element, at, isPrivate, ...detail } = change;
 
                 return {
                     element,
                     at,
+                    isPrivate,
                     variant: JSON.stringify(detail),
                     texts: (context) => texts(change, context),
                     announcement: announcement && {

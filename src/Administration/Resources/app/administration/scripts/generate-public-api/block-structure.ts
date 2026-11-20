@@ -8,20 +8,13 @@
 import { NodeTypes } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import ts from 'typescript';
-import { isBlock, isMarkup } from './block-tree';
-import type { BlockContent, BlockContext, BlockNode, Markup, ScopeVariable, SourceLine } from './block-tree';
+import type { BlockContext, BlockNode, ScopeVariable, SourceLine } from './block-tree';
 import { byCodePoint } from './code-point-order';
 import { BOTH_STATES, inBothStates, mergeStates } from './flag-states';
 import type { FlagStates } from './flag-states';
-import {
-    chainMember,
-    contentOf,
-    directive,
-    endsChain,
-    isWhitespace,
-    parseTemplate,
-    staticAttribute,
-} from './template-nodes';
+import { blockBoundary, lineAt } from './rendered-template';
+import type { RenderedTemplate } from './rendered-template';
+import { chainMember, contentOf, directive, endsChain, isWhitespace, staticAttribute } from './template-nodes';
 import type { ChainMember } from './template-nodes';
 
 /**
@@ -75,63 +68,11 @@ export interface TemplateStructure {
     crossings: Crossing[];
 }
 
-/** The template as HTML again, with a comment where a block starts and ends. */
-interface RenderedTemplate {
-    html: string;
-    /** The blocks in the order of their start comments. */
-    blocks: BlockNode[];
-    /** Where each piece of markup starts in `html`. */
-    markup: { offset: number; item: Markup }[];
-}
-
 /** The conditions of a `v-if` chain so far. `block` is the one its last `member` opens in. */
 interface OpenChain {
     member: ChainMember;
     conditions: string[];
     block: BlockNode | null;
-}
-
-// The comment of a block start holds the number of the block in `RenderedTemplate.blocks`.
-const BLOCK_START = 'sw-block-start:';
-const BLOCK_END = 'sw-block-end';
-
-function render(tree: BlockContent[]): RenderedTemplate {
-    const parts: string[] = [];
-    const rendered: RenderedTemplate = { html: '', blocks: [], markup: [] };
-    let offset = 0;
-    const write = (text: string): void => {
-        parts.push(text);
-        offset += text.length;
-    };
-    const visit = (content: BlockContent[]): void => {
-        content.forEach((item) => {
-            if (isMarkup(item)) {
-                rendered.markup.push({ offset, item });
-                write(item.html);
-            } else if (isBlock(item)) {
-                write(`<!--${BLOCK_START}${rendered.blocks.length}-->`);
-                rendered.blocks.push(item);
-                visit(item.content);
-                write(`<!--${BLOCK_END}-->`);
-            }
-        });
-    };
-
-    visit(tree);
-
-    return { ...rendered, html: parts.join('') };
-}
-
-function lineAt({ markup }: RenderedTemplate, offset: number): SourceLine {
-    const piece = markup.findLast((candidate) => candidate.offset <= offset);
-
-    if (piece === undefined) {
-        throw new Error('An element of the merged template starts outside of its markup.');
-    }
-
-    const { file, line } = piece.item.at;
-
-    return { file, line: line + piece.item.html.slice(0, offset - piece.offset).split('\n').length - 1 };
 }
 
 function onOneLine(expression: string): string {
@@ -217,7 +158,7 @@ class StructureReader {
     public constructor(private readonly template: RenderedTemplate) {}
 
     public read(): TemplateStructure {
-        this.visit(parseTemplate(this.template.html), '');
+        this.visit(this.template.nodes, '');
 
         return { contexts: this.contexts, crossings: mergeStates(this.crossings, crossingId) };
     }
@@ -239,10 +180,12 @@ class StructureReader {
     }
 
     private visitComment(content: string, chain: OpenChain | null): void {
-        if (content.startsWith(BLOCK_START)) {
-            this.openBlock(this.template.blocks[Number(content.slice(BLOCK_START.length))], chain);
-        } else if (content === BLOCK_END) {
+        const boundary = blockBoundary(this.template, content);
+
+        if (boundary === 'end') {
             this.closeBlock();
+        } else if (boundary !== null) {
+            this.openBlock(boundary, chain);
         }
     }
 
@@ -359,9 +302,9 @@ class StructureReader {
 /**
  * @private
  *
- * The context of every block of `tree` and the crossings between its blocks. `tree` is the template a component
- * renders, with the blocks it inherits and the core overrides applied.
+ * The context of every block of `template` and the crossings between its blocks. `template` is the template a
+ * component renders, with the blocks it inherits and the core overrides applied.
  */
-export function readStructure(tree: BlockContent[]): TemplateStructure {
-    return new StructureReader(render(tree)).read();
+export function readStructure(template: RenderedTemplate): TemplateStructure {
+    return new StructureReader(template).read();
 }

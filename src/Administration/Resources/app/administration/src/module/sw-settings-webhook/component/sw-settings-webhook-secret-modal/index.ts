@@ -31,11 +31,13 @@ export default Component.wrapComponentConfig({
         isOpen: boolean;
         isSaving: boolean;
         secret: string;
+        generatedSecret: string;
     } {
         return {
             isOpen: true,
             isSaving: false,
             secret: '',
+            generatedSecret: '',
         };
     },
 
@@ -47,13 +49,18 @@ export default Component.wrapComponentConfig({
         canSave(): boolean {
             return this.secret.trim() !== '';
         },
+
+        isGenerated(): boolean {
+            return this.secret !== '' && this.secret === this.generatedSecret;
+        },
     },
 
     methods: {
         generateSecret(): void {
             const bytes = crypto.getRandomValues(new Uint8Array(32));
 
-            this.secret = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+            this.generatedSecret = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+            this.secret = this.generatedSecret;
         },
 
         async onSave(): Promise<void> {

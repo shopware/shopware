@@ -65,6 +65,19 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-secret-mo
         expect((wrapper.find('.mt-text-field').element as HTMLInputElement).value).toMatch(/^[0-9a-f]{64}$/);
     });
 
+    it('asks to copy a secret only while it is the generated one', async () => {
+        const { wrapper } = await createWrapper();
+
+        await wrapper.find('.mt-text-field').setValue('secret-of-the-receiver');
+        expect(wrapper.find('.mt-banner').exists()).toBe(false);
+
+        await wrapper.find('.sw-settings-webhook-secret-modal__generate').trigger('click');
+        expect(wrapper.find('.mt-banner').exists()).toBe(true);
+
+        await wrapper.find('.mt-text-field').setValue('edited');
+        expect(wrapper.find('.mt-banner').exists()).toBe(false);
+    });
+
     it('saves only the entered secret on the existing webhook and closes', async () => {
         const { wrapper, createNotification, save } = await createWrapper();
         await wrapper.find('.mt-text-field').setValue('secret-of-the-receiver');

@@ -1357,6 +1357,13 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### TypeScript Administration scaffolding
+
+`bin/console plugin:create --create-admin-module` now generates `main.ts` and TypeScript module and page implementations.
+Generated modules and components are checked against the installed Administration types.
+After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
+Existing plugin files are unchanged.
+
 ### Order detail shows every shipment in 6.8
 
 With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.

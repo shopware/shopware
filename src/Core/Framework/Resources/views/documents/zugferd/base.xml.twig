@@ -40,6 +40,20 @@
 
         {% block zugferd_header_delivery %}
             <ram:ApplicableHeaderTradeDelivery>
+                {% if renderData.taxExemption %}
+                    {% set deliveryAddress = renderData.taxExemption.deliveryAddress %}
+                    <ram:ShipToTradeParty>
+                        <ram:PostalTradeAddress>
+                            <ram:PostcodeCode>{{ deliveryAddress.zipcode }}</ram:PostcodeCode>
+                            {% if deliveryAddress.street %}
+                                <ram:LineOne>{{ deliveryAddress.street }}</ram:LineOne>
+                            {% endif %}
+                            <ram:CityName>{{ deliveryAddress.city }}</ram:CityName>
+                            <ram:CountryID>{{ deliveryAddress.country.iso }}</ram:CountryID>
+                        </ram:PostalTradeAddress>
+                    </ram:ShipToTradeParty>
+                {% endif %}
+
                 {% if renderData.deliveryDate is not null %}
                     <ram:ActualDeliverySupplyChainEvent>
                         <ram:OccurrenceDateTime>

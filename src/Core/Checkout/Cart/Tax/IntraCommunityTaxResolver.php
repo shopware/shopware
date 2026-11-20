@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Extension\ResolveVatIdsExtension;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -90,16 +91,51 @@ class IntraCommunityTaxResolver implements ResetInterface
             return false;
         }
 
-        $delivery = Feature::isActive('v6.8.0.0')
-            ? $order->getPrimaryOrderDelivery()
-            : $order->getDeliveries()?->first();
-        $country = $delivery?->getShippingOrderAddress()?->getCountry();
+        $country = $this->getShippingAddress($order)?->getCountry();
 
         if ($country === null || !$country->getIsEu() || $order->getPrice()->getTaxStatus() !== CartPrice::TAX_STATE_FREE) {
             return false;
         }
 
         return $this->hasIntraCommunityVatId($order->getSalesChannelId(), $country, $customer, $order);
+    }
+
+    /**
+     * @internal
+     *
+     * The buyer VAT ID an e-invoice states for an intra-community delivery: the first VAT ID that counts for the order
+     * and starts with the code of a member state, in capitals, because EN 16931 rejects a VAT ID without it.
+     */
+    public function getIntraCommunityVatId(OrderEntity $order): ?string
+    {
+        $country = $this->getShippingAddress($order)?->getCountry();
+        if ($country === null || !$this->isIntraCommunityDelivery($order)) {
+            return null;
+        }
+
+        $vatIds = $this->resolveVatIds($order->getSalesChannelId(), $country, $order->getOrderCustomer()?->getCustomer(), $order);
+        foreach ($vatIds as $vatId) {
+            if ($this->vatIdPatternProvider->hasMemberStatePrefix($vatId)) {
+                return strtoupper($vatId);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @internal
+     *
+     * The shipping address the intra-community decision for documents reads.
+     */
+    public function getShippingAddress(OrderEntity $order): ?OrderAddressEntity
+    {
+        // The ZUGFeRD credit note drops the deliveries of the order it bills, but keeps the primary one
+        $delivery = Feature::isActive('v6.8.0.0')
+            ? $order->getPrimaryOrderDelivery()
+            : $order->getDeliveries()?->first() ?? $order->getPrimaryOrderDelivery();
+
+        return $delivery?->getShippingOrderAddress();
     }
 
     public function reset(): void

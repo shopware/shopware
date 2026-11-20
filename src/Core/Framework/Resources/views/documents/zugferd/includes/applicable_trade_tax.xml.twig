@@ -1,7 +1,13 @@
 <ram:ApplicableTradeTax>
     <ram:CalculatedAmount>{{ tax.calculatedAmount|zugferd_decimal }}</ram:CalculatedAmount>
     <ram:TypeCode>VAT</ram:TypeCode>
+    {% if tax.taxCategory.exemptionReason %}
+        <ram:ExemptionReason>{{ tax.taxCategory.exemptionReason }}</ram:ExemptionReason>
+    {% endif %}
     <ram:BasisAmount>{{ tax.basisAmount|zugferd_decimal }}</ram:BasisAmount>
     <ram:CategoryCode>{{ tax.taxCategory.value }}</ram:CategoryCode>
+    {% if tax.taxCategory.exemptionReasonCode %}
+        <ram:ExemptionReasonCode>{{ tax.taxCategory.exemptionReasonCode }}</ram:ExemptionReasonCode>
+    {% endif %}
     <ram:RateApplicablePercent>{{ tax.taxRate|zugferd_decimal }}</ram:RateApplicablePercent>
 </ram:ApplicableTradeTax>

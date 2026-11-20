@@ -56,6 +56,11 @@ final readonly class CreditNoteDataProvider extends AbstractDocumentDataProvider
         $invoice = $this->invoiceDataProvider->provideRenderingData($input, $context);
         $lineItems = LineItemView::listFromCreditItems($input->order);
 
+        $taxExemption = $invoice->taxExemption;
+        if ($taxExemption !== null) {
+            $lineItems = array_map(static fn (LineItemView $item) => $item->withTaxCategory($taxExemption->taxCategory), $lineItems);
+        }
+
         return CreditNoteRenderData::fromInvoice(
             $invoice,
             $input->generationRequest->documentNumber,

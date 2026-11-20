@@ -55,6 +55,23 @@ final readonly class LineItemView
     ) {
     }
 
+    public function withTaxCategory(TaxCategory $taxCategory): self
+    {
+        return new self(
+            $this->lineId,
+            $this->productNumber,
+            $this->ean,
+            $this->name,
+            $this->quantity,
+            $this->basisQuantity,
+            $this->unitCode,
+            $this->netUnitPrice,
+            $this->lineTotal,
+            $taxCategory,
+            $this->taxRate,
+        );
+    }
+
     /**
      * @return list<self>
      */

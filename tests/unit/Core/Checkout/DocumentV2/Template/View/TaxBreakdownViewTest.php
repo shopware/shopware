@@ -21,6 +21,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(TaxBreakdownView::class)]
 class TaxBreakdownViewTest extends TestCase
 {
+    public function testWithTaxCategoryChangesOnlyTheCategory(): void
+    {
+        $view = new TaxBreakdownView(0.0, 100.0, TaxCategory::ZERO_RATED, 0.0);
+
+        static::assertEquals(
+            new TaxBreakdownView(0.0, 100.0, TaxCategory::INTRA_COMMUNITY_SUPPLY, 0.0),
+            $view->withTaxCategory(TaxCategory::INTRA_COMMUNITY_SUPPLY),
+        );
+    }
+
     public function testListFromOrderEmitsEntryPerTaxBucket(): void
     {
         $order = $this->createOrder(CartPrice::TAX_STATE_NET, [

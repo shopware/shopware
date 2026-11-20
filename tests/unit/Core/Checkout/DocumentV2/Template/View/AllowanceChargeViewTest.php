@@ -29,6 +29,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(AllowanceChargeView::class)]
 class AllowanceChargeViewTest extends TestCase
 {
+    public function testWithTaxCategoryChangesOnlyTheCategory(): void
+    {
+        $view = new AllowanceChargeView(false, 10.0, 100.0, 10.0, AllowanceChargeReason::DISCOUNT, 'TENOFF', TaxCategory::ZERO_RATED, 0.0);
+
+        static::assertEquals(
+            new AllowanceChargeView(false, 10.0, 100.0, 10.0, AllowanceChargeReason::DISCOUNT, 'TENOFF', TaxCategory::INTRA_COMMUNITY_SUPPLY, 0.0),
+            $view->withTaxCategory(TaxCategory::INTRA_COMMUNITY_SUPPLY),
+        );
+    }
+
     public function testListFromOrderEmitsDeliveryEntryPerTax(): void
     {
         $order = $this->createOrder(

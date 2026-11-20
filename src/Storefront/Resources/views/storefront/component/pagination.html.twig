@@ -1,9 +1,21 @@
 {# @sw-package framework #}
 
 {% block component_pagination_nav %}
-    {% set currentPage = currentPage ?? entities.page %}
+    {## template-contract ##}
+    {% types {
+        entities?: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<*>|null',
+        currentPage?: 'int|float|numeric-string|null',
+        totalPages?: 'int|float|numeric-string|null',
+        paginationLocation?: 'string|null',
+        href?: 'bool|null',
+        pageParameter?: 'string|null',
+        searchResult?: 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<*>|null',
+        themeIconConfig?: 'array<string, array{path: string, namespace: string}>',
+    } %}
 
-    {% set totalPages = totalPages ?? (entities.total / (entities.limit ?: 1))|round(0, 'ceil')|intval %}
+    {% set currentPage = currentPage ?? entities.page ?? 1 %}
+
+    {% set totalPages = totalPages ?? ((entities.total is defined ? entities.total : 0) / (entities.limit is defined ? (entities.limit ?: 1) : 1))|round(0, 'ceil')|intval %}
 
     {% if totalPages > 0 and currentPage > totalPages %}
         {% set currentPage = totalPages %}
@@ -14,7 +26,7 @@
     {% endif %}
 
     {% set paginationSuffix = '' %}
-    {% if paginationLocation %}
+    {% if paginationLocation ?? null %}
         {% set paginationSuffix = '-' ~ paginationLocation %}
     {% endif %}
 
@@ -26,13 +38,11 @@
         {% set pageParameter = 'p' %}
     {% endif %}
 
-    {% set searchQuery = '' %}
-    {% if searchResult.currentFilters.search %}
-        {% set searchQuery = '&search=' ~ searchResult.currentFilters.search %}
-    {% endif %}
+    {% set paginationSearchTerm = searchResult.currentFilters.search ?? null %}
+    {% set searchQuery = paginationSearchTerm ? '&search=' ~ paginationSearchTerm : '' %}
 
     {% if totalPages > 1 %}
-        <nav aria-label="{{ 'general.pagination.title'|trans|striptags }}" class="pagination-nav listing-pagination{{ paginationSuffix }}"{% if paginationLocation %} data-pagination-location="{{ paginationLocation }}"{% endif %}>
+        <nav aria-label="{{ 'general.pagination.title'|trans|striptags }}" class="pagination-nav listing-pagination{{ paginationSuffix }}"{% if paginationLocation ?? null %} data-pagination-location="{{ paginationLocation }}"{% endif %}>
             {% block component_pagination %}
             <ul class="pagination">
                 {% block component_pagination_first %}

@@ -1,4 +1,10 @@
 {% block video_utility %}
+    {## template-contract ##}
+    {% types {
+        media: 'Shopware\\Core\\Content\\Media\\MediaEntity|Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity',
+        attributes?: 'array<mixed>',
+    } %}
+
     {% if attributes is not defined %}
         {% set attributes = {} %}
     {% endif %}
@@ -7,7 +13,7 @@
         {% set attributes = attributes|merge({ title: media.translated.title }) %}
     {% endif %}
 
-    {% set videoCoverMedia = media.extensions.videoCoverMedia ?? null %}
+    {% set videoCoverMedia = media.getExtensionOfType('videoCoverMedia', 'Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity') %}
 
     {% if videoCoverMedia and (attributes.poster is not defined or attributes.poster == '') %}
         {% set attributes = attributes|merge({

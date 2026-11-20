@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
-import createWrapper from './create-wrapper';
+import createWrapper from 'test/_helper_/shortcut-plugin/create-wrapper';
 import 'src/app/component/form/sw-text-editor';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar';
 import 'src/app/component/form/sw-text-editor/sw-text-editor-toolbar-button';

@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import createWrapper from './create-wrapper';
+import createWrapper from 'test/_helper_/shortcut-plugin/create-wrapper';
 import { mount } from '@vue/test-utils';
 import { defineComponent } from 'vue';
 import useShortcut from 'src/app/composables/use-shortcut';

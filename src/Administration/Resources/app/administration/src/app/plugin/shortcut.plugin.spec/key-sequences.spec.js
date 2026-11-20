@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import createWrapper from './create-wrapper';
+import createWrapper from 'test/_helper_/shortcut-plugin/create-wrapper';
 
 describe('app/plugins/shortcut.plugin - key sequences', () => {
     let wrapper;

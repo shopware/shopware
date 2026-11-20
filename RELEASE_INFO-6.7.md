@@ -17,6 +17,11 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### JSON keys named extensions in DAL criteria
+
+DAL filters, sorting and aggregations preserve JSON keys named `extensions`, including paths such as `customFields.extensions.foo`.
+Previously, these paths could silently read a different JSON key.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

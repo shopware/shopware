@@ -17,6 +17,14 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### Regenerating a document keeps its deep link and its stored files
+
+`DocumentGenerator::generate()` with the id of an existing document now keeps the document's deep link code and its stored PDF and HTML files, and renders only the file type that is missing.
+Before, every regeneration created a new deep link code and replaced both files: asking for the HTML of a PDF-only document unlinked its PDF, and documents created before 6.7 never got their HTML file.
+While a stored file is kept, the document also keeps its order version and config, and the generated document in the result carries that order version.
+The missing file is rendered from the current order.
+To get fresh files for an existing document, generate a new document instead of regenerating it.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

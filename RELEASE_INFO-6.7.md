@@ -30,6 +30,14 @@ shopware:
             options: { memory_cost: 65536, time_cost: 4 }
 ```
 
+Options PHP cannot hash with, for example a bcrypt `cost` outside 4 to 31, fail while the container is built.
+Options read from environment variables are only checked when a password is hashed.
+
+Every login hashes or verifies a password with these settings, including logins with an unknown email, which keeps the response time the same for existing and unknown accounts.
+With the example above, each login request needs 64 MiB of memory, so plan the PHP memory limit and the number of workers for concurrent logins.
+The default `login` and `oauth` rate limiters are keyed by user and IP, so they do not throttle requests that use a new email each time.
+Enable the per IP rate limiters `login_client` and `oauth_client` via `shopware.api.rate_limiter` to cover that case.
+
 On every successful login (Store API, Storefront, Administration), a hash created with other settings is replaced by a hash of the current settings.
 Existing hashes keep working, so the configuration can be changed at any time.
 As PHP 8.4 raised the default bcrypt cost from 10 to 12, existing hashes are also replaced once on PHP 8.4 and newer with the default configuration.

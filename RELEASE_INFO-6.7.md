@@ -1402,6 +1402,14 @@ Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-or
 
 ## Storefront
 
+### YouTube and Vimeo cookie entries can be hidden per sales channel
+
+Two new settings in Basic information > Legal and compliance hide the "YouTube video" and "Vimeo video" entries from the cookie consent of a sales channel: `core.basicInformation.disableYoutubeVideoCookie` and `core.basicInformation.disableVimeoVideoCookie`.
+Both default to `false`, so existing shops keep both entries.
+Enable them when the matching CMS element is not used, so customers are not asked for consent to unused services.
+The CMS elements are not changed and still ask for consent in their own overlay.
+The entries are removed in `CookieProvider::getCookieGroups()`, so they are also missing in the `/store-api/cookie-groups` response.
+
 ### Checkout and account pages list every shipment
 
 When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.

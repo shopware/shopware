@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -42,6 +43,7 @@ class CookieProvider
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly TranslatorInterface $translator,
         private readonly ScriptExecutor $scriptExecutor,
+        private readonly SystemConfigService $systemConfigService,
         array $sessionOptions = [],
         /**
          * @phpstan-ignore phpat.restrictNamespacesInCore (The optional legacy provider preserves Storefront extension compatibility without requiring Storefront)
@@ -65,6 +67,9 @@ class CookieProvider
             $cookieGroups->add($this->getCookieGroupComfortFeatures());
             $cookieGroups->add($this->getCookieGroupMarketing());
         }
+
+        // @TODO v6.9.0 - Move this into getCookieGroupComfortFeatures() once the legacy provider conversion is removed.
+        $this->removeDisabledVideoEntries($cookieGroups, $salesChannelContext->getSalesChannelId());
 
         $this->eventDispatcher->dispatch(new CookieGroupCollectEvent($cookieGroups, $request, $salesChannelContext));
 
@@ -167,6 +172,22 @@ class CookieProvider
         $entryVimeoVideo->expiration = 30;
 
         return $entryVimeoVideo;
+    }
+
+    private function removeDisabledVideoEntries(CookieGroupCollection $cookieGroups, string $salesChannelId): void
+    {
+        $entries = $cookieGroups->get(self::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)?->getEntries();
+        if ($entries === null) {
+            return;
+        }
+
+        if ($this->systemConfigService->getBool('core.basicInformation.disableYoutubeVideoCookie', $salesChannelId)) {
+            $entries->remove('youtube-video');
+        }
+
+        if ($this->systemConfigService->getBool('core.basicInformation.disableVimeoVideoCookie', $salesChannelId)) {
+            $entries->remove('vimeo-video');
+        }
     }
 
     private function getCookieGroupMarketing(): CookieGroup

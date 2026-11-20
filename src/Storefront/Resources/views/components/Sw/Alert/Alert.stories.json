@@ -1,0 +1,56 @@
+{
+    "title": "Sw/Alert",
+    "parameters": {
+        "server": {
+            "id": "Sw:Alert"
+        },
+        "template": "<twig:Sw:Alert text=\"Lorem ipsum dolor sit amet.\" variant=\"primary\" size=\"md\" />",
+        "slots": [
+            {
+                "name": "content",
+                "description": "Slot for displaying the alert content."
+            }
+        ]
+    },
+    "argTypes": {
+        "text": { "control": "text" },
+        "variant": {
+          "control": "select",
+          "options": ["primary", "secondary", "warning", "success", "info", "danger", "light", "dark"]
+        },
+        "size": {
+          "control": "select",
+          "options": ["sm", "md", "lg"]
+        },
+        "blocks.content": {
+            "control": "text",
+            "description": "HTML for the component's default content block."
+        }
+      },
+    "stories": [
+        {
+            "name": "Alert",
+            "args": {
+                "text": "Lorem ipsum dolor sit amet.",
+                "variant": "primary",
+                "size": "md",
+                "blocks.content": "<strong>Lorem ipsum</strong> dolor sit amet."
+            },
+            "parameters": {
+                "docs": {
+                    "source": {
+                        "code": "<twig:Sw:Alert text=\"Lorem ipsum dolor sit amet.\" variant=\"primary\" size=\"md\" />"
+                    }
+                }
+            }
+        },
+        {
+            "name": "Success",
+            "args": {
+                "text": "Your changes have been saved successfully.",
+                "variant": "success",
+                "size": "md"
+            }
+        }
+    ]
+}

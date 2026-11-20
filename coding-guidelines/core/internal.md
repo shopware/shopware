@@ -40,6 +40,17 @@ Classes with this annotation may change completely with each release and are the
 
 Do not repeat `@internal` on constructors or methods inside an `@internal` class. The class-level marker is enough.
 
+Extending `Struct` does not by itself make a class Public API. `Struct` is the framework's carrier type: a
+`StoreApiResponse` payload, a DAL `Entity`, `EntityCollection` or field definition, and a `Context` extension
+all have to be one. A class that inherits it only to satisfy one of those requirements is not thereby
+supported, and stays `@internal` if nothing else makes it public.
+
+What does make it public is a third party reaching the class itself: it appears in the signature of a method
+they can call or override, in the type of something a supported method returns, or in a template's variables.
+Data crossing a boundary is not the same thing. A response body's keys are a contract with the client and are
+governed as one; adding a PHP-level promise beside them binds the same shape twice, so a class nothing imports
+gains nothing by becoming public.
+
 ## Compiler passes
 
 Mark every new class implementing `Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface` with its own class-level `@internal` PHPDoc annotation.

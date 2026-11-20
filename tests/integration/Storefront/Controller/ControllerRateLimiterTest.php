@@ -23,6 +23,7 @@ use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
 use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -261,6 +262,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
             static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ProductReviewSaveRoute::class),
             static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
@@ -296,6 +298,7 @@ class ControllerRateLimiterTest extends TestCase
             $newsletterRequestRoute,
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
             static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ProductReviewSaveRoute::class),
             static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
@@ -330,6 +333,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             $newsletterRequestRoute,
             static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ProductReviewSaveRoute::class),
             static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
@@ -364,6 +368,7 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
             $abstractRevocationRequestRoute,
+            static::getContainer()->get(ProductReviewSaveRoute::class),
             static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());

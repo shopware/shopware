@@ -1,0 +1,262 @@
+import { mount } from '@vue/test-utils';
+import sidebarTreeNodeComponent from './index';
+import { getContentElementLabel } from '../../util/content-element-label.util';
+
+jest.mock('../../util/content-element-label.util', () => ({
+    getContentElementLabel: jest.fn(),
+}));
+
+const SYSTEM_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+
+describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node', () => {
+    const computed = (sidebarTreeNodeComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> })
+        .computed;
+    const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
+        .methods;
+
+    const labelMock = getContentElementLabel as jest.Mock;
+
+    beforeEach(() => {
+        labelMock.mockReset();
+    });
+
+    it('labels the node through the declared properties of its type, the system-language chain and the translated type label', () => {
+        labelMock.mockReturnValue('Headline');
+        const contentElement = {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+        };
+        const declaredProperties = {
+            title: { translatable: true },
+        };
+        const elementTypeStore = {
+            getByName: (name: string) =>
+                name === 'Sw:Content:Text'
+                    ? { properties: declaredProperties, label: 'Text', labelSnippet: 'element.text' }
+                    : null,
+        };
+
+        expect(
+            computed.label.call({
+                contentElement,
+                elementTypeStore,
+                $te: (key: string) => key === 'element.text',
+                $t: () => 'Fließtext',
+            }),
+        ).toBe('Headline');
+        expect(labelMock).toHaveBeenCalledWith(contentElement, declaredProperties, [SYSTEM_LANGUAGE_ID], 'Fließtext');
+    });
+
+    it('labels the node without declared properties and type label when its type is not in the store', () => {
+        const contentElement = {
+            id: 'element-1',
+            component: 'Sw:Content:Unknown',
+        };
+
+        computed.label.call({
+            contentElement,
+            elementTypeStore: { getByName: () => null },
+            $te: () => true,
+            $t: () => 'unused',
+        });
+
+        expect(labelMock).toHaveBeenCalledWith(contentElement, undefined, [SYSTEM_LANGUAGE_ID], undefined);
+    });
+
+    it('prevents drag events from reaching the draggable ancestor through control buttons', async () => {
+        const dragListener = jest.fn();
+        const getStore = jest.spyOn(Shopware.Store, 'get').mockReturnValue({
+            getByName: () => ({
+                slots: [
+                    { name: 'content' },
+                ],
+            }),
+        } as never);
+        const wrapper = mount(sidebarTreeNodeComponent, {
+            attachTo: document.body,
+            props: {
+                element: {
+                    id: 'element-id',
+                    component: 'Sw:Grid:Container',
+                    slots: {
+                        content: [],
+                    },
+                } as never,
+                allowDragAndDrop: true,
+            },
+            global: {
+                provide: {
+                    acl: {
+                        can: () => true,
+                    },
+                },
+                directives: {
+                    draggable: {
+                        mounted(el: HTMLElement) {
+                            el.addEventListener('mousedown', dragListener);
+                            el.addEventListener('touchstart', dragListener);
+                        },
+                        unmounted(el: HTMLElement) {
+                            el.removeEventListener('mousedown', dragListener);
+                            el.removeEventListener('touchstart', dragListener);
+                        },
+                    },
+                    droppable: {},
+                },
+                stubs: {
+                    'mt-icon': true,
+                },
+            },
+        });
+
+        try {
+            const duplicateButton = wrapper.get('.sw-experience-studio-sidebar-tree-node__actions button');
+
+            await duplicateButton.trigger('mousedown');
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            for (const button of wrapper.findAll('button')) {
+                await button.trigger('mousedown');
+            }
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            await duplicateButton.trigger('touchstart');
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            for (const button of wrapper.findAll('button')) {
+                await button.trigger('touchstart');
+            }
+
+            expect(dragListener).not.toHaveBeenCalled();
+        } finally {
+            wrapper.unmount();
+            getStore.mockRestore();
+        }
+    });
+
+    it('uses configured type icon when available', () => {
+        const vm = {
+            contentElement: {
+                component: 'Sw:Content:Text',
+            },
+            elementTypeStore: {
+                getByName: jest.fn().mockReturnValue({
+                    icon: 'regular-align-left',
+                }),
+            },
+        };
+
+        expect(computed.typeIcon.call(vm)).toBe('regular-align-left');
+    });
+
+    it('uses the declared Meteor icon independently of the illustration', () => {
+        const vm = {
+            contentElement: { component: 'Sw:Product:Manufacturer' },
+            elementTypeStore: { getByName: () => ({ icon: 'regular-star', illustration: 'product-manufacturer' }) },
+        };
+
+        expect(computed.typeIcon.call(vm)).toBe('regular-star');
+    });
+
+    it('falls back to generic icon when no type icon exists', () => {
+        const vm = {
+            contentElement: {
+                component: 'Sw:Content:Unknown',
+            },
+            elementTypeStore: {
+                getByName: jest.fn().mockReturnValue({
+                    icon: null,
+                    illustration: 'product-manufacturer',
+                }),
+            },
+        };
+
+        expect(computed.typeIcon.call(vm)).toBe('bars-square-s');
+    });
+
+    it('includes defined but currently empty slots in tree entries', () => {
+        const vm = {
+            contentElement: {
+                component: 'Sw:Grid:Container',
+                slots: {},
+            },
+            elementTypeStore: {
+                getByName: jest.fn().mockReturnValue({
+                    slots: [
+                        { name: 'content' },
+                    ],
+                }),
+            },
+        };
+
+        expect(computed.slotEntries.call(vm)).toEqual([
+            {
+                name: 'content',
+                elements: [],
+            },
+        ]);
+    });
+
+    it('emits move payload when dropping an element into a slot', () => {
+        const $emit = jest.fn();
+        const vm = {
+            $emit,
+        };
+
+        methods.onDropElement.call(
+            vm,
+            { elementId: 'element-id' },
+            { newParentElementId: 'parent-id', newSlotName: 'main', newIndex: 2 },
+        );
+
+        expect($emit).toHaveBeenCalledWith('move-element', {
+            elementId: 'element-id',
+            newParentElementId: 'parent-id',
+            newSlotName: 'main',
+            newIndex: 2,
+        });
+    });
+
+    it('marks dropping into dragged subtree as invalid', () => {
+        const vm = {
+            allowDragAndDrop: true,
+            validateMoveTarget: null,
+        };
+
+        expect(
+            methods.validateMoveDrop.call(
+                vm,
+                {
+                    elementId: 'parent',
+                    subtreeIds: [
+                        'parent',
+                        'child',
+                    ],
+                },
+                { newParentElementId: 'child', newSlotName: 'main', newIndex: 0 },
+            ),
+        ).toBe(false);
+    });
+
+    it('emits the add-element trigger as the picker anchor', () => {
+        const $emit = jest.fn();
+        const trigger = document.createElement('button');
+        const vm = {
+            $emit,
+            contentElement: {
+                id: 'element-id',
+            },
+        };
+
+        methods.onAddElement.call(vm, 'content', { currentTarget: trigger } as unknown as MouseEvent);
+
+        expect($emit).toHaveBeenCalledWith('add-element', {
+            parentElementId: 'element-id',
+            slotName: 'content',
+            anchorElement: trigger,
+        });
+    });
+});

@@ -1,0 +1,26 @@
+{# ludtwig-ignore-file #}
+{# @sw-package discovery #}
+{# @internal #}
+
+{% props
+    url,
+    name,
+    type = null,
+    shouldOpenInNewTab = false,
+    isActive = false,
+%}
+
+{% block breadcrumb_item %}
+    <li class="sw-breadcrumb__item breadcrumb-item{% if isActive %} active{% endif %}"{% if isActive %} aria-current="page"{% endif %}>
+        {% if type == 'folder' %}
+            <span class="sw-breadcrumb__title">{{ name|sw_sanitize }}</span>
+        {% else %}
+            <a class="sw-breadcrumb__link"
+               href="{{ url }}"
+               title="{{ name|sw_sanitize }}"
+               {% if shouldOpenInNewTab %}target="_blank"{% endif %}>
+                {{ name|sw_sanitize }}
+            </a>
+        {% endif %}
+    </li>
+{% endblock %}

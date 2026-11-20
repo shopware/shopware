@@ -1,0 +1,24 @@
+{
+    "title": "Sw/Media/Image",
+    "parameters": {
+        "server": {
+            "id": "Sw:Media:Image"
+        },
+        "template": "<twig:Sw:Media:Image :media=\"media\" />"
+    },
+    "argTypes": {
+        "media": {
+            "table": {
+                "readonly": true
+            }
+        }
+    },
+    "stories": [
+        {
+            "name": "Image",
+            "args": {
+                "media": {}
+            }
+        }
+    ]
+}

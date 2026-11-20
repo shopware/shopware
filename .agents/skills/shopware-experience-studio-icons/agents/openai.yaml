@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware Experience Studio Icons"
+  short_description: "Create matching Experience Studio SVG illustrations."
+  default_prompt: "Use $shopware-experience-studio-icons to create or refine an Experience Studio SVG illustration in the established visual style."

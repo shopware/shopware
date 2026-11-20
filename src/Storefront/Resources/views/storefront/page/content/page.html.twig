@@ -1,0 +1,12 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_esi_header %}
+    {% set headerParameters = headerParameters|merge({ isNewContentStructure: true }) %}
+    {{ parent() }}
+{% endblock %}
+
+{% block base_main_inner %}
+    <div class="container-main content-page">
+        <twig:Sw:Content:Page :page="contentPage"/>
+    </div>
+{% endblock %}

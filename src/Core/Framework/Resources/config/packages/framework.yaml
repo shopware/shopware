@@ -60,6 +60,8 @@ framework:
                 adapter: cache.app
             cache.app_url_verification:
                 adapter: cache.app
+            cache.content_system_preview:
+                adapter: cache.app
     messenger:
         failure_transport: failed
         serializer:

@@ -1,0 +1,35 @@
+# Distribution Strategies
+
+Strategy determines how provider data is distributed to direct children.
+
+**Broadcast** - All children receive identical data (e.g., product detail page with shared product)
+
+**Indexed** - Consumers receive data by position: consumer[N] gets data[N] (e.g., top 3 products in specific slots)
+
+**Keyed** - Children receive data by matching their property value to data keys. The `keyProperty` field (default: `"data_key"`) specifies which element property is used for matching. Consumers need a property matching this name, e.g., `"properties": {"data_key": "featured"}` when using the default.
+
+**Sliced** - Data split into chunks per child, with `sliceSize` items per chunk (default: `10`). E.g., 12 products with `sliceSize: 4` across 3 columns = 4 per column.
+
+**Iterator** - Sequential distribution by position, consumer count ignored. E.g., 10 products distributed to 10 card elements, one each. Positions are counted over the children that consume this key, not over every direct child. The counts need not match. A consuming child past the last item receives nothing (unlike **Indexed**, which pads with null so each one gets a delivery). Items past the last consuming child are dropped.
+
+## Context Flow Rules
+
+Context flows only between adjacent elements, never sideways or upward.
+
+```
+Valid:
+  Provider (product detail)
+    -- Consumer (title)          <-- Can receive
+
+Invalid:
+  Consumer (title)
+    -- Provider (product detail) <-- Cannot receive from child
+
+Invalid:
+  Provider (product 1)
+  Consumer (title)               <-- Siblings cannot share
+```
+
+Distribution strategy applies only to direct children.
+
+See [Context flows only between adjacent elements](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).

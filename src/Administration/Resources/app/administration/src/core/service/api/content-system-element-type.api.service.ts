@@ -1,0 +1,162 @@
+/**
+ * @sw-package framework
+ */
+
+import type { HttpClient } from 'src/core/factory/http-client.types';
+import type { LoginService } from '../login.service';
+import ApiService from '../api.service';
+
+type ContentSystemElementTypePropertyPrimitive = string | number | boolean | null;
+
+/**
+ * @private
+ */
+export interface ContentSystemElementAdminUiVisibleWhenCondition {
+    field: string;
+    equals?: ContentSystemElementTypePropertyPrimitive;
+    notEquals?: ContentSystemElementTypePropertyPrimitive;
+    in?: ContentSystemElementTypePropertyPrimitive[];
+    notIn?: ContentSystemElementTypePropertyPrimitive[];
+    isEmpty?: boolean;
+    isNotEmpty?: boolean;
+}
+
+/**
+ * @private
+ */
+export type ContentSystemElementAdminUiVisibleWhen =
+    | ContentSystemElementAdminUiVisibleWhenCondition
+    | ContentSystemElementAdminUiVisibleWhenCondition[];
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypePropertyAdminUi {
+    component?: string;
+    props?: Record<string, unknown>;
+    entity?: string;
+    helpText?: string;
+    helpTextSnippet?: string;
+    panel?: string;
+    visibleWhen?: ContentSystemElementAdminUiVisibleWhen;
+    [key: string]: unknown;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypeProperty {
+    type: string | string[];
+    /**
+     * Which kinds of mapping candidate can fill this property: `single`, `collection`, or both for a union
+     * or a bare `object`. Derived from `type` on the server, because telling a collection class from an
+     * entity class is a PHP class-hierarchy question.
+     */
+    contextTypes: Array<'single' | 'collection'>;
+    translatable: boolean;
+    enum: Array<string | number | boolean> | null;
+    default: string | number | boolean | null;
+    required: boolean;
+    /** Whether the author may replace this property's static value with a mapping onto the layout's entity data. */
+    mappable: boolean;
+    defaultMapping: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
+    /**
+     * Whether the author may embed `{{map:path}}` tokens in this property's text, mapping values *within* the value
+     * rather than instead of it. Only ever set on a `string` property, and never together with `mappable`.
+     */
+    inlineMappable: boolean;
+    title: string;
+    titleSnippet?: string;
+    description: string;
+    descriptionSnippet?: string;
+    adminUI: ContentSystemElementTypePropertyAdminUi | null;
+    properties?: Record<string, ContentSystemElementTypeProperty> | null;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypeSlot {
+    name: string;
+    maxElements: number | null;
+    allowList: string[];
+    description: string;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypeBindingResolve {
+    loader: string;
+    config: Record<string, unknown>;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypeBindingSpecification {
+    default: boolean;
+    resolves: Record<string, ContentSystemElementTypeBindingResolve>;
+}
+
+/**
+ * @private
+ */
+export interface ContentSystemElementTypeSpecification {
+    name: string;
+    label: string;
+    labelSnippet?: string;
+    description: string;
+    descriptionSnippet?: string;
+    source: string;
+    icon: string | null;
+    illustration: string | null;
+    category: string | null;
+    priority: number;
+    copilot: {
+        summary: string;
+        hints: string[];
+    };
+    properties: Record<string, ContentSystemElementTypeProperty>;
+    slots: ContentSystemElementTypeSlot[];
+    bindingSpecifications?: Record<string, ContentSystemElementTypeBindingSpecification>;
+    /**
+     * Root sources on which inserting the type without a named binding specification succeeds; `null` places no
+     * restriction, an empty array means the insert fails everywhere.
+     */
+    defaultBindingRootSources: string[] | null;
+}
+
+/**
+ * @private
+ */
+interface ContentSystemElementTypeResponse {
+    types: ContentSystemElementTypeSpecification[];
+}
+
+/**
+ * Gateway for content system element types endpoint.
+ */
+class ContentSystemElementTypeApiService extends ApiService {
+    constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-element-types') {
+        super(httpClient, loginService, apiEndpoint);
+        this.name = 'contentSystemElementTypeService';
+    }
+
+    getTypes(): Promise<ContentSystemElementTypeSpecification[]> {
+        const headers = this.getBasicHeaders();
+
+        return this.httpClient
+            .get<ContentSystemElementTypeResponse>('/_info/content-system-element-types.json', {
+                headers,
+            })
+            .then((response) => {
+                const payload = ApiService.handleResponse<ContentSystemElementTypeResponse>(response);
+
+                return Array.isArray(payload.types) ? payload.types : [];
+            });
+    }
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default ContentSystemElementTypeApiService;

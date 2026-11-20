@@ -335,3 +335,13 @@ tasks:
           - *lib
       graders:
           - { type: deterministic, run: node grader.ts, weight: 1.0 }
+
+    - name: guide-content-system-principles-catch
+      instruction: *skill_runner
+      workspace:
+          - { src: guide/content-system-principles/catch/input.json, dest: input.json }
+          - { src: guide/content-system-principles/catch/diff.patch, dest: diff.patch }
+          - { src: guide/content-system-principles/catch/grader.ts, dest: grader.ts }
+          - *lib
+      graders:
+          - { type: deterministic, run: node grader.ts, weight: 1.0 }

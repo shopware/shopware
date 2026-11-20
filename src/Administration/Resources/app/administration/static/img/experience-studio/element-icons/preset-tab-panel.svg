@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(-0.559 -0.307) scale(1.0056)">
+      <rect x="29" y="28" width="65" height="19" rx="3" fill="url(#wash)" stroke="#1895ff" />
+      <rect x="101" y="28" width="69" height="19" rx="3" fill="white" stroke="#b4cbe6" />
+      <path d="M41 38h41" fill="none" stroke="#1895ff" stroke-width="3" />
+      <path d="M115 38h41" fill="none" stroke="#a7b8cf" stroke-width="3" />
+      <path d="M29 48h142" fill="none" stroke="#d2e2f5" />
+      <path d="M35 60h22m-11 0v25m-6 0h12M35 60v5m22-5v5" fill="none" stroke="#1895ff" stroke-width="3" />
+      <path d="M70 62h95" fill="none" stroke="#a7b8cf" stroke-width="3" />
+      <path d="M70 73h80" fill="none" stroke="#c4d5e8" stroke-width="3" />
+      <path d="M70 84h95" fill="none" stroke="#c4d5e8" stroke-width="3" />
+      <path d="M34 99h102" fill="none" stroke="#1895ff" stroke-width="3" />
+    </g>
+  </g>
+</svg>

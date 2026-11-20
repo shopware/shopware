@@ -1,0 +1,97 @@
+{% props
+    navigationTree,
+    homeEnabled = context.salesChannel.translated.homeEnabled,
+    homeLabel = context.salesChannel.translated.homeName|default('general.homeLink'|trans),
+    homePath = path('frontend.home.page'),
+    scrollable = true,
+%}
+
+{% set navbarCVA = cva({
+    base: 'sw-navbar',
+    variants: {
+        scrollable: {
+            true: ['has--scroller'],
+            false: null,
+        }
+    }
+}) %}
+
+{% set jsOptions = { scrollable } %}
+
+{% set attributeDefaults = {
+    class: navbarCVA.apply({ scrollable }),
+    id: 'main-navigation-menu',
+    'aria-label': 'header.navigationAriaLabel'|trans|striptags,
+    'data-component': 'Sw:Header:Navbar',
+    'data-component-options': jsOptions|json_encode,
+} %}
+
+<nav {{ attributes.defaults(attributeDefaults) }}>
+    <div class="sw-navbar__container container">
+        <ul class="sw-navbar__nav nav nav-underline">
+
+            {% if homeEnabled %}
+                <li class="sw-navbar__nav-item nav-item">
+                    <a
+                        class="sw-navbar__nav-link nav-link"
+                        href="{{ homePath }}"
+                        data-category-id="{{ context.salesChannel.navigationCategoryId }}"
+                    >
+                        {{ homeLabel|sw_sanitize }}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for treeItem in navigationTree %}
+                {% set hasChildren = treeItem.children|length > 0 %}
+                {% set itemSkipped = treeItem.category.type == 'folder' and not hasChildren %}
+
+                {% if not itemSkipped %}
+                    <li class="sw-navbar__nav-item nav-item" tabindex="0">
+                        <a
+                            class="sw-navbar__nav-link nav-link{% if hasChildren %} has--children{% endif %}"
+                            href="{{ treeItem.category.seoUrl ?: '#' }}"
+                            data-category-id="{{ treeItem.category.id }}"
+                            {% if hasChildren %}tabindex="-1"{% endif %}
+                        >
+                            {{ treeItem.category.translated.name }}
+                            {% if hasChildren %}
+                                <twig:Sw:Icon
+                                    name="arrow-head-down"
+                                    size="xs"
+                                />
+                            {% endif %}
+                        </a>
+
+                        {% if hasChildren %}
+                            <twig:Sw:Header:Flyout
+                                :category="treeItem.category"
+                                :navigationTree="treeItem.children"
+                            />
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        {% if scrollable %}
+            <div
+                class="sw-navbar__scroller"
+                aria-hidden="true"
+            >
+                <div class="sw-navbar__scroller-button is--left">
+                    <twig:Sw:Icon
+                        name="arrow-head-left"
+                        size="xs"
+                    />
+                </div>
+                <div class="sw-navbar__scroller-button is--right">
+                    <twig:Sw:Icon
+                        name="arrow-head-right"
+                        size="xs"
+                    />
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</nav>

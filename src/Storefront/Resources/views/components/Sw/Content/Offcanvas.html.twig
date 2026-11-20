@@ -1,0 +1,41 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    id = 'offcanvas-' ~ random(),
+    backdrop = 'true',
+    bodyScroll = 'true',
+    breakpoint = 'md',
+    placement = 'start',
+    title = 'general.menuLink'|trans|sw_sanitize,
+    closeLabel = 'global.default.close'|trans|sw_sanitize,
+%}
+
+{% set defaultAttributes = {
+    class: 'sw-offcanvas offcanvas-' ~ placement ~ ' offcanvas-' ~ breakpoint,
+    tabindex: -1,
+    id: id,
+    'data-bs-backdrop': backdrop,
+    'data-bs-scroll': bodyScroll,
+    'aria-labelledby': id ~ '-title',
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+    <div class="offcanvas-header">
+        {% block header %}
+            <h5 class="offcanvas-title" id="{{ id }}-title">{{ title }}</h5>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="offcanvas"
+                data-bs-target="#{{ id }}"
+                aria-label="{{ closeLabel }}">
+            </button>
+        {% endblock %}
+    </div>
+
+    <div class="offcanvas-body">
+        {% block content %}{% endblock %}
+    </div>
+</div>

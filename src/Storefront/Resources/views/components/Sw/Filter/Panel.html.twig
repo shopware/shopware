@@ -1,0 +1,199 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    productListing = null,
+    showPriceFilter = true,
+    showRatingFilter = true,
+    showManufacturerFilter = true,
+    showShippingFreeFilter = true,
+    showPropertyFilter = true,
+    visibleFilterCount = 3,
+    displayType = 'inline',
+    propertyAllowList = null,
+%}
+
+{% set filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'] %}
+
+{% set offcanvasId = 'filter-offcanvas-' ~ random() %}
+
+{% set filterPanelOptions = {
+    visibleFilterCount: visibleFilterCount,
+} %}
+
+{% set panelCVA = cva({
+    base: 'sw-filter-panel',
+    variants: {
+        displayType: {
+            inline: 'is--inline',
+            vertical: 'is--vertical',
+        },
+    },
+}) %}
+
+{% set defaultAttributes = {
+    class: panelCVA.apply({ displayType }),
+    'data-component': 'Sw:Filter:Panel',
+    'data-component-options': filterPanelOptions|json_encode,
+} %}
+
+{% set filterAggregations = productListing.aggregations ?? null %}
+
+{% set allowedPropertyIds = propertyAllowList
+    ? propertyAllowList|split(',')|map(id => id|trim|lower)|filter(id => id != '')
+    : [] %}
+
+{% set manufacturerAggregation = null %}
+{% set priceAggregation = null %}
+{% set ratingAggregation = null %}
+{% set shippingFreeAggregation = null %}
+{% set propertiesAggregation = null %}
+
+{% if filterAggregations is not empty %}
+    {% set manufacturerAggregation = filterAggregations.get('manufacturer') %}
+    {% set priceAggregation = filterAggregations.get('price') %}
+    {% set ratingAggregation = filterAggregations.get('rating') %}
+    {% set shippingFreeAggregation = filterAggregations.get('shipping-free') %}
+    {% set propertiesAggregation = filterAggregations.get('properties') %}
+{% endif %}
+
+{% set manufacturerFilter %}
+    {% if showManufacturerFilter and manufacturerAggregation is not null and manufacturerAggregation.entities|length > 0 %}
+        {% set manufacturersSorted = manufacturerAggregation.entities|sort((a, b) => a.translated.name|lower <=> b.translated.name|lower) %}
+        {% set manufacturerFilterName = 'listing.filterManufacturerDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item
+            :filterName="manufacturerFilterName"
+            :displayType="displayType"
+        >
+            <twig:Sw:Filter:Type:MultiSelectFilter
+                name="manufacturer"
+                :displayName="manufacturerFilterName"
+                :options="manufacturersSorted">
+            </twig:Sw:Filter:Type:MultiSelectFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set ratingFilter %}
+    {% if showRatingFilter and ratingAggregation is not null %}
+        {% set ratingFilterName = 'listing.filterRatingDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item
+            :filterName="ratingFilterName"
+            :displayType="displayType"
+        >
+            <twig:Sw:Filter:Type:RatingFilter name="rating"></twig:Sw:Filter:Type:RatingFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set priceFilter %}
+    {% if showPriceFilter and priceAggregation is not null %}
+        {% set priceFilterName = 'listing.filterPriceDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item
+            :filterName="priceFilterName"
+            :displayType="displayType"
+        >
+            <twig:Sw:Filter:Type:RangeFilter
+                minKey="min-price"
+                maxKey="max-price"
+                :unit="context.currency.symbol"
+                :minInputValue="0"
+                :maxInputValue="priceAggregation.max">
+            </twig:Sw:Filter:Type:RangeFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset%}
+
+{% set propertiesFilter %}
+    {% if showPropertyFilter and propertiesAggregation is not null and propertiesAggregation.entities|length > 0 %}
+        {% for property in propertiesAggregation.entities %}
+            {% if allowedPropertyIds is empty or property.id|lower in allowedPropertyIds %}
+                <twig:Sw:Filter:Item
+                    :filterName="property.translated.name"
+                    :displayType="displayType"
+                >
+                    <twig:Sw:Filter:Type:MultiSelectFilter
+                        name="properties"
+                        :displayName="property.translated.name"
+                        :displayType="property.displayType"
+                        :options="property.options">
+                    </twig:Sw:Filter:Type:MultiSelectFilter>
+                </twig:Sw:Filter:Item>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endset %}
+
+{% set shippingFreeFilter %}
+    {% if showShippingFreeFilter and shippingFreeAggregation is not null and shippingFreeAggregation.max > 0 %}
+        {% set shippingFreeFilterName = 'listing.filterFreeShippingDisplayName'|trans|sw_sanitize %}
+
+        <twig:Sw:Filter:Item
+            :filterName="shippingFreeFilterName"
+            :displayType="displayType"
+        >
+            <twig:Sw:Filter:Type:BooleanFilter
+                name="shipping-free"
+                :displayName="shippingFreeFilterName">
+            </twig:Sw:Filter:Type:BooleanFilter>
+        </twig:Sw:Filter:Item>
+    {% endif %}
+{% endset %}
+
+{% set filters = {
+    manufacturer: manufacturerFilter,
+    rating: ratingFilter,
+    price: priceFilter,
+    properties: propertiesFilter,
+    'shipping-free': shippingFreeFilter,
+} %}
+
+<div {{ attributes.defaults(defaultAttributes) }}>
+
+    {# Filter template for outer block scope. #}
+    {% set filterTemplate %}
+        {% block filters %}
+            {# Rendering filters in order #}
+            {% for filter in filterOrder %}
+                {{ filters[filter] }}
+            {% endfor %}
+        {% endblock %}
+    {% endset %}
+
+    <twig:Sw:Content:Offcanvas :id="offcanvasId" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
+        <div class="sw-filter-panel__filter">
+
+            {{ filterTemplate }}
+
+            {# Expand or collapse hidden filters #}
+            {% if filterAggregations is not empty %}
+                <twig:Sw:Button
+                    variant="filter"
+                    class="sw-filter-panel__expand d-none d-md-block"
+                >
+                    <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
+                    <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
+                    <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+                </twig:Sw:Button>
+            {% endif %}
+        </div>
+    </twig:Sw:Content:Offcanvas>
+
+    {# Offcanvas filter button for mobile #}
+    <twig:Sw:Button
+        variant="filter"
+        class="d-block d-md-none"
+        aria-controls="{{ offcanvasId }}"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#{{ offcanvasId }}">
+        {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+    </twig:Sw:Button>
+
+    {% block activeFilters %}
+        <twig:Sw:Filter:ActiveFilters />
+    {% endblock %}
+</div>

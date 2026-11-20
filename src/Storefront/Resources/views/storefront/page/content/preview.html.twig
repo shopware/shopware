@@ -1,0 +1,190 @@
+{% sw_extends '@Storefront/storefront/page/content/page.html.twig' %}
+
+{% block base_body_script %}
+    {{ parent() }}
+
+    {#
+        The preview bridge. It does three things — report which element the author clicked, outline the one under the
+        cursor, and hand its scroll position to the admin across a reload — and deliberately does NOT edit anything.
+
+        Editing used to live here, as `contenteditable` plus a floating `execCommand` toolbar. It was removed because
+        the preview shows RESOLVED output while storage holds the authored source: a text carrying a `{{ '{{' }}map:product.name{{ '}}' }}`
+        token renders as the product's name, and committing the edited `innerHTML` back would have replaced the token
+        with whatever it happened to resolve to for the previewed entity. The first inline edit in a paragraph would
+        silently destroy the mapping. Text is edited in the settings panel, against the source, where a token is
+        visible as a token.
+    #}
+    <script>
+        (function () {
+            const ELEMENT_ID_ATTRIBUTE = 'data-element-id';
+            const HOVER_CLASS = 'sw-experience-studio-preview-hovered';
+            const interactiveSelector = 'a, button, [role="button"], input[type="submit"], input[type="button"]';
+            let hoveredElement = null;
+
+            function emitPreviewMessage(type, payload) {
+                if (!window.parent || window.parent === window) {
+                    return;
+                }
+
+                window.parent.postMessage({
+                    source: 'sw-experience-studio-preview',
+                    type,
+                    ...payload,
+                }, '*');
+            }
+
+            function handleParentMessage(event) {
+                if (!window.parent || event.source !== window.parent) {
+                    return;
+                }
+
+                const payload = event.data;
+
+                if (!payload || payload.source !== 'sw-experience-studio-admin') {
+                    return;
+                }
+
+                if (payload.type === 'capture-scroll' && typeof payload.requestId === 'number') {
+                    emitPreviewMessage('scroll-position', {
+                        requestId: payload.requestId,
+                        top: window.scrollY,
+                        left: window.scrollX,
+                    });
+
+                    return;
+                }
+
+                if (
+                    payload.type === 'restore-scroll'
+                    && typeof payload.top === 'number'
+                    && typeof payload.left === 'number'
+                ) {
+                    const doc = document.documentElement;
+                    const body = document.body;
+                    const previousDocBehavior = doc.style.scrollBehavior;
+                    const previousBodyBehavior = body ? body.style.scrollBehavior : '';
+
+                    doc.style.scrollBehavior = 'auto';
+
+                    if (body) {
+                        body.style.scrollBehavior = 'auto';
+                    }
+
+                    window.scrollTo({
+                        left: payload.left,
+                        top: payload.top,
+                        behavior: 'auto',
+                    });
+
+                    window.requestAnimationFrame(function () {
+                        window.requestAnimationFrame(function () {
+                            doc.style.scrollBehavior = previousDocBehavior;
+
+                            if (body) {
+                                body.style.scrollBehavior = previousBodyBehavior;
+                            }
+
+                            emitPreviewMessage('scroll-restored', {
+                                requestId: typeof payload.requestId === 'number' ? payload.requestId : null,
+                            });
+                        });
+                    });
+                }
+            }
+
+            function isInteractiveTarget(target) {
+                return target instanceof Element && target.closest(interactiveSelector) !== null;
+            }
+
+            function getComponentRoot(target) {
+                if (!(target instanceof Element)) {
+                    return null;
+                }
+
+                return target.closest('[' + ELEMENT_ID_ATTRIBUTE + ']');
+            }
+
+            function setHoveredElement(element) {
+                if (hoveredElement === element) {
+                    return;
+                }
+
+                if (hoveredElement instanceof Element) {
+                    hoveredElement.classList.remove(HOVER_CLASS);
+                }
+
+                hoveredElement = element;
+
+                if (hoveredElement instanceof Element) {
+                    hoveredElement.classList.add(HOVER_CLASS);
+                }
+            }
+
+            function notifySelection(elementId) {
+                if (!elementId) {
+                    return;
+                }
+
+                emitPreviewMessage('select-element', {
+                    elementId,
+                });
+            }
+
+            const inspectStyle = document.createElement('style');
+            inspectStyle.textContent = ''
+                + 'html, body, a, button, [role="button"], input[type="submit"], input[type="button"] { cursor: crosshair !important; }'
+                + '.sw-experience-studio-preview-hovered { outline: 2px solid #0870ff !important; outline-offset: 2px !important; }';
+            document.head.appendChild(inspectStyle);
+
+            document.addEventListener('mousemove', function (event) {
+                setHoveredElement(getComponentRoot(event.target));
+            }, true);
+
+            document.addEventListener('mouseleave', function () {
+                setHoveredElement(null);
+            }, true);
+
+            document.addEventListener('click', function (event) {
+                const componentRoot = getComponentRoot(event.target);
+
+                if (componentRoot instanceof Element) {
+                    notifySelection(componentRoot.getAttribute(ELEMENT_ID_ATTRIBUTE));
+                }
+
+                if (!isInteractiveTarget(event.target) && !(componentRoot instanceof Element)) {
+                    return;
+                }
+
+                // Keep cookie-consent video placeholders interactive so their "accept" button
+                // can load the embed inside the preview. Selection handling above still runs;
+                // only the click suppression is skipped for these elements.
+                if (event.target instanceof Element && event.target.closest('.sw-media-embed-video__consent')) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('submit', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                if (!isInteractiveTarget(event.target)) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+            }, true);
+
+            window.addEventListener('message', handleParentMessage);
+        })();
+    </script>
+{% endblock %}

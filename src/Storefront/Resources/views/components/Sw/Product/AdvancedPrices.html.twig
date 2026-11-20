@@ -1,0 +1,61 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{#
+    Graduated (tiered) pricing table for a product with multiple calculated prices. Lists each quantity
+    range with its price and, when available, its reference price. Renders nothing for a single price.
+#}
+
+{% props
+    product,
+%}
+
+{% set attributeDefaults = {
+    class: 'sw-product-advanced-prices table',
+} %}
+
+{% block component_product_advanced_prices %}
+    {% if product.calculatedPrices.count > 1 %}
+        <table {{ attributes.defaults(attributeDefaults) }}>
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'detail.dataColumnQuantity'|trans|sw_sanitize }}</th>
+                    <th scope="col">{{ 'detail.dataColumnPrice'|trans|sw_sanitize }}</th>
+                    {% if product.calculatedPrice.referencePrice %}
+                        <th scope="col">{{ 'detail.dataColumnReferencePrice'|trans|sw_sanitize }}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for tier in product.calculatedPrices %}
+                    {% set tierIsListPrice = tier.listPrice.percentage > 0 %}
+                    <tr class="sw-product-advanced-prices__row">
+                        <th scope="row" class="sw-product-advanced-prices__quantity">
+                            {% if loop.last %}
+                                {{ 'detail.priceDataInfoFrom'|trans|sw_sanitize }}
+                            {% else %}
+                                {{ 'detail.priceDataInfoUntil'|trans|sw_sanitize }}
+                            {% endif %}
+                            <span>{{ tier.quantity }}</span>
+                        </th>
+                        <td class="sw-product-advanced-prices__price">
+                            <span class="{% if tierIsListPrice %}text-danger{% endif %}">{{ tier.unitPrice|currency }}</span>
+                            {% if tierIsListPrice %}
+                                <s class="fs-6">{{ tier.listPrice.price|currency }}</s>
+                                <span class="fs-6">{{ 'detail.listPricePercentage'|trans({'%price%': tier.listPrice.percentage})|sw_sanitize }}</span>
+                            {% endif %}
+                        </td>
+                        {% if product.calculatedPrice.referencePrice %}
+                            <td class="sw-product-advanced-prices__reference-price">
+                                {% if tier.referencePrice is not null %}
+                                    {{ tier.referencePrice.price|currency }} / {{ tier.referencePrice.referenceUnit }} {{ tier.referencePrice.unitName }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

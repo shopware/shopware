@@ -1,0 +1,61 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    crossSellings = null,
+    variant = 'underline',
+    itemSizing = 'fixed',
+    showNavigationArrows = true,
+%}
+
+{% set groups = crossSellings ? crossSellings.elements|filter(item => item.total > 0) : [] %}
+
+{% set idPrefix = 'cross-selling-' ~ (attributes.all()['data-element-id']|default(random())) %}
+
+{% set crossSellingCVA = cva({
+    base: 'sw-product-cross-selling',
+}) %}
+
+{% set attributeDefaults = {
+    class: crossSellingCVA.apply({}),
+} %}
+
+{% if groups is not empty %}
+    <div {{ attributes.defaults(attributeDefaults) }}>
+        {% if groups|length == 1 %}
+            {% set group = groups|first %}
+
+            {% block single %}
+                <twig:Sw:Product:Slider
+                    :products="group.products"
+                    :title="group.crossSelling.translated.name"
+                    :itemSizing="itemSizing"
+                    :showNavigationArrows="showNavigationArrows"
+                />
+            {% endblock %}
+        {% else %}
+            <twig:Sw:Tabs:Panel :variant="variant">
+                <twig:block name="nav_items">
+                    {% for group in groups %}
+                        <twig:Sw:Tabs:NavItem
+                            :tabId="idPrefix ~ '-' ~ group.crossSelling.id"
+                            :title="group.crossSelling.translated.name"
+                            :active="loop.first"
+                        />
+                    {% endfor %}
+                </twig:block>
+
+                {% for group in groups %}
+                    <twig:Sw:Tabs:Tab :tabId="idPrefix ~ '-' ~ group.crossSelling.id">
+                        <twig:Sw:Product:Slider
+                            :products="group.products"
+                            :itemSizing="itemSizing"
+                            :showNavigationArrows="showNavigationArrows"
+                        />
+                    </twig:Sw:Tabs:Tab>
+                {% endfor %}
+            </twig:Sw:Tabs:Panel>
+        {% endif %}
+    </div>
+{% endif %}

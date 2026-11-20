@@ -36,6 +36,8 @@ module.exports = tseslint.config(
                 ...globals.jquery,
                 gtag: 'readonly',
                 bootstrap: 'readonly',
+                Shopware: 'readonly',
+                ShopwareComponent: 'readonly',
             },
         },
         rules: {

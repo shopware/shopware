@@ -1,0 +1,104 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{% props
+    name,
+    id = "#{name}-#{random()}",
+    label = null,
+    value = null,
+    options = [],
+    placeholder = null,
+    placeholderDisabled = false,
+    description = null,
+    validationRules = null,
+    violationPath = null,
+    required = validationRules is not empty and 'required' in validationRules,
+    formViolations = formViolations|default(null),
+    isInvalid = violationPath is not empty and formViolations is not null and formViolations.getViolations(violationPath)|length > 0,
+%}
+
+{% set feedbackId = "#{id}-feedback" %}
+{% set descriptionId = "#{id}-description" %}
+{% set describedBy = description is not empty ? "#{descriptionId} #{feedbackId}" : feedbackId %}
+
+{% set clientValidationRules = required and 'required' not in validationRules|default('')
+    ? (validationRules is empty ? 'required' : "required,#{validationRules}")
+    : validationRules %}
+
+{% set controlAttributes = attributes.without('class', 'style').defaults(attributes.nested('control')) %}
+
+{% if label is not empty %}
+    {% set controlAttributes = controlAttributes.without('aria-label') %}
+{% endif %}
+
+{% set groupCVA = cva({
+    base: 'sw-form-select sw-form-field',
+}) %}
+
+{% set selectCVA = cva({
+    base: 'sw-form-select__control sw-form-field__control form-select',
+    variants: {
+        isInvalid: {
+            true: 'is-invalid',
+            false: null,
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: groupCVA.apply({}),
+    'data-violation-path': violationPath is not null ? violationPath : false,
+} %}
+
+{% set selectAttributeDefaults = {
+    class: selectCVA.apply({ isInvalid }),
+    id: id,
+    name: name,
+    'aria-describedby': describedBy,
+    'aria-required': required ? 'true' : false,
+    'aria-invalid': isInvalid ? 'true' : false,
+    'data-validation': clientValidationRules is not empty ? clientValidationRules : false,
+} %}
+
+<div {{ attributes.only('class', 'style').defaults(attributeDefaults) }}>
+    {% block label %}
+        <twig:Sw:Form:Field:Label
+            :fieldId="id"
+            :label="label"
+            :required="required"
+        />
+    {% endblock %}
+
+    {% block control %}
+        <select {{ controlAttributes.defaults(selectAttributeDefaults) }}>
+            {% block content %}
+                {% if placeholder is not null %}
+                    <option value=""{% if value is null or value == '' %} selected="selected"{% endif %}{% if placeholderDisabled %} disabled{% endif %}>{{ placeholder }}</option>
+                {% endif %}
+
+                {% for option in options %}
+                    {% set optionSelected = option.selected|default(option.value == value) %}
+
+                    <option value="{{ option.value }}"{% if optionSelected %} selected="selected"{% endif %}{% if option.disabled|default(false) %} disabled{% endif %}>{{ option.label }}</option>
+                {% endfor %}
+            {% endblock %}
+        </select>
+    {% endblock %}
+
+    {% block description %}
+        <twig:Sw:Form:Field:Description
+            :id="descriptionId"
+            :description="description"
+        />
+    {% endblock %}
+
+    {% block feedback %}
+        <twig:Sw:Form:Field:Feedback
+            :id="feedbackId"
+            :violationPath="violationPath"
+            :formViolations="formViolations"
+            :hasViolations="isInvalid"
+        />
+    {% endblock %}
+</div>

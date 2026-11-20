@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -38,6 +39,18 @@ class LandingPageController extends StorefrontController
         $page = $this->landingPageLoader->load($request, $context);
 
         $this->hook(new LandingPageLoadedHook($page, $context));
+
+        $contentPage = $page->getExtension('contentPage');
+        if ($contentPage instanceof ContentPage) {
+            return $this->renderStorefront(
+                '@Storefront/storefront/page/content/page.html.twig',
+                [
+                    'page' => $page,
+                    'contentPage' => $contentPage,
+                    'isNewContentStructure' => true,
+                ]
+            );
+        }
 
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }

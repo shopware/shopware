@@ -1,0 +1,32 @@
+{% props
+    formAction = path('frontend.search.page'),
+    inputId = 'header-main-search-input',
+    inputName = 'search',
+    inputPlacehoder = 'header.searchPlaceholder'|trans|striptags,
+    inputAriaLabel = 'header.searchPlaceholder'|trans|striptags,
+%}
+
+{% set attributeDefaults = {
+    action: formAction,
+    method: 'get',
+    class: 'sw-search',
+    autocomplete: 'off',
+} %}
+
+<form {{ attributes.defaults(attributeDefaults) }}>
+    <input
+        class="sw-search__input form-control"
+        type="search"
+        name="{{ inputName }}"
+        id="{{ inputId }}"
+        value="{{ page.searchTerm }}"
+        placeholder="{{ inputPlacehoder }}"
+        aria-label="{{ inputAriaLabel }}"
+    >
+    <button class="sw-search__btn btn">
+        <twig:Sw:Icon
+            name="search"
+            color="primary"
+        />
+    </button>
+</form>

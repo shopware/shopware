@@ -1,0 +1,10 @@
+meta:
+  label: "Plugin Element"
+  description: "A plugin element for unit tests."
+  vendor: "shopware AG"
+
+properties:
+  text:
+    type: string
+    title: "Text"
+    description: "The text content."

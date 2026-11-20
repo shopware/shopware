@@ -1,0 +1,136 @@
+/**
+ * @sw-package discovery
+ */
+
+import type { ContentElementNode } from 'src/core/service/content-element.types';
+import { EXPERIENCE_STUDIO_MAX_HISTORY_SIZE } from '../constant/experience-studio-history.constant';
+import './experience-studio-editor.store';
+
+describe('src/module/sw-experience-studio/store/experience-studio-editor.store.ts', () => {
+    const layout: ContentElementNode[] = [
+        {
+            id: 'root-1',
+            component: 'layout:section',
+        },
+    ];
+
+    const getStore = () => Shopware.Store.get('experienceStudioEditor');
+
+    beforeEach(() => {
+        getStore().reset();
+    });
+
+    it('should register a store', () => {
+        expect(Shopware.Store.get('experienceStudioEditor')).toBeDefined();
+    });
+
+    it('should track undo and redo across up to 10 history entries', () => {
+        const store = getStore();
+        store.initialize('layout-a');
+
+        for (let index = 0; index < EXPERIENCE_STUDIO_MAX_HISTORY_SIZE + 2; index += 1) {
+            store.pushToHistory(
+                [
+                    {
+                        id: `root-${index}`,
+                        component: 'layout:section',
+                    },
+                ],
+                null,
+            );
+        }
+
+        expect(store.getActiveHistory()!.past).toHaveLength(EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
+        expect(store.getActiveHistory()!.past[0].layout[0].id).toBe('root-2');
+
+        const currentLayout: ContentElementNode[] = [
+            {
+                id: 'root-current',
+                component: 'layout:section',
+            },
+        ];
+
+        const undoEntry = store.undo(currentLayout, 'root-current');
+
+        expect(undoEntry?.layout[0].id).toBe('root-11');
+        expect(store.canRedo).toBe(true);
+        expect(store.getActiveHistory()!.future[0].layout[0].id).toBe('root-current');
+
+        const redoEntry = store.redo(
+            [
+                {
+                    id: 'root-11',
+                    component: 'layout:section',
+                },
+            ],
+            'root-11',
+        );
+
+        expect(redoEntry?.layout[0].id).toBe('root-current');
+    });
+
+    it('should clear future history when a new mutation is recorded', () => {
+        const store = getStore();
+        store.initialize('layout-a');
+
+        store.pushToHistory(layout, null);
+        store.undo(
+            [
+                {
+                    id: 'root-2',
+                    component: 'layout:section',
+                },
+            ],
+            null,
+        );
+
+        expect(store.canRedo).toBe(true);
+
+        store.pushToHistory(layout, null);
+
+        expect(store.canRedo).toBe(false);
+        expect(store.getActiveHistory()!.future).toHaveLength(0);
+    });
+
+    it('records a background mutation without changing the active layout or its redo history', () => {
+        const store = getStore();
+        store.initialize('layout-a');
+        store.initialize('layout-b');
+        store.pushToHistory(layout, null);
+        store.undo([], null);
+
+        store.pushToHistory(layout, 'root-1', 'layout-a');
+
+        expect(store.activeLayoutId).toBe('layout-b');
+        expect(store.canUndo).toBe(false);
+        expect(store.canRedo).toBe(true);
+        expect(store.canUndoLayout('layout-a')).toBe(true);
+        store.initialize('layout-a');
+        expect(store.undo([], null)).toEqual({ layout, selectedElementId: 'root-1' });
+    });
+
+    it('should keep independent history when switching between layouts', () => {
+        const store = getStore();
+
+        store.initialize('layout-a');
+        store.pushToHistory(layout, null);
+        store.initialize('layout-b');
+        store.pushToHistory(
+            [
+                {
+                    id: 'root-b',
+                    component: 'layout:section',
+                },
+            ],
+            null,
+        );
+
+        expect(store.getActiveHistory()!.past).toHaveLength(1);
+        store.initialize('layout-a');
+        expect(store.getActiveHistory()!.past).toHaveLength(1);
+        expect(store.getActiveHistory()!.past[0].layout[0].id).toBe('root-1');
+
+        store.removeLayout('layout-a');
+        expect(store.historyByLayoutId['layout-a']).toBeUndefined();
+    });
+});

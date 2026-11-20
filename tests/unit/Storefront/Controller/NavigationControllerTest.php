@@ -93,8 +93,15 @@ class NavigationControllerTest extends TestCase
 
     public function testHomeRendersStorefront(): void
     {
+        $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
+        $category->setType(CategoryDefinition::TYPE_PAGE);
+
+        $navigationPage = new NavigationPage();
+        $navigationPage->setCategory($category);
+
         $this->pageLoader->method('load')
-            ->willReturn(new NavigationPage());
+            ->willReturn($navigationPage);
 
         $request = new Request();
         $context = Generator::generateSalesChannelContext();
@@ -106,6 +113,7 @@ class NavigationControllerTest extends TestCase
     public function testIndexRendersStorefront(): void
     {
         $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
         $category->setType(CategoryDefinition::TYPE_PAGE);
 
         $navigationPage = new NavigationPage();

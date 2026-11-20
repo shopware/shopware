@@ -1,0 +1,56 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
+
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+final class AttachElements extends AbstractLayoutMutation
+{
+    /**
+     * @param list<StoredElement> $elements
+     */
+    public function __construct(
+        private readonly AbstractContentSystemElementTypeRegistry $registry,
+        private readonly array $elements,
+        private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
+        private readonly BindingApplicator $bindingApplicator,
+        private readonly ?string $parentElementId = null,
+        private readonly ?string $slot = null,
+        private readonly ?int $index = null,
+        private readonly bool $isNewScaffold = false,
+    ) {
+    }
+
+    public function apply(StoredTree $tree): StoredTree
+    {
+        foreach ($this->elements as $offset => $element) {
+            $attach = new AttachElement(
+                $this->registry,
+                $element,
+                $this->bindingRegistry,
+                $this->bindingApplicator,
+                $this->parentElementId,
+                $this->slot,
+                $this->index === null ? null : $this->index + $offset,
+                isNewScaffold: $this->isNewScaffold,
+            );
+
+            $tree = $attach->apply($tree);
+            $this->affected = array_merge($this->affected, $attach->affected());
+            $this->created = array_merge($this->created, $attach->created());
+            $this->freshlyScaffolded = array_merge($this->freshlyScaffolded, $attach->freshlyScaffolded());
+        }
+
+        return $tree;
+    }
+}

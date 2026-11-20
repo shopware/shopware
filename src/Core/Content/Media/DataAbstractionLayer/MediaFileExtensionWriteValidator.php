@@ -48,6 +48,10 @@ class MediaFileExtensionWriteValidator implements EventSubscriberInterface
         $allowedPrivate = $this->extensionListProvider->getAllowedExtensions(true, $event->getContext());
 
         foreach ($media as $row) {
+            if (!$row->isNew && !$row->payloadContainsAny('file_extension')) {
+                continue;
+            }
+
             $extension = $row->getResultingValue('file_extension');
             if (!\is_string($extension) || $extension === '') {
                 continue;

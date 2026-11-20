@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Assert\WriteViolations;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -55,6 +57,14 @@ class MediaFileExtensionWriteValidatorTest extends TestCase
             [MediaFileExtensionWriteValidator::MEDIA_ILLEGAL_FILE_EXTENSION],
             fn () => $this->updateMedia(['fileExtension' => 'zip']),
         );
+    }
+
+    public function testAStoredMediaIsOnlyCheckedWhenTheWriteSetsItsExtension(): void
+    {
+        $this->createMedia(['private' => false]);
+        static::getContainer()->get(Connection::class)->update('media', ['file_extension' => 'exe'], ['id' => Uuid::fromHexToBytes($this->ids->get('media'))]);
+
+        WriteViolations::assertAccepted(fn () => $this->updateMedia(['private' => false, 'title' => 'legacy']));
     }
 
     /**

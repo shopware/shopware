@@ -10,7 +10,7 @@ tags: [documentation, agents, developer-experience, adr]
 The ADR "Shared Guidance Files for Humans and Agents" (2026-06-17) allowed one exception to its stub rule: every tracked `AGENTS.md` has a sibling `CLAUDE.md` whose only body is `@AGENTS.md`.
 Since Claude Code v2.1.277, Claude Code reads `AGENTS.md` natively, in the places where it would read `CLAUDE.md`.
 It does so only in a project without `CLAUDE.md`: a single `CLAUDE.md` in the start directory or above disables `AGENTS.md` loading for the whole session, and a sibling `AGENTS.md` next to a `CLAUDE.md` is skipped.
-The bridges therefore stopped `AGENTS.md` files without a bridge from loading, such as `.github/AGENTS.md` and `src/Core/Framework/Mcp/AGENTS.md`.
+With the bridges in place, an `AGENTS.md` loads only through its sibling `CLAUDE.md`, and an `AGENTS.md` added without a bridge never loads.
 
 ## Decision
 

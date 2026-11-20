@@ -62,6 +62,7 @@ import type AclService from './app/service/acl.service';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
+import type ProductStorefrontUrlApiService from './module/sw-product/service/product-storefront-url.api.service';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
@@ -327,6 +328,7 @@ declare global {
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
         productTypeService: ProductTypeApiService;
+        productStorefrontUrlApiService: ProductStorefrontUrlApiService;
         consentApiService: ConsentApiService;
         validationApiService: ValidationApiService;
     }
@@ -646,16 +648,9 @@ declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
-        useAxiosV1?: boolean;
-    }
-}
-
-declare module 'axios-v1' {
-    interface AxiosRequestConfig {
-        // adds the shopware API version to the RequestConfig
-        version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
+        /**
+         * @deprecated tag:v6.8.0 - See `HttpRequestConfig.useAxiosV1`.
+         */
         useAxiosV1?: boolean;
     }
 }

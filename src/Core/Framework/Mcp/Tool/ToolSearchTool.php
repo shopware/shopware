@@ -3,8 +3,11 @@
 namespace Shopware\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Attribute\McpToolRequiresNoPrivilege;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -12,8 +15,9 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
  * @internal
  */
 #[Package('framework')]
-#[McpTool(name: self::NAME, title: 'Tool Search', description: 'Search the allowed Shopware MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.')]
+#[McpTool(name: self::NAME, title: 'Tool Search', annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false), description: 'Search the allowed Shopware MCP tool catalogue by free-text query and return the most relevant tool definitions inline. Use this when a needed tool is not visible in tools/list.')]
 #[McpToolGroup('discovery')]
+#[McpToolRequiresNoPrivilege(reason: 'Discovery meta-tool, it only returns capabilities the allowlist of the caller already permits.')]
 class ToolSearchTool extends AbstractToolSearchTool
 {
     /**
@@ -21,7 +25,7 @@ class ToolSearchTool extends AbstractToolSearchTool
      * binds the tool to this class instead of the (non-instantiable) abstract base.
      */
     #[\Override]
-    public function __invoke(string $query, int $maxResults = 3): string
+    public function __invoke(string $query, int $maxResults = 3): McpToolResult
     {
         return parent::__invoke($query, $maxResults);
     }

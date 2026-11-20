@@ -27,6 +27,17 @@ abstract class AbstractFileWriter extends AbstractWriter
         $this->initBuffer();
     }
 
+    public function __destruct()
+    {
+        if (\is_resource($this->tempFile)) {
+            fclose($this->tempFile);
+        }
+
+        if (isset($this->tempPath) && is_file($this->tempPath)) {
+            unlink($this->tempPath);
+        }
+    }
+
     public function flush(Config $config, string $targetPath): void
     {
         rewind($this->buffer);
@@ -64,6 +75,11 @@ abstract class AbstractFileWriter extends AbstractWriter
         if (!\is_string($tempFilePath)) {
             throw ImportExportException::couldNotCreateFile($tempDir);
         }
+
+        if (isset($this->tempPath) && is_file($this->tempPath)) {
+            unlink($this->tempPath);
+        }
+
         $this->tempPath = $tempFilePath;
         $file = fopen($this->tempPath, 'a+');
         if (!\is_resource($file)) {

@@ -900,6 +900,7 @@ Clients can compare these hashes to find out which cookies were added or changed
 ### Product documents in the API
 
 The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product, each with its file in the requested language, or in the default language if it has none.
+CMS product pages return the same documents in the `documents` data of the description and reviews element (`product-description-reviews`).
 
 ### Media upload endpoints accept a title and an alt text
 

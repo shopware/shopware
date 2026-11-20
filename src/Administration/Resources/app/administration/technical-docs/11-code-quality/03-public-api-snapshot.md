@@ -308,7 +308,7 @@ A rule compares the blocks of one component in one flag state, and its text says
   A changed condition can be the same condition under a new name, so they never fail the check.
 - A removed block with exactly one new block under the same parent gets a `Possible rename`.
 - Only components that both commits register are compared, in the flag states both register them in.
-  A component that comes or goes is not reported yet.
+  A component that comes or goes is not reported yet, and neither is a component that becomes `@private`.
 
 ### Groups
 
@@ -319,7 +319,7 @@ The rule of a finding names the change, and its group says what the change count
 | `Break` | An unannounced break. Only this group fails the check |
 | `Addition` | New public API |
 | `Allowed` | A change that a marker on the block announced |
-| `Private` | A change to a component that is `@private` in one of the commits |
+| `Private` | A change to a component that is `@private` in the base commit |
 | `Info` | A change that a reviewer may want to look at |
 
 A marker announces a change when it sits in the Twig comments directly before the `{% block %}` tag:
@@ -332,11 +332,13 @@ A marker announces a change when it sits in the Twig comments directly before th
 
 The marker counts from the version it names on.
 A change that happens in the major state only counts as announced when the marker names that major, also when the marker comes with the same pull request.
+Any other change counts as announced only when the base commit has the marker already.
 The command takes the version the base branch releases next from the major flag: `v6.8.0.0` gives `6.7`.
 
 An extend child inherits the blocks of its parent, so a change to the parent shows up in the child too.
 It is reported once, on the parent, and the finding lists the children under `Also affects`.
 A public child of a private parent keeps its own finding, because the change is a break for the child only.
+A component that becomes `@private` with the change was public API until then, so its findings keep their group.
 
 An accepted break, which a file in the repository would allow, does not exist yet.
 

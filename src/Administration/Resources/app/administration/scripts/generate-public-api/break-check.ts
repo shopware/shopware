@@ -15,7 +15,7 @@ import type { Finding } from './findings';
 import { FLAG_STATES, isMajorOnly, perState } from './flag-states';
 import type { FlagContext, FlagState } from './flag-states';
 import type { ComponentUnit, Model } from './model';
-import type { Detection, Rule } from './rules';
+import type { Announcement, Detection, Rule } from './rules';
 
 // The unit kinds built so far. `expected-failures.ts` lists what is missing.
 const RULES: readonly Rule[] = BLOCK_RULES;
@@ -83,17 +83,30 @@ function foundBy(rule: Rule, { base, head, baseFacts, headFacts }: ComponentChan
     return [...byElement.values()];
 }
 
-/**
- * A marker allows its change once a minor before the next major has released the version it names. A change
- * that only the major state has is allowed by a marker for that major, which is how a change is prepared
- * behind the major flag.
- */
-function isDue({ version }: Marker, states: FlagState[], flags: FlagContext): boolean {
+/** A marker counts once a minor before the next major has released the version it names. */
+function isReleased({ version }: Marker, flags: FlagContext): boolean {
     const [major, minor] = version.slice(1).split('.').map(Number);
     const [nextMajor, nextMinor] = flags.majorVersion.slice(1).split('.').map(Number);
-    const released = major < nextMajor || (major === nextMajor && minor < nextMinor);
 
-    return released || (isMajorOnly(states) && version === flags.majorVersion);
+    return major < nextMajor || (major === nextMajor && minor < nextMinor);
+}
+
+/**
+ * The markers that can announce a change. A change that only the major state has is also announced by a marker
+ * for that major, which is how a change is prepared behind the major flag. Only such a marker may come with the
+ * same pull request, so it is the one marker of the head that counts.
+ */
+function dueMarkers(announcement: Announcement, states: FlagState[], change: ComponentChange, flags: FlagContext): Marker[] {
+    const isForMajor = ({ version }: Marker): boolean => isMajorOnly(states) && version === flags.majorVersion;
+    const fromBase = states
+        .flatMap((state) => announcement.markers(change.baseFacts[state]))
+        .filter((marker) => isReleased(marker, flags) || isForMajor(marker));
+    const fromHead = announcement.markers(change.headFacts.current).filter(isForMajor);
+
+    return [
+        ...fromBase,
+        ...fromHead,
+    ];
 }
 
 function announcedText(subject: string, marker: Marker): string {
@@ -102,10 +115,7 @@ function announcedText(subject: string, marker: Marker): string {
         : `${subject} carries @bc-change ${marker.kind} version:${marker.version}, which announced this change.`;
 }
 
-/**
- * What the finding says when a marker announced the change. For a change in the major state only the marker
- * may come with the same pull request, so the markers of the current state at the head count too.
- */
+/** What the finding says when a marker announced the change. */
 function announced(
     { detection: { announcement }, states }: Found,
     change: ComponentChange,
@@ -115,16 +125,14 @@ function announced(
         return undefined;
     }
 
-    const marker = [
-        ...states.flatMap((state) => announcement.markers(change.baseFacts[state])),
-        ...announcement.markers(change.headFacts.current),
-    ].find((candidate) => announcement.matches(candidate) && isDue(candidate, states, flags));
+    const marker = dueMarkers(announcement, states, change, flags).find((candidate) => announcement.matches(candidate));
 
     return marker && { group: 'Allowed', rule: announcement.rule, explanation: announcedText(announcement.subject, marker) };
 }
 
-function isPrivate({ base, head }: ComponentChange): boolean {
-    return base.visibility === 'private' || head.visibility === 'private';
+/** A component that becomes private in the change was public API until then, so its changes still break plugins. */
+function isPrivate({ base }: ComponentChange): boolean {
+    return base.visibility === 'private';
 }
 
 function findingOf(result: Found, change: ComponentChange, flags: FlagContext): Finding {

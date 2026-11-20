@@ -223,6 +223,10 @@ class BulkEditBaseHandler {
 
         if (isMappingField) {
             this._detectManyToManyChange(change, existAssociations);
+
+            if (type === bulkSyncTypes.ADD) {
+                this._materializeInheritedManyToMany(change, existAssociations);
+            }
         } else if (isOneToOne) {
             this._detectOneToOneChange(change, existAssociations);
         } else {
@@ -518,6 +522,36 @@ class BulkEditBaseHandler {
                 if (existAssociations[key]) {
                     delete this.groupedPayload.delete[referenceEntity][key];
 
+                    return;
+                }
+
+                this.groupedPayload.upsert[referenceEntity][key] = [
+                    {
+                        [referenceKey]: referenceValue,
+                        [localKey]: entityId,
+                    },
+                ];
+            });
+        });
+    }
+
+    /**
+     * @private
+     */
+    _materializeInheritedManyToMany(change, existAssociations) {
+        const { referenceEntity, referenceKey, localKey, inheritedValue, value } = change;
+
+        if (value.length === 0 || !Array.isArray(inheritedValue) || inheritedValue.length === 0) {
+            return;
+        }
+
+        const ownerIds = new Set(Object.values(existAssociations).map(([association]) => association[localKey]));
+
+        inheritedValue.forEach(({ id: referenceValue }) => {
+            this.entityIds.forEach((entityId) => {
+                const key = `${referenceValue}.${entityId}`;
+
+                if (ownerIds.has(entityId) || this.groupedPayload.upsert[referenceEntity][key]) {
                     return;
                 }
 

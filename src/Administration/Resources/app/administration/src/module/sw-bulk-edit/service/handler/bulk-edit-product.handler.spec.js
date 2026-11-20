@@ -1382,6 +1382,74 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     ],
                 },
             ],
+            [
+                'add properties to variants keeps the inherited parent properties',
+                [
+                    {
+                        type: 'add',
+                        field: 'properties',
+                        value: [{ id: 'option_new' }],
+                        inheritedValue: [{ id: 'option_parent' }],
+                    },
+                ],
+                {
+                    'upsert-product_property': {
+                        action: 'upsert',
+                        entity: 'product_property',
+                        payload: [
+                            { productId: 'product_1', optionId: 'option_new' },
+                            { productId: 'product_2', optionId: 'option_new' },
+                            // product_1 inherits → the parent's options are materialized next to the added one.
+                            { productId: 'product_1', optionId: 'option_parent' },
+                        ],
+                    },
+                },
+                {
+                    // product_2 overrides with its own option, which must stay untouched.
+                    product_property: [{ productId: 'product_2', optionId: 'option_own' }],
+                },
+            ],
+            [
+                'add properties to variants does not duplicate an inherited option that is added',
+                [
+                    {
+                        type: 'add',
+                        field: 'properties',
+                        value: [{ id: 'option_parent' }],
+                        inheritedValue: [{ id: 'option_parent' }, { id: 'option_parent_2' }],
+                    },
+                ],
+                {
+                    'upsert-product_property': {
+                        action: 'upsert',
+                        entity: 'product_property',
+                        payload: [
+                            { productId: 'product_1', optionId: 'option_parent' },
+                            { productId: 'product_2', optionId: 'option_parent' },
+                            { productId: 'product_1', optionId: 'option_parent_2' },
+                            { productId: 'product_2', optionId: 'option_parent_2' },
+                        ],
+                    },
+                },
+                {
+                    product_property: [],
+                },
+            ],
+            [
+                'add no properties to variants leaves inheriting variants untouched',
+                [
+                    {
+                        type: 'add',
+                        field: 'properties',
+                        value: null,
+                        inheritedValue: [{ id: 'option_parent' }],
+                    },
+                ],
+                {},
+                {
+                    product_property: [],
+                },
+            ],
         ];
 
         it.each(cases)('%s', async (testName, input, output, existAssociations = {}) => {
@@ -1441,6 +1509,17 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             local: 'productId',
                             reference: 'categoryId',
                         },
+                        properties: {
+                            type: 'association',
+                            relation: 'many_to_many',
+                            entity: 'property_group_option',
+                            flags: {},
+                            localField: 'id',
+                            referenceField: 'id',
+                            mapping: 'product_property',
+                            local: 'productId',
+                            reference: 'optionId',
+                        },
                         visibilities: {
                             type: 'association',
                             relation: 'one_to_many',
@@ -1466,6 +1545,10 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 },
                 product_category: {
                     entity: 'product_category',
+                    relation: 'many_to_many',
+                },
+                product_property: {
+                    entity: 'product_property',
                     relation: 'many_to_many',
                 },
                 product_visibility: {

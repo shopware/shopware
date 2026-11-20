@@ -1326,6 +1326,10 @@ export default {
                     this.transformVariantVisibilityChange(change);
                 }
 
+                if (this.isChild && key === 'properties' && bulkEditField.type === 'add') {
+                    change.inheritedValue = this.getParentAssociationReferences(key);
+                }
+
                 if (this.isChild && change.value !== null && types.isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
@@ -1350,6 +1354,16 @@ export default {
             if (hasRegulationPrice) {
                 this.processRegulationPrice();
             }
+        },
+
+        getParentAssociationReferences(associationName) {
+            if (!this.parentProductFrozen) {
+                return [];
+            }
+
+            const associations = JSON.parse(this.parentProductFrozen)?.[associationName];
+
+            return Array.isArray(associations) ? associations.map(({ id }) => ({ id })) : [];
         },
 
         transformVariantVisibilityChange(change) {

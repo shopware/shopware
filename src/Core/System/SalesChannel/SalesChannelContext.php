@@ -54,6 +54,11 @@ class SalesChannelContext extends Struct
     protected ?LockInterface $cartLock = null;
 
     /**
+     * Private, so it is not part of the Store API context
+     */
+    private ?TaxCollection $billingTaxRules = null;
+
+    /**
      * @internal
      *
      * @param array<string, array<string>> $areaRuleIds
@@ -130,6 +135,25 @@ class SalesChannelContext extends Struct
         return new TaxRuleCollection([
             new TaxRule($tax->getTaxRate(), 100),
         ]);
+    }
+
+    /**
+     * The tax rules of the customer's billing address, which decide a cart whose products are all digital,
+     * or null when the billing address is the shipping address
+     *
+     * @internal
+     */
+    public function getBillingTaxRules(): ?TaxCollection
+    {
+        return $this->billingTaxRules;
+    }
+
+    /**
+     * @internal
+     */
+    public function setBillingTaxRules(?TaxCollection $billingTaxRules): void
+    {
+        $this->billingTaxRules = $billingTaxRules;
     }
 
     public function getCustomer(): ?CustomerEntity

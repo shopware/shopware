@@ -1204,6 +1204,10 @@ With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after t
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
 Without a resolvable title it shows only the icon, labelled "Go back".
 Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
+
+Settings pages no longer start their smart bar title with "Settings ›", since the back button names the settings.
+Settings pages of extensions can drop that prefix as well.
+
 ### Custom fields on the customer create page
 
 The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.

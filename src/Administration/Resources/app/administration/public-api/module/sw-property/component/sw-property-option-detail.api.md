@@ -13,7 +13,7 @@ component sw-property-option-detail  public  js
 blocks
   sw_property_option_detail
     sw_property_option_detail_color
-    sw_property_option_detail_footer
+    sw_property_option_detail_footer  [after v-if]
       sw_property_option_detail_footer_cancel
       sw_property_option_detail_footer_save
     sw_property_option_detail_media

@@ -20,9 +20,9 @@ blocks
         sw_order_detail_general_line_items_summary
           sw_order_detail_general_line_items_summary_entries
             sw_order_detail_general_line_items_summary_amount
-            sw_order_detail_general_line_items_summary_amount_free_tax
-            sw_order_detail_general_line_items_summary_amount_total
+            sw_order_detail_general_line_items_summary_amount_free_tax  [after v-if]
+            sw_order_detail_general_line_items_summary_amount_total  [after v-if]
             sw_order_detail_general_line_items_summary_amount_without_tax
             sw_order_detail_general_line_items_summary_shipping_cost
-            sw_order_detail_general_line_items_summary_taxes
+            sw_order_detail_general_line_items_summary_taxes  [after v-if]
 ```

@@ -14,15 +14,15 @@ blocks
   sw_product_seo_form
     sw_product_seo_form_canonical_url
       sw_product_seo_form_canonical_url_select
-        sw_product_seo_form_canonical_url_select_result
-        sw_product_seo_form_canonical_url_select_selection
+        sw_product_seo_form_canonical_url_select_result  [scope: item]
+        sw_product_seo_form_canonical_url_select_selection  [scope: item]
       sw_product_seo_form_canonical_url_switch
     sw_product_seo_form_keywords
     sw_product_seo_form_meta_description
-      sw_product_seo_form_meta_description_hint
+      sw_product_seo_form_meta_description_hint  [scope: props]
     sw_product_seo_form_meta_title
-      sw_product_seo_form_meta_title_hint
-    sw_product_seo_form_open_graph
+      sw_product_seo_form_meta_title_hint  [scope: props]
+    sw_product_seo_form_open_graph  [after v-if]
       sw_product_seo_form_og_description
       sw_product_seo_form_og_image
       sw_product_seo_form_og_title

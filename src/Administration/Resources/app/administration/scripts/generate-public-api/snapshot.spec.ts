@@ -356,8 +356,8 @@ describe('scripts/generate-public-api/snapshot', () => {
             ).toEqual([
                 'sw_example_card',
                 'sw_example_card_body  [from v6.8.0]',
-                'sw_example_card_title  [from v6.8.0]',
-                'sw_example_card_title  [until v6.8.0]',
+                'sw_example_card_title  [after v-if] [from v6.8.0]',
+                'sw_example_card_title  [after v-if] [until v6.8.0]',
             ]);
         });
 

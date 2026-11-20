@@ -20,7 +20,7 @@ blocks
         sw_image_slider_image_container_arrow_right
       sw_image_slider_image_container_scrollable
         sw_image_slider_images
-          sw_image_slider_element_description
-          sw_image_slider_image_images_container
-            sw_image_slider_image
+          sw_image_slider_element_description  [scope: image, index]
+          sw_image_slider_image_images_container  [scope: image, index]
+            sw_image_slider_image  [scope: image, index]
 ```

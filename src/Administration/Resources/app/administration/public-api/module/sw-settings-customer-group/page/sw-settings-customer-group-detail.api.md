@@ -28,12 +28,12 @@ blocks
         sw_settings_customer_group_detail_content_registration_card_only_companies_can_register
         sw_settings_customer_group_detail_content_registration_card_seo_meta_description
         sw_settings_customer_group_detail_content_registration_card_title
-      sw_settings_customer_group_detail_content_registration_url_card
+      sw_settings_customer_group_detail_content_registration_url_card  [after v-if]
         sw_settings_customer_group_detail_content_registration_technical_urls
         sw_settings_customer_group_detail_content_registration_url_card_sales_channel
-        sw_settings_customer_group_detail_content_registration_url_card_seo_url
-          sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner
-      sw_settings_customer_group_detail_custom_field_sets
+        sw_settings_customer_group_detail_content_registration_url_card_seo_url  [after v-if]
+          sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner  [scope: domain, salesChannel, seoUrl]
+      sw_settings_customer_group_detail_custom_field_sets  [after v-if]
     sw_settings_customer_group_detail_language_switch
     sw_settings_customer_group_detail_search_bar
     sw_settings_customer_group_detail_smart_bar_header

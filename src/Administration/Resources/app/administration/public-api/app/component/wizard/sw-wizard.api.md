@@ -17,9 +17,13 @@ blocks
     sw_wizard_slot_footer  [private]
       sw_wizard_slot_footer_dot_navigation  [private]
       sw_wizard_slot_footer_left_buttons  [private]
-        sw_wizard_slot_footer_left_buttons_back  [private]
+        sw_wizard_slot_footer_left_buttons_back  [after v-if] [private]
         sw_wizard_slot_footer_left_buttons_close  [private]
       sw_wizard_slot_footer_right_button  [private]
         sw_wizard_slot_footer_right_button_finish  [private]
-        sw_wizard_slot_footer_right_button_next  [private]
+        sw_wizard_slot_footer_right_button_next  [after v-if] [private]
+
+crossings
+  v-if  sw_wizard_slot_footer_left_buttons_close -> sw_wizard_slot_footer_left_buttons_back  [private]
+  v-if  sw_wizard_slot_footer_right_button_finish -> sw_wizard_slot_footer_right_button_next  [private]
 ```

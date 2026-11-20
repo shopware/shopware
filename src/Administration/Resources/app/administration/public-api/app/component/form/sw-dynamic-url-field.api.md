@@ -17,10 +17,17 @@ blocks
     sw_dynamic_url_field_content  [private]
       sw_dynamic_url_field_content_type  [private]
       sw_dynamic_url_field_content_type_inputs  [private]
-        sw_dynamic_url_field_content_type_inputs_category  [private]
-        sw_dynamic_url_field_content_type_inputs_detail  [private]
-        sw_dynamic_url_field_content_type_inputs_email  [private]
+        sw_dynamic_url_field_content_type_inputs_category  [after v-if] [private]
+        sw_dynamic_url_field_content_type_inputs_detail  [after v-if] [private]
+        sw_dynamic_url_field_content_type_inputs_email  [after v-if] [private]
         sw_dynamic_url_field_content_type_inputs_link  [private]
-        sw_dynamic_url_field_content_type_inputs_media  [private]
-        sw_dynamic_url_field_content_type_inputs_phone  [private]
+        sw_dynamic_url_field_content_type_inputs_media  [after v-if] [private]
+        sw_dynamic_url_field_content_type_inputs_phone  [after v-if] [private]
+
+crossings
+  v-if  sw_dynamic_url_field_content_type_inputs_category -> sw_dynamic_url_field_content_type_inputs_media  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_detail -> sw_dynamic_url_field_content_type_inputs_category  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_email -> sw_dynamic_url_field_content_type_inputs_detail  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_link -> sw_dynamic_url_field_content_type_inputs_phone  [private]
+  v-if  sw_dynamic_url_field_content_type_inputs_phone -> sw_dynamic_url_field_content_type_inputs_email  [private]
 ```

@@ -12,10 +12,10 @@ component sw-order-general-info  public  js
 
 blocks
   sw_order_detail_base_general_info
-    sw_order_detail_base_general_info_order_states
-      sw_order_detail_base_general_info_order_states_order
+    sw_order_detail_base_general_info_order_states  [after v-if]
+      sw_order_detail_base_general_info_order_states_order  [after v-if]
       sw_order_detail_base_general_info_order_states_payment
-      sw_order_detail_base_general_info_order_states_shipping
+      sw_order_detail_base_general_info_order_states_shipping  [after v-if]
     sw_order_detail_base_general_info_order_tags
     sw_order_detail_base_general_info_summary
       sw_order_detail_base_general_info_summary_main
@@ -25,6 +25,6 @@ blocks
         sw_order_detail_base_general_info_summary_sub_description
         sw_order_detail_base_general_info_summary_sub_last_changed
           sw_order_detail_base_general_info_summary_sub_last_changed_time
-          sw_order_detail_base_general_info_summary_sub_last_changed_user
+          sw_order_detail_base_general_info_summary_sub_last_changed_user  [after v-if]
     sw_order_state_change_card_modal
 ```

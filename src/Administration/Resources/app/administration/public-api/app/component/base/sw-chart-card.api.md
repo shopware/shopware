@@ -15,7 +15,7 @@ blocks
   sw_chart_card  [private]
     sw_chart_card_header  [private]
       sw_chart_card_header_link_arrow  [private]
-      sw_chart_card_header_range_select  [private]
+      sw_chart_card_header_range_select  [after v-if] [private]
         sw_chart_card_header_range_select_options  [private]
       sw_chart_card_header_slot_link  [private]
     sw_chart_card_inner_chart  [private]

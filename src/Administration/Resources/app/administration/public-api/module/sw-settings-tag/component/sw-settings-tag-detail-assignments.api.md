@@ -15,20 +15,28 @@ blocks
     sw_settings_tag_detail_assignments_card
       sw_settings_tag_detail_assignments_grid
         sw_settings_tag_detail_assignments_associations_grid
-          sw_settings_tag_detail_assignments_associations_grid_column_name
+          sw_settings_tag_detail_assignments_associations_grid_column_name  [scope: item]
         sw_settings_tag_detail_assignments_entities_grid
-          sw_settings_tag_detail_assignments_entities_grid_column_inheritance_switch
-          sw_settings_tag_detail_assignments_entities_grid_column_name_category
-          sw_settings_tag_detail_assignments_entities_grid_column_name_customer
-          sw_settings_tag_detail_assignments_entities_grid_column_name_default
-          sw_settings_tag_detail_assignments_entities_grid_column_name_media
-          sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient
-          sw_settings_tag_detail_assignments_entities_grid_column_name_order
-          sw_settings_tag_detail_assignments_entities_grid_column_name_product
-          sw_settings_tag_detail_assignments_entities_grid_selection_content
-            sw_settings_tag_detail_assignments_entities_grid_select_item_checkbox
+          sw_settings_tag_detail_assignments_entities_grid_column_inheritance_switch  [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_category  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_customer  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_default  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_media  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_order  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_column_name_product  [after v-if] [scope: item, selectItem]
+          sw_settings_tag_detail_assignments_entities_grid_selection_content  [scope: isSelected, item, itemIdentifierProperty, selectItem]
+            sw_settings_tag_detail_assignments_entities_grid_select_item_checkbox  [scope: isSelected, item, itemIdentifierProperty, selectItem]
       sw_settings_tag_detail_assignments_header
         sw_settings_tag_detail_assignments_header_selected_filter
         sw_settings_tag_detail_assignments_header_total_selected
       sw_settings_tag_detail_assignments_toolbar
+
+crossings
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_category -> sw_settings_tag_detail_assignments_entities_grid_column_name_customer
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_customer -> sw_settings_tag_detail_assignments_entities_grid_column_name_order
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_media -> sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient -> sw_settings_tag_detail_assignments_entities_grid_column_name_default
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_order -> sw_settings_tag_detail_assignments_entities_grid_column_name_media
+  v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_product -> sw_settings_tag_detail_assignments_entities_grid_column_name_category
 ```

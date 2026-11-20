@@ -16,7 +16,7 @@ blocks
     sw_extension_card_base_info_inactive_label  [private]
   sw_extension_card_base_activation_switch_switch  [private]
   sw_extension_card_base_context_menu_actions  [private]
-    sw_extension_card_base_context_menu_actions_additional  [private]
+    sw_extension_card_base_context_menu_actions_additional  [after v-if] [private]
   sw_extension_card_base_info_content  [private]
-  sw_extension_card_base_modals  [private]
+  sw_extension_card_base_modals  [after v-if] [private]
 ```

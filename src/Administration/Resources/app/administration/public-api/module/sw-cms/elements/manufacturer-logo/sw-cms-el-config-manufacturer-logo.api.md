@@ -16,8 +16,8 @@ blocks
     sw_cms_element_image_config_display_mode  [inherited] [private]
     sw_cms_element_image_config_horizontal_align  [inherited] [private]
     sw_cms_element_image_config_link  [inherited] [private]
-    sw_cms_element_image_config_media_modal  [inherited] [private]
-    sw_cms_element_image_config_media_upload  [inherited] [private]
+    sw_cms_element_image_config_media_modal  [inherited] [scope: isInherited] [private]
+    sw_cms_element_image_config_media_upload  [inherited] [scope: isInherited] [private]
     sw_cms_element_image_config_min_height  [inherited] [private]
     sw_cms_element_image_config_vertical_align  [inherited] [private]
 ```

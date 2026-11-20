@@ -17,16 +17,16 @@ blocks
     sw_sales_channel_detail_content
       sw_sales_channel_detail_agentic_commerce_deprecation_banner
       sw_sales_channel_detail_content_language_info
-      sw_sales_channel_detail_content_tabs
+      sw_sales_channel_detail_content_tabs  [after v-if]
         sw_sales_channel_detail_content_mt_tabs  [from v6.8.0]
-        sw_sales_channel_detail_content_tab_agentic_commerce_integration  [until v6.8.0]
-        sw_sales_channel_detail_content_tab_analytics  [until v6.8.0]
-        sw_sales_channel_detail_content_tab_export_template  [until v6.8.0]
-          sw_sales_channel_detail_content_tab_product_comparison  [until v6.8.0]
+        sw_sales_channel_detail_content_tab_agentic_commerce_integration  [after v-if] [until v6.8.0]
+        sw_sales_channel_detail_content_tab_analytics  [after v-if] [until v6.8.0]
+        sw_sales_channel_detail_content_tab_export_template  [after v-if] [until v6.8.0]
+          sw_sales_channel_detail_content_tab_product_comparison  [after v-if] [until v6.8.0]
         sw_sales_channel_detail_content_tab_general  [until v6.8.0]
         sw_sales_channel_detail_content_tab_product_export_insights  [until v6.8.0]
-        sw_sales_channel_detail_content_tab_products  [until v6.8.0]
-        sw_sales_channel_detail_content_tab_theme  [until v6.8.0]
+        sw_sales_channel_detail_content_tab_products  [after v-if] [until v6.8.0]
+        sw_sales_channel_detail_content_tab_theme  [after v-if] [until v6.8.0]
       sw_sales_channel_detail_content_view
     sw_sales_channel_detail_header
       sw_sales_channel_detail_header_headline

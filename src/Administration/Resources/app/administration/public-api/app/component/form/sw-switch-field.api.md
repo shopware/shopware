@@ -13,5 +13,8 @@ component sw-switch-field  private  js  [private]
 
 blocks
   sw_switch_field  [private]
-  sw_switch_field_deprecated  [private]
+  sw_switch_field_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_switch_field -> (root)  [private]
 ```

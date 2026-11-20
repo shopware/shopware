@@ -31,7 +31,9 @@ declare namespace AdminApi {
                 sw_example_card_list: Block<'sw_example_card'>;
                 sw_example_card_list_item: Block<'sw_example_card_list', 'scope:item'>;
             };
-            crossings: readonly [];
+            crossings: readonly [
+                readonly ['v-if', 'sw_example_card_header_label_manual', 'sw_example_card_header_label_default'],
+            ];
             positionIdentifiers: {};
             dynamicPositionIdentifiers: {};
             dataSets: {};

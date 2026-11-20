@@ -13,4 +13,7 @@ component sw-password-field  private  ts  [private]
 
 blocks
   sw_password_field  [private]
+
+crossings
+  v-if  sw_password_field -> (root)  [private]
 ```

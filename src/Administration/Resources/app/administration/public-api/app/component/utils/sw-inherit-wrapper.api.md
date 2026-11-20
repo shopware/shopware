@@ -13,10 +13,10 @@ component sw-inherit-wrapper  private  js  [private]
 
 blocks
   sw_inherit_wrapper  [private]
-    sw_inherit_wrapper_content  [private]
+    sw_inherit_wrapper_content  [after v-if] [private]
     sw_inherit_wrapper_toggle  [private]
       sw_inherit_wrapper_toggle_wrapper  [private]
         sw_inherit_wrapper_toggle_wrapper_field  [private]
         sw_inherit_wrapper_toggle_wrapper_help_text  [private]
-        sw_inherit_wrapper_toggle_wrapper_label  [private]
+        sw_inherit_wrapper_toggle_wrapper_label  [after v-if] [private]
 ```

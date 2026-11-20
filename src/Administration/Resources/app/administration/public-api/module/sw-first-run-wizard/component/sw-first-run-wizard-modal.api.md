@@ -14,7 +14,7 @@ component sw-first-run-wizard-modal  private  js  [private]
 blocks
   sw_first_run_wizard_modal  [private]
     sw_first_run_wizard_modal_content  [private]
-      sw_first_run_wizard_modal_content_page  [private]
+      sw_first_run_wizard_modal_content_page  [after v-if] [private]
       sw_first_run_wizard_modal_content_steps  [private]
     sw_first_run_wizard_modal_footer  [private]
       sw_first_run_wizard_modal_footer_left  [private]

@@ -16,11 +16,11 @@ blocks
     sw_sales_channel_products_assignment_dynamic_product_groups_listing
       sw_sales_channel_products_assignment_dynamic_product_groups_listing_container
         sw_sales_channel_products_assignment_dynamic_product_groups_card_section_primary
-          sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty
-          sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon
+          sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty  [after v-if]
+          sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon  [after v-if]
           sw_sales_channel_products_assignment_dynamic_product_groups_listing_entity
             sw_sales_channel_products_assignment_dynamic_product_groups_listing_bulk
-            sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action
+            sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action  [scope: item]
             sw_sales_channel_products_assignment_dynamic_product_groups_listing_pagination
         sw_sales_channel_products_assignment_dynamic_product_groups_listing_section
           sw_sales_channel_products_assignment_dynamic_product_groups_listing_search

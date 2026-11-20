@@ -12,18 +12,24 @@ component sw-settings-listing-option-criteria-grid  public  js
 
 blocks
   sw_settings_listing_option_criteria_card
-    sw_settings_listing_option_criteria_card_empty_state
+    sw_settings_listing_option_criteria_card_empty_state  [after v-if]
     sw_settings_listing_option_criteria_card_empty_state_icon
     sw_settings_listing_option_criteria_card_grid
       sw_settings_listing_option_criteria_card_grid_column_actions
-        sw_settings_listing_option_criteria_card_grid_column_actions_delete
+        sw_settings_listing_option_criteria_card_grid_column_actions_delete  [scope: item]
       sw_settings_listing_option_criteria_card_grid_column_field
-        sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria
-        sw_settings_listing_option_criteria_card_grid_column_field_custom_field
-        sw_settings_listing_option_criteria_card_grid_column_field_select
+        sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria  [after v-if] [scope: isInlineEdit, item]
+        sw_settings_listing_option_criteria_card_grid_column_field_custom_field  [after v-if] [scope: isInlineEdit, item]
+        sw_settings_listing_option_criteria_card_grid_column_field_select  [scope: isInlineEdit, item]
       sw_settings_listing_option_criteria_card_grid_column_order
-        sw_settings_listing_option_criteria_card_grid_column_order_select
-        sw_settings_listing_option_criteria_card_grid_column_order_text
+        sw_settings_listing_option_criteria_card_grid_column_order_select  [after v-if] [scope: isInlineEdit, item]
+        sw_settings_listing_option_criteria_card_grid_column_order_text  [scope: isInlineEdit, item]
     sw_settings_listing_option_criteria_card_toolbar
       sw_settings_listing_option_criteria_card_toolbar_select
+
+crossings
+  v-if  sw_settings_listing_option_criteria_card_grid -> sw_settings_listing_option_criteria_card_empty_state
+  v-if  sw_settings_listing_option_criteria_card_grid_column_field_custom_field -> sw_settings_listing_option_criteria_card_grid_column_field_custom_criteria
+  v-if  sw_settings_listing_option_criteria_card_grid_column_field_select -> sw_settings_listing_option_criteria_card_grid_column_field_custom_field
+  v-if  sw_settings_listing_option_criteria_card_grid_column_order_text -> sw_settings_listing_option_criteria_card_grid_column_order_select
 ```

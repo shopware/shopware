@@ -22,4 +22,7 @@ blocks
       sw_settings_state_machine_detail_smart_bar_actions_cancel
       sw_settings_state_machine_detail_smart_bar_actions_save
     sw_settings_state_machine_detail_smart_bar_header
+
+crossings
+  v-if  sw_settings_state_machine_detail_content_card -> sw_settings_state_machine_detail_content
 ```

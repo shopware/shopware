@@ -23,6 +23,49 @@ class RatingAverageUpdaterTest extends TestCase
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    public function testResetClearsStaleFamilyRatingsOnlyInTheRequestedVersion(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $parent = Uuid::randomHex();
+        $ratedVariant = Uuid::randomHex();
+        $zeroVariant = Uuid::randomHex();
+        $unratedVariant = Uuid::randomHex();
+        $unrelated = Uuid::randomHex();
+        $draft = Uuid::randomHex();
+        $ratings = [$parent => 4.5, $ratedVariant => 3.0, $zeroVariant => 0.0, $unratedVariant => null, $unrelated => 2.0];
+
+        foreach ([Defaults::LIVE_VERSION, $draft] as $version) {
+            foreach ($ratings as $id => $rating) {
+                $isVariant = $id !== $parent && $id !== $unrelated;
+                $connection->insert('product', [
+                    'id' => Uuid::fromHexToBytes($id),
+                    'version_id' => Uuid::fromHexToBytes($version),
+                    'product_number' => $id,
+                    'stock' => 1,
+                    'parent_id' => $isVariant ? Uuid::fromHexToBytes($parent) : null,
+                    'parent_version_id' => $isVariant ? Uuid::fromHexToBytes($version) : null,
+                    'rating_average' => $rating,
+                ]);
+            }
+        }
+
+        (new RatingAverageUpdater($connection))->update(
+            [$parent, $ratedVariant, $parent],
+            Context::createDefaultContext()->createWithVersionId($draft)
+        );
+
+        $rows = $connection->fetchAllAssociative(
+            'SELECT LOWER(HEX(id)) AS id, LOWER(HEX(version_id)) AS version, rating_average FROM product WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList(array_keys($ratings))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        static::assertCount(10, $rows);
+        foreach ($rows as $row) {
+            $expected = $row['version'] === $draft && $row['id'] !== $unrelated ? null : $ratings[$row['id']];
+            static::assertSame($expected, $row['rating_average'] === null ? null : (float) $row['rating_average']);
+        }
+    }
+
     public function testBatchUpdateKeepsEachProductsAverage(): void
     {
         $connection = static::getContainer()->get(Connection::class);

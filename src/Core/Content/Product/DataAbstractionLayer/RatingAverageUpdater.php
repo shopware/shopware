@@ -32,7 +32,7 @@ class RatingAverageUpdater
 
         RetryableQuery::retryable($this->connection, function () use ($ids, $versionId): void {
             $this->connection->executeStatement(
-                'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
+                'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version AND rating_average IS NOT NULL',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
                 ['ids' => ArrayParameterType::BINARY]
             );

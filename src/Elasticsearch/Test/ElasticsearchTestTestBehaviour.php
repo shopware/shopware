@@ -196,7 +196,7 @@ trait ElasticsearchTestTestBehaviour
     }
 
     /**
-     * The raw SQL config writes above bypass entity events, so the statically keyed
+     * The raw SQL config writes above bypass entity events, so the
      * CachedSearchConfigLoader keeps serving whatever was loaded first. Under the v6.8 flag
      * the search-keyword updater already primes that cache while the fixture products are
      * indexed, which would freeze the pristine configuration for the whole test.

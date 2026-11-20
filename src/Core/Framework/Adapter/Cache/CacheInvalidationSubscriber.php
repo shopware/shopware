@@ -98,6 +98,7 @@ class CacheInvalidationSubscriber
 
     public function invalidateSearchConfig(EntityWrittenContainerEvent $event): void
     {
+        // custom field writes can delete search config fields with plain SQL, see CustomFieldSearchableSubscriber
         if (!$event->getPrimaryKeys(ProductSearchConfigDefinition::ENTITY_NAME)
             && !$event->getPrimaryKeys(ProductSearchConfigFieldDefinition::ENTITY_NAME)
             && !$event->getPrimaryKeys(CustomFieldDefinition::ENTITY_NAME)

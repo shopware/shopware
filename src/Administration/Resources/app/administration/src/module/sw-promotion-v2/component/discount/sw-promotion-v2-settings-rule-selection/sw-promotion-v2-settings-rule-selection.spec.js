@@ -3,20 +3,20 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper({ discount = { discountRules: [{ id: 'ruleId' }] }, privileges = ['promotion.editor'] } = {}) {
     return mount(await wrapTestComponent('sw-promotion-v2-settings-rule-selection', { sync: true }), {
-        props: {
-            discount: { discountRules: [] },
-        },
+        props: { discount },
         global: {
             provide: {
-                acl: { can: () => true },
+                acl: { can: (privilege) => privileges.includes(privilege) },
             },
             stubs: {
-                'sw-container': { template: '<div><slot /></div>' },
-                'sw-promotion-v2-wizard-description': true,
+                'sw-promotion-v2-wizard-description': {
+                    template: '<p class="sw-promotion-v2-wizard-description"><slot /></p>',
+                },
                 'sw-select-rule-create': {
-                    props: ['ruleFilter'],
+                    props: { rules: Array, ruleScope: Array, localMode: Boolean, disabled: Boolean },
+                    emits: ['update:rules'],
                     template: '<div class="sw-select-rule-create"></div>',
                 },
             },
@@ -25,11 +25,39 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-rule-selection', () => {
-    it('filters the rules with its own criteria', async () => {
+    it('describes the rule selection', async () => {
         const wrapper = await createWrapper();
 
-        const ruleFilter = wrapper.getComponent('.sw-select-rule-create').props('ruleFilter');
+        expect(wrapper.get('.sw-promotion-v2-wizard-description').text()).toBe(
+            'sw-promotion-v2.detail.discounts.settings.ruleSelection.description',
+        );
+    });
 
-        expect(ruleFilter.sortings).toEqual([{ field: 'name', order: 'ASC', naturalSorting: false }]);
+    it('selects cart rules of the discount locally', async () => {
+        const discountRules = [{ id: 'ruleId' }];
+        const wrapper = await createWrapper({ discount: { discountRules } });
+
+        const ruleSelect = wrapper.getComponent('.sw-select-rule-create');
+
+        expect(ruleSelect.props('rules')).toEqual(discountRules);
+        expect(ruleSelect.props('ruleScope')).toEqual(['cart']);
+        expect(ruleSelect.props('localMode')).toBe(true);
+        expect(ruleSelect.props('disabled')).toBe(false);
+    });
+
+    it('writes the selected rules to the discount', async () => {
+        const discount = { discountRules: [] };
+        const wrapper = await createWrapper({ discount });
+        const selectedRules = [{ id: 'otherRuleId' }];
+
+        await wrapper.getComponent('.sw-select-rule-create').vm.$emit('update:rules', selectedRules);
+
+        expect(discount.discountRules).toBe(selectedRules);
+    });
+
+    it('disables the rule selection without the promotion editor privilege', async () => {
+        const wrapper = await createWrapper({ privileges: [] });
+
+        expect(wrapper.getComponent('.sw-select-rule-create').props('disabled')).toBe(true);
     });
 });

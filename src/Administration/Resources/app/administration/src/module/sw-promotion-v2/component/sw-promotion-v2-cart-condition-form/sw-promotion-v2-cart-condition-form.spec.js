@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 Shopware.Service().register('syncService', () => {
     return {
@@ -126,12 +127,14 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-fo
         );
     });
 
-    it('should add conditions association', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the ruleFilter computed.
+    it.deprecated('v6.8.0.0')('should add conditions association', async () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.ruleFilter;
 
+        expect(deprecations).toHaveTriggered('sw-promotion-v2-cart-condition-form.ruleFilter is deprecated');
         expect(criteria.associations[0].association).toBe('conditions');
     });
 });

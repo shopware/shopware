@@ -78,9 +78,9 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-secret-mo
         expect(wrapper.find('.mt-banner').exists()).toBe(false);
     });
 
-    it('saves only the entered secret on the existing webhook and closes', async () => {
+    it('saves only the entered secret, without surrounding spaces, on the existing webhook and closes', async () => {
         const { wrapper, createNotification, save } = await createWrapper();
-        await wrapper.find('.mt-text-field').setValue('secret-of-the-receiver');
+        await wrapper.find('.mt-text-field').setValue(' secret-of-the-receiver ');
 
         await wrapper.find('.sw-settings-webhook-secret-modal__save').trigger('click');
         await flushPromises();

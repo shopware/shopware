@@ -66,7 +66,7 @@ export default Component.wrapComponentConfig({
         async onSave(): Promise<void> {
             const webhook = this.webhookRepository.create(Shopware.Context.api, this.webhook.id);
             webhook._isNew = false;
-            webhook.secret = this.secret;
+            webhook.secret = this.secret.trim();
 
             this.isSaving = true;
 

@@ -8,7 +8,7 @@
 .sw-navigation-tree-items.is--root {
     --sw-navigation-tree-items-indent: var(--spacer-md);
     --sw-navigation-tree-items-stripe-width: var(--bs-border-width);
-    --sw-navigation-tree-items-stripe-color: var(--bs-border-color);
+    --sw-navigation-tree-items-stripe-color: var(--bs-border-color-translucent);
 }
 
 .sw-navigation-tree-items__link,

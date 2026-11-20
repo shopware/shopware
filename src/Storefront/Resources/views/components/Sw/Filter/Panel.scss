@@ -24,6 +24,21 @@
     gap: 0.5rem;
 }
 
+.sw-filter-panel__expand {
+    padding-right: 2.2rem;
+
+    .sw-icon {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.7rem;
+    }
+}
+
+.sw-filter-panel__offcanvas-toggle.btn-filter {
+    text-align: center;
+    width: 100%;
+}
+
 .sw-filter-panel.is--vertical {
     flex-direction: column;
     align-items: stretch;

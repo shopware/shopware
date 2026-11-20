@@ -5,7 +5,7 @@
  * chains, and reads the blocks and members of each one.
  */
 import { isTemplateSourceFile } from '../../public-api-source-files';
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 import { createFlagContext, FLAG_STATES, inBothStates } from '../model/flag-states';
 import type { FlagContext, FlagStates } from '../model/flag-states';
 import type { ComponentMembers } from '../model/members';

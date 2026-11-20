@@ -43,14 +43,5 @@
         "element": "component:sw-example-card/block:sw_example_card_toggle",
         "states": ["current", "major"],
         "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:14"
-    },
-    {
-        "group": "Info",
-        "rule": "class_missing",
-        "explanation": "The CSS class sw-example-card__subtitle is no longer in the template, so plugin styles and selectors that use it stop matching.",
-        "fix": "mention it in the upgrade notes if plugins are likely to style it.",
-        "element": "component:sw-example-card/class:sw-example-card__subtitle",
-        "states": ["current", "major"],
-        "at": "src/app/component/base/sw-example-card/sw-example-card.html.twig:3"
     }
 ]

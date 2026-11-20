@@ -3,10 +3,10 @@
  *
  * Prints the sections of a report that list the members of a component, one line per member.
  */
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 import { blockLabel } from '../model/blocks';
 import type { FlagContext } from '../model/flag-states';
-import { isKind, KINDS, MEMBER_KINDS } from '../model/members';
+import { isKind, KINDS, MEMBER_KINDS, namePath } from '../model/members';
 import type { Member, MemberKind, Parameter } from '../model/members';
 import { flagStateMarker, line, markerLabels } from './report-outline';
 import type { Line, Section } from './report-outline';
@@ -31,15 +31,15 @@ function parametersText(parameters: Parameter[] | null): string {
     return parameters === null ? `...args: ${UNTYPED}[]` : parameters.map(parameterText).join(', ');
 }
 
-function returnText({ returns, isAsync }: Member<'method'>): string {
-    return returns ?? (isAsync ? `Promise<${UNTYPED}>` : UNTYPED);
+function returnText({ returns, returnsPromise }: Member<'method'>): string {
+    return returns ?? (returnsPromise ? `Promise<${UNTYPED}>` : UNTYPED);
 }
 
 /** A nested data key is printed below its parent, indented once per level, with its own name only. */
-function dataText({ name, nested }: Member<'data'>): string {
-    const path = name.split('.');
+function dataText(member: Member<'data'>): string {
+    const path = namePath(member);
 
-    return `${'  '.repeat(path.length - 1)}${path.at(-1)}: ${nested ? 'object' : UNTYPED}`;
+    return `${'  '.repeat(path.length - 1)}${path.at(-1)}: ${member.nested ? 'object' : UNTYPED}`;
 }
 
 const MEMBER_TEXTS: { [Kind in MemberKind]: (member: Member<Kind>) => string } = {
@@ -55,13 +55,12 @@ const MEMBER_TEXTS: { [Kind in MemberKind]: (member: Member<Kind>) => string } =
     computed: ({ name, type }) => `${name}: ${type ?? UNTYPED}`,
     method: (method) => `${method.name}(${parametersText(method.parameters)}): ${returnText(method)}`,
     ref: ({ name, target, list }) => `${name}  -> ${target}${list ? '  list' : ''}`,
-    class: ({ name }) => name,
 };
 
 /** By name, a nested data key directly below its parent. */
 function inSectionOrder(a: Member, b: Member): number {
-    const pathA = a.name.split('.');
-    const pathB = b.name.split('.');
+    const pathA = namePath(a);
+    const pathB = namePath(b);
     const differs = pathA.findIndex((part, index) => part !== pathB[index]);
 
     return differs === -1 || differs >= pathB.length

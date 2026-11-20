@@ -24,7 +24,7 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
                 'entity?: object  default=factory',
                 'items?: any[]  default=factory',
                 'onSave?: (...args: any[]) => any',
-                'size?: string | number  default=literal',
+                'size?: number | string  default=literal',
                 'title: string',
             ]);
         });
@@ -211,6 +211,24 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
             ]);
         });
 
+        it('prints a Promise for a method that returns a promise it visibly builds in every return', () => {
+            const options = `methods: {
+                chained() { return this.repository.save(this.entity).then(() => this.load()); },
+                combined() { return Promise.all([this.load(), this.reload()]); },
+                created() { return new Promise((resolve) => resolve()); },
+                plainCall() { return this.repository.save(this.entity); },
+                sometimes() { if (this.isLoading) { return; } return this.load().then(() => {}); },
+            }`;
+
+            expect(section('methods', { options })).toEqual([
+                'chained(): Promise<any>',
+                'combined(): Promise<any>',
+                'created(): Promise<any>',
+                'plainCall(): any',
+                'sometimes(): any',
+            ]);
+        });
+
         it('prints the types a TypeScript method declares, without its this parameter', () => {
             const options = 'methods: { load(this: Card, id: string, force?: boolean): Promise<void> {} }';
 
@@ -319,23 +337,15 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
     });
 
     describe('members of the template', () => {
-        it('lists every class once, from static attributes and from the literals of a bound class', () => {
+        it('lists no CSS classes, which are no public API', () => {
             const template = `
                 {% block sw_example_card %}
-                <div class="sw-example-card is--open" :class="{ 'is--loading': isLoading, disabled, [dynamic]: true }">
-                    <span class="sw-example-card" :class="['is--small', { 'is--bold': bold }, size]"></span>
-                </div>
+                <div class="sw-example-card is--open" :class="{ 'is--loading': isLoading }"></div>
                 {% endblock %}
             `;
 
-            expect(section('classes', { template })).toEqual([
-                'disabled',
-                'is--bold',
-                'is--loading',
-                'is--open',
-                'is--small',
-                'sw-example-card',
-            ]);
+            expect(reportOf({ template })).not.toContain('is--open');
+            expect(section('classes', { template })).toEqual([]);
         });
 
         it('lists a ref with the tag it sits on, as a list inside a v-for', () => {
@@ -372,9 +382,9 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
         it('marks a member that only one flag state renders', () => {
             const template = `
                 {% block sw_example_card %}
-                <sw-tabs v-if="!${MAJOR}" ref="tabs" class="sw-example-card__tabs"></sw-tabs>
-                <mt-tabs v-else ref="tabs" class="sw-example-card__mt-tabs"></mt-tabs>
-                {% block sw_example_card_new %}<i v-if="${MAJOR}" class="sw-example-card__icon"></i>{% endblock %}
+                <sw-tabs v-if="!${MAJOR}" ref="tabs"></sw-tabs>
+                <mt-tabs v-else ref="tabs"></mt-tabs>
+                {% block sw_example_card_new %}<slot v-if="${MAJOR}" name="icon"></slot>{% endblock %}
                 {% endblock %}
             `;
 
@@ -382,11 +392,7 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
                 'tabs  -> mt-tabs  [from v6.8.0]',
                 'tabs  -> sw-tabs  [until v6.8.0]',
             ]);
-            expect(section('classes', { template })).toEqual([
-                'sw-example-card__icon  [from v6.8.0]',
-                'sw-example-card__mt-tabs  [from v6.8.0]',
-                'sw-example-card__tabs  [until v6.8.0]',
-            ]);
+            expect(section('slots', { template })).toEqual(['icon  {}  block=sw_example_card_new  [from v6.8.0]']);
         });
     });
 
@@ -397,7 +403,7 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
                 props: ['title'], emits: ['close'], data() { return { isOpen: true }; },
                 computed: { hasTitle() {} }, methods: { onClose() {} },
             `,
-            template: '{% block sw_example_card %}<div ref="root" class="card"><slot></slot></div>{% endblock %}',
+            template: '{% block sw_example_card %}<div ref="root"><slot></slot></div>{% endblock %}',
         });
 
         expect(report.split('\n').filter((line) => /^[a-z]+$/.test(line))).toEqual([
@@ -412,7 +418,6 @@ describe('scripts/generate-public-api/read/options/option-members in the snapsho
             'methods',
             'blocks',
             'refs',
-            'classes',
         ]);
     });
 });

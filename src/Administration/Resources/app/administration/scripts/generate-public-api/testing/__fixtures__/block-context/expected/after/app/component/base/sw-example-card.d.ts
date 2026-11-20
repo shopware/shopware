@@ -38,14 +38,6 @@ declare namespace AdminApi {
             dynamicPositionIdentifiers: {};
             dataSets: {};
             refs: {};
-            classes: readonly [
-                'sw-example-card',
-                'sw-example-card__default-label',
-                'sw-example-card__divider',
-                'sw-example-card__first-item',
-                'sw-example-card__manual-label',
-                'sw-example-card__title',
-            ];
         };
     }
 }

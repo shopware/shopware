@@ -1,18 +1,16 @@
 /**
  * @sw-package framework
  *
- * Reads what the template of a component offers besides its blocks: the slots it renders, the template refs
- * plugin code reaches through `this.$refs`, and the CSS classes plugin styles select. All of it is read from the
- * template the component renders after the merge, so an extend child lists what its parent renders too.
+ * Reads what the template of a component offers besides its blocks: the slots it renders and the template refs
+ * plugin code reaches through `this.$refs`. Both are read from the template the component renders after the
+ * merge, so an extend child lists what its parent renders too. CSS classes are no public API.
  */
 import { NodeTypes } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
-import ts from 'typescript';
-import { byCodePoint } from '../../code-point-order';
+import { byCodePoint } from '../../helpers/code-point-order';
 import { BOTH_STATES, inBothStates, mergeStates } from '../../model/flag-states';
 import type { FlagContext } from '../../model/flag-states';
 import type { ComponentMembers, Member, TemplateKind, TemplatePlace } from '../../model/members';
-import { memberName } from '../script-nodes';
 import type { BlockNode } from './block-tree';
 import { BranchStack, walkBranches } from './flag-branches';
 import { blockBoundary, lineAt } from './rendered-template';
@@ -42,35 +40,6 @@ function onOneLine(expression: string | undefined): string {
     return (expression ?? '').replace(/\s+/g, ' ').trim();
 }
 
-/** The class names a `:class` value names as literals: strings, the keys of objects, and both inside arrays. */
-function literalClasses(value: ts.Expression): string[] {
-    if (ts.isStringLiteralLike(value)) {
-        return value.text.split(/\s+/);
-    }
-
-    if (ts.isArrayLiteralExpression(value)) {
-        return value.elements.flatMap(literalClasses);
-    }
-
-    return ts.isObjectLiteralExpression(value)
-        ? value.properties.flatMap((property) => memberName(property)?.split(/\s+/) ?? [])
-        : [];
-}
-
-function boundClasses(expression: string | undefined): string[] {
-    const [statement] = ts.createSourceFile('class.ts', `(${expression ?? ''});`, ts.ScriptTarget.Latest, true).statements;
-    const value = statement && ts.isExpressionStatement(statement) ? statement.expression : undefined;
-
-    return value !== undefined && ts.isParenthesizedExpression(value) ? literalClasses(value.expression) : [];
-}
-
-function classesOf(element: ElementNode): string[] {
-    return [
-        ...(staticAttribute(element, 'class')?.split(/\s+/) ?? []),
-        ...boundClasses(contentOf(binding(element, 'class')?.exp)),
-    ].filter((name) => name !== '');
-}
-
 /** The props a `<slot>` passes to its content: its attributes and bindings besides the name of the slot. */
 function slotScope(slot: ElementNode): string[] {
     const names = slot.props.flatMap((prop) => {
@@ -89,8 +58,8 @@ function slotScope(slot: ElementNode): string[] {
 }
 
 /**
- * What makes two places of a member differ for a plugin. A class is the same wherever it stands, a ref points to
- * one kind of target, and a slot is rendered inside one block.
+ * What makes two places of a member differ for a plugin. A ref points to one kind of target, and a slot is
+ * rendered inside one block.
  */
 function placeKey(member: TemplateMember): string {
     const details = {
@@ -151,7 +120,6 @@ class TemplateMemberReader {
         this.loops += isLoop ? 1 : 0;
         this.readRef(element);
         this.readSlot(element);
-        classesOf(element).forEach((name) => this.add(element, { kind: 'class', name }));
         this.visit(element.children);
         this.loops -= isLoop ? 1 : 0;
     }
@@ -201,8 +169,8 @@ class TemplateMemberReader {
 /**
  * @private
  *
- * The slots, template refs and CSS classes of the rendered `template`, each once per place that differs in what
- * a plugin sees of it.
+ * The slots and template refs of the rendered `template`, each once per place that differs in what a plugin
+ * sees of it.
  */
 export function readTemplateMembers(template: RenderedTemplate, flags: FlagContext): ComponentMembers {
     return new TemplateMemberReader(template, flags).read();

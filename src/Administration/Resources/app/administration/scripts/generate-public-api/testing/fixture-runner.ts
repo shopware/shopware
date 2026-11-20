@@ -149,7 +149,6 @@ const UNIT_KINDS: Record<string, UnitKind> = {
             'computed',
             'methods',
             'refs',
-            'classes',
         ],
     },
     'member-contract': {
@@ -165,7 +164,6 @@ const UNIT_KINDS: Record<string, UnitKind> = {
             'computed',
             'methods',
             'refs',
-            'classes',
         ],
     },
     'member-findings': {
@@ -175,7 +173,6 @@ const UNIT_KINDS: Record<string, UnitKind> = {
             'computed',
             'method',
             'ref',
-            'class',
         ],
     },
 };

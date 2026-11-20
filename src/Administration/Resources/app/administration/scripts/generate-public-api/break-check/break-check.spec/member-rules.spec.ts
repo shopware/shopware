@@ -2,20 +2,12 @@
  * @sw-package framework
  *
  * What the break check reports for a change to the members of a component. The fixtures in `testing/__fixtures__/`
- * hold the complete texts of the findings, these tests the cases around each rule.
+ * hold the complete texts of the findings, these tests the cases around each rule. `method-rules.spec.ts` covers
+ * the signatures of methods.
  */
 import { MAJOR } from '../../testing/example-components';
-import type { Card } from '../../testing/example-components';
-import { check, memberSummary } from './sources';
-
-/** One method per line, as the sources write them: a comment belongs to the member in the line below it. */
-function methods(...declarations: string[]): Card {
-    return { options: `methods: {\n${declarations.join(',\n')}\n}` };
-}
-
-function template(markup: string): Card {
-    return { template: `{% block sw_example_card %}${markup}{% endblock %}` };
-}
+import type { ExampleSources } from '../../testing/example-components';
+import { check, memberSummary, methods, template } from './sources';
 
 describe('scripts/generate-public-api/break-check/break-check member rules', () => {
     describe('members that come and go', () => {
@@ -35,18 +27,17 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             expect(memberSummary(check({}, { options }))).toEqual([`Addition  ${kind}_added  ${kind}:${name}`]);
         });
 
-        it('reports a removed slot and a removed ref as a break, and a removed class as a hint', () => {
+        it('reports a removed slot and a removed ref as a break, and nothing for a removed CSS class', () => {
             const before = template('<div ref="root" class="card"><slot name="footer"></slot></div>');
 
             expect(memberSummary(check(before, template('<div></div>')))).toEqual([
                 'Break  ref_missing  ref:root',
                 'Break  slot_missing  slot:footer',
-                'Info  class_missing  class:card',
             ]);
         });
 
-        it('reports a new slot as an addition, and nothing for a new ref or class', () => {
-            const after = template('<div ref="root" class="card"><slot name="footer"></slot></div>');
+        it('reports a new slot as an addition, and nothing for a new ref', () => {
+            const after = template('<div ref="root"><slot name="footer"></slot></div>');
 
             expect(memberSummary(check(template('<div></div>'), after))).toEqual(['Addition  slot_added  slot:footer']);
         });
@@ -92,12 +83,7 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
 
         it('reports nothing when a member only moves inside the source or the template', () => {
             expect(check(methods('a() {}', 'b() {}'), methods('b() {}', 'a() {}'))).toEqual([]);
-            expect(
-                check(
-                    template('<i class="icon"></i><b ref="label" class="label"></b>'),
-                    template('<p><b ref="label" class="label"></b></p><i class="icon"></i>'),
-                ),
-            ).toEqual([]);
+            expect(check(template('<i></i><b ref="label"></b>'), template('<p><b ref="label"></b></p><i></i>'))).toEqual([]);
         });
     });
 
@@ -131,6 +117,55 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             expect(memberSummary(check(before, after))).toEqual(['Break  param_missing  method:load/param:id']);
         });
 
+        it('allows a slot and a ref to go away in the major state with a deprecated block around them', () => {
+            const block = (inner: string) =>
+                `{# @deprecated tag:v6.8.0 - Will be removed. #}\n{% block sw_example_card_title %}${inner}{% endblock %}`;
+            const content = '<div><h3 ref="title"><slot name="title"></slot></h3></div>';
+            const before = { template: `{% block sw_example_card %}${block(content)}{% endblock %}` };
+            const after = {
+                template: `{% block sw_example_card %}<template v-if="!${MAJOR}">${block(content)}</template>{% endblock %}`,
+            };
+
+            expect(memberSummary(check(before, after))).toEqual([
+                'Allowed  deprecated_removal  block:sw_example_card_title',
+                'Allowed  deprecated_removal  ref:title',
+                'Allowed  deprecated_removal  slot:title',
+            ]);
+        });
+
+        it('keeps the removal of a slot a break when only one of its places is in a deprecated block', () => {
+            const blocks = [
+                '{# @deprecated tag:v6.8.0 - Will be removed. #}',
+                '{% block sw_example_card_title %}<slot name="title"></slot>{% endblock %}',
+                '{% block sw_example_card_footer %}<slot name="title"></slot>{% endblock %}',
+            ].join('\n');
+            const before = { template: `{% block sw_example_card %}${blocks}{% endblock %}` };
+            const after = {
+                template: `{% block sw_example_card %}<template v-if="!${MAJOR}">${blocks}</template>{% endblock %}`,
+            };
+
+            expect(memberSummary(check(before, after))).toEqual([
+                'Break  block_missing  block:sw_example_card_footer',
+                'Break  slot_missing  slot:title',
+                'Allowed  deprecated_removal  block:sw_example_card_title',
+            ]);
+        });
+
+        it('keeps the removal of a slot a break when only one parent of its block is deprecated', () => {
+            const before = {
+                template: [
+                    '{% block sw_example_card %}',
+                    '{# @deprecated tag:v6.7.0 - Will be removed. #}',
+                    '{% block sw_example_card_header %}<div>{% block sw_example_card_title %}<slot name="title"></slot>{% endblock %}</div>{% endblock %}',
+                    '{% block sw_example_card_footer %}<div>{% block sw_example_card_title %}<slot name="title"></slot>{% endblock %}</div>{% endblock %}',
+                    '{% endblock %}',
+                ].join('\n'),
+            };
+            const after = { template: before.template.replaceAll('<slot name="title"></slot>', '') };
+
+            expect(memberSummary(check(before, after))).toEqual(['Break  slot_missing  slot:title']);
+        });
+
         it('reports a new marker on a member as a hint', () => {
             const after = methods(
                 '/** @deprecated tag:v6.8.0 - Will be removed. */\nload() {}',
@@ -162,75 +197,88 @@ describe('scripts/generate-public-api/break-check/break-check member rules', () 
             expect(memberSummary(check(before, after))).toEqual(['Allowed  announced_change  prop:title']);
         });
 
-        it('reports another declared type as a hint, and a first type as widened', () => {
+        it('reports another declared type as a break, and a first or a dropped type as widened', () => {
+            const typed = (type: string) => ({ options: `props: { size: ${type} }` });
+            const untyped = { options: "props: ['size']" };
+
+            expect(memberSummary(check(typed('String'), typed('Number')))).toEqual(['Break  type_changed  prop:size']);
+            expect(memberSummary(check(untyped, typed('Number')))).toEqual(['Info  type_widened  prop:size']);
+            expect(memberSummary(check(typed('Number'), untyped))).toEqual(['Info  type_widened  prop:size']);
+        });
+
+        it('reports nothing when only the order of the prop constructors changes', () => {
             const typed = (type: string) => ({ options: `props: { size: ${type} }` });
 
-            expect(memberSummary(check(typed('String'), typed('Number')))).toEqual(['Info  type_changed  prop:size']);
-            expect(memberSummary(check({ options: "props: ['size']" }, typed('Number')))).toEqual([
-                'Info  type_widened  prop:size',
+            expect(check(typed('[String, Number]'), typed('[Number, String]'))).toEqual([]);
+        });
+
+        it('reports another type of a computed property as a break', () => {
+            const typed = (type: string) => ({
+                options: `computed: { total(): ${type} { return 1; } }`,
+                extension: 'ts' as const,
+            });
+
+            expect(memberSummary(check(typed('number'), typed('string')))).toEqual([
+                'Break  return_type_changed  computed:total',
             ]);
         });
     });
 
-    describe('method signatures', () => {
-        it('reports a removed parameter, also the last one', () => {
-            expect(memberSummary(check(methods('load(id, force) {}'), methods('load() {}')))).toEqual([
-                'Break  param_missing  method:load/param:force',
-                'Break  param_missing  method:load/param:id',
+    describe('extend children', () => {
+        const tile = (tileOptions = ''): ExampleSources => ({
+            card: '{% block sw_example_card %}{% endblock %}',
+            tile: '',
+            cardOptions: 'methods: { onSave() {} }, data() { return { pagination: { page: 1, limit: 25 } }; }',
+            tileOptions,
+        });
+
+        it('reports nothing when a child stops overriding a member it inherits', () => {
+            const overriding = tile("methods: { onSave() { return this.$super('onSave'); } }");
+
+            expect(check(overriding, tile())).toEqual([]);
+        });
+
+        it('reports a member that the parent loses once, on the parent, with the child it reaches', () => {
+            const before = tile();
+            const after = { ...tile(), cardOptions: 'data() { return { pagination: { page: 1, limit: 25 } }; }' };
+
+            expect(check(before, after)).toMatchObject([
+                {
+                    rule: 'method_missing',
+                    element: 'component:sw-example-card/method:onSave',
+                    alsoAffects: ['sw-example-tile'],
+                },
             ]);
         });
 
-        it('allows the removal of a parameter that a released @bc-change marker names', () => {
-            const before = methods('/** @bc-change ParameterRemoval version:v6.7.0 parameter:force */\nload(id, force) {}');
+        it('reports nothing when a child drops an override that only returns $super of an async parent method', () => {
+            const asyncParent = (tileOptions = ''): ExampleSources => ({
+                ...tile(tileOptions),
+                cardOptions: 'methods: { async onSave() {} }',
+            });
+            const passthrough = asyncParent("methods: { onSave() { return this.$super('onSave'); } }");
 
-            expect(memberSummary(check(before, methods('load() {}')))).toEqual([
-                'Break  param_missing  method:load/param:id',
-                'Allowed  announced_change  method:load/param:force',
+            expect(check(passthrough, asyncParent())).toEqual([]);
+            expect(check(asyncParent(), passthrough)).toEqual([]);
+        });
+
+        it('reports an async override that only returns $super of a sync parent method', () => {
+            const asyncOverride = {
+                ...tile("methods: { async onSave() { return this.$super('onSave'); } }"),
+                cardOptions: 'methods: { onSave() {} }',
+            };
+
+            expect(memberSummary(check({ ...asyncOverride, tileOptions: '' }, asyncOverride))).toEqual([
+                'Break  method_signature_changed  component:sw-example-tile/method:onSave',
             ]);
         });
 
-        it('reports a new parameter as a break when it is required and as an addition when it is optional', () => {
-            expect(memberSummary(check(methods('load(id) {}'), methods('load(id, force, limit = 25, ...rest) {}')))).toEqual(
-                [
-                    'Break  param_now_required  method:load/param:force',
-                    'Addition  param_added  method:load/param:limit',
-                    'Addition  param_added  method:load/param:rest',
-                ],
-            );
-        });
+        it('lets a data key of the child replace the whole object it inherits', () => {
+            const after = tile('data() { return { pagination: { page: 1 } }; }');
 
-        it('reports a parameter that lost its default', () => {
-            expect(memberSummary(check(methods('load(id = null) {}'), methods('load(id) {}')))).toEqual([
-                'Break  param_now_required  method:load/param:id',
+            expect(memberSummary(check(tile(), after))).toEqual([
+                'Break  data_missing  component:sw-example-tile/data:pagination.limit',
             ]);
-        });
-
-        it('reports a renamed parameter as a hint and reordered parameters as a break', () => {
-            expect(memberSummary(check(methods('load(id, force) {}'), methods('load(key, force) {}')))).toEqual([
-                'Info  method_param_renamed  method:load/param:key',
-            ]);
-            expect(memberSummary(check(methods('load(id, force) {}'), methods('load(force, id) {}')))).toEqual([
-                'Break  method_signature_changed  method:load',
-            ]);
-        });
-
-        it('reports a method that switched between sync and async', () => {
-            expect(memberSummary(check(methods('load() {}'), methods('async load() {}')))).toEqual([
-                'Break  method_signature_changed  method:load',
-            ]);
-            expect(memberSummary(check(methods('async load() {}'), methods('load() {}')))).toEqual([
-                'Break  method_signature_changed  method:load',
-            ]);
-        });
-
-        it('compares no parameters of a method that is no function in the source', () => {
-            expect(check(methods('load(id) {}'), methods('load: loadById'))).toEqual([]);
-        });
-
-        it('reports nothing when only the code inside a method changes', () => {
-            expect(check(methods('load(id) { return id; }'), methods('load(id) { return this.find(id) ?? null; }'))).toEqual(
-                [],
-            );
         });
     });
 

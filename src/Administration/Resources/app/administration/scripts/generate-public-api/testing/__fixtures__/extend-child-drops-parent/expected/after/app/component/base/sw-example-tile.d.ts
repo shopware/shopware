@@ -34,7 +34,6 @@ declare namespace AdminApi {
             dynamicPositionIdentifiers: {};
             dataSets: {};
             refs: {};
-            classes: readonly [];
         };
     }
 }

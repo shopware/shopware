@@ -21,9 +21,4 @@ blocks
 
 position-ids
   sw-example-field-set  tabs  host=sw-tabs  block=sw_example_field_set_tabs
-
-classes
-  sw-example-field-set
-  sw-example-field-set__content
-  sw-example-field-set__tabs
 ```

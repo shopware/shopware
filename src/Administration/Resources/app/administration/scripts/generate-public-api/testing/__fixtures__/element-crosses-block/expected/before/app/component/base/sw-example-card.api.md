@@ -20,9 +20,4 @@ blocks
 
 crossings
   <template>  sw_example_card -> sw_example_card_grid
-
-classes
-  sw-example-card
-  sw-example-card__manual-label
-  sw-example-card__title
 ```

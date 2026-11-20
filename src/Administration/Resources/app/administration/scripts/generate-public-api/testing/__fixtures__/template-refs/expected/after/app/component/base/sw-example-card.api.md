@@ -29,9 +29,4 @@ blocks
 
 refs
   grid  -> sw-entity-listing
-
-classes
-  sw-example-card
-  sw-example-card__listing
-  sw-example-card__title-field
 ```

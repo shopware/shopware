@@ -42,11 +42,6 @@ declare namespace AdminApi {
             refs: {
                 grid: Ref<'sw-entity-listing'>;
             };
-            classes: readonly [
-                'sw-example-card',
-                'sw-example-card__listing',
-                'sw-example-card__title-field',
-            ];
         };
     }
 }

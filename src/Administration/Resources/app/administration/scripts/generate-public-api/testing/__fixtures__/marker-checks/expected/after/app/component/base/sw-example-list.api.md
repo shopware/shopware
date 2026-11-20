@@ -33,11 +33,4 @@ blocks
       sw_example_list_item_delete  [scope: index, item]
       sw_example_list_item_label  [scope: index, item]
     sw_example_list_pagination
-
-classes
-  sw-example-list
-  sw-example-list__item
-  sw-example-list__item-delete
-  sw-example-list__item-label
-  sw-example-list__items
 ```

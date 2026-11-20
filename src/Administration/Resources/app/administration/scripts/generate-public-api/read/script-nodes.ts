@@ -86,19 +86,18 @@ export function isFunctionNode(node: ts.Node): node is FunctionNode {
 /**
  * @private
  *
- * The one object literal the function returns. `null` when it returns something else or in several places.
+ * What each `return` of the function hands back, `undefined` for a bare `return`. A function without a block
+ * body returns its expression. The returns of nested functions are not the function's own.
  */
-export function returnedObject(fn: FunctionNode): ts.ObjectLiteralExpression | null {
+export function returnedValues(fn: FunctionNode): (ts.Expression | undefined)[] {
     const { body } = fn;
 
     if (body === undefined) {
-        return null;
+        return [];
     }
 
     if (!ts.isBlock(body)) {
-        const value = withoutTypeSyntax(body);
-
-        return ts.isObjectLiteralExpression(value) ? value : null;
+        return [body];
     }
 
     const returns: ts.ReturnStatement[] = [];
@@ -112,7 +111,17 @@ export function returnedObject(fn: FunctionNode): ts.ObjectLiteralExpression | n
 
     ts.forEachChild(body, visit);
 
-    const value = returns.length === 1 && returns[0].expression ? withoutTypeSyntax(returns[0].expression) : undefined;
+    return returns.map(({ expression }) => expression);
+}
+
+/**
+ * @private
+ *
+ * The one object literal the function returns. `null` when it returns something else or in several places.
+ */
+export function returnedObject(fn: FunctionNode): ts.ObjectLiteralExpression | null {
+    const values = returnedValues(fn);
+    const value = values.length === 1 && values[0] !== undefined ? withoutTypeSyntax(values[0]) : undefined;
 
     return value !== undefined && ts.isObjectLiteralExpression(value) ? value : null;
 }

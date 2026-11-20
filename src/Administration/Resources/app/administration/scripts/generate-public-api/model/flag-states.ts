@@ -6,7 +6,7 @@
  * feature checks around a piece of source.
  */
 import { isSameFlag, versionOfFlag } from '../../feature-flags';
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 
 /** @private */
 export const FLAG_STATES = [

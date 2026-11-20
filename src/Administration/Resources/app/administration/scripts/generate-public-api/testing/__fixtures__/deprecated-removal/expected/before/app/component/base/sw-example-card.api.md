@@ -37,12 +37,4 @@ blocks
       sw_example_card_subtitle  [after v-if] [deprecated tag:v6.8.0]
       sw_example_card_title
       sw_example_card_toggle  [after v-if]
-
-classes
-  sw-example-card
-  sw-example-card__content
-  sw-example-card__header
-  sw-example-card__subtitle
-  sw-example-card__title
-  sw-example-card__toggle
 ```

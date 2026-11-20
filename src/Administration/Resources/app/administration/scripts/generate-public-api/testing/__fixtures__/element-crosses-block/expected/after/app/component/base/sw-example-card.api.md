@@ -21,10 +21,4 @@ blocks
 crossings
   <div>  sw_example_card_header -> sw_example_card_header_label_manual
   <template>  sw_example_card -> sw_example_card_grid
-
-classes
-  sw-example-card
-  sw-example-card__header
-  sw-example-card__manual-label
-  sw-example-card__title
 ```

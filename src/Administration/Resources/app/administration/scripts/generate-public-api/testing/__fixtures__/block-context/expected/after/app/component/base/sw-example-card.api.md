@@ -22,12 +22,4 @@ blocks
 
 crossings
   v-if  sw_example_card_header_title -> sw_example_card_header_label_manual
-
-classes
-  sw-example-card
-  sw-example-card__default-label
-  sw-example-card__divider
-  sw-example-card__first-item
-  sw-example-card__manual-label
-  sw-example-card__title
 ```

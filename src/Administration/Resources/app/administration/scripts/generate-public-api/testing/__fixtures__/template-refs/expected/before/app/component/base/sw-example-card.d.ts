@@ -43,11 +43,6 @@ declare namespace AdminApi {
                 grid: Ref<'sw-data-grid'>;
                 titleField: Ref<'sw-text-field'>;
             };
-            classes: readonly [
-                'sw-example-card',
-                'sw-example-card__grid',
-                'sw-example-card__title-field',
-            ];
         };
     }
 }

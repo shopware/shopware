@@ -3,7 +3,7 @@
  *
  * Prints the `.api.md` report of a component: an outline for reviewers that merges both flag states.
  */
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 import { blockLabel, crossingSubject } from '../model/blocks';
 import type { BlockContext, Crossing, TemplateBlock } from '../model/blocks';
 import { mergeStates } from '../model/flag-states';

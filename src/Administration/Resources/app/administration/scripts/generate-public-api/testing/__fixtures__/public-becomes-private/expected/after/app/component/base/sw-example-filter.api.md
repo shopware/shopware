@@ -29,7 +29,4 @@ blocks
   sw_example_filter  [private]
     sw_example_filter_actions  [private]
     sw_example_filter_field  [private]
-
-classes
-  sw-example-filter  [private]
 ```

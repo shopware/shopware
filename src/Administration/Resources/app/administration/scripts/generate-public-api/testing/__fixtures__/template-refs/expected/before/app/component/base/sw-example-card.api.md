@@ -30,9 +30,4 @@ blocks
 refs
   grid  -> sw-data-grid
   titleField  -> sw-text-field
-
-classes
-  sw-example-card
-  sw-example-card__grid
-  sw-example-card__title-field
 ```

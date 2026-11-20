@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { isPublicApiSourceFile } from '../../public-api-source-files';
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 
 /**
  * @private

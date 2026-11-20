@@ -31,7 +31,6 @@ declare namespace AdminApi {
             dynamicPositionIdentifiers: {};
             dataSets: {};
             refs: {};
-            classes: readonly [];
             setup: {
                 public: {};
                 private: {};

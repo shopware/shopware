@@ -43,9 +43,6 @@ const REPORT = [
     '',
     'refs',
     '  title  -> h3',
-    '',
-    'classes',
-    '  sw-example-card__title',
     '```',
     '',
 ].join('\n');
@@ -73,7 +70,6 @@ const CONTRACT = [
     "                readonly ['div', 'sw_example_card', 'sw_example_card_title'],",
     '            ];',
     '            refs: {};',
-    '            classes: readonly [];',
     '        };',
     '    }',
     '}',
@@ -108,15 +104,7 @@ const CROSSING_FINDING: Finding = {
     explanation: 'The div opens in block sw_example_card and closes in block sw_example_card_title.',
 };
 
-const CLASS_FINDING: Finding = {
-    group: 'Info',
-    rule: 'class_missing',
-    element: 'component:sw-example-card/class:sw-example-card__title',
-    states: ['current', 'major'],
-    explanation: 'The CSS class sw-example-card__title is no longer in the template.',
-};
-
-/** One finding per kind of member that the cases expect findings on, besides the class. */
+/** One finding per kind of member that the cases expect findings on. */
 const MEMBER_FINDINGS: Finding[] = [
     'prop:title',
     'computed:hasTitle',
@@ -133,7 +121,6 @@ const MEMBER_FINDINGS: Finding[] = [
 const FINDINGS = [
     BLOCK_FINDING,
     CROSSING_FINDING,
-    CLASS_FINDING,
     ...MEMBER_FINDINGS,
 ];
 
@@ -348,11 +335,6 @@ describe('fixtureTests', () => {
         ],
         ['the visibility in the index', withFile('index.json', '"public"', '"private"'), ['complete']],
         [
-            'a finding on a class',
-            withFinding(CLASS_FINDING, { rule: 'class_added' }),
-            ['member-findings', 'complete'],
-        ],
-        [
             'a finding on a method parameter',
             withFinding(MEMBER_FINDINGS[2], { element: `${MEMBER_FINDINGS[2].element}/param:event` }),
             ['member-findings', 'complete'],
@@ -430,7 +412,7 @@ describe('fixtureTests', () => {
         ],
         [
             'findings on crossing elements for the unit kind block-findings',
-            { ...EXPECTED, findings: [BLOCK_FINDING, CLASS_FINDING] },
+            { ...EXPECTED, findings: [BLOCK_FINDING, ...MEMBER_FINDINGS] },
         ],
     ])('rejects a part that occurs in no expected output, which would compare nothing: %s', (part, expected) => {
         expect(() =>

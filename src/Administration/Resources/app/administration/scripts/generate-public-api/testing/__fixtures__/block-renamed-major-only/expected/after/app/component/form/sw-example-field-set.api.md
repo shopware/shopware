@@ -24,11 +24,6 @@ position-ids
   sw-example-field-set  tabs  host=sw-tabs  block=sw_example_field_set_tabs  [until v6.8.0]
   sw-example-field-set  tabs  host=mt-tabs  block=sw_example_field_set_mt_tabs  [from v6.8.0]
 
-classes
-  sw-example-field-set
-  sw-example-field-set__content
-  sw-example-field-set__tabs
-
 notes
   flag-removal-undeprecated block sw_example_field_set_tabs
 ```

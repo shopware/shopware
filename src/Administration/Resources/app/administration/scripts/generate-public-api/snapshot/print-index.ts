@@ -3,7 +3,7 @@
  *
  * Prints `index.json`, the components with their file, visibility, parent and block names for tools.
  */
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 import type { Model } from '../model/model';
 
 /** @private */

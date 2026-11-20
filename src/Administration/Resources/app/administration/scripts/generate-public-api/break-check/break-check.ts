@@ -5,13 +5,14 @@
  * The rules find the changes per component and flag state. This file decides what each change counts as: a
  * break, a change that a marker announced (see `announcements.ts`), or a change to a private component.
  */
-import { byCodePoint } from '../code-point-order';
+import { byCodePoint } from '../helpers/code-point-order';
 import { FLAG_STATES } from '../model/flag-states';
 import type { FlagContext, FlagState } from '../model/flag-states';
 import type { ComponentUnit, Model } from '../model/model';
 import { announced } from './announcements';
 import { changedFactsOf } from './facts/component-facts';
 import type { ChangedFacts } from './facts/component-facts';
+import { withInheritedMembers } from './facts/member-facts';
 import { FINDING_GROUPS } from './finding';
 import type { Finding } from './finding';
 import { RULES } from './rules';
@@ -36,21 +37,26 @@ interface ComponentFinding {
     finding: Finding;
 }
 
+function byName({ components }: Model): Map<string, ComponentUnit> {
+    return new Map(components.map((unit) => [unit.name, unit]));
+}
+
+/** An extend child is compared with the members it inherits, so an override it drops is no change to it. */
 function componentChanges(base: Model, head: Model): ComponentChange[] {
-    const before = new Map(base.components.map((unit) => [unit.name, unit]));
+    const before = byName(base);
+    const after = byName(head);
 
     return head.components.flatMap((unit) => {
         const baseUnit = before.get(unit.name);
 
-        return baseUnit === undefined
-            ? []
-            : [
-                  {
-                      base: baseUnit,
-                      head: unit,
-                      ...changedFactsOf(baseUnit, unit),
-                  },
-              ];
+        if (baseUnit === undefined) {
+            return [];
+        }
+
+        const was = withInheritedMembers(baseUnit, before);
+        const now = withInheritedMembers(unit, after);
+
+        return [{ base: was, head: now, ...changedFactsOf(was, now) }];
     });
 }
 
@@ -162,7 +168,7 @@ export function classifyChanges(base: Model, head: Model): Finding[] {
             finding: findingOf(result, change, head.flags),
         })),
     );
-    const parents = new Map(head.components.map((unit) => [unit.name, unit.extends]));
+    const parents = byName(head);
 
-    return reportedOnce(findings, (component) => parents.get(component) ?? null).sort(inSummaryOrder);
+    return reportedOnce(findings, (component) => parents.get(component)?.extends ?? null).sort(inSummaryOrder);
 }

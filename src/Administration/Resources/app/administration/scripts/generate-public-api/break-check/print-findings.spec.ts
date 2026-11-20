@@ -4,12 +4,12 @@
 import type { Finding } from './finding';
 import { printFindings } from './print-findings';
 
-const CLASS_REMOVED: Finding = {
+const PARAMETER_RENAMED: Finding = {
     group: 'Info',
-    rule: 'class_missing',
-    element: 'component:sw-example-card/class:sw-example-card__title',
+    rule: 'method_param_renamed',
+    element: 'component:sw-example-card/method:onSave/param:entity',
     states: ['current', 'major'],
-    explanation: 'The CSS class sw-example-card__title is no longer in the template.',
+    explanation: 'The parameter item is now called entity.',
 };
 
 const BLOCK_REMOVED: Finding = {
@@ -25,7 +25,7 @@ const BLOCK_REMOVED: Finding = {
 
 describe('printFindings', () => {
     it('prints the groups in their fixed order and leaves out details a finding does not have', () => {
-        expect(printFindings([CLASS_REMOVED, BLOCK_REMOVED])).toBe(
+        expect(printFindings([PARAMETER_RENAMED, BLOCK_REMOVED])).toBe(
             [
                 'Public API check failed: 1 unannounced break.',
                 '',
@@ -37,8 +37,8 @@ describe('printFindings', () => {
                 '    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:4',
                 '',
                 'Info (1)',
-                '  class_missing  component:sw-example-card/class:sw-example-card__title  current, major',
-                '    The CSS class sw-example-card__title is no longer in the template.',
+                '  method_param_renamed  component:sw-example-card/method:onSave/param:entity  current, major',
+                '    The parameter item is now called entity.',
                 '',
             ].join('\n'),
         );
@@ -52,7 +52,7 @@ describe('printFindings', () => {
             alsoAffects: ['sw-example-tile', 'sw-example-row'],
         };
 
-        expect(printFindings([CLASS_REMOVED, inherited, allowed])).toBe(
+        expect(printFindings([PARAMETER_RENAMED, inherited, allowed])).toBe(
             [
                 'Public API check passed: no breaks.',
                 '',
@@ -71,8 +71,8 @@ describe('printFindings', () => {
                 '    At: src/app/component/base/sw-example-card/sw-example-card.html.twig:4',
                 '',
                 'Info (1)',
-                '  class_missing  component:sw-example-card/class:sw-example-card__title  current, major',
-                '    The CSS class sw-example-card__title is no longer in the template.',
+                '  method_param_renamed  component:sw-example-card/method:onSave/param:entity  current, major',
+                '    The parameter item is now called entity.',
                 '',
             ].join('\n'),
         );

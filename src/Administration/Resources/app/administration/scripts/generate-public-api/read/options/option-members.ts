@@ -6,6 +6,7 @@
  * What the syntax does not say, such as the names a spread adds, becomes a note instead of a silent gap.
  */
 import ts from 'typescript';
+import { byCodePoint } from '../../helpers/code-point-order';
 import { parseMarkers } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import { BOTH_STATES } from '../../model/flag-states';
@@ -17,6 +18,7 @@ import {
     memberName,
     memberValue,
     returnedObject,
+    returnedValues,
     textOf,
     withoutTypeSyntax,
 } from '../script-nodes';
@@ -247,7 +249,7 @@ function propType(type: ts.Node, reading: Reading): string | null {
     if (ts.isArrayLiteralExpression(type)) {
         const types = type.elements.map((element) => propType(element, reading));
 
-        return types.length > 0 && types.every((name) => name !== null) ? types.join(' | ') : null;
+        return types.length > 0 && types.every((name) => name !== null) ? types.sort(byCodePoint).join(' | ') : null;
     }
 
     return ts.isIdentifier(type) ? (PROP_TYPES[type.text] ?? null) : null;
@@ -314,6 +316,7 @@ function parametersOf(fn: FunctionNode, reading: Reading): Parameter[] {
         .filter(({ name }) => !ts.isIdentifier(name) || name.text !== 'this')
         .map(({ name, type, initializer, questionToken, dotDotDotToken }, position) => ({
             name: ts.isIdentifier(name) ? name.text : `arg${position}`,
+            pattern: ts.isIdentifier(name) ? null : reading.text(name),
             type: type === undefined ? null : reading.text(type),
             optional: initializer !== undefined || questionToken !== undefined,
             rest: dotDotDotToken !== undefined,
@@ -411,8 +414,69 @@ function functionOf(value: ts.Node): FunctionNode | undefined {
     return wrapped !== undefined && isFunctionNode(wrapped) ? wrapped : undefined;
 }
 
-function isAsync(fn: FunctionNode): boolean {
-    return fn.modifiers?.some(({ kind }) => kind === ts.SyntaxKind.AsyncKeyword) ?? false;
+// The methods that chain on a promise and return a new one.
+const PROMISE_CHAIN = ['then', 'catch', 'finally'];
+
+/** `load().then(...)`, `Promise.all(...)` or `new Promise(...)`: a promise the source visibly builds. */
+function isVisiblePromise(expression: ts.Expression): boolean {
+    const value = withoutTypeSyntax(expression);
+
+    if (ts.isNewExpression(value)) {
+        return ts.isIdentifier(value.expression) && value.expression.text === 'Promise';
+    }
+
+    if (!ts.isCallExpression(value) || !ts.isPropertyAccessExpression(value.expression)) {
+        return false;
+    }
+
+    const { expression: receiver, name } = value.expression;
+
+    return PROMISE_CHAIN.includes(name.text) || (ts.isIdentifier(receiver) && receiver.text === 'Promise');
+}
+
+function isPromiseType(type: ts.TypeNode | undefined): boolean {
+    return (
+        type !== undefined &&
+        ts.isTypeReferenceNode(type) &&
+        ts.isIdentifier(type.typeName) &&
+        type.typeName.text === 'Promise'
+    );
+}
+
+/** `this.$super('onSave', ...)` inside the method `onSave`. */
+function isSuperCall(expression: ts.Expression, method: string): boolean {
+    const value = withoutTypeSyntax(expression);
+
+    if (!ts.isCallExpression(value) || !ts.isPropertyAccessExpression(value.expression)) {
+        return false;
+    }
+
+    const [name] = value.arguments;
+
+    return (
+        value.expression.expression.kind === ts.SyntaxKind.ThisKeyword &&
+        value.expression.name.text === '$super' &&
+        name !== undefined &&
+        ts.isStringLiteralLike(name) &&
+        name.text === method
+    );
+}
+
+/** The function has at least one `return`, and each of them hands back a value that `matches`. */
+function everyReturn(fn: FunctionNode, matches: (value: ts.Expression) => boolean): boolean {
+    const values = returnedValues(fn);
+
+    return values.length > 0 && values.every((value) => value !== undefined && matches(value));
+}
+
+/**
+ * Whether callers get a promise. A plain call such as `this.repository.save()` may return one, but only the
+ * type checker knows, so the reader does not count it.
+ */
+function returnsPromise(fn: FunctionNode): boolean {
+    const isAsync = fn.modifiers?.some(({ kind }) => kind === ts.SyntaxKind.AsyncKeyword) ?? false;
+
+    return isAsync || isPromiseType(fn.type) || everyReturn(fn, isVisiblePromise);
 }
 
 function methods(value: ts.Node, reading: Reading): Member<'method'>[] {
@@ -430,7 +494,8 @@ function methods(value: ts.Node, reading: Reading): Member<'method'>[] {
             ...reading.common(name, member),
             parameters: fn === undefined ? null : parametersOf(fn, reading),
             returns: fn?.type === undefined ? null : reading.text(fn.type),
-            isAsync: fn !== undefined && isAsync(fn),
+            returnsPromise: fn !== undefined && returnsPromise(fn),
+            returnsSuper: fn !== undefined && everyReturn(fn, (returned) => isSuperCall(returned, name)),
         };
     });
 }

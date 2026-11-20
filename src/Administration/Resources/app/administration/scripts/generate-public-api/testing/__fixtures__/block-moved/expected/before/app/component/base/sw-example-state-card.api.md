@@ -21,14 +21,4 @@ blocks
         sw_example_state_card_state_history_text_internal_comment
         sw_example_state_card_state_history_text_label
       sw_example_state_card_state_select
-
-classes
-  sw-example-state-card
-  sw-example-state-card__content
-  sw-example-state-card__divider
-  sw-example-state-card__state
-  sw-example-state-card__state-container
-  sw-example-state-card__state-history-author
-  sw-example-state-card__state-history-button
-  sw-example-state-card__state-history-text
 ```

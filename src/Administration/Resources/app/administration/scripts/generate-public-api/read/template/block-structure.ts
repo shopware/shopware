@@ -8,7 +8,7 @@
 import { NodeTypes } from '@vue/compiler-dom';
 import type { DirectiveNode, ElementNode, TemplateChildNode } from '@vue/compiler-dom';
 import ts from 'typescript';
-import { byCodePoint } from '../../code-point-order';
+import { byCodePoint } from '../../helpers/code-point-order';
 import { crossingId } from '../../model/blocks';
 import type { BlockContext, Crossing, CrossingSubject, ScopeVariable } from '../../model/blocks';
 import { BOTH_STATES, inBothStates, mergeStates } from '../../model/flag-states';

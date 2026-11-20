@@ -52,3 +52,21 @@ export function memberSummary(findings: Finding[]): string[] {
         ({ group, rule, element }) => `${group}  ${rule}  ${element.replace('component:sw-example-card/', '')}`,
     );
 }
+
+/**
+ * @private
+ *
+ * One method per line, as the sources write them: a comment belongs to the member in the line below it.
+ */
+export function methods(...declarations: string[]): Card {
+    return { options: `methods: {\n${declarations.join(',\n')}\n}` };
+}
+
+/**
+ * @private
+ *
+ * The card with `markup` inside its root block.
+ */
+export function template(markup: string): Card {
+    return { template: `{% block sw_example_card %}${markup}{% endblock %}` };
+}

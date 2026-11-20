@@ -123,7 +123,8 @@ const blockMissing = rule({
     announcement: {
         rule: 'deprecated_removal',
         subject: 'The block',
-        markers: (change, facts) => blockMarkers(change, facts),
+        // A block goes away with a deprecated block around it.
+        markers: ({ block }, facts) => facts.blocks.get(block)?.deprecations ?? [],
         matches: (_change, marker) => marker.tag === 'deprecated',
     },
 });

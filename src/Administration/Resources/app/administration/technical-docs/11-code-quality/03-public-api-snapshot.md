@@ -155,7 +155,8 @@ The files do not contain them, so an edit to a condition changes no file.
 
 ### Members
 
-The report lists what a plugin reaches besides the blocks: the members of the options object, and the slots, template refs and CSS classes of the template.
+The report lists what a plugin reaches besides the blocks: the members of the options object, and the slots and template refs of the template.
+CSS classes are no public API, so the report does not list them.
 
 ```text
 mixins
@@ -190,9 +191,6 @@ refs
   grid  -> sw-data-grid
   rows  -> sw-data-grid-row  list
 
-classes
-  sw-example-card
-
 notes
   unresolved computed ...mapPageErrors(errorConfig)
 ```
@@ -207,9 +205,8 @@ notes
 | `slots` | The name, the props the slot passes, and the block around it |
 | `data` | The key, and the keys of a nested object literal indented below it |
 | `computed` | The name and the type its getter declares |
-| `methods` | The signature. A parameter with a default is optional, a destructured one is named `arg<position>`, and an `async` method returns `Promise<any>` |
+| `methods` | The signature. A parameter with a default is optional, a destructured one is named `arg<position>`, and a method that returns a promise returns `Promise<any>` |
 | `refs` | The ref and the tag it sits on, with `list` for a ref inside a `v-for` |
-| `classes` | The classes of static `class` attributes and the literal names of a bound `:class` |
 | `notes` | What the generator could not read, see below |
 
 The sections stand in this order, with `blocks` and `crossings` between `methods` and `refs`.
@@ -220,10 +217,13 @@ The sections stand in this order, with `blocks` and `crossings` between `methods
   A JavaScript member is `any`.
   A TypeScript member keeps the text of its annotation, and a prop the type argument of `PropType<...>`.
 - The prop constructors map to `string`, `number`, `boolean`, `object`, `any[]` and `(...args: any[]) => any`.
+  A list of constructors is printed in code point order, so reordering it changes nothing.
+- A method returns a promise when it is `async`, declares a `Promise` return type, or every `return` hands back a promise the source builds: a `.then()`, `.catch()` or `.finally()` chain, a `Promise.*()` call or `new Promise()`.
+  A plain call such as `this.repository.save()` may return a promise too, but only the type checker knows, so it does not count.
 - The options object is found behind `wrapComponentConfig`, `defineComponent` and a `const` of the same file.
 - `mapPropertyErrors`, `mapCollectionPropertyErrors`, `mapState`, `mapGetters`, `mapWritableState`, `mapActions` and `mapMutations` add the members they list as literals.
   A method keeps its parameters when a helper such as `debounce` wraps the function.
-- Slots, refs and classes are read from the template after the merge along the extend chain, so an extend child lists what its parent renders too.
+- Slots and refs are read from the template after the merge along the extend chain, so an extend child lists what its parent renders too.
 - A marker in the comment directly above a member follows its line: `[deprecated tag:vX]`, `[bc-change <Kind> vX]` with the parameter it names, and `[private]`.
   The comment can be a JSDoc comment or a `//` line.
   A block shows its markers the same way, behind its context.
@@ -407,27 +407,35 @@ The rules below those are about what only one kind has.
 | Rule | Group | Reported when | A plugin notices |
 |---|---|---|---|
 | `<kind>_missing` | Break | A mixin, injection, provided value, prop, event, slot, data key, computed property, method or template ref is gone | Its override reads `undefined`, or `$super` throws |
-| `class_missing` | Info | A CSS class is gone from the template | Its styles and selectors stop matching |
-| `<kind>_added` | Addition | A new member, except a ref or a class | Nothing, plugins can rely on it from now on |
+| `<kind>_added` | Addition | A new member, except a ref | Nothing, plugins can rely on it from now on |
 | `prop_now_required` | Break | An optional prop became required | Templates that do not pass it fail prop validation |
-| `param_missing` | Break | A method lost a parameter at its end | Overrides that read the parameter get `undefined` |
-| `param_now_required` | Break | A new parameter without a default, or a parameter that lost its default | Calls with the old arguments leave it `undefined` |
-| `param_added` | Addition | A new optional or rest parameter | `$super` calls with explicit arguments do not pass it on |
-| `method_signature_changed` | Break | A method switched between sync and `async`, or its parameters changed their order | The return value is a Promise, or values arrive in the wrong place |
+| `param_missing` | Break | A method lost a parameter | Overrides that read the parameter get `undefined`, and the parameters behind it receive the wrong values |
+| `param_now_required` | Break | A new parameter without a default behind the existing ones, or a parameter that lost its default | Calls with the old arguments leave it `undefined` |
+| `param_added` | Addition | A new optional or rest parameter behind the existing ones | `$super` calls with explicit arguments do not pass it on |
+| `method_signature_changed` | Break | A method starts or stops returning a promise, its parameters changed their order, or a new parameter stands in front of an existing one | The return value is a Promise, or values arrive in the wrong place |
 | `method_param_renamed` | Info | A parameter has another name at the same position | Nothing |
 | `ref_target_changed` | Break | A ref sits on another tag, or moved into or out of a `v-for` | Methods it calls on the ref are gone |
-| `type_changed` | Info | The declared type of a prop, a computed property or the return of a method changed | Depends on the types |
-| `type_widened` | Info | An untyped member got a type | Nothing |
+| `type_changed` | Break | The declared type of a prop changed | Values it passes may no longer fit |
+| `return_type_changed` | Break | The declared type of a computed property or the return type of a method changed | Code that uses the value may no longer fit |
+| `type_widened` | Info | An untyped member got a type, or a typed one lost it | Nothing |
 | `deprecation_added`, `bc_change_added` | Info | A member got a new marker | Nothing yet, the upgrade notes should name it |
 
-- Parameters are compared by position, as a caller passes them.
+- Parameters are matched by name, and a destructured one by its pattern, because a caller passes them by position.
+  A finding names a destructured parameter by its pattern too, for example `method:load/param:{id}`, which a marker writes as `parameter:{id}`.
+  A parameter that keeps its name but stands at another position receives the value meant for another one.
+  A parameter with a new name at the same position is a rename, and calls pass it the same value.
   A method that is no function in the source, such as an imported one, has no parameters to compare.
-- `type_changed` compares the text of the declaration.
-  Whether another type still fits needs the type checker, so the rule never fails the check.
+- `type_changed` and `return_type_changed` compare the text of the declaration.
+  Whether another type still fits needs the type checker, so every other text fails the check until a reviewer has checked it.
+  A method with two declared return types is compared by `return_type_changed` only, also when one of them is a `Promise`.
+- An extend child is compared with the members it inherits along its extend chain.
+  An override that the child drops is no change, and a member that the parent loses is reported once, on the parent.
+  A method that only returns `this.$super()` of itself also returns a promise when the method it overrides does.
+  A data key of the child replaces the whole object it inherits under that key.
 - A removed member with exactly one new member of the same kind that differs in the name only gets a `Possible rename`.
 - A removed member has no line in the head commit.
-  The finding points to the option that held it, and for a slot, a ref or a class to the closest block around it that is left.
-- The id of a member is `<kind>:<name>`, with the kinds `mixin`, `inject`, `provide`, `prop`, `emit`, `slot`, `data`, `computed`, `method`, `ref` and `class`.
+  The finding points to the option that held it, and for a slot or a ref to the closest block around it that is left.
+- The id of a member is `<kind>:<name>`, with the kinds `mixin`, `inject`, `provide`, `prop`, `emit`, `slot`, `data`, `computed`, `method` and `ref`.
   A nested data key is named by its path, `data:pagination.limit`, and a parameter below its method, `method:onDeleteItem/param:itemIndex`.
 - The arguments of an event and the props of a slot are not compared yet.
 - The break check does not validate markers yet: a `@bc-change` that names a parameter the method does not have is reported as `bc_change_added`.
@@ -449,11 +457,13 @@ A marker announces a change when it sits in the Twig comments directly before th
 | Marker | Announces | Rule of the finding |
 |---|---|---|
 | `@deprecated tag:vX.Y.Z` | `block_missing`, `<kind>_missing` | `deprecated_removal` |
+| `@deprecated tag:vX.Y.Z` on a block, for the blocks inside it and for a slot or a ref inside it in every place | `block_missing`, `slot_missing`, `ref_missing` | `deprecated_removal` |
 | `@bc-change BlockMoved` with the new `parent` | `block_moved_parent` | `announced_change` |
 | `@bc-change ScopeVariableRemoval` with the `variable` | `block_scope_missing` | `announced_change` |
 | `@bc-change ParameterRemoval` with the `parameter`, on the method | `param_missing` | `announced_change` |
 | `@bc-change NewRequiredParameter` with the `parameter`, on the method | `param_now_required` | `announced_change` |
 | `@bc-change PropBecomesRequired`, on the prop | `prop_now_required` | `announced_change` |
+| `@bc-change ReturnTypeNarrowing` or `ReturnTypeWidening` with the new `type` without spaces, on the method or computed property | `return_type_changed` | `announced_change` |
 
 The marker counts from the version it names on.
 A change that happens in the major state only counts as announced when the marker names that major, also when the marker comes with the same pull request.
@@ -533,9 +543,9 @@ The members have three unit kinds:
 
 | Unit kind | Compares |
 |---|---|
-| `component-members` | The sections `inject`, `props`, `emits`, `slots`, `data`, `computed`, `methods`, `refs` and `classes` in the reports |
+| `component-members` | The sections `inject`, `props`, `emits`, `slots`, `data`, `computed`, `methods` and `refs` in the reports |
 | `member-contract` | The members of a component besides its blocks in the `.d.ts` contracts |
-| `member-findings` | The findings on props, computed properties, methods, refs and classes |
+| `member-findings` | The findings on props, computed properties, methods and refs |
 
 A unit kind can only list a part that some case expects.
 No case has mixins, provided values or notes, so `read/options/option-members.spec/snapshot.spec.ts` covers those sections.

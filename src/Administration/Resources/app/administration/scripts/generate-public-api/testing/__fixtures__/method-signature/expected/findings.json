@@ -2,7 +2,7 @@
     {
         "group": "Break",
         "rule": "method_signature_changed",
-        "explanation": "The method switched from sync to async, so plugin overrides that use the return value of $super('validateSelection') get a Promise instead.",
+        "explanation": "The method now returns a Promise, so plugin overrides that use the return value of $super('validateSelection') get a Promise instead.",
         "fix": "keep the method sync and add an async method under a new name.",
         "element": "component:sw-example-list/method:validateSelection",
         "states": ["current", "major"],

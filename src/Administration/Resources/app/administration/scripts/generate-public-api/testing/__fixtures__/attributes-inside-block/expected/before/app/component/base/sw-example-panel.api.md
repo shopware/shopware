@@ -22,12 +22,4 @@ blocks
       sw_example_panel_title
     sw_example_panel_list
       sw_example_panel_list_item
-
-classes
-  sw-example-panel
-  sw-example-panel__empty
-  sw-example-panel__header
-  sw-example-panel__item
-  sw-example-panel__list
-  sw-example-panel__title
 ```

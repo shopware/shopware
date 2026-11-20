@@ -15,6 +15,7 @@ A spec also imports from `testing/` and from the step it observes the result thr
 
 | Folder | What it holds |
 |---|---|
+| `helpers/` | Small pure functions that every step may use, such as the code point order. It imports from no other folder |
 | `source/` | Lists and reads the source files, from a checkout or from a commit in git, and knows where this checkout is |
 | `model/` | The public API as data: the types every later step works on, without a parser and without file access |
 | `read/` | Turns the sources into the model, with `template/` for Twig and Vue templates and `options/` for the options object of a component |
@@ -38,7 +39,7 @@ flowchart TD
         chain["template/extend-chain.ts<br/>merges the trees along the extend chains and applies the overrides"]
         rendered["template/rendered-template.ts<br/>the merged template of a component as HTML, parsed once"]
         structure["template/block-structure.ts<br/>reads the v-if chains, variables and crossings of a merged template"]
-        templateMembers["template/template-members.ts<br/>reads the slots, refs and classes of a merged template"]
+        templateMembers["template/template-members.ts<br/>reads the slots and refs of a merged template"]
         options["options/component-options.ts, options/option-members.ts<br/>find the options object and read the members it declares"]
         flags["flag-conditions.ts<br/>current state, major state or both"]
         build["build-model.ts<br/>puts one unit per component together"]
@@ -84,7 +85,7 @@ When a redeclaration moves content to another place, `states` is computed again 
 What an override can rely on depends on the template Vue compiles, and a block of an extend child sits between markup of its parent.
 `block-structure.ts` and `template-members.ts` both read that template, so neither needs rules of its own for `{% parent %}` or for a block that moved.
 
-`model/members.ts` describes a member of a component: a prop, a method, a slot, a class and so on.
+`model/members.ts` describes a member of a component: a prop, a method, a slot, a ref and so on.
 Every kind is a list of named members with a few details of its own, so the printer and the rules of the break check handle all kinds the same way.
 A new kind needs its details and its entry in `MEMBER_KINDS`, a reader, a line format in `snapshot/print-members.ts`, an entry in `break-check/facts/member-facts.ts` and one in `COMING_AND_GOING` in `break-check/rules/member-rules.ts`.
 The compiler reports each of these while it is missing.
@@ -147,6 +148,7 @@ Its facts get a file of their own in `facts/` and join `ComponentFacts` in `fact
 | `read/options/option-members.spec/runtime.spec.ts` | The member names against the options objects at runtime, for every component of the real Administration |
 | `break-check/break-check.spec/block-rules.spec.ts` | What each rule of the break check reports for a change to the blocks |
 | `break-check/break-check.spec/member-rules.spec.ts` | What each rule of the break check reports for a change to the members |
+| `break-check/break-check.spec/method-rules.spec.ts` | What each rule of the break check reports for a change to the parameters, the result and the return type of a method |
 | `break-check/break-check.spec/verdict.spec.ts` | What the break check reports as announced, private or inherited by an extend child |
 | `break-check/commit-check.spec.ts` | The break check on the commits of a repository that the spec creates |
 | `snapshot/committed-snapshot.spec.ts` | The real Administration: the committed snapshot is up to date and holds nothing machine-specific |

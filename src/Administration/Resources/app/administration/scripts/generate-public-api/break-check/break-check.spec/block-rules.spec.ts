@@ -121,6 +121,77 @@ describe('scripts/generate-public-api/break-check/break-check block rules', () =
                 'The block is gone in the major state, so plugin template overrides of sw_example_card_title render nothing with v6.8.0.0 on.',
             );
         });
+
+        it('allows the blocks inside a deprecated block to go away with it', () => {
+            const blocks = [
+                '{# @deprecated tag:v6.8.0 - Will be removed. #}',
+                '{% block sw_example_card_header %}',
+                '{% block sw_example_card_title %}{% block sw_example_card_icon %}{% endblock %}{% endblock %}',
+                '{% endblock %}',
+            ].join('\n');
+            const findings = check(
+                `{% block sw_example_card %}${blocks}{% endblock %}`,
+                `{% block sw_example_card %}<template v-if="!${MAJOR}">${blocks}</template>{% endblock %}`,
+            );
+
+            expect(summary(findings)).toEqual([
+                'Allowed  deprecated_removal  sw-example-card/block:sw_example_card_header  major',
+                'Allowed  deprecated_removal  sw-example-card/block:sw_example_card_icon  major',
+                'Allowed  deprecated_removal  sw-example-card/block:sw_example_card_title  major',
+            ]);
+        });
+
+        it('keeps the removal of a block a break when only one of the blocks around its places is deprecated', () => {
+            const before = [
+                '{% block sw_example_card %}',
+                '{# @deprecated tag:v6.7.0 - Will be removed. #}',
+                '{% block sw_example_card_header %}<div>{% block sw_example_card_title %}{% endblock %}</div>{% endblock %}',
+                '{% block sw_example_card_footer %}<div>{% block sw_example_card_title %}{% endblock %}</div>{% endblock %}',
+                '{% endblock %}',
+            ].join('\n');
+            const after = before.replaceAll('{% block sw_example_card_title %}{% endblock %}', '');
+
+            expect(summary(check(before, after))).toEqual([
+                'Break  block_missing  sw-example-card/block:sw_example_card_title  current, major',
+            ]);
+        });
+
+        it('allows a removal once every place of the block is deprecated, also with different versions', () => {
+            const before = [
+                '{% block sw_example_card %}',
+                '{# @deprecated tag:v6.6.0 - Will be removed. #}',
+                '{% block sw_example_card_header %}<div>{% block sw_example_card_title %}{% endblock %}</div>{% endblock %}',
+                '{# @deprecated tag:v6.7.0 - Will be removed. #}',
+                '{% block sw_example_card_footer %}<div>{% block sw_example_card_title %}{% endblock %}</div>{% endblock %}',
+                '{% endblock %}',
+            ].join('\n');
+            const findings = check(before, before.replaceAll('{% block sw_example_card_title %}{% endblock %}', ''));
+
+            expect(summary(findings)).toEqual([
+                'Allowed  deprecated_removal  sw-example-card/block:sw_example_card_title  current, major',
+            ]);
+            expect(findings[0].explanation).toBe(
+                'The block carries @deprecated tag:v6.7.0, which announced that it goes away.',
+            );
+        });
+
+        it('keeps the removal of a block a break when only a block inside it is deprecated', () => {
+            const blocks = [
+                '{% block sw_example_card_header %}',
+                '{# @deprecated tag:v6.8.0 - Will be removed. #}',
+                '{% block sw_example_card_title %}{% endblock %}',
+                '{% endblock %}',
+            ].join('\n');
+            const findings = check(
+                `{% block sw_example_card %}${blocks}{% endblock %}`,
+                `{% block sw_example_card %}<template v-if="!${MAJOR}">${blocks}</template>{% endblock %}`,
+            );
+
+            expect(summary(findings)).toEqual([
+                'Break  block_missing  sw-example-card/block:sw_example_card_header  major',
+                'Allowed  deprecated_removal  sw-example-card/block:sw_example_card_title  major',
+            ]);
+        });
     });
 
     describe('blocks that move', () => {

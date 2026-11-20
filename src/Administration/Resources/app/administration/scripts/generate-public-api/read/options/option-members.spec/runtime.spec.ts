@@ -5,7 +5,7 @@
  * This spec loads every component of the Administration and compares the names with what the object holds at
  * runtime, so a construct the reader does not understand shows up here instead of as a missing member.
  */
-import { byCodePoint } from '../../../code-point-order';
+import { byCodePoint } from '../../../helpers/code-point-order';
 import type { MemberKind } from '../../../model/members';
 import type { ComponentUnit } from '../../../model/model';
 import { ADMINISTRATION_ROOT, currentMajorFlags } from '../../../source/checkout';

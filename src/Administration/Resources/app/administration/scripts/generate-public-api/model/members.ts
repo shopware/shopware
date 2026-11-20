@@ -2,7 +2,7 @@
  * @sw-package framework
  *
  * The members of a component besides its blocks: what the options object declares and what the template offers
- * to `this.$refs`, to slots and to CSS selectors. Every kind is a list of named members, so the printers and the
+ * to `this.$refs` and to slots. Every kind is a list of named members, so the printers and the
  * rules of the break check treat them alike and only differ in the details of a kind.
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
@@ -13,13 +13,25 @@ import type { SourceLine } from './source-line';
  * @private
  *
  * A parameter of a method or of an emit validator. `type` is the annotation as the source writes it, `null`
- * without one. A destructured parameter is named `arg<position>`.
+ * without one. A destructured parameter is named `arg<position>`, and `pattern` holds its source text, which
+ * identifies it at every position. It is `null` for a named parameter.
  */
 export interface Parameter {
     name: string;
+    pattern: string | null;
     type: string | null;
     optional: boolean;
     rest: boolean;
+}
+
+/**
+ * @private
+ *
+ * How the break check names a parameter: by its name, a destructured one by its pattern, which stays the same
+ * at every position. The pattern is written without spaces, as a marker writes it: `parameter:{id,name}`.
+ */
+export function parameterId({ name, pattern }: Parameter): string {
+    return pattern?.replace(/\s+/g, '') ?? name;
 }
 
 /** @private */
@@ -33,6 +45,10 @@ export type PropDefault = 'none' | 'literal' | 'factory';
  * - `emit.payload`: the parameters of the validator, `null` for the array form, which declares none.
  * - `data.nested`: the value is an object literal, whose keys are members of their own named `parent.key`.
  * - `method.parameters`: `null` when the method is no function in the source, for example an imported one.
+ * - `method.returnsPromise`: the method is `async`, declares a `Promise` return type, or every `return` hands
+ *   back a promise it visibly builds, such as `.then()` or `Promise.all()`.
+ * - `method.returnsSuper`: every `return` hands back `this.$super()` of the same method, so the method returns
+ *   whatever the method it overrides returns.
  */
 interface OptionDetails {
     mixin: object;
@@ -42,7 +58,7 @@ interface OptionDetails {
     emit: { payload: Parameter[] | null };
     data: { nested: boolean };
     computed: { type: string | null };
-    method: { parameters: Parameter[] | null; returns: string | null; isAsync: boolean };
+    method: { parameters: Parameter[] | null; returns: string | null; returnsPromise: boolean; returnsSuper: boolean };
 }
 
 /**
@@ -61,7 +77,6 @@ export interface TemplatePlace {
 interface TemplateDetails {
     slot: TemplatePlace & { scope: string[] };
     ref: TemplatePlace & { target: string; list: boolean };
-    class: TemplatePlace;
 }
 
 type MemberDetails = OptionDetails & TemplateDetails;
@@ -100,7 +115,6 @@ export const MEMBER_KINDS: {
     computed: { heading: 'computed', label: 'computed property', placement: 'beforeBlocks', fromTemplate: false },
     method: { heading: 'methods', label: 'method', placement: 'beforeBlocks', fromTemplate: false },
     ref: { heading: 'refs', label: 'template ref', placement: 'afterBlocks', fromTemplate: true },
-    class: { heading: 'classes', label: 'CSS class', placement: 'afterBlocks', fromTemplate: true },
 };
 
 /** @private */
@@ -124,6 +138,16 @@ interface MemberBase {
 export type Member<Kind extends MemberKind = MemberKind> = {
     [K in Kind]: MemberBase & { kind: K } & MemberDetails[K];
 }[Kind];
+
+/**
+ * @private
+ *
+ * The keys from the top of `data()` down to the member: `pagination.limit` gives `['pagination', 'limit']`. The
+ * name of every other member is a path of one key.
+ */
+export function namePath({ name }: Pick<Member, 'name'>): string[] {
+    return name.split('.');
+}
 
 /**
  * @private

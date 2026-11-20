@@ -25,21 +25,24 @@ export const CARD_FILE = `${FOLDER}/sw-example-card/sw-example-card.html.twig`;
 /**
  * @private
  *
- * The templates of the card and of the tile. Without `tile` only the card is registered.
+ * The templates of the card and of the tile. Without `tile` only the card is registered. `cardOptions` and
+ * `tileOptions` are the rest of the options objects besides the template.
  */
 export interface ExampleSources {
     card: string;
     tile?: string;
     privateCard?: boolean;
+    cardOptions?: string;
+    tileOptions?: string;
 }
 
-function component(name: string, template: string, isPrivate = false): Record<string, string> {
+function component(name: string, template: string, options = '', isPrivate = false): Record<string, string> {
     return {
         [`${FOLDER}/${name}/index.js`]: [
             `import template from './${name}.html.twig';`,
             '',
             ...(isPrivate ? ['/** @private */'] : []),
-            'export default { template };',
+            `export default { template, ${options} };`,
         ].join('\n'),
         [`${FOLDER}/${name}/${name}.html.twig`]: template,
     };
@@ -51,7 +54,7 @@ export function treeOf(files: Record<string, string>): SourceTree {
 }
 
 /** @private */
-export function exampleTree({ card, tile, privateCard }: ExampleSources): SourceTree {
+export function exampleTree({ card, tile, privateCard, cardOptions, tileOptions }: ExampleSources): SourceTree {
     return treeOf({
         [REGISTRY]: [
             CARD_REGISTRATION,
@@ -61,8 +64,8 @@ export function exampleTree({ card, tile, privateCard }: ExampleSources): Source
                       "Shopware.Component.extend('sw-example-tile', 'sw-example-card', () => import('./component/sw-example-tile'));",
                   ]),
         ].join('\n'),
-        ...component('sw-example-card', card, privateCard),
-        ...(tile === undefined ? {} : component('sw-example-tile', tile)),
+        ...component('sw-example-card', card, cardOptions, privateCard),
+        ...(tile === undefined ? {} : component('sw-example-tile', tile, tileOptions)),
     });
 }
 

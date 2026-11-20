@@ -28,7 +28,4 @@ blocks
   sw_example_filter
     sw_example_filter_actions
     sw_example_filter_field
-
-classes
-  sw-example-filter
 ```

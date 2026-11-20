@@ -54,17 +54,22 @@ class RatingAverageUpdater
 
         $averages = $query->executeQuery()->fetchAllAssociative();
 
-        $query = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET rating_average = :average WHERE id = :id AND version_id = :version')
-        );
+        foreach (array_chunk($averages, 250) as $batch) {
+            $cases = [];
+            $params = ['ids' => array_column($batch, 'id'), 'version' => $versionId];
+            foreach ($batch as $index => $average) {
+                $cases[] = 'WHEN :id' . $index . ' THEN :average' . $index;
+                $params['id' . $index] = $average['id'];
+                $params['average' . $index] = $average['average'];
+            }
 
-        foreach ($averages as $average) {
-            $query->execute([
-                'average' => $average['average'],
-                'id' => $average['id'],
-                'version' => $versionId,
-            ]);
+            RetryableQuery::retryable($this->connection, function () use ($cases, $params): void {
+                $this->connection->executeStatement(
+                    'UPDATE product SET rating_average = CASE id ' . implode(' ', $cases) . ' END WHERE id IN (:ids) AND version_id = :version',
+                    $params,
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            });
         }
     }
 }

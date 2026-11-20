@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\After;
 use PHPUnit\Framework\Attributes\Before;
-use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityAggregator;
@@ -22,6 +21,7 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -204,7 +204,7 @@ trait ElasticsearchTestTestBehaviour
     private function invalidateSearchConfigCache(): void
     {
         $cache = $this->getDiContainer()->get('cache.object');
-        \assert($cache instanceof CacheItemPoolInterface);
-        $cache->deleteItem(CachedSearchConfigLoader::CACHE_KEY);
+        \assert($cache instanceof TagAwareAdapterInterface);
+        $cache->invalidateTags([CachedSearchConfigLoader::CACHE_KEY]);
     }
 }

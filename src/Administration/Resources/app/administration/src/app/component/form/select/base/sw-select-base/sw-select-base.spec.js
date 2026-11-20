@@ -151,9 +151,11 @@ describe('components/sw-select-base', () => {
                     attachTo: container,
                     slots: {
                         'sw-select-selection': `
-                            <span class="selected-value" @click.stop>Red</span>
-                            <input class="search-input" tabindex="-1">
-                            <button class="inner-button">+3</button>
+                            <template #sw-select-selection="{ searchInputAttrs }">
+                                <span class="selected-value" @click.stop>Red</span>
+                                <input class="search-input" v-bind="searchInputAttrs">
+                                <button class="inner-button">+3</button>
+                            </template>
                         `,
                     },
                 },
@@ -189,6 +191,27 @@ describe('components/sw-select-base', () => {
             expect(wrapper.find('.sw-select').classes()).toContain('has--focus');
         });
 
+        it('should show the focus while the select is open and drop it once the focus left the closed select', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            wrapper.find('.search-input').element.focus();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select').classes()).toContain('has--focus');
+
+            dispatchKeydown(wrapper.find('.search-input').element, { key: 'Escape' });
+            selection.element.blur();
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select').classes()).not.toContain('has--focus');
+        });
+
+        it('should keep the search input out of the tab order', async () => {
+            await createFocusedSelection();
+
+            expect(wrapper.find('.search-input').attributes('tabindex')).toBe('-1');
+        });
+
         it.each([
             'ArrowDown',
             'ArrowUp',
@@ -214,20 +237,19 @@ describe('components/sw-select-base', () => {
             ['a plain character', { key: 'a' }],
             ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }],
             ['an Option character', { key: '@', altKey: true }],
-        ])('should expand on %s and type it into the search', async (_, init) => {
+        ])('should expand on %s and type it over the text of the search', async (_, init) => {
             const selection = await createFocusedSelection();
             const searchInput = wrapper.find('.search-input').element;
             searchInput.value = 'Previous selection';
-            searchInput.select();
             const onInput = jest.fn();
             searchInput.addEventListener('input', onInput);
-            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
 
             dispatchKeydown(selection.element, init);
             await flushPromises();
             searchInput.removeEventListener('input', onInput);
 
             expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(document.activeElement).toBe(searchInput);
             expect(searchInput.value).toBe(init.key);
             expect(onInput).toHaveBeenCalledTimes(1);
         });
@@ -237,21 +259,15 @@ describe('components/sw-select-base', () => {
             ['Delete', {}],
             ['Backspace', { ctrlKey: true }],
             ['Backspace', { metaKey: true }],
-        ])('should expand on "%s" %o and hand it on to the search', async (key, modifiers) => {
+        ])('should emit "delete-key" on "%s" %o and stay collapsed', async (key, modifiers) => {
             const selection = await createFocusedSelection();
-            const searchInput = wrapper.find('.search-input').element;
-            const onSearchKeydown = jest.fn();
-            searchInput.addEventListener('keydown', onSearchKeydown);
-            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
 
             const event = dispatchKeydown(selection.element, { key, ...modifiers });
             await flushPromises();
-            searchInput.removeEventListener('keydown', onSearchKeydown);
 
-            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(selection.attributes('aria-expanded')).toBe('false');
             expect(event.defaultPrevented).toBe(true);
-            expect(onSearchKeydown).toHaveBeenCalledTimes(1);
-            expect(onSearchKeydown.mock.calls[0][0].key).toBe(key);
+            expect(wrapper.emitted('delete-key')).toHaveLength(1);
         });
 
         describe('where ALT is the system key', () => {
@@ -274,7 +290,6 @@ describe('components/sw-select-base', () => {
             const selection = await createFocusedSelection();
             const searchInput = wrapper.find('.search-input').element;
             searchInput.readOnly = true;
-            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
 
             dispatchKeydown(selection.element, { key: 'a' });
             await flushPromises();

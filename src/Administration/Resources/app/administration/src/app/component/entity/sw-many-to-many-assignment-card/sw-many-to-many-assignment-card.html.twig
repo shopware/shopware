@@ -27,11 +27,11 @@
                     @clear="onClear"
                 >
 
-                    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse, searchInputAttrs }">
                         {% block sw_entity_many_to_many_assignment_card_search_field %}
                         <input
                             ref="searchInput"
-                            tabindex="-1"
+                            v-bind="searchInputAttrs"
                             :placeholder="placeholder"
                             :value="searchTerm"
                             :disabled="disabled"

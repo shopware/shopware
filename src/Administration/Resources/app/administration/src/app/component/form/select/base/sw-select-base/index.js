@@ -2,24 +2,30 @@ import template from './sw-select-base.html.twig';
 import './sw-select-base.scss';
 
 /**
- * Keys that open a focused, closed select, as in the WAI-ARIA APG select-only combobox.
- * Printable characters open it too, see `expandByKeyboard`.
+ * What a key does on a select, see `onKeydown`.
+ * `open` and `delete` only count on the focused, closed select itself,
+ * as in the WAI-ARIA APG select-only combobox.
+ * Keys that type a character open it too.
  */
-const OPENING_KEYS = [
-    'ArrowDown',
-    'ArrowUp',
-    'Enter',
-    ' ',
-];
+const KEY_ACTIONS = {
+    ArrowDown: 'open',
+    ArrowUp: 'open',
+    Enter: 'open',
+    ' ': 'open',
+    Backspace: 'delete',
+    Delete: 'delete',
+    Tab: 'collapse',
+    Escape: 'collapse',
+};
 
 /**
- * Keys that open a focused, closed select and reach the key handlers of its search,
- * where multi selects remove their last value.
+ * Attributes of the search input inside a select, handed to the variants through the `sw-select-selection` slot.
+ * They keep the search out of the tab order and let the base find it.
  */
-const DELETING_KEYS = [
-    'Backspace',
-    'Delete',
-];
+const SEARCH_INPUT_ATTRS = Object.freeze({
+    tabindex: '-1',
+    'data-sw-select-search': '',
+});
 
 /**
  * @sw-package framework
@@ -34,7 +40,12 @@ export default {
 
     inheritAttrs: false,
 
-    emits: ['select-expanded', 'select-collapsed', 'clear'],
+    emits: [
+        'select-expanded',
+        'select-collapsed',
+        'clear',
+        'delete-key',
+    ],
 
     props: {
         isLoading: {
@@ -71,12 +82,17 @@ export default {
     data() {
         return {
             expanded: false,
+            wrapperFocused: false,
         };
     },
 
     computed: {
         swFieldClasses() {
-            return { 'has--focus': this.expanded };
+            return { 'has--focus': this.expanded || this.wrapperFocused };
+        },
+
+        searchInputAttrs() {
+            return SEARCH_INPUT_ATTRS;
         },
 
         isClearable() {
@@ -158,16 +174,25 @@ export default {
         },
 
         /**
-         * Opens the select from ArrowDown, ArrowUp, Enter or Space, from Backspace or Delete,
-         * and from a key that types a character.
-         * Only keys on the select itself count, so buttons inside it keep their own keys.
+         * Handles every key on the select and inside it, see `KEY_ACTIONS`.
+         * TAB and ESC close it from anywhere inside.
+         * The other keys only count on the closed select itself, so buttons and inputs inside it keep their own keys:
+         * ArrowDown, ArrowUp, Enter, Space and typed characters open it,
+         * and Backspace and Delete emit `delete-key`, which multi selects answer by removing their last value.
          */
-        expandByKeyboard(event) {
+        onKeydown(event) {
+            const action = KEY_ACTIONS[event.key];
+
+            if (action === 'collapse') {
+                this.collapse(event);
+                return;
+            }
+
             if (this.expanded || event.target !== this.$refs.selectWrapper || event.isComposing) {
                 return;
             }
 
-            if (OPENING_KEYS.includes(event.key) && !event.ctrlKey && !event.metaKey) {
+            if (action === 'open' && !event.ctrlKey && !event.metaKey) {
                 // The result list mounts before this event reaches the document, where it would pick an item
                 event.preventDefault();
                 event.stopPropagation();
@@ -175,10 +200,9 @@ export default {
                 return;
             }
 
-            if (DELETING_KEYS.includes(event.key)) {
+            if (action === 'delete') {
                 event.preventDefault();
-                this.expand();
-                this.$nextTick(() => this.pressInSearch(event.key));
+                this.$emit('delete-key');
                 return;
             }
 
@@ -187,45 +211,25 @@ export default {
                 // and the search input gets the focus later, after the select renders open
                 event.preventDefault();
                 this.expand();
-                this.$nextTick(() => this.typeIntoSearch(event.key));
+                this.typeIntoSearch(event.key);
             }
         },
 
         /**
-         * Returns the search input of this select once a variant moved the focus into it, or null.
+         * Types a character into the search input of this select, as if the user typed it over its text.
+         * Runs once the opened select rendered; the search is the input that binds `searchInputAttrs`.
          */
-        getFocusedSearch() {
-            const search = document.activeElement;
+        async typeIntoSearch(character) {
+            await this.$nextTick();
+            const search = this.$refs.selectWrapper?.querySelector('[data-sw-select-search]');
 
-            if (!(search instanceof HTMLInputElement) || !this.$refs.selectWrapper?.contains(search)) {
-                return null;
-            }
-
-            return search;
-        },
-
-        /**
-         * Types a character into the focused search input of this select, as if the user typed it.
-         * Runs after the select opened, once the variant moved the focus into its search.
-         */
-        typeIntoSearch(character) {
-            const search = this.getFocusedSearch();
-
-            if (!search || search.readOnly || search.disabled) {
+            if (!(search instanceof HTMLInputElement) || search.readOnly || search.disabled) {
                 return;
             }
 
-            search.setRangeText(character, search.selectionStart ?? 0, search.selectionEnd ?? 0, 'end');
+            search.focus();
+            search.setRangeText(character, 0, search.value.length, 'end');
             search.dispatchEvent(new Event('input', { bubbles: true }));
-        },
-
-        /**
-         * Hands Backspace or Delete on to the key handlers of the focused search input of this select,
-         * so multi selects remove their last value. The search text stays as it is.
-         * Runs after the select opened, once the variant moved the focus into its search.
-         */
-        pressInSearch(key) {
-            this.getFocusedSearch()?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
         },
 
         /**

@@ -233,7 +233,7 @@ describe('components/sw-multi-select', () => {
         await selection.trigger('keydown', { key: 'Backspace' });
         await flushPromises();
 
-        expect(selection.attributes('aria-expanded')).toBe('true');
+        expect(selection.attributes('aria-expanded')).toBe('false');
         expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue']]]);
 
         swMultiSelect.unmount();

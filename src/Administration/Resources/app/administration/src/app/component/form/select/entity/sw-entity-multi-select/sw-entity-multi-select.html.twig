@@ -9,10 +9,11 @@
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
     @clear="clearSelection"
+    @delete-key="removeLastItem"
 >
     {% block sw_entity_multi_select_base %}
     {% block sw_entity_multi_select_base_selection %}
-    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse}">
+    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse, searchInputAttrs }">
         {% block sw_entity_multi_select_advanced_selection_modal %}
         <component
             :is="advancedSelectionComponent"
@@ -31,7 +32,7 @@
             :selections="visibleValues"
             :invisible-count="invisibleValueCount"
             value-property="id"
-            v-bind="{ size, labelProperty, placeholder, alwaysShowPlaceholder, searchTerm, disabled, autocomplete }"
+            v-bind="{ size, labelProperty, placeholder, alwaysShowPlaceholder, searchTerm, searchInputAttrs, disabled, autocomplete }"
             :input-label="label"
             :hide-labels="hideLabels"
             :selection-disabling-method="selectionDisablingMethod"

@@ -73,6 +73,14 @@ export default {
             required: false,
             default: '',
         },
+        /**
+         * The `searchInputAttrs` of the surrounding `sw-select-base`, bound to the search input.
+         */
+        searchInputAttrs: {
+            type: Object,
+            required: false,
+            default: () => ({}),
+        },
         disabled: {
             type: Boolean,
             required: false,

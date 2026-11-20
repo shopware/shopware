@@ -6,16 +6,17 @@
     :label="label"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
+    @delete-key="removeLastItem"
 >
     {% block sw_multi_select_base %}
     {% block sw_multi_select_base_selection %}
-    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse, searchInputAttrs }">
         {% block sw_multi_select_base_selection_slot %}
         <sw-select-selection-list
             ref="selectionList"
             :selections="visibleValues"
             :invisible-count="invisibleValueCount"
-            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled: disabled || undefined, autocomplete }"
+            v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, searchInputAttrs, disabled: disabled || undefined, autocomplete }"
             :input-label="label"
             @total-count-click="expandValueLimit"
             @item-remove="remove"

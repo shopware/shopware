@@ -7,21 +7,14 @@
         centered
         icon="regular-file-text"
         :headline="$t('sw-product.documentForm.emptyState')"
-        :description="description"
+        :description="isSystemDefaultLanguage ? $t('sw-product.documentForm.emptyDescription') : undefined"
     >
         <template
             v-if="isSystemDefaultLanguage"
             #button
         >
             {% block sw_product_document_empty_state_add %}
-            <mt-button
-                :disabled="!canAddDocuments"
-                size="small"
-                variant="secondary"
-                @click="$emit('documents-add')"
-            >
-                {{ $t('sw-product.documentForm.buttonAdd') }}
-            </mt-button>
+            <slot name="add-button"></slot>
             {% endblock %}
         </template>
     </mt-empty-state>
@@ -33,11 +26,7 @@
         color="color-text-secondary-default"
         class="sw-product-document-empty-state__language-hint"
     >
-        {% block sw_product_document_empty_state_language_link %}
-        <sw-product-document-language-hint
-            :default-language-name="defaultLanguageName"
-        />
-        {% endblock %}
+        <sw-product-document-language-hint />
     </mt-text>
     {% endblock %}
 </div>

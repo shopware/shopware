@@ -14,7 +14,7 @@
     <template #content="{ isInheritField, removeInheritance }">
         <div
             class="sw-product-document-form-wrapper"
-            :class="{ 'is--disabled': disabled || isInherited }"
+            :class="{ 'is--disabled': !acl.can('product.editor') || isInherited }"
         >
             <mt-card
                 class="sw-product-document-form"
@@ -47,7 +47,6 @@
                     <sw-product-document-add-button
                         v-if="currentDocuments.length"
                         class="sw-product-document-form__add-button"
-                        :default-language-name="defaultLanguageName"
                         :is-inherited="isInherited"
                         :disabled="!canAddDocuments"
                         @documents-add="showUploadModal = true"
@@ -61,11 +60,20 @@
                         v-if="!currentDocuments.length"
                         class="sw-product-document-form__empty-state"
                     >
-                        <sw-product-document-empty-state
-                            :can-add-documents="!isInherited && canAddDocuments"
-                            :default-language-name="defaultLanguageName"
-                            @documents-add="showUploadModal = true"
-                        />
+                        <sw-product-document-empty-state>
+                            <template #add-button>
+                                {% block sw_product_document_form_empty_add %}
+                                <mt-button
+                                    :disabled="isInherited || !canAddDocuments"
+                                    size="small"
+                                    variant="secondary"
+                                    @click="showUploadModal = true"
+                                >
+                                    {{ $t('sw-product.documentForm.buttonAdd') }}
+                                </mt-button>
+                                {% endblock %}
+                            </template>
+                        </sw-product-document-empty-state>
                     </div>
                 {% endblock %}
 

@@ -74,10 +74,6 @@ export default Shopware.Component.wrapComponentConfig({
         'mediaDefaultFolderService',
     ],
 
-    props: {
-        disabled: { type: Boolean, required: false, default: false },
-    },
-
     data() {
         return {
             page: 1,
@@ -87,7 +83,6 @@ export default Shopware.Component.wrapComponentConfig({
             showRestoreInheritanceModal: false,
             isInheritanceRemoved: false,
             mediaFolderId: undefined as string | null | undefined,
-            defaultLanguageName: '',
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
             documentsToRemove: [] as Entity<'product_document'>[],
@@ -109,10 +104,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        languageRepository() {
-            return this.repositoryFactory.create('language');
         },
 
         languageId() {
@@ -158,7 +149,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         canEdit(): boolean {
             const isLanguageReady = this.isSystemDefaultLanguage || this.documentContext.language?.id === this.languageId;
-            return !this.disabled && this.acl.can('product.editor') && isLanguageReady;
+            return this.acl.can('product.editor') && isLanguageReady;
         },
 
         canAddDocuments(): boolean {
@@ -261,22 +252,10 @@ export default Shopware.Component.wrapComponentConfig({
 
     methods: {
         async createdComponent() {
-            void this.loadDefaultLanguageName();
-
             try {
                 this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
             } catch {
                 this.mediaFolderId = null;
-            }
-        },
-
-        async loadDefaultLanguageName(): Promise<void> {
-            const systemLanguageId = Shopware.Context.api.systemLanguageId;
-            if (systemLanguageId) {
-                const language = await this.languageRepository
-                    .get(systemLanguageId)
-                    .catch(() => /* Keep the fallback label. */ null);
-                this.defaultLanguageName = language?.name || '';
             }
         },
 

@@ -2,9 +2,11 @@
  * @sw-package inventory
  */
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
+import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import {
     mockSnackbar,
+    mockVariantSync,
     createProduct,
     cleanupWrappers,
     createWrapper,
@@ -13,6 +15,23 @@ import {
     clickButton,
     getDocuments,
 } from './helpers';
+
+const dialogs = {
+    edit: {
+        menuIndex: 0,
+        checkbox: '.sw-product-document-form__apply-to-variants',
+        confirm: '.sw-product-document-form__save-document',
+        operation: (mediaId: string) => ({ mediaId, title: 'manual', changes: { title: 'New title' } }),
+        appliedTitles: ['New title'],
+    },
+    remove: {
+        menuIndex: 2,
+        checkbox: '.sw-product-document-form__remove-from-variants',
+        confirm: '.sw-product-document-form__confirm-remove',
+        operation: (mediaId: string) => ({ mediaId, title: 'manual' }),
+        appliedTitles: [],
+    },
+} as const;
 
 describe('sw-product-document-form dialog sessions', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -30,6 +49,7 @@ describe('sw-product-document-form dialog sessions', () => {
 
     afterEach(() => {
         Shopware.Context.api.languageId = originalLanguage;
+        jest.restoreAllMocks();
         cleanupWrappers();
     });
 
@@ -58,32 +78,67 @@ describe('sw-product-document-form dialog sessions', () => {
         },
     );
 
-    it.each([false, true])(
-        'ignores a media request that settles after leaving the tab (request rejects: %s)',
-        async (reject) => {
-            const repository = repositoryFactory.create('media');
-            const media = createMedia();
-            let settle!: () => void;
-            jest.spyOn(repository, 'get').mockImplementationOnce(
-                () =>
-                    new Promise((resolve, rejectRequest) => {
-                        settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
-                    }),
-            );
-            const wrapper = await createWrapper(repository);
-            const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-            wrapper
-                .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
-                .vm.$emit('media-upload-finish', { targetId: media.id });
-            await flushPromises();
-            wrapper.unmount();
-            settle();
-            await flushPromises();
-            expect(getDocuments()).toHaveLength(0);
-            expect(notification).not.toHaveBeenCalled();
-            expect(mockSnackbar).not.toHaveBeenCalled();
-        },
-    );
+    function mockLateMedia(reject = false) {
+        const repository = repositoryFactory.create('media');
+        const media = createMedia();
+        let settle!: () => void;
+        jest.spyOn(repository, 'get').mockImplementationOnce(
+            () =>
+                new Promise((resolve, rejectRequest) => {
+                    settle = () => (reject ? rejectRequest(new Error('Late upload')) : resolve(media));
+                }),
+        );
+
+        return { repository, media, settle: () => settle() };
+    }
+
+    async function finishUpload(wrapper: VueWrapper, mediaId: string) {
+        wrapper
+            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
+            .vm.$emit('media-upload-finish', { targetId: mediaId });
+        await flushPromises();
+    }
+
+    it('adds the uploaded document to the same product when its media load resolves after the form unmounted', async () => {
+        const { repository, media, settle } = mockLateMedia();
+        const wrapper = await createWrapper(repository);
+        await finishUpload(wrapper, media.id);
+        wrapper.unmount();
+        settle();
+        await flushPromises();
+
+        expect(getDocuments()).toHaveLength(1);
+        expect(getDocuments()?.first()?.mediaId).toBe(media.id);
+    });
+
+    it('does not add the uploaded document when another product was loaded before its media load resolves', async () => {
+        const { repository, media, settle } = mockLateMedia();
+        const wrapper = await createWrapper(repository);
+        const product = Shopware.Store.get('swProductDetail').product;
+        await finishUpload(wrapper, media.id);
+        Shopware.Store.get('swProductDetail').product = createProduct();
+        settle();
+        await flushPromises();
+
+        expect(product.documents).toHaveLength(0);
+        expect(getDocuments()).toHaveLength(0);
+    });
+
+    it('shows an error when the media load fails after the form unmounted', async () => {
+        const { repository, media, settle } = mockLateMedia(true);
+        const wrapper = await createWrapper(repository);
+        const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+        await finishUpload(wrapper, media.id);
+        wrapper.unmount();
+        settle();
+        await flushPromises();
+
+        expect(getDocuments()).toHaveLength(0);
+        expect(mockSnackbar).not.toHaveBeenCalled();
+        expect(notification.mock.calls.map(([config]) => config)).toEqual([
+            expect.objectContaining({ variant: 'error', message: 'sw-product.documentForm.errorLoadMedia' }),
+        ]);
+    });
 
     it('adds the uploaded document after another document editor is opened and cancelled', async () => {
         const repository = repositoryFactory.create('media');
@@ -108,94 +163,64 @@ describe('sw-product-document-form dialog sessions', () => {
         wrapper.unmount();
     });
 
-    describe.each(['edit', 'remove'])('%s dialog', (action) => {
-        it('discards a pending variant lookup after leaving the tab', async () => {
-            const repository = repositoryFactory.create('product');
-            let resolveVariants!: (value: EntityCollection<'product'>) => void;
-            jest.spyOn(repository, 'search').mockImplementationOnce(
-                () =>
-                    new Promise((resolve) => {
-                        resolveVariants = resolve;
-                    }),
-            );
-            const wrapper = await createWrapper(undefined, undefined, repository);
-            await addDocuments(wrapper, [createMedia()]);
-            await wrapper.findAll('sw-context-menu-item-stub')[action === 'edit' ? 0 : 2].trigger('click');
-            if (action === 'edit') {
-                wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Stale title');
-            }
-            const checkbox =
-                action === 'edit'
-                    ? '.sw-product-document-form__apply-to-variants'
-                    : '.sw-product-document-form__remove-from-variants';
-            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
-            await clickButton(wrapper, action === 'edit' ? 'global.default.apply' : 'global.default.remove');
-            wrapper.unmount();
-            resolveVariants(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api));
-            await flushPromises();
-            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(['manual']);
-        });
+    describe.each(['edit', 'remove'] as const)('%s dialog', (action) => {
+        const dialog = dialogs[action];
 
-        it.each([false, true])('ignores cancelled requests during a new request (rejects: %s)', async (rejectOld) => {
-            const repository = repositoryFactory.create('product');
-            const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api);
-            let settleOld!: () => void;
-            let settleNew!: () => void;
-            const search = jest.spyOn(repository, 'search');
-            search.mockImplementationOnce(
+        async function confirmWithPendingVariantCheck(wrapper: VueWrapper) {
+            let settle!: (variantIds: string[] | Error) => void;
+            mockVariantSync.mockImplementationOnce(
                 () =>
                     new Promise((resolve, reject) => {
-                        settleOld = () => (rejectOld ? reject(new Error('Cancelled lookup failed')) : resolve(variants));
+                        settle = (result) => (result instanceof Error ? reject(result) : resolve(result));
                     }),
             );
-            search.mockImplementationOnce(
-                () =>
-                    new Promise((resolve) => {
-                        settleNew = () => resolve(variants);
-                    }),
-            );
-            const wrapper = await createWrapper(undefined, undefined, repository);
-            await addDocuments(wrapper, [createMedia()]);
-            const notification = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-            const actionIndex = action === 'edit' ? 0 : 2;
-            const button =
-                action === 'edit' ? '.sw-product-document-form__save-document' : '.sw-product-document-form__confirm-remove';
-            const checkbox =
-                action === 'edit'
-                    ? '.sw-product-document-form__apply-to-variants'
-                    : '.sw-product-document-form__remove-from-variants';
-            const label = action === 'edit' ? 'global.default.apply' : 'global.default.remove';
-
-            await wrapper.findAll('sw-context-menu-item-stub')[actionIndex].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
-            await clickButton(wrapper, label);
-            expect(wrapper.get<HTMLButtonElement>(button).element.disabled).toBe(true);
-            await clickButton(wrapper, 'global.default.cancel');
-            await wrapper.findAll('sw-context-menu-item-stub')[actionIndex].trigger('click');
-            expect(wrapper.get<HTMLButtonElement>(button).element.disabled).toBe(false);
+            await wrapper.findAll('sw-context-menu-item-stub')[dialog.menuIndex].trigger('click');
             if (action === 'edit') {
-                wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New title');
+                await wrapper.get('.sw-product-document-form__name-input input').setValue('New title');
             }
-            wrapper.getComponent<ComponentPublicInstance>(checkbox).vm.$emit('update:checked', true);
-            await clickButton(wrapper, label);
-            expect(search).toHaveBeenCalledTimes(2);
+            expect(wrapper.get<HTMLInputElement>(`${dialog.checkbox} input`).element.checked).toBe(true);
+            await wrapper.get(dialog.confirm).trigger('click');
+            return (result: string[] | Error) => settle(result);
+        }
 
-            settleOld();
+        it('emits and queues nothing when another product was loaded before the variant check returned', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            const wrapper = await createWrapper();
+            await addDocuments(wrapper, [createMedia()]);
+            const product = store.product;
+            const document = getDocuments()![0];
+
+            const settle = await confirmWithPendingVariantCheck(wrapper);
+            store.product = createProduct();
+            await flushPromises();
+            expect(wrapper.find(dialog.confirm).exists()).toBe(false);
+
+            settle(['variant-a']);
             await flushPromises();
 
-            expect(wrapper.get<HTMLButtonElement>(button).element.disabled).toBe(true);
-            expect(getDocuments()).toHaveLength(1);
-            expect(getDocuments()![0].title).toBe('manual');
-            expect(notification).not.toHaveBeenCalled();
+            expect(product.documents).toHaveLength(1);
+            expect(document.title).toBe('manual');
+            expect(store.product.documents).toHaveLength(0);
+            expect(store.documentVariantOperations).toEqual({});
             expect(mockSnackbar).not.toHaveBeenCalled();
+        });
 
-            settleNew();
+        it('queues nothing and reports no success when the variant check returns after the form unmounted', async () => {
+            const store = Shopware.Store.get('swProductDetail');
+            const wrapper = await createWrapper();
+            await addDocuments(wrapper, [createMedia()]);
+            const document = getDocuments()![0];
+
+            const settle = await confirmWithPendingVariantCheck(wrapper);
+            expect(mockVariantSync).toHaveBeenCalledTimes(1);
+            wrapper.unmount();
+            settle(['variant-a']);
             await flushPromises();
 
-            expect(wrapper.find(button).exists()).toBe(false);
-            expect(Array.from(getDocuments()!, (document) => document.title)).toEqual(
-                action === 'edit' ? ['New title'] : [],
-            );
+            expect(getDocuments()).toHaveLength(1);
+            expect(document.title).toBe('manual');
+            expect(store.documentVariantOperations).toEqual({});
+            expect(mockSnackbar).not.toHaveBeenCalled();
         });
     });
 });

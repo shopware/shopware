@@ -124,7 +124,14 @@ describe('sw-product-document-form ordering', () => {
                     included: documents.map((document, position) => ({
                         id: document.id,
                         type: 'product_document',
-                        attributes: { extensions: {}, productId, versionId, title: document.title, position },
+                        attributes: {
+                            extensions: {},
+                            productId,
+                            versionId,
+                            title: document.title,
+                            translated: { title: document.title },
+                            position,
+                        },
                         relationships: {},
                     })),
                 },

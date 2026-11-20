@@ -141,7 +141,11 @@ describe('sw-product-document-download', () => {
         store.product.parentId = store.parentProduct.id;
         const media = createMedia('parent-manual');
         const document = repositoryFactory.create('product_document').create();
-        Object.assign(document, { mediaId: media.id, translations: [{ mediaId: media.id, media }] });
+        Object.assign(document, {
+            mediaId: media.id,
+            translated: { mediaId: media.id },
+            translations: [{ mediaId: media.id, media }],
+        });
         store.parentProduct.documents?.add(document);
         mediaService.prepareDownloadMedia.mockResolvedValue({
             type: 'external',

@@ -147,6 +147,25 @@ describe('scripts/generate-public-api/break-check verdict', () => {
             ).toEqual(['Break  block_moved_parent  sw-example-card/block:sw_example_card_title  major']);
         });
 
+        it('allows a move to the root in the major state that a @bc-change marker with parent (root) announces', () => {
+            const movedToRoot = `
+                {% block sw_example_card %}
+                {% block sw_example_card_header %}
+                <template v-if="!${MAJOR}">
+                    {# @bc-change BlockMoved version:v6.8.0 parent:(root) #}
+                    {% block sw_example_card_title %}{% endblock %}
+                </template>
+                {% endblock %}
+                {% block sw_example_card_body %}{% endblock %}
+                {% endblock %}
+                <template v-if="${MAJOR}">{% block sw_example_card_title %}{% endblock %}</template>
+            `;
+
+            expect(summary(check(BEFORE, movedToRoot))).toEqual([
+                'Allowed  announced_change  sw-example-card/block:sw_example_card_title  major',
+            ]);
+        });
+
         it('keeps a move a break when the marker names another parent', () => {
             expect(
                 summary(check(BEFORE, movedInMajor('{# @bc-change BlockMoved version:v6.8.0 parent:sw_example_card #}'))),

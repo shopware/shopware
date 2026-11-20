@@ -2,7 +2,7 @@ import template from './sw-theme-list-item.html.twig';
 import './sw-theme-list-item.scss';
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  * @sw-package discovery
  */
 export default {

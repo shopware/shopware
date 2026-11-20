@@ -2,7 +2,7 @@ import template from './sw-settings-storefront-index.html.twig';
 import './sw-settings-storefront-index.scss';
 
 /**
- * @deprecated tag:v6.8.0 - Will be @private
+ * @bc-change BecomesPrivate version:v6.8.0
  * @sw-package framework
  */
 export default {

@@ -10,6 +10,24 @@ const ruleTester = new RuleTester({
 ruleTester.run('private-feature-declarations', rule, {
     valid: [
         {
+            name: 'Default export announced to become private',
+            code: `
+                /**
+                 * @bc-change BecomesPrivate version:v6.8.0
+                 */
+                export default function testFunction() {}
+            `,
+        },
+        {
+            name: 'Register call announced to become private',
+            code: `
+                /**
+                 * @bc-change BecomesPrivate version:v6.8.0
+                 */
+                Shopware.Component.register('my-component', {})
+            `,
+        },
+        {
             name: 'Default exports with private declaration',
             code: `
                 /**
@@ -139,14 +157,14 @@ ruleTester.run('private-feature-declarations', rule, {
             code: `
                 export default function testFunction() {}            
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [{ message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z' }]
         },
         {
             name: 'Named export with private declaration',
             code: `
                 export const testFunction = () => {};
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [{ message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z' }]
         },
         {
             name: 'Named exports with private declaration',
@@ -156,14 +174,14 @@ ruleTester.run('private-feature-declarations', rule, {
             
                 export { testFunction, TestClass }            
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [{ message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z' }]
         },
         {
             name: 'Register calls with private declaration',
             code: `
                 Shopware.Component.register('my-component', {})
             `,
-            errors: [{ message: 'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',}]
+            errors: [{ message: 'New features need to be private. Old features should be marked @bc-change BecomesPrivate version:vX.Y.Z',}]
         },
         {
             name: 'Nested Register calls with private declaration',
@@ -174,7 +192,7 @@ ruleTester.run('private-feature-declarations', rule, {
                     });
                 };
             `,
-            errors: [{ message: 'New features need to be private. Old features should be @deprecated tag:v6.X.0 - Will be private',}]
+            errors: [{ message: 'New features need to be private. Old features should be marked @bc-change BecomesPrivate version:vX.Y.Z',}]
         },
         {
             name: 'Named export with public declaration in a non-JSDoc block comment',
@@ -182,7 +200,7 @@ ruleTester.run('private-feature-declarations', rule, {
                 /* @public */
                 export const testFunction = () => {};
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [{ message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z' }]
         },
         {
             name: 'Named export with public declaration not directly above the export',
@@ -193,7 +211,7 @@ ruleTester.run('private-feature-declarations', rule, {
                 // some comment
                 export const testFunction = () => {};
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [{ message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z' }]
         },
         {
             name: 'Named export with public declaration above an ESLint directive and an ordinary comment',
@@ -212,7 +230,7 @@ ruleTester.run('private-feature-declarations', rule, {
             code: `
                 export type TestType = string;
             `,
-            errors: [{ message: 'New exports need to be private. Old exports should be @deprecated tag:v6.X.0 - Will be private' }]
+            errors: [{ message: 'New exports need to be private. Old exports should be marked @bc-change BecomesPrivate version:vX.Y.Z' }]
         }
     ]
 });

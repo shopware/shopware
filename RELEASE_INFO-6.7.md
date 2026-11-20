@@ -584,10 +584,11 @@ Extensions and headless frontends that convert `payload.value` into the cart cur
 ### Product documents
 
 Products can have documents, such as manuals, datasheets or certificates, in `product.documents`.
-Each document has a title and a file per language, which fall back separately like other translated fields.
-A variant without documents of its own gets those of its parent.
+A document can be uploaded per language with a translatable title and fall back to the default language.
+A variant can have its own documents or inherit those of its parent.
 The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
-The scheduled task `product_document.media.cleanup` deletes document files that no document uses.
+The scheduled task `product_document.media.cleanup` deletes unused files from the "Product Document Media" folder.
+
 ### Event before a media file is replaced
 
 `Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media.
@@ -615,13 +616,6 @@ Only rules of the default tax groups that still have their original rate and wer
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 
 ## API
-
-### Store API route for product documents
-
-The new route `GET|POST /store-api/product/{productId}/documents` returns the documents of a product, such as manuals, datasheets or certificates.
-It accepts a criteria, sorts by `position` by default, and returns each document with its file in `media`, resolved for the requested language.
-A variant without documents of its own returns the documents of its parent; documents with a private file are left out.
-Extensions can change the result through the `product-document-route.load` extension event (`ProductDocumentRouteExtension`).
 
 ### MCP clients can log in with OAuth
 
@@ -776,8 +770,8 @@ Clients can compare these hashes to find out which cookies were added or changed
 
 ### Product documents in the API
 
-The Admin API has the new entities `product_document` and `product_document_translation`.
-In the Store API, `documents.translations` of a product only contains the translations of the requested language and its fallbacks that have a public file.
+The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product with their files in the requested language.
+
 ### Order deliveries have a `position` field
 
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
@@ -1211,8 +1205,8 @@ Check your Administration extensions for these changes:
 
 ### Product documents in the Administration
 
-Roles with product privileges get the matching product document privileges.
-Document files go into the new default media folder "Product Document Media".
+You can add documents on the product detail page, and they are saved in the public folder "Product Document Media" by default.
+
 ### Order detail shows every shipment in 6.8
 
 With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
@@ -1508,10 +1502,9 @@ When maintenance mode was switched off, the redirect from the maintenance page i
 Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
-### Product documents in the Storefront
+### New documents tab on the Storefront product detail page
 
-The description and reviews element on the product page shows the documents of a product in a tab, rendered by `storefront/component/product/documents.html.twig`.
-Each document carries its file in the shopper's language in `media`.
+The product detail page has a new "Documents" tab that lists the documents of the product, which customers can click to download.
 
 ## Hosting & Configuration
 

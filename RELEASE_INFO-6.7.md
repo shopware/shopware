@@ -770,7 +770,7 @@ Clients can compare these hashes to find out which cookies were added or changed
 
 ### Product documents in the API
 
-The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product with their files in the requested language.
+The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product, each with its file in the requested language, or in the default language if it has none.
 
 ### Order deliveries have a `position` field
 

@@ -16,6 +16,7 @@ blocks
       sw_product_detail_base_basic_info_form
     sw_product_detail_base_category_card
       sw_product_detail_base_category_form
+    sw_product_detail_base_documents
     sw_product_detail_base_download_external_management
     sw_product_detail_base_guarantee_card
       sw_product_detail_base_guarantee_form

@@ -4585,7 +4585,7 @@
       "count": 4
     },
     "@typescript-eslint/no-restricted-types": {
-      "count": 40
+      "count": 39
     },
     "max-lines": {
       "count": 1

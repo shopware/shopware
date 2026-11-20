@@ -13,6 +13,7 @@ type Delivery = {
     id: string;
     deliveryStatus: string;
     timestamp?: number;
+    createdAt?: string;
     processingTime?: number;
     requestContent?: { body?: string };
     responseContent?: { body?: unknown };
@@ -47,6 +48,7 @@ const rejected: Delivery = {
 const queued: Delivery = {
     id: 'queued',
     deliveryStatus: 'queued',
+    createdAt: '2026-01-02T00:00:00.000Z',
 };
 
 function createCollection<T>(items: T[]) {
@@ -113,7 +115,7 @@ async function createWrapper({
                 },
                 'sw-time-ago': {
                     props: ['date'],
-                    template: '<span class="sw-time-ago">{{ date.toISOString() }}</span>',
+                    template: '<span class="sw-time-ago">{{ date && new Date(date).toISOString() }}</span>',
                 },
                 'mt-empty-state': true,
             },
@@ -157,11 +159,11 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-deliverie
         expect(status('notPermitted').attributes('data-variant')).toBe('attention');
     });
 
-    it('shows when the last attempt of a delivery started', async () => {
+    it('dates a delivery by its last attempt, or by when it was logged if it was not sent', async () => {
         const { wrapper } = await createWrapper();
 
         expect(wrapper.find('.row-delivered .sent').text()).toBe('2026-01-01T00:00:00.000Z');
-        expect(wrapper.find('.row-queued .sent').text()).toBe('');
+        expect(wrapper.find('.row-queued .sent').text()).toBe('2026-01-02T00:00:00.000Z');
     });
 
     it('shows no payload link for a delivery that was not attempted yet', async () => {

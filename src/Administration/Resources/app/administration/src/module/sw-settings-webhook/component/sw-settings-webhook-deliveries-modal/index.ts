@@ -59,7 +59,7 @@ export default Component.wrapComponentConfig({
             return [
                 {
                     property: 'timestamp',
-                    label: 'sw-settings-webhook.deliveries.columnSentAt',
+                    label: 'sw-settings-webhook.deliveries.columnDate',
                     primary: true,
                 },
                 {
@@ -152,8 +152,8 @@ export default Component.wrapComponentConfig({
             this.activeTab = tab;
         },
 
-        sentAt(timestamp: number): Date {
-            return new Date(timestamp * 1000);
+        date(delivery: Entity<'webhook_event_log'>): Date | string {
+            return delivery.timestamp ? new Date(delivery.timestamp * 1000) : delivery.createdAt;
         },
 
         body(content: unknown): string {

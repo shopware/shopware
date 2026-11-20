@@ -37,7 +37,7 @@
     },
     "deliveries": {
       "title": "Deliveries of \"{name}\"",
-      "columnSentAt": "Sent",
+      "columnDate": "Date",
       "columnStatus": "Status",
       "columnResponse": "Response",
       "columnDuration": "Duration",

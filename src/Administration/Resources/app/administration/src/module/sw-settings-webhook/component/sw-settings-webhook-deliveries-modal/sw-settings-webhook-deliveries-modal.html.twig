@@ -66,10 +66,7 @@
                 :allow-column-edit="false"
             >
                 <template #column-timestamp="{ item }">
-                    <sw-time-ago
-                        v-if="item.timestamp"
-                        :date="sentAt(item.timestamp)"
-                    />
+                    <sw-time-ago :date="date(item)" />
                 </template>
 
                 <template #column-deliveryStatus="{ item }">

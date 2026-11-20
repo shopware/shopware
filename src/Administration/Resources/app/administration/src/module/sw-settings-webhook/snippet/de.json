@@ -37,7 +37,7 @@
     },
     "deliveries": {
       "title": "Zustellungen von \"{name}\"",
-      "columnSentAt": "Gesendet",
+      "columnDate": "Datum",
       "columnStatus": "Status",
       "columnResponse": "Antwort",
       "columnDuration": "Dauer",

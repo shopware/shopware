@@ -83,6 +83,17 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        currentLocale() {
+            return Shopware.Store.get('session').currentLocale;
+        },
+
+        taxRateFormatter() {
+            return new Intl.NumberFormat(this.currentLocale, {
+                style: 'percent',
+                maximumFractionDigits: 3,
+            });
+        },
+
         // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             Shopware.Feature.triggerDeprecationOrThrow(
@@ -256,6 +267,7 @@ export default {
                         entity: 'tax',
                         changeLabel: this.$t('sw-bulk-edit.product.prices.taxRate.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.taxRate.placeholderTax'),
+                        labelCallback: this.getTaxLabel,
                         disabled: this.bulkEditProduct?.taxId?.isInherited,
                     },
                 },
@@ -270,20 +282,6 @@ export default {
                             ? this.$t('sw-bulk-edit.product.prices.price.label')
                             : this.$t('sw-bulk-edit.product.prices.price.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.price.placeholderPrice'),
-                        disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
-                    },
-                },
-                {
-                    name: 'purchasePrices',
-                    config: {
-                        componentName: 'sw-price-field',
-                        price: this.product?.purchasePrices,
-                        taxRate: this.taxRate,
-                        currency: this.currency,
-                        changeLabel: this.isChild
-                            ? this.$t('sw-bulk-edit.product.prices.purchasePrices.label')
-                            : this.$t('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
-                        placeholder: this.$t('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
                         disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
                     },
                 },
@@ -312,6 +310,20 @@ export default {
                             ? this.$t('sw-bulk-edit.product.prices.regulationPrice.label')
                             : this.$t('sw-bulk-edit.product.prices.regulationPrice.changeLabel'),
                         placeholder: this.$t('sw-bulk-edit.product.prices.regulationPrice.placeholderRegulationPrice'),
+                        disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
+                    },
+                },
+                {
+                    name: 'purchasePrices',
+                    config: {
+                        componentName: 'sw-price-field',
+                        price: this.product?.purchasePrices,
+                        taxRate: this.taxRate,
+                        currency: this.currency,
+                        changeLabel: this.isChild
+                            ? this.$t('sw-bulk-edit.product.prices.purchasePrices.label')
+                            : this.$t('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
+                        placeholder: this.$t('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
                         disabled: this.isChild ? this.bulkEditProduct?.isPriceInherited?.isInherited : false,
                     },
                 },
@@ -1138,6 +1150,17 @@ export default {
                 this.taxRate = this.isChild ? this.parentProduct?.tax : taxes[0];
                 Shopware.Store.get('swProductDetail').setTaxes(taxes);
             });
+        },
+
+        getTaxLabel(tax) {
+            if (!tax) {
+                return '';
+            }
+
+            const translationKey = `global.tax-rates.${tax.name}`;
+            const label = this.$te(translationKey) ? this.$t(translationKey) : tax.name;
+
+            return `${label} (${this.taxRateFormatter.format(tax.taxRate / 100)})`;
         },
 
         productTaxRate() {

@@ -1074,6 +1074,12 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Deprecated `sw-product-detail.loadLanguage()`
+
+The method `loadLanguage()` of the Administration page `sw-product-detail` is deprecated and will be removed in v6.8.0.
+The page no longer calls it when the content language changes, because the language auto-fetching service loads the content language with its locale into `Shopware.Context.api.language`.
+Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
+
 ### Product list filters by product documents
 
 The product list has a new "Documents" filter, registered as `product-documents-filter`.

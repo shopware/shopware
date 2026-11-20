@@ -83,6 +83,7 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $scored = $query->hasState(Criteria::SCORE_FIELD);
+        $hasGroupBy = $criteria->getGroupFields() !== [] || $query->hasState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
         if ($scored && $criteria->getGroupFields() !== []) {
             $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, $fields);
         } else {
@@ -90,10 +91,10 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $countQuery = $query;
-        if ($scored
+        if (($scored || $hasGroupBy)
             && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
             && $criteria->getLimit() !== null) {
-            $query = $this->buildWindowTotalQuery($query, $fields);
+            $query = $this->buildWindowTotalQuery($query, $fields, $scored);
         }
 
         // add pagination
@@ -199,7 +200,7 @@ class EntitySearcher implements EntitySearcherInterface
             $partitionColumns[] = 'inner_q.`' . $alias . '`';
         }
 
-        $outer = $this->createOuterQuery($query, $fields, 'ranked');
+        $outer = $this->createOuterQuery($query, $fields, 'ranked', true);
 
         $innerSql = $query->getSQL();
 
@@ -218,9 +219,9 @@ class EntitySearcher implements EntitySearcherInterface
     /**
      * @param array<string, Field> $fields keyed by storage name
      */
-    private function buildWindowTotalQuery(QueryBuilder $query, array $fields): QueryBuilder
+    private function buildWindowTotalQuery(QueryBuilder $query, array $fields, bool $scored): QueryBuilder
     {
-        $outer = $this->createOuterQuery($query, $fields, 'counted');
+        $outer = $this->createOuterQuery($query, $fields, 'counted', $scored);
 
         $outer->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
             ->from('(' . $query->getSQL() . ')', 'counted')
@@ -232,7 +233,7 @@ class EntitySearcher implements EntitySearcherInterface
     /**
      * @param array<string, Field> $fields keyed by storage name
      */
-    private function createOuterQuery(QueryBuilder $query, array $fields, string $alias): QueryBuilder
+    private function createOuterQuery(QueryBuilder $query, array $fields, string $alias, bool $scored): QueryBuilder
     {
         $outer = new QueryBuilder($this->connection);
 
@@ -249,7 +250,12 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query->resetOrderBy();
 
-        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
+        $columns = array_keys($fields);
+        if ($scored) {
+            $columns[] = Criteria::SCORE_FIELD;
+        }
+
+        foreach ($columns as $column) {
             $outer->addSelect($alias . '.' . EntityDefinitionQueryHelper::escape($column));
         }
 

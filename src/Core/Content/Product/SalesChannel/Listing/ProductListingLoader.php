@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFact
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\Search\ResolvedCriteriaProductSearchRoute;
 use Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute;
+use Shopware\Core\Content\Product\SearchKeyword\ScoredMatchesMarker;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -161,7 +162,7 @@ class ProductListingLoader
             function: $this->resolveIds(...)
         );
 
-        $aggregations = $this->productRepository->aggregate($clone, $context);
+        $aggregations = $this->productRepository->aggregate($this->getAggregationCriteria($clone), $context);
 
         $ids = $idResult->getIds();
         // no products found, no need to continue
@@ -442,6 +443,38 @@ class ProductListingLoader
         $read->addAssociation('options.group');
 
         return $this->productRepository->search($read, $context);
+    }
+
+    private function getAggregationCriteria(Criteria $criteria): Criteria
+    {
+        $marker = null;
+        foreach ($criteria->getFilters() as $filter) {
+            $marker ??= $filter->getExtensionOfType(ScoredMatchesMarker::EXTENSION_NAME, ScoredMatchesMarker::class);
+        }
+
+        if ($marker === null) {
+            return $criteria;
+        }
+
+        $markedQueries = 0;
+        foreach ($criteria->getQueries() as $query) {
+            if ($query->getScore() <= 0) {
+                return $criteria;
+            }
+
+            if ($query->hasExtension(ScoredMatchesMarker::EXTENSION_NAME)) {
+                ++$markedQueries;
+            }
+        }
+
+        if ($markedQueries !== $marker->queryCount) {
+            return $criteria;
+        }
+
+        $aggregationCriteria = clone $criteria;
+        $aggregationCriteria->resetQueries();
+
+        return $aggregationCriteria;
     }
 
     private function shouldSkipGrouping(Criteria $criteria): bool

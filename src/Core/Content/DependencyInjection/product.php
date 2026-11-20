@@ -133,6 +133,7 @@ use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilder;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchKeywordAnalyzer;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
+use Shopware\Core\Content\Product\SearchKeyword\SearchConfigRankingChecker;
 use Shopware\Core\Content\Product\Stock\AvailableStockMirrorSubscriber;
 use Shopware\Core\Content\Product\Stock\LoadProductStockSubscriber;
 use Shopware\Core\Content\Product\Stock\OrderStockSubscriber;
@@ -564,9 +565,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('shopware.listing.processor');
 
+    $services->set(SearchConfigRankingChecker::class)
+        ->args([service(Connection::class)]);
+
     $services->set(ProductSearchBuilderInterface::class, ProductSearchBuilder::class)
         ->args([
             service(ProductSearchTermInterpreter::class),
+            service(SearchConfigRankingChecker::class),
             service('logger'),
             param('shopware.search.term_max_length'),
             param('shopware.product.search_keyword.indexing'),

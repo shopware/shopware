@@ -254,9 +254,11 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async loadUploadSettings(): Promise<void> {
-            this.uploadSettings = await this.productDocumentApiService
-                .getUploadSettings()
-                .catch(() => /* the save check still applies */ null);
+            try {
+                this.uploadSettings = await this.productDocumentApiService.getUploadSettings();
+            } catch {
+                this.uploadSettings = null;
+            }
         },
 
         getFileName(document: Entity<'product_document'>): string {

@@ -12,6 +12,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'theme:read',
                 'theme_child:read',
                 'sales_channel:read',
+                'sales_channel_type:read',
                 Shopware.Service('privileges').getPrivileges('media.viewer'),
             ],
             dependencies: [],

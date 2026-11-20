@@ -11,6 +11,40 @@ component sw-extension-permissions-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-permissions-modal/sw-extension-permissions-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  actionLabel?: string  default=literal  [private]
+  closeLabel?: string  default=literal  [private]
+  description?: string  default=literal  [private]
+  domains?: any[]  default=factory  [private]
+  extensionLabel: string  [private]
+  permissions: object  [private]
+  title?: string  default=literal  [private]
+
+emits
+  close-with-action(...args: any[])  [private]
+  modal-close(...args: any[])  [private]
+
+data
+  selectedEntity: any  [private]
+  showDetailsModal: any  [private]
+  showDomainsModal: any  [private]
+
+computed
+  assetFilter: any  [private]
+  closeBtnLabel: any  [private]
+  descriptionText: any  [private]
+  domainsList: any  [private]
+  modalTitle: any  [private]
+  permissionsWithGroupedOperations: any  [private]
+
+methods
+  categoryLabel(category: any): any  [private]
+  close(): any  [private]
+  closeDetailsModal(): any  [private]
+  closeWithAction(): any  [private]
+  openDetailsModal(category: any): any  [private]
+  toggleDomainsModal(shouldOpen: any): any  [private]
+
 blocks
   sw_extension_permissions_modal  [private]
     sw_extension_permissions_modal_content  [private]

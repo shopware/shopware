@@ -10,6 +10,34 @@ component sw-newsletter-recipient-detail  public  js
   source src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/index.js
   template src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail/sw-newsletter-recipient-detail.html.twig
 
+mixins
+  notification, salutation
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  languages: any
+  newsletterRecipient: any
+  salesChannels: any
+  salutations: any
+
+computed
+  identifier: any
+  newsletterRecipientStore: any
+
+methods
+  createdComponent(): any
+  loadCustomFieldSets(): any
+  onCancel(): any
+  onSave(): any
+  onSaveFinish(): any
+
 blocks
   sw_newsletter_recipient_detail
     sw_newsletter_recipient_detail_actions

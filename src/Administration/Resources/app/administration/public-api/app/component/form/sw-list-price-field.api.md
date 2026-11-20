@@ -11,6 +11,39 @@ component sw-list-price-field  private  js  [private]
   template src/app/component/form/sw-list-price-field/sw-list-price-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  compact?: any  default=literal  [private]
+  currency: object  default=factory  [private]
+  defaultPrice?: object  default=factory  [private]
+  disableSuffix?: boolean  default=literal  [private]
+  disabled?: any  default=literal  [private]
+  enableInheritance?: boolean  default=literal  [private]
+  error?: object  default=literal  [private]
+  hideListPrices?: boolean  default=literal  [private]
+  hidePurchasePrices?: boolean  default=literal  [private]
+  hideRegulationPrices?: boolean  default=literal  [private]
+  label?: any  default=literal  [private]
+  price: any[]  default=factory  [private]
+  purchasePrices?: any[]  default=factory  [private]
+  showSettingPrice?: boolean  default=literal  [private]
+  taxRate: object  default=factory  [private]
+  vertical?: boolean  default=literal  [private]
+
+computed
+  defaultListPrice: any  [private]
+  defaultRegulationPrice: any  [private]
+  isInherited: any  [private]
+  listPrice: any  [private]
+  listPriceHelpText: any  [private]
+  priceForCurrency: any  [private]
+  regulationPrice: any  [private]
+  regulationPriceHelpText: any  [private]
+
+methods
+  convertPrice(value: any): any  [private]
+  listPriceChanged(value: any): any  [private]
+  regulationPriceChanged(value: any): any  [private]
+
 blocks
   sw_list_price_field  [private]
     sw_list_price_field_list_price  [private]

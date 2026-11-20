@@ -11,6 +11,36 @@ component sw-media-compact-upload-v2  public  js
   source src/app/component/media/sw-media-compact-upload-v2/index.js
   template src/app/component/media/sw-media-compact-upload-v2/sw-media-compact-upload-v2.html.twig
 
+props
+  allowMultiSelect?: boolean  default=literal
+  disableDeletionForLastItem?: object  default=factory
+  fileAccept?: string  default=literal
+  removeButtonLabel?: string  default=literal
+  source?: object | string  default=literal
+  sourceMultiselect?: any[]  default=factory
+  variant?: string  default=literal
+
+emits
+  delete-item(...args: any[])
+  selection-change(...args: any[])
+
+slots
+  context-menu-items  {}  block=sw_media_upload_v2_preview
+
+data
+  mediaModalIsOpen: any
+
+computed
+  isDeletionDisabled: any
+  mediaNameFilter: any
+  mediaPreview: any
+  removeFileButtonLabel: any
+
+methods
+  closeModal(): any
+  getFileName(item: any): any
+  onModalClosed(selection: any): any
+
 blocks
   sw_media_upload_v2  [replaced]
     sw_media_upload_v2_compact
@@ -30,4 +60,9 @@ blocks
           sw_media_upload_v2_regular_preview_fallback  [after v-if]
           sw_media_upload_v2_regular_preview_file
       sw_media_upload_v2_regular_header
+
+refs
+  dropzone  -> div
+  fileForm  -> form
+  fileInput  -> input
 ```

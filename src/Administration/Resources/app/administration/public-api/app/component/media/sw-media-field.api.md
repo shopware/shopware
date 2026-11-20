@@ -10,6 +10,58 @@ component sw-media-field  public  js
   source src/app/component/media/sw-media-field/index.js
   template src/app/component/media/sw-media-field/sw-media-field.html.twig
 
+inject
+  feature
+  repositoryFactory
+
+props
+  defaultFolder?: string  default=literal
+  disabled?: boolean  default=literal
+  fileAccept?: string  default=literal
+  label?: string  default=literal
+  value?: any  default=literal
+
+emits
+  update:value(...args: any[])
+
+slots
+  label  {}  block=sw_media_field_label
+
+data
+  isLoadingSuggestions: any
+  limit: any
+  mediaEntity: any
+  page: any
+  pickerClasses: any
+  searchTerm: any
+  showPicker: any
+  showUploadField: any
+  suggestedItems: any
+  total: any
+  uploadTag: any
+
+computed
+  mediaFieldClasses: any
+  mediaId: any
+  mediaRepository: any
+  popoverConfig: any
+  suggestionCriteria: any
+  toggleButtonLabel: any
+
+methods
+  computePickerPositionAndStyle(): any
+  createdComponent(): any
+  exposeNewId(arg0: any): any
+  fetchItem(id?: any): Promise<any>
+  fetchSuggestions(): Promise<any>
+  mediaItemChanged(newMediaId: any): any
+  onPageChange(arg0: any): any
+  onSearchTermChange(searchTerm: any): any
+  onTogglePicker(): any
+  removeLink(): any
+  showLabel(): any
+  toggleUploadField(): any
+
 blocks
   sw_media_field
     sw_media_field_input  [after v-if]

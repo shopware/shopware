@@ -12,6 +12,25 @@ component sw-switch-field-deprecated  private  js  [private]
   template src/app/component/form/sw-switch-field-deprecated/sw-switch-field-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+props
+  ariaLabel?: string  default=factory  [private]
+  noMarginTop?: boolean  default=literal  [private]
+  size?: string  default=literal  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_switch_field  [private]
+  label  {}  block=sw_switch_field  [private]
+
+computed
+  swSwitchFieldClasses: any  [private]
+
+methods
+  onInheritanceRestore(event: any): any  [private]
+
 blocks
   sw_checkbox_field  [replaced] [private]
     sw_switch_field  [private]

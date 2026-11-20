@@ -11,6 +11,28 @@ component sw-card-filter  private  js  [private]
   template src/app/component/base/sw-card-filter/sw-card-filter.html.twig  [private]
   visibility-source export  [private]
 
+props
+  delay?: number  default=literal  [private]
+  initialSearchTerm?: string  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+
+emits
+  sw-card-filter-term-change(...args: any[])  [private]
+
+slots
+  filter  {}  block=sw_card_filter_bar_container_field_filter  [private]
+
+data
+  term: any  [private]
+
+computed
+  hasFilter: any  [private]
+  hasFilterClass: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onSearchTermChange(): any  [private]
+
 blocks
   sw_card_search_bar  [private]
     sw_card_filter_bar_container  [private]

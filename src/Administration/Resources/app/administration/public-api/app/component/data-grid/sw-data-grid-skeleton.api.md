@@ -11,6 +11,16 @@ component sw-data-grid-skeleton  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-skeleton/sw-data-grid-skeleton.html.twig  [private]
   visibility-source export  [private]
 
+props
+  currentColumns: any[]  default=factory  [private]
+  hasResizeColumns: boolean  default=literal  [private]
+  itemAmount?: number  default=literal  [private]
+  showActions?: boolean  default=literal  [private]
+  showSelection?: boolean  default=literal  [private]
+
+methods
+  getRandomLength(): any  [private]
+
 blocks
   sw_data_grid_skeleton  [private]
     sw_data_grid_skeleton_row  [private]

@@ -10,6 +10,27 @@ component sw-media-display-options  public  js
   source src/module/sw-media/component/sw-media-display-options/index.js
   template src/module/sw-media/component/sw-media-display-options/sw-media-display-options.html.twig
 
+props
+  disabled?: boolean  default=literal
+  hidePresentation?: boolean  default=literal
+  presentation?: string  default=literal
+  sorting?: object  default=factory
+
+emits
+  media-presentation-change(...args: any[])
+  media-sorting-change(...args: any[])
+
+computed
+  presentationOptions: any
+  previewOptions: any
+  sortOptions: any
+  sortOptionsSelect: any
+  sortingConCat: any
+
+methods
+  onPresentationChanged(value: any): any
+  onSortingChanged(value: any): any
+
 blocks
   sw_media_display_options
     sw_media_display_options_presentation

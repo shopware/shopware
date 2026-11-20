@@ -1,0 +1,38 @@
+[
+    {
+        "group": "Break",
+        "rule": "bc_change_invalid",
+        "element": "component:sw-example-list/method:onPageChange/param:limit",
+        "states": ["current", "major"],
+        "explanation": "The @bc-change ParameterRemoval marker names the parameter limit, which onPageChange does not have, so the marker announces nothing.",
+        "fix": "name a parameter of onPageChange in the marker, or remove the marker.",
+        "at": "src/app/component/base/sw-example-list/index.js:37"
+    },
+    {
+        "group": "Break",
+        "rule": "pattern_incomplete",
+        "element": "component:sw-example-list/method:validateSelection",
+        "states": ["current", "major"],
+        "explanation": "The @deprecated tag names the replacement hasSelection, which does not exist in the current state, so plugins have nothing to switch to.",
+        "fix": "pattern \"Rename\". Add hasSelection in this PR, or remove the {@link} when there is no replacement.",
+        "at": "src/app/component/base/sw-example-list/index.js:44"
+    },
+    {
+        "group": "Info",
+        "rule": "bc_change_added",
+        "explanation": "The method now carries @bc-change ParameterRemoval version:v6.8.0, so this change in v6.8.0 is announced.",
+        "fix": "add an upgrade note for it to UPGRADE-6.8.md.",
+        "element": "component:sw-example-list/method:onDeleteItem/param:itemIndex",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-list/index.js:31"
+    },
+    {
+        "group": "Info",
+        "rule": "deprecation_added",
+        "explanation": "The method now carries @deprecated tag:v6.8.0, so its removal in v6.8.0 is announced.",
+        "fix": "add an upgrade note for it to UPGRADE-6.8.md.",
+        "element": "component:sw-example-list/method:validateSelection",
+        "states": ["current", "major"],
+        "at": "src/app/component/base/sw-example-list/index.js:45"
+    }
+]

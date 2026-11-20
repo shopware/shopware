@@ -10,6 +10,40 @@ component sw-promotion-v2-generate-codes-modal  public  js
   source src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/index.js
   template src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-generate-codes-modal/sw-promotion-v2-generate-codes-modal.html.twig
 
+mixins
+  notification
+
+inject
+  promotionCodeApiService
+
+props
+  promotion: object
+
+emits
+  close(...args: any[])
+  generate-finish(...args: any[])
+
+data
+  codeAmount: any
+  customPatternMode: any
+  isGenerating: any
+  pattern: object
+    codeLength: any
+    prefix: any
+    suffix: any
+  preview: any
+
+computed
+  hasValidPattern: any
+  patternError: any
+
+methods
+  createdComponent(): any
+  onClose(): any
+  onGenerate(): any
+  updatePattern(): any
+  updatePreview(): any
+
 blocks
   sw_promotion_v2_generate_codes_modal
     sw_promotion_v2_generate_codes_modal_content

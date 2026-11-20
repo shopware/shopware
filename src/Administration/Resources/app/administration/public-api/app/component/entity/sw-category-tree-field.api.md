@@ -11,6 +11,82 @@ component sw-category-tree-field  private  js  [private]
   template src/app/component/entity/sw-category-tree-field/sw-category-tree-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  allowedTypes?: any[]  default=literal  [private]
+  categoriesCollection: any[]  [private]
+  categoryCriteria?: any  default=factory  [private]
+  disabled?: boolean  default=literal  [private]
+  isCategoriesLoading?: boolean  default=literal  [private]
+  pageId?: string  default=literal  [private]
+  placeholder: string  [private]
+  singleSelect?: boolean  default=literal  [private]
+
+emits
+  categories-load-more(...args: any[])  [private]
+  selection-add(...args: any[])  [private]
+  selection-remove(...args: any[])  [private]
+  update:categoriesCollection(...args: any[])  [private]
+
+slots
+  labelProperty  {}  block=sw_category_tree_field_input_labels_hidden_tag  [private]
+  labelProperty  {}  block=sw_category_tree_field_input_labels_property  [private]
+
+data
+  categories: any  [private]
+  isComponentReady: any  [private]
+  isExpanded: any  [private]
+  isFetching: any  [private]
+  removeInputFocusClass: any  [private]
+  searchResult: any  [private]
+  searchResultFocusItem: any  [private]
+  selectedCategories: any  [private]
+  selectedCategoriesTotal: any  [private]
+  selectedTreeItem: any  [private]
+  setInputFocusClass: any  [private]
+  term: any  [private]
+
+computed
+  categoryRepository: any  [private]
+  globalCategoryRepository: any  [private]
+  numberOfHiddenTags: any  [private]
+  pageCategoryCriteria: any  [private]
+  selectedCategoriesItemsIds: any  [private]
+  selectedCategoriesItemsTotal: any  [private]
+  selectedCategoriesPathIds: any  [private]
+  visibleTags: any  [private]
+
+methods
+  changeSearchSelection(type?: any): any  [private]
+  closeDropdown(): any  [private]
+  closeDropdownOnClickOutside(event: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  disableCategories(categories: any): any  [private]
+  emitCategoriesCollectionUpdate(): any  [private]
+  findTreeItemVNodeById(itemId?: any, children?: any): any  [private]
+  getBreadcrumb(item: any): any  [private]
+  getFirstChildById(itemId: any, children?: any): any  [private]
+  getLabelName(item: any): any  [private]
+  getSibling(isNext: any, item: any, children?: any): any  [private]
+  getTreeItems(parentId?: any): Promise<any>  [private]
+  handleArrowKeyEvents(event: any): any  [private]
+  handleGeneralKeyEvents(event: any): any  [private]
+  isSearchItemChecked(itemId: any): any  [private]
+  isSearchResultInFocus(item: any): any  [private]
+  onCheckItem(item: any): any  [private]
+  onCheckSearchItem(item: any): any  [private]
+  onDeleteKeyup(): any  [private]
+  openDropdown(arg0: any): any  [private]
+  removeCheckedItems(keepId: any): any  [private]
+  removeItem(item: any): any  [private]
+  removeTagLimit(): any  [private]
+  searchCategories(term: any): any  [private]
+  toggleDropdown(arg0: any): any  [private]
+  toggleSelectedTreeItem(shouldOpen: any): any  [private]
+
 blocks
   sw_category_tree_field  [private]
     sw_category_tree_field_input  [private]
@@ -41,4 +117,9 @@ crossings
   v-if  sw_category_tree_field_input_results_search_results -> sw_category_tree_field_input_search_results_empty  [private]
   v-if  sw_category_tree_field_input_results_search_results_item_folder -> sw_category_tree_field_input_results_search_results_item_endpoint  [private]
   v-if  sw_category_tree_field_input_results_tree -> sw_category_tree_field_input_results_search_results  [private]
+
+refs
+  searchInput  -> input  [private]
+  swCategoryTreeField  -> div  [private]
+  swTree  -> sw-tree  [private]
 ```

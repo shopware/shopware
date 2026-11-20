@@ -11,9 +11,55 @@ component sw-context-button  private  js  [private]
   template src/app/component/context-menu/sw-context-button/sw-context-button.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  additionalContextMenuClasses?: object  default=factory  [private]
+  ariaLabel?: string  default=literal  [private]
+  autoClose?: boolean  default=literal  [private]
+  autoCloseOutsideClick?: boolean  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  icon?: string  default=literal  [private]
+  iconSize?: string  default=literal  [private]
+  menuHorizontalAlign?: string  default=literal  [private]
+  menuVerticalAlign?: string  default=literal  [private]
+  menuWidth?: number  default=literal  [private]
+  showMenuOnStartup?: boolean  default=literal  [private]
+  zIndex?: number  default=literal  [private]
+
+emits
+  on-open-change(...args: any[])  [private]
+
+slots
+  button  {}  block=sw_context_button_button  [private]
+  default  {}  block=sw_context_button_menu  [private]
+
+data
+  showMenu: any  [private]
+
+computed
+  contextButtonClass: any  [private]
+  contextClass: any  [private]
+  contextMenuClass: any  [private]
+  menuStyles: any  [private]
+
+methods
+  beforeUnmountComponent(): any  [private]
+  closeMenu(): any  [private]
+  handleClickEvent(event: any): any  [private]
+  handleOutsideClickEvent(event: any): any  [private]
+  onClickButton(): any  [private]
+  openMenu(): any  [private]
+  removeClickEventListeners(): any  [private]
+
 blocks
   sw_context_button  [private]
     sw_context_button_button  [private]
     sw_context_button_menu  [private]
       sw_context_button_menu_slot_default  [private]
+
+refs
+  swContextButton  -> button  [private]
+  swContextMenu  -> sw-context-menu  [private]
 ```

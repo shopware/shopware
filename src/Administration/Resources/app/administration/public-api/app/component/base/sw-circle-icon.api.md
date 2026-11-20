@@ -11,6 +11,15 @@ component sw-circle-icon  private  js  [private]
   template src/app/component/base/sw-circle-icon/sw-circle-icon.html.twig  [private]
   visibility-source export  [private]
 
+props
+  iconName: string  [private]
+  size?: number  default=literal  [private]
+  variant?: string  default=literal  [private]
+
+computed
+  backgroundStyles: any  [private]
+  iconSize: any  [private]
+
 blocks
   sw_circle_icon  [private]
 ```

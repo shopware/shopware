@@ -11,6 +11,40 @@ component sw-card-deprecated  private  js  [private]
   template src/app/component/base/sw-card-deprecated/sw-card-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  aiBadge?: boolean  default=literal  [private]
+  contentPadding?: boolean  default=literal  [private]
+  hero?: boolean  default=literal  [private]
+  isLoading?: boolean  default=literal  [private]
+  large?: boolean  default=literal  [private]
+  positionIdentifier: string  default=literal  [private]
+  subtitle?: string  default=literal  [private]
+  title?: string  default=literal  [private]
+
+slots
+  avatar  {}  block=sw_card  [private]
+  context-actions  {}  block=sw_card_content  [private]
+  default  {}  block=sw_card_content  [private]
+  footer  {}  block=sw_card_content  [private]
+  grid  { title }  block=sw_card_content  [private]
+  header-right  {}  block=sw_card  [private]
+  subtitle  {}  block=sw_card_subtitle  [private]
+  tabs  {}  block=sw_card  [private]
+  title  {}  block=sw_card_title  [private]
+  toolbar  {}  block=sw_card_toolbar_inner  [private]
+
+computed
+  cardContentClasses: any  [private]
+  contextSlot: any  [private]
+  hasAvatar: any  [private]
+  showHeader: any  [private]
+
+methods
+  cardClasses(): any  [private]
+
 blocks
   sw_card  [private]
     sw_card_content  [after v-if] [private]

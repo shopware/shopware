@@ -11,6 +11,57 @@ component sw-multi-tag-select  private  js  [private]
   template src/app/component/form/select/base/sw-multi-tag-select/sw-multi-tag-select.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  autocomplete?: string  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  invalidMessage?: string  default=literal  [private]
+  isLoading?: boolean  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  validMessage?: string  default=literal  [private]
+  validate?: (...args: any[]) => any  default=factory  [private]
+  value: any[]  [private]
+  valueLimit?: number  default=literal  [private]
+
+emits
+  add-item-is-valid(...args: any[])  [private]
+  display-values-expand(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_multi_tag_select  [private]
+  label  {}  block=sw_multi_tag_select  [private]
+  message-add-data  {}  block=sw_multi_tag_select_validation_valid_message  [private]
+  message-enter-valid-data  {}  block=sw_multi_tag_select_validation_invalid_message  [private]
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty} }  block=sw_multi_tag_select_base_selection_list_label_inner  [private]
+
+data
+  hasFocus: any  [private]
+  limit: any  [private]
+  searchTerm: any  [private]
+
+computed
+  errorObject: any  [private]
+  inputIsValid: any  [private]
+  invisibleValueCount: any  [private]
+  totalValuesCount: any  [private]
+  visibleValues: any  [private]
+
+methods
+  addItem(): any  [private]
+  expandValueLimit(): any  [private]
+  getKey(...args: any[]): any  [private]
+  onSearchTermChange(term: any): any  [private]
+  onSelectionListKeyDownEnter(): any  [private]
+  remove(arg0: any): any  [private]
+  removeLastItem(): any  [private]
+  setDropDown(open?: any): any  [private]
+
 blocks
   sw_multi_tag_select  [private]
     sw_multi_tag_select_base  [private]
@@ -27,4 +78,7 @@ blocks
 
 crossings
   v-if  sw_multi_tag_select_validation_valid -> sw_multi_tag_select_validation_invalid  [private]
+
+refs
+  selectionList  -> sw-select-selection-list  [private]
 ```

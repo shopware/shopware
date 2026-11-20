@@ -11,6 +11,52 @@ component sw-code-editor  private  js  [private]
   template src/app/component/form/sw-code-editor/sw-code-editor.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  userInputSanitizeService  [private]
+
+props
+  completerFunction?: (...args: any[]) => any  default=literal  [private]
+  completionMode?: string  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  editorConfig?: object  default=factory  [private]
+  error?: object  default=literal  [private]
+  label?: string  default=literal  [private]
+  mode?: string  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  required?: boolean  default=literal  [private]
+  sanitizeFieldName?: string  default=literal  [private]
+  sanitizeInfoWarn?: boolean  default=literal  [private]
+  sanitizeInput?: boolean  default=literal  [private]
+  setFocus?: boolean  default=literal  [private]
+  softWraps?: boolean  default=literal  [private]
+  value?: string  default=literal  [private]
+
+emits
+  blur(...args: any[])  [private]
+  mounted(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+data
+  contentWasSanitized: any  [private]
+  editor: any  [private]
+  editorId: any  [private]
+
+computed
+  aceConfig: any  [private]
+  attrsWithoutClass: any  [private]
+  classes: any  [private]
+  enableHtmlSanitizer: any  [private]
+
+methods
+  beforeUnmountedComponent(): any  [private]
+  defineAutocompletion(completerFunction: any): any  [private]
+  destroyedComponent(): any  [private]
+  mountedComponent(): any  [private]
+  onBlur(): Promise<any>  [private]
+  onInput(): any  [private]
+  sanitizeEditorInput(value: any): Promise<any>  [private]
+
 blocks
   sw_code_editor  [private]
     sw_code_editor_editor  [private]
@@ -20,4 +66,7 @@ blocks
         sw_code_editor_sanitize_info_content_sanitized  [private]
       sw_code_editor_sanitize_info_content_hint  [private]
     sw_text_editor_label  [private]
+
+notes
+  dynamic-ref `editor${editorId}`  [private]
 ```

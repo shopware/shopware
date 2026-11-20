@@ -10,6 +10,60 @@ component sw-image-slider  public  js
   source src/app/component/media/sw-image-slider/index.js
   template src/app/component/media/sw-image-slider/sw-image-slider.html.twig
 
+props
+  arrowStyle?: string  default=literal
+  autoWidth?: boolean  default=literal
+  bordered?: boolean  default=literal
+  buttonStyle?: string  default=literal
+  canvasHeight?: number  default=literal
+  canvasWidth?: number  default=literal
+  displayMode?: string  default=literal
+  elementPadding?: number  default=literal
+  enableDescriptions?: boolean  default=literal
+  gap?: number  default=literal
+  images: any[]
+  initialIndex?: number  default=literal
+  itemPerPage?: number  default=literal
+  navigationType?: string  default=literal
+  overflow?: string  default=literal
+  rewind?: boolean  default=literal
+  rounded?: boolean  default=literal
+
+emits
+  image-change(...args: any[])
+
+data
+  currentItemIndex: any
+  currentPageNumber: any
+
+computed
+  buttonClasses: any
+  buttonList: any
+  componentStyles: any
+  containerStyles: any
+  imageStyles: any
+  remainder: any
+  scrollableContainerStyles: any
+  showArrows: any
+  showButtons: any
+  totalPage: any
+  wrapperStyles: any
+
+methods
+  borderStyles(image: any): any
+  elementClasses(index: any): any
+  elementStyles(image: any, index: any): any
+  getImage(image: any): any
+  goToNextImage(): any
+  goToPreviousImage(): any
+  hasValidDescription(image: any): any
+  imageAlt(index: any): any
+  imageClasses(index: any): any
+  isHiddenItem(index: any): any
+  isImageObject(image: any): any
+  onSetCurrentItem(index: any): any
+  setCurrentPageNumber(pageNumber: any): any
+
 blocks
   sw_image_slider
     sw_image_slider_button_container

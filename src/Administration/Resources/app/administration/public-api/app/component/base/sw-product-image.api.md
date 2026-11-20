@@ -11,6 +11,21 @@ component sw-product-image  private  js  [private]
   template src/app/component/base/sw-product-image/sw-product-image.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isArReady?: boolean  default=literal  [private]
+  isCover?: boolean  default=literal  [private]
+  isPlaceholder?: boolean  default=literal  [private]
+  isSpatial?: boolean  default=literal  [private]
+  mediaId: string  [private]
+  showCoverLabel?: boolean  default=literal  [private]
+
+emits
+  sw-product-image-cover(...args: any[])  [private]
+  sw-product-image-delete(...args: any[])  [private]
+
+computed
+  productImageClasses: any  [private]
+
 blocks
   sw_product_image  [private]
     sw_product_image_context  [private]

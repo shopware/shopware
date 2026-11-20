@@ -288,7 +288,7 @@ export default [
             '!scripts/generate-public-api/',
             '!scripts/generate-public-api/**/*',
             // Fixture source trees are inputs of the generator, not Administration code.
-            'scripts/generate-public-api/__fixtures__/**/*',
+            'scripts/generate-public-api/testing/__fixtures__/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',

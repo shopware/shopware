@@ -11,6 +11,34 @@ component sw-condition-modal  private  js  [private]
   template src/app/component/rule/sw-condition-modal/sw-condition-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  allowedTypes?: any[]  default=literal  [private]
+  childAssociationField?: string  default=literal  [private]
+  condition?: object  default=literal  [private]
+  conditionDataProviderService: object  [private]
+  scopes?: any[]  default=factory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  childConditions: any  [private]
+  deletedIds: any  [private]
+
+computed
+  conditionRepository: any  [private]
+  initialConditions: any  [private]
+
+methods
+  closeModal(): any  [private]
+  deleteAndClose(): any  [private]
+  deleteChildren(ids: any, context: any): Promise<any>  [private]
+  onConditionsChanged(arg0: any): any  [private]
+  saveAndCloseModal(): any  [private]
+
 blocks
   sw_condition_modal  [private]
     sw_condition_modal_footer  [private]

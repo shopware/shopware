@@ -11,6 +11,18 @@ component sw-rating-stars  private  js  [private]
   template src/app/component/base/sw-rating-stars/sw-rating-stars.html.twig  [private]
   visibility-source export  [private]
 
+props
+  displayFractions?: number  default=literal  [private]
+  iconSize?: number  default=literal  [private]
+  maxStars?: number  default=literal  [private]
+  value: number  [private]
+
+computed
+  cappedValue: any  [private]
+  dynamicWidthStyle: any  [private]
+  partialStarCutStyle: any  [private]
+  ratingTooltip: any  [private]
+
 blocks
   sw_rating_stars  [private]
     sw_rating_stars_placeholder  [private]

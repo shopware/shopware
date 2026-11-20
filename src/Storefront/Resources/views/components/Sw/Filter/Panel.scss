@@ -32,6 +32,11 @@
         right: 0.5rem;
         top: 0.7rem;
     }
+
+    // The open offcanvas shows every filter, so there is nothing to expand
+    .sw-offcanvas.show & {
+        display: none;
+    }
 }
 
 .sw-filter-panel__offcanvas-toggle.btn-filter {

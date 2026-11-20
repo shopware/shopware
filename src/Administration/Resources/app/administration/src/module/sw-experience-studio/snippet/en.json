@@ -201,6 +201,28 @@
             }
           }
         },
+        "showFiltersInOffcanvas": {
+          "title": "Show Filters in Off-Canvas",
+          "helpText": "Turn this on for the small breakpoints where the filters do not fit next to the content. From the first breakpoint that is turned off, the filters are shown directly on every larger breakpoint.",
+          "xs": {
+            "title": "Show Filters in Off-Canvas (XS)"
+          },
+          "sm": {
+            "title": "Show Filters in Off-Canvas (SM)"
+          },
+          "md": {
+            "title": "Show Filters in Off-Canvas (MD)"
+          },
+          "lg": {
+            "title": "Show Filters in Off-Canvas (LG)"
+          },
+          "xl": {
+            "title": "Show Filters in Off-Canvas (XL)"
+          },
+          "xxl": {
+            "title": "Show Filters in Off-Canvas (XXL)"
+          }
+        },
         "visibleFilterCount": {
           "title": "Visible Filter Count"
         },

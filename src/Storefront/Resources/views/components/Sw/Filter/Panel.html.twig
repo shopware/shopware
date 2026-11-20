@@ -12,11 +12,30 @@
     visibleFilterCount = 3,
     displayType = 'inline',
     propertyAllowList = null,
+    showFiltersInOffcanvas = null,
 %}
 
 {% set filterOrder = ['price', 'rating', 'manufacturer', 'shipping-free', 'properties'] %}
 
 {% set offcanvasId = 'filter-offcanvas-' ~ random() %}
+
+{# A breakpoint the setting leaves open keeps the default, so layouts stored before the setting existed render unchanged. #}
+{% set offcanvasDefaults = { xs: true, sm: true, md: false, lg: false, xl: false, xxl: false } %}
+
+{# Bootstrap's responsive offcanvas switches at one breakpoint: the first one turned off, counting up from xs. #}
+{# Null keeps the filters in the offcanvas on every breakpoint. #}
+{% set offcanvasBreakpoint = null %}
+{% for breakpoint, offcanvasDefault in offcanvasDefaults %}
+    {% set showInOffcanvas = showFiltersInOffcanvas is mapping
+        ? (showFiltersInOffcanvas[breakpoint] ?? offcanvasDefault)
+        : (showFiltersInOffcanvas ?? offcanvasDefault) %}
+    {% if offcanvasBreakpoint is null and not showInOffcanvas %}
+        {% set offcanvasBreakpoint = breakpoint %}
+    {% endif %}
+{% endfor %}
+
+{% set hasOffcanvas = offcanvasBreakpoint != 'xs' %}
+{% set offcanvasToggleClass = offcanvasBreakpoint ? 'd-block d-' ~ offcanvasBreakpoint ~ '-none' : 'd-block' %}
 
 {% set filterPanelOptions = {
     visibleFilterCount: visibleFilterCount,
@@ -164,7 +183,7 @@
         {% endblock %}
     {% endset %}
 
-    <twig:Sw:Content:Offcanvas :id="offcanvasId" title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
+    {% set filterContent %}
         <div class="sw-filter-panel__filter">
 
             {{ filterTemplate }}
@@ -173,7 +192,7 @@
             {% if filterAggregations is not empty %}
                 <twig:Sw:Button
                     variant="filter"
-                    class="sw-filter-panel__expand d-none d-md-block"
+                    class="sw-filter-panel__expand"
                 >
                     <span class="sw-filter-panel__expand-text">{{ 'listing.filterButtonMore'|trans|sw_sanitize }}</span>
                     <span class="sw-filter-panel__collapse-text">{{ 'listing.filterButtonLess'|trans|sw_sanitize }}</span>
@@ -181,17 +200,28 @@
                 </twig:Sw:Button>
             {% endif %}
         </div>
-    </twig:Sw:Content:Offcanvas>
+    {% endset %}
 
-    {# Offcanvas filter button for mobile #}
-    <twig:Sw:Button
-        variant="filter"
-        class="sw-filter-panel__offcanvas-toggle d-block d-md-none"
-        aria-controls="{{ offcanvasId }}"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#{{ offcanvasId }}">
-        {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
-    </twig:Sw:Button>
+    {% if hasOffcanvas %}
+        <twig:Sw:Content:Offcanvas
+            :id="offcanvasId"
+            :breakpoint="offcanvasBreakpoint ?: false"
+            title="{{ 'listing.filterTitle'|trans|sw_sanitize }}">
+            {{ filterContent }}
+        </twig:Sw:Content:Offcanvas>
+
+        {# Offcanvas filter button for the breakpoints below offcanvasBreakpoint #}
+        <twig:Sw:Button
+            variant="filter"
+            class="sw-filter-panel__offcanvas-toggle {{ offcanvasToggleClass }}"
+            aria-controls="{{ offcanvasId }}"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#{{ offcanvasId }}">
+            {{ 'listing.filterTitle'|trans|sw_sanitize }} <twig:Sw:Icon name="sliders-horizontal" size="xs" />
+        </twig:Sw:Button>
+    {% else %}
+        {{ filterContent }}
+    {% endif %}
 
     {% block activeFilters %}
         <twig:Sw:Filter:ActiveFilters />

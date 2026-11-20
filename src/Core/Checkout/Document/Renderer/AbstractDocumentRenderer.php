@@ -56,10 +56,14 @@ abstract class AbstractDocumentRenderer
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver::isIntraCommunityDelivery() instead
+     *
      * @param array<string, mixed> $config
      */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         if (($config['displayAdditionalNoteDelivery'] ?? false) === false) {
             return false;
         }
@@ -91,8 +95,13 @@ abstract class AbstractDocumentRenderer
         return $isCompanyTaxFree && $isPartOfEu;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use \Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver::isIntraCommunityDelivery() instead
+     */
     protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
         if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
             return false;

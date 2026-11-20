@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Event\StornoOrdersEvent;
@@ -23,7 +24,6 @@ use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
@@ -50,8 +50,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
         private readonly ReferenceInvoiceLoader $referenceInvoiceLoader,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
-        private readonly ValidatorInterface $validator,
         private readonly ClockInterface $clock,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -138,10 +138,8 @@ final class StornoRenderer extends AbstractDocumentRenderer
                         'stornoNumber' => $number,
                         'invoiceNumber' => $referenceDocumentNumber,
                     ],
-                    'intraCommunityDelivery' => $this->isAllowIntraCommunityDelivery(
-                        $config->jsonSerialize(),
-                        $order,
-                    ) && $this->isValidVat($order, $this->validator),
+                    'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
+                        && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
                 ]);
 
                 if ($operation->isStatic()) {

@@ -44,4 +44,5 @@ blocks
             sw_customer_card_password_confirm
       sw_customer_card_row_secondary
         sw_customer_card_slot_default
+      sw_customer_card_vat_id_warning
 ```

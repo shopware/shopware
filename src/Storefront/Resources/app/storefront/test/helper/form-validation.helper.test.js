@@ -592,6 +592,40 @@ describe('form-validation', () => {
         expect(field.classList).toContain(formValidation.config.invalidClass);
     });
 
+    test('should prefer a rule specific message and fall back to the default for other rules', () => {
+        document.body.innerHTML = `
+            <form id="testForm">
+                <div class="form-group">
+                    <label for="vatId">VAT ID</label>
+                    <input
+                      type="text"
+                      id="vatId"
+                      data-validation="required"
+                      pattern="DE[0-9]{9}"
+                      data-form-validation-pattern-message="Wrong VAT ID format"
+                      aria-describedby="vatId-feedback"
+                    >
+                    <div id="vatId-feedback" class="form-field-feedback"></div>
+                </div>
+            </form>
+        `;
+
+        const field = document.getElementById('vatId');
+        const feedback = document.getElementById('vatId-feedback');
+        field.checkVisibility = jest.fn().mockReturnValue(true);
+
+        formValidation.validateField(field);
+        expect(feedback.textContent).toBe('Input should not be empty.');
+
+        field.value = 'DE12';
+        formValidation.validateField(field);
+        expect(feedback.textContent).toBe('Wrong VAT ID format');
+
+        field.setAttribute('data-form-validation-error-message', 'Generic override');
+        formValidation.validateField(field);
+        expect(feedback.textContent).toBe('Wrong VAT ID format');
+    });
+
     describe('validateGrecaptcha', () => {
         let mockDispatchEvent;
         let originalUseDefaultCookieConsent;
@@ -717,7 +751,7 @@ describe('form-validation', () => {
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
                     type: 'showCookieBar',
-                })
+                }),
             );
 
             mockGetItem.mockRestore();
@@ -736,7 +770,7 @@ describe('form-validation', () => {
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
                     type: 'showCookieBar',
-                })
+                }),
             );
 
             mockGetItem.mockRestore();
@@ -760,7 +794,7 @@ describe('form-validation', () => {
             expect(mockDispatchEvent).toHaveBeenCalledWith(
                 expect.objectContaining({
                     type: 'showCookieBar',
-                })
+                }),
             );
 
             mockGetItem.mockRestore();
@@ -1103,7 +1137,7 @@ describe('form-validation', () => {
             expect(consoleErrorSpy).toHaveBeenCalledWith(
                 expect.stringContaining('[FormValidation]: Invalid regex pattern'),
                 field,
-                expect.anything()
+                expect.anything(),
             );
 
             consoleErrorSpy.mockRestore();

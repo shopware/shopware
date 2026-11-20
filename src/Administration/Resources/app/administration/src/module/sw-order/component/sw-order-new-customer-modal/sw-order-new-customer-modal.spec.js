@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
+import CustomerVatIdService from 'src/app/service/customer-vat-id.service';
 
 /**
  * @sw-package checkout
@@ -14,6 +15,64 @@ async function createWrapper({
         languageRepositoryMock: undefined,
     },
 } = {}) {
+    const repositoryFactory = {
+        create: (entity) => {
+            if (entity === 'customer') {
+                if (repositoryMocks.customerRepositoryMock) {
+                    return repositoryMocks.customerRepositoryMock;
+                }
+
+                return {
+                    create: () => {
+                        return {
+                            id: '1',
+                            addresses: new EntityCollection('/customer_address', 'customer_address', Context.api, null, []),
+                        };
+                    },
+                    save: () => Promise.resolve(),
+                };
+            }
+
+            if (entity === 'language') {
+                if (repositoryMocks.languageRepositoryMock) {
+                    return repositoryMocks.languageRepositoryMock;
+                }
+
+                return {
+                    searchIds: () =>
+                        Promise.resolve({
+                            total: 1,
+                            data: ['1'],
+                        }),
+                };
+            }
+
+            if (entity === 'salutation') {
+                return {
+                    searchIds: () =>
+                        Promise.resolve({
+                            total: 1,
+                            data: ['salutationId'],
+                        }),
+                };
+            }
+
+            if (entity === 'customer_address') {
+                return {
+                    create: () => {
+                        return {
+                            id: 'new-shipping-address-id',
+                        };
+                    },
+                };
+            }
+
+            return {
+                create: () => Promise.resolve(),
+            };
+        },
+    };
+
     return mount(await wrapTestComponent('sw-order-new-customer-modal', { sync: true }), {
         global: {
             stubs: {
@@ -50,69 +109,8 @@ async function createWrapper({
                 'sw-loader': true,
             },
             provide: {
-                repositoryFactory: {
-                    create: (entity) => {
-                        if (entity === 'customer') {
-                            if (repositoryMocks.customerRepositoryMock) {
-                                return repositoryMocks.customerRepositoryMock;
-                            }
-
-                            return {
-                                create: () => {
-                                    return {
-                                        id: '1',
-                                        addresses: new EntityCollection(
-                                            '/customer_address',
-                                            'customer_address',
-                                            Context.api,
-                                            null,
-                                            [],
-                                        ),
-                                    };
-                                },
-                                save: () => Promise.resolve(),
-                            };
-                        }
-
-                        if (entity === 'language') {
-                            if (repositoryMocks.languageRepositoryMock) {
-                                return repositoryMocks.languageRepositoryMock;
-                            }
-
-                            return {
-                                searchIds: () =>
-                                    Promise.resolve({
-                                        total: 1,
-                                        data: ['1'],
-                                    }),
-                            };
-                        }
-
-                        if (entity === 'salutation') {
-                            return {
-                                searchIds: () =>
-                                    Promise.resolve({
-                                        total: 1,
-                                        data: ['salutationId'],
-                                    }),
-                            };
-                        }
-
-                        if (entity === 'customer_address') {
-                            return {
-                                create: () => {
-                                    return {
-                                        id: 'new-shipping-address-id',
-                                    };
-                                },
-                            };
-                        }
-
-                        return {
-                            create: () => Promise.resolve(),
-                        };
-                    },
-                },
+                repositoryFactory,
+                customerVatIdService: new CustomerVatIdService(repositoryFactory),
                 numberRangeService: {
                     reverse: () => Promise.resolve(),
                 },

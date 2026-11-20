@@ -4,9 +4,11 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Tax;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,6 +20,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -99,7 +103,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-        $customer->setCompany('ABC Company');
         $customer->setVatIds(['DE123123123']);
 
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
@@ -181,7 +184,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-        $customer->setCompany('ABC Company');
         $customer->setVatIds(['VN123123']);
 
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
@@ -210,7 +212,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'ABC Compay',
             'vatIds' => [null],
         ]);
 
@@ -260,7 +261,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = new CustomerEntity();
         $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
-        $customer->setCompany('ABC Company');
         $customer->setVatIds(['VN123123']);
 
         $context->expects($this->once())->method('getShippingLocation')->willReturn(
@@ -287,7 +287,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'Non-EU Company',
             'vatIds' => ['ANY-VAT-ID'],
         ]);
 
@@ -314,7 +313,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -341,7 +339,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['FR12345678901'],
         ]);
 
@@ -368,7 +365,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['DE123456789'],
         ]);
 
@@ -395,7 +391,6 @@ class TaxDetectorTest extends TestCase
 
         $customer = (new CustomerEntity())->assign([
             'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
-            'company' => 'EU Company',
             'vatIds' => ['INVALID-VAT'],
         ]);
 
@@ -438,5 +433,169 @@ class TaxDetectorTest extends TestCase
 
         $detector = static::getContainer()->get(TaxDetector::class);
         static::assertFalse($detector->isNetDelivery($context));
+    }
+
+    public function testIsNetDeliveryWithCompanyFreeTaxAndVatIdOfOtherEuMemberState(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $beCountry = $this->enableCompanyTaxFree('BE');
+        $this->sellFrom('DE');
+
+        // The shipped Belgian pattern is `BE\d{10}`, so this Dutch VAT ID can only be accepted
+        // through the patterns of the other member states.
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setVatIds(['NL123456789B01']);
+
+        $context->expects($this->once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($beCountry)
+        );
+
+        $context->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $context->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $detector = static::getContainer()->get(TaxDetector::class);
+        static::assertTrue($detector->isNetDelivery($context));
+    }
+
+    public function testIsNetDeliveryWithCompanyFreeTaxAndVatIdOfOtherEuMemberStateWhileNoSellerCountryIsConfigured(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $beCountry = $this->enableCompanyTaxFree('BE');
+        $this->sellFrom(null);
+
+        // The test sales channel's default country is Germany, which stands in for the missing setting
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setVatIds(['NL123456789B01']);
+
+        $context->expects($this->once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($beCountry)
+        );
+
+        $context->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $context->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $detector = static::getContainer()->get(TaxDetector::class);
+        static::assertTrue($detector->isNetDelivery($context));
+    }
+
+    public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdOfTheSellersOwnMemberState(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $beCountry = $this->enableCompanyTaxFree('BE');
+        $this->sellFrom('NL');
+
+        // A Dutch shop delivering to Belgium for a customer identified in the Netherlands supplies
+        // domestically, which Article 138 does not exempt
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setVatIds(['NL123456789B01']);
+
+        $context->expects($this->once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($beCountry)
+        );
+
+        $context->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $context->method('getSalesChannelId')->willReturn(TestDefaults::SALES_CHANNEL);
+
+        $detector = static::getContainer()->get(TaxDetector::class);
+        static::assertFalse($detector->isNetDelivery($context));
+    }
+
+    public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdOfNonEuCountry(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $beCountry = $this->enableCompanyTaxFree('BE');
+
+        $customer = new CustomerEntity();
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setVatIds(['CHE123456789']);
+
+        $context->expects($this->once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($beCountry)
+        );
+
+        $context->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $detector = static::getContainer()->get(TaxDetector::class);
+        static::assertFalse($detector->isNetDelivery($context));
+    }
+
+    /**
+     * @param string|null $iso null for a shop that has not configured its member state yet, which then supplies
+     *                         from its sales channel's default country
+     */
+    private function sellFrom(?string $iso): void
+    {
+        $countryId = null;
+
+        if ($iso !== null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('iso', $iso));
+            $criteria->setLimit(1);
+
+            /** @var EntityRepository<CountryCollection> $countryRepository */
+            $countryRepository = static::getContainer()->get('country.repository');
+
+            $country = $countryRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+            static::assertNotNull($country);
+
+            $countryId = $country->getId();
+        }
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.basicInformation.sellerCountryId', $countryId);
+
+        static::getContainer()->get(VatIdPatternProvider::class)->reset();
+        static::getContainer()->get(IntraCommunityTaxResolver::class)->reset();
+    }
+
+    private function enableCompanyTaxFree(string $iso): CountryEntity
+    {
+        /** @var EntityRepository<CountryCollection> $countryRepository */
+        $countryRepository = static::getContainer()->get('country.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('iso', $iso));
+        $criteria->setLimit(1);
+
+        $country = $countryRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($country);
+
+        $countryRepository->update([[
+            'id' => $country->getId(),
+            'customerTax' => [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'checkVatIdPattern' => true,
+        ]], Context::createDefaultContext());
+
+        $country = $countryRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($country);
+
+        return $country;
     }
 }

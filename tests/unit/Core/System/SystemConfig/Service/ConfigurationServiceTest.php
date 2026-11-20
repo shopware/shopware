@@ -759,6 +759,46 @@ class ConfigurationServiceTest extends TestCase
         ));
     }
 
+    public function testBasicInformationOffersASellerCountrySelectDirectlyAboveTheShopOwnerAddress(): void
+    {
+        $configuration = $this->createConfigurationService([])->getSystemConfigDefinition(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        static::assertInstanceOf(SystemConfigTab::class, $configuration[0]);
+        $elements = $configuration[0]->cards[0]->elements;
+        $position = array_search(
+            'core.basicInformation.sellerCountryId',
+            array_map(static fn (SystemConfigElement $element): string => $element->name, $elements),
+            true
+        );
+
+        static::assertIsInt($position);
+        static::assertSame('sw-entity-single-select', $elements[$position]->config['componentName']);
+        static::assertSame('country', $elements[$position]->config['entity']);
+        static::assertSame('core.basicInformation.address', ($elements[$position + 1] ?? null)?->name);
+    }
+
+    public function testTheSellerCountrySelectExplainsItsFallbackToTheSalesChannelsDefaultCountry(): void
+    {
+        $configuration = $this->createConfigurationService([])->getSystemConfigDefinition(
+            'core.basicInformation',
+            Context::createDefaultContext()
+        );
+
+        static::assertInstanceOf(SystemConfigTab::class, $configuration[0]);
+        $sellerCountry = array_values(array_filter(
+            $configuration[0]->cards[0]->elements,
+            static fn (SystemConfigElement $element): bool => $element->name === 'core.basicInformation.sellerCountryId'
+        ))[0] ?? null;
+
+        static::assertSame(
+            'If nothing is selected here, the default country of the sales channel will be used.',
+            $sellerCountry?->config['helpText']['en-GB'] ?? null
+        );
+    }
+
     /**
      * @param list<Plugin> $plugins
      */

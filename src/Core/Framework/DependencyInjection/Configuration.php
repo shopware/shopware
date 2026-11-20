@@ -1944,7 +1944,7 @@ class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->enumNode('algorithm')
-                    ->info('"default" uses PHP\'s PASSWORD_DEFAULT. argon2i and argon2id require PHP to be compiled with Argon2 support.')
+                    ->info('"default" uses PHP\'s PASSWORD_DEFAULT. argon2id requires PHP to be compiled with Argon2 support.')
                     ->values(NativePasswordHasher::ALGORITHMS)
                     ->defaultValue(NativePasswordHasher::ALGORITHM_DEFAULT)
                 ->end()

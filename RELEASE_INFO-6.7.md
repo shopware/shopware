@@ -30,7 +30,7 @@ Configure the algorithm and its `password_hash()` options per scope:
 shopware:
     password_hasher:
         customer:
-            algorithm: argon2id # default, bcrypt, argon2i or argon2id
+            algorithm: argon2id # default, bcrypt or argon2id
             options: { memory_cost: 65536, time_cost: 4 }
 ```
 

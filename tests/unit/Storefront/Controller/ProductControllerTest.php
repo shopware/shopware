@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
 use Shopware\Core\Content\Product\Exception\VariantNotFoundException;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\Document\ProductDocumentArchiveRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
@@ -71,6 +72,8 @@ class ProductControllerTest extends TestCase
 
     private Stub&AbstractGaranLabelRoute $garanLabelRouteMock;
 
+    private Stub&ProductDocumentArchiveRoute $productDocumentArchiveRouteMock;
+
     private ProductControllerStub $controller;
 
     protected function setUp(): void
@@ -83,6 +86,7 @@ class ProductControllerTest extends TestCase
         $this->productReviewLoaderMock = static::createStub(ProductReviewLoader::class);
         $this->productPurchaseLimitRouteMock = static::createStub(AbstractProductPurchaseLimitRoute::class);
         $this->garanLabelRouteMock = static::createStub(AbstractGaranLabelRoute::class);
+        $this->productDocumentArchiveRouteMock = static::createStub(ProductDocumentArchiveRoute::class);
 
         $this->controller = new ProductControllerStub(
             $this->productPageLoaderMock,
@@ -93,6 +97,7 @@ class ProductControllerTest extends TestCase
             $this->productReviewLoaderMock,
             $this->productPurchaseLimitRouteMock,
             $this->garanLabelRouteMock,
+            $this->productDocumentArchiveRouteMock,
         );
     }
 
@@ -386,5 +391,13 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame(['garanLabel' => null], $this->controller->recorder()->renderStorefrontParameters);
+    }
+
+    public function testDownloadDocumentsSendsTheResponseOfTheStoreApiRoute(): void
+    {
+        $response = new Response('zip');
+        $this->productDocumentArchiveRouteMock->method('load')->willReturn($response);
+
+        static::assertSame($response, $this->controller->downloadDocuments(Uuid::randomHex(), new Request(), static::createStub(SalesChannelContext::class)));
     }
 }

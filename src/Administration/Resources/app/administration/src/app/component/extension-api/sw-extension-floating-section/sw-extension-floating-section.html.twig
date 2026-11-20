@@ -1,0 +1,21 @@
+{% block sw_extension_floating_section %}
+<div
+    ref="anchor"
+    class="sw-extension-floating-section"
+>
+    <mt-floating-ui
+        class="sw-extension-floating-section__panel"
+        :is-opened="isOpened"
+        :anchor-element="anchorElement"
+        :floating-ui-options="floatingUiOptions"
+        :auto-update-options="autoUpdateOptions"
+        :offset="0"
+        detached
+    >
+        <div ref="content">
+            {# Written out, not bound, so the list of public position identifiers picks it up #}
+            <sw-extension-component-section position-identifier="sw-desktop__floating" />
+        </div>
+    </mt-floating-ui>
+</div>
+{% endblock %}

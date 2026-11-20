@@ -229,6 +229,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('metaData.hash', $downloadedHash));
+        $criteria->setLimit(1);
 
         return $this->mediaRepository->searchIds($criteria, $context)->firstId();
     }

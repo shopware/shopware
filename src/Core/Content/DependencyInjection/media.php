@@ -517,7 +517,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MediaFileExtensionWriteValidator::class)
         ->args([
             service(MediaFileExtensionListProvider::class),
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

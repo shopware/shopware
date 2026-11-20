@@ -5,7 +5,16 @@ import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, clickButton, selectMedia } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    clickButton,
+    selectMedia,
+    mockSnackbar,
+    mockVariantSync,
+} from './helpers';
 
 describe('sw-product-document-form language editor', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -14,6 +23,7 @@ describe('sw-product-document-form language editor', () => {
     let document: Entity<'product_document'>;
 
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
         Object.assign(Shopware.Store.get('context').api, {
@@ -55,7 +65,7 @@ describe('sw-product-document-form language editor', () => {
         cleanupWrappers();
     });
 
-    it('offers Add language version and opens an optional name/file editor showing the fallback explanation', async () => {
+    it('opens the language-version editor with optional name and file fields and a fallback hint', async () => {
         wrapper = await createWrapper();
         const menu = wrapper.findAll('sw-context-menu-item-stub');
         expect(menu).toHaveLength(2);
@@ -147,37 +157,34 @@ describe('sw-product-document-form language editor', () => {
         expect(wrapper.find('.document-row').text()).toContain('english-manual.pdf');
     });
 
-    it('preserves a customized variant when applying a new file', async () => {
+    it('limits a new file for variants to copies that still match the current file and name', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
-        const variant = createProduct();
-        variant.parentId = store.product.id;
-        const copy = repositoryFactory.create('product_document').create();
-        Object.assign(copy, {
-            productId: variant.id,
-            title: 'Variant name',
-            mediaId: null,
-            translated: document.translated,
-        });
-        Object.assign(copy.getOrigin(), { title: 'Variant name', mediaId: null });
-        variant.documents!.add(copy);
-        const repository = repositoryFactory.create('product');
-        jest.spyOn(repository, 'search').mockResolvedValue(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-        );
-        wrapper = await createWrapper(undefined, undefined, repository);
+        mockVariantSync.mockResolvedValueOnce(['variant-a']);
+        wrapper = await createWrapper();
         const media = createMedia('new-german-file');
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await selectMedia(wrapper, [media]);
         await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(true);
         await clickButton(wrapper, 'global.default.apply');
         await flushPromises();
-        expect(copy).toMatchObject({ title: 'Variant name', mediaId: null });
+        const operation = {
+            type: 'update',
+            mediaId: document.translations[0].mediaId,
+            title: 'Manual',
+            changes: { mediaId: media.id },
+        };
+        expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
+        expect(store.documentVariantOperations).toEqual({ [document.id]: operation });
+        expect(mockSnackbar).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.applySuccess' }),
+        );
         expect(document).toMatchObject({ title: null, mediaId: media.id });
+        expect(document.translated).toEqual({ title: 'Manual', mediaId: media.id });
     });
 
     it.each(['name', 'file', 'both'])(
-        'keeps the cleared %s out of the save payload after unlinking inheritance',
+        'omits cleared translation values from the save payload after removing inheritance (%s)',
         async (field) => {
             const store = Shopware.Store.get('swProductDetail');
             const germanMedia = createMedia('german-manual');
@@ -232,19 +239,14 @@ describe('sw-product-document-form language editor', () => {
         },
     );
 
-    it('clears a pending variant name translation while retaining its file', async () => {
+    it('clears a pending name translation for variants while retaining its file', async () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
         const media = createMedia('german-manual');
-        Object.assign(document, { title: 'Handbuch', mediaId: media.id });
-        const variant = createProduct();
-        variant.parentId = store.product.id;
-        const copy = repositoryFactory.create('product_document').create();
-        Object.assign(copy, {
-            productId: variant.id,
+        Object.assign(document, {
             title: 'Handbuch',
             mediaId: media.id,
-            translated: document.translated,
+            translated: { title: 'Handbuch', mediaId: media.id },
         });
         const translation = new EntityFactory().create(
             'product_document_translation',
@@ -257,22 +259,23 @@ describe('sw-product-document-form language editor', () => {
             mediaId: media.id,
             media,
         });
-        copy.translations.add(translation);
-        variant.documents!.add(copy);
-        store.product.children!.add(variant);
-        const repository = repositoryFactory.create('product');
-        jest.spyOn(repository, 'search').mockResolvedValue(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-        );
-        wrapper = await createWrapper(undefined, undefined, repository);
+        document.translations.add(translation);
+        mockVariantSync.mockResolvedValueOnce(['variant-a']);
+        wrapper = await createWrapper();
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await wrapper.get('.sw-product-document-form__name-input input').setValue('');
         await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(true);
         await clickButton(wrapper, 'global.default.apply');
         await flushPromises();
-        expect(copy).toMatchObject({ title: null, mediaId: media.id });
+        const operation = { type: 'update', mediaId: media.id, title: 'Handbuch', changes: { title: null } };
+        expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
+        expect(store.documentVariantOperations).toEqual({ [document.id]: operation });
+        expect(document).toMatchObject({ title: null, mediaId: media.id });
+        expect(document.translated).toEqual({ title: 'Manual', mediaId: media.id });
         expect(translation).toMatchObject({ title: null, mediaId: media.id });
+        expect(wrapper.find('.document-row').text()).toContain('german-manual.pdf');
 
+        const repository = repositoryFactory.create('product');
         const postSpy = jest.spyOn(repository.httpClient, 'post').mockResolvedValue({ data: {} });
         await repository.save(store.product, Shopware.Context.api);
         const payload = JSON.stringify(postSpy.mock.calls[0][1]);

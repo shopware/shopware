@@ -11,7 +11,7 @@ import {
     createMedia,
     clickButton,
     selectMedia,
-    addMedia,
+    addDocuments,
     getDocuments,
 } from './helpers';
 
@@ -39,7 +39,7 @@ describe('sw-product-document-form editing', () => {
         [1, 'keydown.enter'],
     ] as const)('opens the editor from document text cell %s using %s', async (cell, event) => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         await wrapper.findAll('.sw-product-document-form__edit-link')[cell].trigger(event);
 
         expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(true);
@@ -50,7 +50,7 @@ describe('sw-product-document-form editing', () => {
 
     it.each(['read-only', 'inherited'])('disables document text links for %s documents', async (state) => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         const store = Shopware.Store.get('swProductDetail');
         if (state === 'inherited') {
             store.parentProduct = store.product;
@@ -69,10 +69,10 @@ describe('sw-product-document-form editing', () => {
         expect(readonly.find('.sw-product-document-form__edit-content').exists()).toBe(false);
     });
 
-    it('applies a replacement while preserving the title and position, and supports cancelling', async () => {
+    it('discards a cancelled replacement and preserves the title and position when applying a replacement', async () => {
         const wrapper = await createWrapper();
         const original = createMedia();
-        await addMedia(wrapper, [original]);
+        await addDocuments(wrapper, [original]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         await selectMedia(wrapper, [createMedia('cancelled')]);
@@ -89,7 +89,7 @@ describe('sw-product-document-form editing', () => {
 
     it('displays an edited saved title and allows reverting it before saving the product', async () => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         const document = getDocuments()![0];
         Object.assign(document, {
             title: 'Original manual',
@@ -112,10 +112,10 @@ describe('sw-product-document-form editing', () => {
         }
     });
 
-    it('shows each required field error on Save and clears it when corrected', async () => {
+    it('shows required-field errors on Apply and clears each error when corrected', async () => {
         const wrapper = await createWrapper();
         const media = createMedia();
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         expect(wrapper.find('.sw-product-document-form__file-error').exists()).toBe(false);
         wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', '   ');
@@ -141,7 +141,7 @@ describe('sw-product-document-form editing', () => {
     it('clears validation errors when reopening the editor', async () => {
         const wrapper = await createWrapper();
         const media = createMedia();
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         await clickButton(wrapper, 'global.default.apply');
@@ -158,7 +158,7 @@ describe('sw-product-document-form editing', () => {
         const repository = repositoryFactory.create('media');
         jest.spyOn(repository, 'get').mockResolvedValue(replacement);
         const wrapper = await createWrapper(repository);
-        await addMedia(wrapper, [createMedia('original')]);
+        await addDocuments(wrapper, [createMedia('original')]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         wrapper
@@ -182,7 +182,7 @@ describe('sw-product-document-form editing', () => {
             }),
         );
         const wrapper = await createWrapper(repository);
-        await addMedia(wrapper, [original]);
+        await addDocuments(wrapper, [original]);
         await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
         await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
         const uploadListener = wrapper.findAllComponents<ComponentPublicInstance>('sw-upload-listener-stub')[1];

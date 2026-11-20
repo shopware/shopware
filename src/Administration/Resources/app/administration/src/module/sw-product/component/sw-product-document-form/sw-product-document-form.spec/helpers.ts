@@ -16,6 +16,9 @@ jest.mock('src/app/composables/use-snackbar', () => ({
     default: () => ({ addSnackbar: mockSnackbar, removeSnackbar: jest.fn() }),
 }));
 
+/** @private */
+export const mockVariantSync = jest.fn<Promise<string[]>, [string, unknown[], boolean?, string?]>(() => Promise.resolve([]));
+
 const wrappers: VueWrapper[] = [];
 /** @private */
 export function cleanupWrappers(): void {
@@ -24,6 +27,8 @@ export function cleanupWrappers(): void {
             wrapper.unmount();
         }
     });
+    mockVariantSync.mockReset();
+    mockVariantSync.mockResolvedValue([]);
 }
 
 /** @private */
@@ -44,10 +49,12 @@ export async function createWrapper(
     mediaRepository = repositoryFactory.create('media'),
     mediaService = { prepareDownloadMedia: jest.fn(), downloadMedia: jest.fn() },
     productRepository = repositoryFactory.create('product'),
-    options: { baseView?: boolean; isInherited?: boolean; getDefaultFolderId?: () => Promise<string | null> } = {},
+    options: {
+        baseView?: boolean;
+        isInherited?: boolean;
+        getDefaultFolderId?: () => Promise<string | null>;
+    } = {},
 ) {
-    Shopware.Store.get('swProductDetail').documentLanguage = Shopware.Store.get('context').api
-        .language as Entity<'language'> | null;
     if (options.isInherited) {
         const store = Shopware.Store.get('swProductDetail');
         store.product.parentId = store.parentProduct.id;
@@ -74,6 +81,7 @@ export async function createWrapper(
                     ...mediaService,
                 },
                 mediaPresignedUploadService: {},
+                productDocumentVariantService: { sync: mockVariantSync },
                 fileValidationService: fileValidationService(),
                 entityFactory: new EntityFactory(),
                 repositoryFactory: {
@@ -93,12 +101,6 @@ export async function createWrapper(
                 ...(options.baseView ? { 'sw-product-document-form': documentForm } : {}),
                 'sw-product-document-download': await wrapTestComponent('sw-product-document-download', { sync: true }),
                 'sw-product-document-add-button': await wrapTestComponent('sw-product-document-add-button', { sync: true }),
-                'sw-product-document-variant-badge': await wrapTestComponent('sw-product-document-variant-badge', {
-                    sync: true,
-                }),
-                'sw-product-document-language-value': await wrapTestComponent('sw-product-document-language-value', {
-                    sync: true,
-                }),
                 'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
                     sync: true,
                 }),
@@ -185,7 +187,7 @@ export async function selectMedia(wrapper: VueWrapper, media: Entity<'media'>[])
 }
 
 /** @private */
-export async function addMedia(wrapper: VueWrapper, media: Entity<'media'>[]) {
+export async function addDocuments(wrapper: VueWrapper, media: Entity<'media'>[]) {
     await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
     await selectMedia(wrapper, media);
 }

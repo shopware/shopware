@@ -2,7 +2,7 @@
  * @sw-package inventory
  */
 import type { ComponentPublicInstance } from 'vue';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, getDocuments } from './helpers';
+import { createProduct, cleanupWrappers, createWrapper, createMedia, addDocuments, getDocuments } from './helpers';
 
 describe('sw-product-document-form pagination', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
@@ -23,7 +23,7 @@ describe('sw-product-document-form pagination', () => {
 
     it('shows ten rows per page and moves documents across page boundaries', async () => {
         const wrapper = await createWrapper();
-        await addMedia(
+        await addDocuments(
             wrapper,
             Array.from({ length: 12 }, (_, index) => createMedia(`manual-${index}`)),
         );
@@ -62,7 +62,7 @@ describe('sw-product-document-form pagination', () => {
 
     it('removes selections from multiple pages and returns to an existing page', async () => {
         const wrapper = await createWrapper();
-        await addMedia(
+        await addDocuments(
             wrapper,
             Array.from({ length: 11 }, (_, index) => createMedia(`manual-${index}`)),
         );
@@ -88,7 +88,7 @@ describe('sw-product-document-form pagination', () => {
 
     it('paginates inherited documents using the parent collection', async () => {
         const parent = await createWrapper();
-        await addMedia(
+        await addDocuments(
             parent,
             Array.from({ length: 12 }, (_, index) => createMedia(`parent-${index}`)),
         );

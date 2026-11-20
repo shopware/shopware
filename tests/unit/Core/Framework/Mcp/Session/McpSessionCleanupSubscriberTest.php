@@ -51,6 +51,23 @@ class McpSessionCleanupSubscriberTest extends TestCase
         $subscriber->onKernelTerminate($event);
     }
 
+    public function testKeepsSessionDataWhenTheDeleteWasRejected(): void
+    {
+        $storage = $this->createMock(ToolResultCacheStorage::class);
+        $storage->expects($this->never())->method('deleteForSession');
+        $toolsetStorage = $this->createMock(McpToolsetSessionStorage::class);
+        $toolsetStorage->expects($this->never())->method('deleteForSession');
+
+        $request = Request::create('/api/_mcp', 'DELETE');
+        $request->headers->set('Mcp-Session-Id', 'test-session-id');
+
+        (new McpSessionCleanupSubscriber($storage, $toolsetStorage))->onKernelTerminate(new TerminateEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            new Response(null, Response::HTTP_NOT_FOUND),
+        ));
+    }
+
     public function testIgnoresNonDeleteRequests(): void
     {
         $storage = $this->createMock(ToolResultCacheStorage::class);

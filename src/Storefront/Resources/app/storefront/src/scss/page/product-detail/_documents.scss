@@ -8,14 +8,13 @@
     align-items: flex-start;
     gap: $spacer-sm;
     margin-bottom: $spacer-sm * 1.5;
-    font-size: $font-size-sm;
     break-inside: avoid;
 
     .icon {
+        @include sw-icon-size(1.25rem);
         flex-shrink: 0;
         align-self: flex-start;
-        width: 1rem;
-        height: $font-size-sm * $line-height-base;
+        margin-top: ($font-size-base * $line-height-base - 1.25rem) / 2;
 
         > svg {
             top: 0;

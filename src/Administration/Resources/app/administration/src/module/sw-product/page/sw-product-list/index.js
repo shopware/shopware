@@ -39,14 +39,8 @@ export default {
             filterCriteria: [],
             // @deprecated tag:v6.8.0 - Will be removed
             productTypeOptions: [
-                {
-                    label: this.$t('sw-product.type.physical'),
-                    value: 'physical',
-                },
-                {
-                    label: this.$t('sw-product.type.digital'),
-                    value: 'digital',
-                },
+                { label: this.$t('sw-product.type.physical'), value: 'physical' },
+                { label: this.$t('sw-product.type.digital'), value: 'digital' },
             ],
             defaultFilters: [
                 'product-number-filter',
@@ -275,6 +269,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-list.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 

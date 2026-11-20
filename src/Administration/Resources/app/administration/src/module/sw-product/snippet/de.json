@@ -564,14 +564,14 @@
       "imagesFilter": {
         "label": "Bild",
         "placeholder": "Wähle einen Bildstatus ...",
-        "textHasCriteria": "Verfügt über mind. eine Produktbildzuordnung",
-        "textNoCriteria": "Keine Produktbilder zugeordnet"
+        "textHasCriteria": "Mind. ein Bild zugeordnet",
+        "textNoCriteria": "Keine Bilder zugeordnet"
       },
       "documentsFilter": {
         "label": "Dokumente",
         "placeholder": "Wähle einen Dokumentstatus ...",
-        "textHasCriteria": "Verfügt über mind. eine Produktdokumentzuordnung",
-        "textNoCriteria": "Keine Produktdokumente zugeordnet"
+        "textHasCriteria": "Mind. ein Dokument zugeordnet",
+        "textNoCriteria": "Keine Dokumente zugeordnet"
       },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"
@@ -653,6 +653,7 @@
       "applyToVariantsHelp": "Varianten, die die Dokumente des übergeordneten Produkts erben, werden automatisch aktualisiert. Dies aktualisiert auch Varianten, bei denen die Vererbung aufgehoben wurde, solange ihre Kopie dieses Dokuments noch denselben Namen und dieselbe Datei hat.",
       "draftHint": "Die Änderungen werden nach dem Speichern des Produkts übernommen.",
       "errorLoadVariants": "Die Variantendokumente konnten nicht geladen werden. Bitte versuche es erneut.",
+      "errorSaveVariants": "Das Produkt wurde gespeichert, aber seine Varianten konnten nicht aktualisiert werden.",
       "applySuccess": "Dokument „{name}“ wurde übernommen. | Dokument „{name}“ wurde übernommen und in {count} Variante aktualisiert. | Dokument „{name}“ wurde übernommen und in {count} Varianten aktualisiert.",
       "removeSuccess": "„{name}“ wurde entfernt. | „{name}“ wurde auch aus {count} Variante entfernt. | „{name}“ wurde auch aus {count} Varianten entfernt.",
       "bulkRemoveTitle": "{count} Dokumente entfernen?",
@@ -669,11 +670,10 @@
       "removeFromVariants": "Auch aus Varianten entfernen, bei denen die Dokumentvererbung aufgehoben wurde",
       "removeFromVariantsHelp": "Varianten, die die Dokumente des übergeordneten Produkts erben, verlieren es automatisch. Dies entfernt es auch aus Varianten, bei denen die Vererbung aufgehoben wurde, solange ihre Kopie dieses Dokuments noch denselben Namen und dieselbe Datei hat.",
       "errorLoadMedia": "Die hochgeladene Datei konnte nicht geladen werden. Bitte versuche es erneut.",
-      "errorPrivateMedia": "Produktdokumente müssen öffentliche Mediendateien verwenden.",
       "errorDocumentDuplicated": "Diese Datei ist dem Produkt bereits zugewiesen.",
       "languageHint": "Füge Dokumente in der Standardsprache hinzu. Wechsle die Inhaltssprache, um ihre Namen und Dateien zu übersetzen.",
       "fileUploadLabel": "Datei-Upload",
-      "uploadHint": "{extensions} oder {lastExtension}, jeweils bis zu {size} MB.",
+      "uploadHint": "{extensions}, jeweils bis zu {size}.",
       "unlinkToAdd": "Hebe die Vererbung der Karte auf, um Dokumente für diese Variante hinzuzufügen."
     }
   },

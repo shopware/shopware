@@ -4,27 +4,67 @@
 import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
-import documentColumns, { allowedExtensions, maxFileSize } from './document-form.config';
-import { getDocumentTranslationChanges, getEditChanges } from './document-translation.utils';
-import { loadDocumentVariants } from './document-variant.helper';
-import useDocumentChanges from './use-document-changes';
-import { copyInheritedDocuments } from './document-inheritance.helper';
-import { updateDocumentPositions } from './document-position.helper';
-import { getHintParams, getFileAccept, isInvalidDocumentFile } from './document-upload.helper';
+import type { DocumentChanges } from 'src/module/sw-product/service/product-document-variant.service';
+import type { DocumentEdit, DocumentUploadRules } from './sw-product-document-edit-modal';
+import type { DocumentRemoval } from './sw-product-document-remove-modal';
+import { getDocumentMedia, setDocumentMedia } from './product-document.helper';
 import template from './sw-product-document-form.html.twig';
 import './sw-product-document-form.scss';
 
 type DocumentGrid = { resetSelection: () => void };
 
-type DocumentInheritance = { isInherited: boolean; forceInheritanceRemove: boolean; restoreInheritance: () => void };
+type DocumentInheritance = { restoreInheritance: () => void };
+
+type DocumentUploadResult = { targetId: EntityKey<'media'>; successAmount?: number; totalAmount?: number };
+
+const columns = [
+    { property: 'number', label: '#', width: '56px', align: 'center' },
+    { property: 'position', label: 'sw-product.documentForm.columnPosition', width: '110px', align: 'center' },
+    { property: 'title', label: 'sw-product.documentForm.columnTitle', primary: true, width: '300px' },
+    { property: 'fileName', label: 'sw-product.documentForm.columnFileName', primary: true, width: '300px' },
+    { property: 'fileType', label: 'sw-product.documentForm.columnFileType', visible: false, width: '104px' },
+    {
+        property: 'fileSize',
+        label: 'sw-product.documentForm.columnFileSize',
+        width: '100px',
+        visible: false,
+        align: 'right',
+    },
+];
+
+const documentExtensions = [
+    'pdf',
+    'docx',
+    'jpg',
+    'jpeg',
+    'png',
+];
+
+const documentMaxFileSize = 20 * 1024 * 1024;
+
+const { Context, Store, Utils } = Shopware;
+const { cloneDeep, pick } = Utils.object;
+
+const documentCopyFields = [
+    'position',
+    'title',
+    'mediaId',
+    'customFields',
+    'translated',
+] as const;
+
+const translationCopyFields = [
+    'languageId',
+    'mediaId',
+    'title',
+    'customFields',
+] as const;
 
 /**
  * @private
  */
 export default Shopware.Component.wrapComponentConfig({
     template,
-
-    emits: ['language-change'],
 
     inject: [
         'repositoryFactory',
@@ -34,14 +74,6 @@ export default Shopware.Component.wrapComponentConfig({
         'mediaDefaultFolderService',
     ],
 
-    props: {
-        disabled: { type: Boolean, required: false, default: false },
-    },
-
-    setup() {
-        return useDocumentChanges();
-    },
-
     data() {
         return {
             page: 1,
@@ -49,40 +81,21 @@ export default Shopware.Component.wrapComponentConfig({
             showUploadModal: false,
             showMediaModal: false,
             showRestoreInheritanceModal: false,
+            isInheritanceRemoved: false,
             mediaFolderId: undefined as string | null | undefined,
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
-            removingDocuments: [] as Entity<'product_document'>[],
-            removeFromVariants: false,
-            isRemovingDocument: false,
-            removeModalVersion: 0,
-            documentTitle: '',
-            documentEditSession: 0,
-            replacementMedia: null as Entity<'media'> | null,
-            documentFileRemoved: false,
-            applyToVariants: false,
-            isSavingDocument: false,
-            documentValidationSubmitted: false,
-            allowedExtensions: [...allowedExtensions],
-            maxFileSize,
+            documentsToRemove: [] as Entity<'product_document'>[],
         };
     },
 
     computed: {
+        product(): Entity<'product'> {
+            return Store.get('swProductDetail').product;
+        },
+
         parentProduct(): Entity<'product'> {
-            return Shopware.Store.get('swProductDetail').parentProduct;
-        },
-
-        documents(): EntityCollection<'product_document'> {
-            return this.product.documents as EntityCollection<'product_document'>;
-        },
-
-        pageOffset(): number {
-            return (this.page - 1) * this.limit;
-        },
-
-        productRepository() {
-            return this.repositoryFactory.create('product');
+            return Store.get('swProductDetail').parentProduct;
         },
 
         documentRepository() {
@@ -93,76 +106,123 @@ export default Shopware.Component.wrapComponentConfig({
             return this.repositoryFactory.create('media');
         },
 
+        languageId() {
+            return Store.get('context').api.languageId;
+        },
+
+        isSystemDefaultLanguage(): boolean {
+            return Store.get('context').isSystemDefaultLanguage;
+        },
+
+        contextLanguage(): Entity<'language'> | null {
+            return Store.get('context').api.language as Entity<'language'> | null;
+        },
+
+        documents(): EntityCollection<'product_document'> {
+            return this.product.documents as EntityCollection<'product_document'>;
+        },
+
+        isInherited(): boolean {
+            return !!this.product.parentId && !this.isInheritanceRemoved && !this.documents.length;
+        },
+
+        currentDocuments(): EntityCollection<'product_document'> {
+            return this.isInherited
+                ? (this.parentProduct.documents as EntityCollection<'product_document'>)
+                : this.documents;
+        },
+
+        pageOffset(): number {
+            return (this.page - 1) * this.limit;
+        },
+
+        paginatedDocuments(): Entity<'product_document'>[] {
+            return this.currentDocuments.slice(this.pageOffset, this.pageOffset + this.limit);
+        },
+
         uploadTag(): string {
             return `product-documents-${this.product.id}-${this.languageId}`;
         },
 
         canEdit(): boolean {
-            const languageLoaded = this.isDefaultLanguage || this.documentContext.language?.id === this.languageId;
-            return !this.disabled && this.acl.can('product.editor') && languageLoaded;
+            const isLanguageReady = this.isSystemDefaultLanguage || this.contextLanguage?.id === this.languageId;
+            return this.acl.can('product.editor') && isLanguageReady;
         },
 
         canAddDocuments(): boolean {
-            return this.canEdit && this.isDefaultLanguage;
+            return this.canEditDocuments && this.isSystemDefaultLanguage;
+        },
+
+        canEditDocuments(): boolean {
+            return this.canEdit && !this.isInherited;
+        },
+
+        isDocumentSelectable(): (document: Entity<'product_document'>) => boolean {
+            return (document) => this.canEditDocuments && !this.isMissingLanguageVersion(document);
+        },
+
+        languageCode(): string {
+            const language = this.contextLanguage;
+            if (this.isSystemDefaultLanguage || language?.id !== this.languageId) {
+                return '';
+            }
+
+            return language.locale?.code.split('-')[0].toUpperCase() ?? '';
         },
 
         contentLanguageName(): string {
-            const language = this.documentContext.language;
+            const language = this.contextLanguage;
             const code = language?.locale?.code.split('-')[0];
-            const locale = Shopware.Store.get('session').currentLocale || 'en-GB';
+            const locale = Store.get('session').currentLocale || 'en-GB';
             const names = new Intl.DisplayNames([locale], { type: 'language' });
             return code ? names.of(code) || '' : language?.name || '';
         },
 
-        documentTitlePlaceholder(): string {
-            const document = this.editingDocument;
-            if (!document || this.isDefaultLanguage) {
-                return '';
-            }
-            const changes = getDocumentTranslationChanges(document, { title: null }, this.documentContext);
-            return (changes.translated ?? document.translated)?.title || this.getMedia(document)?.fileName || '';
-        },
-
-        editingMedia(): Entity<'media'> | undefined {
-            const document = this.editingDocument;
-            const showSavedFile = document && !this.documentFileRemoved && (this.isDefaultLanguage || document.mediaId);
-            return this.replacementMedia || (showSavedFile ? this.getMedia(document) : undefined);
-        },
-
-        canSaveDocument(): boolean {
-            const hasRequiredFields = !!this.documentTitle.trim() && !!this.editingMedia;
-            return this.canEdit && !this.isSavingDocument && (!this.isDefaultLanguage || hasRequiredFields);
-        },
-
-        documentNameError(): { code: string; detail: string } | null {
-            return this.isDefaultLanguage && this.documentValidationSubmitted && !this.documentTitle.trim()
-                ? { code: 'PRODUCT_DOCUMENT_NAME_REQUIRED', detail: this.$t('sw-product.documentForm.errorNameRequired') }
-                : null;
-        },
-
-        documentFileError(): { code: string; detail: string } | null {
-            return this.isDefaultLanguage && this.documentValidationSubmitted && !this.editingMedia
-                ? { code: 'PRODUCT_DOCUMENT_FILE_REQUIRED', detail: this.$t('sw-product.documentForm.errorFileRequired') }
-                : null;
-        },
-
-        hasVariants(): boolean {
-            return !this.product.parentId && !!this.product.childCount;
-        },
-
         documentColumns() {
-            return documentColumns.map(({ label, ...column }) => ({
+            return columns.map(({ label, ...column }) => ({
                 ...column,
                 label: label === '#' ? label : this.$t(label),
+                sortable: false,
+                allowResize: !['number', 'position'].includes(column.property),
             }));
         },
 
-        uploadHint(): string {
-            return this.$t('sw-product.documentForm.uploadHint', getHintParams(this.allowedExtensions, this.maxFileSize));
+        removeActionLabel(): string {
+            return this.isSystemDefaultLanguage
+                ? this.$t('global.default.remove')
+                : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
         },
 
-        fileAccept(): string {
-            return getFileAccept(this.fileValidationService.extensionByType, this.allowedExtensions);
+        uploadRules(): DocumentUploadRules {
+            const mimeTypes = Object.entries(this.fileValidationService.extensionByType);
+            const allowedMimeTypesByExtension = Object.fromEntries(
+                documentExtensions.map((extension) => [
+                    extension,
+                    mimeTypes.filter(([, extensions]) => extensions.includes(extension)).map(([mimeType]) => mimeType),
+                ]),
+            );
+
+            return {
+                allowedExtensions: documentExtensions,
+                allowedMimeTypesByExtension,
+                maxFileSize: documentMaxFileSize,
+                fileAccept: [...new Set(Object.values(allowedMimeTypesByExtension).flat())].join(','),
+            };
+        },
+
+        uploadHint(): string {
+            return this.$t('sw-product.documentForm.uploadHint', {
+                extensions: this.uploadRules.allowedExtensions.join(', ').toUpperCase(),
+                size: Utils.format.fileSize(this.uploadRules.maxFileSize),
+            });
+        },
+
+        editingTitlePlaceholder(): string {
+            if (!this.editingDocument || this.isSystemDefaultLanguage) {
+                return '';
+            }
+
+            return this.getFallbackTranslation(this.editingDocument, 'title')?.title || '';
         },
     },
 
@@ -171,46 +231,59 @@ export default Shopware.Component.wrapComponentConfig({
             const lastPage = Math.max(1, Math.ceil(this.documents.length / this.limit));
             this.page = Math.min(this.page, lastPage);
         },
+
         product() {
             this.page = 1;
             this.showUploadModal = false;
-            this.onCloseRestoreInheritanceModal();
-            this.closeDocumentEditor();
-            this.closeRemoveDocumentModal();
+            this.showRestoreInheritanceModal = false;
+            this.isInheritanceRemoved = false;
+            this.editingDocument = null;
+            this.documentsToRemove = [];
             this.selectedDocuments = [];
         },
     },
 
     async created() {
-        await this.createdComponent();
-    },
-
-    beforeUnmount() {
-        this.closeDocumentEditor();
-        this.closeRemoveDocumentModal();
+        try {
+            this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
+        } catch {
+            this.mediaFolderId = null;
+        }
     },
 
     methods: {
-        async createdComponent() {
-            try {
-                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
-            } catch {
-                this.mediaFolderId = null;
-            }
+        getDocumentMedia,
+
+        getFileName(document: Entity<'product_document'>): string {
+            const media = getDocumentMedia(document);
+            return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
         },
 
-        getPaginatedDocuments(documents: EntityCollection<'product_document'>): Entity<'product_document'>[] {
-            return documents.slice(this.pageOffset, this.pageOffset + this.limit);
+        isFallbackValue(document: Entity<'product_document'>, field: 'title' | 'mediaId'): boolean {
+            return !this.isSystemDefaultLanguage && !document[field];
         },
 
-        getDocumentSelectionFilter(isInherited: boolean): (document: Entity<'product_document'>) => boolean {
-            return (document) => this.canEdit && !isInherited && !this.isAddingLanguageVersion(document);
+        isVariantOnly(document: Entity<'product_document'>): boolean {
+            const mediaId = document.translated?.mediaId;
+            return (
+                !!this.product.parentId &&
+                !!mediaId &&
+                !this.parentProduct.documents?.some(
+                    (parentDocument) =>
+                        parentDocument.translated?.mediaId === mediaId ||
+                        parentDocument.translations?.some((translation) => translation.mediaId === mediaId),
+                )
+            );
+        },
+
+        getFileSize(document: Entity<'product_document'>): string {
+            const fileSize = getDocumentMedia(document)?.fileSize;
+            return typeof fileSize === 'number' ? Utils.format.fileSize(fileSize) : '';
         },
 
         canMoveDocument(document: Entity<'product_document'>, offset: number): boolean {
             const index = this.documents.indexOf(document);
-            const newIndex = index + offset;
-            return index >= 0 && newIndex >= 0 && newIndex < this.documents.length;
+            return index >= 0 && !!this.documents[index + offset];
         },
 
         onPageChange({ page, limit }: { page: number; limit: number }): void {
@@ -218,208 +291,128 @@ export default Shopware.Component.wrapComponentConfig({
             this.limit = limit;
         },
 
-        canChangeDocuments(): boolean {
-            const inheritance = this.$refs.documentInheritance as DocumentInheritance | undefined;
-            return this.canEdit && inheritance?.isInherited === false;
+        refreshPositions(documents: EntityCollection<'product_document'>): void {
+            documents.forEach((document, index) => {
+                document.position = index;
+            });
         },
 
-        getTitle(document: Entity<'product_document'>): string {
-            return document.title || document.translated?.title || this.getMedia(document)?.fileName || '';
-        },
-
-        getFileSize(document: Entity<'product_document'>): string {
-            const size = this.getMedia(document)?.fileSize;
-            return size == null ? '' : Shopware.Utils.format.fileSize(size);
-        },
-
-        getFileName(document: Entity<'product_document'>): string {
-            const media = this.getMedia(document);
-            return media?.fileName ? [media.fileName, media.fileExtension].filter(Boolean).join('.') : '';
-        },
-
-        async successfulUpload(
-            {
-                targetId,
-                successAmount = 1,
-                totalAmount = 1,
-            }: {
-                targetId: EntityKey<'media'>;
-                successAmount?: number;
-                totalAmount?: number;
-            },
-            editingDocument: Entity<'product_document'> | null = null,
-        ): Promise<void> {
-            const product = this.product;
-            const languageId = this.languageId;
-            const session = this.documentEditSession;
-
-            const isCurrentUpload = () =>
-                product === this.product &&
-                languageId === this.languageId &&
-                this.canChangeDocuments() &&
-                (!editingDocument || (session === this.documentEditSession && editingDocument === this.editingDocument));
-
+        async onUploadFinished({ targetId, successAmount = 1, totalAmount = 1 }: DocumentUploadResult): Promise<void> {
+            const productId = this.product.id;
             try {
-                const media = await this.mediaRepository.get(targetId, Shopware.Context.api);
-                if (isCurrentUpload() && media) {
+                const media = await this.mediaRepository.get(targetId, Context.api);
+                if (media && Store.get('swProductDetail').product.id === productId) {
                     const documentCount = this.documents.length;
-                    this.addDocuments([media], editingDocument);
-                    if (!editingDocument && this.documents.length > documentCount && successAmount === totalAmount) {
+                    this.addDocuments([media]);
+                    if (this.documents.length > documentCount && successAmount === totalAmount) {
                         this.showUploadModal = false;
                     }
                 }
             } catch {
-                if (isCurrentUpload()) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorLoadMedia'),
-                    });
-                }
+                useNotification().createNotificationError({
+                    message: this.$t('sw-product.documentForm.errorLoadMedia'),
+                });
             }
         },
 
-        addDocuments(mediaItems: Entity<'media'>[], editingDocument: Entity<'product_document'> | null = null): void {
-            if (!this.canChangeDocuments() || (!editingDocument && !this.isDefaultLanguage)) {
+        addDocuments(documentFiles: Entity<'media'>[]): void {
+            if (!this.canAddDocuments) {
                 return;
             }
 
-            for (const media of mediaItems) {
-                if (media.private) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorPrivateMedia'),
-                    });
-                    continue;
-                }
-
-                if (isInvalidDocumentFile(media, this.allowedExtensions, this.maxFileSize)) {
-                    useNotification().createNotificationError({ message: this.uploadHint });
-                    continue;
-                }
-
-                if (
-                    this.documents.some(
-                        (document) =>
-                            document !== editingDocument && (document.mediaId || document.translated?.mediaId) === media.id,
-                    )
-                ) {
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorDocumentDuplicated'),
-                    });
-                    continue;
-                }
-
-                if (editingDocument) {
-                    this.replacementMedia = media;
-                    this.documentFileRemoved = false;
-                    continue;
-                }
-
-                const document = this.documentRepository.create(Shopware.Context.api);
-                document.productId = this.product.id;
-                document.mediaId = media.id;
-                document.title = media.fileName;
-                document.position = this.documents.length;
-                Shopware.Store.get('swProductDetail').cacheDocumentMedia(media);
-                this.documents.add(document);
-            }
+            documentFiles
+                .filter((media) => this.isValidMedia(media, null))
+                .forEach((media) => {
+                    const document = this.documentRepository.create(Context.api);
+                    document.productId = this.product.id;
+                    document.mediaId = media.id;
+                    document.title = media.fileName ?? '';
+                    document.translated = { title: document.title, mediaId: media.id };
+                    document.position = Math.max(-1, ...this.documents.map((item) => item.position ?? -1)) + 1;
+                    setDocumentMedia(document, media);
+                    this.documents.add(document);
+                });
             this.showMediaModal = false;
         },
 
         moveDocument(document: Entity<'product_document'>, offset: number): void {
-            if (!this.canChangeDocuments() || !this.canMoveDocument(document, offset)) {
+            if (!this.canEditDocuments || !this.canMoveDocument(document, offset)) {
                 return;
             }
 
             const oldIndex = this.documents.indexOf(document);
-            const newIndex = oldIndex + offset;
-
-            this.documents.moveItem(oldIndex, newIndex);
-            updateDocumentPositions(this.documents);
+            this.documents.moveItem(oldIndex, oldIndex + offset);
+            this.refreshPositions(this.documents);
         },
 
         openDocumentEditor(document: Entity<'product_document'>): void {
-            if (!this.canChangeDocuments()) {
-                return;
+            if (this.canEditDocuments) {
+                this.editingDocument = document;
             }
-
-            this.documentEditSession += 1;
-            this.editingDocument = document;
-            this.documentTitle = this.isDefaultLanguage ? this.getTitle(document) : document.title || '';
-            this.replacementMedia = null;
-            this.documentFileRemoved = false;
-            this.applyToVariants = this.hasVariants;
-            this.documentValidationSubmitted = false;
         },
 
-        removeEditingFile(): void {
-            this.replacementMedia = null;
-            this.documentFileRemoved = true;
+        getFallbackTranslation(
+            document: Entity<'product_document'>,
+            field: 'title' | 'mediaId',
+        ): Entity<'product_document_translation'> | undefined {
+            const { language, systemLanguageId } = Store.get('context').api;
+
+            return [language?.parentId, systemLanguageId]
+                .map((languageId) => document.translations?.find((translation) => translation.languageId === languageId))
+                .find((translation) => translation && translation[field] !== null);
         },
 
-        async applyDocumentEdit(): Promise<void> {
-            this.documentValidationSubmitted = true;
-            if (!this.canChangeDocuments() || !this.editingDocument || !this.canSaveDocument) {
-                return;
+        isValidMedia(media: Entity<'media'>, exceptDocument: Entity<'product_document'> | null): boolean {
+            const { allowedExtensions, maxFileSize } = this.uploadRules;
+            const extension = media.fileExtension?.toLowerCase() ?? '';
+            const isAllowedFile = allowedExtensions.includes(extension) && (media.fileSize ?? Infinity) <= maxFileSize;
+            const isDuplicate = this.documents.some(
+                (document) => document !== exceptDocument && document.translated?.mediaId === media.id,
+            );
+            if (isAllowedFile && !isDuplicate) {
+                return true;
             }
 
-            const product = this.product;
+            const message = isAllowedFile ? this.$t('sw-product.documentForm.errorDocumentDuplicated') : this.uploadHint;
+            useSnackbar().addSnackbar({ variant: 'error', message });
+            return false;
+        },
+
+        setDocumentValues(document: Entity<'product_document'>, changes: DocumentChanges, media: Entity<'media'> | null) {
+            const translated = Object.fromEntries(
+                (['title', 'mediaId'] as const)
+                    .filter((field) => changes[field] !== undefined)
+                    .map((field) => [
+                        field,
+                        changes[field] ?? this.getFallbackTranslation(document, field)?.[field] ?? null,
+                    ]),
+            );
+            Object.assign(document, changes);
+            document.translated = { ...document.translated, ...translated };
+            if (changes.mediaId !== undefined) {
+                setDocumentMedia(document, changes.mediaId ? media : null);
+            }
+
+            const translation = document.translations?.find((entry) => entry.languageId === this.languageId);
+            if (translation?.isNew()) {
+                Object.assign(translation, changes);
+            }
+        },
+
+        applyDocumentEdit({ changes, media, operation, message }: DocumentEdit): void {
             const document = this.editingDocument;
-            const session = this.documentEditSession;
-            const replacementMedia = this.replacementMedia;
-            const context = { ...this.documentContext, inheritance: false };
-            const isCurrentEdit = () =>
-                session === this.documentEditSession &&
-                product === this.product &&
-                document === this.editingDocument &&
-                context.languageId === this.languageId;
-            const originalMediaId = document.mediaId || document.translated?.mediaId;
-            const { changes, variantChanges } = getEditChanges(document, this, this.getTitle(document), context);
-            const matchingMediaId = this.applyToVariants && this.hasVariants ? originalMediaId : null;
-            this.isSavingDocument = true;
-
-            try {
-                if (replacementMedia) {
-                    Shopware.Store.get('swProductDetail').cacheDocumentMedia(replacementMedia);
-                }
-                let updatedVariantIds: string[] = [];
-                if (matchingMediaId) {
-                    const variants = await loadDocumentVariants(
-                        this.productRepository,
-                        product.id,
-                        matchingMediaId,
-                        context,
-                    );
-                    if (!isCurrentEdit()) {
-                        return;
-                    }
-                    updatedVariantIds = this.stageVariantDocumentChanges(variants, document, variantChanges);
-                }
-                this.applyDocumentChanges(document, changes);
-                if (matchingMediaId) {
-                    useSnackbar().addSnackbar({
-                        variant: 'success',
-                        message: this.$t('sw-product.documentForm.applySuccess', {
-                            name: this.getTitle(document),
-                            count: updatedVariantIds.length,
-                        }),
-                    });
-                }
-                this.closeDocumentEditor();
-            } catch {
-                if (isCurrentEdit()) {
-                    this.isSavingDocument = false;
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorLoadVariants'),
-                    });
-                }
-            }
-        },
-
-        closeDocumentEditor(): void {
-            this.documentEditSession += 1;
-            this.isSavingDocument = false;
             this.editingDocument = null;
-            this.replacementMedia = null;
-            this.showMediaModal = false;
+            if (!document) {
+                return;
+            }
+
+            this.setDocumentValues(document, changes, media);
+            if (operation) {
+                Store.get('swProductDetail').documentVariantOperations[document.id] = operation;
+            }
+            if (message) {
+                useSnackbar().addSnackbar({ variant: 'success', message });
+            }
         },
 
         onDocumentSelectionChange(selection: Record<string, Entity<'product_document'>>): void {
@@ -427,131 +420,65 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         openRemoveDocumentModal(document: Entity<'product_document'> | Entity<'product_document'>[]): void {
-            if (!this.canChangeDocuments()) {
+            if (!this.canEditDocuments) {
                 return;
             }
 
-            this.removingDocuments = (Array.isArray(document) ? document : [document]).filter(
-                (item) => !this.isAddingLanguageVersion(item),
-            );
-            this.removeFromVariants = this.hasVariants;
-            this.removeModalVersion += 1;
+            const documents = Array.isArray(document) ? document : [document];
+            this.documentsToRemove = documents.filter((item) => !this.isMissingLanguageVersion(item));
         },
 
-        closeRemoveDocumentModal(): void {
-            this.removeModalVersion += 1;
-            this.removingDocuments = [];
-            this.isRemovingDocument = false;
-        },
-
-        async removeDocument(): Promise<void> {
-            if (!this.canChangeDocuments() || !this.removingDocuments.length || this.isRemovingDocument) {
-                return;
+        removeDocuments({ operations, message }: DocumentRemoval): void {
+            if (this.isSystemDefaultLanguage) {
+                this.documentsToRemove.forEach((document) => this.documents.remove(document.id));
+                this.refreshPositions(this.documents);
+            } else {
+                this.documentsToRemove.forEach((document) =>
+                    this.setDocumentValues(document, { title: null, mediaId: null }, null),
+                );
             }
-
-            const product = this.product;
-            const documents = this.removingDocuments;
-            const modalVersion = this.removeModalVersion;
-            const context = { ...this.documentContext, inheritance: false };
-            const isCurrentRemoval = () =>
-                modalVersion === this.removeModalVersion &&
-                product === this.product &&
-                documents === this.removingDocuments &&
-                context.languageId === this.languageId;
-            const mediaIds =
-                this.removeFromVariants && this.hasVariants
-                    ? [
-                          ...new Set(
-                              documents
-                                  .map((document) => document.mediaId || document.translated?.mediaId)
-                                  .filter((id) => typeof id === 'string'),
-                          ),
-                      ]
-                    : [];
-            this.isRemovingDocument = true;
-            try {
-                const variants = mediaIds.length
-                    ? await loadDocumentVariants(this.productRepository, product.id, mediaIds, context)
-                    : [];
-                if (!isCurrentRemoval()) {
-                    return;
-                }
-                const name = this.getTitle(documents[0]);
-                const removedVariantIds = new Set<string>();
-                documents.forEach((document) => {
-                    if (mediaIds.length && (document.mediaId || document.translated?.mediaId)) {
-                        this.stageVariantDocumentRemovals(variants, document).forEach((id) => removedVariantIds.add(id));
-                    }
-                    if (this.isDefaultLanguage) {
-                        this.documents.remove(document.id);
-                    } else {
-                        this.resetDocumentLanguageVersion(document);
-                    }
-                });
-                if (this.isDefaultLanguage) {
-                    updateDocumentPositions(this.documents);
-                }
-                const message =
-                    documents.length > 1
-                        ? this.$t(
-                              this.isDefaultLanguage
-                                  ? 'sw-product.documentForm.bulkRemoveSuccess'
-                                  : 'sw-product.documentForm.bulkRemoveLanguageVersionSuccess',
-                              {
-                                  count: documents.length,
-                                  language: this.contentLanguageName,
-                              },
-                          )
-                        : this.isDefaultLanguage
-                          ? this.$t('sw-product.documentForm.removeSuccess', { name, count: removedVariantIds.size })
-                          : this.$t('sw-product.documentForm.removeLanguageVersionSuccess', {
-                                language: this.contentLanguageName,
-                                name,
-                            });
-                useSnackbar().addSnackbar({ variant: 'success', message });
-                (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
-                this.selectedDocuments = [];
-                this.closeRemoveDocumentModal();
-            } catch {
-                if (isCurrentRemoval()) {
-                    this.isRemovingDocument = false;
-                    useNotification().createNotificationError({
-                        message: this.$t('sw-product.documentForm.errorLoadVariants'),
-                    });
-                }
-            }
+            (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
+            this.selectedDocuments = [];
+            this.documentsToRemove = [];
+            Object.assign(Store.get('swProductDetail').documentVariantOperations, operations);
+            useSnackbar().addSnackbar({ variant: 'success', message });
         },
 
-        documentRemoveInheritanceFunction(
+        removeDocumentInheritance(
             inheritedDocuments: EntityCollection<'product_document'>,
         ): EntityCollection<'product_document'> {
             if (!this.canEdit) {
                 return this.documents;
             }
 
-            (this.$refs.documentInheritance as DocumentInheritance).forceInheritanceRemove = true;
-            copyInheritedDocuments(
-                inheritedDocuments,
-                this.product.id,
-                this.documentRepository,
-                this.entityFactory as EntityFactory,
-            ).forEach((document) => this.documents.add(document));
+            this.isInheritanceRemoved = true;
+            const entityFactory = this.entityFactory as EntityFactory;
+            inheritedDocuments.forEach((source) => {
+                const document = this.documentRepository.create(Context.api);
+                Object.assign(document, cloneDeep(pick(source, documentCopyFields)), { productId: this.product.id });
+                source.translations?.forEach((sourceTranslation) => {
+                    const translation = entityFactory.create(
+                        'product_document_translation',
+                        null,
+                        Context.api,
+                    ) as Entity<'product_document_translation'>;
+                    Object.assign(translation, cloneDeep(pick(sourceTranslation, translationCopyFields)), {
+                        productDocumentId: document.id,
+                        media: sourceTranslation.media,
+                    });
+                    document.translations.add(translation);
+                });
+                this.documents.add(document);
+            });
 
             return this.documents;
         },
 
-        onShowRestoreInheritanceModal(): void {
-            this.showRestoreInheritanceModal = true;
-        },
-
-        onCloseRestoreInheritanceModal(): void {
-            this.showRestoreInheritanceModal = false;
-        },
-
         onConfirmRestoreInheritance(): void {
-            this.onCloseRestoreInheritanceModal();
+            this.showRestoreInheritanceModal = false;
             (this.$refs.documentGrid as DocumentGrid | undefined)?.resetSelection();
             this.selectedDocuments = [];
+            this.isInheritanceRemoved = false;
             (this.$refs.documentInheritance as DocumentInheritance).restoreInheritance();
             useSnackbar().addSnackbar({
                 variant: 'success',
@@ -559,22 +486,14 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        isAddingLanguageVersion(document: Entity<'product_document'>): boolean {
-            return !this.isDefaultLanguage && !document.title && !document.mediaId;
+        isMissingLanguageVersion(document: Entity<'product_document'>): boolean {
+            return !this.isSystemDefaultLanguage && !document.title && !document.mediaId;
         },
 
         getEditActionLabel(document: Entity<'product_document'>): string {
-            if (this.isAddingLanguageVersion(document)) {
-                return this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName });
-            }
-
-            return this.$t('global.default.edit');
-        },
-
-        getRemoveActionLabel(): string {
-            return this.isDefaultLanguage
-                ? this.$t('global.default.remove')
-                : this.$t('sw-product.documentForm.removeLanguageVersion', { language: this.contentLanguageName });
+            return this.isMissingLanguageVersion(document)
+                ? this.$t('sw-product.documentForm.addLanguageVersion', { language: this.contentLanguageName })
+                : this.$t('global.default.edit');
         },
     },
 });

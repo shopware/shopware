@@ -1,25 +1,22 @@
 /**
  * @sw-package inventory
  */
+import useDocumentDefaultLanguage from '../use-document-default-language';
 import template from './sw-product-document-language-hint.html.twig';
+
+const { Context, Utils } = Shopware;
 
 /** @private */
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    emits: ['language-change'],
-
-    props: {
-        defaultLanguageName: { type: String, required: false, default: '' },
+    setup() {
+        return useDocumentDefaultLanguage();
     },
 
-    computed: {
-        languageLabel(): string {
-            return this.defaultLanguageName || this.$t('sw-product.documentForm.defaultLanguage');
-        },
-
-        defaultLanguageId() {
-            return Shopware.Store.get('context').api.systemLanguageId;
+    methods: {
+        switchToDefaultLanguage(): void {
+            Utils.EventBus.emit('on-change-language-clicked', Context.api.systemLanguageId);
         },
     },
 });

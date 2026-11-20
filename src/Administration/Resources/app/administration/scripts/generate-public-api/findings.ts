@@ -4,25 +4,30 @@
  * The findings of the break check and the summary it prints for them.
  * The summary format is described in `technical-docs/11-code-quality/03-public-api-snapshot.md`.
  */
+import type { FlagState } from './flag-states';
 
-// In this order the summary prints the groups.
-const FINDING_GROUPS = [
+/**
+ * @private
+ *
+ * In this order the summary prints the groups. `Allowed` is a change that a marker announced, and `Private` a
+ * change to a private element, which is never public API.
+ */
+export const FINDING_GROUPS = [
     'Break',
     'Addition',
+    'Allowed',
+    'Private',
     'Info',
 ] as const;
 
 /** @private */
 export type FindingGroup = (typeof FINDING_GROUPS)[number];
 
-/** @private */
-export type FlagState = 'current' | 'major';
-
 /**
  * @private
  *
  * One change the break check reports. `element` is the element id, for example
- * `component:sw-card/block:sw_card_header`.
+ * `component:sw-card/block:sw_card_header`. `alsoAffects` names the extend children that inherit the change.
  */
 export interface Finding {
     group: FindingGroup;
@@ -32,6 +37,7 @@ export interface Finding {
     explanation: string;
     fix?: string;
     possibleRename?: string;
+    alsoAffects?: string[];
     at?: string;
 }
 
@@ -63,6 +69,7 @@ function formatFinding(finding: Finding): string[] {
         finding.explanation,
         finding.fix === undefined ? undefined : `Fix: ${finding.fix}`,
         finding.possibleRename === undefined ? undefined : `Possible rename: ${finding.possibleRename}.`,
+        finding.alsoAffects === undefined ? undefined : `Also affects: ${finding.alsoAffects.join(', ')}.`,
         finding.at === undefined ? undefined : `At: ${finding.at}`,
     ].filter((detail) => detail !== undefined);
 

@@ -1,7 +1,7 @@
 {% block sw_product_document_edit_modal %}
 <mt-modal-root
     :is-open="true"
-    @change="!$event && $emit('close')"
+    @change="!$event && !isApplying && $emit('close')"
 >
     <mt-modal
         :title="modalTitle"
@@ -10,23 +10,22 @@
         <div class="sw-product-document-form__edit-content">
         {% block sw_product_document_form_title_input %}
             <mt-text-field
-                :model-value="documentTitle"
+                v-model="title"
                 class="sw-product-document-form__name-input"
                 :label="$t('sw-product.documentForm.columnTitle')"
-                :hint="documentNameHint"
-                :placeholder="documentTitlePlaceholder"
-                :error="documentNameError"
+                :hint="isSystemDefaultLanguage ? $t('sw-product.documentForm.nameHint') : undefined"
+                :placeholder="titlePlaceholder"
+                :error="titleError"
                 :disabled="isDisabled"
-                :required="!allowFallback"
+                :required="isSystemDefaultLanguage"
                 :max-length="255"
-                @update:model-value="$emit('update:documentTitle', $event)"
             />
         {% endblock %}
         {% block sw_product_document_form_replace_file %}
             <sw-upload-listener
                 :upload-tag="uploadTag"
                 auto-upload
-                @media-upload-finish="$emit('upload', $event)"
+                @media-upload-finish="onUploadFinished"
             />
             <div>
                 <sw-media-upload-v2
@@ -36,25 +35,26 @@
                     role="group"
                     :aria-label="$t('sw-product.documentForm.columnFileName')"
                     :label="$t('sw-product.documentForm.columnFileName')"
-                    :required="!allowFallback"
+                    :required="isSystemDefaultLanguage"
                     default-folder="product_document"
                     :allow-multi-select="false"
-                    :extension-accept="extensionAccept"
-                    :max-file-size="maxFileSize"
+                    :extension-accept="uploadRules.allowedExtensions.join(',')"
+                    :extension-mime-types-by-extension="uploadRules.allowedMimeTypesByExtension"
+                    :max-file-size="uploadRules.maxFileSize"
                     :disabled="isDisabled"
-                    @media-upload-sidebar-open="$emit('media-select')"
-                    @media-upload-remove-image="$emit('file-remove')"
+                    @media-upload-sidebar-open="showMediaModal = true"
+                    @media-upload-remove-image="removeFile"
                 />
                 {% block sw_product_document_form_file_error %}
                 <sw-field-error
-                    v-if="documentFileError"
+                    v-if="fileError"
                     class="sw-product-document-form__file-error"
-                    :error="documentFileError"
+                    :error="fileError"
                     role="alert"
                 />
                 {% endblock %}
                 <mt-text
-                    v-if="!documentFileError"
+                    v-if="!fileError"
                     size="xs"
                     color="color-text-secondary-default"
                     class="sw-product-document-form__upload-hint"
@@ -63,7 +63,7 @@
                         name="solid-info-circle"
                         size="var(--scale-size-12)"
                     />
-                    {{ documentFileHint }}
+                    {{ fileHint }}
                 </mt-text>
             </div>
         {% endblock %}
@@ -71,12 +71,11 @@
         {% block sw_product_document_form_apply_to_variants %}
             <mt-checkbox
                 v-if="hasVariants"
-                :checked="applyToVariants"
+                v-model:checked="applyToVariants"
                 class="sw-product-document-form__apply-to-variants"
                 :label="$t('sw-product.documentForm.applyToVariants')"
                 :help-text="$t('sw-product.documentForm.applyToVariantsHelp')"
                 :disabled="isDisabled"
-                @update:checked="$emit('update:applyToVariants', $event)"
             />
         {% endblock %}
             <mt-text
@@ -90,6 +89,7 @@
                 <mt-button
                     size="small"
                     variant="secondary"
+                    :disabled="isApplying"
                     @click="$emit('close')"
                 >
                     {{ $t('global.default.cancel') }}
@@ -99,7 +99,7 @@
                     variant="primary"
                     size="small"
                     :disabled="isDisabled"
-                    @click="$emit('save')"
+                    @click="apply"
                 >
                     {{ $t('global.default.apply') }}
                 </mt-button>
@@ -107,4 +107,15 @@
         </template>
     </mt-modal>
 </mt-modal-root>
+{% block sw_product_document_edit_modal_media_modal %}
+<sw-media-modal-v2
+    v-if="showMediaModal && mediaFolderId !== undefined"
+    entity-context="product_document"
+    :initial-folder-id="mediaFolderId"
+    :file-accept="uploadRules.fileAccept"
+    :allow-multi-select="false"
+    @media-modal-selection-change="selectMedia"
+    @modal-close="showMediaModal = false"
+/>
+{% endblock %}
 {% endblock %}

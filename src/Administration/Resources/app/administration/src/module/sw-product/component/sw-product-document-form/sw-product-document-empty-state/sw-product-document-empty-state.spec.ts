@@ -1,85 +1,57 @@
 /**
  * @sw-package inventory
  */
-import { shallowMount, type VueWrapper } from '@vue/test-utils';
-import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
+import { mount } from '@vue/test-utils';
 
-describe('sw-product-document-empty-state', () => {
-    const originalLanguage = Shopware.Context.api.languageId;
-    let wrapper: VueWrapper;
+const SYSTEM_LANGUAGE_ID = 'system-language' as EntityKey<'language'>;
+const GERMAN_LANGUAGE_ID = 'german' as EntityKey<'language'>;
 
-    async function createWrapper(canAddDocuments = true, get = jest.fn().mockResolvedValue({ name: 'English' })) {
-        return shallowMount(await wrapTestComponent('sw-product-document-empty-state', { sync: true }), {
-            props: { canAddDocuments },
-            global: {
-                provide: { repositoryFactory: { create: () => ({ get }) } },
-                stubs: {
-                    'sw-product-document-language-hint': await wrapTestComponent('sw-product-document-language-hint', {
-                        sync: true,
-                    }),
-                    'i18n-t': { template: '<span><slot name="language"/></span>' },
+async function createWrapper() {
+    return mount(await wrapTestComponent('sw-product-document-empty-state', { sync: true }), {
+        slots: {
+            'add-button': '<button class="add-button">Add documents</button>',
+        },
+        global: {
+            stubs: {
+                'mt-empty-state': {
+                    props: ['headline', 'description'],
+                    template: '<div class="mt-empty-state">{{ headline }} {{ description }}<slot name="button" /></div>',
                 },
+                'mt-text': { template: '<p class="mt-text"><slot /></p>' },
+                'sw-product-document-language-hint': { template: '<span class="language-hint" />' },
             },
-        });
-    }
-
-    beforeEach(() => {
-        Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
+        },
     });
+}
+
+describe('src/module/sw-product/component/sw-product-document-form/sw-product-document-empty-state', () => {
+    const context = Shopware.Store.get('context');
+    const { languageId, systemLanguageId } = context.api;
 
     afterEach(() => {
-        wrapper?.unmount();
-        Shopware.Context.api.languageId = originalLanguage;
+        context.api.languageId = languageId;
+        context.api.systemLanguageId = systemLanguageId;
     });
 
-    it('keeps the default-language Add action without loading a language', async () => {
-        const get = jest.fn();
-        wrapper = await createWrapper(true, get);
-        await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('documents-add')).toEqual([[]]);
-        expect(wrapper.find('.mt-link').exists()).toBe(false);
-        expect(get).not.toHaveBeenCalled();
+    it('shows the description and the add button in the default language', async () => {
+        context.api.languageId = SYSTEM_LANGUAGE_ID;
+        context.api.systemLanguageId = SYSTEM_LANGUAGE_ID;
+
+        const wrapper = await createWrapper();
+
+        expect(wrapper.text()).toContain('sw-product.documentForm.emptyDescription');
+        expect(wrapper.find('.add-button').exists()).toBe(true);
+        expect(wrapper.find('.language-hint').exists()).toBe(false);
     });
 
-    it('disables adding documents when the product cannot be edited', async () => {
-        wrapper = await createWrapper(false);
-        expect(wrapper.get<HTMLButtonElement>('button').element.disabled).toBe(true);
-    });
+    it('shows the language hint instead of the add button in another language', async () => {
+        context.api.languageId = GERMAN_LANGUAGE_ID;
+        context.api.systemLanguageId = SYSTEM_LANGUAGE_ID;
 
-    it('offers the configured default language instead of an Add action in another language', async () => {
-        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        const get = jest.fn().mockResolvedValue({ name: 'Français' });
-        wrapper = await createWrapper(false, get);
-        await flushPromises();
+        const wrapper = await createWrapper();
 
-        expect(get).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
-        expect(wrapper.find('.mt-button').exists()).toBe(false);
-        const link = wrapper.get('button.mt-link');
-        expect(link.text()).toBe("'Français'");
-        await link.trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
-        expect(wrapper.emitted('documents-add')).toBeUndefined();
-    });
-
-    it('keeps language switching available if the language name cannot be loaded', async () => {
-        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        wrapper = await createWrapper(false, jest.fn().mockRejectedValue(new Error('Language lookup failed')));
-        await flushPromises();
-
-        expect(wrapper.get('button.mt-link').text()).toContain('sw-product.documentForm.defaultLanguage');
-        await wrapper.get('button.mt-link').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
-    });
-
-    it('offers Add documents after switching back to the default language', async () => {
-        Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
-        wrapper = await createWrapper();
-        await flushPromises();
-        Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
-        await flushPromises();
-
-        expect(wrapper.find('.mt-link').exists()).toBe(false);
-        await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('documents-add')).toEqual([[]]);
+        expect(wrapper.classes()).toContain('sw-product-document-empty-state--translated');
+        expect(wrapper.find('.add-button').exists()).toBe(false);
+        expect(wrapper.find('.language-hint').exists()).toBe(true);
     });
 });

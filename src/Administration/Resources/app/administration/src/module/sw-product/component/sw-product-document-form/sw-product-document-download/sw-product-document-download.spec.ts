@@ -7,11 +7,11 @@ import {
     cleanupWrappers,
     createWrapper,
     createMedia,
-    addMedia,
+    addDocuments,
     getDocuments,
 } from '../sw-product-document-form.spec/helpers';
 
-describe('sw-product-document-form downloads', () => {
+describe('sw-product-document-download', () => {
     const originalLanguage = Shopware.Context.api.languageId;
     const createObjectURLDescriptor = Object.getOwnPropertyDescriptor(URL, 'createObjectURL');
     const revokeObjectURLDescriptor = Object.getOwnPropertyDescriptor(URL, 'revokeObjectURL');
@@ -67,7 +67,7 @@ describe('sw-product-document-form downloads', () => {
         mediaService.downloadMedia.mockResolvedValue(file);
         const wrapper = await createWrapper(undefined, mediaService);
         const media = createMedia('operating-manual');
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
         getDocuments()![0].title = 'Translated document name';
 
         await wrapper.get('.sw-product-document-form__download').trigger('click');
@@ -82,13 +82,13 @@ describe('sw-product-document-form downloads', () => {
         expect(revokeObjectURLMock).toHaveBeenCalledWith('blob:document-download');
     });
 
-    it('opens an external download without fetching a file response', async () => {
+    it('opens an external download URL without fetching a file', async () => {
         mediaService.prepareDownloadMedia.mockResolvedValue({
             type: 'external',
             url: 'https://cdn.example.test/manual',
         });
         const wrapper = await createWrapper(undefined, mediaService);
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
 
         await wrapper.get('.sw-product-document-form__download').trigger('click');
         await flushPromises();
@@ -109,7 +109,7 @@ describe('sw-product-document-form downloads', () => {
             mediaService.downloadMedia.mockRejectedValue(new Error('Download failed'));
         }
         const wrapper = await createWrapper(undefined, mediaService);
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
         await wrapper.get('.sw-product-document-form__download').trigger('click');
@@ -126,7 +126,7 @@ describe('sw-product-document-form downloads', () => {
 
     it('does not request a download without media viewer permission', async () => {
         const wrapper = await createWrapper(undefined, mediaService);
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         await wrapper.get('.sw-product-document-form__download').trigger('click');
         await flushPromises();
@@ -141,7 +141,11 @@ describe('sw-product-document-form downloads', () => {
         store.product.parentId = store.parentProduct.id;
         const media = createMedia('parent-manual');
         const document = repositoryFactory.create('product_document').create();
-        Object.assign(document, { mediaId: media.id, translations: [{ mediaId: media.id, media }] });
+        Object.assign(document, {
+            mediaId: media.id,
+            translated: { mediaId: media.id },
+            translations: [{ mediaId: media.id, media }],
+        });
         store.parentProduct.documents?.add(document);
         mediaService.prepareDownloadMedia.mockResolvedValue({
             type: 'external',

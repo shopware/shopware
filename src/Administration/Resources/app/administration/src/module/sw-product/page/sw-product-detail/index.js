@@ -63,6 +63,10 @@ export default {
             type: Array,
             required: false,
             default: null,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Please use `creationType` instead.',
+            },
         },
         /* Product "type" provided by the split button for creating a new product through a router parameter */
         creationType: {
@@ -99,6 +103,21 @@ export default {
             return Shopware.Store.get('swProductDetail').product;
         },
 
+        /** @private */
+        productDocumentVariantService() {
+            return Shopware.Service('productDocumentVariantService');
+        },
+
+        /** @private */
+        documentVariantOperations: {
+            get() {
+                return Shopware.Store.get('swProductDetail').documentVariantOperations;
+            },
+            set(operations) {
+                Shopware.Store.get('swProductDetail').documentVariantOperations = operations;
+            },
+        },
+
         parentProduct() {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
@@ -111,6 +130,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         advancedModeSetting() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.advancedModeSetting is deprecated. Will be removed without replacement.',
+            );
+
             return Shopware.Store.get('swProductDetail').advancedModeSetting;
         },
 
@@ -192,6 +216,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, please use `productType` instead
          */
         productStates() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.productStates is deprecated. Please use `productType` instead.',
+            );
+
             return Shopware.Store.get('swProductDetail').productStates;
         },
 
@@ -355,6 +384,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getModeSettingGeneralTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.getModeSettingGeneralTab is deprecated. Will be removed without replacement.',
+            );
+
             return [
                 {
                     key: 'general_information',
@@ -399,6 +433,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getModeSettingSpecificationsTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.getModeSettingSpecificationsTab is deprecated. Will be removed without replacement.',
+            );
+
             return [
                 {
                     key: 'measurement',
@@ -437,6 +476,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         showAdvanceModeSetting() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.showAdvanceModeSetting is deprecated. Will be removed without replacement.',
+            );
+
             if (this.isChild) {
                 return false;
             }
@@ -456,6 +500,14 @@ export default {
 
         languageRepository() {
             return this.repositoryFactory.create('language');
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria();
+            criteria.setTotalCountMode(0);
+            criteria.addAssociation('locale');
+
+            return criteria;
         },
 
         language() {
@@ -557,7 +609,6 @@ export default {
 
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
 
-            this.loadLanguage(Shopware.Context.api.languageId);
             await this.initProductMeasurementUnits();
 
             // initialize default state
@@ -588,6 +639,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         initAdvancedModeSettings() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.initAdvancedModeSettings() is deprecated. Will be removed without replacement.',
+            );
+
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.getAdvancedModeDefaultSetting();
 
             // Only load settings when editing existing product
@@ -603,6 +659,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         createUserModeSetting() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.createUserModeSetting() is deprecated. Will be removed without replacement.',
+            );
+
             return {
                 key: ADVANCED_MODE_SETTINGS_KEY,
                 userId: this.currentUser && this.currentUser.id,
@@ -613,6 +674,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getAdvancedModeDefaultSetting() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.getAdvancedModeDefaultSetting() is deprecated. Will be removed without replacement.',
+            );
+
             const defaultSettings = this.createUserModeSetting();
             defaultSettings.value = {
                 advancedMode: {
@@ -628,6 +694,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         async getAdvancedModeSetting() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.getAdvancedModeSetting() is deprecated. Will be removed without replacement.',
+            );
+
             const modeSettingsValue = (await Shopware.Service('userConfigService').search([ADVANCED_MODE_SETTINGS_KEY]))
                 ?.data?.[ADVANCED_MODE_SETTINGS_KEY];
 
@@ -658,6 +729,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         saveAdvancedMode() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.saveAdvancedMode() is deprecated. Will be removed without replacement.',
+            );
+
             Shopware.Store.get('swProductDetail').setLoading(['advancedMode', true]);
 
             return Shopware.Service('userConfigService')
@@ -679,6 +755,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         onChangeSetting() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.onChangeSetting() is deprecated. Will be removed without replacement.',
+            );
+
             Shopware.Store.get('swProductDetail').advancedModeSetting = this.advancedModeSetting;
             this.saveAdvancedMode();
         },
@@ -687,6 +768,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         changeModeSettings() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.changeModeSettings() is deprecated. Will be removed without replacement.',
+            );
+
             const enabledModeItems = this.advancedModeSetting.value.settings.filter((item) => item.enabled);
             if (!enabledModeItems.length) {
                 return [];
@@ -699,6 +785,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         onChangeSettingItem() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.onChangeSettingItem() is deprecated. Will be removed without replacement.',
+            );
+
             Shopware.Store.get('swProductDetail').modeSettings = this.changeModeSettings();
             this.saveAdvancedMode();
         },
@@ -851,6 +942,7 @@ export default {
 
                     Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = !product.downloads?.length;
                     Shopware.Store.get('swProductDetail').product = product;
+                    this.documentVariantOperations = {};
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
@@ -1071,7 +1163,7 @@ export default {
         },
 
         abortOnLanguageChange() {
-            return this.productRepository.hasChanges(this.product);
+            return this.productRepository.hasChanges(this.product) || Object.keys(this.documentVariantOperations).length > 0;
         },
 
         saveOnLanguageChange() {
@@ -1294,12 +1386,15 @@ export default {
             };
 
             return new Promise((resolve) => {
+                const saveDocumentVariants = this.getDocumentVariantsSaver();
+
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
-                    updateSeoUrls();
-                    Shopware.Store.get('swProductDetail').setLoading(['product', false]);
-                    resolve('empty');
-                    Shopware.Store.get('swProductDetail').setLoading(['product', false]);
+                    saveDocumentVariants().then(() => {
+                        updateSeoUrls();
+                        Shopware.Store.get('swProductDetail').setLoading(['product', false]);
+                        resolve('empty');
+                    });
                     return;
                 }
 
@@ -1313,6 +1408,7 @@ export default {
                 // save product
                 this.syncRepository
                     .save(this.product, this.productApiContext)
+                    .then(saveDocumentVariants)
                     .then(() => {
                         updateSeoUrls();
 
@@ -1338,6 +1434,28 @@ export default {
                         resolve(response);
                     });
             });
+        },
+
+        /** @private */
+        getDocumentVariantsSaver() {
+            const operations = Object.values(this.documentVariantOperations);
+            const productId = this.product.id;
+            const { languageId } = this.productApiContext;
+
+            return async () => {
+                if (!operations.length) {
+                    return;
+                }
+
+                try {
+                    await this.productDocumentVariantService.sync(productId, operations, false, languageId);
+                    this.documentVariantOperations = {};
+                } catch {
+                    this.createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorSaveVariants'),
+                    });
+                }
+            };
         },
 
         trackProductSaveEvents(productType, productIsNew, productWasActivated) {
@@ -1396,7 +1514,8 @@ export default {
             return '';
         },
 
-        onDuplicate() {
+        async onDuplicate() {
+            await this.getDocumentVariantsSaver()();
             this.cloning = true;
         },
 
@@ -1420,6 +1539,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         getCmsPageOverrides() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.getCmsPageOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             if (this.currentPage === null) {
                 return null;
             }
@@ -1455,6 +1579,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         deleteSpecifcKeys(sections) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail.deleteSpecifcKeys() is deprecated. Will be removed without replacement.',
+            );
+
             if (!sections) {
                 return;
             }
@@ -1491,32 +1620,14 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            if (!newLanguageId) {
-                return;
-            }
+            const language = await this.languageRepository.get(
+                newLanguageId,
+                { ...Shopware.Context.api, inheritance: true },
+                this.languageCriteria,
+            );
 
-            const criteria = new Criteria();
-            criteria.addAssociation('locale');
-            try {
-                const language = await this.languageRepository.get(
-                    newLanguageId,
-                    { ...Shopware.Context.api, inheritance: true },
-                    criteria,
-                );
-
-                if (newLanguageId !== Shopware.Context.api.languageId) {
-                    return;
-                }
-
-                Shopware.Store.get('swProductDetail').documentLanguage = language;
+            if (newLanguageId === Shopware.Context.api.languageId) {
                 Shopware.Store.get('context').api.language = language;
-            } catch {
-                if (newLanguageId === Shopware.Context.api.languageId) {
-                    Shopware.Store.get('swProductDetail').documentLanguage = null;
-                    this.createNotificationError({
-                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
-                    });
-                }
             }
         },
 

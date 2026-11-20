@@ -4,7 +4,17 @@
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { VueWrapper } from '@vue/test-utils';
 import type { ComponentPublicInstance } from 'vue';
-import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import {
+    mockSnackbar,
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addDocuments,
+    clickButton,
+    getDocuments,
+    mockVariantSync,
+} from './helpers';
 
 async function selectDocuments(wrapper: VueWrapper, documents: Entity<'product_document'>[]) {
     const grid = wrapper.getComponent<ComponentPublicInstance>({ ref: 'documentGrid' });
@@ -19,6 +29,7 @@ describe('sw-product-document-form bulk removal', () => {
     const originalLanguage = Shopware.Store.get('context').api.language;
 
     beforeEach(() => {
+        mockSnackbar.mockClear();
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const store = Shopware.Store.get('swProductDetail');
@@ -37,7 +48,7 @@ describe('sw-product-document-form bulk removal', () => {
         const repository = repositoryFactory.create('product');
         const save = jest.spyOn(repository, 'save');
         const wrapper = await createWrapper(undefined, undefined, repository);
-        await addMedia(wrapper, [createMedia('first'), createMedia('keep'), createMedia('last')]);
+        await addDocuments(wrapper, [createMedia('first'), createMedia('keep'), createMedia('last')]);
         const documents = [...getDocuments()!];
 
         await selectDocuments(wrapper, [documents[0], documents[2]]);
@@ -56,58 +67,42 @@ describe('sw-product-document-form bulk removal', () => {
         expect(save).not.toHaveBeenCalled();
     });
 
-    it('loads matching variants together and leaves the draft untouched on failure before retrying', async () => {
-        const repository = repositoryFactory.create('product');
-        const search = jest.spyOn(repository, 'search');
-        const wrapper = await createWrapper(undefined, undefined, repository);
+    it('queues the variant removal of every selected document without a dry run', async () => {
+        const wrapper = await createWrapper();
         const media = [createMedia('first'), createMedia('second')];
-        await addMedia(wrapper, media);
+        await addDocuments(wrapper, media);
+        const documents = [...getDocuments()!];
         const store = Shopware.Store.get('swProductDetail');
         store.product.childCount = 1;
-        const variant = createProduct();
-        variant.parentId = store.product.id;
-        getDocuments()!.forEach((document) => {
-            const copy = repositoryFactory.create('product_document').create();
-            Object.assign(copy, {
-                productId: variant.id,
-                title: document.title,
-                mediaId: document.mediaId,
-                position: document.position,
-            });
-            variant.documents!.add(copy);
-        });
-        search.mockRejectedValueOnce(new Error('Unavailable'));
-        await selectDocuments(wrapper, [...getDocuments()!]);
-        await wrapper.get('.sw-product-document-form__confirm-remove').trigger('click');
-        await flushPromises();
-        expect(getDocuments()).toHaveLength(2);
-        expect(variant.documents).toHaveLength(2);
-        expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(true);
 
-        search.mockResolvedValueOnce(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
+        await selectDocuments(wrapper, documents);
+        expect(wrapper.get<HTMLInputElement>('.sw-product-document-form__remove-from-variants input').element.checked).toBe(
+            true,
         );
         await wrapper.get('.sw-product-document-form__confirm-remove').trigger('click');
         await flushPromises();
-        expect(search).toHaveBeenCalledTimes(2);
-        expect(search.mock.calls[1][0]?.filters).toContainEqual({
-            type: 'equalsAny',
-            field: 'documents.mediaId',
-            value: media.map((file) => file.id).join('|'),
-        });
+
+        expect(mockVariantSync).not.toHaveBeenCalled();
         expect(getDocuments()).toHaveLength(0);
-        expect(variant.documents).toHaveLength(0);
+        expect(store.documentVariantOperations).toEqual({
+            [documents[0].id]: { type: 'remove', mediaId: media[0].id, title: 'first' },
+            [documents[1].id]: { type: 'remove', mediaId: media[1].id, title: 'second' },
+        });
+        expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(false);
+        expect(mockSnackbar).toHaveBeenCalledTimes(1);
+        expect(mockSnackbar).toHaveBeenCalledWith(
+            expect.objectContaining({ variant: 'success', message: 'sw-product.documentForm.bulkRemoveSuccess' }),
+        );
     });
 
     it('clears only the selected language versions and keeps the assignments', async () => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia('first'), createMedia('second')]);
+        await addDocuments(wrapper, [createMedia('first'), createMedia('second')]);
         const documents = [...getDocuments()!];
         const language = repositoryFactory.create('language').create();
         Object.assign(language, { name: 'German' });
         Shopware.Context.api.languageId = language.id;
         Shopware.Store.get('context').api.language = language;
-        Shopware.Store.get('swProductDetail').documentLanguage = language;
         await flushPromises();
 
         await selectDocuments(wrapper, documents);

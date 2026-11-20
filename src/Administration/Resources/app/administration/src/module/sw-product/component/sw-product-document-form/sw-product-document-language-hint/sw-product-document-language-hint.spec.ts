@@ -7,20 +7,23 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 describe('sw-product-document-language-hint', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
     let wrapper: VueWrapper;
+    let emitEvent: jest.SpyInstance;
 
     beforeEach(() => {
+        emitEvent = jest.spyOn(Shopware.Utils.EventBus, 'emit');
         Shopware.Context.api.languageId = repositoryFactory.create('language').create().id;
     });
 
     afterEach(() => {
         wrapper?.unmount();
+        jest.restoreAllMocks();
         Shopware.Context.api.languageId = originalLanguageId;
     });
 
-    async function createWrapper(defaultLanguageName = '') {
+    async function createWrapper(getLanguage: jest.Mock) {
         wrapper = shallowMount(await wrapTestComponent('sw-product-document-language-hint', { sync: true }), {
-            props: { defaultLanguageName },
             global: {
+                provide: { repositoryFactory: { create: () => ({ get: getLanguage }) } },
                 stubs: { 'i18n-t': { template: '<span><slot name="language" /></span>' } },
             },
         });
@@ -28,17 +31,19 @@ describe('sw-product-document-language-hint', () => {
         return wrapper;
     }
 
-    it('displays the supplied default language name and switches to its ID when clicked', async () => {
-        await createWrapper('English');
+    it('shows the default language name and requests a language switch when its link is clicked', async () => {
+        const getLanguage = jest.fn().mockResolvedValue({ name: 'English' });
+        await createWrapper(getLanguage);
+        expect(getLanguage).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
         expect(wrapper.text()).toContain('English');
         await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
     });
 
-    it('keeps the language switch available when the name cannot be loaded', async () => {
-        await createWrapper();
+    it('keeps the language switch available when the default language cannot be loaded', async () => {
+        await createWrapper(jest.fn().mockRejectedValue(new Error('Unavailable')));
         expect(wrapper.text()).toContain('sw-product.documentForm.defaultLanguage');
         await wrapper.get('button').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        expect(emitEvent).toHaveBeenCalledWith('on-change-language-clicked', Shopware.Context.api.systemLanguageId);
     });
 });

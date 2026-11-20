@@ -66,14 +66,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             return Promise.resolve({ variation: [] });
         },
         productId = '1234',
-        {
-            featureActive = false,
-            routeName = 'sw.product.detail.base',
-            routerPush = jest.fn(),
-            hasChanges = true,
-            routedComponent = null,
-            languageSwitchInput = null,
-        } = {},
+        { featureActive = false, routeName = 'sw.product.detail.base', routerPush = jest.fn(), routedComponent = null } = {},
     ) {
         return mount(await wrapTestComponent('sw-product-detail', { sync: true }), {
             global: {
@@ -131,7 +124,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
                                 return product;
                             },
-                            hasChanges: () => hasChanges,
+                            hasChanges: () => true,
                             save: () => Promise.resolve({}),
                         }),
                     },
@@ -172,13 +165,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     'sw-button-process': true,
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
-                    'sw-language-switch': languageSwitchInput
-                        ? {
-                              template: '<div/>',
-                              props: ['abortChangeFunction', 'saveChangesFunction'],
-                              methods: { onInput: languageSwitchInput },
-                          }
-                        : true,
+                    'sw-language-switch': true,
                     'sw-card-view': {
                         template: '<div class="sw-card-view"><slot></slot></div>',
                     },
@@ -296,7 +283,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
             productId: null,
         });
 
-        wrapper.vm.onDuplicate();
+        await wrapper.vm.onDuplicate();
 
         expect(wrapper.vm.cloning).toBe(true);
     });
@@ -903,6 +890,99 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(wrapper.vm.previousWeightUnit).toBe('kg');
     });
 
+    /* eslint-disable sw-test-rules/no-vm-access -- save, duplicate and the language switch are only reachable through the stubbed smart bar */
+    describe('saving queued variant document updates', () => {
+        const operation = { mediaId: 'media-id', title: 'Manual', changes: { title: 'Guide' } };
+        let sync;
+
+        beforeAll(() => {
+            Shopware.Service().register('productDocumentVariantService', () => ({ sync: () => Promise.resolve([]) }));
+        });
+
+        beforeEach(async () => {
+            wrapper.unmount();
+            wrapper = await createWrapper(undefined, () => Promise.resolve({ id: 'product-id', variation: [] }));
+            await flushPromises();
+            wrapper.vm.createNotificationError = jest.fn();
+            sync = jest.spyOn(Shopware.Service('productDocumentVariantService'), 'sync').mockResolvedValue([]);
+            Shopware.Store.get('swProductDetail').documentVariantOperations = { 'document-id': operation };
+        });
+
+        it('sends the queued operations for the saved product in its language after the product save', async () => {
+            await wrapper.vm.saveProduct();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, wrapper.vm.productApiContext.languageId);
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+
+        it('sends the queued operations when the product itself has no changes', async () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(false);
+
+            const response = await wrapper.vm.saveProduct();
+
+            expect(response).toBe('empty');
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+
+        it('sends the operations to the saved product when another product is loaded before they are sent', async () => {
+            const saveDocumentVariants = wrapper.vm.getDocumentVariantsSaver();
+            Shopware.Store.get('swProductDetail').product = { id: 'other-product' };
+
+            await saveDocumentVariants();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+        });
+
+        it('keeps the queued operations and shows an error when the variant update fails', async () => {
+            sync.mockRejectedValue(new Error('Request failed'));
+
+            await wrapper.vm.getDocumentVariantsSaver()();
+
+            expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
+                message: 'sw-product.documentForm.errorSaveVariants',
+            });
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
+        });
+
+        it('sends nothing when no operation is queued', async () => {
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            await wrapper.vm.saveProduct();
+
+            expect(sync).not.toHaveBeenCalled();
+        });
+
+        it('asks before a language switch while variant updates are queued', () => {
+            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(false);
+
+            expect(wrapper.vm.abortOnLanguageChange()).toBe(true);
+
+            Shopware.Store.get('swProductDetail').documentVariantOperations = {};
+
+            expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
+        });
+
+        it('sends the queued operations before the product is duplicated', async () => {
+            sync.mockImplementation(() => {
+                expect(wrapper.vm.cloning).toBe(false);
+                return Promise.resolve([]);
+            });
+
+            await wrapper.vm.onDuplicate();
+
+            expect(sync).toHaveBeenCalledWith('product-id', [operation], false, expect.anything());
+            expect(wrapper.vm.cloning).toBe(true);
+        });
+
+        it('discards the queued operations when a product is loaded', async () => {
+            await wrapper.vm.loadProduct();
+
+            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({});
+        });
+    });
+    /* eslint-enable sw-test-rules/no-vm-access */
+
     describe('saving SEO URLs', () => {
         async function saveWithSeoUrl({ foreignKey = 'product-id', seoPathInfo, isModified }) {
             updateCanonicalUrlMock.mockClear();
@@ -1000,126 +1080,37 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
     });
 
-    it('loads document language metadata when opening a product', async () => {
-        wrapper.unmount();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguageId = api.languageId;
-        const originalLanguage = api.language;
-        const language = { id: 'french', parentId: 'parent-language', locale: { code: 'fr-FR' } };
-        const get = jest.fn((id) => Promise.resolve(id === language.id ? language : { variation: [] }));
-
-        try {
-            api.languageId = language.id;
-            wrapper = await createWrapper(undefined, get);
-            await flushPromises();
-
-            expect(Shopware.Store.get('swProductDetail').documentLanguage).toEqual(expect.objectContaining(language));
-            const request = get.mock.calls.find(([id]) => id === language.id);
-            expect(request[1]).toEqual(expect.objectContaining({ inheritance: true }));
-            expect(request[2].parse()).toMatchObject({ associations: { locale: {} } });
-        } finally {
-            api.languageId = originalLanguageId;
-            api.language = originalLanguage;
-        }
-    });
-
-    it('reports failed document language loading without retaining stale metadata', async () => {
-        wrapper.unmount();
-        const api = Shopware.Store.get('context').api;
-        const originalLanguageId = api.languageId;
-        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
-        const store = Shopware.Store.get('swProductDetail');
-        store.documentLanguage = { id: 'previous-language' };
-
-        try {
-            api.languageId = 'french';
-            wrapper = await createWrapper(undefined, (id) => {
-                if (id === 'french') {
-                    return Promise.reject(new Error('Language unavailable'));
-                }
-                return Promise.resolve({ variation: [] });
-            });
-            await flushPromises();
-
-            expect(store.documentLanguage).toBeNull();
-            expect(notificationSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    variant: 'error',
-                    message: 'global.notification.notificationLoadingDataErrorMessage',
-                }),
-            );
-        } finally {
-            api.languageId = originalLanguageId;
-        }
-    });
-
     it('keeps the active language when an earlier page lookup finishes last', async () => {
         wrapper.unmount();
         let resolveGerman;
-        wrapper = await createWrapper(
-            undefined,
-            (id) => {
-                if (id === 'german') {
-                    return new Promise((resolve) => {
-                        resolveGerman = resolve;
-                    });
-                }
-                return Promise.resolve({ id, variation: [] });
-            },
-            undefined,
-            {
-                languageSwitchInput(languageId) {
-                    this.$emit('on-change', languageId);
-                },
-                routedComponent: {
-                    template: `<div>
-                    <button class="request-german" @click="$emit('language-change', 'german')">German</button>
-                    <button class="request-french" @click="$emit('language-change', 'french')">French</button>
-                </div>`,
-                },
-            },
-        );
+        wrapper = await createWrapper(undefined, (id) => {
+            if (id === 'german') {
+                return new Promise((resolve) => {
+                    resolveGerman = resolve;
+                });
+            }
+            return Promise.resolve({ id, variation: [] });
+        });
         await flushPromises();
         const api = Shopware.Store.get('context').api;
         const originalLanguageId = api.languageId;
         const originalLanguage = api.language;
 
         try {
-            await wrapper.get('.request-german').trigger('click');
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'german');
             await flushPromises();
-            await wrapper.get('.request-french').trigger('click');
+            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'french');
             await flushPromises();
             expect(api.language.id).toBe('french');
-            expect(Shopware.Store.get('swProductDetail').documentLanguage.id).toBe('french');
 
             resolveGerman({ id: 'german', locale: { code: 'de-DE' } });
             await flushPromises();
             expect(api.languageId).toBe('french');
             expect(api.language.id).toBe('french');
-            expect(Shopware.Store.get('swProductDetail').documentLanguage.id).toBe('french');
         } finally {
             api.languageId = originalLanguageId;
             api.language = originalLanguage;
         }
-    });
-
-    it('routes a document language request through the normal language-switch input', async () => {
-        wrapper.unmount();
-        const languageSwitchInput = jest.fn();
-        wrapper = await createWrapper(undefined, undefined, undefined, {
-            languageSwitchInput,
-            routedComponent: {
-                template:
-                    '<button class="request-default-language" @click="$emit(\'language-change\', \'default-language\')">Switch language</button>',
-            },
-        });
-        await flushPromises();
-        const product = Shopware.Store.get('swProductDetail').product;
-        await wrapper.get('.request-default-language').trigger('click');
-
-        expect(languageSwitchInput).toHaveBeenCalledWith('default-language');
-        expect(wrapper.getComponent({ ref: 'languageSwitch' }).props('abortChangeFunction')()).toBe(true);
-        expect(Shopware.Store.get('swProductDetail').product).toBe(product);
     });
 
     it('should handle success response correctly', async () => {

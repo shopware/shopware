@@ -9,7 +9,7 @@ import {
     cleanupWrappers,
     createWrapper,
     createMedia,
-    addMedia,
+    addDocuments,
     clickButton,
     getDocuments,
 } from './helpers';
@@ -33,7 +33,7 @@ describe('sw-product-document-form removal', () => {
 
     it('cancels removal without changing the product draft', async () => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia()]);
+        await addDocuments(wrapper, [createMedia()]);
         const before = new ChangesetGenerator().generate(Shopware.Store.get('swProductDetail').product);
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         expect(wrapper.text()).toContain('sw-product.documentForm.removeDescription');

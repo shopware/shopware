@@ -2,14 +2,10 @@
  * @sw-package framework
  */
 
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { parse } from 'yaml';
-
 import Feature, { deprecationBaselineKey, UNREGISTERED_UPCOMING_MAJORS } from 'src/core/feature';
 import deprecationBaseline from 'src/core/deprecation-baseline.json';
-import normalizeFeatureFlag from 'test/_helper_/normalizeFeatureFlag';
 import { useProductionDeprecationGuard } from 'test/_helper_/deprecations';
+import { flagsOf, loadFeatureConfig, normalizeFeatureFlag } from '../../scripts/feature-flags';
 
 const listedBaselineKeys: string[] = [];
 
@@ -100,13 +96,7 @@ describe('src/core/feature', () => {
         });
 
         it('lists only upcoming majors the backend does not register yet', () => {
-            const featureConfig = parse(
-                readFileSync(
-                    resolve(process.env.ADMIN_PATH!, '../../../../Core/Framework/Resources/config/packages/feature.yaml'),
-                    'utf8',
-                ),
-            ) as { shopware: { feature: { flags: Array<{ name: string }> } } };
-            const registeredFlags = featureConfig.shopware.feature.flags.map(({ name }) => normalizeFeatureFlag(name));
+            const registeredFlags = flagsOf(loadFeatureConfig()).map(({ name }) => normalizeFeatureFlag(name));
 
             expect(registeredFlags).toContain('V6_8_0_0');
             expect(UNREGISTERED_UPCOMING_MAJORS.filter((flag) => registeredFlags.includes(flag))).toEqual([]);
@@ -149,6 +139,141 @@ describe('src/core/feature', () => {
             expect(() =>
                 Feature.triggerDeprecationOrThrow('V7_0_0_0', 'blamedMethod() is deprecated.', { _blame: 'author' }),
             ).toThrow('Tried to access deprecated functionality: blamedMethod() is deprecated.');
+        });
+    });
+
+    describe('silence', () => {
+        it('runs the callback and returns its result', () => {
+            expect(Feature.silence('V7_0_0_0', () => 'legacy')).toBe('legacy');
+        });
+
+        it('silences the deprecations of its major inside the callback', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            Feature.silence('v7.0.0.0', () =>
+                Feature.triggerDeprecationOrThrow('V7_0_0_0', 'silencedMethod() is deprecated.'),
+            );
+            Feature.triggerDeprecationOrThrow('V7_0_0_0', 'silencedMethod() is deprecated.');
+
+            expect(warn.mock.calls).toEqual([['[Deprecation]', 'silencedMethod() is deprecated.']]);
+        });
+
+        it('keeps the deprecations of other majors inside the callback', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            Feature.silence('V7_0_0_0', () =>
+                Feature.triggerDeprecationOrThrow('V6_9_0_0', 'otherMajorMethod() is deprecated.'),
+            );
+
+            expect(warn).toHaveBeenCalledWith('[Deprecation]', 'otherMajorMethod() is deprecated.');
+        });
+
+        it('silences nothing once the major flag is active', () => {
+            Feature.init({ V7_0_0_0: true });
+
+            expect(() =>
+                Feature.silence('V7_0_0_0', () =>
+                    Feature.triggerDeprecationOrThrow('V7_0_0_0', 'majorMethod() is deprecated.'),
+                ),
+            ).toThrow('Tried to access deprecated functionality: majorMethod() is deprecated.');
+        });
+
+        it('silences nothing once the major flag is active, in the dotted spelling too', () => {
+            Feature.init({ V7_0_0_0: true });
+
+            expect(() =>
+                Feature.silence('v7.0.0.0', () =>
+                    Feature.triggerDeprecationOrThrow('V7_0_0_0', 'dottedMajorMethod() is deprecated.'),
+                ),
+            ).toThrow('Tried to access deprecated functionality: dottedMajorMethod() is deprecated.');
+        });
+
+        it('stays silenced until the outermost of nested calls returns', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            Feature.silence('V7_0_0_0', () => {
+                Feature.silence('V7_0_0_0', () => undefined);
+                Feature.triggerDeprecationOrThrow('V7_0_0_0', 'nestedMethod() is deprecated.');
+            });
+
+            expect(warn).not.toHaveBeenCalled();
+            expect(Feature.isSilenced('V7_0_0_0')).toBe(false);
+        });
+
+        it('ends the silencing when the callback throws', () => {
+            expect(() =>
+                Feature.silence('V7_0_0_0', () => {
+                    throw new Error('legacy path failed');
+                }),
+            ).toThrow('legacy path failed');
+            expect(Feature.isSilenced('V7_0_0_0')).toBe(false);
+        });
+
+        it('throws for an asynchronous callback, as the silencing ends before it resumes', () => {
+            expect(() => Feature.silence('V7_0_0_0', () => Promise.resolve())).toThrow(
+                "Feature.silence('V7_0_0_0') silences only synchronous code: await outside of the callback.",
+            );
+            expect(Feature.isSilenced('V7_0_0_0')).toBe(false);
+        });
+
+        it('silences nothing and logs an error for an unknown flag', () => {
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+            expect(
+                Feature.silence('V7_0_0', () => {
+                    Feature.triggerDeprecationOrThrow('V7_0_0_0', 'typoSilencedMethod() is deprecated.');
+
+                    return 'legacy';
+                }),
+            ).toBe('legacy');
+
+            expect(error).toHaveBeenCalledWith(
+                '[Feature]',
+                'Feature.silence(\'V7_0_0\') silences nothing: "V7_0_0" is an unknown feature flag. Please fix it.',
+            );
+            expect(warn).toHaveBeenCalledWith('[Deprecation]', 'typoSilencedMethod() is deprecated.');
+        });
+    });
+
+    describe('setSilenceCheck', () => {
+        afterEach(() => {
+            Feature.setSilenceCheck('feature-spec', () => false);
+        });
+
+        it('silences what the check silences, with the flag spelled as silenceKey() spells it', () => {
+            const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const check = jest.fn((majorFlag: string) => majorFlag === 'V7_0_0_0');
+            Feature.setSilenceCheck('feature-spec', check);
+
+            Feature.triggerDeprecationOrThrow('v7.0.0.0', 'checkedMethod() is deprecated.');
+
+            expect(check).toHaveBeenCalledWith('V7_0_0_0');
+            expect(warn).not.toHaveBeenCalled();
+        });
+
+        it('replaces the check of the same name', () => {
+            jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const replaced = jest.fn(() => true);
+            const current = jest.fn(() => false);
+            Feature.setSilenceCheck('feature-spec', replaced);
+            Feature.setSilenceCheck('feature-spec', current);
+
+            Feature.triggerDeprecationOrThrow('V7_0_0_0', 'replacedCheckMethod() is deprecated.');
+
+            expect(replaced).not.toHaveBeenCalled();
+            expect(current).toHaveBeenCalled();
+        });
+
+        it('asks the checks only about a deprecation it has not reported yet', () => {
+            jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const check = jest.fn(() => false);
+            Feature.setSilenceCheck('feature-spec', check);
+
+            Feature.triggerDeprecationOrThrow('V7_0_0_0', 'repeatedMethod() is deprecated.');
+            Feature.triggerDeprecationOrThrow('V7_0_0_0', 'repeatedMethod() is deprecated.');
+
+            expect(check).toHaveBeenCalledTimes(1);
         });
     });
 

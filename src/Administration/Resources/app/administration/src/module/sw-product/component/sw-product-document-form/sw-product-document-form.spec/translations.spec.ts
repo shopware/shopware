@@ -32,7 +32,7 @@ describe('sw-product-document-form translated editing', () => {
         cleanupWrappers();
     });
 
-    it.each(['title', 'file'])('preserves fallback of untouched fields when changing the %s in German', async (field) => {
+    it.each(['title', 'file'])('preserves other fallback values when editing the %s in German', async (field) => {
         const repository = repositoryFactory.create('product');
         const productId = repository.create().id;
         const documentId = repositoryFactory.create('product_document').create().id;
@@ -71,7 +71,13 @@ describe('sw-product-document-form translated editing', () => {
             ].map(({ languageId, title, media }) => ({
                 id: `${documentId}-${languageId}`,
                 type: 'product_document_translation',
-                attributes: { extensions: {}, productDocumentId: documentId, languageId, title, mediaId: media?.id ?? null },
+                attributes: {
+                    extensions: {},
+                    productDocumentId: documentId,
+                    languageId,
+                    title,
+                    mediaId: media?.id ?? null,
+                },
                 relationships: { media: { data: media ? { type: 'media', id: media.id } : null } },
             }));
             responses.addResponse({
@@ -156,7 +162,14 @@ describe('sw-product-document-form translated editing', () => {
         expect(patchSpy.mock.calls[0][1]).toEqual({
             id: productId,
             versionId,
-            documents: [{ id: documentId, versionId, ...changedField }],
+            documents: [
+                {
+                    id: documentId,
+                    versionId,
+                    ...changedField,
+                    translated: { title: 'Manual', mediaId: englishMedia.id, ...changedField },
+                },
+            ],
         });
         expect(patchSpy.mock.calls[0][2]).toMatchObject({ headers: { 'sw-language-id': germanLanguageId } });
         const savedTitle = field === 'title' ? 'Handbuch' : null;

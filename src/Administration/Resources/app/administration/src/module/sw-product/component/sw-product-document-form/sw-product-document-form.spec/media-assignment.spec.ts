@@ -6,7 +6,16 @@ import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import fileValidationService from 'src/app/service/file-validation.service';
 
-import { createProduct, cleanupWrappers, createWrapper, createMedia, addMedia, clickButton, getDocuments } from './helpers';
+import {
+    createProduct,
+    cleanupWrappers,
+    createWrapper,
+    createMedia,
+    addDocuments,
+    clickButton,
+    getDocuments,
+    mockSnackbar,
+} from './helpers';
 
 describe('sw-product-document-form media assignment', () => {
     const originalLanguage = Shopware.Context.api.languageId;
@@ -28,7 +37,7 @@ describe('sw-product-document-form media assignment', () => {
     it('adds an assignment to the product save payload without copying the media file', async () => {
         const wrapper = await createWrapper();
         const media = createMedia();
-        await addMedia(wrapper, [media]);
+        await addDocuments(wrapper, [media]);
 
         expect(wrapper.findAll('.document-row')).toHaveLength(1);
         expect(wrapper.text()).toContain('manual');
@@ -41,7 +50,7 @@ describe('sw-product-document-form media assignment', () => {
 
     it('keeps unsaved file details after returning to the document form', async () => {
         const wrapper = await createWrapper();
-        await addMedia(wrapper, [createMedia('unsaved-manual')]);
+        await addDocuments(wrapper, [createMedia('unsaved-manual')]);
         wrapper.unmount();
 
         const reopened = await createWrapper();
@@ -67,13 +76,19 @@ describe('sw-product-document-form media assignment', () => {
         expect(checkByType(new File(['video'], 'video.mp4', { type: 'video/mp4' }), accept)).toBe(false);
     });
 
-    it('rejects duplicate and private media', async () => {
+    it('rejects duplicate media', async () => {
         const wrapper = await createWrapper();
         const media = createMedia();
-        const privateMedia = createMedia('private');
-        privateMedia.private = true;
-        await addMedia(wrapper, [media, media, privateMedia]);
+        await addDocuments(wrapper, [media]);
+        mockSnackbar.mockClear();
+
+        await addDocuments(wrapper, [media]);
+
         expect(wrapper.findAll('.document-row')).toHaveLength(1);
+        expect(mockSnackbar).toHaveBeenCalledWith({
+            variant: 'error',
+            message: 'sw-product.documentForm.errorDocumentDuplicated',
+        });
     });
 
     it('renders the media association loaded through translations', async () => {
@@ -81,7 +96,7 @@ describe('sw-product-document-form media assignment', () => {
         const document = repositoryFactory.create('product_document').create();
         Object.assign(document, {
             title: null,
-            translated: { title: 'Translated manual' },
+            translated: { title: 'Translated manual', mediaId: media.id },
             mediaId: media.id,
             translations: [{ mediaId: media.id, media }],
         });
@@ -104,20 +119,26 @@ describe('sw-product-document-form media assignment', () => {
         await flushPromises();
         expect(wrapper.find('.sw-product-document-form__empty-state .mt-button').exists()).toBe(false);
         expect(wrapper.find('.sw-product-document-form__language-hint').exists()).toBe(false);
-        await wrapper.get('.sw-product-document-form__empty-state .mt-link').trigger('click');
-        expect(wrapper.emitted('language-change')).toEqual([[Shopware.Context.api.systemLanguageId]]);
+        const switchLanguage = jest.fn();
+        Shopware.Utils.EventBus.on('on-change-language-clicked', switchLanguage);
+        try {
+            await wrapper.get('.sw-product-document-form__empty-state .mt-link').trigger('click');
+            expect(switchLanguage).toHaveBeenCalledWith(Shopware.Context.api.systemLanguageId);
+        } finally {
+            Shopware.Utils.EventBus.off('on-change-language-clicked', switchLanguage);
+        }
     });
 
-    it('adds all selected documents when the selection exceeds ten documents', async () => {
+    it('adds all selected documents when more than ten files are selected', async () => {
         const wrapper = await createWrapper();
-        await addMedia(
+        await addDocuments(
             wrapper,
             Array.from({ length: 9 }, (_, index) => createMedia(`manual-${index}`)),
         );
         const media = [createMedia('tenth'), createMedia('eleventh'), createMedia('twelfth')];
         const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
 
-        await addMedia(wrapper, media);
+        await addDocuments(wrapper, media);
 
         expect(getDocuments()).toHaveLength(12);
         expect(wrapper.findAll('.document-row')).toHaveLength(10);
@@ -130,12 +151,12 @@ describe('sw-product-document-form media assignment', () => {
         expect(notificationSpy).not.toHaveBeenCalled();
     });
 
-    it.each([9, 10])('accepts a completed upload after %s documents and allows adding more', async (count) => {
+    it.each([9, 10])('adds an uploaded file to %s documents and keeps Add documents enabled', async (count) => {
         const media = createMedia('uploaded manual');
         const repository = repositoryFactory.create('media');
         jest.spyOn(repository, 'get').mockResolvedValue(media);
         const wrapper = await createWrapper(repository);
-        await addMedia(
+        await addDocuments(
             wrapper,
             Array.from({ length: count }, (_, index) => createMedia(`manual-${index}`)),
         );
@@ -153,29 +174,8 @@ describe('sw-product-document-form media assignment', () => {
         expect(wrapper.get('.sw-product-document-form__add-button button').attributes('disabled')).toBeUndefined();
     });
 
-    it('does not attach a late upload to the next product after navigation', async () => {
-        const media = createMedia();
-        const repository = repositoryFactory.create('media');
-        let resolveMedia: (value: Entity<'media'>) => void = () => {};
-        jest.spyOn(repository, 'get').mockReturnValue(
-            new Promise((resolve) => {
-                resolveMedia = resolve;
-            }),
-        );
-        const wrapper = await createWrapper(repository);
-
-        wrapper
-            .getComponent<ComponentPublicInstance>('sw-upload-listener-stub')
-            .vm.$emit('media-upload-finish', { targetId: media.id });
-        Object.assign(Shopware.Store.get('swProductDetail'), { product: createProduct() });
-        resolveMedia(media);
-        await flushPromises();
-
-        expect(wrapper.findAll('.document-row')).toHaveLength(0);
-        expect(getDocuments()).toHaveLength(0);
-    });
     it.each(['unsupported extension', 'oversized file', 'unknown size'])(
-        'rejects a media selection with %s',
+        'rejects selected media when validation fails: %s',
         async (failure) => {
             const wrapper = await createWrapper();
             const media = createMedia();
@@ -186,7 +186,7 @@ describe('sw-product-document-form media assignment', () => {
             } else {
                 media.fileSize = undefined;
             }
-            await addMedia(wrapper, [media]);
+            await addDocuments(wrapper, [media]);
             expect(wrapper.findAll('.document-row')).toHaveLength(0);
         },
     );

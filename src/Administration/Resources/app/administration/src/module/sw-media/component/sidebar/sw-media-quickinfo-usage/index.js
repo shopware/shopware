@@ -42,6 +42,7 @@ export default {
             layouts: [],
             landingPages: [],
             isLoading: false,
+            usageRequestId: 0,
         };
     },
 
@@ -179,8 +180,8 @@ export default {
         },
 
         async loadSlotConfigAssociations() {
-            // The sidebar can select another file while these requests are still pending.
-            const item = this.item;
+            this.usageRequestId += 1;
+            const requestId = this.usageRequestId;
             this.isLoading = true;
 
             try {
@@ -196,7 +197,7 @@ export default {
                     this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),
                 ]);
 
-                if (this.item !== item) {
+                if (requestId !== this.usageRequestId) {
                     return;
                 }
 
@@ -223,7 +224,7 @@ export default {
                     }
                 });
             } finally {
-                if (this.item === item) {
+                if (requestId === this.usageRequestId) {
                     this.isLoading = false;
                 }
             }

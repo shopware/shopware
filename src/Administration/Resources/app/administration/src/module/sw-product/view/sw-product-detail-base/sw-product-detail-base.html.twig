@@ -201,8 +201,6 @@
             v-if="mediaFormVisible"
             :key="product.id"
             class="sw-product-detail-base__documents"
-            :disabled="!acl.can('product.editor')"
-            @language-change="$emit('language-change', $event)"
         />
         {% endblock %}
 

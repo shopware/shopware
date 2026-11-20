@@ -6,7 +6,6 @@
 
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import EntityFactory from 'src/core/data/entity-factory.data';
 import { nextTick } from 'vue';
 
 async function createWrapper() {
@@ -87,7 +86,6 @@ async function createWrapper() {
                 },
             },
             provide: {
-                entityFactory: new EntityFactory(),
                 mediaDefaultFolderService: {
                     getDefaultFolderId: () => Promise.resolve('default-folder-id'),
                 },
@@ -340,13 +338,6 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         await flushPromises();
 
         expect(wrapper.getComponent({ name: 'sw-product-download-form' }).props('required')).toBe(true);
-    });
-
-    it('forwards a document language-switch request to the product page', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-        wrapper.getComponent('sw-product-document-form-stub').vm.$emit('language-change', 'default-language');
-        expect(wrapper.emitted('language-change')).toEqual([['default-language']]);
     });
 
     it('should render media card title as mt-card title', async () => {

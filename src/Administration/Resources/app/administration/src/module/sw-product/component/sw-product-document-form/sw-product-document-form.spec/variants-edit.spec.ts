@@ -5,16 +5,18 @@ import { config } from '@vue/test-utils';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import type { ComponentPublicInstance } from 'vue';
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
+import { getDocumentMedia } from '../product-document.helper';
 
 import {
     mockSnackbar,
+    mockVariantSync,
     createProduct,
     cleanupWrappers,
     createWrapper,
     createMedia,
     clickButton,
     selectMedia,
-    addMedia,
+    addDocuments,
     getDocuments,
 } from './helpers';
 
@@ -42,50 +44,17 @@ describe('sw-product-document-form variant editing', () => {
     });
 
     describe('applying document edits to variants', () => {
-        function createVariant(media: Entity<'media'>) {
-            const variant = createProduct();
-            variant.parentId = Shopware.Store.get('swProductDetail').product.id;
-            const document = repositoryFactory.create('product_document').create();
-            Object.assign(document, { productId: variant.id, title: media.fileName, mediaId: media.id, position: 3 });
-            Object.assign(document.getOrigin(), {
-                productId: variant.id,
-                title: media.fileName,
-                mediaId: media.id,
-                position: 3,
-            });
-            document._isNew = false;
-            variant.documents?.add(document);
-            variant.getOrigin().documents = Shopware.Data.EntityCollection.fromCollection(variant.documents!);
-            variant._isNew = false;
-            return variant;
-        }
-
-        it('stages matching copies for two variants in the product payload without saving immediately', async () => {
+        it('dry runs the variant update and queues it for the product save instead of staging variant copies', async () => {
             const store = Shopware.Store.get('swProductDetail');
             store.product.childCount = 5;
             const original = createMedia();
             const replacement = createMedia('replacement');
-            const first = createVariant(original);
-            const second = createVariant(original);
-            const custom = createVariant(createMedia('custom'));
-            custom.documents![0].title = 'manual';
-            custom.documents![0].getOrigin().title = 'manual';
-            const renamed = createVariant(original);
-            renamed.documents![0].title = 'Customized name';
-            renamed.documents![0].getOrigin().title = 'Customized name';
-            const inherited = createProduct();
-            const variants = new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [
-                first,
-                second,
-                custom,
-                renamed,
-                inherited,
-            ]);
             const productRepository = repositoryFactory.create('product');
-            const searchSpy = jest.spyOn(productRepository, 'search').mockResolvedValue(variants);
+            const searchSpy = jest.spyOn(productRepository, 'search');
             const saveSpy = jest.spyOn(productRepository, 'save');
+            mockVariantSync.mockResolvedValueOnce(['variant-a', 'variant-b']);
             const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [original]);
+            await addDocuments(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
             await selectMedia(wrapper, [replacement]);
@@ -98,40 +67,32 @@ describe('sw-product-document-form variant editing', () => {
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
-            expect(first.documents?.[0]).toMatchObject({
+            const operation = {
+                type: 'update',
+                mediaId: original.id,
+                title: 'manual',
+                changes: { title: 'Battery safety data sheet', mediaId: replacement.id },
+            };
+            expect(mockVariantSync).toHaveBeenCalledTimes(1);
+            expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
+            expect(store.documentVariantOperations).toEqual({ [getDocuments()![0].id]: operation });
+            expect(getDocuments()?.[0]).toMatchObject({
                 title: 'Battery safety data sheet',
                 mediaId: replacement.id,
-                position: 3,
+                translated: { title: 'Battery safety data sheet', mediaId: replacement.id },
             });
-            expect(second.documents?.[0].mediaId).toBe(replacement.id);
-            expect(custom.documents?.[0]).toMatchObject({
-                title: 'manual',
-                mediaId: custom.documents![0].getOrigin().mediaId,
-            });
-            expect(renamed.documents?.[0]).toMatchObject({ title: 'Customized name', mediaId: original.id });
-            expect(inherited.documents).toHaveLength(0);
-            expect(store.product.children).toHaveLength(2);
+            expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(false);
+            expect(store.product.children).toHaveLength(0);
             const payload = new ChangesetGenerator().generate(store.product);
-            expect(payload).toHaveProperty('deletionQueue.length', 0);
-            expect(payload).toHaveProperty(
-                'changes.children',
-                expect.arrayContaining([
-                    expect.objectContaining({
-                        id: first.id,
-                        documents: [
-                            expect.objectContaining({
-                                id: first.documents?.[0].id,
-                                title: 'Battery safety data sheet',
-                                mediaId: replacement.id,
-                            }),
-                        ],
-                    }),
-                    expect.objectContaining({
-                        id: second.id,
-                        documents: [expect.objectContaining({ mediaId: replacement.id })],
-                    }),
-                ]),
-            );
+            expect(payload.deletionQueue).toHaveLength(0);
+            expect(payload.changes).not.toHaveProperty('children');
+            expect(payload.changes).toHaveProperty('documents', [
+                expect.objectContaining({
+                    id: getDocuments()?.[0].id,
+                    title: 'Battery safety data sheet',
+                    mediaId: replacement.id,
+                }),
+            ]);
             expect(notification).toHaveBeenCalledTimes(1);
             expect(notification).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -143,60 +104,31 @@ describe('sw-product-document-form variant editing', () => {
                 name: 'Battery safety data sheet',
                 count: 2,
             });
-            expect(searchSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    filters: [
-                        { type: 'equals', field: 'parentId', value: store.product.id },
-                        { type: 'equals', field: 'documents.mediaId', value: original.id },
-                    ],
-                }),
-                expect.objectContaining({ inheritance: false }),
-            );
+            expect(searchSpy).not.toHaveBeenCalled();
             expect(saveSpy).not.toHaveBeenCalled();
         });
 
-        it('does not count an unchanged matching variant as updated', async () => {
+        it('neither dry runs, queues nor reports a variant update for an unchanged document', async () => {
             const store = Shopware.Store.get('swProductDetail');
             store.product.childCount = 1;
-            const media = createMedia();
-            const variant = createVariant(media);
-            const repository = repositoryFactory.create('product');
-            jest.spyOn(repository, 'search').mockResolvedValue(
-                new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-            );
-            const wrapper = await createWrapper(undefined, undefined, repository);
-            await addMedia(wrapper, [media]);
+            const wrapper = await createWrapper();
+            await addDocuments(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
 
-            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 0 });
+            expect(wrapper.find('.sw-product-document-form__edit-content').exists()).toBe(false);
+            expect(mockVariantSync).not.toHaveBeenCalled();
+            expect(store.documentVariantOperations).toEqual({});
+            expect(notification).not.toHaveBeenCalled();
+            expect(translate).not.toHaveBeenCalledWith('sw-product.documentForm.applySuccess', expect.anything());
             expect(store.product.children).toHaveLength(0);
-        });
-
-        it('keeps variant documents unchanged when the checkbox is off', async () => {
-            const store = Shopware.Store.get('swProductDetail');
-            store.product.childCount = 1;
-            const productRepository = repositoryFactory.create('product');
-            const searchSpy = jest.spyOn(productRepository, 'search');
-            const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [createMedia()]);
-            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Parent only');
-            await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(false);
-            await clickButton(wrapper, 'global.default.apply');
-            await flushPromises();
-
-            expect(searchSpy).not.toHaveBeenCalled();
-            expect(store.product.children).toHaveLength(0);
-            expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
-            expect(getDocuments()?.[0].title).toBe('Parent only');
         });
 
         it('resets the variant option to checked on reopening without applying cancelled edits', async () => {
             Shopware.Store.get('swProductDetail').product.childCount = 1;
             const wrapper = await createWrapper();
-            await addMedia(wrapper, [createMedia()]);
+            await addDocuments(wrapper, [createMedia()]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
             await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(false);
             wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Cancelled title');
@@ -213,155 +145,47 @@ describe('sw-product-document-form variant editing', () => {
             );
         });
 
-        it('reports each variant update when a replacement is applied and reverted before saving the product', async () => {
+        it('applies the file picked before the variant dry run when an upload finishes while it runs', async () => {
             const store = Shopware.Store.get('swProductDetail');
             store.product.childCount = 1;
             const original = createMedia();
-            const variant = createVariant(original);
-            const productRepository = repositoryFactory.create('product');
-            const searchSpy = jest
-                .spyOn(productRepository, 'search')
-                .mockResolvedValueOnce(
-                    new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-                )
-                .mockResolvedValueOnce(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api));
-            const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [original]);
-            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
-            await selectMedia(wrapper, [createMedia('replacement')]);
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'manual');
-            wrapper
-                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-                .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.apply');
-            await flushPromises();
-            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 1 });
-            const previousMediaId = variant.documents![0].mediaId;
-            translate.mockClear();
-            notification.mockClear();
-
-            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
-            await selectMedia(wrapper, [original]);
-            wrapper
-                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-                .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.apply');
-            await flushPromises();
-
-            expect(searchSpy.mock.calls[1][0].filters).toEqual([
-                { type: 'equals', field: 'parentId', value: store.product.id },
-                { type: 'equals', field: 'documents.mediaId', value: previousMediaId },
-            ]);
-            expect(variant.documents?.[0].mediaId).toBe(original.id);
-            expect(notification).toHaveBeenCalledTimes(1);
-            expect(notification).toHaveBeenCalledWith({
-                variant: 'success',
-                message: 'sw-product.documentForm.applySuccess',
-            });
-            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', { name: 'manual', count: 1 });
-        });
-
-        it('updates matching variants beyond the first page of results', async () => {
-            const store = Shopware.Store.get('swProductDetail');
-            store.product.childCount = 101;
-            const media = createMedia();
-            const firstPage = Array.from({ length: 100 }, () => createVariant(media));
-            const last = createVariant(media);
-            const productRepository = repositoryFactory.create('product');
-            const searchSpy = jest
-                .spyOn(productRepository, 'search')
-                .mockResolvedValueOnce(
-                    new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, firstPage),
-                )
-                .mockResolvedValueOnce(
-                    new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [last]),
-                );
-            const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [media]);
-            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New title');
-            wrapper
-                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-                .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.apply');
-            await flushPromises();
-
-            expect(searchSpy).toHaveBeenCalledTimes(2);
-            expect(searchSpy.mock.calls[0][0].page).toBe(1);
-            expect(searchSpy).toHaveBeenNthCalledWith(
-                2,
-                expect.objectContaining({ page: 2, limit: 100, totalCountMode: 0 }),
-                expect.objectContaining({ inheritance: false }),
+            const replacement = createMedia('replacement');
+            const uploaded = createMedia('uploaded');
+            const mediaRepository = repositoryFactory.create('media');
+            let finishDryRun!: (variantIds: string[]) => void;
+            mockVariantSync.mockImplementationOnce(
+                () =>
+                    new Promise((resolve) => {
+                        finishDryRun = resolve;
+                    }),
             );
-            expect(last.documents?.[0].title).toBe('New title');
-            expect(translate).toHaveBeenCalledWith('sw-product.documentForm.applySuccess', {
-                name: 'New title',
-                count: 101,
-            });
-        });
-
-        it('discards a cancelled lookup after reopening the same document', async () => {
-            const store = Shopware.Store.get('swProductDetail');
-            store.product.childCount = 1;
-            const original = createMedia();
-            const variant = createVariant(original);
-            const productRepository = repositoryFactory.create('product');
-            let resolveSearch!: (variants: EntityCollection<'product'>) => void;
-            jest.spyOn(productRepository, 'search')
-                .mockResolvedValue(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api))
-                .mockImplementationOnce(
-                    () =>
-                        new Promise((resolve) => {
-                            resolveSearch = resolve;
-                        }),
-                );
-            const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [original]);
+            const wrapper = await createWrapper(mediaRepository);
+            await addDocuments(wrapper, [original]);
             await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'Cancelled title');
+            await wrapper.get('.sw-media-upload-v2__remove-icon').trigger('click');
+            await selectMedia(wrapper, [replacement]);
+            await clickButton(wrapper, 'global.default.apply');
+
+            jest.spyOn(mediaRepository, 'get').mockResolvedValueOnce(uploaded);
             wrapper
-                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-                .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.apply');
-            await clickButton(wrapper, 'global.default.cancel');
-            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New draft title');
-
-            resolveSearch(new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]));
+                .findAllComponents<ComponentPublicInstance>('sw-upload-listener-stub')
+                .at(-1)!
+                .vm.$emit('media-upload-finish', { targetId: uploaded.id });
+            await flushPromises();
+            finishDryRun(['variant-a']);
             await flushPromises();
 
-            expect(getDocuments()![0].title).toBe('manual');
-            expect(variant.documents![0].title).toBe('manual');
-            expect(store.product.children).toHaveLength(0);
-            expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
-            expect(wrapper.find('.sw-product-document-form__save-document').exists()).toBe(true);
-            expect(wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').props()).toMatchObject({
-                modelValue: 'New draft title',
+            const document = getDocuments()![0];
+            expect(document.mediaId).toBe(replacement.id);
+            expect(getDocumentMedia(document)?.id).toBe(replacement.id);
+            expect(store.documentVariantOperations).toEqual({
+                [document.id]: {
+                    type: 'update',
+                    mediaId: original.id,
+                    title: 'manual',
+                    changes: { mediaId: replacement.id },
+                },
             });
-            await clickButton(wrapper, 'global.default.apply');
-            await flushPromises();
-            expect(getDocuments()![0].title).toBe('New draft title');
-        });
-
-        it('keeps the original document and editor open when loading variants fails', async () => {
-            Shopware.Store.get('swProductDetail').product.childCount = 1;
-            const productRepository = repositoryFactory.create('product');
-            jest.spyOn(productRepository, 'search').mockRejectedValue(new Error('Load failed'));
-            const wrapper = await createWrapper(undefined, undefined, productRepository);
-            await addMedia(wrapper, [createMedia()]);
-            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', 'New title');
-            wrapper
-                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-                .vm.$emit('update:checked', true);
-            await clickButton(wrapper, 'global.default.apply');
-            await flushPromises();
-
-            expect(getDocuments()?.[0].title).toBe('manual');
-            expect(wrapper.find('.sw-product-document-form__save-document').exists()).toBe(true);
-            expect(notification).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
         });
     });
 });

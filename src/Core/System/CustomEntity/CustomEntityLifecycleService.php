@@ -140,7 +140,7 @@ class CustomEntityLifecycleService
 
     private function tableHasRows(string $table): bool
     {
-        return (int) $this->connection->fetchOne(\sprintf('SELECT COUNT(*) FROM %s', $this->connection->quoteSingleIdentifier($table))) > 0;
+        return $this->connection->fetchOne(\sprintf('SELECT 1 FROM %s LIMIT 1', $this->connection->quoteSingleIdentifier($table))) !== false;
     }
 
     private function update(string $pathToCustomEntityFile, string $extensionEntityType, string $extensionId): ?CustomEntityXmlSchema

@@ -28,10 +28,11 @@ final readonly class TradePartyView
         public ?string $countrySubdivision,
         public ?string $countryIso,
         public ?string $email,
+        public ?string $vatId = null,
     ) {
     }
 
-    public static function buyerFromOrder(OrderEntity $order): self
+    public static function buyerFromOrder(OrderEntity $order, ?string $vatId = null): self
     {
         $customer = $order->getOrderCustomer();
         $billing = $order->getBillingAddress()
@@ -78,6 +79,7 @@ final readonly class TradePartyView
             countrySubdivision: $billing->getCountryState()?->getName(),
             countryIso: $billing->getCountry()->getIso(),
             email: $customer?->getEmail(),
+            vatId: $vatId,
         );
     }
 }

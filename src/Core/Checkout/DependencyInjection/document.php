@@ -315,6 +315,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('event_dispatcher'),
             service(AmountCalculator::class),
+            service(IntraCommunityTaxResolver::class),
         ]);
 
     $services->set(DocumentDeleteSubscriber::class)

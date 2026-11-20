@@ -18,9 +18,32 @@ enum TaxCategory: string
 {
     case STANDARD_RATE = 'S';
     case ZERO_RATED = 'Z';
+    case INTRA_COMMUNITY_SUPPLY = 'K';
 
     public static function fromRate(float $taxRate): self
     {
         return $taxRate > 0.0 ? self::STANDARD_RATE : self::ZERO_RATED;
+    }
+
+    /**
+     * BT-121, from the VATEX code list
+     */
+    public function exemptionReasonCode(): ?string
+    {
+        return match ($this) {
+            self::INTRA_COMMUNITY_SUPPLY => 'VATEX-EU-IC',
+            default => null,
+        };
+    }
+
+    /**
+     * BT-120, untranslated like the other texts of the e-invoice
+     */
+    public function exemptionReason(): ?string
+    {
+        return match ($this) {
+            self::INTRA_COMMUNITY_SUPPLY => 'Intra-community supply',
+            default => null,
+        };
     }
 }

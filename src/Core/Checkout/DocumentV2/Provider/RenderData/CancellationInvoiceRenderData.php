@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxExemptionView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 
@@ -43,6 +44,7 @@ final readonly class CancellationInvoiceRenderData extends AbstractRenderData
         public ?PaymentMeansView $paymentMeans,
         public ?\DateTimeImmutable $paymentDueDate,
         public bool $intraCommunityDelivery,
+        public ?TaxExemptionView $taxExemption = null,
         /**
          * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
          */
@@ -67,6 +69,7 @@ final readonly class CancellationInvoiceRenderData extends AbstractRenderData
             paymentMeans: $invoice->paymentMeans,
             paymentDueDate: $invoice->paymentDueDate,
             intraCommunityDelivery: $invoice->intraCommunityDelivery,
+            taxExemption: $invoice->taxExemption,
             custom: [
                 'stornoNumber' => $stornoNumber,
                 'invoiceNumber' => $referencedInvoiceNumber,

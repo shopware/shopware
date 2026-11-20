@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
@@ -21,7 +22,12 @@ use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Template\View\AllowanceChargeView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
@@ -29,6 +35,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -398,6 +405,70 @@ class InvoiceDataProviderTest extends TestCase
     public function testAForeignVatIdKeepsTheIntraCommunityNoteWithoutPatternValidation(): void
     {
         static::assertTrue($this->resolveIntraCommunityDelivery(['NL123456789B01'], checkVatIdPattern: false));
+    }
+
+    public function testAnIntraCommunitySupplyGivesEveryPositionCategoryKAndNamesTheBuyerAndTheDeliveryAddress(): void
+    {
+        $data = $this->provideIntraCommunitySupplyData(['vatId' => 'DE123456789']);
+
+        $categories = static fn (array $views): array => array_map(static fn (LineItemView|AllowanceChargeView|TaxBreakdownView $view) => $view->taxCategory, $views);
+        static::assertSame([TaxCategory::INTRA_COMMUNITY_SUPPLY], $categories($data->lineItems));
+        static::assertSame([TaxCategory::INTRA_COMMUNITY_SUPPLY], $categories($data->allowanceCharges));
+        static::assertSame([TaxCategory::INTRA_COMMUNITY_SUPPLY], $categories($data->taxBreakdown));
+        static::assertSame('FR12345678901', $data->buyer->vatId);
+        static::assertSame(TaxCategory::INTRA_COMMUNITY_SUPPLY, $data->taxExemption?->taxCategory);
+        static::assertSame('75001', $data->taxExemption->deliveryAddress->getZipcode());
+    }
+
+    public function testWithoutTheVatIdSettingAnIntraCommunitySupplyKeepsTheRateBasedCategory(): void
+    {
+        $data = $this->provideIntraCommunitySupplyData([]);
+
+        static::assertSame(TaxCategory::ZERO_RATED, $data->lineItems[0]->taxCategory);
+        static::assertSame(TaxCategory::ZERO_RATED, $data->allowanceCharges[0]->taxCategory);
+        static::assertSame(TaxCategory::ZERO_RATED, $data->taxBreakdown[0]->taxCategory);
+        static::assertNull($data->buyer->vatId);
+        static::assertNull($data->taxExemption);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function provideIntraCommunitySupplyData(array $config): InvoiceRenderData
+    {
+        $order = self::createOrder(
+            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            country: self::createCountry(companyTaxEnabled: true, isEu: true, iso: 'FR'),
+            vatIds: ['FR12345678901'],
+        );
+        $shippingAddress = $order->getPrimaryOrderDelivery()?->getShippingOrderAddress();
+        static::assertNotNull($shippingAddress);
+        $shippingAddress->setZipcode('75001');
+
+        $product = new OrderLineItemEntity();
+        $product->setUniqueIdentifier(Uuid::randomHex());
+        $product->setType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product->setIdentifier('widget');
+        $product->setLabel('Widget');
+        $product->setPosition(1);
+        $product->setQuantity(1);
+        $product->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        $order->setLineItems(new OrderLineItemCollection([$product]));
+
+        $resolver = static::createStub(IntraCommunityTaxResolver::class);
+        $resolver->method('getIntraCommunityVatId')->willReturn('FR12345678901');
+        $resolver->method('getShippingAddress')->willReturn($shippingAddress);
+
+        return $this->createProvider($config, $resolver)->provideRenderingData(
+            new ProviderInput($order, new DocumentGenerationRequest(
+                $order->getId(),
+                DocumentType::INVOICE,
+                [DocumentFormat::ZUGFERD_XML],
+                '12345',
+                documentDate: '2026-05-05T12:00:00+00:00',
+            )),
+            Context::createDefaultContext()
+        );
     }
 
     /**

@@ -6,8 +6,10 @@ use horstoeko\zugferd\codelists\ZugferdAllowanceCodes;
 use horstoeko\zugferd\codelists\ZugferdChargeCodes;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\codelists\ZugferdInvoiceType;
+use horstoeko\zugferd\codelists\ZugferdReferenceCodeQualifiers;
 use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 use horstoeko\zugferd\codelists\ZugferdUnitCodes;
+use horstoeko\zugferd\codelists\ZugferdVATExemptionReasonCode;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdDocumentValidator;
 use horstoeko\zugferd\ZugferdSettings;
@@ -66,6 +68,8 @@ class ZugferdDocument
 
     private const UNIT_PRICE_NODE_PATH = '/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:IncludedSupplyChainTradeLineItem/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
 
+    private const INTRA_COMMUNITY_SUPPLY_REASON = 'Intra-community supply';
+
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use mappedPrices instead
      */
@@ -86,6 +90,8 @@ class ZugferdDocument
     protected bool $allowNegativeProductLineItems = false;
 
     private string $currentDocumentType = ZugferdInvoiceType::INVOICE;
+
+    private bool $isIntraCommunitySupply = false;
 
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
@@ -163,6 +169,34 @@ class ZugferdDocument
         return $this;
     }
 
+    /**
+     * @internal
+     *
+     * States an intra-community supply (category K) on every position when the XML can carry what K requires:
+     * the seller and the buyer VAT ID (BR-IC-02) and a delivery address with zip code (BR-IC-12, BR-DE-11).
+     * Otherwise the positions keep their rate-based category. Must come before the positions and taxes.
+     */
+    public function withIntraCommunitySupply(?string $buyerVatId, ?OrderAddressEntity $shippingAddress, ?string $sellerVatId): self
+    {
+        if ($buyerVatId === null || ($sellerVatId ?? '') === '' || $shippingAddress === null || ($shippingAddress->getZipcode() ?? '') === '') {
+            return $this;
+        }
+
+        $this->isIntraCommunitySupply = true;
+
+        $this->zugferdBuilder
+            ->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $buyerVatId)
+            ->setDocumentShipTo()
+            ->setDocumentShipToAddress(
+                lineOne: $shippingAddress->getStreet(),
+                postCode: $shippingAddress->getZipcode(),
+                city: $shippingAddress->getCity(),
+                country: $shippingAddress->getCountry()?->getIso(),
+            );
+
+        return $this;
+    }
+
     public function withBuyerReference(string $reference): self
     {
         $this->zugferdBuilder->setDocumentBuyerReference($reference);
@@ -193,8 +227,8 @@ class ZugferdDocument
         $this->zugferdBuilder
             ->addDocumentPaymentTerm(null, \DateTime::createFromImmutable(Clock::get()->now())->modify($documentConfig->getPaymentDueDate() ?: '+30 days'))
             ->setDocumentSeller($documentConfig->getCompanyName() ?? '')
-            ->addDocumentSellerTaxRegistration('FC', $documentConfig->getTaxNumber())
-            ->addDocumentSellerTaxRegistration('VA', $documentConfig->getVatId())
+            ->addDocumentSellerTaxRegistration(ZugferdReferenceCodeQualifiers::FISC_NUMB, $documentConfig->getTaxNumber())
+            ->addDocumentSellerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $documentConfig->getVatId())
             ->setDocumentSellerAddress(...$sellerAddress)
             ->setDocumentSellerCommunication('EM', $documentConfig->getCompanyEmail())
             ->setDocumentSellerContact(
@@ -394,7 +428,15 @@ class ZugferdDocument
     public function withTaxes(CartPrice $price): self
     {
         if ($price->getTaxStatus() === CartPrice::TAX_STATE_FREE) {
-            $this->zugferdBuilder->addDocumentTax($this->getTaxCode(null), 'VAT', $price->getTotalPrice(), 0, 0);
+            $this->zugferdBuilder->addDocumentTax(
+                $this->getTaxCode(null),
+                'VAT',
+                $price->getTotalPrice(),
+                0,
+                0,
+                $this->isIntraCommunitySupply ? self::INTRA_COMMUNITY_SUPPLY_REASON : null,
+                $this->isIntraCommunitySupply ? ZugferdVATExemptionReasonCode::VATEX_EU_IC : null,
+            );
 
             return $this;
         }
@@ -505,7 +547,7 @@ class ZugferdDocument
 
     /**
      * Yields the calculated taxes to emit an allowance/charge group for, falling back to a single
-     * untaxed group (rate 0.0, category Z) when the price carries no calculated taxes.
+     * untaxed group (rate 0.0) when the price carries no calculated taxes.
      *
      * @return list<CalculatedTax|null>
      */
@@ -520,6 +562,10 @@ class ZugferdDocument
 
     protected function getTaxCode(?CalculatedTax $tax): string
     {
+        if ($this->isIntraCommunitySupply) {
+            return ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
+        }
+
         return match ($tax?->getTaxRate() ?? 0.0) {
             0.0 => ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS,
             default => ZugferdDutyTaxFeeCategories::STANDARD_RATE,

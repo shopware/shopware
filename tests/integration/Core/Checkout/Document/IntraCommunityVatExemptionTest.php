@@ -4,9 +4,6 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Order\RecalculationService;
-use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -34,8 +31,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -613,23 +608,5 @@ class IntraCommunityVatExemptionTest extends TestCase
         static::assertInstanceOf(RenderedDocument::class, $document);
 
         return $document->getContent();
-    }
-
-    private function addCreditItemToOrder(string $orderId): void
-    {
-        /** @var EntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = static::getContainer()->get('order.repository');
-
-        $versionId = $orderRepository->createVersion($orderId, $this->context, 'DRAFT');
-
-        $creditLineItem = new LineItem(Uuid::randomHex(), LineItem::CREDIT_LINE_ITEM_TYPE, null, 1);
-        $creditLineItem->setLabel('credit');
-        $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-10));
-
-        static::getContainer()->get(RecalculationService::class)
-            ->addCustomLineItem($orderId, $creditLineItem, $this->context->createWithVersionId($versionId));
-
-        static::getContainer()->get(VersionManager::class)
-            ->merge($versionId, WriteContext::createFromContext($this->context));
     }
 }

@@ -417,6 +417,29 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame('BE', $provider->getMemberStateOfCountry(self::BE_ID));
     }
 
+    #[DataProvider('memberStatePrefixProvider')]
+    public function testAVatIdStartsWithTheCodeOfAMemberState(string $vatId, bool $expected): void
+    {
+        // BE has no usable pattern and is still a member state, CH is no member state at all
+        $provider = $this->createProvider([
+            ['iso' => 'BE', 'id' => self::BE_ID, 'vatIdPattern' => ''],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\\d{9}B\\d{2}'],
+        ]);
+
+        static::assertSame($expected, $provider->hasMemberStatePrefix($vatId));
+    }
+
+    public static function memberStatePrefixProvider(): \Generator
+    {
+        yield 'the ISO code of a member state' => ['NL123456789B01', true];
+        yield 'the ISO code of a member state without a usable pattern' => ['BE0123456789', true];
+        yield 'the ISO code of a member state in small letters' => ['nl123456789b01', true];
+        yield 'EL names Greece even when Greece is not configured' => ['EL123456789', true];
+        yield 'the ISO code of a country outside the EU' => ['CHE123456789', false];
+        yield 'no country code at all' => ['123456789B01', false];
+        yield 'an empty VAT ID' => ['', false];
+    }
+
     private function createMemberStatesProvider(): VatIdPatternProvider
     {
         return $this->createProvider([

@@ -5,7 +5,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Order\RecalculationService;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -27,6 +30,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -330,6 +335,27 @@ trait DocumentTrait
             'companyCity' => 'Example City',
             'companyCountryId' => $this->getValidCountryId(),
         ], $documentType);
+    }
+
+    /**
+     * Adds a credit of 10.00 to the order the way the Administration does, after any invoice.
+     */
+    private function addCreditItemToOrder(string $orderId): void
+    {
+        /** @var EntityRepository<OrderCollection> $orderRepository */
+        $orderRepository = static::getContainer()->get('order.repository');
+
+        $versionId = $orderRepository->createVersion($orderId, $this->context, 'DRAFT');
+
+        $creditLineItem = new LineItem(Uuid::randomHex(), LineItem::CREDIT_LINE_ITEM_TYPE, null, 1);
+        $creditLineItem->setLabel('credit');
+        $creditLineItem->setPriceDefinition(new AbsolutePriceDefinition(-10));
+
+        static::getContainer()->get(RecalculationService::class)
+            ->addCustomLineItem($orderId, $creditLineItem, $this->context->createWithVersionId($versionId));
+
+        static::getContainer()->get(VersionManager::class)
+            ->merge($versionId, WriteContext::createFromContext($this->context));
     }
 
     private function orderVersionExists(string $orderId, string $orderVersionId): bool

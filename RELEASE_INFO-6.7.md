@@ -215,6 +215,8 @@ For EU deliveries with *Tax-free (B2B)* enabled for the delivery country:
 - A delivery within the shop owner's country is never exempt.
 - A customer with a VAT ID of the shop owner's country is not exempt and is taxed with the tax rules of the shop owner's country instead of the delivery country.
 - Invoices, cancellation invoices and credit notes print the intra-community delivery note for exactly the orders the cart exempted.
+- Their ZUGFeRD and XRechnung XML uses VAT category `K` with the exemption reason code `VATEX-EU-IC` and the text "Intra-community supply", and contains the customer's VAT ID and the delivery address, also with the *"intra-Community delivery" label* setting off.
+  The XML keeps VAT category `Z` as before if the document settings have no *VAT-ID*, if none of the VAT IDs saved on the order starts with the code of an EU member state, or if the shipping address has no zip code.
 
 *Tax-free (B2C)* is unaffected.
 
@@ -230,6 +232,7 @@ Limitations:
 - A VAT ID of the shop owner's country wins over every other VAT ID of the customer, because an order does not record which VAT ID the customer used.
 - Digital products follow the same rules as goods.
   The separate EU rules for them are not implemented yet.
+- The ZUGFeRD and XRechnung XML of other tax-free orders, for example deliveries to third countries or orders of tax-free customer groups, keeps VAT category `Z`.
 
 Plugins can lift the first two with the extension events below.
 
@@ -254,6 +257,8 @@ For extension developers:
   The tax rules are fixed when the sales channel context is built, before there is a cart, so the cart content cannot decide the dispatch country.
 - `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.
   Custom document renderers should inject the new public service `IntraCommunityTaxResolver` and call `isIntraCommunityDelivery($order)` instead; it only returns `true` for tax-free orders.
+- E-invoices take the intra-community decision from `isIntraCommunityDelivery()` and write the first VAT ID returned by `ResolveVatIdsExtension` that starts with the code of an EU member state as the buyer's VAT ID.
+  Extensions that set VAT category `K`, the buyer's VAT ID or the delivery address themselves, for example in a `ZugferdInvoiceGeneratedEvent` listener, should remove that workaround, otherwise the XML may contain them twice.
 - `TaxDetector` has a new constructor argument.
   Decorate `AbstractTaxDetector` instead of replacing the service.
 - Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.

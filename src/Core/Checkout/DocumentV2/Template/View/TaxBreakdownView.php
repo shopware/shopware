@@ -29,6 +29,11 @@ final readonly class TaxBreakdownView
     ) {
     }
 
+    public function withTaxCategory(TaxCategory $taxCategory): self
+    {
+        return new self($this->calculatedAmount, $this->basisAmount, $taxCategory, $this->taxRate);
+    }
+
     /**
      * @return list<self>
      */

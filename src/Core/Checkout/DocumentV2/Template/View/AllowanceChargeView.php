@@ -43,6 +43,20 @@ final readonly class AllowanceChargeView
     ) {
     }
 
+    public function withTaxCategory(TaxCategory $taxCategory): self
+    {
+        return new self(
+            $this->isCharge,
+            $this->actualAmount,
+            $this->basisAmount,
+            $this->calculationPercent,
+            $this->reasonCode,
+            $this->reason,
+            $taxCategory,
+            $this->taxRate,
+        );
+    }
+
     /**
      * @return list<self>
      */

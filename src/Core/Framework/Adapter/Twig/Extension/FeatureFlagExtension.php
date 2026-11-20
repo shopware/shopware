@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\DeprecatedBlockNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\FeatureCallOptimizerNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\FeatureFlagCallTokenParser;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
@@ -43,13 +44,14 @@ class FeatureFlagExtension extends AbstractExtension
      */
     public function getNodeVisitors(): array
     {
+        $visitors = [new DeprecatedBlockNodeVisitor()];
         if (!Feature::isActive(self::TWIG_COMPILE_TIME_OPTIMIZATION)) {
-            return [];
+            return $visitors;
         }
 
-        return [
-            new FeatureCallOptimizerNodeVisitor(),
-        ];
+        $visitors[] = new FeatureCallOptimizerNodeVisitor();
+
+        return $visitors;
     }
 
     public function feature(string $flag): bool

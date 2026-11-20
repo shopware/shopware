@@ -74,6 +74,33 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         static::assertSame(0, $count);
     }
 
+    public function testUnsubscribeWithInternationalizedEmailDomain(): void
+    {
+        $email = 'test@exämple.com';
+        $storedEmail = 'test@xn--exmple-cua.com';
+
+        $this->browser->request('POST', '/store-api/newsletter/subscribe', [
+            'email' => $email,
+            'option' => 'direct',
+            'storefrontUrl' => 'http://localhost',
+        ]);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $connection = static::getContainer()->get(Connection::class);
+        $status = $connection->fetchOne('SELECT status FROM newsletter_recipient WHERE email = :email', ['email' => $storedEmail]);
+        static::assertSame('direct', $status);
+
+        $this->browser->request('POST', '/store-api/newsletter/unsubscribe', [
+            'email' => $email,
+        ]);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+
+        $status = $connection->fetchOne('SELECT status FROM newsletter_recipient WHERE email = :email', ['email' => $storedEmail]);
+        static::assertSame('optOut', $status);
+    }
+
     public function testUnsubscribeWithoutEmail(): void
     {
         $this->browser

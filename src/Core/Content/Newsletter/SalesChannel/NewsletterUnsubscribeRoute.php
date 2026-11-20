@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
@@ -92,6 +93,8 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
             $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_UNSUBSCRIBE_FORM, $request->getClientIp());
         }
+
+        EmailIdnConverter::encodeDataBag($dataBag);
 
         $data = $dataBag->only('email');
 

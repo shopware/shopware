@@ -232,6 +232,7 @@ class WriteAuthorizer
             array_values($written)
         ));
         $existingRoleIds = array_keys($this->aclRoleLoader->getPrivilegesForRoles($listedRoleIds));
+        $appRoleIds = $this->aclRoleLoader->getAppRoleIds($listedRoleIds);
 
         $webhookRoles = [];
         $violations = [];
@@ -246,9 +247,10 @@ class WriteAuthorizer
             }
 
             $unknown = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $existingRoleIds)));
-            $notHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $roles->roleIds, $unknown)));
-            if (($unknown !== [] || $notHeld !== []) && $rows[$webhookId]->payloadContainsAny('acl_role_ids')) {
-                $violations[$webhookId] = $this->aclRolesRejected($rows[$webhookId], $unknown, $notHeld);
+            $ofApps = $webhook->ownerType === IdentityType::AppIntegration ? [] : array_values(array_unique(array_intersect($webhook->aclRoleIds ?? [], $appRoleIds)));
+            $notHeld = array_values(array_unique(array_diff($webhook->aclRoleIds ?? [], $roles->roleIds, $unknown, $ofApps)));
+            if (($unknown !== [] || $ofApps !== [] || $notHeld !== []) && $rows[$webhookId]->payloadContainsAny('acl_role_ids')) {
+                $violations[$webhookId] = $this->aclRolesRejected($rows[$webhookId], $unknown, $ofApps, $notHeld);
 
                 continue;
             }
@@ -274,13 +276,18 @@ class WriteAuthorizer
 
     /**
      * @param list<string> $unknown
+     * @param list<string> $ofApps
      * @param list<string> $notHeld
      */
-    private function aclRolesRejected(OutcomeRow $row, array $unknown, array $notHeld): WriteConstraintViolationException
+    private function aclRolesRejected(OutcomeRow $row, array $unknown, array $ofApps, array $notHeld): WriteConstraintViolationException
     {
         $violations = new ConstraintViolationList();
         foreach ($unknown as $roleId) {
             $violations->add($this->aclRoleViolation('Role "{{ roleId }}" does not exist.', $roleId));
+        }
+
+        foreach ($ofApps as $roleId) {
+            $violations->add($this->aclRoleViolation('Role "{{ roleId }}" belongs to an app.', $roleId));
         }
 
         foreach ($notHeld as $roleId) {

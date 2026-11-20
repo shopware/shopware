@@ -12,5 +12,14 @@ component sw-condition-base-line-item  public  js
   template src/app/component/rule/sw-condition-base-line-item/sw-condition-base-line-item.html.twig
 
 blocks
-  sw_condition_value_before_content
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [replaced]
+      sw_condition_value_content  [inherited]
+    sw_condition_base_error  [inherited]
 ```

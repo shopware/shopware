@@ -13,6 +13,6 @@ component sw-switch-field-deprecated  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_checkbox_field  [private]
+  sw_checkbox_field  [replaced] [private]
     sw_switch_field  [private]
 ```

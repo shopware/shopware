@@ -13,8 +13,11 @@ component sw-extension-card-bought  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_extension_card_base_activation_switch  [private]
-  sw_extension_card_base_context_menu_actions  [private]
-  sw_extension_card_base_info_content  [private]
-  sw_extension_card_base_modals  [private]
+  sw_extension_card_base_activation_switch  [keepsParent] [private]
+    sw_extension_card_base_info_inactive_label  [inherited] [private]
+  sw_extension_card_base_activation_switch_switch  [inherited] [private]
+  sw_extension_card_base_context_menu_actions  [keepsParent] [private]
+    sw_extension_card_base_context_menu_actions_additional  [inherited] [private]
+  sw_extension_card_base_info_content  [keepsParent] [private]
+  sw_extension_card_base_modals  [keepsParent] [private]
 ```

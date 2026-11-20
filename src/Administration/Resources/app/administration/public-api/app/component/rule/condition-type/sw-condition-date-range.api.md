@@ -12,10 +12,19 @@ component sw-condition-date-range  public  js
   template src/app/component/rule/condition-type/sw-condition-date-range/sw-condition-date-range.html.twig
 
 blocks
-  sw_condition_value_content
-    sw_condition_date_range_field_from_date
-    sw_condition_date_range_field_timezone
-    sw_condition_date_range_field_to_date
-      sw_condiiton_date_range_field_to_date
-    sw_condition_date_range_field_use_time
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced]
+        sw_condition_date_range_field_from_date
+        sw_condition_date_range_field_timezone
+        sw_condition_date_range_field_to_date
+          sw_condiiton_date_range_field_to_date
+        sw_condition_date_range_field_use_time
+    sw_condition_base_error  [inherited]
 ```

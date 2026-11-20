@@ -198,8 +198,22 @@ describe('fixtureTests', () => {
             ['block-tree', 'complete'],
         ],
         [
+            'the origin of a block in the report',
+            withFile('app/component/base/sw-example-card.api.md', '  sw_example_card\n', '  sw_example_card  [inherited]\n'),
+            ['block-tree', 'complete'],
+        ],
+        [
             'the parent in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "Block<'sw_example_card', ", 'Block<null, '),
+            ['block-contract', 'complete'],
+        ],
+        [
+            'the origin of a block in the contract',
+            withFile(
+                'app/component/base/sw-example-card.d.ts',
+                'sw_example_card: Block<null>;',
+                "sw_example_card: Block<null, 'inherited'>;",
+            ),
             ['block-contract', 'complete'],
         ],
         [

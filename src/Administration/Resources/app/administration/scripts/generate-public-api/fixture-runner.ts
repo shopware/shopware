@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
+import { BLOCK_ORIGINS } from './block-tree';
 import type { ClassifyChanges } from './break-check';
 import { elementKind } from './findings';
 import type { Finding } from './findings';
@@ -99,8 +100,8 @@ const PART_LABELS: Record<keyof UnitKind, (value: string) => string> = {
 };
 
 /*
- * The markers of a block line other than its flag state, such as `[after v-if]` and `[scope: item]`, belong to
- * the block structure, not to the tree. The comparison moves them out of the `blocks` section and member into
+ * The markers of a block line other than its flag state and its origin in an extend child, such as `[after v-if]`
+ * and `[scope: item]`, belong to the block structure, not to the tree. The comparison moves them out of the `blocks` section and member into
  * parts of their own, which exist only here and not in the snapshot files.
  */
 const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockContext' } as const;
@@ -141,14 +142,15 @@ const REPORT_OUTLINE = /```text\n([\s\S]*?)\n?```/;
 
 const LINE_MARKERS = /\s+\[[^\]]+\]/g;
 
-const FLAG_STATE_MARKER = /^\s+\[(?:from|until) v/;
+// The flag state of a block and how an extend child got it belong to the tree.
+const TREE_MARKER = new RegExp(`^\\s+\\[(?:(?:from|until) v|(?:${BLOCK_ORIGINS.join('|')})\\])`);
 
 function sectionName(section: string): string {
     return section.trimStart().split(/\s/, 1)[0];
 }
 
 function isContextMarker(marker: string): boolean {
-    return !FLAG_STATE_MARKER.test(marker);
+    return !TREE_MARKER.test(marker);
 }
 
 /**
@@ -223,9 +225,18 @@ function blockTypeArguments(block: ts.TypeElement, source: ts.SourceFile): strin
     return block.type.typeArguments?.map((argument) => argument.getText(source)) ?? [];
 }
 
+/** The facets of `Block<'sw_card', 'inherited' | 'afterIf'>`, which follow the parent as one union. */
+function blockFacets(typeArguments: string[]): string[] {
+    return typeArguments.flatMap((argument) => argument.split('|').map((facet) => facet.trim()));
+}
+
+function isOriginFacet(facet: string): boolean {
+    return BLOCK_ORIGINS.some((origin) => facet === `'${origin}'`);
+}
+
 /**
- * Splits `sw_card_title: Block<'sw_card', 'afterIf'>` into `sw_card_title: Block<'sw_card'>` for the tree and
- * `sw_card_title: 'afterIf'` for the structure.
+ * Splits `sw_card_title: Block<'sw_card', 'inherited' | 'afterIf'>` into `sw_card_title: Block<'sw_card', 'inherited'>`
+ * for the tree and `sw_card_title: 'afterIf'` for the structure.
  */
 function splitBlockContextMember(blocks: ts.TypeElement, source: ts.SourceFile): ContractMember[] {
     const treeLines = ['blocks: {'];
@@ -233,11 +244,17 @@ function splitBlockContextMember(blocks: ts.TypeElement, source: ts.SourceFile):
 
     for (const block of typeLiteralMembers(blocks)) {
         const name = block.name?.getText(source);
-        const [parent, ...context] = blockTypeArguments(block, source);
+        const [parent, ...facetArguments] = blockTypeArguments(block, source);
+        const facets = blockFacets(facetArguments);
+        const context = facets.filter((facet) => !isOriginFacet(facet));
 
-        treeLines.push(parent === undefined ? block.getText(source) : `${name}: Block<${parent}>;`);
+        treeLines.push(
+            parent === undefined
+                ? block.getText(source)
+                : `${name}: Block<${[parent, ...facets.filter(isOriginFacet)].join(', ')}>;`,
+        );
         if (context.length > 0) {
-            contextLines.push(`${name}: ${context.join(', ')};`);
+            contextLines.push(`${name}: ${context.join(' | ')};`);
         }
     }
 

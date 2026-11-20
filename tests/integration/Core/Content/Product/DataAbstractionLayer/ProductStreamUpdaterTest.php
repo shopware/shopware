@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -597,14 +598,16 @@ class ProductStreamUpdaterTest extends TestCase
             ) {
             }
 
-            /**
-             * @return list<string>
-             */
-            public function __invoke(): array
+            public function __invoke(Criteria $criteria, Context $context): IdSearchResult
             {
                 $this->repository->addSearch($this);
 
-                return $this->matches;
+                $data = [];
+                foreach ($this->matches as $index => $id) {
+                    $data[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => $index + 1]];
+                }
+
+                return new IdSearchResult(\count($data), $data, $criteria, $context);
             }
         };
         $productRepository->addSearch($search);

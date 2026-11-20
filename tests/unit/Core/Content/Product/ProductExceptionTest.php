@@ -27,6 +27,16 @@ class ProductExceptionTest extends TestCase
         static::assertSame(['id' => $productId], $exception->getParameters());
     }
 
+    public function testStreamMatchWithoutAutoIncrement(): void
+    {
+        $exception = ProductException::streamMatchWithoutAutoIncrement('product-id-1');
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(ProductException::PRODUCT_STREAM_MATCH_WITHOUT_AUTO_INCREMENT, $exception->getErrorCode());
+        static::assertSame('The product stream search returned product product-id-1 without its autoIncrement value', $exception->getMessage());
+        static::assertSame(['productId' => 'product-id-1'], $exception->getParameters());
+    }
+
     public function testSortingNotFound(): void
     {
         $key = 'value';

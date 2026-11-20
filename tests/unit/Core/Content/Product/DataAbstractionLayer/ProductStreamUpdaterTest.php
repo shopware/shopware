@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndexingMessage;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
@@ -24,6 +26,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -31,6 +35,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -41,6 +46,30 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[CoversClass(ProductStreamUpdater::class)]
 class ProductStreamUpdaterTest extends TestCase
 {
+    private const ACTIVE_FILTER = '[{"type":"equals","field":"active","value":"1"}]';
+
+    /**
+     * @var list<string>
+     */
+    private array $added = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $deleted = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $streamIdsUpdated = [];
+
+    /**
+     * @var list<int>
+     */
+    private array $searchLimits = [];
+
+    private int $largestWrite = 0;
+
     public function testUpdaterCanBeDisabled(): void
     {
         $connectionMock = $this->createMock(Connection::class);
@@ -210,186 +239,117 @@ class ProductStreamUpdaterTest extends TestCase
     #[DataProvider('filterProvider')]
     public function testCriteriaWithHandle(array $ids, array $filters, Criteria $criteria): void
     {
-        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+        $repository = StaticEntityRepository::of(ProductCollection::class, [$this->searchMatches([])], new ProductDefinition());
+        $connection = $this->createConnection((string) current(array_column($filters, 'api_filter')), []);
 
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn(['invalid' => 0, 'api_filter' => current(array_column($filters, 'api_filter'))]);
+        $this->createUpdater($connection, $repository)->handle(self::message());
 
-        $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn($ids);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->setLimit(1000);
+        $criteria->addSorting(new FieldSorting('autoIncrement'));
+        $criteria->addFilter(new RangeFilter('autoIncrement', [RangeFilter::GT => 0]));
 
-        $connection
-            ->expects($this->exactly(2))
-            ->method('transactional')
-            ->withAnyParameters();
-
-        $definition = new ProductDefinition();
-        $newMatches = [Uuid::randomHex(), Uuid::randomHex()];
-        $repository = StaticEntityRepository::of(ProductCollection::class, [
-            static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
-                static::assertTrue($actualCriteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-
-                static::assertEquals($criteria, $actualCriteria);
-
-                return $newMatches;
-            },
-            static fn () => [],
-        ], $definition);
-
-        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
-
-        $ids = [...$newMatches, ...$ids];
-        $manyToManyFieldUpdater
-            ->expects($this->once())
-            ->method('update')
-            ->with($definition->getEntityName(), $ids, Context::createDefaultContext(), 'streamIds');
-
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            $manyToManyFieldUpdater,
-            $this->createDefaultLanguageRepo(),
-            true,
-        );
-
-        $updater->handle($message);
+        static::assertEquals([$criteria], $repository->searchedCriteria);
     }
 
     /**
-     * @param string[] $oldMatches
-     * @param string[] $newMatches
-     * @param string[] $manyToManyUpdatedIds
+     * @param list<int> $mapped
+     * @param list<int> $matching
+     * @param list<int> $added
+     * @param list<int> $deleted
      */
-    #[DataProvider('transactionalProvider')]
-    public function testTransactionalHandle(array $oldMatches, array $newMatches, array $manyToManyUpdatedIds, int $numOfTransactional): void
+    #[DataProvider('differenceProvider')]
+    public function testHandleWritesTheDifference(array $mapped, array $matching, array $added, array $deleted): void
     {
-        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
-
-        $filters = json_encode([[
-            'type' => 'equals',
-            'field' => 'active',
-            'value' => '1',
-        ]]);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
-
-        $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn($oldMatches);
-
-        $connection
-            ->expects($this->exactly($numOfTransactional))
-            ->method('transactional')
-            ->withAnyParameters();
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('product.active', true));
-
-        $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
-            static function (Criteria $actualCriteria, Context $context) use ($criteria, $newMatches): array {
-                static::assertEquals($criteria, $actualCriteria);
+            $this->searchMatches([Defaults::LANGUAGE_SYSTEM => self::products($matching)]),
+        ], new ProductDefinition());
 
-                return $newMatches;
-            },
-            static fn () => [],
-        ], $definition);
+        $this->createUpdater($this->createConnection(self::ACTIVE_FILTER, self::products($mapped)), $repository)->handle(self::message());
 
-        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        static::assertEqualsCanonicalizing(array_values(self::products($added)), $this->added);
+        static::assertEqualsCanonicalizing(array_values(self::products($deleted)), $this->deleted);
+        static::assertEqualsCanonicalizing([...$this->added, ...$this->deleted], $this->streamIdsUpdated);
+    }
 
-        $manyToManyFieldUpdater
-            ->expects($manyToManyUpdatedIds === [] ? $this->never() : $this->once())
-            ->method('update')
-            ->with($definition->getEntityName(), $manyToManyUpdatedIds, Context::createDefaultContext(), 'streamIds');
+    public function testHandleWalksAStreamLargerThanOnePage(): void
+    {
+        $repository = StaticEntityRepository::of(ProductCollection::class, array_fill(0, 4, $this->searchMatches([
+            Defaults::LANGUAGE_SYSTEM => self::products(range(10000, 54999)),
+        ])), new ProductDefinition());
 
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            $manyToManyFieldUpdater,
-            $this->createDefaultLanguageRepo(),
-            true,
-        );
+        $this->createUpdater($this->createConnection(self::ACTIVE_FILTER, self::products(range(0, 29999))), $repository)->handle(self::message());
 
-        $updater->handle($message);
+        static::assertSame([1000, 20000, 20000, 20000], $this->searchLimits);
+        static::assertLessThanOrEqual(250, $this->largestWrite);
+        self::assertSameProducts(range(30000, 54999), $this->added);
+        self::assertSameProducts(range(0, 9999), $this->deleted);
+        self::assertSameProducts([...range(0, 9999), ...range(30000, 54999)], $this->streamIdsUpdated);
+    }
+
+    public function testHandleKeepsProductsThatMatchInAnyLanguage(): void
+    {
+        $germanId = Uuid::randomHex();
+        $english = range(0, 99999, 2);
+        $german = range(0, 99999, 3);
+        $mapped = range(0, 119999, 5);
+        $repository = StaticEntityRepository::of(ProductCollection::class, array_fill(0, 10, $this->searchMatches([
+            Defaults::LANGUAGE_SYSTEM => self::products($english),
+            $germanId => self::products($german),
+        ])), new ProductDefinition());
+
+        $this->createUpdater($this->createConnection(self::ACTIVE_FILTER, self::products($mapped)), $repository, Defaults::LANGUAGE_SYSTEM, $germanId)
+            ->handle(self::message());
+
+        $matching = array_unique([...$english, ...$german]);
+        self::assertSameProducts(array_values(array_diff($matching, $mapped)), $this->added);
+        self::assertSameProducts(array_values(array_diff($mapped, $matching)), $this->deleted);
+    }
+
+    public function testHandleKeepsOpenSearchPagesSmall(): void
+    {
+        $repository = StaticEntityRepository::of(ProductCollection::class, array_fill(0, 4, $this->searchMatches([
+            Defaults::LANGUAGE_SYSTEM => self::products(range(0, 3499)),
+        ], fromElasticsearch: true)), new ProductDefinition());
+
+        $this->createUpdater($this->createConnection(self::ACTIVE_FILTER, []), $repository)->handle(self::message());
+
+        static::assertSame([1000, 1000, 1000, 1000], $this->searchLimits);
+        self::assertSameProducts(range(0, 3499), $this->added);
     }
 
     public function testInvalidFilter(): void
     {
-        $context = Context::createDefaultContext();
-
-        $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex(), null, $context);
-
-        $filters = json_encode([[
-            'type' => 'equals',
-            'field' => 'active',
-            'value' => '1',
-        ]]);
-
-        $connection = $this->createMock(Connection::class);
-        $connection
-            ->expects($this->once())
-            ->method('fetchAssociative')
-            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
-
-        $oldMatches = [Uuid::randomHex(), Uuid::randomHex()];
-        $connection
-            ->expects($this->once())
-            ->method('fetchFirstColumn')
-            ->willReturn($oldMatches);
-
-        $connection
-            ->expects($this->exactly(1)) // delete only
-            ->method('transactional')
-            ->withAnyParameters();
-
-        $criteria = new Criteria();
-        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->addFilter(new EqualsFilter('product.active', true));
-
-        $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
-            static function (Criteria $actualCriteria, Context $context) use ($criteria): array {
-                static::assertEquals($criteria, $actualCriteria);
+            static fn () => throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition()),
+        ], new ProductDefinition());
 
-                throw DataAbstractionLayerException::unmappedField('non-existing-field', new ProductDefinition());
-            },
-            static fn () => [],
-        ], $definition);
+        $this->createUpdater($this->createConnection(self::ACTIVE_FILTER, self::products([1, 2])), $repository)->handle(self::message());
 
-        $manyToManyFieldUpdater = $this->createMock(ManyToManyIdFieldUpdater::class);
+        static::assertSame([], $this->added);
+        static::assertEqualsCanonicalizing(array_values(self::products([1, 2])), $this->deleted);
+        static::assertEqualsCanonicalizing($this->deleted, $this->streamIdsUpdated);
+    }
 
-        $manyToManyFieldUpdater
-            ->expects($this->once())
-            ->method('update')
-            ->with($definition->getEntityName(), $oldMatches, $context, 'streamIds');
+    public function testInvalidStreamRemovesEveryMappingInBoundedWrites(): void
+    {
+        $repository = StaticEntityRepository::of(ProductCollection::class, [], new ProductDefinition());
 
-        $updater = new ProductStreamUpdater(
-            $connection,
-            $definition,
-            $repository,
-            static::createStub(MessageBusInterface::class),
-            $manyToManyFieldUpdater,
-            $this->createDefaultLanguageRepo(),
-            true,
-        );
+        $this->createUpdater($this->createConnection(null, self::products(range(0, 24999)), invalid: 1), $repository)->handle(self::message());
 
-        $updater->handle($message);
+        static::assertSame([], $repository->searchedCriteria);
+        static::assertLessThanOrEqual(250, $this->largestWrite);
+        self::assertSameProducts(range(0, 24999), $this->deleted);
+    }
+
+    public function testHandleNeedsTheAutoIncrementOfEveryMatch(): void
+    {
+        $productId = Uuid::randomHex();
+        $repository = StaticEntityRepository::of(ProductCollection::class, [[$productId]], new ProductDefinition());
+
+        $this->expectExceptionObject(ProductException::streamMatchWithoutAutoIncrement($productId));
+
+        $this->createUpdater($this->createConnection(self::ACTIVE_FILTER, []), $repository)->handle(self::message());
     }
 
     public function testUpdateProductsSkipsInvalidFilter(): void
@@ -537,57 +497,158 @@ class ProductStreamUpdaterTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{oldMatches: list<string>, newMatches: list<string>, numOfTransactional: int, manyToManyUpdatedIds: list<string>}>
+     * @return iterable<string, array{mapped: list<int>, matching: list<int>, added: list<int>, deleted: list<int>}>
      */
-    public static function transactionalProvider(): iterable
+    public static function differenceProvider(): iterable
     {
-        $productId1 = Uuid::randomHex();
-        $productId2 = Uuid::randomHex();
-        $productId3 = Uuid::randomHex();
-        $productId4 = Uuid::randomHex();
-        $productId5 = Uuid::randomHex();
+        yield 'a stream without matches and mappings writes nothing' => ['mapped' => [], 'matching' => [], 'added' => [], 'deleted' => []];
 
-        yield 'Both empty old and new matches' => [
-            'oldMatches' => [],
-            'newMatches' => [],
-            'numOfTransactional' => 0, // no change
-            'manyToManyUpdatedIds' => [],
-        ];
+        yield 'new matches are mapped' => ['mapped' => [], 'matching' => [3, 4, 5], 'added' => [3, 4, 5], 'deleted' => []];
 
-        yield 'Empty old matches' => [
-            'oldMatches' => [],
-            'newMatches' => [$productId3, $productId4, $productId5],
-            'numOfTransactional' => 1, // only add,
-            'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5],
-        ];
+        yield 'mappings without a match are removed' => ['mapped' => [1, 2], 'matching' => [], 'added' => [], 'deleted' => [1, 2]];
 
-        yield 'Empty new matches' => [
-            'oldMatches' => [$productId1, $productId2],
-            'newMatches' => [],
-            'numOfTransactional' => 1, // only delete,
-            'manyToManyUpdatedIds' => [$productId1, $productId2],
-        ];
+        yield 'unchanged matches write nothing' => ['mapped' => [1, 2], 'matching' => [1, 2], 'added' => [], 'deleted' => []];
 
-        yield 'Same old and new matches' => [
-            'oldMatches' => [$productId1, $productId2],
-            'newMatches' => [$productId1, $productId2],
-            'numOfTransactional' => 0, // no change
-            'manyToManyUpdatedIds' => [],
-        ];
+        yield 'only the difference is written' => ['mapped' => [1, 2], 'matching' => [2, 3], 'added' => [3], 'deleted' => [1]];
 
-        yield 'Some old and new matches' => [
-            'oldMatches' => [$productId1, $productId2],
-            'newMatches' => [$productId2, $productId3],
-            'numOfTransactional' => 2, // add and delete
-            'manyToManyUpdatedIds' => [$productId3, $productId1],
-        ];
+        yield 'a complete change replaces every mapping' => ['mapped' => [1, 2], 'matching' => [3, 4, 5], 'added' => [3, 4, 5], 'deleted' => [1, 2]];
+    }
 
-        yield 'All different old and new matches' => [
-            'oldMatches' => [$productId1, $productId2],
-            'newMatches' => [$productId3, $productId4, $productId5],
-            'numOfTransactional' => 2, // add and delete
-            'manyToManyUpdatedIds' => [$productId3, $productId4, $productId5, $productId1, $productId2],
-        ];
+    /**
+     * @param list<int> $expected
+     * @param list<string> $actual
+     */
+    private static function assertSameProducts(array $expected, array $actual): void
+    {
+        $expected = array_values(self::products($expected));
+
+        static::assertSame([], array_values(array_diff($expected, $actual)), 'Products are missing');
+        static::assertSame([], array_values(array_diff($actual, $expected)), 'Products were not expected');
+        static::assertCount(\count($expected), $actual, 'Products were written more than once');
+    }
+
+    private static function message(): ProductStreamMappingIndexingMessage
+    {
+        return new ProductStreamMappingIndexingMessage(Uuid::randomHex());
+    }
+
+    /**
+     * @param list<int> $numbers
+     *
+     * @return array<int, string>
+     */
+    private static function products(array $numbers): array
+    {
+        sort($numbers);
+
+        $products = [];
+        foreach ($numbers as $number) {
+            $products[10 + 3 * $number] = Uuid::fromStringToHex('product-' . $number);
+        }
+
+        return $products;
+    }
+
+    /**
+     * @param array<int, string> $mappings
+     */
+    private function createConnection(?string $apiFilter, array $mappings, int $invalid = 0): Connection&Stub
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAssociative')->willReturn(['invalid' => $invalid, 'api_filter' => $apiFilter]);
+        $connection->method('fetchAllNumeric')->willReturnCallback(static function (string $sql, array $params) use ($mappings): array {
+            $rows = [];
+            foreach ($mappings as $autoIncrement => $id) {
+                if ($autoIncrement > $params['after'] && \count($rows) < $params['limit']) {
+                    $rows[] = [$autoIncrement, $id];
+                }
+            }
+
+            return $rows;
+        });
+        $connection->method('transactional')->willReturnCallback(static fn (\Closure $closure) => $closure($connection));
+        $connection->method('executeStatement')->willReturnCallback(function (string $sql, array $params): int {
+            /** @var list<string> $bytes */
+            $bytes = $params['ids'];
+            $ids = Uuid::fromBytesToHexList($bytes);
+            if (str_starts_with($sql, 'DELETE')) {
+                $this->deleted = [...$this->deleted, ...$ids];
+            } else {
+                $this->added = [...$this->added, ...$ids];
+            }
+            $this->largestWrite = max($this->largestWrite, \count($ids));
+
+            return \count($ids);
+        });
+
+        return $connection;
+    }
+
+    /**
+     * @param array<string, array<int, string>> $matchesByLanguage
+     *
+     * @return \Closure(Criteria, Context): IdSearchResult
+     */
+    private function searchMatches(array $matchesByLanguage, bool $fromElasticsearch = false): \Closure
+    {
+        return function (Criteria $criteria, Context $context) use ($matchesByLanguage, $fromElasticsearch): IdSearchResult {
+            $limit = $criteria->getLimit();
+            static::assertNotNull($limit, 'The stream is searched as a whole instead of page by page');
+            $this->searchLimits[] = $limit;
+
+            $after = 0;
+            foreach ($criteria->getFilters() as $filter) {
+                if ($filter instanceof RangeFilter && $filter->getField() === 'autoIncrement') {
+                    $after = (int) $filter->getParameter(RangeFilter::GT);
+                }
+            }
+
+            $data = [];
+            foreach ($matchesByLanguage[$context->getLanguageId()] ?? [] as $autoIncrement => $id) {
+                if ($autoIncrement > $after && \count($data) < $limit) {
+                    $data[$id] = ['primaryKey' => $id, 'data' => ['autoIncrement' => $fromElasticsearch ? (float) $autoIncrement : $autoIncrement]];
+                }
+            }
+
+            $result = new IdSearchResult(\count($data), $data, $criteria, $context);
+            if ($fromElasticsearch) {
+                $result->addState(ElasticsearchEntitySearcher::RESULT_STATE);
+            }
+
+            return $result;
+        };
+    }
+
+    /**
+     * @param StaticEntityRepository<ProductCollection> $repository
+     */
+    private function createUpdater(Connection $connection, StaticEntityRepository $repository, string ...$languageIds): ProductStreamUpdater
+    {
+        $languages = new LanguageCollection();
+        foreach ($languageIds ?: [Defaults::LANGUAGE_SYSTEM] as $languageId) {
+            $language = new LanguageEntity();
+            $language->setId($languageId);
+            $languages->add($language);
+        }
+
+        $manyToManyIdFieldUpdater = static::createStub(ManyToManyIdFieldUpdater::class);
+        $manyToManyIdFieldUpdater->method('update')->willReturnCallback(function (string $entity, array $ids, Context $context, ?string $propertyName): void {
+            static::assertSame([ProductDefinition::ENTITY_NAME, 'streamIds'], [$entity, $propertyName]);
+            foreach ($ids as $id) {
+                static::assertIsString($id);
+                $this->streamIdsUpdated[] = $id;
+            }
+        });
+
+        return new ProductStreamUpdater(
+            $connection,
+            new ProductDefinition(),
+            $repository,
+            static::createStub(MessageBusInterface::class),
+            $manyToManyIdFieldUpdater,
+            new StaticEntityRepository([$languages]),
+            true,
+        );
     }
 
     /**

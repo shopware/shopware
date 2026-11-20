@@ -29,6 +29,7 @@ class ProductException extends HttpException
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
     final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
     public const MISSING_REQUEST_PARAMETER_CODE = 'PRODUCT__MISSING_REQUEST_PARAMETER_CODE';
+    final public const PRODUCT_STREAM_MATCH_WITHOUT_AUTO_INCREMENT = 'PRODUCT__STREAM_MATCH_WITHOUT_AUTO_INCREMENT';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -138,6 +139,16 @@ class ProductException extends HttpException
             'PRODUCT__NO_PRICE_FOR_CURRENCY',
             'No price found for currency "{{ currency }}"',
             ['currency' => $currency->getName() ?? $currency->getShortName() ?? $currency->getIsoCode()]
+        );
+    }
+
+    public static function streamMatchWithoutAutoIncrement(string $productId): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PRODUCT_STREAM_MATCH_WITHOUT_AUTO_INCREMENT,
+            'The product stream search returned product {{ productId }} without its autoIncrement value',
+            ['productId' => $productId]
         );
     }
 

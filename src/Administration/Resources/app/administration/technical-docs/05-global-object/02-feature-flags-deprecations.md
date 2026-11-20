@@ -157,6 +157,55 @@ This rule ensures proper handling of deprecated features and prevents inappropri
 Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'oldMethod() is deprecated. Use newMethod() instead.');
 ```
 
+Code that has to stay backward compatible until the major, in core or in an extension, keeps the old path in
+an `if (!Feature.isActive(...))` and runs it inside the experimental `Feature.silence()`, like the PHP
+`Feature::silent()`. The old path may still call deprecated APIs without reporting them, while calls outside
+of it still report:
+
+```typescript
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
+} else {
+    registerModuleLocales();
+}
+```
+
+Templates wrap the deprecated components of the old path in the renderless `sw-silence-deprecations` component.
+It silences only the first level of components inside of it, ignoring plain HTML elements and `<template>`.
+Those components are silenced with everything they render themselves: the deprecation plugin's report of them and
+their deprecated props, and what they report while Vue knows the running component (`setup`, `data`, lifecycle
+hooks, rendering). Everything below them in the same template, their slot content, reports:
+
+```twig
+<sw-silence-deprecations flag="V6_9_0_0">
+    <div>
+        <sw-tabs>          {# level 1: silenced, including all of sw-tabs' own insides #}
+            <sw-card />    {# level 2: reports #}
+        </sw-tabs>
+    </div>
+</sw-silence-deprecations>
+```
+
+So a wrapper like `sw-popover` silences its deprecated implementation, but not what its users put into its
+`<slot />`:
+
+```twig
+<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
+    <sw-popover-deprecated v-bind="$attrs"><slot /></sw-popover-deprecated>
+</sw-silence-deprecations>
+<mt-floating-ui v-else v-bind="$attrs"><slot /></mt-floating-ui>
+```
+
+A component that an extension's block override puts on the first level is silenced too; one on a deeper level
+reports. The
+wrapper renders no element of its own, so attributes on it go nowhere.
+
+Both silence nothing once the major is active, so a use outside of its branch still throws, and an unknown flag
+silences nothing and logs an error. `Feature.silence()` only covers synchronous code: the silencing ends when the
+callback returns, so a returned promise throws. The component does not reach the bindings the template evaluates
+itself, like `:value="deprecatedComputed"`, nor event handlers, watchers that are not `immediate`, and code after an
+`await`, which run while Vue knows no running component. Wrap those in `Feature.silence()`.
+
 Components and props carry a `deprecated` option instead, which `src/app/plugin/deprecation.plugin.ts`
 checks in a global `beforeCreate()` hook: a deprecated component on every creation, a deprecated prop
 whenever the parent supplies it. The message names the path of components that use it. As the error is
@@ -173,6 +222,39 @@ sides of a flag. A test that asserts a warning spies on `console.warn`.
 Deprecated APIs that stay usable past the next major, like the deprecated `$tc` and the vue-i18n 8 argument
 order, use the major of their removal, e.g. `V6_9_0_0`. Put the caller and the replacement into the message, so
 every call site is reported once and stays actionable. See `src/core/helper/i18n-legacy-syntax.helper.ts`.
+
+`sw-deprecation-rules/require-deprecation-guard` keeps every `@deprecated tag:vX.Y.Z` declaration on this
+lifecycle. What the marker sits on decides what it requires:
+
+| The marker sits on | Required |
+|---|---|
+| a function, method, `computed` accessor, getter or class constructor | `triggerDeprecationOrThrow()` with the tag's major as its **first** statement |
+| a component, in its file header or on its `export default` | the root `deprecated` option, with the tag's version |
+| a prop | the prop's `deprecated` option, with the tag's version |
+| a value, type, import, lifecycle hook, `data`, `watch`, `provide`, `inject`, store `state` or `getters`, a `Component.register()` call, or a statement inside a body | nothing |
+
+A file header without a component covers every export of the file. `@private`, `_`-prefixed and `#private`
+declarations are skipped. A class core creates on its own, like an API service, may guard each method instead of
+its constructor. Any other function core runs on its own takes an
+`eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- <reason>`.
+
+A deprecated component carries its marker in its own file, because the rule only reads the file it lints.
+A marker on the `Component.register()` call is a reminder for the removal.
+
+The rule also checks the other way round: every `triggerDeprecationOrThrow('<flag>', …)` call needs a
+`@deprecated tag:` marker on a declaration or statement that encloses it, or in the file header, and the nearest
+of them has to announce the major of the flag. A guard of a deprecated argument or usage pattern takes a
+`// @deprecated tag:vX.Y.Z - …` comment right above it. Such a marker on a statement inside a body is a reminder
+for the removal and no announcement of a public element.
+
+The `deprecated` option is an object literal with a string `version`, so the rule can compare it with the marker.
+A marker counts once it follows the grammar of `valid-api-markers`, which reports any other.
+The inline config of a `Component.register('sw-x', { … })` call is not covered.
+
+Two exceptions are temporary until `@bc-change` markers replace them:
+markers like "Will be private" are skipped, and a deprecation of a single parameter takes an
+`eslint-disable-next-line`. They become `@bc-change BecomesPrivate` and `@bc-change ParameterRemoval`, see
+[the public API snapshot ADR](../../../../../../../adr/2026-11-10-administration-public-api-snapshot.md).
 
 Pair runtime warnings with an autofixable ESLint rule where the migration is mechanical, like
 `sw-core-rules/no-tc-translation`, and enable it in the extension tooling (`extension-tooling/eslint.mjs`).

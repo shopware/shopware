@@ -38,6 +38,23 @@ class McpPrincipalResolverTest extends TestCase
         static::assertSame($expected, (new McpPrincipalResolver())->resolve($request));
     }
 
+    public function testIgnoringTheActingUserKeepsTheIntegrationAndTheUserToken(): void
+    {
+        $resolver = new McpPrincipalResolver();
+
+        $integrationForUser = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID => self::INTEGRATION_KEY,
+            PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => new Context(new AdminApiSource(self::USER_ID, 'integration-id')),
+        ]);
+        static::assertSame('integration-' . self::INTEGRATION_KEY, $resolver->resolveIgnoringActingUser($integrationForUser));
+
+        $userToken = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID => 'administration',
+            PlatformRequest::ATTRIBUTE_OAUTH_USER_ID => self::USER_ID,
+        ]);
+        static::assertSame('user-' . self::USER_ID, $resolver->resolveIgnoringActingUser($userToken));
+    }
+
     /**
      * @return iterable<string, array{array<string, mixed>, Context|null, string|null}>
      */

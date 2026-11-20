@@ -293,6 +293,53 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         yield 'outside the sales channel category trees' => [true, '|otherRootCategoryId|', true];
     }
 
+    public function testGetProductSeoCategoryQueriesTheParentMainCategoryWhenTheVariantsOwnIsInvalid(): void
+    {
+        $parentId = Uuid::randomHex();
+        $parentMainCategory = $this->createCategory(true);
+        $variantMainCategory = $this->createCategory(false);
+
+        $variant = $this->getProductEntity([], [$parentMainCategory->getId(), $variantMainCategory->getId()]);
+        $variant->setParentId($parentId);
+        $variant->setMainCategories(new MainCategoryCollection([$this->createMainCategory($variant->getId(), $variantMainCategory)]));
+
+        $loadedVariant = clone $variant;
+        $loadedVariant->setMainCategories(new MainCategoryCollection([$this->createMainCategory($parentId, $parentMainCategory)]));
+
+        $builder = new CategoryBreadcrumbBuilder(
+            StaticEntityRepository::of(CategoryCollection::class),
+            StaticSalesChannelRepository::of(SalesChannelProductCollection::class, [new SalesChannelProductCollection([$loadedVariant])]),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($parentMainCategory, $builder->getProductSeoCategory($variant, $this->salesChannelContext));
+    }
+
+    public function testGetProductSeoCategoryDoesNotQueryAnInvalidMainCategoryInheritedFromTheParent(): void
+    {
+        $parentId = Uuid::randomHex();
+        $inheritedMainCategory = $this->createCategory(false);
+        $fallbackCategory = $this->createCategory(true);
+
+        $variant = $this->getProductEntity([], [$inheritedMainCategory->getId(), $fallbackCategory->getId()]);
+        $variant->setParentId($parentId);
+        $variant->setMainCategories(new MainCategoryCollection([$this->createMainCategory($parentId, $inheritedMainCategory)]));
+
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new CategoryCollection([$fallbackCategory])]);
+        $builder = new CategoryBreadcrumbBuilder(
+            $categoryRepository,
+            StaticSalesChannelRepository::of(SalesChannelProductCollection::class, [
+                static fn () => static::fail('The inherited main category must not be queried again.'),
+            ]),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($fallbackCategory, $builder->getProductSeoCategory($variant, $this->salesChannelContext));
+        static::assertCount(1, $categoryRepository->searchedCriteria);
+    }
+
     public function testGetProductCategoryByReferrerShouldReturnReferrerCategoryHiddenInNavigation(): void
     {
         $categoryId = Uuid::randomHex();
@@ -592,6 +639,27 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $product->internalSetEntityData('product', new FieldVisibility([]));
 
         return $product;
+    }
+
+    private function createCategory(bool $active): CategoryEntity
+    {
+        $category = new CategoryEntity();
+        $category->setId(Uuid::randomHex());
+        $category->setActive($active);
+        $category->setPath('|navigationCategoryId|');
+
+        return $category;
+    }
+
+    private function createMainCategory(string $productId, CategoryEntity $category): MainCategoryEntity
+    {
+        $mainCategory = new MainCategoryEntity();
+        $mainCategory->setId(Uuid::randomHex());
+        $mainCategory->setProductId($productId);
+        $mainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $mainCategory->setCategory($category);
+
+        return $mainCategory;
     }
 
     private function getSalesChannelContext(): SalesChannelContext

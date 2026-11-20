@@ -175,7 +175,9 @@ class CategoryBreadcrumbBuilder
                 return $preloadedCategory;
             }
 
-            return null;
+            if (!$this->hasOwnMainCategoryOfVariant($product, $context)) {
+                return null;
+            }
         }
 
         if ($categoryIds === []) {
@@ -215,6 +217,17 @@ class CategoryBreadcrumbBuilder
         }
 
         return $category;
+    }
+
+    private function hasOwnMainCategoryOfVariant(ProductEntity $product, SalesChannelContext $context): bool
+    {
+        if ($product->getParentId() === null) {
+            return false;
+        }
+
+        $mainCategory = $product->getMainCategories()?->filterBySalesChannelId($context->getSalesChannelId())->first();
+
+        return $mainCategory?->getProductId() === $product->getId();
     }
 
     /**

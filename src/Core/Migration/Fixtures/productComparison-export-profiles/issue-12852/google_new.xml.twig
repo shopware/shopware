@@ -24,7 +24,7 @@
     </g:availability>
     {% set price = product.calculatedPrice %}
     {%- if product.calculatedPrices.count > 0 -%}
-        {% set price = product.calculatedPrices.last %}
+        {% set price = product.calculatedPrices.first %}
     {%- endif -%}
 
     <g:price>{{ price.unitPrice|number_format(context.currency.itemRounding.decimals, '.', '') }} {{ context.currency.isoCode }}</g:price>

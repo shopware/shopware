@@ -389,6 +389,96 @@ class AgenticCommerceProductExportFlowTest extends TestCase
         static::assertSame($salesChannelId, $queryParameters[SalesChannelTrackingListener::QUERY_PARAM] ?? null);
     }
 
+    #[DataProvider('provideGoogleTemplateDirectories')]
+    public function testGoogleFeedExportsTheMinimumQuantityTierPrice(string $templateDirectory): void
+    {
+        $product = $this->createExportableProduct();
+        $ruleId = Uuid::randomHex();
+
+        static::getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'Always valid', 'priority' => 1, 'conditions' => [['type' => 'alwaysValid']]],
+        ], $this->context);
+
+        static::getContainer()->get('product.repository')->update([
+            [
+                'id' => $product['id'],
+                'prices' => [
+                    [
+                        'ruleId' => $ruleId,
+                        'quantityStart' => 1,
+                        'quantityEnd' => 9,
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10.0, 'net' => 8.4, 'linked' => false]],
+                    ],
+                    [
+                        'ruleId' => $ruleId,
+                        'quantityStart' => 10,
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8.0, 'net' => 6.72, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ], $this->context);
+
+        $productStreamId = $this->createProductStreamForProduct($product['id']);
+
+        $agenticSalesChannel = $this->createSalesChannel([
+            'id' => Uuid::randomHex(),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE,
+            'name' => 'Agentic Commerce Feed',
+            'countries' => [
+                ['id' => $this->getDefaultCountryId()],
+            ],
+            'domains' => [
+                [
+                    'id' => Uuid::randomHex(),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://agentic-commerce.localhost',
+                ],
+            ],
+        ]);
+
+        $productExport = $this->createGoogleProductExport($agenticSalesChannel['id'], $productStreamId);
+
+        $templatePath = __DIR__ . '/../../../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/' . $templateDirectory;
+        $this->productExportRepository->update([
+            [
+                'id' => $productExport->getId(),
+                'headerTemplate' => (string) file_get_contents($templatePath . '/header.xml.twig'),
+                'bodyTemplate' => (string) file_get_contents($templatePath . '/body.xml.twig'),
+                'footerTemplate' => (string) file_get_contents($templatePath . '/footer.xml.twig'),
+            ],
+        ], $this->context);
+
+        $criteria = new Criteria([$productExport->getId()]);
+        $criteria->addAssociations(['salesChannel', 'storefrontSalesChannel', 'salesChannelDomain.language.locale']);
+        $productExport = $this->productExportRepository->search($criteria, $this->context)->getEntities()->first();
+        static::assertInstanceOf(ProductExportEntity::class, $productExport);
+
+        $result = $this->productExportGenerator->generate($productExport, new ExportBehavior());
+
+        static::assertNotNull($result);
+        static::assertFalse($result->hasErrors());
+
+        $xml = simplexml_load_string($result->getContent());
+        static::assertNotFalse($xml);
+
+        $items = $xml->xpath('//item');
+        static::assertIsArray($items);
+        static::assertCount(1, $items);
+
+        static::assertSame('10.00 EUR', (string) $items[0]->children('http://base.google.com/ns/1.0')->price);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideGoogleTemplateDirectories(): iterable
+    {
+        yield 'google shopping product export template' => ['product-export-templates/google-product-search-de'];
+        yield 'agentic commerce google template' => ['agentic-product-export-templates/google'];
+    }
+
     /**
      * @return array{id: string, productNumber: string}
      */

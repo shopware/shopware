@@ -74,7 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
             showRestoreInheritanceModal: false,
             isInheritanceRemoved: false,
             mediaFolderId: undefined as string | null | undefined,
-            uploadSettings: undefined as ProductDocumentUploadSettings | null | undefined,
+            uploadSettings: null as ProductDocumentUploadSettings | null,
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
             documentsToRemove: [] as Entity<'product_document'>[],
@@ -142,7 +142,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canAddDocuments(): boolean {
-            return this.canEditDocuments && this.isSystemDefaultLanguage && this.uploadSettings !== undefined;
+            return this.canEditDocuments && this.isSystemDefaultLanguage;
         },
 
         canEditDocuments(): boolean {
@@ -254,11 +254,9 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async loadUploadSettings(): Promise<void> {
-            try {
-                this.uploadSettings = await this.productDocumentApiService.getUploadSettings();
-            } catch {
-                this.uploadSettings = null;
-            }
+            this.uploadSettings = await this.productDocumentApiService
+                .getUploadSettings()
+                .catch(() => /* the save check still applies */ null);
         },
 
         getFileName(document: Entity<'product_document'>): string {

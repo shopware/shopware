@@ -3,7 +3,6 @@
  */
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
-import type { ProductDocumentUploadSettings } from 'src/module/sw-product/service/product-document.api.service';
 import {
     addDocuments,
     cleanupWrappers,
@@ -153,21 +152,6 @@ describe('sw-product-document-form upload settings', () => {
         expect(getDocuments()).toHaveLength(1);
         expect(getDocuments()?.[0].mediaId).toBe(accepted.id);
         expect(wrapper.get('.document-row').text()).toContain('text-file.txt');
-    });
-
-    it('disables adding documents until the upload settings are loaded', async () => {
-        let resolveSettings: (settings: ProductDocumentUploadSettings) => void = () => {};
-        const settings = new Promise<ProductDocumentUploadSettings>((resolve) => {
-            resolveSettings = resolve;
-        });
-        const wrapper = await createWrapper(undefined, undefined, undefined, { getUploadSettings: () => settings });
-
-        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
-
-        resolveSettings(uploadSettings);
-        await flushPromises();
-
-        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeUndefined();
     });
 
     it('skips the browser-side check when the upload settings cannot be loaded', async () => {

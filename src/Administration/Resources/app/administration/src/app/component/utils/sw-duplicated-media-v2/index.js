@@ -261,7 +261,21 @@ export default {
             }
 
             this.mediaService.addUpload(newTask.uploadTag, newTask);
+
+            // sw-upload-listener deletes the empty media of a failed upload, but it is gone
+            // when the media field popover was closed, so clean up here instead.
+            const hasUploadListener = this.mediaService.$listeners[newTask.uploadTag]?.length > 0;
             await this.mediaService.runUploads(newTask.uploadTag);
+
+            if (hasUploadListener) {
+                return;
+            }
+
+            const isDuplicatedAgain = this.postponedFailedUploads.some((task) => task.targetId === newTask.targetId);
+            const target = await this.mediaRepository.get(newTask.targetId, Context.api);
+            if (target && !target.hasFile && !isDuplicatedAgain) {
+                await this.mediaRepository.delete(target.id, Context.api);
+            }
         },
 
         async skipAll() {
@@ -354,6 +368,7 @@ export default {
                     extension: uploadTask.extension,
                     mimeType,
                     mediaId,
+                    fileSize: uploadTask.src.size,
                 }),
                 this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
             ]);

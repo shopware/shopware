@@ -155,7 +155,6 @@ Shopware.Component.register(
 );
 
 /** @private @sw-package discovery */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-experience-studio', {
     type: 'core',
     name: 'experience-studio',

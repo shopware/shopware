@@ -680,7 +680,9 @@ Products can have documents, such as manuals, datasheets or certificates, in `pr
 A document can be uploaded per language with a translatable title and fall back to the default language.
 A variant can have its own documents or inherit those of its parent.
 The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
-The scheduled task `product_document.media.cleanup` deletes unused files from the "Product Document Media" folder.
+The scheduled task `product_document.media.cleanup` runs about once a month and deletes files from the "Product Document Media" folder that no product document or other entity uses and that were uploaded more than a day ago.
+Keep files you link elsewhere, for example from a product description, in another folder.
+To turn the cleanup off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
 
 ### Event before a media file is replaced
 

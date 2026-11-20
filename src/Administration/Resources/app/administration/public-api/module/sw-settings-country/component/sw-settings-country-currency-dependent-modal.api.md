@@ -67,12 +67,4 @@ blocks
       sw_settings_country_currency_dependent_modal_content_hamburger_menu
     sw_settings_country_currency_dependent_modal_footer
       sw_settings_country_currency_dependent_modal_close
-
-classes
-  sw-settings-country-currency-dependent-modal
-  sw-settings-country-currency-dependent-modal__cancel-button
-  sw-settings-country-currency-dependent-modal__grid
-  sw-settings-country-currency-dependent-modal__inheritance-wrapper
-  sw-settings-country-currency-dependent-modal__input
-  sw-settings-country-currency-dependent-modal__save-button
 ```

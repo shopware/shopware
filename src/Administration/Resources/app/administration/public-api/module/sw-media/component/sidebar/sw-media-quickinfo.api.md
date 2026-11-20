@@ -69,7 +69,7 @@ methods
   emitRefreshMediaLibrary(): any
   fetchSpatialItemConfig(): any
   handleErrorMessage(error: any): any
-  loadCustomFieldSets(): any
+  loadCustomFieldSets(): Promise<any>
   onChangeFileName(value: any): Promise<any>
   onRemoveFileNameError(): any
   onSave(): Promise<any>
@@ -122,38 +122,4 @@ refs
   inlineEditFieldName  -> sw-confirm-field
   inlineEditFieldTitle  -> sw-confirm-field
   modelEditorRef  -> sw-model-editor
-
-classes
-  ar-ready-toggle
-  is--danger
-  quickaction--copy-link
-  quickaction--custom
-  quickaction--delete
-  quickaction--download
-  quickaction--move
-  quickaction--remove-cover
-  quickaction--replace
-  quickaction--set-cover
-  sw-media-quickinfo
-  sw-media-quickinfo-metadata-alt-field
-  sw-media-quickinfo-metadata-createdAt
-  sw-media-quickinfo-metadata-extension
-  sw-media-quickinfo-metadata-file-type
-  sw-media-quickinfo-metadata-height
-  sw-media-quickinfo-metadata-mimeType
-  sw-media-quickinfo-metadata-name
-  sw-media-quickinfo-metadata-size
-  sw-media-quickinfo-metadata-width
-  sw-media-quickinfo__alert-file-missing
-  sw-media-quickinfo__media-preview
-  sw-media-quickinfo__unsupported-format-banner
-  sw-media-sidebar__metadata-list
-  sw-media-sidebar__quickaction
-  sw-media-sidebar__quickactions-icon
-  sw-media-sidebar__quickactions-list
-  sw-media-sidebar__quickactions-switch
-  sw-model-editor-modal
-  sw-model-editor-modal-wrapper
-  sw-model-viewer-button
-  sw-model-viewer-wrapper
 ```

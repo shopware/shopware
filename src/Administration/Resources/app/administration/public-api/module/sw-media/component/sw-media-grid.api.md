@@ -38,8 +38,4 @@ blocks
   sw_media_grid  [private]
     sw_media_grid_slot_content  [private]
       sw_media_grid_default_slot  [private]
-
-classes
-  sw-media-grid  [private]
-  sw-media-grid__content  [private]
 ```

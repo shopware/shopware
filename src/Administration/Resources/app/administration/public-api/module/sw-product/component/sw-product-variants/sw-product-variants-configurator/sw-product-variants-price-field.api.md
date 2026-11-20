@@ -34,19 +34,11 @@ methods
   onPriceGrossChangeDebounce(value: any): any
   onPriceNetChange(value: any): any
   onPriceNetChangeDebounce(value: any): any
-  requestTaxValue(value: any, outputType: any): any
+  requestTaxValue(value: any, outputType: any): Promise<any>
 
 blocks
   sw_product_variants_price_field
     sw_product_variants_price_field_gross
     sw_product_variants_price_field_lock_button
     sw_product_variants_price_field_net
-
-classes
-  is--locked
-  is--readonly
-  sw-field
-  sw-product-variants-price-field
-  sw-product-variants-price-field__input
-  sw-product-variants-price-field__lock
 ```

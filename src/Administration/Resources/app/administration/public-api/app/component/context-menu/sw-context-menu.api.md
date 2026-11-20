@@ -18,8 +18,4 @@ blocks
   sw_context_menu  [private]
     sw_context_menu_content  [private]
       sw_context_menu_slot_default  [private]
-
-classes
-  sw-context-menu  [private]
-  sw-context-menu__content  [private]
 ```

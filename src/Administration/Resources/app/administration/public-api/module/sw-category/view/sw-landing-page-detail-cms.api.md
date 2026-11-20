@@ -21,7 +21,4 @@ blocks
   sw_landing_page_detail_cms
     sw_landing_page_detail_cms_form
     sw_landing_page_detail_cms_layout
-
-classes
-  sw-landing-page-detail__cms
 ```

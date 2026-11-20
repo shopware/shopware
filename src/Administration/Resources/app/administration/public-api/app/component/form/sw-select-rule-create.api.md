@@ -68,9 +68,4 @@ blocks
     sw_select_rule_create_select_before  [private]
     sw_select_rule_create_select_multi_select_result_list_item  [scope: addItem, getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, valueProperty] [private]
       sw_select_rule_create_select_multi_select_result_item_label  [scope: addItem, getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, valueProperty] [private]
-
-classes
-  sw-select-result  [private]
-  sw-select-rule-create  [private]
-  sw-select-rule-create__create-rule-item  [private]
 ```

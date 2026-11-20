@@ -26,7 +26,4 @@ methods
 blocks
   sw_media_tag
     sw_media_tag_input
-
-classes
-  sw-media-tag
 ```

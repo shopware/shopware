@@ -18,8 +18,4 @@ computed
 
 blocks
   sw_error_summary  [private]
-
-classes
-  sw-error-summary  [private]
-  sw-error-summary__quantity  [private]
 ```

@@ -93,12 +93,4 @@ blocks
         sw_cms_section_sidebar_block_component  [scope: block, index] [private]
           sw_cms_section_content_block_slot  [scope: block, index] [private]
       sw_cms_section_sidebar_block_empty  [private]
-
-classes
-  sw-cms-section  [private]
-  sw-cms-section__content  [private]
-  sw-cms-section__empty-stage  [private]
-  sw-cms-section__sidebar  [private]
-  sw-cms-section__wrapper  [private]
-  sw-cms-stage-block  [private]
 ```

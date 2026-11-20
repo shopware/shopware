@@ -81,15 +81,4 @@ blocks
 
 crossings
   v-if  sw_import_export_edit_profile_modal_mapping_grid -> sw_import_export_edit_profile_modal_mapping_empty_state  [private]
-
-classes
-  sw-import-export-edit-profile-modal-mapping  [private]
-  sw-import-export-edit-profile-modal-mapping__add-action  [private]
-  sw-import-export-edit-profile-modal-mapping__default-value-switch  [private]
-  sw-import-export-edit-profile-modal-mapping__empty-state  [private]
-  sw-import-export-edit-profile-modal-mapping__grid  [private]
-  sw-import-export-edit-profile-modal-mapping__position-buttons  [private]
-  sw-import-export-edit-profile-modal-mapping__required-by-user-switch  [private]
-  sw-import-export-edit-profile-modal-mapping__toolbar  [private]
-  sw-import-export-view-profiles__search  [private]
 ```

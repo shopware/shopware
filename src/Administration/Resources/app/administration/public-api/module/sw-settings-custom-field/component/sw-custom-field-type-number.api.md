@@ -33,7 +33,4 @@ blocks
         sw_custom_field_type_number_container_min
         sw_custom_field_type_number_container_numbertype
         sw_custom_field_type_number_container_step
-
-classes
-  sw-custom-field-type-base
 ```

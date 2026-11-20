@@ -42,12 +42,4 @@ blocks
       sw_data_grid_column_position_button_up  [private]
         sw_data_grid_column_position_button_up_content  [private]
     sw_data_grid_column_position_value  [private]
-
-classes
-  arrow_down  [private]
-  arrow_up  [private]
-  sw-data-grid-column-position  [private]
-  sw-data-grid-column-position__arrow  [private]
-  sw-data-grid-column-position__group  [private]
-  sw-data-grid-column-position__value  [private]
 ```

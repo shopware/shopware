@@ -46,8 +46,4 @@ blocks
     sw_mail_template_list_grid_empty_state
       sw_mail_template_list_grid_empty_state_button
     sw_mail_template_list_grid_empty_state_icon  [after v-if] [deprecated tag:v6.8.0]
-
-classes
-  sw-mail-template-list-grid__duplicate-action
-  sw-mail-templates-list-grid
 ```

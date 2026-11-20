@@ -57,9 +57,4 @@ blocks
 
 crossings
   v-if  sw_extension_ratings_card_has_reviews -> sw_extension_ratings_card_empty_state  [private]
-
-classes
-  sw-extension-ratings-card  [private]
-  sw-extension-ratings-card__footer-headline  [private]
-  sw-extension-ratings-card__reviews  [private]
 ```

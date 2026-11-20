@@ -33,13 +33,4 @@ blocks
       sw_tree_input_fieldelement_content  [private]
         sw_tree_input_fieldslot_content  [private]
       sw_tree_input_fieldelement_grip  [private]
-
-classes
-  is--no-children  [private]
-  sw-tree-input-field  [private]
-  sw-tree-input-field__language-warning  [private]
-  sw-tree-item  [private]
-  sw-tree-item__content  [private]
-  sw-tree-item__element  [private]
-  sw-tree-item__icon  [private]
 ```

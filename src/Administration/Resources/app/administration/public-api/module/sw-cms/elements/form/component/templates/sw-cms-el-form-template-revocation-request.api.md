@@ -16,13 +16,4 @@ props
 
 blocks
   sw_cms_el_form_revocation_request  [private]
-
-classes
-  sw-cms-el-form-headline  [private]
-  sw-cms-el-form-revocation-request  [private]
-  sw-cms-el-form-revocation-request__form-group  [private]
-  sw-cms-el-form-revocation-request__note  [private]
-  sw-cms-el-form-revocation-request__privacy  [private]
-  sw-cms-el-form__action  [private]
-  two-items  [private]
 ```

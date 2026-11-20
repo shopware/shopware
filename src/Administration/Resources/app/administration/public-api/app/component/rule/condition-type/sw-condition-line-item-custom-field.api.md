@@ -48,17 +48,6 @@ blocks
 refs
   selectedField  -> sw-entity-single-select
 
-classes
-  sw-condition
-  sw-condition-base-line-item__matches-all
-  sw-condition-line-item-custom-field
-  sw-condition__condition-value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
-
 notes
   unresolved mixins Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)
 ```

@@ -83,22 +83,6 @@ crossings
   v-if  sw_customer_base_metadata_customer_number_content -> sw_customer_base_metadata_customer_number_editor
   v-if  sw_customer_base_metadata_language_content -> sw_customer_base_metadata_language_editor
 
-classes
-  sw-bound-sales-channel__label
-  sw-customer-base-info
-  sw-customer-base-info-columns
-  sw-customer-base-info__checkbox-field
-  sw-customer-base-info__label
-  sw-customer-base-info__language-select
-  sw-customer-base__label-birthday
-  sw-customer-base__label-bound-sales-channel
-  sw-customer-base__label-customer-number
-  sw-customer-base__label-is-active
-  sw-customer-base__label-is-confirmed
-  sw-customer-base__label-language
-  sw-customer-base__label-last-login
-  sw-customer-base__label-turnover
-
 notes
   unresolved computed ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].cust...
 ```

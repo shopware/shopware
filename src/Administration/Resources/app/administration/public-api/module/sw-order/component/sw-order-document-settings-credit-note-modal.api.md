@@ -57,20 +57,4 @@ blocks
 
 refs
   fileInput  -> sw-media-upload-v2
-
-classes
-  sw-order-document-settings-credit-note-modal__document-date
-  sw-order-document-settings-credit-note-modal__document-number
-  sw-order-document-settings-credit-note-modal__invoice-select
-  sw-order-document-settings-modal
-  sw-order-document-settings-modal__comment
-  sw-order-document-settings-modal__create
-  sw-order-document-settings-modal__create-arrow
-  sw-order-document-settings-modal__download-button
-  sw-order-document-settings-modal__file-input
-  sw-order-document-settings-modal__file-toggle
-  sw-order-document-settings-modal__preview-button
-  sw-order-document-settings-modal__preview-button-arrow
-  sw-order-document-settings-modal__preview-button-html
-  sw-order-document-settings-modal__send-button
 ```

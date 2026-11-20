@@ -18,10 +18,4 @@ slots
 
 blocks
   sw_cms_block_image_simple_grid  [private]
-
-classes
-  sw-cms-block-image-simple-grid  [private]
-  sw-cms-block-image-simple-grid__image-bottom  [private]
-  sw-cms-block-image-simple-grid__image-top  [private]
-  sw-cms-block-image-simple-grid__side-images  [private]
 ```

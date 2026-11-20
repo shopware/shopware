@@ -42,9 +42,4 @@ blocks
     sw_order_create_promotion_modal_footer
       sw_order_create_promotion_modal_footer_button_cancel
       sw_order_create_promotion_modal_footer_button_save
-
-classes
-  sw-order-create-promotion-modal
-  sw-order-create-promotion-modal__promotion
-  sw-order-create-promotion-modal__promotion-name
 ```

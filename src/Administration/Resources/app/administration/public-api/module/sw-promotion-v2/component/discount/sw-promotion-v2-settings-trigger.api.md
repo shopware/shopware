@@ -34,11 +34,4 @@ blocks
       sw_promotion_v2_settings_trigger_select_trigger_type
     sw_promotion_v2_settings_trigger_description
     sw_promotion_v2_settings_trigger_radio_switch
-
-classes
-  sw-promotion-v2-settings-trigger-settings
-  sw-promotion-v2-settings-trigger-settings__description
-  sw-promotion-v2-settings-trigger-settings__rule-selection
-  sw-promotion-v2-settings-trigger-settings__trigger-type
-  sw-promotion-v2-settings-trigger-settings__use-trigger
 ```

@@ -14,7 +14,4 @@ component sw-first-run-wizard  private  js  [private]
 blocks
   sw_first_run_wizard  [private]
     sw_first_run_wizard_view_content  [private]
-
-classes
-  sw-first-run-wizard  [private]
 ```

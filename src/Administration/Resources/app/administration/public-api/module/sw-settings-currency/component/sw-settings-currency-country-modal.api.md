@@ -48,9 +48,4 @@ blocks
       sw_settings_currency_country_modal_footer_cancel
       sw_settings_currency_country_modal_footer_save
     sw_settings_currency_country_modal_price_rounding
-
-classes
-  sw-settings-currency-country-modal
-  sw-settings-currency-country-modal__button-save
-  sw-settings-currency-country-modal__select-country
 ```

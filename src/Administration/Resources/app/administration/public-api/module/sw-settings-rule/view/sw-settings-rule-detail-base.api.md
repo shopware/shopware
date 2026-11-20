@@ -56,13 +56,4 @@ blocks
       sw_settings_rule_detail_base_content_card_field_tags  [after v-if] [private]
       sw_settings_rule_detail_base_content_card_field_type  [private]
     sw_settings_rule_detail_custom_field_sets  [private]
-
-classes
-  sw-settings-rule-detail-base  [private]
-  sw-settings-rule-detail-base__flow-only-warning  [private]
-  sw-settings-rule-detail-base__product-stream-warning  [private]
-  sw-settings-rule-detail-base__product-type-warning  [private]
-  sw-settings-rule-detail__condition_container  [private]
-  sw-settings-rule-detail__tags-field  [private]
-  sw-settings-rule-detail__type-field  [private]
 ```

@@ -17,7 +17,4 @@ slots
 
 blocks
   sw_cms_block_image_two_column  [private]
-
-classes
-  sw-cms-block-image-two-column  [private]
 ```

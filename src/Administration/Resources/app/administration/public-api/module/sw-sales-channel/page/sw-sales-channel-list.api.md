@@ -62,10 +62,4 @@ blocks
       sw_sales_channel_list_smart_bar_header_title
         sw_sales_channel_list_smart_bar_header_amount
         sw_sales_channel_list_smart_bar_header_title_text
-
-classes
-  favorite-switch
-  sw-page__smart-bar-amount
-  sw-sales-channel-list
-  sw-sales-channel-list__empty-state
 ```

@@ -19,8 +19,4 @@ methods
   setActiveSidebar(locationId: string): any  [private]
   showTooltipOnKeyboardFocus(event: FocusEvent, showTooltip: () => void): any  [private]
   toggleSidebar(locationId: string): any  [private]
-
-classes
-  sw-app-topbar-sidebar__icon  [private]
-  sw-app-topbar-sidebar__icon-active  [private]
 ```

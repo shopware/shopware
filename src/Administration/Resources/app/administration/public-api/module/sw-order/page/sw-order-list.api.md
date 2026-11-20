@@ -59,7 +59,7 @@ methods
   onBulkEditItems(): Promise<any>
   onChangeLanguage(): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onEdit(order: any): any
   onInlineEditSave(order: any): any
@@ -125,22 +125,6 @@ crossings
 refs
   bulkEditModal  -> sw-bulk-edit-modal
   orderGrid  -> sw-data-grid
-
-classes
-  link
-  link-primary
-  sw-order-bulk-edit-modal
-  sw-order-bulk_edit__manual-order-label
-  sw-order-list
-  sw-order-list__add-order
-  sw-order-list__confirm-delete-text
-  sw-order-list__content
-  sw-order-list__manual-order-label
-  sw-order-list__order-view-action
-  sw-order-list__sidebar
-  sw-order-list__state
-  sw-order-list__tooltip-order-comment
-  sw-page__smart-bar-amount
 
 notes
   unresolved computed ...deprecatedComputed

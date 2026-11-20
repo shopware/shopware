@@ -135,18 +135,4 @@ crossings
 
 refs
   gridDomains  -> sw-data-grid
-
-classes
-  sw-sales-channel-detail-base__headline
-  sw-sales-channel-detail-base__headline-text
-  sw-sales-channel-detail-domains
-  sw-sales-channel-detail-domains__domain-currency-select
-  sw-sales-channel-detail-domains__domain-language-select
-  sw-sales-channel-detail-domains__domain-snippet-set-select
-  sw-sales-channel-detail-domains__domain-url-link
-  sw-sales-channel-detail-domains__headline
-  sw-sales-channel-detail-domains__headline-text
-  sw-sales-channel-detail-domains__is-external-storefront
-  sw-sales-channel-detail-domains__meta
-  sw-sales-channel-detail__button-domain-add
 ```

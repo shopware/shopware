@@ -66,9 +66,4 @@ blocks
 
 refs
   sidebarItem  -> sw-sidebar-item
-
-classes
-  sw-sidebar-media-item
-  sw-sidebar-media-item__content
-  sw-sidebar-media-item__load-more-button
 ```

@@ -44,17 +44,4 @@ blocks
     sw_settings_customer_group_detail_smart_bar_header  [inherited] [private]
       sw_settings_customer_group_detail_smart_bar_header_title  [inherited] [private]
         sw_settings_customer_group_detail_smart_bar_header_title_text  [inherited] [private]
-
-classes
-  sw-settings-customer-group-detail  [private]
-  sw-settings-customer-group-detail-content-registration-card__info-text  [private]
-  sw-settings-customer-group-detail__cancel  [private]
-  sw-settings-customer-group-detail__name  [private]
-  sw-settings-customer-group-detail__price-basis  [private]
-  sw-settings-customer-group-detail__registration-form-switch  [private]
-  sw-settings-customer-group-detail__registration-form-title  [private]
-  sw-settings-customer-group-detail__registration-only-companies-can-register  [private]
-  sw-settings-customer-group-detail__sales-channel  [private]
-  sw-settings-customer-group-detail__save  [private]
-  sw-settings-customer-group-detail__tax-display  [private]
 ```

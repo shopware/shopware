@@ -59,8 +59,8 @@ methods
   createdComponent(): any
   fetchEntries(ids: any, allEntries: any): any
   getAllStates(): any
-  getStateHistoryEntries(): any
-  getTransitionOptions(): any
+  getStateHistoryEntries(): Promise<any>
+  getTransitionOptions(): Promise<any>
   loadHistory(): any
   onCancelCreation(): any
   onDeliveryStateSelected(actionName: any): Promise<any>
@@ -77,10 +77,4 @@ blocks
       sw_order_state_history_card_delivery
       sw_order_state_history_card_order
       sw_order_state_history_card_transaction
-
-classes
-  sw-order-state-card
-  sw-order-state-history-card__delivery-state
-  sw-order-state-history-card__order-state
-  sw-order-state-history-card__payment-state
 ```

@@ -24,8 +24,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config
-
-classes
-  is--disabled
-  sw-users-permissions-configuration
 ```

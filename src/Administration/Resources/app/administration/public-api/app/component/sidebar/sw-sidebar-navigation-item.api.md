@@ -27,10 +27,4 @@ methods
 blocks
   sw_sidebar_navigation_item  [private]
     sw_sidebar_navigation_item_content  [private]
-
-classes
-  dot--badge  [private]
-  notification--badge  [private]
-  sidebar-item-badge  [private]
-  sw-sidebar-navigation-item  [private]
 ```

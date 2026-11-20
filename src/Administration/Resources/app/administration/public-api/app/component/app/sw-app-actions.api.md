@@ -69,17 +69,4 @@ blocks
 
 refs
   innerFrame  -> iframe  [private]
-
-classes
-  footer-buttons  [private]
-  is-expanded  [private]
-  sw-app-action-button-iframe  [private]
-  sw-app-action-button-modal-confirm  [private]
-  sw-app-action-button__icon  [private]
-  sw-app-actions  [private]
-  sw-app-actions__action-button  [private]
-  sw-app-actions__empty  [private]
-  sw-modal-app-action-button  [private]
-  sw-modal__close  [private]
-  sw-modal__title  [private]
 ```

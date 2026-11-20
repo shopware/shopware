@@ -38,12 +38,4 @@ blocks
         sw_product_settings_mode_advanced_switch  [until v6.8.0]
     sw_product_settings_mode_trigger  [until v6.8.0]
       sw_product_settings_mode_trigger_icon  [until v6.8.0]
-
-classes
-  sw-product-settings-mode  [until v6.8.0]
-  sw-product-settings-mode__advanced-mode  [until v6.8.0]
-  sw-product-settings-mode__container  [until v6.8.0]
-  sw-product-settings-mode__item  [until v6.8.0]
-  sw-product-settings-mode__list  [until v6.8.0]
-  sw-product-settings-mode__trigger  [until v6.8.0]
 ```

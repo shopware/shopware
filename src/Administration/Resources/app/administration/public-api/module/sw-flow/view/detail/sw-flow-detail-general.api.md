@@ -33,14 +33,4 @@ blocks
       sw_flow_detail_general_information_description  [private]
       sw_flow_detail_general_information_name  [private]
       sw_flow_detail_general_information_priority  [private]
-
-classes
-  sw-flow-detail-general  [private]
-  sw-flow-detail-general__general-active  [private]
-  sw-flow-detail-general__general-card  [private]
-  sw-flow-detail-general__general-description  [private]
-  sw-flow-detail-general__general-name  [private]
-  sw-flow-detail-general__general-priority  [private]
-  sw-flow-detail-general__template  [private]
-  sw-flow-detail-general__warning-unknow-trigger  [private]
 ```

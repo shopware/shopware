@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_youtube_video  [private]
     sw_cms_block_youtube_video_slot  [private]
-
-classes
-  sw-cms-block-youtube-video  [private]
 ```

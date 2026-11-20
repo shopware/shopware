@@ -69,17 +69,4 @@ blocks
       sw_custom_field_detail_modal_store_api_aware
       sw_custom_field_detail_modal_technical_name
       sw_custom_field_detail_modal_type
-
-classes
-  sw-custom-field-detail
-  sw-custom-field-detail__allow-cart-expose
-  sw-custom-field-detail__allow-customer-write
-  sw-custom-field-detail__allow-searchable
-  sw-custom-field-detail__footer-save
-  sw-custom-field-detail__info
-  sw-custom-field-detail__modal-position
-  sw-custom-field-detail__modal-type
-  sw-custom-field-detail__searchable-banner
-  sw-custom-field-detail__store-api-aware
-  sw-custom-field-detail__technical-name
 ```

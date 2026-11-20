@@ -42,8 +42,4 @@ methods
   onChangeLanguage(languageId: any): any
   onChangeMeasurementSystem(technicalName: any): Promise<any>
   onSave(): Promise<any>
-
-classes
-  sw-settings-measurement
-  sw-settings-measurement__save-action
 ```

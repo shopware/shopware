@@ -22,7 +22,4 @@ computed
 
 blocks
   sw_status  [private]
-
-classes
-  sw-status  [private]
 ```

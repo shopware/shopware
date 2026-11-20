@@ -37,7 +37,4 @@ blocks
     sw_bulk_edit_order_documents_container
       sw_bulk_edit_order_documents_skip_sent_documents
       sw_bulk_edit_order_documents_type
-
-classes
-  sw-bulk-edit-order-documents
 ```

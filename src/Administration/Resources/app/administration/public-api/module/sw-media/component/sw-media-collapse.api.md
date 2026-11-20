@@ -30,13 +30,4 @@ blocks
       sw_collapse_panel_header_slot  [replaced]
         sw_media_collapse_buttons
         sw_media_collapse_title
-
-classes
-  sw-collapse
-  sw-collapse__content
-  sw-collapse__header
-  sw-media-collapse__button
-  sw-media-collapse__header
-  sw-media-collapse__indicator
-  sw-media-collapse__title
 ```

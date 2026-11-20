@@ -13,9 +13,4 @@ component sw-cms-preview-text-teaser-section  private  js  [private]
 
 blocks
   sw_cms_block_text_teaser_section_preview  [private]
-
-classes
-  sw-cms-preview-text-teaser-section  [private]
-  sw-cms-preview-text-teaser-section__left  [private]
-  sw-cms-preview-text-teaser-section__right  [private]
 ```

@@ -30,7 +30,4 @@ blocks
     sw_shopware_updates_extensions_column_action  [private]
     sw_shopware_updates_extensions_column_icon  [private]
     sw_shopware_updates_extensions_empty_state  [private]
-
-classes
-  sw-shopware-updates-extensions__empty-state  [private]
 ```

@@ -21,7 +21,4 @@ props
 blocks
   sw_help_text  [private]
     sw_help_text_icon  [private]
-
-classes
-  sw-help-text  [private]
 ```

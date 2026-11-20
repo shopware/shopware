@@ -37,7 +37,7 @@ computed
   productMediaRepository: any
 
 methods
-  addMedia(media: any): any
+  addMedia(media: any): Promise<any>
   createdComponent(): any
   getMediaDefaultFolderId(): any
   isCover(productMedia: any): any
@@ -86,29 +86,4 @@ refs
   dropzone  -> div
   fileForm  -> form
   fileInput  -> input
-
-classes
-  is--compact--button
-  is--cover
-  is--disabled
-  sw-media-upload-v2
-  sw-media-upload-v2__actions
-  sw-media-upload-v2__button
-  sw-media-upload-v2__content
-  sw-media-upload-v2__dropzone
-  sw-media-upload-v2__file-input
-  sw-media-upload-v2__form
-  sw-media-upload-v2__preview
-  sw-product-variants-media-upload
-  sw-product-variants-media-upload__browse-button
-  sw-product-variants-media-upload__browse-icon
-  sw-product-variants-media-upload__compact-button
-  sw-product-variants-media-upload__context-button
-  sw-product-variants-media-upload__cover-image
-  sw-product-variants-media-upload__image
-  sw-product-variants-media-upload__images
-  sw-product-variants-media-upload__preview-cover
-  sw-product-variants-media-upload__preview-images
-  sw-product-variants-media-upload__regular-button
-  upload
 ```

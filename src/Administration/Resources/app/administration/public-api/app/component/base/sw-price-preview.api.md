@@ -18,7 +18,4 @@ computed
 blocks
   sw_price_field  [replaced] [private]
     sw_price_preview  [private]
-
-classes
-  sw-price-preview  [private]
 ```

@@ -35,7 +35,7 @@ methods
   createdComponent(): any
   duplicate(): Promise<any>
   duplicateVariant(duplicate: any, ids: any, callback: any): any
-  getChildrenIds(): any
+  getChildrenIds(): Promise<any>
   verifyVariants(duplicate: any): any
 
 blocks
@@ -43,10 +43,4 @@ blocks
     sw_product_clone_modal_description
     sw_product_clone_modal_progress_bar
     sw_product_clone_modal_progress_bar_description
-
-classes
-  clone-variant-progress-bar
-  clone-variant-progress-bar__description
-  clone-variant__description
-  clone-variant__modal
 ```

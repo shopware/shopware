@@ -44,12 +44,12 @@ computed
 
 methods
   createdComponent(): any
-  getList(): any
+  getList(): Promise<any>
   getTypeCellComponent(taxRule: any): any
   hasTypeCellComponent(taxRule: any): any
   onCloseDeleteModal(): any
   onColumnSort(column: any): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onModalClose(): any
   onSearchTermChange(searchTerm: any): any
@@ -81,13 +81,4 @@ blocks
       sw_tax_rule_card_header_filter
         sw_tax_rule_card_header_create_rule_button
           sw_tax_rule_card_header_create_document_button_label
-
-classes
-  sw-settings-tax-list__confirm-delete-text
-  sw-settings-tax-rule-card__empty-state
-  sw-settings-tax-rule-card__empty-state--button
-  sw-tax-list__delete-action
-  sw-tax-list__edit-action
-  sw-tax-rule-card
-  sw-tax-rule-grid-button
 ```

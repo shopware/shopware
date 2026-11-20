@@ -53,8 +53,8 @@ methods
   onSingleOptionDelete(option: any): any
   refreshOptionList(): any
   resetSelectionState(): any
-  saveGroupLocal(): any
-  saveGroupRemote(): any
+  saveGroupLocal(): Promise<any>
+  saveGroupRemote(): Promise<any>
 
 blocks
   sw_property_option_list
@@ -73,12 +73,4 @@ blocks
 
 refs
   grid  -> sw-one-to-many-grid
-
-classes
-  sw-property-option-list
-  sw-property-option-list__add-button
-  sw-property-option-list__delete-button
-  sw-property-option-list__edit-action
-  sw-property-option-list__toolbar
-  sw-settings-option-detail__link
 ```

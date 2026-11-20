@@ -34,15 +34,10 @@ computed
 methods
   createdComponent(): Promise<any>  [private]
   loadMailerSettings(): Promise<any>  [private]
-  saveMailerSettings(): any  [private]
+  saveMailerSettings(): Promise<any>  [private]
   setTitle(): any  [private]
   updateButtons(): any  [private]
 
 blocks
   sw_first_run_wizard_mailer_local  [private]
-
-classes
-  sw-first-run-wizard-mailer-local  [private]
-  sw-first-run-wizard-mailer-local__headline  [private]
-  sw-first-run-wizard-mailer-local__selection  [private]
 ```

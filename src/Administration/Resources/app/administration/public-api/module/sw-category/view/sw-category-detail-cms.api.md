@@ -24,7 +24,4 @@ blocks
   sw_category_detail_cms
     sw_category_detail_cms_form  [after v-if]
     sw_category_detail_cms_layout
-
-classes
-  sw-category-detail__cms
 ```

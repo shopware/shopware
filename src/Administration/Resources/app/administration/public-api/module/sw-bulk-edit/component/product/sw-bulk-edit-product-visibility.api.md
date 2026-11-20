@@ -38,13 +38,4 @@ blocks
 refs
   productVisibilitiesInheritance  -> sw-inherit-wrapper
   productVisibility  -> sw-product-visibility-select
-
-classes
-  advanced-visibility
-  is--disabled
-  sw-bulk-edit-product-visibility
-  sw-card__quick-link
-  sw-product-category-form__visibility_field
-  sw-product-category-form__visibility_modal
-  sw-product-detail__select-visibility
 ```

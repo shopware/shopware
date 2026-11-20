@@ -13,11 +13,4 @@ component sw-cms-preview-form  private  js  [private]
 
 blocks
   sw_cms_block_form_preview  [private]
-
-classes
-  sw-cms-preview-form  [private]
-  sw-cms-preview-form-headline  [private]
-  sw-cms-preview-form-input  [private]
-  sw-cms-preview-form-inputs  [private]
-  sw-cms-preview-form-inputs__action  [private]
 ```

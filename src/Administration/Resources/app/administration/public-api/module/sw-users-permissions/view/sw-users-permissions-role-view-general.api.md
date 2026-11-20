@@ -44,9 +44,4 @@ blocks
     sw_users_permissions_role_role_view_general_mcp_hint
   sw_users_permissions_role_role_view_general_card_view_permissions
   sw_users_permissions_role_role_view_general_mcp_modal  [after v-if]
-
-classes
-  sw-users-permissions-role-view-general
-  sw-users-permissions-role-view-general__mcp-hint
-  sw-users-permissions-role-view-general__mcp-hint-link
 ```

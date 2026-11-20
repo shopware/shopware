@@ -63,7 +63,7 @@ methods
   getCustomFieldColumns(): any
   getCustomFieldList(): any
   getFeaturesIds(type: any): any
-  getList(repository: any, criteria: any, callback: any): any
+  getList(repository: any, criteria: any, callback: any): Promise<any>
   getProductInformationColumns(): any
   getProductInformationList(): any
   getPropertyGroupColumns(): any
@@ -104,10 +104,4 @@ blocks
 refs
   customFieldGrid  -> sw-data-grid
   propertyGroupGrid  -> sw-data-grid
-
-classes
-  sw-product-feature-set-modal-custom-field-list__toolbar
-  sw-product-feature-set-modal-property-list__toolbar
-  sw-settings-product-feature-sets-modal__options
-  sw-settings-product-feature-sets__modal
 ```

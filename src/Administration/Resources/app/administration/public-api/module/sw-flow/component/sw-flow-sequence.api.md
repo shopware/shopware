@@ -31,9 +31,4 @@ blocks
     sw_flow_sequence_false_block  [after v-if] [private]
     sw_flow_sequence_selector  [private]
     sw_flow_sequence_true_block  [private]
-
-classes
-  sw-flow-sequence  [private]
-  sw-flow-sequence__false-block  [private]
-  sw-flow-sequence__true-block  [private]
 ```

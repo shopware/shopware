@@ -82,15 +82,4 @@ blocks
     sw_flow_set_entity_custom_field_modal_footer  [private]
       sw_flow_set_entity_custom_field_modal_footer_cancel_button  [private]
       sw_flow_set_entity_custom_field_modal_footer_save_button  [private]
-
-classes
-  sw-flow-set-entity-custom-field-modal  [private]
-  sw-flow-set-entity-custom-field-modal__cancel-button  [private]
-  sw-flow-set-entity-custom-field-modal__content  [private]
-  sw-flow-set-entity-custom-field-modal__custom-field  [private]
-  sw-flow-set-entity-custom-field-modal__custom-field-set  [private]
-  sw-flow-set-entity-custom-field-modal__custom-field-value  [private]
-  sw-flow-set-entity-custom-field-modal__custom-field-value-options  [private]
-  sw-flow-set-entity-custom-field-modal__entity-field  [private]
-  sw-flow-set-entity-custom-field-modal__save-button  [private]
 ```

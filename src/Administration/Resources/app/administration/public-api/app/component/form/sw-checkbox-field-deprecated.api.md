@@ -59,10 +59,4 @@ methods
 
 blocks
   sw_checkbox_field  [private]
-
-classes
-  sw-field--checkbox  [private]
-  sw-field--checkbox__content  [private]
-  sw-field__checkbox  [private]
-  sw-field__checkbox-state  [private]
 ```

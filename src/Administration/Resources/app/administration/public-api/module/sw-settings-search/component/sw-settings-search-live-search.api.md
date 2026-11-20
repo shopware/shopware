@@ -75,19 +75,4 @@ blocks
 crossings
   v-if  sw_search_bar_results_empty_state -> sw_settings_search_view_live_search_results_search_grid
   v-if  sw_settings_search_view_live_search_results_search_grid -> sw_settings_search_view_live_search_results_no_result
-
-classes
-  sw-settings-search-live-search
-  sw-settings-search-live-search__description
-  sw-settings-search-live-search__grid-result
-  sw-settings-search-live-search__grid-result__score
-  sw-settings-search-live-search__no-result
-  sw-settings-search-live-search__rebuild-index-row
-  sw-settings-search-live-search__sales-channel-select
-  sw-settings-search-live-search__search-container
-  sw-settings-search-live-search__search-results
-  sw-settings-search-live-search__search-results-loader
-  sw-settings-search-live-search__search_box
-  sw-settings-search-live-search__show-example-link
-  sw-settings-search-live-search__sorting-select
 ```

@@ -80,23 +80,4 @@ crossings
 
 refs
   elementComponentRef  -> component  [private]
-
-classes
-  element-selection__element  [private]
-  element-selection__element-wrapper  [private]
-  element-selection__label  [private]
-  element-selection__overlay  [private]
-  element-selection__overlay-action-favorite  [private]
-  element-selection__overlay-action-select  [private]
-  sw-cms-slot  [private]
-  sw-cms-slot__actions  [private]
-  sw-cms-slot__config-modal  [private]
-  sw-cms-slot__element-action  [private]
-  sw-cms-slot__element-not-found  [private]
-  sw-cms-slot__element-preview  [private]
-  sw-cms-slot__element-selection  [private]
-  sw-cms-slot__modal-container  [private]
-  sw-cms-slot__overlay  [private]
-  sw-cms-slot__preview-overlay  [private]
-  sw-cms-slot__settings-action  [private]
 ```

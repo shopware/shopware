@@ -100,21 +100,4 @@ blocks
       sw_order_detail_details_shipping_date  [after v-if] [scope: index, shipment]
       sw_order_detail_details_shipping_method_select  [scope: index, shipment]
       sw_order_detail_details_shipping_tracking_codes  [scope: index, shipment]
-
-classes
-  sw-order-detail-details
-  sw-order-detail-details__affiliate-code
-  sw-order-detail-details__billing-address
-  sw-order-detail-details__campaign-code
-  sw-order-detail-details__customer-comment
-  sw-order-detail-details__divider
-  sw-order-detail-details__email
-  sw-order-detail-details__field-hint
-  sw-order-detail-details__field-hint__icon
-  sw-order-detail-details__internal-comment
-  sw-order-detail-details__phone-number
-  sw-order-detail-details__shipping-address
-  sw-order-detail-details__shipping-cost  [until v6.8.0]
-  sw-order-detail-state-card__divider
-  sw-order-user-card__tracking-code-select
 ```

@@ -109,12 +109,4 @@ blocks
 
 refs
   sw-order-line-item-grid-sales-channel  -> sw-order-line-items-grid-sales-channel
-
-classes
-  sw-order-create-base__line-item-grid-card
-  sw-order-create-summary
-  sw-order-create-summary__data
-  sw-order-create-summary__switch-promotions
-  sw-order-create__card
-  sw-order-user-card
 ```

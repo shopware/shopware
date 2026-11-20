@@ -36,7 +36,7 @@ props
   hideLabels?: boolean  default=literal  [private]
   highlightSearchTerm?: boolean  default=literal  [private]
   label?: string  default=literal  [private]
-  labelProperty?: string | any[]  default=literal  [private]
+  labelProperty?: any[] | string  default=literal  [private]
   placeholder?: string  default=literal  [private]
   resultLimit?: number  default=literal  [private]
   selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
@@ -93,7 +93,7 @@ methods
   getKey(object: any, keyPath: any, defaultValue: any): any  [private]
   isSelected(item: any): any  [private]
   isSelectionDisabled(selection: any): any  [private]
-  loadData(): any  [private]
+  loadData(): Promise<any>  [private]
   onAdvancedSelectionSubmit(selectedItems: any): any  [private]
   onSearchTermChange(term: any): any  [private]
   onSelectCollapsed(): any  [private]
@@ -133,9 +133,4 @@ refs
   selectBase  -> sw-select-base  [private]
   selectionList  -> sw-select-selection-list  [private]
   swSelectResultList  -> sw-select-result-list  [private]
-
-classes
-  sw-entity-multi-select  [private]
-  sw-multi-select-filtering__advanced-selection  [private]
-  sw-select-result  [private]
 ```

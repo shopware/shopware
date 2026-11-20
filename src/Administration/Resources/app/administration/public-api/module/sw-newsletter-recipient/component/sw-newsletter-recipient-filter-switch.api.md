@@ -27,7 +27,4 @@ methods
 blocks
   sw_newsletter_recipient_filter_switch  [deprecated tag:v6.8.0]
     sw_newsletter_recipient_filter_switch_field  [deprecated tag:v6.8.0]
-
-classes
-  sw-newsletter-recipient-filter-switch
 ```

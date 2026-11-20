@@ -38,10 +38,4 @@ methods
   sendInvitation(): Promise<any>  [private]
   validateEmail(): any  [private]
   validateLanguage(): any  [private]
-
-classes
-  sw-users-permissions-sso-modal-close-button  [private]
-  sw-users-permissions-sso-modal-field-email  [private]
-  sw-users-permissions-sso-modal-field-language  [private]
-  sw-users-permissions-sso-modal-save-button  [private]
 ```

@@ -16,7 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_slider_preview  [private]
-
-classes
-  sw-cms-preview-image-slider  [private]
 ```

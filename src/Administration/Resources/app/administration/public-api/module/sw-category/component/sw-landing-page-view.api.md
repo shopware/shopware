@@ -34,11 +34,4 @@ blocks
       sw_landing_page_view_mt_tabs_permission_warning  [after v-if] [from v6.8.0]
       sw_landing_page_view_tabs_cms  [until v6.8.0]
       sw_landing_page_view_tabs_general  [until v6.8.0]
-
-classes
-  sw-category-detail__tab-base  [until v6.8.0]
-  sw-customer-detail-page__tabs
-  sw-landing-page-detail__tab-cms  [until v6.8.0]
-  sw-landing-page-view__cms-permission-warning  [from v6.8.0]
-  sw-landing_page-view
 ```

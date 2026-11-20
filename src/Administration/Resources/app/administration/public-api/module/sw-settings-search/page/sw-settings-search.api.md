@@ -77,11 +77,4 @@ blocks
       sw_settings_search_smart_bar_actions_save
     sw_settings_search_smart_bar_header
       sw_settings_search_smart_bar_header_title_text
-
-classes
-  sw-settings-search
-  sw-settings-search__button-save
-  sw-settings-search__general-tab  [until v6.8.0]
-  sw-settings-search__live-search-tab  [until v6.8.0]
-  sw_settings_search_leave_modal
 ```

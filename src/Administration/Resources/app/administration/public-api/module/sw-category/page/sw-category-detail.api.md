@@ -78,12 +78,12 @@ methods
   createdComponent(): any
   deleteSpecifcKeys(sections: any): any  [deprecated tag:v6.8.0]
   extractSlotOverrides(origin: any, changes: any): any  [deprecated tag:v6.8.0]
-  getAssignedCmsPage(): any
-  getAssignedCmsPageForLandingPage(): any
+  getAssignedCmsPage(): Promise<any>
+  getAssignedCmsPageForLandingPage(): Promise<any>
   getCmsPageOverrides(): any  [deprecated tag:v6.8.0]
   landingPageCheckedElementsCount(count: any): any
-  loadCustomFieldSet(): any
-  loadLandingPageCustomFieldSet(): any
+  loadCustomFieldSet(): Promise<any>
+  loadLandingPageCustomFieldSet(): Promise<any>
   onCategoryDelete(): any
   onChangeLanguage(newLanguageId: any): any
   onLandingPageDelete(): any
@@ -91,7 +91,7 @@ methods
   onLeaveModalConfirm(destination: any): any
   onSave(): Promise<any>
   onSaveCategories(): any
-  onSaveLandingPage(): any
+  onSaveLandingPage(): Promise<any>
   onSearch(value: any): any
   openChangeModal(destination: any): any
   registerListener(): any
@@ -102,7 +102,7 @@ methods
   setLandingPage(): Promise<any>
   updateCmsPageDataMapping(): any
   updateCmsPageDataMappingForLandingPage(): any
-  updateSeoUrls(): any
+  updateSeoUrls(): Promise<any>
 
 blocks
   sw_category
@@ -135,15 +135,4 @@ refs
   landingPageTree  -> sw-landing-page-tree
   landingPageView  -> sw-landing-page-view
   searchBar  -> sw-search-bar
-
-classes
-  sw-category
-  sw-category-detail__category-collapse
-  sw-category-detail__collapse-headline
-  sw-category-detail__collapse-selected-count
-  sw-category-detail__landing-page-collapse
-  sw-category-detail__save-action
-  sw-category-detail__save-landing-page-action
-  sw-category__content
-  sw-tree-actions__delete_categories
 ```

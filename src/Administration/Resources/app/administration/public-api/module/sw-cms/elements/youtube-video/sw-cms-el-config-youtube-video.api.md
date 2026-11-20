@@ -62,13 +62,4 @@ blocks
     sw_cms_element_youtube_video_config_start  [private]
     sw_cms_element_youtube_video_config_title  [private]
     sw_cms_element_youtube_video_config_video_id  [private]
-
-classes
-  sw-cms-el-config-image__mapping-preview  [private]
-  sw-cms-el-config-image__preview-info  [private]
-  sw-cms-el-config-youtube-video  [private]
-  sw-cms-el-config-youtube-video__confirmation  [private]
-  sw-cms-el-config-youtube-video__start-and-end  [private]
-  sw-cms-el-config-youtube-video__switches  [private]
-  sw-cms-el-config-youtube-video__video-id  [private]
 ```

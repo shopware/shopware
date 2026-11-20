@@ -22,7 +22,4 @@ methods
 
 blocks
   sw_field_error  [private]
-
-classes
-  sw-field__error  [private]
 ```

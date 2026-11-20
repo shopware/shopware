@@ -16,7 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_four_column_preview  [private]
-
-classes
-  sw-cms-preview-image-four-column  [private]
 ```

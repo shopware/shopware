@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_text_on_image  [private]
-
-classes
-  sw-cms-block-text-on-image  [private]
 ```

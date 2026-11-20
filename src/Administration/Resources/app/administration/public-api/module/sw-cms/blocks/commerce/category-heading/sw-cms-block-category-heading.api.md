@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_category_heading  [private]
     sw_cms_block_category_heading_slot_content  [private]
-
-classes
-  sw-cms-block-category-heading  [private]
 ```

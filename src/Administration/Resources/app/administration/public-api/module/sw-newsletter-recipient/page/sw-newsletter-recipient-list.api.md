@@ -107,12 +107,4 @@ crossings
 
 refs
   swNewsletterRecipientGrid  -> sw-entity-listing
-
-classes
-  sw-newsletter-recipient-list
-  sw-newsletter-recipient-list__content
-  sw-newsletter-recipient-list__grid
-  sw-newsletter-recipient-list__inline-edit-first-name
-  sw-newsletter-recipient-list__inline-edit-last-name
-  sw-page__smart-bar-amount
 ```

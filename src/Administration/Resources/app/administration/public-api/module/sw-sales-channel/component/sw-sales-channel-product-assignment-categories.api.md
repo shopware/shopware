@@ -45,7 +45,7 @@ methods
   createdComponent(): any
   getBreadcrumb(item: any): any
   getProductFromCategories(categories: any): any
-  getTreeItems(parentId?: any): any
+  getTreeItems(parentId?: any): Promise<any>
   isSearchItemChecked(itemId: any): any
   onChangeSearchTerm(searchTerm: any): any
   onCheckItem(item: any): any
@@ -88,13 +88,4 @@ refs
   alert  -> mt-banner
   cardSectionSecondary  -> sw-card-section
   swTree  -> sw-tree
-
-classes
-  sw-sales-channel-product-assignment-categories
-  sw-sales-channel-product-assignment-categories__empty-state
-  sw-sales-channel-product-assignment-categories__search-result
-  sw-sales-channel-product-assignment-categories__search-results
-  sw-sales-channel-product-assignment-categories__search-results-checkbox
-  sw-sales-channel-product-assignment-categories__search-results-icon
-  sw-sales-channel-product-assignment-categories__search-results-name
 ```

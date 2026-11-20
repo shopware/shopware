@@ -69,7 +69,4 @@ blocks
 crossings
   v-if  sw_wizard_slot_footer_left_buttons_close -> sw_wizard_slot_footer_left_buttons_back  [private]
   v-if  sw_wizard_slot_footer_right_button_finish -> sw_wizard_slot_footer_right_button_next  [private]
-
-classes
-  sw-wizard  [private]
 ```

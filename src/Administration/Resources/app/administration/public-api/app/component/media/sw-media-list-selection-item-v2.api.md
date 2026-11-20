@@ -38,10 +38,4 @@ blocks
 
 crossings
   v-if  sw_media_list_selection_item_v2_preview -> sw_media_list_selection_item_v2_placeholder  [private]
-
-classes
-  sw-media-list-selection-item-v2  [private]
-  sw-media-list-selection-item-v2__context-button  [private]
-  sw-media-list-selection-item-v2__image  [private]
-  sw-media-list-selection-item-v2__placeholder-icon  [private]
 ```

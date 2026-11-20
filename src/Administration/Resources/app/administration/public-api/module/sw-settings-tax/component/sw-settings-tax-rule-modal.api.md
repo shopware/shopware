@@ -53,7 +53,4 @@ blocks
       sw_settings_tax_rule_modal_additional_component
       sw_settings_tax_rule_modal_tax_active_from
       sw_settings_tax_rule_modal_tax_rate  [after v-if]
-
-classes
-  sw-settings-tax-rule-modal__settings-modal
 ```

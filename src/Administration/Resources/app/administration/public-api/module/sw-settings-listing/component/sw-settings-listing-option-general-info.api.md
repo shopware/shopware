@@ -22,9 +22,4 @@ blocks
       sw_settings_listing_option_general_info_active
       sw_settings_listing_option_general_info_name
       sw_settings_listing_option_general_info_technical_name
-
-classes
-  sw-settings-listing-option-general-info__field-active
-  sw-settings-listing-option-general-info__field-name
-  sw-settings-listing-option-general-info__field-technical-name
 ```

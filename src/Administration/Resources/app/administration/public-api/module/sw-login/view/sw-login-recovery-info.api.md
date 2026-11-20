@@ -26,11 +26,4 @@ blocks
       sw_login_recovery_info_headline  [private]
       sw_login_recovery_info_icon  [private]
       sw_login_recovery_info_text  [private]
-
-classes
-  sw-login-recovery-info  [private]
-  sw-login__content-description  [private]
-  sw-login__status  [private]
-  sw-login__status-headline  [private]
-  sw-login__status-icon  [private]
 ```

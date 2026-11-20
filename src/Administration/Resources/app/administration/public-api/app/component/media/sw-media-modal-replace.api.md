@@ -44,10 +44,4 @@ blocks
     sw_media_modal_replace_modal_footer  [after v-if]
       sw_media_modal_replace_cancel_button
       sw_media_modal_replace_replace_button
-
-classes
-  sw-media-modal-replace
-  sw-media-modal-replace__file-extension-warning
-  sw-media-modal-replace__upload
-  sw-media-replace__replace-media-action
 ```

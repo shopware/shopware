@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_video  [private]
     sw_cms_block_video_slot_video  [private]
-
-classes
-  sw-cms-block-video  [private]
 ```

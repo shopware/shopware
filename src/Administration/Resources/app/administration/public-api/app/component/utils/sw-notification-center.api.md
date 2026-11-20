@@ -52,20 +52,4 @@ blocks
       sw_notification_center_delete_modal_footer  [private]
         sw_notification_center_delete_modal_cancel  [private]
         sw_notification_center_delete_modal_confirm  [private]
-
-classes
-  is--active  [private]
-  sw-notification-center__content  [private]
-  sw-notification-center__context-button  [private]
-  sw-notification-center__empty-state  [private]
-  sw-notification-center__empty-state--ringing  [private]
-  sw-notification-center__empty-state-bell-button  [private]
-  sw-notification-center__empty-state-wrapper  [private]
-  sw-notification-center__header  [private]
-  sw-notification-center__notification-container  [private]
-  sw-notification-center__options-button  [private]
-  sw-notification-center__options-menu  [private]
-  sw-notification-center__popover  [private]
-  sw-notification-center__title  [private]
-  sw_notification_center__confirm-delete-text  [private]
 ```

@@ -49,11 +49,4 @@ blocks
         sw_bulk_edit_change_type_field_renderer_change_field_title  [scope: formField, index]
       sw_bulk_edit_change_type_field_renderer_change_form_value_field  [scope: formField, index]
       sw_bulk_edit_change_type_field_renderer_change_form_value_field_without_change_type  [after v-if] [scope: formField, index]
-
-classes
-  is--select-box-type
-  sw-bulk-edit-change-field-renderer
-  sw-bulk-edit-change-field-renderer__change-field
-  sw-bulk-edit-change-field-renderer__inheritance-group-field
-  sw-bulk-edit-change-field__change
 ```

@@ -57,8 +57,4 @@ blocks
 
 refs
   customFieldList  -> sw-custom-field-list
-
-classes
-  sw-settings-set-detail
-  sw-settings-set-detail__save-action
 ```

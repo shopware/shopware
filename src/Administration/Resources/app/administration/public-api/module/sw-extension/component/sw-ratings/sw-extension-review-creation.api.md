@@ -56,9 +56,4 @@ blocks
       sw_extension_review_creation_buttons_submit_button  [private]
     sw_extension_review_creation_gtc_checkbox  [private]
     sw_extension_review_creation_inputs  [private]
-
-classes
-  sw-extension-review-creation  [private]
-  sw-extension-review-creation__buttons  [private]
-  sw-extension-review-creation__submit  [private]
 ```

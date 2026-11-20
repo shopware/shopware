@@ -35,10 +35,4 @@ blocks
       sw_property_detail_smart_bar_actions_save  [inherited]
     sw_property_detail_smart_bar_header  [inherited]
       sw_property_detail_smart_bar_header_title  [inherited]
-
-classes
-  sw-property-create__option-list-empty-state
-  sw-property-detail
-  sw-property-detail__back-action
-  sw-property-detail__save-action
 ```

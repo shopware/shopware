@@ -30,9 +30,4 @@ blocks
       sw_collapse_panel_content_slot  [private]
     sw_collapse_panel_header  [private]
       sw_collapse_panel_header_slot  [private]
-
-classes
-  sw-collapse  [private]
-  sw-collapse__content  [private]
-  sw-collapse__header  [private]
 ```

@@ -58,7 +58,7 @@ methods
   onSearchTermChange(searchTerm: any): any
   renderComponent(): any
   resetData(): any
-  saveConfig(): any
+  saveConfig(): Promise<any>
   selectionChanged(selection: any): any
   sliceItems(items: any): any
 
@@ -81,13 +81,4 @@ blocks
 refs
   dataGrid  -> sw-data-grid
   itemFilter  -> sw-card-filter
-
-classes
-  sw-settings-search-excluded-search-terms
-  sw-settings-search-excluded-search-terms-group-actions
-  sw-settings-search-excluded-search-terms__action-add
-  sw-settings-search-excluded-search-terms__header-bar
-  sw-settings-search-excluded-search-terms__insert-button
-  sw-settings-search-excluded-search-terms__reset-button
-  sw-settings-search__grid
 ```

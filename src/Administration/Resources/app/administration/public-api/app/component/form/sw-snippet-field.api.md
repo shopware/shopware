@@ -44,11 +44,4 @@ methods
 
 blocks
   sw_snippet_field  [private]
-
-classes
-  sw-snippet-field  [private]
-  sw-snippet-field__icon  [private]
-  sw-snippet-field__input-wrapper  [private]
-  sw-snippet-field__text  [private]
-  sw-snippet-field__textarea  [private]
 ```

@@ -43,15 +43,4 @@ methods
 
 blocks
   sw_app_wrong_app_url_modal  [private]
-
-classes
-  sw-app-wrong-app-url-modal  [private]
-  sw-app-wrong-app-url-modal__checks  [private]
-  sw-app-wrong-app-url-modal__command  [private]
-  sw-app-wrong-app-url-modal__content  [private]
-  sw-app-wrong-app-url-modal__content-description  [private]
-  sw-app-wrong-app-url-modal__content-image  [private]
-  sw-app-wrong-app-url-modal__content-link-button  [private]
-  sw-app-wrong-app-url-modal__details  [private]
-  sw-app-wrong-app-url-modal__explanation  [private]
 ```

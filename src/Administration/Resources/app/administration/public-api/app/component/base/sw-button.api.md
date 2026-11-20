@@ -13,7 +13,7 @@ component sw-button  private  js  [private]
 
 props
   deprecated?: boolean  default=literal  [private]
-  routerLink?: string | object  default=literal  [private]
+  routerLink?: object | string  default=literal  [private]
 
 slots
   default  {}  block=sw_button  [private]

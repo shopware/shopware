@@ -160,13 +160,4 @@ refs
   product-stream-value-select-value-visibilities  -> sw-entity-single-select  [private]
   product-stream-value-selected-placeholder  -> sw-container  [private]
   product-stream-value-single-value-component  -> component  [private]
-
-classes
-  product-view  [private]
-  sw-product-stream-value  [private]
-  sw-product-stream-value__operator-select  [private]
-  sw-product-stream-value__placeholder  [private]
-  sw-product-stream-value__select  [private]
-  sw-product-stream-value__time-input  [private]
-  sw-select-result__result-item-text  [private]
 ```

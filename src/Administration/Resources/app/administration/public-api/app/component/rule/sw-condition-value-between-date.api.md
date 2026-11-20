@@ -25,9 +25,4 @@ computed
 
 blocks
   sw_condition_value_between_date  [private]
-
-classes
-  sw-condition-value-between-date  [private]
-  sw-condition-value-between-date__from  [private]
-  sw-condition-value-between-date__to  [private]
 ```

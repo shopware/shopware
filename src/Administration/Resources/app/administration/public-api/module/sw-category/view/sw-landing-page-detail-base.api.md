@@ -43,11 +43,4 @@ blocks
         sw_landing_page_detail_base_seo_form_meta_description
         sw_landing_page_detail_base_seo_form_meta_title
         sw_landing_page_detail_base_seo_form_url
-
-classes
-  sw-landing-page-detail-base
-  sw-landing-page-detail-base__active
-  sw-landing-page-detail-base__sales_channel
-  sw-landing-page-detail-base__seo-form
-  sw-landing-page-detail-base__tags
 ```

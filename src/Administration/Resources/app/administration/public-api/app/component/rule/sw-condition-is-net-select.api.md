@@ -15,8 +15,4 @@ computed
 
 blocks
   sw_condition_type_select  [inherited]
-
-classes
-  sw-condition-operator-select
-  sw-condition-operator-select__select
 ```

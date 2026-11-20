@@ -70,18 +70,4 @@ blocks
 
 crossings
   v-if  sw_product_detail_cross_selling_items_wrapper -> sw_product_detail_cross_selling_empty_state_card
-
-classes
-  is--inherited
-  sw-product-detail-cross-selling
-  sw-product-detail-cross-selling__add-btn
-  sw-product-detail-cross-selling__cross-selling-list
-  sw-product-detail-cross-selling__empty-state
-  sw-product-detail-cross-selling__inherit-switch
-  sw-product-detail-cross-selling__inherit-toggle-wrapper
-  sw-product-detail-cross-selling__inheritance-icon
-  sw-product-detail-cross-selling__inheritance-label
-  sw-product-detail-cross-selling__restore-button
-  sw-product-detail-cross-selling__restore-inheritance-btn
-  sw-product-detail-cross-selling__restore-inheritance-modal
 ```

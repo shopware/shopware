@@ -77,11 +77,4 @@ blocks
     sw_manufacturer_detail_header
     sw_manufacturer_detail_language_switch
     sw_manufacturer_detail_sidebar  [deprecated tag:v6.8.0]
-
-classes
-  sw-manufacturer-detail
-  sw-manufacturer-detail__base-info-wrapper
-  sw-manufacturer-detail__container
-  sw-manufacturer-detail__logo-upload
-  sw-manufacturer-detail__save-action
 ```

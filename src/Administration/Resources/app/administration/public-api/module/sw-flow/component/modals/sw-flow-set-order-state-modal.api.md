@@ -43,7 +43,7 @@ methods
   buildTransitionOptions(stateMachineName: any, allTransitions: any): any  [private]
   createdComponent(): any  [private]
   generateOptions(data: any): any  [private]
-  getAllStates(): any  [private]
+  getAllStates(): Promise<any>  [private]
   onAddAction(): any  [private]
   onClose(): any  [private]
 
@@ -57,14 +57,4 @@ blocks
     sw_flow_set_order_state_modal_footer  [private]
       sw_flow_set_order_state_modal_footer_cancel_button  [private]
       sw_flow_set_order_state_modal_footer_save_button  [private]
-
-classes
-  sw-flow-set-order-state-modal  [private]
-  sw-flow-set-order-state-modal__cancel-button  [private]
-  sw-flow-set-order-state-modal__delivery-status  [private]
-  sw-flow-set-order-state-modal__force-transition  [private]
-  sw-flow-set-order-state-modal__order-status  [private]
-  sw-flow-set-order-state-modal__payment-status  [private]
-  sw-flow-set-order-state-modal__save-button  [private]
-  sw-flow-set-order-state-modal__warning-banner  [private]
 ```

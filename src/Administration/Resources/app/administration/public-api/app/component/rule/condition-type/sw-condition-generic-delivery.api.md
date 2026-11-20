@@ -48,17 +48,4 @@ blocks
         sw_condition_generic_field_operator  [inherited] [private]
         sw_condition_generic_fields  [inherited] [after v-if] [private]
     sw_condition_base_error  [inherited] [private]
-
-classes
-  sw-condition  [private]
-  sw-condition-generic  [private]
-  sw-condition-generic-delivery__applies-to  [private]
-  sw-condition-generic__input-wrapper  [private]
-  sw-condition-generic__input-wrapper--has-unit  [private]
-  sw-condition-generic__unit-menu  [private]
-  sw-condition__container  [private]
-  sw-condition__context-button  [private]
-  sw-condition__create-after-action  [private]
-  sw-condition__create-before-action  [private]
-  sw-condition__value-content  [private]
 ```

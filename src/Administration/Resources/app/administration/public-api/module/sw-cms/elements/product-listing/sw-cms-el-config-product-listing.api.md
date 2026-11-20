@@ -62,12 +62,12 @@ computed
 
 methods
   createdComponent(): any  [private]
-  fetchProductSortings(): any  [private]
+  fetchProductSortings(): Promise<any>  [private]
   initDefaultSorting(): any  [private]
   initProductSorting(): Promise<any>  [private]
   isActiveFilter(item: any): any  [private]
   isDefaultSorting(productSorting: any): any  [private]
-  loadFilterableProperties(): any  [private]
+  loadFilterableProperties(): Promise<any>  [private]
   onDefaultSortingChange(entity: any, defaultSorting: any): any  [private]
   onFilterInheritanceRemove(): any  [private]
   onFilterInheritanceRestore(): any  [private]
@@ -145,21 +145,4 @@ blocks
 crossings
   v-if  sw_cms_element_product_listing_config_filter_property_grid -> sw_cms_element_product_listing_config_filter_empty_state  [until v6.8.0] [private]
   v-if  sw_cms_element_product_listing_config_mt_filter_property_grid -> sw_cms_element_product_listing_config_mt_filter_empty_state  [from v6.8.0] [private]
-
-classes
-  spacer  [private]
-  sw-cms-el-config-product-listing  [private]
-  sw-cms-el-config-product-listing-config-sorting-grid__select  [private]
-  sw-cms-el-config-product-listing-custom-sortings  [private]
-  sw-cms-el-config-product-listing-filter_properties_as_filter__description-text  [private]
-  sw-cms-el-config-product-listing__config-filter  [private]
-  sw-cms-el-config-product-listing__config-filter-switch-container  [private]
-  sw-cms-el-config-product-listing__content-info  [private]
-  sw-cms-el-config-product-listing__property-grid  [private]
-  sw-cms-el-config-product-listing__property-grid-switch  [private]
-  sw-cms-el-config-product-listing__tab-content  [until v6.8.0] [private]
-  sw-cms-el-config-product-listing__tab-filter  [until v6.8.0] [private]
-  sw-cms-el-config-product-listing__tab-sorting  [until v6.8.0] [private]
-  sw-cms-element-config-product-listing__sorting-default-select  [private]
-  sw-cms-element-product-listing-config-filter-property-search  [private]
 ```

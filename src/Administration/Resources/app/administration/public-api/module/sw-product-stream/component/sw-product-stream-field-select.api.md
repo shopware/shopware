@@ -34,8 +34,4 @@ methods
 
 blocks
   sw_condition_base_field_condition  [private]
-
-classes
-  has--error  [private]
-  sw-product-stream-field-select  [private]
 ```

@@ -72,25 +72,4 @@ blocks
       sw_profile_index_general_information_module_icon_colors
       sw_profile_index_general_information_theme
       sw_profile_index_general_information_timezone
-
-classes
-  sw-profile--module-icon-colors
-  sw-profile--theme
-  sw-profile--timezone
-  sw-profile-index-general
-  sw-profile-index-general__grid
-  sw-profile-index-general__grid-email
-  sw-profile-index-general__grid-firstName
-  sw-profile-index-general__grid-language
-  sw-profile-index-general__grid-lastName
-  sw-profile-index-general__grid-module-icon-colors
-  sw-profile-index-general__grid-new-password
-  sw-profile-index-general__grid-new-password-confirm
-  sw-profile-index-general__grid-profile-picture
-  sw-profile-index-general__grid-theme
-  sw-profile-index-general__grid-timezone
-  sw-profile-index-general__grid-username
-  sw-profile-index-general__information-grid
-  sw-profile-index-general__password-grid
-  sw-profile-index-general__user-interface-grid
 ```

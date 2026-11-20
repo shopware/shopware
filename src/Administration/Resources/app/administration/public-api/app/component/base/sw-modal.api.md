@@ -74,15 +74,4 @@ blocks
 
 refs
   dialog  -> div  [private]
-
-classes
-  sw-modal  [private]
-  sw-modal__body  [private]
-  sw-modal__close  [private]
-  sw-modal__dialog  [private]
-  sw-modal__footer  [private]
-  sw-modal__header  [private]
-  sw-modal__subtitle  [private]
-  sw-modal__title  [private]
-  sw-modal__titles  [private]
 ```

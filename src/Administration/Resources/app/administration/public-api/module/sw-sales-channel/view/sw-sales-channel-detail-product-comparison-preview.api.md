@@ -33,8 +33,4 @@ blocks
 
 refs
   previewEditor  -> sw-code-editor
-
-classes
-  sw-sales-channel-detail-product-comparison-preview
-  sw-sales-channel-detail-product-comparison-preview__scrollable-container
 ```

@@ -47,12 +47,4 @@ blocks
           sw_product_restriction_selection_context_button_items
         sw_product_restriction_selection_multi_select
     sw_product_restriction_selection_content_after
-
-classes
-  sw-product-restriction-selection
-  sw-product-restriction-selection__container
-  sw-product-restriction-selection__isFrom
-  sw-product-restriction-selection__select-group
-  sw-product-restriction-selection__select-group-wrapper
-  sw-product-restriction-selection__select-option-wrapper
 ```

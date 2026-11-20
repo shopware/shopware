@@ -67,11 +67,4 @@ blocks
       sw_settings_tag_detail_modal_tabs_assignments_tab  [scope: active] [until v6.8.0]
       sw_settings_tag_detail_modal_tabs_general  [scope: active] [until v6.8.0]
       sw_settings_tag_detail_modal_tabs_general_tab  [scope: active] [until v6.8.0]
-
-classes
-  is--auto-height
-  sw-settings-tag-detail-modal
-  sw-settings-tag-detail-modal__tabs  [from v6.8.0]
-  sw-settings-tag-detail-modal__tabs-content  [from v6.8.0]
-  sw-settings-tag-detail-modal__tag-name
 ```

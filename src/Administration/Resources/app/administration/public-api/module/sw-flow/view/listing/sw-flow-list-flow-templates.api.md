@@ -41,13 +41,4 @@ methods
 
 blocks
   sw_flow_list_flow_templates  [private]
-
-classes
-  sw-flow-list-flow-templates-card  [private]
-  sw-flow-list-my-flows__content__create-flow-link  [private]
-  sw-flow-list-my-flows__content__update-flow-template-link  [private]
-  sw-flow-list-my-templates  [private]
-  sw-flow-list-my-templates__content  [private]
-  sw-flow-list-my-templates__grid  [private]
-  sw-flow-list-my_templates__empty-state  [private]
 ```

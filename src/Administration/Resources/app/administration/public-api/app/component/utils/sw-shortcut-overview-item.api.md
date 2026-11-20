@@ -26,10 +26,4 @@ computed
 
 blocks
   sw_shortcut_overview_item  [private]
-
-classes
-  sw-shortcut-overview-item  [private]
-  sw-shortcut-overview-item__key  [private]
-  sw-shortcut-overview-item__keys  [private]
-  sw-shortcut-overview-item__title  [private]
 ```

@@ -37,9 +37,4 @@ blocks
       sw_customer_detail_base_info_card
         sw_customer_detail_base_info_metadata
       sw_customer_detail_custom_field_sets  [after v-if]
-
-classes
-  sw-customer-detail-base
-  sw-customer-detail-base__default-addresses
-  sw-customer-detail-base__info-holder
 ```

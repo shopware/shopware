@@ -74,25 +74,4 @@ blocks
 refs
   pageBody  -> div  [private]
   pageHeader  -> header  [private]
-
-classes
-  sw-meteor-page  [private]
-  sw-meteor-page__body  [private]
-  sw-meteor-page__content  [private]
-  sw-meteor-page__head-area  [private]
-  sw-meteor-page__head-area-global-actions  [private]
-  sw-meteor-page__head-area-top-bar-content  [private]
-  sw-meteor-page__scrollable-content  [private]
-  sw-meteor-page__smart-bar  [private]
-  sw-meteor-page__smart-bar-actions  [private]
-  sw-meteor-page__smart-bar-content  [private]
-  sw-meteor-page__smart-bar-context-buttons  [private]
-  sw-meteor-page__smart-bar-description  [private]
-  sw-meteor-page__smart-bar-header  [private]
-  sw-meteor-page__smart-bar-meta  [private]
-  sw-meteor-page__smart-bar-module-icon  [private]
-  sw-meteor-page__smart-bar-module-info  [private]
-  sw-meteor-page__smart-bar-navigation  [private]
-  sw-meteor-page__smart-bar-tabs  [private]
-  sw-meteor-page__smart-bar-title  [private]
 ```

@@ -29,9 +29,4 @@ computed
 methods
   emitClose(): any  [private]
   emitConfirm(): any  [private]
-
-classes
-  sw-extension-bulk-uninstall-modal  [private]
-  sw-extension-bulk-uninstall-modal__bold-paragraph  [private]
-  sw-extension-bulk-uninstall-modal__list  [private]
 ```

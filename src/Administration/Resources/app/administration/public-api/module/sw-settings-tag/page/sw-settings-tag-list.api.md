@@ -64,13 +64,13 @@ methods
   onCloseDeleteModal(): any
   onCloseDetailModal(): any
   onCloseDuplicateModal(): any
-  onConfirmDelete(id: any): any
-  onConfirmDuplicate(id: any): any
+  onConfirmDelete(id: any): Promise<any>
+  onConfirmDuplicate(id: any): Promise<any>
   onDelete(id: any): any
   onDetail(id: any, property: any, entity: any): any
   onDuplicate(item: any): any
   onFilter(): any
-  onMergeTags(selection: any): any
+  onMergeTags(selection: any): Promise<any>
   onSaveFinish(): any
   resetFilters(): any
   setAggregations(criteria: any): any
@@ -129,28 +129,4 @@ crossings
 refs
   swCardFilter  -> sw-card-filter
   swSettingsTagGrid  -> sw-entity-listing
-
-classes
-  confirm-bulk-merge-text__label
-  confirm-bulk-merge-text__label-into
-  filter-badge
-  link
-  sw-data-grid__cell-value
-  sw-page__smart-bar-amount
-  sw-settings-tag-list
-  sw-settings-tag-list__bulk-merge-progress
-  sw-settings-tag-list__bulk-merge-progress-icon
-  sw-settings-tag-list__button-create
-  sw-settings-tag-list__confirm-bulk-merge-name-input
-  sw-settings-tag-list__confirm-bulk-merge-text
-  sw-settings-tag-list__confirm-delete-text
-  sw-settings-tag-list__confirm-duplicate-input
-  sw-settings-tag-list__content
-  sw-settings-tag-list__delete-action
-  sw-settings-tag-list__duplicate-action
-  sw-settings-tag-list__edit-action
-  sw-settings-tag-list__filter-assignment-select
-  sw-settings-tag-list__filter-footer
-  sw-settings-tag-list__filter-menu-trigger
-  sw-settings-tag-list__grid
 ```

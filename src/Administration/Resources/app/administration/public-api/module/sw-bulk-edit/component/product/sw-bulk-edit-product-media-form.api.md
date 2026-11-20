@@ -22,12 +22,4 @@ blocks
       sw_product_media_form_grid_items  [inherited]
         sw_product_media_form_grid_item  [inherited] [scope: mediaItem]
     sw_product_media_form_upload  [inherited]
-
-classes
-  is--disabled
-  sw-product-media-form
-  sw-product-media-form__column
-  sw-product-media-form__cover-container
-  sw-product-media-form__grid
-  sw-product-media-form__previews
 ```

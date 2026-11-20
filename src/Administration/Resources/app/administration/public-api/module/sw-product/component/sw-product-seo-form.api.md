@@ -51,7 +51,7 @@ computed
   variantsWithResetOption: any
 
 methods
-  fetchVariants(): any
+  fetchVariants(): Promise<any>
   getItemName(item: any): any
   getLoadedOpenGraphMedia(mediaId: any): any
   getRecommendedLengthClass(value: any, max: any): any
@@ -82,9 +82,4 @@ blocks
 
 refs
   canonicalProductSelect  -> sw-single-select
-
-classes
-  sw-product-seo-form
-  sw-product-seo-form__open-graph
-  sw-product-seo-form__recommended-length
 ```

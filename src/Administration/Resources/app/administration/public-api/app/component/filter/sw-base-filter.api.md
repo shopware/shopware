@@ -29,10 +29,4 @@ blocks
   sw_base_filter  [private]
     sw_base_filter_content  [private]
     sw_base_filter_headline  [private]
-
-classes
-  sw-base-filter  [private]
-  sw-base-filter__headline  [private]
-  sw-base-filter__reset  [private]
-  sw-base-filter__title  [private]
 ```

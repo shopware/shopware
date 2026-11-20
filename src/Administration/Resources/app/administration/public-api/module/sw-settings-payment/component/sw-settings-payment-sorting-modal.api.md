@@ -39,7 +39,7 @@ computed
   paymentMethodRepository: any
 
 methods
-  applyChanges(): any
+  applyChanges(): Promise<any>
   closeModal(): any
   isShopwareDefaultPaymentMethod(paymentMethod: any): any
   onSort(sortedItems: any): any
@@ -56,16 +56,4 @@ blocks
     sw_settings_payment_sorting_modal_footer
       sw_settings_payment_sorting_modal_footer_cancel_button
       sw_settings_payment_sorting_modal_footer_save_button
-
-classes
-  sw-modal__body
-  sw-settings-payment-sorting-modal
-  sw-settings-payment-sorting-modal__cancel-button
-  sw-settings-payment-sorting-modal__payment-method-list
-  sw-settings-payment-sorting-modal__payment-method-list-item
-  sw-settings-payment-sorting-modal__payment-method-list-item__action
-  sw-settings-payment-sorting-modal__payment-method-list-item__icon
-  sw-settings-payment-sorting-modal__payment-method-list-item__name
-  sw-settings-payment-sorting-modal__save-button
-  sw-settings-payment-sorting-modal__subtitle
 ```

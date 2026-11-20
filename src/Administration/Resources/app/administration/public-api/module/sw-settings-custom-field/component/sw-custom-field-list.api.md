@@ -44,19 +44,19 @@ computed
 
 methods
   createdComponent(): any
-  isCustomFieldNameUnique(customField: any): any
-  loadCustomFields(): any
+  isCustomFieldNameUnique(customField: any): Promise<any>
+  loadCustomFields(): Promise<any>
   onAddCustomField(): any
   onCancelCustomField(): any
   onCancelDeleteCustomField(): any
   onCustomFieldDelete(customField: any): any
   onCustomFieldEdit(customField: any): any
-  onDeleteCustomField(): any
+  onDeleteCustomField(): Promise<any>
   onDeleteCustomFields(): any
   onInlineEditCancel(customField: any): any
   onInlineEditFinish(item: any): any
   onPageChange(event: any): any
-  onSaveCustomField(field?: any): any
+  onSaveCustomField(field?: any): Promise<any>
   onSearchTermChange(): any
   removeEmptyProperties(config: any): any
   selectionChanged(selection: any): any
@@ -92,15 +92,4 @@ crossings
 
 refs
   grid  -> sw-grid
-
-classes
-  sw-custom-field-delete__description
-  sw-custom-field-list
-  sw-custom-field-list__add-button
-  sw-custom-field-list__custom-field-label
-  sw-custom-field-list__delete-action
-  sw-custom-field-list__delete-button
-  sw-custom-field-list__edit-action
-  sw-custom-field-list__grid
-  sw-custom-field-list__toolbar
 ```

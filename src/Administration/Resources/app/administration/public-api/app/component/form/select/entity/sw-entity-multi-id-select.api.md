@@ -45,7 +45,7 @@ computed
   selectCriteria: any  [private]
 
 methods
-  createdComponent(): any  [private]
+  createdComponent(): Promise<any>  [private]
   displayLabelProperty(item: any, labelProperty: any, getKey?: any): any  [private]
   updateIds(collection: any): any  [private]
 

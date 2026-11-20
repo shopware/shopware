@@ -26,7 +26,4 @@ methods
 blocks
   sw_gtc_checkbox  [private]
     sw_gtc_checkbox_input  [private]
-
-classes
-  sw-gtc-checkbox  [private]
 ```

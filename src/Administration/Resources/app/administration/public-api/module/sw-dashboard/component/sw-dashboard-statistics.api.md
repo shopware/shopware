@@ -58,7 +58,7 @@ computed
 
 methods
   calculateTodayBucket(aggregation: HistoryOrderData): BucketData | null  [private]
-  fetchHistory(paid: boolean, since: string): any  [private]
+  fetchHistory(paid: boolean, since: string): Promise<any>  [private]
   fetchHistoryOrderDataCount(): any  [private]
   fetchHistoryOrderDataSum(): any  [private]
   fetchTodayData(): any  [private]
@@ -66,26 +66,11 @@ methods
   formatDateToISO(date: Date): any  [private]
   getCardSubtitle(range: HistoryDateRange): string  [private]
   getDateAgo(range: HistoryDateRange): Date  [private]
-  getHistoryOrderData(): any  [private]
+  getHistoryOrderData(): Promise<any>  [private]
   getVariantFromOrderState(order: OrderEntity): string  [private]
   initializeOrderData(): Promise<any>  [private]
   onOrdersRangeUpdate(range: string): Promise<void>  [private]
   onTurnoverRangeUpdate(range: string): Promise<void>  [private]
   orderGridColumns(): any  [private]
   parseDate(date: string): number  [private]
-
-classes
-  sw-dashboard-statistics  [private]
-  sw-dashboard-statistics__card-headline  [private]
-  sw-dashboard-statistics__card-headline-timerange  [private]
-  sw-dashboard-statistics__intro-stats  [private]
-  sw-dashboard-statistics__intro-stats-today  [private]
-  sw-dashboard-statistics__intro-stats-today-single-stat  [private]
-  sw-dashboard-statistics__intro-stats-today-single-stat-number-type  [private]
-  sw-dashboard-statistics__intro-stats-today-single-stat-number-value  [private]
-  sw-dashboard-statistics__intro-stats-today-stats  [private]
-  sw-dashboard-statistics__statistics-count  [private]
-  sw-dashboard-statistics__statistics-sum  [private]
-  sw-data-grid__cell-value  [private]
-  sw-order-list__order-view-action  [private]
 ```

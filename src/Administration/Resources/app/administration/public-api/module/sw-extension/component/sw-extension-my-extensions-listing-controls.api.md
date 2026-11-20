@@ -27,9 +27,4 @@ blocks
   sw_extension_my_extensions_listing_controls  [private]
     sw_extension_my_extensions_listing_controls_active_switch  [private]
     sw_extension_my_extensions_listing_controls_sorting_select  [private]
-
-classes
-  sw-extension-my-extensions-listing-controls  [private]
-  sw-extension-my-extensions-listing-controls__active-filter-switch  [private]
-  sw-extension-my-extensions-listing-controls__sorting-dropdown  [private]
 ```

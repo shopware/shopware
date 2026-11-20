@@ -73,9 +73,4 @@ blocks
 
 refs
   flatpickrInput  -> input
-
-classes
-  has--focus
-  sw-field--datepicker
-  sw-field--datepicker__button-reset-value
 ```

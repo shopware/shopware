@@ -49,14 +49,4 @@ blocks
 
 refs
   productHolder  -> div  [private]
-
-classes
-  is--left-arrow  [private]
-  is--right-arrow  [private]
-  sw-cms-el-product-slider  [private]
-  sw-cms-el-product-slider__content  [private]
-  sw-cms-el-product-slider__navigation  [private]
-  sw-cms-el-product-slider__navigation-button  [private]
-  sw-cms-el-product-slider__product-holder  [private]
-  sw-cms-el-product-slider__title  [private]
 ```

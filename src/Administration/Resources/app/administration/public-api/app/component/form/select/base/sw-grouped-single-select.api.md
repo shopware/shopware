@@ -54,10 +54,4 @@ refs
   resultsList  -> sw-select-result-list  [private]
   selectBase  -> sw-select-base  [private]
   swSelectInput  -> input  [private]
-
-classes
-  sw-single-select  [private]
-  sw-single-select__selection  [private]
-  sw-single-select__selection-input  [private]
-  sw-single-select__selection-text  [private]
 ```

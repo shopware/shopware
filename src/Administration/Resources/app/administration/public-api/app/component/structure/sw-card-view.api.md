@@ -21,8 +21,4 @@ blocks
   sw_card_view  [private]
     sw_card_view_content  [private]
       sw_card_view_slot_default  [private]
-
-classes
-  sw-card-view  [private]
-  sw-card-view__content  [private]
 ```

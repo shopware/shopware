@@ -83,7 +83,7 @@ methods
   onSalesChannelChanged(salesChannelId: any): any
   readAll(): any
   readConfig(): Promise<any>
-  saveAll(): any
+  saveAll(): Promise<any>
   schemaToConfig(schema: any): any  [deprecated tag:v6.8.0]
 
 blocks
@@ -95,11 +95,4 @@ blocks
         sw_system_config_content_compile_notice  [scope: card, config, index, tab, tabIndex]
     sw_system_config_content_tabs  [after v-if]
     sw_system_config_global_compile_notice
-
-classes
-  sw-system-config
-  sw-system-config__compile-notice
-  sw-system-config__global-compile-notice
-  sw-system-config__global-sales-channel-switch
-  sw-system-config__global-section
 ```

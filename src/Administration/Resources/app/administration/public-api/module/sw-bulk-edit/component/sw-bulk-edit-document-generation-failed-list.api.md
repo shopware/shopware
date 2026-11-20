@@ -32,7 +32,4 @@ blocks
       sw_bulk_edit_document_generation_failed_list_grid_column_document_types  [private]
       sw_bulk_edit_document_generation_failed_list_grid_column_order_number  [private]
       sw_bulk_edit_document_generation_failed_list_grid_pagination  [private]
-
-classes
-  sw-bulk-edit-document-generation-failed-list  [private]
 ```

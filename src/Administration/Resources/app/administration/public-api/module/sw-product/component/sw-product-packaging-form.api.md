@@ -37,13 +37,4 @@ blocks
     sw_product_price_form_unit_field
     sw_product_settings_form_length_field
     sw_product_settings_form_weight_field
-
-classes
-  sw-product-packaging-form
-  sw-product-packaging-form__description
-  sw-product-packaging-form__pack-unit-field
-  sw-product-packaging-form__pack-unit-plural-field
-  sw-product-packaging-form__purchase-unit-field
-  sw-product-packaging-form__reference-unit-field
-  sw-select-product__select_unit
 ```

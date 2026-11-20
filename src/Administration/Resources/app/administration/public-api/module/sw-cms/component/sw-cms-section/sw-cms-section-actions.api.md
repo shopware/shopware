@@ -28,9 +28,4 @@ methods
 blocks
   sw_cms_section_actions
     sw_cms_section_action_select
-
-classes
-  sw-cms-section-select
-  sw-cms-section__action
-  sw-cms-section__actions
 ```

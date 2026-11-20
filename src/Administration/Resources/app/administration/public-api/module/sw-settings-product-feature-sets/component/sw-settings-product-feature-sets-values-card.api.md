@@ -73,11 +73,4 @@ blocks
 
 refs
   columnPosition  -> sw-data-grid-column-position
-
-classes
-  sw-product-feature-set__add-button
-  sw-product-feature-set__delete-button
-  sw-product-feature-set__toolbar
-  sw-settings-product-feature-set-card__empty-state
-  sw-settings-product-feature-sets-values-card
 ```

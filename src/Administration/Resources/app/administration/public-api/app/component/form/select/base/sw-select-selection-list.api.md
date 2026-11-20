@@ -70,13 +70,4 @@ blocks
 
 refs
   swSelectInput  -> input  [private]
-
-classes
-  sw-select-selection-list  [private]
-  sw-select-selection-list__input  [private]
-  sw-select-selection-list__input-wrapper  [private]
-  sw-select-selection-list__item  [private]
-  sw-select-selection-list__item-holder  [private]
-  sw-select-selection-list__load-more  [private]
-  sw-select-selection-list__load-more-button  [private]
 ```

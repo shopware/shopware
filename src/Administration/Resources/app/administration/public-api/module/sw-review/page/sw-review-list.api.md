@@ -71,10 +71,4 @@ crossings
 
 refs
   listing  -> sw-entity-listing
-
-classes
-  sw-page__smart-bar-amount
-  sw-review-list
-  sw-review-text_ellipsis
-  sw_review_list__content
 ```

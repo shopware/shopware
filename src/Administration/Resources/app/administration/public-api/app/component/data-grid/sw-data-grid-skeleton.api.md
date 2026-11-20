@@ -33,11 +33,4 @@ blocks
           sw_data_grid_skeleton_element  [scope: column, columnIndex, item, itemIndex] [private]
       sw_data_grid_skeleton_spacer  [scope: item, itemIndex] [private]
         sw_data_grid_skeleton_spacer_content  [scope: item, itemIndex] [private]
-
-classes
-  sw-data-grid-skeleton  [private]
-  sw-data-grid__cell  [private]
-  sw-data-grid__cell-content  [private]
-  sw-data-grid__row  [private]
-  sw-grid__cell-content  [private]
 ```

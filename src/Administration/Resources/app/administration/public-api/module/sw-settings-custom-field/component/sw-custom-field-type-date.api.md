@@ -28,7 +28,4 @@ blocks
       sw_custom_field_type_date_container
         sw_custom_field_type_date_container_time_format
         sw_custom_field_type_date_container_type
-
-classes
-  sw-custom-field-type-base
 ```

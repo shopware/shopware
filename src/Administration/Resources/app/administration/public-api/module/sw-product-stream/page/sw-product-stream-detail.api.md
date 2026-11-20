@@ -70,20 +70,20 @@ methods
   getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [private]
   getProductCustomFields(): any  [private]
   loadCustomFieldSets(): any  [private]
-  loadEntityData(productStreamId: any): any  [private]
-  loadFilters(collection?: any): any  [private]
-  loadProductCustomFields(): any  [private]
+  loadEntityData(productStreamId: any): Promise<any>  [private]
+  loadFilters(collection?: any): Promise<any>  [private]
+  loadProductCustomFields(): Promise<any>  [private]
   loadProductTypes(): any  [private]
   mapCustomFieldType(customField: any): any  [private]
   onCancel(): any  [private]
   onChangeLanguage(languageId: any): any  [private]
-  onDuplicate(): any  [private]
-  onSave(): any  [private]
+  onDuplicate(): Promise<any>  [private]
+  onSave(): Promise<any>  [private]
   openModalPreview(): any  [private]
   saveOnLanguageChange(): any  [private]
   saveProductStream(): any  [private]
   showErrorNotification(): any  [private]
-  syncProductStreamFilters(): any  [private]
+  syncProductStreamFilters(): Promise<any>  [private]
   updateFilterTree(arg0: any): any  [private]
 
 blocks
@@ -110,18 +110,4 @@ blocks
 
 refs
   modalPreview  -> sw-product-stream-modal-preview  [private]
-
-classes
-  is--disabled  [private]
-  sw-product-stream-detail  [private]
-  sw-product-stream-detail__button-context-menu  [private]
-  sw-product-stream-detail__condition_container  [private]
-  sw-product-stream-detail__display-as-group  [private]
-  sw-product-stream-detail__empty-title  [private]
-  sw-product-stream-detail__open_modal_preview  [private]
-  sw-product-stream-detail__product-stream-warning  [private]
-  sw-product-stream-detail__product-type-warning  [private]
-  sw-product-stream-detail__save-action  [private]
-  sw-product-stream-detail__save-button-group  [private]
-  sw-product-stream-detail__save-duplicate-action  [private]
 ```

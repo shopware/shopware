@@ -29,15 +29,11 @@ data
 
 methods
   createdComponent(): any
-  onFileChange(): any
+  onFileChange(): Promise<any>
   transformMapping(mapping: any): any
 
 blocks
   sw_import_export_new_profile_wizard_csv_page
     sw_import_export_new_profile_wizard_csv_page_csv_upload
     sw_import_export_new_profile_wizard_csv_page_text  [deprecated tag:v6.8.0]
-
-classes
-  sw-import-export-new-profile-wizard-csv-page
-  sw-import-export-new-profile-wizard-csv-page__file-upload
 ```

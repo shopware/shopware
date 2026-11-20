@@ -52,17 +52,4 @@ blocks
     sw_media_sidebar_folder_dissolve_modal  [after v-if]
     sw_media_sidebar_folder_move_modal  [after v-if]
     sw_media_sidebar_modal_delete
-
-classes
-  is--danger
-  quickaction--custom
-  quickaction--dissolve
-  quickaction--move
-  sw-media-quickinfo-multiple
-  sw-media-quickinfo-multiple__second-headline
-  sw-media-quickinfo-multiple__summary
-  sw-media-quickinfo-multiple__unselect-all
-  sw-media-sidebar__quickaction
-  sw-media-sidebar__quickactions-icon
-  sw-media-sidebar__quickactions-list
 ```

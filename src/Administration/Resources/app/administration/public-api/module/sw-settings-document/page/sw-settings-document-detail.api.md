@@ -120,42 +120,6 @@ blocks
 crossings
   v-if  sw_settings_document_detail_content_form_field_renderer_multi_select -> sw_settings_document_detail_content_form_field_renderer
 
-classes
-  sw-document-detail__select-type
-  sw-settings-document-detail
-  sw-settings-document-detail__assignment_card
-  sw-settings-document-detail__company-settings-moved-banner  [from v6.8.0]
-  sw-settings-document-detail__company_card  [until v6.8.0]
-  sw-settings-document-detail__company_card_display_company  [until v6.8.0]
-  sw-settings-document-detail__company_card_display_return  [until v6.8.0]
-  sw-settings-document-detail__company_card_form  [until v6.8.0]
-  sw-settings-document-detail__company_card_media  [until v6.8.0]
-  sw-settings-document-detail__company_card_media-upload-listener  [until v6.8.0]
-  sw-settings-document-detail__company_card_options  [until v6.8.0]
-  sw-settings-document-detail__company_card_required  [until v6.8.0]
-  sw-settings-document-detail__displayed_content_card
-  sw-settings-document-detail__displayed_content_card-container
-  sw-settings-document-detail__field-display-company-address  [from v6.8.0]
-  sw-settings-document-detail__field-display-return-address  [from v6.8.0]
-  sw-settings-document-detail__field_additional_note_delivery
-  sw-settings-document-detail__field_customer_vat_id
-  sw-settings-document-detail__field_divergent_delivery_address
-  sw-settings-document-detail__field_file_name_infix  [from v6.8.0]
-  sw-settings-document-detail__field_file_name_prefix
-  sw-settings-document-detail__field_file_name_suffix
-  sw-settings-document-detail__field_name
-  sw-settings-document-detail__filename_card
-  sw-settings-document-detail__filename_card-form
-  sw-settings-document-detail__filename_infix_fields  [from v6.8.0]
-  sw-settings-document-detail__filename_infix_headline  [from v6.8.0]
-  sw-settings-document-detail__filename_pattern  [from v6.8.0]
-  sw-settings-document-detail__form-field-renderer
-  sw-settings-document-detail__multi-select
-  sw-settings-document-detail__save-action
-  sw-settings-document-detail__select-type
-  sw-settings-document-detail__settings_card
-  sw-settings-document-detail__settings_card-form
-
 notes
   unresolved data ...DOCUMENT_CONFIG_DEFAULTS
 ```

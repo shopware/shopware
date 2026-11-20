@@ -28,12 +28,4 @@ blocks
   sw_condition_and_container  [private]
     sw_condition_and_container_actions  [private]
     sw_condition_and_container_children  [private]
-
-classes
-  condition-content__spacer--and  [private]
-  sw-condition-and-container  [private]
-  sw-condition-and-container__actions  [private]
-  sw-condition-and-container__actions--and  [private]
-  sw-condition-and-container__actions--delete  [private]
-  sw-condition-and-container__actions--sub  [private]
 ```

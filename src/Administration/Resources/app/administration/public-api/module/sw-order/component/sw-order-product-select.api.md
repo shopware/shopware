@@ -45,9 +45,4 @@ blocks
 crossings
   v-if  sw_order_product_select_blank_item -> sw_order_product_select_existing_product
   v-if  sw_order_product_select_existing_product -> sw_order_product_show_product
-
-classes
-  sw-order-product-select
-  sw-order-product-select__label
-  sw-order-product-select__single-select
 ```

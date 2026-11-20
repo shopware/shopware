@@ -32,9 +32,4 @@ blocks
   sw_cms_add_section  [private]
     sw_cms_add_section_button  [after v-if] [private]
     sw_cms_add_section_selection  [private]
-
-classes
-  is--open  [private]
-  sw-cms-stage-add-section  [private]
-  sw-cms-stage-add-section__button  [private]
 ```

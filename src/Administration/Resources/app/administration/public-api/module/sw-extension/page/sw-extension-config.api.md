@@ -42,10 +42,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config  [private]
-
-classes
-  sw-extension-config  [private]
-  sw-extension-config__extension-icon  [private]
-  sw-extension-config__producer-link  [private]
-  sw-extension-config__save-action  [private]
 ```

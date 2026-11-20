@@ -62,7 +62,7 @@ methods
   closeDeleteModal(): any
   confirmDelete(): Promise<any>
   createdComponent(): any
-  getList(): any
+  getList(): Promise<any>
   getParentName(item: any): any
   getSnippetStatus(item: any): any
   invalidateLanguageCaches(): any
@@ -129,30 +129,4 @@ blocks
 
 refs
   languageGrid  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  link
-  link-danger
-  link-primary
-  sw-settings-language-list
-  sw-settings-language-list-grid
-  sw-settings-language-list__bulk-delete
-  sw-settings-language-list__bulk-update-snippets
-  sw-settings-language-list__button-create
-  sw-settings-language-list__button-update-snippets
-  sw-settings-language-list__card
-  sw-settings-language-list__content
-  sw-settings-language-list__default-label
-  sw-settings-language-list__delete-action
-  sw-settings-language-list__delete-files-option
-  sw-settings-language-list__delete-modal
-  sw-settings-language-list__delete-modal-intro
-  sw-settings-language-list__delete-modal-list
-  sw-settings-language-list__delete-modal-note
-  sw-settings-language-list__snippet-link
-  sw-settings-language-list__snippet-link-wrapper
-  sw-settings-language-list__snippet-status
-  sw-settings-language-list__update-snippets-action
 ```

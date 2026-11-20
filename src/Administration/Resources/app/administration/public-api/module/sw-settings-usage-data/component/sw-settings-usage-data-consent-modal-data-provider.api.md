@@ -19,7 +19,4 @@ computed
   showConsentModal: any  [private]
   storeDataConsent: any  [private]
   userDataConsent: any  [private]
-
-classes
-  sw-settings-usage-data-consent-modal-data-provider  [private]
 ```

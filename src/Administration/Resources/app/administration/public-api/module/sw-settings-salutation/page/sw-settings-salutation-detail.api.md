@@ -51,7 +51,7 @@ methods
   onChange(): any
   onChangeDebounce(): any
   onChangeLanguage(): any
-  onSave(): any
+  onSave(): Promise<any>
   saveFinish(): any
 
 blocks
@@ -72,13 +72,4 @@ blocks
     sw_settings_salutation_detail_smart_bar_header
       sw_settings_salutation_detail_smart_bar_header_title
         sw_settings_salutation_detail_smart_bar_header_title_text
-
-classes
-  sw-settings-salutation-detail
-  sw-settings-salutation-detail__cancel
-  sw-settings-salutation-detail__displayName
-  sw-settings-salutation-detail__letterName
-  sw-settings-salutation-detail__position
-  sw-settings-salutation-detail__salutation_key
-  sw-settings-salutation-detail__save
 ```

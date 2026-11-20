@@ -52,8 +52,8 @@ methods
   loadAllPropertyGroups(criteria: any): Promise<any>
   loadConfigSettingGroups(): Promise<any>  [deprecated tag:v6.8.0]
   loadData(): any
-  loadGroups(): any
-  loadOptions(): any
+  loadGroups(): Promise<any>
+  loadOptions(): Promise<any>
   mountedComponent(): any
   onCancelAddPropertiesModal(): any
   onConfigurationClosed(): any
@@ -79,10 +79,4 @@ blocks
 
 refs
   generatedVariants  -> sw-product-variants-overview
-
-classes
-  is--loading
-  sw-product-detail-variants
-  sw-product-detail-variants__generated-variants
-  sw-product-detail-variants__generated-variants-empty-state-button
 ```

@@ -34,7 +34,7 @@ computed
   treeCriteria: any  [private]
 
 methods
-  getTreeItems(parentId?: any, term?: any, withTermFilter?: any): any  [private]
+  getTreeItems(parentId?: any, term?: any, withTermFilter?: any): Promise<any>  [private]
   onCheckItem(checkedItems: any): any  [private]
   searchTreeItems(term: any): any  [private]
 
@@ -47,7 +47,4 @@ blocks
 
 refs
   swTree  -> sw-settings-rule-tree  [private]
-
-classes
-  sw-settings-rule-category-tree  [private]
 ```

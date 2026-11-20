@@ -59,13 +59,4 @@ blocks
         sw_product_stream_filter_value  [private]
     sw_condition_base_error  [replaced] [private]
       sw_product_stream_filter_error  [private]
-
-classes
-  sw-condition  [private]
-  sw-condition__container  [private]
-  sw-condition__context-button  [private]
-  sw-condition__value-content  [private]
-  sw-product-stream-filter__create-after-action  [private]
-  sw-product-stream-filter__create-before-action  [private]
-  sw-product-stream-filter__fields  [private]
 ```

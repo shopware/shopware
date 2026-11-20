@@ -65,10 +65,4 @@ crossings
   v-if  sw_dynamic_url_field_content_type_inputs_email -> sw_dynamic_url_field_content_type_inputs_detail  [private]
   v-if  sw_dynamic_url_field_content_type_inputs_link -> sw_dynamic_url_field_content_type_inputs_phone  [private]
   v-if  sw_dynamic_url_field_content_type_inputs_phone -> sw_dynamic_url_field_content_type_inputs_email  [private]
-
-classes
-  sw-dynamic-url-field  [private]
-  sw-dynamic-url-field__entity-single-select  [private]
-  sw-dynamic-url-field__link-menu-buttons-button-remove  [private]
-  sw-dynamic-url-field_link-category  [private]
 ```

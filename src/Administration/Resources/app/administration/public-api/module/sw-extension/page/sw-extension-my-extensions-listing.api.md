@@ -104,15 +104,4 @@ blocks
 
 crossings
   v-if  sw_extension_my_extensions_list_empty_state -> (root)  [private]
-
-classes
-  sw-app-wrong-app-url-modal__content-link-button  [private]
-  sw-extension-my-extensions-listing  [private]
-  sw-extension-my-extensions-listing__app-url-warning  [private]
-  sw-extension-my-extensions-listing__bulk-bar  [private]
-  sw-extension-my-extensions-listing__container  [private]
-  sw-extension-my-extensions-listing__controls-row  [private]
-  sw-extension-my-extensions-listing__empty-state  [private]
-  sw-extension-my-extensions-listing__listing-grid  [private]
-  sw-extension-my-extensions-listing__runtime-extension-warning  [private]
 ```

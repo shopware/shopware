@@ -91,17 +91,4 @@ refs
   editShippingCosts  -> sw-order-saveable-field
   sw-order-line-item-grid  -> sw-order-line-items-grid
   swOrderGeneralInfo  -> sw-order-general-info
-
-classes
-  sw-order-detail-base__general-info
-  sw-order-detail-general
-  sw-order-detail-general__line-item-grid-card
-  sw-order-detail-general__line-item-grid-card-footer
-  sw-order-detail-general__promotions
-  sw-order-detail-general__promotions-card
-  sw-order-detail-general__summary
-  sw-order-detail-general__summary-row
-  sw-order-detail-general__summary-row--divider
-  sw-order-detail-general__summary-row--subtotal
-  sw-order-detail-general__summary-row--total
 ```

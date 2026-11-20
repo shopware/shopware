@@ -78,14 +78,4 @@ blocks
 
 refs
   swContextButton  -> sw-context-button
-
-classes
-  sw-media-base-item
-  sw-media-base-item__labels
-  sw-media-base-item__labels-text
-  sw-media-base-item__loader
-  sw-media-base-item__metadata-container
-  sw-media-base-item__name-container
-  sw-media-base-item__preview-container
-  sw-media-base-item__selected-indicator
 ```

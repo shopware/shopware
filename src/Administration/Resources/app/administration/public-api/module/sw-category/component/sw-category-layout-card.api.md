@@ -48,19 +48,4 @@ blocks
         sw_category_detail_layout_desc_info_subheadline
     sw_category_detail_layout_modal
     sw_category_detail_layout_preview
-
-classes
-  is--empty
-  sw-category-detail-layout__change-layout-action
-  sw-category-detail-layout__layout-reset
-  sw-category-detail-layout__open-in-pagebuilder
-  sw-category-layout-card
-  sw-category-layout-card__base-layout
-  sw-category-layout-card__desc
-  sw-category-layout-card__desc-actions
-  sw-category-layout-card__desc-actions-menu
-  sw-category-layout-card__desc-headline
-  sw-category-layout-card__desc-info
-  sw-category-layout-card__desc-subheadline
-  sw-category-layout-card__preview
 ```

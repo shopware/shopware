@@ -16,7 +16,4 @@ methods
 
 blocks
   sw_extension_app_module_error_page  [private]
-
-classes
-  sw-extension-app-module-error-page  [private]
 ```

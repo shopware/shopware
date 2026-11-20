@@ -24,10 +24,4 @@ blocks
       sw_sales_channel_detail_hreflang_content_domain
       sw_sales_channel_detail_hreflang_content_enable
     sw_sales_channel_detail_hreflang_title
-
-classes
-  sw-sales-channel-detail-base__description-text
-  sw-sales-channel-detail-base__headline-text
-  sw-sales-channel-detail-domains__headline-text
-  sw-sales-channel-detail-hreflang
 ```

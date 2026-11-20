@@ -45,9 +45,4 @@ blocks
     sw_settings_delivery_time_list_smart_bar_header
       sw_settings_delivery_time_list_smart_bar_header_title
         sw_settings_delivery_time_list_smart_bar_header_title_text
-
-classes
-  sw-settings-delivery-time-list
-  sw-settings-delivery-time-list-grid
-  sw-settings-delivery-time-list__create
 ```

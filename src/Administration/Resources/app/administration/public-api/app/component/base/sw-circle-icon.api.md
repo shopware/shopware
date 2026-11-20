@@ -22,7 +22,4 @@ computed
 
 blocks
   sw_circle_icon  [private]
-
-classes
-  sw-circle-icon  [private]
 ```

@@ -48,19 +48,4 @@ methods
 
 blocks
   sw_first_run_wizard_plugins
-
-classes
-  categories
-  plugins-category-lead
-  plugins-not-category-lead
-  recommended-plugins__description
-  recommended-plugins__headline
-  recommended-plugins__headline-main
-  regions
-  select-category
-  select-region
-  spacer
-  sw-first-run-wizard-plugins
-  sw-label-category
-  sw-label-region
 ```

@@ -53,11 +53,4 @@ blocks
 
 crossings
   v-if  sw_manufacturer_list_empty_state -> sw_manufacturer_list_grid
-
-classes
-  sw-manufacturer-list
-  sw-manufacturer-list__add-manufacturer
-  sw-manufacturer-list__content
-  sw-manufacturer-list__grid
-  sw-page__smart-bar-amount
 ```

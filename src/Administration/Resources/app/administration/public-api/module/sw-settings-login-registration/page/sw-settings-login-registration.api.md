@@ -44,9 +44,4 @@ blocks
 refs
   systemConfig  -> sw-system-config
   systemConfigSystemWide  -> sw-system-config
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-login-registration
-  sw-settings-login-registration__save-action
 ```

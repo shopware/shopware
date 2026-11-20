@@ -72,13 +72,4 @@ blocks
     sw_order_create_smart_bar_header
       sw_order_create_smart_bar_header_title
         sw_order_create_smart_bar_header_title_text
-
-classes
-  sw-order-create
-  sw-order-create__remind-payment-modal
-  sw-order-create__remind-payment-modal-decline
-  sw-order-create__remind-payment-modal-remind
-  sw-order-create__tab-details  [until v6.8.0]
-  sw-order-create__tab-general  [until v6.8.0]
-  sw-order-create__tabs
 ```

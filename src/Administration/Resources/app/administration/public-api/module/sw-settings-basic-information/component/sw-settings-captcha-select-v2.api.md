@@ -51,13 +51,4 @@ blocks
       sw_settings_captcha_select_v2_google_recaptcha_v3_site_key
       sw_settings_captcha_select_v2_google_recaptcha_v3_threshold_score
     sw_settings_captcha_select_v2_multi_select
-
-classes
-  sw-settings-captcha-select-v2
-  sw-settings-captcha-select-v2__basic-captcha-notice
-  sw-settings-captcha-select-v2__description
-  sw-settings-captcha-select-v2__google-recaptcha-v2
-  sw-settings-captcha-select-v2__google-recaptcha-v2-description
-  sw-settings-captcha-select-v2__google-recaptcha-v3
-  sw-settings-captcha-select-v2__google-recaptcha-v3-description
 ```

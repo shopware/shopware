@@ -28,12 +28,4 @@ blocks
       sw_product_feature_set_form_form
         sw_product_feature_set_form_wrapper_input
           sw_product_feature_set_form_input  [scope: currentValue, isInherited, updateCurrentValue]
-
-classes
-  sw-product-feature-set-form__container
-  sw-product-feature-set-form__description
-  sw-product-feature-set-form__description-body
-  sw-product-feature-set-form__description-config-info
-  sw-product-feature-set-form__description-link
-  sw-product-feature-set-form__form
 ```

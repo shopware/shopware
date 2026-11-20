@@ -52,9 +52,4 @@ blocks
 
 refs
   swGridRow  -> div  [private]
-
-classes
-  sw-grid-row  [private]
-  sw-grid-row__actions  [private]
-  sw-grid-row__inline-edit-action  [private]
 ```

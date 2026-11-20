@@ -63,8 +63,4 @@ blocks
 
 refs
   grid  -> div
-
-classes
-  sw-media-list-selection-v2
-  sw-media-list-selection-v2__grid
 ```

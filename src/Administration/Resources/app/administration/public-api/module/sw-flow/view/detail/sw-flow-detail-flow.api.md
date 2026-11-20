@@ -43,7 +43,7 @@ methods
   createSequence(): any  [private]
   createdComponent(): any  [private]
   getSequenceId(sequence: any): any  [private]
-  getTriggerActions(): any  [private]
+  getTriggerActions(): Promise<any>  [private]
   onAddRootSequence(): any  [private]
   onEventChange(eventName: any): any  [private]
 
@@ -64,22 +64,4 @@ blocks
         sw_flow_detail_flow_trigger_select  [private]
           sw_flow_detail_flow_single_select  [private]
     sw_flow_detail_flow_modal_extension  [private]
-
-classes
-  list-item  [private]
-  sw-flow-detail-flow  [private]
-  sw-flow-detail-flow-template  [private]
-  sw-flow-detail-flow__content  [private]
-  sw-flow-detail-flow__oval  [private]
-  sw-flow-detail-flow__position  [private]
-  sw-flow-detail-flow__position-connection  [private]
-  sw-flow-detail-flow__position-plus  [private]
-  sw-flow-detail-flow__sequence-diagram  [private]
-  sw-flow-detail-flow__sequences  [private]
-  sw-flow-detail-flow__trigger-card  [private]
-  sw-flow-detail-flow__trigger-explain  [private]
-  sw-flow-detail-flow__trigger-select  [private]
-  sw-flow-detail-flow__warning-box  [private]
-  sw-flow-detail-flow__warning-unknow-trigger  [private]
-  sw-flow-detail-flow__warning-unknow-trigger-list  [private]
 ```

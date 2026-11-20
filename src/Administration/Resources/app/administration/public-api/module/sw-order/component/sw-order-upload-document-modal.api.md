@@ -69,21 +69,4 @@ blocks
 
 refs
   fileInput  -> sw-media-upload-v2  [private]
-
-classes
-  sw-order-upload-document-modal  [private]
-  sw-order-upload-document-modal__body  [private]
-  sw-order-upload-document-modal__content  [private]
-  sw-order-upload-document-modal__divider  [private]
-  sw-order-upload-document-modal__document-number  [private]
-  sw-order-upload-document-modal__document-type  [private]
-  sw-order-upload-document-modal__empty-state  [private]
-  sw-order-upload-document-modal__file-format  [private]
-  sw-order-upload-document-modal__file-input  [private]
-  sw-order-upload-document-modal__header-fields  [private]
-  sw-order-upload-document-modal__type-specific-fields  [private]
-  sw-order-upload-document-modal__upload  [private]
-  sw-order-upload-document-modal__upload-button  [private]
-  sw-order-upload-document-modal__upload-button-arrow  [private]
-  sw-order-upload-document-modal__upload-button-send  [private]
 ```

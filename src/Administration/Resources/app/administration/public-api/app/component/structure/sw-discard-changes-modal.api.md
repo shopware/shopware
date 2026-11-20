@@ -24,7 +24,4 @@ blocks
     sw_discard_changes_modal_footer  [private]
       sw_discard_changes_modal_discard_changes_modal_cancel  [private]
     sw_discard_changes_modal_text  [private]
-
-classes
-  sw-discard-changes-modal-delete-text  [private]
 ```

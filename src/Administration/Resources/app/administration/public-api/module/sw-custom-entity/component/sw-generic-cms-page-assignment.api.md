@@ -49,18 +49,4 @@ methods
 
 blocks
   sw_generic_cms_page_assignment  [private]
-
-classes
-  is--empty  [private]
-  sw-generic-cms-page-assignment  [private]
-  sw-generic-cms-page-assignment__base-layout  [private]
-  sw-generic-cms-page-assignment__change-layout-action  [private]
-  sw-generic-cms-page-assignment__create-layout  [private]
-  sw-generic-cms-page-assignment__layout-reset  [private]
-  sw-generic-cms-page-assignment__open-in-pagebuilder  [private]
-  sw-generic-cms-page-assignment__page-selection  [private]
-  sw-generic-cms-page-assignment__page-selection-actions  [private]
-  sw-generic-cms-page-assignment__page-selection-headline  [private]
-  sw-generic-cms-page-assignment__page-selection-info  [private]
-  sw-generic-cms-page-assignment__page-selection-subheadline  [private]
 ```

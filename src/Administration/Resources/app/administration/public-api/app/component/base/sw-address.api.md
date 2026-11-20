@@ -26,10 +26,4 @@ blocks
   sw_address  [private]
     sw_address_formatting  [after v-if] [private]
     sw_address_headline  [private]
-
-classes
-  sw-address  [private]
-  sw-address-headline-link  [private]
-  sw-address__formatting  [private]
-  sw-address__headline  [private]
 ```

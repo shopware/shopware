@@ -23,9 +23,4 @@ blocks
     sw_meteor_navigation_link  [private]
       sw_meteor_navigation_link_icon  [private]
       sw_meteor_navigation_link_label  [private]
-
-classes
-  sw-meteor-navigation  [private]
-  sw-meteor-navigation__back-arrow  [private]
-  sw-meteor-navigation__link  [private]
 ```

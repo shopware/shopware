@@ -53,13 +53,4 @@ blocks
     sw_product_deliverability_downloadable_form_order_quantity_switch  [private]
     sw_product_deliverability_downloadable_form_purchase_steps_field  [private]
     sw_product_deliverability_downloadable_form_stock_field  [private]
-
-classes
-  product-deliverability-downloadable-form  [private]
-  product-deliverability-downloadable-form__delivery-time  [private]
-  product-deliverability-downloadable-form__manage-stock-switch  [private]
-  product-deliverability-downloadable-form__max-purchase  [private]
-  product-deliverability-downloadable-form__min-purchase  [private]
-  product-deliverability-downloadable-form__order-quantity-switch  [private]
-  product-deliverability-downloadable-form__purchase-steps  [private]
 ```

@@ -61,24 +61,4 @@ blocks
 refs
   productVisibilitiesInheritance  -> sw-inherit-wrapper
   productVisibility  -> sw-product-visibility-select
-
-classes
-  advanced-visibility
-  no-margin
-  sw-card__quick-link
-  sw-field--product-active
-  sw-product-category-form
-  sw-product-category-form__categories-body
-  sw-product-category-form__description
-  sw-product-category-form__search-keyword-field
-  sw-product-category-form__tag-field
-  sw-product-category-form__tag-field-wrapper
-  sw-product-category-form__visibility-body
-  sw-product-category-form__visibility-link
-  sw-product-category-form__visibility-title
-  sw-product-category-form__visibility_field
-  sw-product-category-form__visibility_modal
-  sw-product-detail__select-category
-  sw-product-detail__select-visibility
-  sw-product-feature-set-form__description
 ```

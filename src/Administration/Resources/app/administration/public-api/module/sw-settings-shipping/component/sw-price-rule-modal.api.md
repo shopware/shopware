@@ -27,8 +27,4 @@ blocks
     sw_rule_modal_footer  [inherited]
       sw_rule_modal_footer_button_abort  [inherited]
       sw_rule_modal_footer_button_save  [inherited]
-
-classes
-  sw-rule-modal
-  sw-rule-modal__save
 ```

@@ -49,22 +49,4 @@ blocks
 
 refs
   container  -> div  [private]
-
-classes
-  sw-help-sidebar  [private]
-  sw-help-sidebar__body  [private]
-  sw-help-sidebar__button-close  [private]
-  sw-help-sidebar__container  [private]
-  sw-help-sidebar__footer  [private]
-  sw-help-sidebar__header  [private]
-  sw-help-sidebar__headline  [private]
-  sw-help-sidebar__navigation  [private]
-  sw-help-sidebar__shortcut  [private]
-  sw-help-sidebar__shortcut-button  [private]
-  sw-help-sidebar__shortcut-tooltip  [private]
-  sw-help-sidebar__support  [private]
-  sw-help-sidebar__support-content  [private]
-  sw-help-sidebar__support-item  [private]
-  sw-help-sidebar__support-item-link  [private]
-  sw-help-sidebar__support-title  [private]
 ```

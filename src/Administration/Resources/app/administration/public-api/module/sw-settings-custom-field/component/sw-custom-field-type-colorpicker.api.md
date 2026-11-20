@@ -20,7 +20,4 @@ blocks
   sw_custom_field_type_base  [inherited] [private]
     sw_custom_field_type_base_content  [inherited] [private]
       sw_custom_field_type_base_labels  [inherited] [private]
-
-classes
-  sw-custom-field-type-base  [private]
 ```

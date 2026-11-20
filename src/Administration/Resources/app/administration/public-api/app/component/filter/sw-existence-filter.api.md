@@ -30,7 +30,4 @@ methods
 blocks
   sw_existence_filter  [private]
     sw_existence_filter_content  [private]
-
-classes
-  sw-existence-filter  [private]
 ```

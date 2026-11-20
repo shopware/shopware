@@ -59,10 +59,4 @@ blocks
     sw_settings_search_search_index_rebuild_progress  [private]
       sw_settings_search_search_index_rebuild_progress_bar  [private]
       sw_settings_search_search_index_rebuild_progress_text  [deprecated tag:v6.8.0] [private]
-
-classes
-  sw-settings-search__search-index-latest-build  [private]
-  sw-settings-search__search-index-rebuild-button  [private]
-  sw-settings-search__search-index-rebuilding-progress  [private]
-  sw-settings-search__search-index-warning-text  [private]
 ```

@@ -18,7 +18,4 @@ slots
 
 blocks
   sw_cms_block_image_three_cover  [private]
-
-classes
-  sw-cms-block-image-three-cover  [private]
 ```

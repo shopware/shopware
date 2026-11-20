@@ -29,9 +29,4 @@ blocks
       sw_extension_review_creation_inputs_grid_headline_input  [private]
       sw_extension_review_creation_inputs_grid_rating_wrapper  [private]
         sw_extension_review_creation_inputs_grid_rating_wrapper_input  [private]
-
-classes
-  sw-extension-review-creation-inputs  [private]
-  sw-extension-review-creation-inputs__grid  [private]
-  sw-extension-review-creation-inputs__rating  [private]
 ```

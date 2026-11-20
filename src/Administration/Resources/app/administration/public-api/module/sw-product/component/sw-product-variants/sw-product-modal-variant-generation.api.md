@@ -117,29 +117,4 @@ blocks
 crossings
   v-if  sw_product_modal_variant_generation_sidebar_descriptions_options -> sw_product_modal_variant_generation_sidebar_descriptions_restrictions
   v-if  sw_product_modal_variant_generation_sidebar_descriptions_restrictions -> sw_product_modal_variant_generation_sidebar_descriptions_prices
-
-classes
-  generate-variant-progress-bar
-  generate-variant-progress-bar__description
-  generate-variant-progress-bar__wrapper
-  sw-data-grid__item
-  sw-product-modal-variant-generation
-  sw-product-modal-variant-generation__card-title
-  sw-product-modal-variant-generation__grid
-  sw-product-modal-variant-generation__infoBox
-  sw-product-modal-variant-generation__infoBoxContent
-  sw-product-modal-variant-generation__main
-  sw-product-modal-variant-generation__sidebar
-  sw-product-modal-variant-generation__switches
-  sw-product-modal-variant-generation__toolbar
-  sw-product-modal-variant-generation__upload-all
-  sw-product-modal-variant-generation__upload-all-container
-  sw-product-modal-variant-generation__upload-card
-  sw-product-modal-variant-generation__upload_files
-  sw-product-modal-variant-generation__variant-amount
-  sw-product-variant-generation__generate-action
-  sw-product-variant-generation__next-action
-  sw-variant-modal__option-selection  [until v6.8.0]
-  sw-variant-modal__restriction-configuration  [until v6.8.0]
-  sw-variant-modal__surcharge-configuration  [until v6.8.0]
 ```

@@ -72,13 +72,4 @@ crossings
 
 refs
   listing  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  sw-page__smart-bar-amount
-  sw-promotion-v2-list
-  sw-promotion-v2-list__content
-  sw-promotion-v2-list__icon-activity
-  sw-promotion-v2-list__smart-bar-button-add
 ```

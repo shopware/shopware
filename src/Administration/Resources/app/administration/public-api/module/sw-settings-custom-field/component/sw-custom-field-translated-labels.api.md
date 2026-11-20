@@ -51,11 +51,4 @@ blocks
 
 crossings
   v-if  sw_custom_field_translated_labels_single -> sw_custom_field_translated_labels_translated
-
-classes
-  sw-custom-field-translated-labels
-  sw-custom-field-translated-labels__single
-  sw-custom-field-translated-labels__tabs
-  sw-custom-field-translated-labels__translated-content-field
-  sw-custom-field-translated-labels__translated-labels-field  [until v6.8.0]
 ```

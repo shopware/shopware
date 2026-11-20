@@ -68,9 +68,9 @@ methods
   formatTooltipDate(value: any, range: any): any
   getChartOptions(range: any, useCurrency?: any): any
   getChartRangeSubtitle(range: any): any
-  getHistoryCustomerCountData(): any
-  getHistoryOrderCountData(): any
-  getHistoryOrderSumData(): any
+  getHistoryCustomerCountData(): Promise<any>
+  getHistoryOrderCountData(): Promise<any>
+  getHistoryOrderSumData(): Promise<any>
   getTimeUnitInterval(range: any): any
   getTrackingOrderAmountTotal(trackingOrder: any): any
   onCustomerCountRangeUpdate(value: any): any
@@ -80,12 +80,4 @@ methods
 
 blocks
   sw_sales_channel_detail_product_export_insights
-
-classes
-  sw-sales-channel-detail-product-export-insights__charts
-  sw-sales-channel-detail-product-export-insights__customers
-  sw-sales-channel-detail-product-export-insights__headline
-  sw-sales-channel-detail-product-export-insights__orders
-  sw-sales-channel-detail-product-export-insights__summary
-  sw-sales-channel-detail-product-export-insights__turnover
 ```

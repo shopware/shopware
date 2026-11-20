@@ -39,12 +39,4 @@ blocks
       sw_users_permissions_detailed_permissions_grid_permissions_roles  [scope: entity]
         sw_users_permissions_detailed_permissions_grid_permissions_roles_field  [scope: entity, permissionType]
       sw_users_permissions_detailed_permissions_grid_permissions_title  [scope: entity]
-
-classes
-  sw-users-permissions-detailed-permissions-grid
-  sw-users-permissions-detailed-permissions-grid__checkbox-wrapper
-  sw-users-permissions-detailed-permissions-grid__entry
-  sw-users-permissions-detailed-permissions-grid__entry-header
-  sw-users-permissions-detailed-permissions-grid__grid
-  sw-users-permissions-detailed-permissions-grid__title
 ```

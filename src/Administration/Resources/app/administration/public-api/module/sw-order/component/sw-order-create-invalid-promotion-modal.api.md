@@ -27,8 +27,4 @@ blocks
       sw_order_create_invalid_promotion_modal_actions_confirm
     sw_order_create_invalid_promotion_modal_description
     sw_order_create_invalid_promotion_modal_lists
-
-classes
-  sw-order-create-invalid-promotion-modal
-  sw-order-create-invalid-promotion-modal__description
 ```

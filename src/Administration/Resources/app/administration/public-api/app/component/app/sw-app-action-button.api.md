@@ -28,12 +28,4 @@ methods
 
 blocks
   sw_connect_action_button  [private]
-
-classes
-  sw-app-action-button  [private]
-  sw-app-action-button__icon  [private]
-  sw-context-menu-item  [private]
-  sw-context-menu-item--disabled  [private]
-  sw-context-menu-item--icon  [private]
-  sw-context-menu-item__text  [private]
 ```

@@ -42,9 +42,4 @@ blocks
           sw_settings_logging_mail_sent_mt_content_recipients_title  [from v6.8.0]
       sw_settings_logging_entry_info_mt_tabs  [inherited] [from v6.8.0]
       sw_settings_logging_entry_info_tab_items  [keepsParent] [until v6.8.0]
-
-classes
-  sw-settings-logging-mail-sent-info__mail-content
-  sw-settings-logging-mail-sent-info__recipients
-  sw-settings-logging-mail-sent-info__tab-item  [until v6.8.0]
 ```

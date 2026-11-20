@@ -71,12 +71,4 @@ blocks
         sw_sales_channel_detail_product_comparison_input_footer
       sw_sales_channel_detail_product_comparison_header
         sw_sales_channel_detail_product_comparison_input_header
-
-classes
-  sw-sales-channel-detail-product-comparison
-  sw-sales-channel-detail-product-comparison__button
-  sw-sales-channel-detail-product-comparison__button-group
-  sw-sales-channel-detail-product-comparison__preview-action
-  sw-sales-channel-detail-product-comparison__reset-action
-  sw-sales-channel-detail-product-comparison__test-action
 ```

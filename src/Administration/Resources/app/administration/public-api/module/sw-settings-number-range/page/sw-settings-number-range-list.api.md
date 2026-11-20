@@ -38,7 +38,7 @@ methods
   invalidateNumberRangeCaches(): any
   onChangeLanguage(): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onInlineEditSave(promise: any, numberRange: any): any
 
@@ -71,14 +71,4 @@ blocks
 
 refs
   swSettingsNumberRangeGrid  -> sw-entity-listing
-
-classes
-  sw-entity-listing__context-menu-edit-action
-  sw-entity-listing__context-menu-edit-delete
-  sw-number-range-list__add-number-range
-  sw-page__smart-bar-amount
-  sw-settings-number-range-list
-  sw-settings-number-range-list-grid
-  sw-settings-number-range-list__columns-assignment-tag
-  sw-settings-number-range-list__confirm-delete-text
 ```

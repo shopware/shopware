@@ -57,10 +57,4 @@ blocks
 
 refs
   columnPosition  -> sw-data-grid-column-position
-
-classes
-  sw-product-cross-selling-assignment
-  sw-product-cross-selling-assignment__option-list-empty-state
-  sw-product-cross-selling-assignment__select-container
-  sw-select-result__result-item-text
 ```

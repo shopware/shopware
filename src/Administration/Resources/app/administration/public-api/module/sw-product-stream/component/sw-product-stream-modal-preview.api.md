@@ -48,12 +48,12 @@ computed
 methods
   addRandomSort(criteria: any): any  [private]
   closeModal(): any  [private]
-  createdComponent(): any  [private]
+  createdComponent(): Promise<any>  [private]
   getPriceForDefaultCurrency(product: any): any  [private]
   isNotEqualToAnyType(type: any, parentType: any): any  [private]
   loadEntityData(): any  [private]
-  loadSalesChannelById(): any  [private]
-  loadSalesChannels(): any  [private]
+  loadSalesChannelById(): Promise<any>  [private]
+  loadSalesChannels(): Promise<any>  [private]
   mapFiltersForSearch(filters?: any, parentType?: any): any  [private]
   onPageChange(arg0: any): any  [private]
   onSalesChannelChange(): any  [private]
@@ -76,15 +76,4 @@ blocks
         sw_product_stream_modal_preview_grid_pagination  [private]
     sw_product_stream_modal_preview_footer  [private]
       sw_product_stream_modal_preview_close_button  [private]
-
-classes
-  sw-product-stream-modal-preview  [private]
-  sw-product-stream-modal-preview__close-action  [private]
-  sw-product-stream-modal-preview__content  [private]
-  sw-product-stream-modal-preview__content-header  [private]
-  sw-product-stream-modal-preview__data-grid  [private]
-  sw-product-stream-modal-preview__sales-channel-field  [private]
-  sw-product-stream-modal-preview__sales-channel-field-label  [private]
-  sw-product-stream-modal-preview__search-field  [private]
-  sw-product-stream-modal-preview__search-field-label  [private]
 ```

@@ -37,16 +37,4 @@ blocks
       sw_order_nested_line_items_row_content_unit_price  [private]
         sw_order_nested_line_items_row_content_unit_price_content  [private]
     sw_order_nested_line_items_row_nesting  [after v-if] [private]
-
-classes
-  sw-order-nested-line-items-row  [private]
-  sw-order-nested-line-items-row__content  [private]
-  sw-order-nested-line-items-row__item  [private]
-  sw-order-nested-line-items-row__label  [private]
-  sw-order-nested-line-items-row__label-content  [private]
-  sw-order-nested-line-items-row__nesting-level  [private]
-  sw-order-nested-line-items-row__quantity  [private]
-  sw-order-nested-line-items-row__tax  [private]
-  sw-order-nested-line-items-row__total-price  [private]
-  sw-order-nested-line-items-row__unit-price  [private]
 ```

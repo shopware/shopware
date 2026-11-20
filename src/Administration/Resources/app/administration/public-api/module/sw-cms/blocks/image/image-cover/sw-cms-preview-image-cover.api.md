@@ -16,7 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_cover_preview  [private]
-
-classes
-  sw-cms-preview-image-cover  [private]
 ```

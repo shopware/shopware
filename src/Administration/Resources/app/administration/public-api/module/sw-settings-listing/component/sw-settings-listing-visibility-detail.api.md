@@ -30,7 +30,7 @@ computed
 methods
   changeVisibilityValue(event: any, item: any): any
   createdComponent(): any
-  fetchSalesChannels(): any
+  fetchSalesChannels(): Promise<any>
   onPageChange(params: any): any
 
 blocks
@@ -42,8 +42,4 @@ blocks
         sw_settings_listing_visibility_detail_columns_sales_channel_label  [scope: item]
       sw_settings_listing_visibility_detail_columns_search_only  [scope: item]
     sw_settings_listing_visibility_detail_pagination
-
-classes
-  sw-product-visibility-detail__name
-  sw-settings-listing-visibility-detail
 ```

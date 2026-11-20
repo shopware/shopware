@@ -30,7 +30,4 @@ methods
 blocks
   sw_boolean_filter  [private]
     sw_boolean_filter_content  [private]
-
-classes
-  sw-boolean-filter  [private]
 ```

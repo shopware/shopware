@@ -95,14 +95,4 @@ crossings
 refs
   mediaElement  -> audio
   mediaElement  -> video
-
-classes
-  sw-media-preview-v2
-  sw-media-preview-v2__item
-  sw-media-preview-v2__item--audio
-  sw-media-preview-v2__locked-icon
-  sw-media-preview-v2__placeholder
-  sw-media-preview-v2__play-button
-  sw-media-preview-v2__play-icon
-  sw-media-preview-v2__warning-icon
 ```

@@ -38,12 +38,4 @@ blocks
         sw_settings_sso_user_create_access_key_modal_inner_footer_save  [private]
       sw_settings_sso_user_create_access_key_modal_inner_generate_new_key_button  [private]
       sw_settings_sso_user_create_access_key_modal_inner_help_text  [private]
-
-classes
-  sso-user-Integrations-modal--apply  [private]
-  sso-user-Integrations-modal--cancel  [private]
-  sso-user-Integrations-modal-field--access-key  [private]
-  sso-user-Integrations-modal-field--generate-access-key  [private]
-  sso-user-Integrations-modal-field--secret-acces-key  [private]
-  sw-settings-sso-user-create-access-key-modal  [private]
 ```

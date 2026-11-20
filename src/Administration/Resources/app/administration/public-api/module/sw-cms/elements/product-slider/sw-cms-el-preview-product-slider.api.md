@@ -13,7 +13,4 @@ component sw-cms-el-preview-product-slider  private  js  [private]
 
 blocks
   sw_cms_element_product_slider_preview  [private]
-
-classes
-  sw-cms-el-preview-product-slider  [private]
 ```

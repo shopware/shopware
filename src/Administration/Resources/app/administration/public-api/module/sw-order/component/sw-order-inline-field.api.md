@@ -27,7 +27,4 @@ methods
 
 blocks
   sw_order_document_order_inline_field
-
-classes
-  sw-order-inline-field
 ```

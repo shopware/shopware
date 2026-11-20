@@ -81,14 +81,4 @@ blocks
       sw_order_create_modal_tabs_extension  [scope: active] [until v6.8.0]
       sw_order_create_modal_tabs_options  [scope: active] [until v6.8.0]
       sw_order_create_modal_tabs_products  [scope: active] [until v6.8.0]
-
-classes
-  sw-order-create-initial-modal
-  sw-order-create-initial-modal__button-cancel
-  sw-order-create-initial-modal__button-preview
-  sw-order-create-initial-modal__content
-  sw-order-create-initial-modal__tab-customer  [until v6.8.0]
-  sw-order-create-initial-modal__tab-options  [until v6.8.0]
-  sw-order-create-initial-modal__tab-product  [until v6.8.0]
-  sw-order-create-initial-modal__tabs
 ```

@@ -94,21 +94,6 @@ blocks
 crossings
   <div>  sw_customer_card_metadata -> sw_customer_card_metadata_customer_email
 
-classes
-  sw-customer-card
-  sw-customer-card-email-link
-  sw-customer-card__account-type-select
-  sw-customer-card__actions
-  sw-customer-card__detailed-data
-  sw-customer-card__header
-  sw-customer-card__metadata
-  sw-customer-card__metadata-customer-guest-label
-  sw-customer-card__metadata-customer-name
-  sw-customer-card__metadata-header
-  sw-customer-card__metadata-header-text
-  sw-customer-card__salutation-select
-  sw-customer-card__tag-select
-
 notes
   unresolved computed ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].cust...
 ```

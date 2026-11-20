@@ -35,8 +35,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config
-
-classes
-  sw-settings-media
-  sw-settings-media__save-action
 ```

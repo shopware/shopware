@@ -38,13 +38,4 @@ blocks
       sw_error_stack  [private]
       sw_error_status_code  [private]
     sw_error_illustration  [private]
-
-classes
-  sw-error  [private]
-  sw-error__container  [private]
-  sw-error__content  [private]
-  sw-error__illustration  [private]
-  sw-error__message  [private]
-  sw-error__stack  [private]
-  sw-error__status-code  [private]
 ```

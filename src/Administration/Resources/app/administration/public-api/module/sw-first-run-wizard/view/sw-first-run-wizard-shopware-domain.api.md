@@ -37,14 +37,8 @@ methods
   createdComponent(): any
   setTitle(): any
   updateButtons(): any
-  verifyDomain(): any
+  verifyDomain(): Promise<any>
 
 blocks
   sw_first_run_wizard_shopware_domain
-
-classes
-  headline
-  message
-  sw-first-run-wizard-shopware-domain
-  sw-first-run-wizard-shopware-domain__error
 ```

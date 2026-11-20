@@ -70,7 +70,7 @@ computed
   versionContext: any
 
 methods
-  askAndSaveEdits(reason?: any): any
+  askAndSaveEdits(reason?: any): Promise<any>
   beforeDestroyComponent(useKeepalive?: any): any
   convertMissingProductLineItems(): any
   createNewVersionId(): any
@@ -79,7 +79,7 @@ methods
   handleOrderAddressUpdate(addressMappings: any): Promise<any>
   onAskAndSaveEditsCancel(): any
   onAskAndSaveEditsConfirm(): Promise<any>
-  onCancelEditing(): any
+  onCancelEditing(): Promise<any>
   onChangeLanguage(): any  [deprecated tag:v6.8.0]
   onError(error: any): any
   onLeaveModalClose(): any
@@ -92,7 +92,7 @@ methods
   onStartEditing(): any  [deprecated tag:v6.8.0]
   onUpdateEditing(editingValue: any): any  [deprecated tag:v6.8.0]
   onUpdateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
-  reloadEntityData(isSaved?: any): any
+  reloadEntityData(isSaved?: any): Promise<any>
   saveAndReload(afterSaveFn?: any): Promise<any>
   saveEditsFinish(): any
   updateCreatedById(createdById: any): any  [deprecated tag:v6.8.0]
@@ -126,20 +126,4 @@ crossings
 
 refs
   baseComponent  -> router-view
-
-classes
-  has-warning
-  sw-order-detail
-  sw-order-detail__alert
-  sw-order-detail__header
-  sw-order-detail__manual-order-label
-  sw-order-detail__smart-bar-cancel-button
-  sw-order-detail__smart-bar-save-button
-  sw-order-detail__tab-warning-badge  [until v6.8.0]
-  sw-order-detail__tabs
-  sw-order-detail__tabs-tab-details  [until v6.8.0]
-  sw-order-detail__tabs-tab-documents  [until v6.8.0]
-  sw-order-detail__tabs-tab-general  [until v6.8.0]
-  sw_order_detail_base__converted_products_alert-list
-  sw_order_detail_base__missing_products_alert-list
 ```

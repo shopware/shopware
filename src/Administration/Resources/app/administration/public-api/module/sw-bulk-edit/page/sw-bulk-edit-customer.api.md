@@ -42,7 +42,7 @@ methods
   createdComponent(): any
   defineBulkEditData(name: any, value?: any, type?: any, isChanged?: any): any
   loadBulkEditData(): any
-  loadCustomFieldSets(): any
+  loadCustomFieldSets(): Promise<any>
   onChangeLanguage(languageId: any): any
   onCustomFieldsChange(value: any): any
   onProcessData(): any
@@ -65,12 +65,4 @@ blocks
       sw_bulk_edit_customer_actions_save
     sw_bulk_edit_customer_search_bar
     sw_bulk_edit_customer_smart_bar_header
-
-classes
-  sw-bulk-edit-customer
-  sw-bulk-edit-customer-base__account
-  sw-bulk-edit-customer-base__custom_fields
-  sw-bulk-edit-customer-base__tags
-  sw-bulk-edit-customer__save-action
-  sw-bulk-edit__custom-fields
 ```

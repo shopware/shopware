@@ -66,11 +66,4 @@ blocks
 
 refs
   listing  -> sw-entity-listing
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-customer-group-list
-  sw-settings-customer-group-list-grid
-  sw-settings-customer-group-list-grid__delete-action
-  sw-settings-customer-group-list__create
 ```

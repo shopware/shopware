@@ -59,8 +59,4 @@ blocks
       sw_advanced_selection_rule_list_grid_columns_invalid_content  [scope: item] [private]
     sw_advanced_selection_rule_list_grid_columns_tags  [private]
       sw_advanced_selection_rule_list_grid_columns_tags_content  [scope: item, tag] [private]
-
-classes
-  sw-advanced-selection-rule  [private]
-  sw-data-grid__cell-value  [private]
 ```

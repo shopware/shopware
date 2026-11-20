@@ -123,17 +123,4 @@ blocks
 
 refs
   selectFieldScope  -> mt-select  [private]
-
-classes
-  advanced-prices  [private]
-  sw-card__quick-link  [private]
-  sw-promotion-context-item__delete-action  [private]
-  sw-promotion-detail-discounts-modal  [private]
-  sw-promotion-discount-component  [private]
-  sw-promotion-discount-component__context-button  [private]
-  sw-promotion-discount-component__discount-value  [private]
-  sw-promotion-discount-component__select-discount-rules  [private]
-  sw-promotion-discount-component__type-select  [private]
-  sw-promotion-discount-delete-button  [private]
-  sw-promotion-discount-form__advanced-prices-modal  [private]
 ```

@@ -37,10 +37,4 @@ blocks
 
 crossings
   v-if  sw_inheritance_switch_inherit_icon -> sw_inheritance_switch_uninherit_icon  [private]
-
-classes
-  sw-inheritance-switch  [private]
-  sw-inheritance-switch--disabled  [private]
-  sw-inheritance-switch--is-inherited  [private]
-  sw-inheritance-switch--is-not-inherited  [private]
 ```

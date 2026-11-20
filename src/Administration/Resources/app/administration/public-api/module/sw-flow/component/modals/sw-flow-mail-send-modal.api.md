@@ -129,29 +129,4 @@ blocks
 
 refs
   recipientsGrid  -> sw-data-grid  [private]
-
-classes
-  sw-flow-mail-send-modal  [private]
-  sw-flow-mail-send-modal__cancel-button  [private]
-  sw-flow-mail-send-modal__create-mail-template  [private]
-  sw-flow-mail-send-modal__document-type-select  [private]
-  sw-flow-mail-send-modal__document-types  [private]
-  sw-flow-mail-send-modal__document_warning  [private]
-  sw-flow-mail-send-modal__file-formats-select  [private]
-  sw-flow-mail-send-modal__grid-action-delete  [private]
-  sw-flow-mail-send-modal__grid-action-edit  [private]
-  sw-flow-mail-send-modal__mail-template-detail  [private]
-  sw-flow-mail-send-modal__mail-template-detail-link  [private]
-  sw-flow-mail-send-modal__mail-template-select  [private]
-  sw-flow-mail-send-modal__mail-template-type-name  [private]
-  sw-flow-mail-send-modal__recipient  [private]
-  sw-flow-mail-send-modal__recipient-email  [private]
-  sw-flow-mail-send-modal__recipient-grid  [private]
-  sw-flow-mail-send-modal__recipient-name  [private]
-  sw-flow-mail-send-modal__reply-to  [private]
-  sw-flow-mail-send-modal__save-button  [private]
-  sw-flow-mail-send-modal__use-different-reply-to  [private]
-  sw-select-result  [private]
-  sw-select-result__create-new-template  [private]
-  sw-select-result__item-list  [private]
 ```

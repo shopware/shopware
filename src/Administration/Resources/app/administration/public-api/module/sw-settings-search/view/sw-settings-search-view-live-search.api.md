@@ -22,7 +22,4 @@ computed
 blocks
   sw_settings_search_view_live_search
     sw_settings_search_view_live_search_content_card  [after v-if]
-
-classes
-  sw-settings-search__view-live-search
 ```

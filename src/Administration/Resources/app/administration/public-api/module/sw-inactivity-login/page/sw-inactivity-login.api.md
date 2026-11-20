@@ -33,13 +33,9 @@ methods
   _reloadPage(): any  [private]
   forwardLogin(): any  [private]
   handleLoginSuccess(): any  [private]
-  loginUserWithPassword(): any  [private]
+  loginUserWithPassword(): Promise<any>  [private]
   onBackToLogin(): any  [private]
 
 blocks
   sw_inactivity_login  [private]
-
-classes
-  sw-inactivity-login  [private]
-  sw-inactivity-login__modal  [private]
 ```

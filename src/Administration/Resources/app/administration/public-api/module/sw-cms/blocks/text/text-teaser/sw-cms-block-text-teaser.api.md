@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_text_teaser  [private]
-
-classes
-  sw-cms-block-text-teaser  [private]
 ```

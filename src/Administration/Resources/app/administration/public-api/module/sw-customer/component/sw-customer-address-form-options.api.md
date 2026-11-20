@@ -34,8 +34,4 @@ blocks
     sw_customer_address_form_options_custom_field_sets
     sw_customer_address_form_options_default_billing_address
     sw_customer_address_form_options_default_shipping_address
-
-classes
-  sw-customer-address-form__options
-  sw-customer-address-form__set-default-billing-address-action
 ```

@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_cross_selling  [private]
     sw_cms_block_cross_selling_slot_content  [private]
-
-classes
-  sw-cms-block-cross-selling  [private]
 ```

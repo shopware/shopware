@@ -29,16 +29,4 @@ computed
 methods
   activateServices(): Promise<any>  [private]
   reloadServices(): Promise<any>  [private]
-
-classes
-  mt-link--external  [private]
-  sw-settings-services-index  [private]
-  sw-settings-services-index__content  [private]
-  sw-settings-services-index__installing-card  [private]
-  sw-settings-services-index__installing-card-loader  [private]
-  sw-settings-services-index__installing-card-title  [private]
-  sw-settings-services-index__services-deactivated-banner  [private]
-  sw-settings-services__available-services  [private]
-  sw-settings-services__footer  [private]
-  sw-settings-services__listing-section  [private]
 ```

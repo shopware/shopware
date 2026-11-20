@@ -62,7 +62,7 @@ methods
   createStateChangeErrorNotification(errorMessage: any): any
   createdComponent(): any
   getLastChange(): any
-  getTransitionOptions(): any
+  getTransitionOptions(): Promise<any>
   onLeaveModalClose(): any
   onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
   onShowStatusHistory(): any
@@ -79,13 +79,4 @@ blocks
       sw_order_state_change_card_state_modal
     sw_order_state_change_card_content
     sw_order_state_change_card_divider
-
-classes
-  sw-order-detail-state-card
-  sw-order-detail-state-card__content
-  sw-order-detail-state-card__divider
-  sw-order-detail-state-card__state
-  sw-order-detail-state-card__state-container
-  sw-order-detail-state-card__state-history-button
-  sw-order-detail-state-card__state-history-text
 ```

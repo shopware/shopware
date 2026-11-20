@@ -20,8 +20,4 @@ props
 
 blocks
   sw_users_permissions_role_role_view_general_card_view_additional_permissions  [after v-if]
-
-classes
-  sw-users-permissions-role-view-detailed
-  sw-users-permissions-role-view-detailed__banner
 ```

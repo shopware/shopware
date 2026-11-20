@@ -48,7 +48,7 @@ methods
   createdComponent(): any
   criteriaIsAlreadyUsed(criteriaName: any): any
   customFieldCriteriaSingleSelect(customField: any): any
-  fetchCustomFieldSetIds(): any  [deprecated tag:v6.8.0]
+  fetchCustomFieldSetIds(): Promise<any>  [deprecated tag:v6.8.0]
   fetchCustomFields(): any
   filterEmptyCustomFields(item: any): any
   getCriteriaSnippetByFieldName(fieldName: any): any
@@ -91,10 +91,4 @@ crossings
 refs
   customFieldSelection  -> sw-entity-single-select
   dataGrid  -> sw-data-grid
-
-classes
-  sw-settings-listing-option-criteria-grid__criteria-card
-  sw-settings-listing-option-criteria-grid__criteria-empty-state
-  sw-settings-listing-option-criteria-grid__criteria-select
-  sw-settings-listing-option-criteria-grid__data-grid
 ```

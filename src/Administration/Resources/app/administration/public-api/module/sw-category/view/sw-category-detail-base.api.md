@@ -43,11 +43,4 @@ blocks
         sw_category_detail_information_type_select
     sw_category_detail_link  [after v-if]
     sw_category_detail_menu
-
-classes
-  sw-category-detail-base
-  sw-category-detail-base__active
-  sw-category-detail-base__tags
-  sw-category-detail-base__type-container
-  sw-category-detail-base__type-selection
 ```

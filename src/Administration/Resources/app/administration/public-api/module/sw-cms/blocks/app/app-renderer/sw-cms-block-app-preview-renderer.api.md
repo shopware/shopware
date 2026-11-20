@@ -21,8 +21,4 @@ computed
 
 blocks
   sw_cms_block_app_preview_renderer  [private]
-
-classes
-  sw-cms-block-app-preview-renderer  [private]
-  sw-cms-block-app-preview-renderer__fallback-preview  [private]
 ```

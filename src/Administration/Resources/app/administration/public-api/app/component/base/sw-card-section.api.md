@@ -24,7 +24,4 @@ computed
 
 blocks
   sw_card_section  [private]
-
-classes
-  sw-card-section  [private]
 ```

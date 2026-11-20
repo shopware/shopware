@@ -51,17 +51,4 @@ blocks
           sw_profile_index_search_preferences_searchable_elements_button_deselect
           sw_profile_index_search_preferences_searchable_elements_button_reset
           sw_profile_index_search_preferences_searchable_elements_button_select
-
-classes
-  sw-card-elasticsearch-enabled
-  sw-card-elasticsearch-enabled__alert
-  sw-profile-index-search-preferences
-  sw-profile-index-search-preferences-search-behavior
-  sw-profile-index-search-preferences-searchable-elements
-  sw-profile-index-search-preferences-searchable-elements__button-deselect-all
-  sw-profile-index-search-preferences-searchable-elements__button-reset-to-default
-  sw-profile-index-search-preferences-searchable-elements__button-select-all
-  sw-profile-index-search-preferences-searchable-elements__entity
-  sw-profile-index-search-preferences-searchable-elements__entity-container
-  sw-profile-index-search-preferences-searchable-elements__entity-field
 ```

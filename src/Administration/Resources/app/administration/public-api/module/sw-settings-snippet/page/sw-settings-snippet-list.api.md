@@ -132,20 +132,4 @@ crossings
   v-if  sw_settings_snippet_list_column_id_inline_edit -> sw_settings_snippet_list_column_id_content
   v-if  sw_settings_snippet_list_column_value_inline_edit -> sw_settings_snippet_list_column_value_content
   v-if  sw_settings_snippet_list_delete_modal_text_reset -> sw_settings_snippet_list_delete_modal_text_delete
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-snippet-list
-  sw-settings-snippet-list__content
-  sw-settings-snippet-list__delete-action
-  sw-settings-snippet-list__delete-modal
-  sw-settings-snippet-list__delete-modal-confirm-delete-text
-  sw-settings-snippet-list__delete-modal-confirm-reset-text
-  sw-settings-snippet-list__delete-modal-delete-all-checkbox
-  sw-settings-snippet-list__delete-modal-grid
-  sw-settings-snippet-list__edit-action
-  sw-settings-snippet-list__grid
-  sw-settings-snippet-list__grid-sidebar
-  sw-settings-snippet-list__smart_bar_header
-  sw-settings_snippet_list__smart-bar-title-text
 ```

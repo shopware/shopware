@@ -42,7 +42,4 @@ methods
 blocks
   sw_seo_main_category
     sw_seo_main_category_select
-
-classes
-  sw-seo-main-category
 ```

@@ -13,8 +13,4 @@ component sw-skeleton-bar-deprecated  private  ts  [private]
 
 blocks
   sw_skeleton_bar  [private]
-
-classes
-  sw-skeleton-bar  [private]
-  sw-skeleton-bar__shimmer  [private]
 ```

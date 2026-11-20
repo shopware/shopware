@@ -77,19 +77,4 @@ blocks
           sw_image_slider_element_description  [scope: image, index]
           sw_image_slider_image_images_container  [scope: image, index]
             sw_image_slider_image  [scope: image, index]
-
-classes
-  arrow-left
-  arrow-right
-  is--active
-  sw-image-slider
-  sw-image-slider__arrow
-  sw-image-slider__buttons
-  sw-image-slider__buttons-element
-  sw-image-slider__element-container
-  sw-image-slider__element-description
-  sw-image-slider__element-image
-  sw-image-slider__element-wrapper
-  sw-image-slider__image-container
-  sw-image-slider__image-scrollable
 ```

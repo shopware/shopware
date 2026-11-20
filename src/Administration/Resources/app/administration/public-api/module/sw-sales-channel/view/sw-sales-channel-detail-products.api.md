@@ -47,13 +47,13 @@ computed
 methods
   getDeleteId(product: any): any
   getExceededAssignmentLimit(idLists: any): any
-  getProducts(): any
+  getProducts(): Promise<any>
   isProductRemovable(product: any): any
-  onAddProducts(products: any, selection?: any): any
+  onAddProducts(products: any, selection?: any): Promise<any>
   onChangePage(data: any): any
   onChangeSearchTerm(searchTerm: any): any
-  onDeleteProduct(product: any): any
-  onDeleteProducts(): any
+  onDeleteProduct(product: any): Promise<any>
+  onDeleteProducts(): Promise<any>
   onProductSelectionChanged(selection: any): any
   openAddProductsModal(): any
   saveProductVisibilities(data: any): any  [deprecated tag:v6.8.0]
@@ -86,11 +86,4 @@ crossings
 
 refs
   entityListing  -> sw-entity-listing
-
-classes
-  link
-  link-warning
-  sw-data-grid__cell-content
-  sw-sales-channel-detail-products
-  sw-sales-channel-detail-products__list
 ```

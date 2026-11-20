@@ -32,8 +32,4 @@ methods
 
 blocks
   sw_bulk_edit_order_documents_delete_documents  [private]
-
-classes
-  sw-bulk-edit-order-documents-delete-documents  [private]
-  sw-bulk-edit-order-documents-delete-documents__checkbox  [private]
 ```

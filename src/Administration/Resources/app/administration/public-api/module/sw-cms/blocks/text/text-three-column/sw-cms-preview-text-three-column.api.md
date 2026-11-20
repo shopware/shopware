@@ -13,7 +13,4 @@ component sw-cms-preview-text-three-column  private  js  [private]
 
 blocks
   sw_cms_block_text_three_column_preview  [private]
-
-classes
-  sw-cms-preview-text-three-column  [private]
 ```

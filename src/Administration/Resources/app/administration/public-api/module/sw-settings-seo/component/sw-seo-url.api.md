@@ -51,7 +51,7 @@ methods
   createdComponent(): any
   initSalesChannelCollection(): any
   initSeoUrlCollection(): any
-  loadSalesChannel(salesChannelId: any): any
+  loadSalesChannel(salesChannelId: any): Promise<any>
   onSalesChannelChanged(salesChannelId: any): any
   refreshCurrentSeoUrl(): any
 
@@ -65,9 +65,4 @@ blocks
 
 refs
   salesChannelSwitch  -> sw-sales-channel-switch
-
-classes
-  sw-seo-url
-  sw-seo-url__card
-  sw-seo-url__card-seo-additional
 ```

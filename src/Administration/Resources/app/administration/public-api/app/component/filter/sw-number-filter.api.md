@@ -33,9 +33,4 @@ blocks
   sw_number_filter  [private]
     sw_number_filter_from_field  [private]
     sw_number_filter_to_field  [private]
-
-classes
-  sw-number-filter  [private]
-  sw-number-filter__from  [private]
-  sw-number-filter__to  [private]
 ```

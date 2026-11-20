@@ -55,7 +55,7 @@ methods
   onClose(): any
   onSave(): Promise<any>
   saveCustomer(): Promise<any>
-  validateEmail(): any
+  validateEmail(): Promise<any>
 
 blocks
   sw_order_new_customer_modal
@@ -84,9 +84,6 @@ blocks
       sw_order_new_customer_modal_tabs_billing  [scope: active] [until v6.8.0]
       sw_order_new_customer_modal_tabs_details  [scope: active] [until v6.8.0]
       sw_order_new_customer_modal_tabs_shipping  [scope: active] [until v6.8.0]
-
-classes
-  sw-order-new-customer-modal
 
 notes
   unresolved computed ...mapPageErrors({ 'sw.order.new.customer.detail': { customer: [ 'firstName', 'l...

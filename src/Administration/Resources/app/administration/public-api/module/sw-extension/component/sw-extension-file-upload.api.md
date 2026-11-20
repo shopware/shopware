@@ -27,7 +27,7 @@ methods
   closeConfirmModal(): any  [private]
   createdComponent(): Promise<any>  [private]
   getUserConfig(): Promise<any>  [private]
-  handleUpload(files: any): any  [private]
+  handleUpload(files: any): Promise<any>  [private]
   onClickUpload(): any  [private]
   onFileInputChange(): any  [private]
   saveConfig(value: any): any  [private]
@@ -51,12 +51,4 @@ blocks
 refs
   fileForm  -> form  [private]
   fileInput  -> input  [private]
-
-classes
-  sw-extension-file-upload  [private]
-  sw-extension-file-upload-confirm-modal  [private]
-  sw-extension-file-upload__button  [private]
-  sw-extension-file-upload__content  [private]
-  sw-extension-file-upload__file-input  [private]
-  sw-extension-file-upload__form  [private]
 ```

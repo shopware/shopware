@@ -35,16 +35,4 @@ blocks
       sw_mail_header_footer_detail_content_language_info  [inherited]
     sw_mail_header_footer_detail_header  [inherited]
     sw_mail_header_footer_detail_language_switch  [replaced]
-
-classes
-  sw-mail-header-footer-detail
-  sw-mail-header-footer-detail__code-editor--footer-html
-  sw-mail-header-footer-detail__code-editor--footer-plain
-  sw-mail-header-footer-detail__code-editor--header-html
-  sw-mail-header-footer-detail__code-editor--header-plain
-  sw-mail-header-footer-detail__sales-channel
-  sw-mail-header-footer-detail__sales-channel-list
-  sw-mail-header-footer-detail__sales-channel-list-entry
-  sw-mail-header-footer-detail__sales-channel-list-label
-  sw-mail-header-footer-detail__save-action
 ```

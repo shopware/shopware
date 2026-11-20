@@ -113,15 +113,4 @@ crossings
 refs
   defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel
   systemConfig  -> sw-system-config
-
-classes
-  is--truncate
-  sw-settings-listing-index
-  sw-settings-listing-index__default-search-result-sorting-select
-  sw-settings-listing-index__default-sorting-select
-  sw-settings-listing-index__sorting-options-card
-  sw-settings-listing-index__sorting-options-empty-state
-  sw-settings-listing-index__sorting-options-search-field
-  sw-settings-listing__sales-channel-card
-  sw-settings-listing__save-action
 ```

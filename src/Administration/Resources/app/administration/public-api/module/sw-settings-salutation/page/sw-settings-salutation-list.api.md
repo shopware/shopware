@@ -53,10 +53,4 @@ blocks
 
 crossings
   v-if  sw_settings_salutation_list_grid_columns_position_inline_edit -> sw_settings_salutation_list_grid_columns_position_display
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-salutation-list
-  sw-settings-salutation-list-grid
-  sw-settings-salutation-list__create
 ```

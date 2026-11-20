@@ -47,7 +47,7 @@ methods
   closeInvitationModal(): any
   deleteUser(context: any): any
   getItemToDelete(item: any): any
-  getList(): any
+  getList(): Promise<any>
   invitationFailed(): any
   onCloseConfirmPasswordModal(): any
   onCloseDeleteModal(): any
@@ -81,16 +81,4 @@ blocks
     sw_settings_user_list_smart_bar_actions
       sw_settings_user_list_actions_create_user
       sw_settings_user_list_search_bar
-
-classes
-  sw-data-grid__cell-value
-  sw-settings-user-list
-  sw-settings-user-list__columns
-  sw-settings-user-list__confirm-delete-text
-  sw-settings-user-list__delete-modal
-  sw-settings-user-list__user-delete-action
-  sw-settings-user-list__user-view-action
-  sw-users-permissions-user-listing
-  sw-users-permissions-user-listing__add-user-button
-  sw-users-permissions-user-listing__toolbar
 ```

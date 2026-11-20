@@ -20,7 +20,4 @@ methods
 blocks
   sw_extension_my_extensions_recommendation  [private]
     sw_extension_my_extensions_recommendation_plugin_wizard  [private]
-
-classes
-  sw-extension-my-extensions__recommendation  [private]
 ```

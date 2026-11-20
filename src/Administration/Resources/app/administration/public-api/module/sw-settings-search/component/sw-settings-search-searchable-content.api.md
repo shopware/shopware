@@ -74,17 +74,4 @@ blocks
         sw_settings_search_searchable_content_mt_general_tab_item  [from v6.8.0]
       sw_settings_search_searchable_content_mt_tabs  [from v6.8.0]
     sw_settings_search_searchable_content_title
-
-classes
-  sw-settings-search-searchable-content
-  sw-settings-search__searchable-content-actions
-  sw-settings-search__searchable-content-add-button
-  sw-settings-search__searchable-content-button-group
-  sw-settings-search__searchable-content-rebuild-link
-  sw-settings-search__searchable-content-reset-button
-  sw-settings-search__searchable-content-show-example-link
-  sw-settings-search__searchable-content-tab-content  [from v6.8.0]
-  sw-settings-search__searchable-content-tab-title  [until v6.8.0]
-  sw-settings-search__searchable-content-tabs
-  sw-settings-search__searchable-content-title
 ```

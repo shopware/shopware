@@ -68,15 +68,15 @@ computed
 methods
   beforeDestroyComponent(): any  [private]
   buildSequencesFromConfig(sequences: any): any  [private]
-  createFromFlowTemplate(): any  [private]
+  createFromFlowTemplate(): Promise<any>  [private]
   createNewFlow(): any  [private]
   createSequenceEntity(flowSequence: any): any  [private]
   createdComponent(): Promise<any>  [private]
-  getAppFlowAction(): any  [private]
+  getAppFlowAction(): Promise<any>  [private]
   getDataForActionDescription(): any  [private]
   getDeletedSequenceIds(): any  [private]
   getDetailFlow(): Promise<any>  [private]
-  getDetailFlowTemplate(): any  [private]
+  getDetailFlowTemplate(): Promise<any>  [private]
   getRuleDataForFlowTemplate(): any  [private]
   handleFieldValiationError(): any  [private]
   onLeaveModalClose(): any  [private]
@@ -102,12 +102,4 @@ blocks
     sw_flow_detail_header  [private]
     sw_flow_detail_smart_bar_actions  [private]
       sw_flow_detail_smart_bar_actions_save  [private]
-
-classes
-  sw-flow-detail  [private]
-  sw-flow-detail__save  [private]
-  sw-flow-detail__tab-flow  [until v6.8.0] [private]
-  sw-flow-detail__tab-general  [until v6.8.0] [private]
-  sw-flow-detail__template  [private]
-  sw-flow-detail__warning  [private]
 ```

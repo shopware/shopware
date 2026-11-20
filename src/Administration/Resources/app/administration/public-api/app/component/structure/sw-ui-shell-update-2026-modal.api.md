@@ -59,32 +59,4 @@ methods
 
 refs
   compare  -> div  [private]
-
-classes
-  sw-ui-shell-update-2026-modal  [private]
-  sw-ui-shell-update-2026-modal__compare  [private]
-  sw-ui-shell-update-2026-modal__compare--dragging  [private]
-  sw-ui-shell-update-2026-modal__compare--eased  [private]
-  sw-ui-shell-update-2026-modal__compare--pinned  [private]
-  sw-ui-shell-update-2026-modal__compare--settled  [private]
-  sw-ui-shell-update-2026-modal__compare-handle  [private]
-  sw-ui-shell-update-2026-modal__compare-image  [private]
-  sw-ui-shell-update-2026-modal__compare-image--after  [private]
-  sw-ui-shell-update-2026-modal__compare-image--after-dark  [private]
-  sw-ui-shell-update-2026-modal__compare-image--after-light  [private]
-  sw-ui-shell-update-2026-modal__content  [private]
-  sw-ui-shell-update-2026-modal__description  [private]
-  sw-ui-shell-update-2026-modal__footer  [private]
-  sw-ui-shell-update-2026-modal__footer-left  [private]
-  sw-ui-shell-update-2026-modal__footer-right  [private]
-  sw-ui-shell-update-2026-modal__glass  [private]
-  sw-ui-shell-update-2026-modal__headline  [private]
-  sw-ui-shell-update-2026-modal__hint  [private]
-  sw-ui-shell-update-2026-modal__inline-link  [private]
-  sw-ui-shell-update-2026-modal__media  [private]
-  sw-ui-shell-update-2026-modal__media-image  [private]
-  sw-ui-shell-update-2026-modal__media-image--dark  [private]
-  sw-ui-shell-update-2026-modal__media-image--light  [private]
-  sw-ui-shell-update-2026-modal__text  [private]
-  sw-ui-shell-update-2026-modal__theme-select  [private]
 ```

@@ -29,8 +29,4 @@ blocks
     sw_agentic_commerce_tracking_config_affiliate
     sw_agentic_commerce_tracking_config_campaign
     sw_agentic_commerce_tracking_config_description
-
-classes
-  sw-agentic-commerce-tracking-config
-  sw-agentic-commerce-tracking-config__description
 ```

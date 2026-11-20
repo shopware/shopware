@@ -17,7 +17,4 @@ computed
 
 blocks
   sw_hidden_iframes  [private]
-
-classes
-  sw-hidden-iframes  [private]
 ```

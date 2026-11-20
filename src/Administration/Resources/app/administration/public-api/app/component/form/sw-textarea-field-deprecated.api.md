@@ -41,7 +41,4 @@ methods
 
 blocks
   sw_block_field  [private]
-
-classes
-  sw-field--textarea  [private]
 ```

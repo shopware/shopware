@@ -32,11 +32,4 @@ blocks
         sw_settings_country_mt_tabs_header  [inherited] [from v6.8.0]
     sw_settings_country_detail_header  [inherited]
     sw_settings_country_detail_language_switch  [replaced]
-
-classes
-  sw-settings-country-detail
-  sw-settings-country-detail__save-action
-  sw-settings-country__address-handling-tab  [until v6.8.0]
-  sw-settings-country__setting-tab  [until v6.8.0]
-  sw-settings-country__state-tab  [until v6.8.0]
 ```

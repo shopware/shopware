@@ -39,7 +39,7 @@ computed
 
 methods
   editLink(taxProviderId: any): any
-  getDefaultTaxRate(): any
+  getDefaultTaxRate(): Promise<any>
   getLabel(tax: any): any
   getList(): any
   getTaxColumns(): any
@@ -50,7 +50,7 @@ methods
   onChangeLanguage(languageId: any): any
   onChangeTaxProviderActive(taxProvider: any): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onInlineEditCancel(promise: any): Promise<any>
   onInlineEditSave(promise: any, tax: any): Promise<any>
@@ -86,24 +86,4 @@ blocks
 
 refs
   swSettingsTaxGrid  -> sw-entity-listing
-
-classes
-  is--active
-  sw-data-grid__cell-value
-  sw-page__smart-bar-amount
-  sw-settings-tax-list
-  sw-settings-tax-list-grid
-  sw-settings-tax-list__button-create
-  sw-settings-tax-list__confirm-delete-text
-  sw-settings-tax-provider-list-button__change-priority
-  sw-settings-tax-provider-list-content
-  sw-settings-tax-provider-list-content__bg
-  sw-tax-card
-  sw-tax-list__delete-action
-  sw-tax-list__edit-action
-  sw-tax-provider-item
-  sw-tax-provider-items
-  sw-tax-provider__link
-  sw-tax-provider__name
-  sw-tax-provider__show-detail-link
 ```

@@ -56,18 +56,4 @@ blocks
     sw_first_run_wizard_modal_footer  [private]
       sw_first_run_wizard_modal_footer_left  [private]
       sw_first_run_wizard_modal_footer_right  [private]
-
-classes
-  footer-left  [private]
-  footer-right  [private]
-  one  [private]
-  sw-first-run-wizard-modal  [private]
-  sw-first-run-wizard-modal-content  [private]
-  sw-first-run-wizard-modal-content__columns  [private]
-  sw-first-run-wizard-modal-content__page  [private]
-  sw-first-run-wizard-modal-content__steps  [private]
-  sw-first-run-wizard-modal__component  [private]
-  sw-first-run-wizard-modal__footer  [private]
-  sw-first-run-wizard-modal__loader  [private]
-  two  [private]
 ```

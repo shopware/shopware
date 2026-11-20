@@ -104,20 +104,4 @@ crossings
 refs
   flowTriggerTree  -> sw-tree  [private]
   searchInput  -> input  [private]
-
-classes
-  is--focus  [private]
-  sw-flow-trigger  [private]
-  sw-flow-trigger__dropdown-icon  [private]
-  sw-flow-trigger__empty  [private]
-  sw-flow-trigger__event-container  [private]
-  sw-flow-trigger__event-selection  [private]
-  sw-flow-trigger__input-field  [private]
-  sw-flow-trigger__loader  [private]
-  sw-flow-trigger__search-field  [private]
-  sw-flow-trigger__search-result  [private]
-  sw-flow-trigger__search-result-icon  [private]
-  sw-flow-trigger__search-result-name  [private]
-  sw-flow-trigger__search-results  [private]
-  sw-flow-trigger__select-toolbar  [private]
 ```

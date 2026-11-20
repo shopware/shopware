@@ -31,7 +31,7 @@ computed
 methods
   getLocaleCriterias(term: any): any
   getTermCriteria(term: any): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
 
 blocks
   sw_settings_custom_field_set_list
@@ -52,15 +52,4 @@ blocks
         sw_settings_custom_fields_set_list_empty_message
     sw_settings_custom_field_set_list_header
     sw_settings_custom_field_set_list_search_bar
-
-classes
-  sw-custom-field-set-list__column-name
-  sw-custom-field-set-list__edit-action
-  sw-page__smart-bar-amount
-  sw-settings-custom-field-set-list
-  sw-settings-custom-field-set-list-grid
-  sw-settings-custom-field-set-list__button-create
-  sw-settings-custom-field-set-list__card
-  sw-settings-custom-field-set-list__delete-action
-  sw-settings-custom-field-set-list__help-text-global-set
 ```

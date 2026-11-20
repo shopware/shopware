@@ -33,9 +33,4 @@ methods
   getUnitOptionsByType(type: any): any
   labelUnitCallback(item: any): any
   onChangeMeasurementSystem(technicalName: any): any
-
-classes
-  mt-select-result-list-popover-wrapper__popover-short-name
-  sw-settings-measurement-default-units
-  sw-settings-measurement-default-units__description
 ```

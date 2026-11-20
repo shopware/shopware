@@ -99,13 +99,4 @@ blocks
 
 crossings
   v-if  sw_import_export_activity_listing -> sw_import_export_activity_spinner  [private]
-
-classes
-  sw-import-export-activity  [private]
-  sw-import-export-activity__abort-process-action  [private]
-  sw-import-export-activity__download-action  [private]
-  sw-import-export-activity__invalid-records-help-text  [private]
-  sw-import-export-activity__log-info-action  [private]
-  sw-import-export-activity__open-profile-action  [private]
-  sw-import-export-activity__results-action  [private]
 ```

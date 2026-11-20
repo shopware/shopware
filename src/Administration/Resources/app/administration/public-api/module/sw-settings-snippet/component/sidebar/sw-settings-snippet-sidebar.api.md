@@ -47,8 +47,4 @@ blocks
       sw_settings_snippet_grid_sidebar_filter_more
       sw_settings_snippet_grid_sidebar_filter_only_empty
     sw_settings_snippet_grid_sidebar_refresh
-
-classes
-  sw-snippet-settings__sidebar
-  sw-snippet-settings__sidebar-reset-all
 ```

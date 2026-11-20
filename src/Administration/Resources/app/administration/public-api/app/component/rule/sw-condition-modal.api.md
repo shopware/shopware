@@ -35,7 +35,7 @@ computed
 methods
   closeModal(): any  [private]
   deleteAndClose(): any  [private]
-  deleteChildren(ids: any, context: any): any  [private]
+  deleteChildren(ids: any, context: any): Promise<any>  [private]
   onConditionsChanged(arg0: any): any  [private]
   saveAndCloseModal(): any  [private]
 
@@ -45,7 +45,4 @@ blocks
       sw_condition_modal_footer_cancel  [private]
       sw_condition_modal_footer_save  [private]
     sw_condition_modal_tree  [private]
-
-classes
-  sw-condition-modal  [private]
 ```

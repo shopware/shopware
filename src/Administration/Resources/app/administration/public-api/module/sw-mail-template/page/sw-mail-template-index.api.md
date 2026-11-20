@@ -49,10 +49,4 @@ refs
   mailHeaderFooterList  -> sw-mail-header-footer-list  [until v6.8.0]
   mailTemplateList  -> sw-mail-template-list  [until v6.8.0]
   tabContent  -> component  [from v6.8.0]
-
-classes
-  sw-mail-template-list
-  sw-mail-template-list__tabs  [from v6.8.0]
-  sw-mail-template__button-create
-  sw-product-list__add-other-context-button
 ```

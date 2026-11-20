@@ -41,7 +41,7 @@ methods
   onChangeSearchPreference(searchPreference: any): any  [private]
   onClose(): any  [private]
   onOpenSearchSettings(): any  [private]
-  onSave(): any  [private]
+  onSave(): Promise<any>  [private]
   removeEventListeners(): any  [private]
 
 blocks
@@ -52,10 +52,4 @@ blocks
     sw_search_preferences_modal_grid  [private]
       sw_search_preferences_modal_grid_column_active  [scope: item] [private]
       sw_search_preferences_modal_grid_column_module_name  [scope: item] [private]
-
-classes
-  sw-search-preferences-modal  [private]
-  sw-search-preferences-modal__button-cancel  [private]
-  sw-search-preferences-modal__button-save  [private]
-  sw-search-preferences-modal__description  [private]
 ```

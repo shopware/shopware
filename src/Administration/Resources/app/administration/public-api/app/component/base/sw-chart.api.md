@@ -53,7 +53,4 @@ blocks
 
 crossings
   v-if  sw_line_chart_multiple -> sw_line_chart_single  [private]
-
-classes
-  sw-chart  [private]
 ```

@@ -13,7 +13,4 @@ component sw-cms-preview-text-two-column  private  js  [private]
 
 blocks
   sw_cms_block_text_two_column_preview  [private]
-
-classes
-  sw-cms-preview-text-two-column  [private]
 ```

@@ -21,23 +21,4 @@ emits
 blocks
   sw_mail_template_detail_preview_modal_footer  [after v-if] [private]
     sw_mail_template_detail_preview_modal_footer_cancel  [private]
-
-classes
-  sw-mail-template-preview-modal  [private]
-  sw-mail-template-preview-modal__html  [private]
-  sw-mail-template-preview-modal__html-content  [private]
-  sw-mail-template-preview-modal__html-error  [private]
-  sw-mail-template-preview-modal__html-title  [private]
-  sw-mail-template-preview-modal__plain-text  [private]
-  sw-mail-template-preview-modal__plain-text-content  [private]
-  sw-mail-template-preview-modal__plain-text-error  [private]
-  sw-mail-template-preview-modal__plain-text-title  [private]
-  sw-mail-template-preview-modal__sender-name  [private]
-  sw-mail-template-preview-modal__sender-name-content  [private]
-  sw-mail-template-preview-modal__sender-name-error  [private]
-  sw-mail-template-preview-modal__sender-name-title  [private]
-  sw-mail-template-preview-modal__subject  [private]
-  sw-mail-template-preview-modal__subject-content  [private]
-  sw-mail-template-preview-modal__subject-error  [private]
-  sw-mail-template-preview-modal__subject-title  [private]
 ```

@@ -16,9 +16,4 @@ computed
 
 blocks
   sw_cms_element_video_preview  [private]
-
-classes
-  sw-cms-el-preview-video  [private]
-  sw-cms-el-preview-video__icon  [private]
-  sw-cms-el-preview-video__img  [private]
 ```

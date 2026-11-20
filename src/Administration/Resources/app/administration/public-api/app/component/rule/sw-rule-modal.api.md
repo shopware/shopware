@@ -45,8 +45,8 @@ methods
   conditionsChanged(arg0: any): any  [private]
   createdComponent(): any  [private]
   getChildrenConditions(condition: any): any  [private]
-  loadConditionData(): any  [private]
-  saveAndClose(): any  [private]
+  loadConditionData(): Promise<any>  [private]
+  saveAndClose(): Promise<any>  [private]
   validateRuleAwareness(): any  [private]
 
 blocks
@@ -59,8 +59,4 @@ blocks
     sw_rule_modal_footer  [private]
       sw_rule_modal_footer_button_abort  [private]
       sw_rule_modal_footer_button_save  [private]
-
-classes
-  sw-rule-modal  [private]
-  sw-rule-modal__save  [private]
 ```

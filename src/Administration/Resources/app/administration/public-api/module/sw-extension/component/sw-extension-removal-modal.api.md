@@ -37,8 +37,4 @@ blocks
         sw_extension_removal_modal_footer_cancel  [private]
         sw_extension_removal_modal_footer_deactivate  [private]
       sw_installed_extension_card_removal_content_modal_body  [private]
-
-classes
-  sw-extension-removal-modal  [private]
-  sw-extension-removal-modal__bold-paragraph  [private]
 ```

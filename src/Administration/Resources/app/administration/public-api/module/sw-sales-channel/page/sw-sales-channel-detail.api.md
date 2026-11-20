@@ -119,10 +119,4 @@ blocks
       sw_sales_channel_detail_header_headline
     sw_sales_channel_detail_language_switch
     sw_sales_channel_detail_sidebar
-
-classes
-  sw-sales-channel-detail
-  sw-sales-channel-detail-__tabs
-  sw-sales-channel-detail__agentic-commerce-deprecation-banner
-  sw-sales-channel-detail__save-action
 ```

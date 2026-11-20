@@ -28,7 +28,4 @@ blocks
     sw_import_export_new_profile_wizard_general_page_general
     sw_import_export_new_profile_wizard_general_page_import_settings
     sw_import_export_new_profile_wizard_general_page_indicators
-
-classes
-  sw-import-export-new-profile-wizard-general-page
 ```

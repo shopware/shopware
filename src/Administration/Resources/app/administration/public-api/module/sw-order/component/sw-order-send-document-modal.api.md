@@ -61,12 +61,4 @@ blocks
     sw_order_send_document_modal_primary_action
     sw_order_send_document_modal_secondary_action
     sw_order_send_document_modal_subject
-
-classes
-  sw-order-send-document-modal
-  sw-order-send-document-modal__email-content
-  sw-order-send-document-modal__email-content-label
-  sw-order-send-document-modal__info-container
-  sw-order-send-document-modal__mail-template-select
-  sw-order-send-document-modal__subject
 ```

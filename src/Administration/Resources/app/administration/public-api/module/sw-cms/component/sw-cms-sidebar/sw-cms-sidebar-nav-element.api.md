@@ -28,10 +28,4 @@ blocks
     sw_cms_sidebar_sidebar_navigator_element_delete
     sw_cms_sidebar_sidebar_navigator_element_duplicate
     sw_cms_sidebar_sidebar_navigator_element_label
-
-classes
-  navigator-element__action-delete
-  navigator-element__action-duplicate
-  navigator-element__label
-  sw-cms-sidebar__navigator-element
 ```

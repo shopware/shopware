@@ -34,11 +34,4 @@ methods
 blocks
   sw_checkbox_field  [replaced] [private]
     sw_switch_field  [private]
-
-classes
-  sw-field--switch  [private]
-  sw-field--switch__content  [private]
-  sw-field--switch__input  [private]
-  sw-field__switch-state  [private]
-  sw-field__switch-state-knob  [private]
 ```

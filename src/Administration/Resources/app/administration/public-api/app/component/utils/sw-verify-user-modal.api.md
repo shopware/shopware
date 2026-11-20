@@ -27,7 +27,7 @@ data
 methods
   createdComponent(): any  [private]
   onCloseConfirmPasswordModal(): any  [private]
-  onSubmitConfirmPassword(): any  [private]
+  onSubmitConfirmPassword(): Promise<any>  [private]
 
 blocks
   sw_settings_user_detail_content_confirm_password_modal  [private]
@@ -35,7 +35,4 @@ blocks
       sw_settings_user_detail_content_confirm_password_modal_actions_cancel  [private]
       sw_settings_user_detail_content_confirm_password_modal_actions_change  [private]
     sw_settings_user_detail_content_confirm_password_modal_input__confirm_password  [private]
-
-classes
-  sw-settings-user-detail__confirm-password  [private]
 ```

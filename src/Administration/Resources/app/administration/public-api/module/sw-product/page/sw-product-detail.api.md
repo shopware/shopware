@@ -97,7 +97,7 @@ methods
   adjustProductAccordingToType(): any
   changeModeSettings(): any  [deprecated tag:v6.8.0]
   createProductVisibilityEntity(visibility: any, salesChannel: any): any
-  createState(): any
+  createState(): Promise<any>
   createUserModeSetting(): any  [deprecated tag:v6.8.0]
   createdComponent(): Promise<any>
   customValidate(errors: any, product: any): any
@@ -107,22 +107,22 @@ methods
   getAdvancedModeSetting(): Promise<any>  [deprecated tag:v6.8.0]
   getCmsPageOverrides(): any  [deprecated tag:v6.8.0]
   getDefaultPurchasePrices(): any
-  getDefaultSalesChannels(): any
+  getDefaultSalesChannels(): Promise<any>
   getDefaultTaxRate(): any
   getInheritTitle(): any
   getPreferredMeasurementUnits(): Promise<any>
   initAdvancedModeSettings(): any  [deprecated tag:v6.8.0]
   initProductMeasurementUnits(): Promise<any>
   initState(): any
-  loadAll(): any
-  loadAttributeSet(): any
-  loadCurrencies(): any
-  loadDefaultFeatureSet(): any
+  loadAll(): Promise<any>
+  loadAttributeSet(): Promise<any>
+  loadCurrencies(): Promise<any>
+  loadDefaultFeatureSet(): Promise<any>
   loadLanguage(newLanguageId: any): Promise<any>
-  loadParentProduct(): any
-  loadProduct(): any
+  loadParentProduct(): Promise<any>
+  loadProduct(): Promise<any>
   loadState(): any
-  loadTaxes(): any
+  loadTaxes(): Promise<any>
   onCancel(): any
   onChangeLanguage(languageId: any): any
   onChangeSetting(): any  [deprecated tag:v6.8.0]
@@ -133,14 +133,14 @@ methods
   onDuplicateFinish(duplicate: any): any
   onOpenInStorefront(): any
   onProductNotFound(): Promise<any>
-  onSave(): any
+  onSave(): Promise<any>
   onSaveFinished(response: any): any
   removeMediaItem(state: any, mediaId: any): any
-  saveAdvancedMode(): any  [deprecated tag:v6.8.0]
+  saveAdvancedMode(): Promise<any>  [deprecated tag:v6.8.0]
   saveFinish(): any
   saveOnLanguageChange(): any
   savePreferenceUnits(): any
-  saveProduct(): any
+  saveProduct(): Promise<any>
   syncVariantPriceInheritance(): any
   trackProductSaveEvents(productType: any, productIsNew: any, productWasActivated: any): any
   validatePrices(priceLabel: any, prices: any): any
@@ -179,25 +179,6 @@ blocks
     sw_product_detail_header
     sw_product_detail_language_switch
     sw_product_detail_sidebar
-
-classes
-  sw-card__back-link
-  sw-product-detail
-  sw-product-detail-page__tabs
-  sw-product-detail__button-context-menu
-  sw-product-detail__context-button
-  sw-product-detail__open-in-storefront
-  sw-product-detail__save-action
-  sw-product-detail__save-button-group
-  sw-product-detail__save-duplicate-action
-  sw-product-detail__tab-advanced-prices  [until v6.8.0]
-  sw-product-detail__tab-cross-selling  [until v6.8.0]
-  sw-product-detail__tab-general  [until v6.8.0]
-  sw-product-detail__tab-layout  [until v6.8.0]
-  sw-product-detail__tab-reviews  [until v6.8.0]
-  sw-product-detail__tab-seo  [until v6.8.0]
-  sw-product-detail__tab-specifications  [until v6.8.0]
-  sw-product-detail__tab-variants  [until v6.8.0]
 
 notes
   unresolved computed ...mapPageErrors(errorConfiguration)

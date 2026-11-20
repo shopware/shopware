@@ -46,22 +46,4 @@ methods
 
 blocks
   sw_generic_social_media_card  [private]
-
-classes
-  media-preview--lg  [private]
-  media-preview--sm  [private]
-  sw-generic-social-media-card  [private]
-  sw-generic-social-media-card__media-modal  [private]
-  sw-generic-social-media-card__media-preview  [private]
-  sw-generic-social-media-card__media-preview-container  [private]
-  sw-generic-social-media-card__media-preview-content  [private]
-  sw-generic-social-media-card__media-preview-content-description  [private]
-  sw-generic-social-media-card__media-preview-content-link  [private]
-  sw-generic-social-media-card__media-preview-content-title  [private]
-  sw-generic-social-media-card__media-preview-image  [private]
-  sw-generic-social-media-card__media-preview-title  [private]
-  sw-generic-social-media-card__og-description-input  [private]
-  sw-generic-social-media-card__og-image-upload  [private]
-  sw-generic-social-media-card__og-image-upload-listener  [private]
-  sw-generic-social-media-card__og-title-input  [private]
 ```

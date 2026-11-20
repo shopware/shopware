@@ -57,17 +57,4 @@ blocks
       sw_cms_element_image_slider_nav_arrows  [after v-if] [private]
       sw_cms_element_image_slider_nav_dots  [private]
     sw_cms_element_image_slider_nav_default  [private]
-
-classes
-  is--active  [private]
-  is--nav-outside  [private]
-  sw-cms-el-image-slider  [private]
-  sw-cms-el-image-slider__image  [private]
-  sw-cms-el-image-slider__image-box  [private]
-  sw-cms-el-image-slider__navigation  [private]
-  sw-cms-el-image-slider__navigation-arrows  [private]
-  sw-cms-el-image-slider__navigation-button  [private]
-  sw-cms-el-image-slider__navigation-buttons  [private]
-  sw-cms-el-image-slider__navigation-dots  [private]
-  sw-cms-el-image-slider__video  [private]
 ```

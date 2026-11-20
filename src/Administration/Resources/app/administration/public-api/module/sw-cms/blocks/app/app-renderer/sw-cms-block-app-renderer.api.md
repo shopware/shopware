@@ -21,9 +21,6 @@ computed
 blocks
   sw_cms_block_app_renderer  [private]
 
-classes
-  sw-cms-block-app-renderer  [private]
-
 notes
   dynamic-slot slot.slot  [private]
 ```

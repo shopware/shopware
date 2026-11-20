@@ -14,7 +14,4 @@ component sw-cms-el-config-category-navigation  private  js  [private]
 blocks
   sw_cms_element_category_nav_config  [private]
     sw_cms_element_category_nav_config_info  [private]
-
-classes
-  sw-cms-el-config-category-navigation  [private]
 ```

@@ -35,7 +35,4 @@ methods
 blocks
   sw_settings_snippet_filter_switch
     sw_settings_snippet_filter_switch_field
-
-classes
-  sw-settings-snippet-filter-switch
 ```

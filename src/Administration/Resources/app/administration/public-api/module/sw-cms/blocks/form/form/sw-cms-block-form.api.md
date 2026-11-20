@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_form  [private]
-
-classes
-  sw-cms-block-form  [private]
 ```

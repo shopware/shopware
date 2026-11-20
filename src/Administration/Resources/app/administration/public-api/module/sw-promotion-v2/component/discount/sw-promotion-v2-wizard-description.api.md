@@ -16,7 +16,4 @@ slots
 blocks
   sw_promotion_v2_wizard_description
     sw_promotion_v2_wizard_description_slot_default
-
-classes
-  sw-promotion-v2-wizard-description
 ```

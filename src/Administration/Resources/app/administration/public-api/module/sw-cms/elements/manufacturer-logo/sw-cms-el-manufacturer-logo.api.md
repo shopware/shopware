@@ -26,8 +26,4 @@ methods
 blocks
   sw_cms_element_image  [inherited] [private]
     sw_cms_element_image_content  [replaced] [private]
-
-classes
-  sw-cms-el-image  [private]
-  sw-cms-el-image__content  [private]
 ```

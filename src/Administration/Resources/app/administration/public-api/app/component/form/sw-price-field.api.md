@@ -73,25 +73,11 @@ methods
   onPriceNetChange(value: any): any  [private]
   onPriceNetChangeDebounce(): any  [private]
   onPriceNetInputChange(value: any): any  [private]
-  requestTaxValue(value: any, outputType: any): any  [private]
+  requestTaxValue(value: any, outputType: any): Promise<any>  [private]
 
 blocks
   sw_price_field  [private]
     sw_price_field_gross  [private]
     sw_price_field_lock_button  [private]
     sw_price_field_net  [private]
-
-classes
-  is--disabled  [private]
-  is--locked  [private]
-  price-field-grid  [private]
-  sw-card__quick-link  [private]
-  sw-price-field  [private]
-  sw-price-field--compact  [private]
-  sw-price-field--disabled  [private]
-  sw-price-field--label  [private]
-  sw-price-field__gross  [private]
-  sw-price-field__lock  [private]
-  sw-price-field__net  [private]
-  sw-price-form__links  [private]
 ```

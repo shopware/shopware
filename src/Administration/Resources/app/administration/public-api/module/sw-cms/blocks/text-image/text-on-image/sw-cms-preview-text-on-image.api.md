@@ -16,10 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_text_centered_preview  [private]
-
-classes
-  sw-cms-preview-text-on-image  [private]
-  sw-cms-preview-text-on-image__content  [private]
-  sw-cms-preview-text-on-image__image  [private]
-  sw-cms-preview-text-on-image__text  [private]
 ```

@@ -23,7 +23,4 @@ blocks
   sw_cms_block_product_heading  [private]
     sw_cms_block_product_heading_slot_left  [private]
     sw_cms_block_product_heading_slot_right  [private]
-
-classes
-  sw-cms-block-product-heading  [private]
 ```

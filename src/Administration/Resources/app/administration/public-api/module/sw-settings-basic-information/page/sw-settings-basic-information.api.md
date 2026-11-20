@@ -35,9 +35,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-basic-information
-  sw-settings-basic-information__save-action
 ```

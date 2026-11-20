@@ -50,9 +50,4 @@ blocks
       sw_text_editor_table_toolbar_button_row_before  [private]
       sw_text_editor_table_toolbar_button_row_delete  [private]
       sw_text_editor_table_toolbar_button_table_delete  [private]
-
-classes
-  sw-text-editor-table-toolbar  [private]
-  sw-text-editor-table-toolbar__button  [private]
-  sw-text-editor-table-toolbar__buttons  [private]
 ```

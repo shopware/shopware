@@ -50,7 +50,7 @@ methods
   onDuplicate(referenceProduct: any): any
   onDuplicateFinish(duplicate: any): any
   onInlineEditCancel(product: any): any
-  onInlineEditSave(promise: any, product: any): any
+  onInlineEditSave(promise: any, product: any): Promise<any>
   openVariantModal(item: any): any
   productHasVariants(productEntity: any): any
   productIsDigital(productEntity: any): any
@@ -110,20 +110,6 @@ crossings
 
 refs
   swProductGrid  -> sw-entity-listing
-
-classes
-  sw-page__smart-bar-amount
-  sw-product-bulk-edit-modal
-  sw-product-list
-  sw-product-list-grid
-  sw-product-list-grid__duplicate-action
-  sw-product-list__add-button-group
-  sw-product-list__add-other-context-button
-  sw-product-list__add-physical-button
-  sw-product-list__button-context-menu
-  sw-product-list__content
-  sw-product-list__digital-indicator
-  sw-product-list__variant-indicator
 
 notes
   unresolved data data() { const data = { products: null, currencies: [], sortBy: 'createdAt', sor...

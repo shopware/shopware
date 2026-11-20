@@ -28,7 +28,4 @@ blocks
 
 refs
   tabContent  -> router-view  [private]
-
-classes
-  sw-import-export  [private]
 ```

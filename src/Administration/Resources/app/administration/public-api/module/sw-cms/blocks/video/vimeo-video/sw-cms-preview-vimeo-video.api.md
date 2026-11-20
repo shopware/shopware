@@ -16,9 +16,4 @@ computed
 
 blocks
   sw_cms_block_vimeo_video_preview  [private]
-
-classes
-  sw-cms-preview-vimeo-video  [private]
-  sw-cms-preview-vimeo-video__icon  [private]
-  sw-cms-preview-vimeo-video__img  [private]
 ```

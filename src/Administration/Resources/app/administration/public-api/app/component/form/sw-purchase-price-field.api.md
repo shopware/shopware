@@ -31,7 +31,4 @@ methods
 
 blocks
   sw_purchase_price_field  [private]
-
-classes
-  sw-purchase-price-field  [private]
 ```

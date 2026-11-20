@@ -55,13 +55,4 @@ methods
   removeCategorySelection(): void  [private]
   removeLink(): any  [private]
   replaceCategorySelection(category: { id: EntityKey<'category'> }): void  [private]
-
-classes
-  sw-text-editor-toolbar-button-link__display-as-button-switch  [private]
-  sw-text-editor-toolbar-button-link__modal  [private]
-  sw-text-editor-toolbar-button-link__open-in-new-tab-switch  [private]
-  sw-text-editor__link-modal  [private]
-  sw-text-editor__link-modal-footer  [private]
-  sw-text-editor__link-modal-footer-left  [private]
-  sw-text-editor__link-modal-footer-right  [private]
 ```

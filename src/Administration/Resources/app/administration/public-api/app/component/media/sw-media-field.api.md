@@ -80,23 +80,4 @@ blocks
 
 crossings
   v-if  sw_media_field_upload_component -> sw_media_field_media_popover
-
-classes
-  is--remove
-  sw-media-field
-  sw-media-field__action-button
-  sw-media-field__actions_bar
-  sw-media-field__empty-preview
-  sw-media-field__icon-add
-  sw-media-field__icon-remove
-  sw-media-field__input
-  sw-media-field__input-container
-  sw-media-field__label
-  sw-media-field__media-list-item
-  sw-media-field__media-selection
-  sw-media-field__picker-loader
-  sw-media-field__popover
-  sw-media-field__suggestion-list
-  sw-media-field__suggestion-list-entry
-  sw-media-field__toggle-button
 ```

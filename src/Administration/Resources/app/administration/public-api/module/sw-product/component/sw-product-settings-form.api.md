@@ -31,8 +31,4 @@ blocks
       sw_product_settings_form_ean_field
       sw_product_settings_form_manufacturer_number_field
       sw_product_settings_form_release_date_field
-
-classes
-  sw-product-settings-form
-  sw-product-settings-form__release-date
 ```

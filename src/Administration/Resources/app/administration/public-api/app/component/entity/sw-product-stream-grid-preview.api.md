@@ -51,7 +51,7 @@ computed
 methods
   createdComponent(): Promise<any>  [private]
   getPriceForDefaultCurrency(product: any): any  [private]
-  loadProducts(): any  [private]
+  loadProducts(): Promise<any>  [private]
   loadSystemDefaultCurrency(): any  [private]
   onPageChange(arg0: any): any  [private]
   onSearchTermChange(searchTerm: any): any  [private]
@@ -70,10 +70,4 @@ blocks
       sw_product_stream_grid_preview_grid_pagination  [private]
     sw_product_stream_grid_preview_search_field_label  [private]
       sw_product_stream_grid_preview_search_field  [private]
-
-classes
-  sw-product-stream-grid-preview  [private]
-  sw-product-stream-grid-preview__grid  [private]
-  sw-product-stream-grid-preview__search-field  [private]
-  sw-product-stream-grid-preview__toolbar  [private]
 ```

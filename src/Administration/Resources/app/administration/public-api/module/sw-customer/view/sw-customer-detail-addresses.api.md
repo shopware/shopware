@@ -58,7 +58,7 @@ methods
   onChangeDefaultShippingAddress(shippingAddressId: any): any
   onCloseAddressModal(): any
   onCloseDeleteAddressModal(): any
-  onConfirmDeleteAddress(id: any): any
+  onConfirmDeleteAddress(id: any): Promise<any>
   onCreateNewAddress(): any
   onDeleteAddress(id: any): any
   onDuplicateAddress(addressId: any): Promise<any>
@@ -99,9 +99,4 @@ blocks
 
 refs
   addressGrid  -> sw-one-to-many-grid
-
-classes
-  sw-customer-detail-addresses
-  sw-customer-detail-addresses__add-address-action
-  sw-customer-detail-addresses__confirm-delete-text
 ```

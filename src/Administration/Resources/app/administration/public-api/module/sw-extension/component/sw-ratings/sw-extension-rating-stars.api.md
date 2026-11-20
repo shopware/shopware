@@ -48,11 +48,4 @@ blocks
         sw_extension_rating_stars_wrapper_stars_full_star  [scope: key, ratingValue] [private]
         sw_extension_rating_stars_wrapper_stars_partial_star  [scope: key, ratingValue] [private]
           sw_extension_rating_stars_wrapper_stars_partial_star_wrapper  [scope: key, ratingValue] [private]
-
-classes
-  sw-extension-rating-stars  [private]
-  sw-extension-rating-stars__partial-star  [private]
-  sw-extension-rating-stars__partial-star-wrapper  [private]
-  sw-extension-rating-stars__star  [private]
-  sw-extension-rating-stars__wrapper  [private]
 ```

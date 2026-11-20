@@ -19,7 +19,4 @@ slots
 
 blocks
   sw_cms_block_image_four_column  [private]
-
-classes
-  sw-cms-block-image-four-column  [private]
 ```

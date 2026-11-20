@@ -78,14 +78,4 @@ crossings
 
 refs
   customGrid  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  sw-settings-search-custom-field-select
-  sw-settings-search__searchable-content-customfields
-  sw-settings-search__searchable-content-list
-  sw-settings-search__searchable-content-list-action
-  sw-settings-search__searchable-content-list-remove
-  sw-settings-search__searchable-content-list-reset
 ```

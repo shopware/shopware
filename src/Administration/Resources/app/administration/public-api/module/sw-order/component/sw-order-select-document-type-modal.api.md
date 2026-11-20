@@ -49,10 +49,4 @@ blocks
     sw_order_select_document_type_modal_document_types
     sw_order_select_document_type_modal_footer_action_cancel
     sw_order_select_document_type_modal_footer_action_create
-
-classes
-  sw-order-select-document-type-modal
-  sw-order-select-document-type-modal__divider
-  sw-order-select-document-type-modal__radio-field
-  sw-order-select-document-type-modal__type-switch
 ```

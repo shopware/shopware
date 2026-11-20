@@ -35,8 +35,4 @@ blocks
       sw_text_preview_modal_content
       sw_text_preview_modal_footer
     sw_text_preview_shortened_content
-
-classes
-  sw-text-preview
-  sw-text-preview__expand-button
 ```

@@ -21,8 +21,4 @@ blocks
     sw_bulk_edit_order_documents_generate_invoice_placeholder  [inherited]
     sw_bulk_edit_order_documents_generate_invoice_textarea  [inherited]
     sw_bulk_edit_order_documents_generate_invoice_toggle_skip  [inherited]
-
-classes
-  sw-bulk-edit-order-documents-generate-invoice
-  sw-bulk-edit-order-documents-generate-invoice__item
 ```

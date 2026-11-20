@@ -37,7 +37,7 @@ methods
   getPropertyColumns(): any
   onChangeLanguage(): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   usePropertyCriteria(id: any): any
 
@@ -71,16 +71,4 @@ crossings
 
 refs
   propertyList  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  sw-page__smart-bar-amount
-  sw-property-list
-  sw-property-list-grid
-  sw-property-list__button-create
-  sw-property-list__confirm-delete-text
-  sw-property-list__content
-  sw-property-list__delete-action
-  sw-property-list__edit-action
 ```

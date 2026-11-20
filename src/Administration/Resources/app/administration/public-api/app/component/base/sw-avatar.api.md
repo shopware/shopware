@@ -49,8 +49,4 @@ blocks
 
 refs
   swAvatar  -> span  [private]
-
-classes
-  sw-avatar  [private]
-  sw-avatar__initials  [private]
 ```

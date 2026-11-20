@@ -52,10 +52,4 @@ blocks
       sw_customer_detail_order_card_grid_empty_state_action
     sw_customer_detail_order_card_toolbar
       sw_customer_detail_order_add_button
-
-classes
-  sw-customer-detail-order
-  sw-customer-detail-order__add-order-action
-  sw-customer-detail-order__empty-state
-  sw-order-list-order-view-action
 ```

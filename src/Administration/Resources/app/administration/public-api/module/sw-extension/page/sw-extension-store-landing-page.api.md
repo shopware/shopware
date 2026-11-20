@@ -33,12 +33,4 @@ methods
 
 blocks
   sw_extension_store_landing_page  [private]
-
-classes
-  sw-extension-store-landing-page  [private]
-  sw-extension-store-landing-page__activate_button  [private]
-  sw-extension-store-landing-page__wrapper  [private]
-  sw-extension-store-landing-page__wrapper-activated  [private]
-  sw-extension-store-landing-page__wrapper-content  [private]
-  sw-extension-store-landing-page__wrapper-loading  [private]
 ```

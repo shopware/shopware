@@ -24,11 +24,4 @@ blocks
       sw_extension_review_reply_head_producer_name  [private]
       sw_extension_review_reply_head_reply_date  [private]
     sw_extension_review_reply_text  [private]
-
-classes
-  sw-extension-review-reply  [private]
-  sw-extension-review-reply__date  [private]
-  sw-extension-review-reply__head  [private]
-  sw-extension-review-reply__producer-name  [private]
-  sw-extension-review-reply__text  [private]
 ```

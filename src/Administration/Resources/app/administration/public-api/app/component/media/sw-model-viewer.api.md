@@ -35,10 +35,4 @@ methods
 
 blocks
   sw_model_viewer
-
-classes
-  sw-model-viewer
-  sw-model-viewer-canvas
-  sw-model-viewer-canvas-wrapper
-  sw-model-viewer-loader
 ```

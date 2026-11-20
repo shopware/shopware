@@ -17,8 +17,4 @@ props
 
 blocks
   sw_extension_icon  [private]
-
-classes
-  sw-extension-icon  [private]
-  sw-extension-icon__icon  [private]
 ```

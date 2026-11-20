@@ -44,7 +44,7 @@ methods
   loadEntityData(): any
   onCancel(): any
   onChangeLanguage(): any
-  onSave(): any
+  onSave(): Promise<any>
   saveFinish(): any
   saveOnLanguageChange(): any
 
@@ -64,9 +64,4 @@ blocks
 
 refs
   optionListing  -> sw-property-option-list
-
-classes
-  sw-property-detail
-  sw-property-detail__back-action
-  sw-property-detail__save-action
 ```

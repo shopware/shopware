@@ -16,8 +16,4 @@ computed
 
 blocks
   sw_cms_preview_image_gallery  [private]
-
-classes
-  sw-cms-preview-gallery  [private]
-  sw-cms-preview-gallery-preview  [private]
 ```

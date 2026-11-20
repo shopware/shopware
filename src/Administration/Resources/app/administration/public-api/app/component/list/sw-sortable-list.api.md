@@ -56,9 +56,4 @@ blocks
 
 crossings
   v-if  sw_sortable_list -> sw_sortable_list_empty_state  [private]
-
-classes
-  sw-sortable-list  [private]
-  sw-sortable-list__empty-state  [private]
-  sw-sortable-list__item  [private]
 ```

@@ -65,12 +65,12 @@ methods
   buildVariantOptions(variant: any, seperator?: any, ommitParenthesis?: any, ommitOptionGroupName?: any): any
   canVariantsBeDeleted(): Promise<any>
   closeDeleteModal(): any
-  createdComponent(): any
+  createdComponent(): Promise<any>
   deleteVariants(): any
-  fetchProductConfiguration(): any
-  fetchProductMedias(): any
-  fetchProductVariants(): any
-  fetchSystemCurrency(): any
+  fetchProductConfiguration(): Promise<any>
+  fetchProductMedias(): Promise<any>
+  fetchProductVariants(): Promise<any>
+  fetchSystemCurrency(): Promise<any>
   filterOptionChecked(option: any): any
   getDefaultPriceForVariant(variant: any): any
   getItemMedia(item: any): any
@@ -78,7 +78,7 @@ methods
   getOptionsForGroup(groupId: any): any
   getVariantPrice(variant: any): any
   isMediaFieldInherited(variant: any): any
-  loadGroups(): any
+  loadGroups(): Promise<any>
   onClickBulkDelete(): any
   onDeleteVariant(variant: any): any
   onEditItems(): Promise<any>
@@ -169,32 +169,4 @@ crossings
 refs
   pagination  -> sw-pagination
   variantGrid  -> sw-data-grid
-
-classes
-  is--active
-  is--inactive
-  link
-  link-danger
-  link-primary
-  mt-icon--product-status
-  sw-configuration-option-list__toolbar
-  sw-product-variant-modal
-  sw-product-variant-modal__active-inheritance-switch
-  sw-product-variant-modal__bulk-delete-action
-  sw-product-variant-modal__bulk-edit-action
-  sw-product-variant-modal__bulk-edit-modal
-  sw-product-variant-modal__button-filter
-  sw-product-variant-modal__delete-modal
-  sw-product-variant-modal__delete-modal-subline
-  sw-product-variant-modal__digital-indicator
-  sw-product-variant-modal__filter-buttons
-  sw-product-variant-modal__filter-context-menu
-  sw-product-variant-modal__filter-list-button
-  sw-product-variant-modal__main-product-link
-  sw-product-variant-modal__media-inherited-icon
-  sw-product-variant-modal__price-inheritance-switch
-  sw-product-variant-modal__reset-filter
-  sw-product-variant-modal__search
-  sw-product-variant-modal__variant-name
-  sw-product-variant-modal__variant-options
 ```

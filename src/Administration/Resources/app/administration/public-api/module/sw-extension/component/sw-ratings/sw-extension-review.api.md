@@ -29,11 +29,4 @@ blocks
       sw_extension_review_replies_loop  [private]
     sw_extension_review_stars  [private]
     sw_extension_review_text  [private]
-
-classes
-  sw-extension-review  [private]
-  sw-extension-review__comma  [private]
-  sw-extension-review__headline  [private]
-  sw-extension-review__meta-data  [private]
-  sw-extension-review__text  [private]
 ```

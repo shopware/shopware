@@ -28,11 +28,4 @@ blocks
     sw_flow_event_change_confirm_footer_save_button  [private]
     sw_flow_event_change_confirm_modal_header  [private]
     sw_flow_event_change_confirm_modal_text_confirmation  [private]
-
-classes
-  sw-flow-event-change-confirm-modal  [private]
-  sw-flow-event-change-confirm-modal__cancel-button  [private]
-  sw-flow-event-change-confirm-modal__confirm-button  [private]
-  sw-flow-event-change-confirm-modal__text-confirmation  [private]
-  sw-flow-event-change-confirm-modal__title  [private]
 ```

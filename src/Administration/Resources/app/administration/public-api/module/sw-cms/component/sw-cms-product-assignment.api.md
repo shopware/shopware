@@ -34,8 +34,8 @@ methods
   onSelectCollapsed(): any  [private]
   paginateGrid(arg0?: any): any  [private]
   removeFromGrid(item: any): any  [private]
-  removeItem(item: any): any  [private]
-  searchItems(): any  [private]
+  removeItem(item: any): Promise<any>  [private]
+  searchItems(): Promise<any>  [private]
 
 blocks
   sw_entity_many_to_many_assignment_card  [replaced] [private]
@@ -63,13 +63,6 @@ refs
   searchInput  -> input  [private]
   selectBase  -> sw-select-base  [private]
   swSelectResultList  -> sw-select-result-list  [private]
-
-classes
-  sw-cms-product-assignment  [private]
-  sw-cms-product-assignment-select  [private]
-  sw-cms-product-assignment__empty-state  [private]
-  sw-cms-product-assignment__grid  [private]
-  sw-cms-product-assignment__select-container  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

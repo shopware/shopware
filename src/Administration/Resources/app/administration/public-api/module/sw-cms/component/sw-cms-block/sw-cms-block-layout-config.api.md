@@ -21,12 +21,4 @@ blocks
     sw_cms_block_layout_config_left_margin_field  [private]
     sw_cms_block_layout_config_right_margin_field  [private]
     sw_cms_block_layout_config_top_margin_field  [private]
-
-classes
-  sw-cms-block-layout-config  [private]
-  sw-cms-block-layout-config__css-class  [private]
-  sw-cms-block-layout-config__margin-bottom  [private]
-  sw-cms-block-layout-config__margin-left  [private]
-  sw-cms-block-layout-config__margin-right  [private]
-  sw-cms-block-layout-config__margin-top  [private]
 ```

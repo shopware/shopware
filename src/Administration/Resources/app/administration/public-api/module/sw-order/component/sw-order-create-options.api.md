@@ -69,21 +69,4 @@ blocks
         sw_order_create_options_shipment_headline
         sw_order_create_options_shipping_address
         sw_order_create_options_shipping_method
-
-classes
-  sw-order-create-options
-  sw-order-create-options__billing-address
-  sw-order-create-options__currency-select
-  sw-order-create-options__disable-auto-promotion
-  sw-order-create-options__headline
-  sw-order-create-options__order-container
-  sw-order-create-options__order-language
-  sw-order-create-options__payment-container
-  sw-order-create-options__payment-method
-  sw-order-create-options__promotion-code
-  sw-order-create-options__send-order-confirmation-mail
-  sw-order-create-options__shipping-address
-  sw-order-create-options__shipping-container
-  sw-order-create-options__shipping-cost
-  sw-order-create-options__shipping-method
 ```

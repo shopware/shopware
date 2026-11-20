@@ -37,8 +37,4 @@ blocks
 
 refs
   component  -> sw-entity-single-select  [private]
-
-classes
-  sw-cms-page-select  [private]
-  sw-cms-page-select-box  [private]
 ```

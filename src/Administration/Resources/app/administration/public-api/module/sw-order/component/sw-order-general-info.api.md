@@ -62,7 +62,7 @@ methods
   createdComponent(): any
   getAllStates(): any
   getLiveOrder(): any
-  getTransitionOptions(): any
+  getTransitionOptions(): Promise<any>
   loadHistory(): any
   onLeaveModalClose(): any
   onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
@@ -88,23 +88,4 @@ blocks
           sw_order_detail_base_general_info_summary_sub_last_changed_time
           sw_order_detail_base_general_info_summary_sub_last_changed_user  [after v-if]
     sw_order_state_change_card_modal
-
-classes
-  sw-order-general-info
-  sw-order-general-info__order-state
-  sw-order-general-info__order-state-delivery
-  sw-order-general-info__order-state-order
-  sw-order-general-info__order-state-payment
-  sw-order-general-info__order-states
-  sw-order-general-info__order-tags
-  sw-order-general-info__summary
-  sw-order-general-info__summary-main
-  sw-order-general-info__summary-main-header
-  sw-order-general-info__summary-main-header-link
-  sw-order-general-info__summary-main-total
-  sw-order-general-info__summary-sub
-  sw-order-general-info__summary-sub-description
-  sw-order-general-info__summary-sub-last-changed
-  sw-order-general-info__summary-sub-last-changed-time
-  sw-order-general-info__summary-sub-last-changed-user
 ```

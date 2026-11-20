@@ -54,11 +54,4 @@ blocks
       sw_confirm_field_confirm_button  [private]
         sw_field_inline_submit_button_icon  [private]
     sw_confirm_field_input_field  [private]
-
-classes
-  sw-confirm-field  [private]
-  sw-confirm-field__button  [private]
-  sw-confirm-field__button--cancel  [private]
-  sw-confirm-field__button--submit  [private]
-  sw-confirm-field__button-list  [private]
 ```

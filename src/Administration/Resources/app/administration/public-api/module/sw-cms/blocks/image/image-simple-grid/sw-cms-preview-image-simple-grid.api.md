@@ -16,10 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_simple_grid_preview  [private]
-
-classes
-  sw-cms-preview-image-simple-grid  [private]
-  sw-cms-preview-image-simple-grid__image-bottom  [private]
-  sw-cms-preview-image-simple-grid__image-top  [private]
-  sw-cms-preview-image-simple-grid__side-images  [private]
 ```

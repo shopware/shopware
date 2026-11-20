@@ -45,12 +45,4 @@ crossings
 
 refs
   tabComponent  -> sw-tabs  [until v6.8.0]
-
-classes
-  mt-tabs__custom-content  [from v6.8.0]
-  sw-bulk-edit-change-field__container
-  sw-bulk-edit-custom-fields__change
-  sw-custom-field-set-renderer
-  sw-custom-field-set-renderer-card-form-renderer
-  sw-custom-field-set-renderer__card-tabs
 ```

@@ -57,7 +57,7 @@ computed
   stateCriteria: any
 
 methods
-  getCountryStates(): any
+  getCountryStates(): Promise<any>
   removeRequiredFieldError(field: any): any
   setFieldRequired(field: any, isRequired: any): any
 
@@ -81,11 +81,4 @@ blocks
       sw_customer_address_form_zipcode_city_container
         sw_customer_address_form_city_field
         sw_customer_address_form_zipcode_field
-
-classes
-  sw-customer-address-form
-  sw-customer-address-form__country-select
-  sw-customer-address-form__salutation-select
-  sw-customer-address-form__state-select
-  sw-customer-address-form__state-select-placeholder
 ```

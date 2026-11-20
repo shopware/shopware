@@ -31,10 +31,4 @@ blocks
     sw_payment_card_link
     sw_payment_card_preview
     sw_payment_card_toggle
-
-classes
-  sw-payment-card
-  sw-payment-card__description
-  sw-payment-card__preview
-  sw-payment-card_content
 ```

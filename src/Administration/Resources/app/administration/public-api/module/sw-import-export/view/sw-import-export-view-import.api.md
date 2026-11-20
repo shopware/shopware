@@ -23,8 +23,4 @@ blocks
 
 refs
   activityGrid  -> sw-import-export-activity  [private]
-
-classes
-  sw-import-export-view-import  [private]
-  sw-import-export-view-import__activity  [private]
 ```

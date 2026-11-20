@@ -38,7 +38,7 @@ methods
   onCloseDeleteModal(): any
   onConfirmDelete(id: any): any
   onDelete(id: any): any
-  onInlineEditSave(item: any): any
+  onInlineEditSave(item: any): Promise<any>
   shippingTaxTypeLabel(taxName: any): any
 
 blocks
@@ -80,13 +80,4 @@ crossings
 
 refs
   swSettingsTaxGrid  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  sw-page__smart-bar-amount
-  sw-settings-shipping-list
-  sw-settings-shipping-list__confirm-delete-text
-  sw-settings-shipping-list__content
-  sw-settings-shipping-list__edit-action
 ```

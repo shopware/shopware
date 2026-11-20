@@ -65,12 +65,4 @@ blocks
         sw_data_grid_settings_preview_switch  [private]
     sw_data_grid_settings_trigger  [private]
       sw_data_grid_settings_trigger_icon  [private]
-
-classes
-  down  [private]
-  sw-data-grid-settings__trigger  [private]
-  sw-data-grid__settings-column-item  [private]
-  sw-data-grid__settings-column-item-controls  [private]
-  sw-data-grid__settings-column-list  [private]
-  sw-data-grid__settings-container  [private]
 ```

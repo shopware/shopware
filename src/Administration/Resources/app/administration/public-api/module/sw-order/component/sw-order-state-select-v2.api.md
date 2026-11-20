@@ -48,10 +48,4 @@ methods
 blocks
   sw_order_state_select_v2
     sw_order_state_select_v2_field
-
-classes
-  sw-order-state-select-v2
-  sw-order-state-select-v2--without-state
-  sw-order-state-select-v2__state
-  sw-order-state-select-v2__status-dot
 ```

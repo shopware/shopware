@@ -52,11 +52,4 @@ computed
 
 blocks
   sw_base_field  [private]
-
-classes
-  sw-field  [private]
-  sw-field__help-text  [private]
-  sw-field__hint  [private]
-  sw-field__inheritance-icon  [private]
-  sw-field__label  [private]
 ```

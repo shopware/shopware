@@ -52,8 +52,4 @@ methods
 
 blocks
   sw_sales_channel_defaults_select
-
-classes
-  sw-sales-channel-defaults-select
-  sw-sales-channel-defaults-select__active-icon
 ```

@@ -31,7 +31,7 @@ computed
   optionRepository: any
 
 methods
-  createdComponent(): any
+  createdComponent(): Promise<any>
   onSelectCollapsed(): any
   setOptions(options: any): any
   setSearchTerm(value: any): any
@@ -51,15 +51,4 @@ blocks
             sw_condition_line_item_properties_field_description_default  [scope: highlightSearchTerm, item, searchTerm]
         sw_condition_line_item_properties_field_operator
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-base-line-item__matches-all
-  sw-condition-line-item-property
-  sw-condition__condition-value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

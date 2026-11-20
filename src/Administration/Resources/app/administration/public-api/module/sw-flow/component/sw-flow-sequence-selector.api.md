@@ -37,12 +37,4 @@ blocks
         sw_flow_sequence_selector_then_action_icon_file  [private]
     sw_flow_sequence_selector_help_text  [private]
     sw_flow_sequence_selector_title  [private]
-
-classes
-  sw-flow-sequence-selector  [private]
-  sw-flow-sequence-selector__actions  [private]
-  sw-flow-sequence-selector__add-action  [private]
-  sw-flow-sequence-selector__add-condition  [private]
-  sw-flow-sequence-selector__help-text  [private]
-  sw-flow-sequence-selector__title  [private]
 ```

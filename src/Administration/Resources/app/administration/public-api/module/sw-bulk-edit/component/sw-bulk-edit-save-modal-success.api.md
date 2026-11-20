@@ -54,7 +54,7 @@ computed
 
 methods
   createdComponent(): Promise<any>
-  downloadDocument(documentType: any): any
+  downloadDocument(documentType: any): Promise<any>
   downloadDocumentGenerationResult(): any
   getDateTimeForFileName(date: any): any
   getDocumentGenerationResultFileContent(): any
@@ -72,17 +72,4 @@ blocks
     sw_bulk_edit_save_modal_error_content
     sw_bulk_edit_save_modal_success_download_document  [after v-if]
     sw_bulk_edit_save_modal_success_icon
-
-classes
-  action
-  label
-  sw-bulk-edit-save-modal-success
-  sw-bulk-edit-save-modal-success__document-generation-result
-  sw-bulk-edit-save-modal-success__document-generation-separator
-  sw-bulk-edit-save-modal-success__download-document
-  sw-bulk-edit-save-modal-success__download-document-container
-  sw-bulk-edit-save-modal-success__info-document-generation
-  sw-bulk-edit-save-modal-success__warning-document-generation
-  sw-bulk-edit-save-modal__help-text
-  sw-bulk-edit-save-modal__icon
 ```

@@ -23,7 +23,4 @@ blocks
   sw_cms_block_gallery_buybox  [private]
     sw_cms_block_gallery_buybox_slot_left  [private]
     sw_cms_block_gallery_buybox_slot_right  [private]
-
-classes
-  sw-cms-block-gallery-buybox  [private]
 ```

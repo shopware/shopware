@@ -31,13 +31,4 @@ blocks
       sw_sales_channel_detail_agentic_commerce_integration_feed_url
       sw_sales_channel_detail_agentic_commerce_integration_introduction
       sw_sales_channel_detail_agentic_commerce_integration_steps
-
-classes
-  sw-sales-channel-detail-agentic-commerce-integration
-  sw-sales-channel-detail-agentic-commerce-integration__introduction
-  sw-sales-channel-detail-agentic-commerce-integration__introduction-description
-  sw-sales-channel-detail-agentic-commerce-integration__introduction-title
-  sw-sales-channel-detail-agentic-commerce-integration__step-by-step
-  sw-sales-channel-detail-agentic-commerce-integration__step-by-step-list
-  sw-sales-channel-detail-agentic-commerce-integration__step-by-step-title
 ```

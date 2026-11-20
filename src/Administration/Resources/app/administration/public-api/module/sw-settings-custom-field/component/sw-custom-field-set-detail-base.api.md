@@ -45,11 +45,4 @@ blocks
     sw_settings_custom_field_set_detail_base_position
     sw_settings_custom_field_set_detail_base_technical_name
     sw_settings_custom_field_set_detail_base_translated
-
-classes
-  sw-settings-custom-field-set-detail-base
-  sw-settings-custom-field-set-detail-base__base-postion
-  sw-settings-custom-field-set-detail-base__base-translation
-  sw-settings-custom-field-set-detail-base__label-entities
-  sw-settings-custom-field-set-detail-base__technical-name
 ```

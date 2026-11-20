@@ -42,7 +42,7 @@ computed
   showModeSetting: any
 
 methods
-  addMedia(media: any): any
+  addMedia(media: any): Promise<any>
   createdComponent(): any
   getMediaDefaultFolderId(): any
   isExistingMedia(media: any): any
@@ -85,22 +85,4 @@ blocks
 
 refs
   productMediaInheritance  -> sw-inherit-wrapper
-
-classes
-  mt-card__title
-  sw-card__inherited
-  sw-card__quick-link
-  sw-inherit-wrapper__card-title
-  sw-inherit-wrapper__card-title--inherited
-  sw-inherit-wrapper__inheritance-icon
-  sw-product-detail-base
-  sw-product-detail-base__deliverability
-  sw-product-detail-base__deliverability-downloadable
-  sw-product-detail-base__downloads
-  sw-product-detail-base__guarantee-card
-  sw-product-detail-base__info
-  sw-product-detail-base__labelling-card
-  sw-product-detail-base__media
-  sw-product-detail-base__prices
-  sw-product-detail-base__visibility-structure
 ```

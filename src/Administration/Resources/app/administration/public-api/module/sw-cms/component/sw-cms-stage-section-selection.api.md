@@ -20,14 +20,4 @@ blocks
   sw_cms_stage_section_selection
     sw_cms_stage_section_selection__fullwidth
     sw_cms_stage_section_selection__sidebar
-
-classes
-  sw-cms-stage-section-selection
-  sw-cms-stage-section-selection__default
-  sw-cms-stage-section-selection__default-preview
-  sw-cms-stage-section-selection__default-preview-inner
-  sw-cms-stage-section-selection__sidebar
-  sw-cms-stage-section-selection__sidebar-preview
-  sw-cms-stage-section-selection__sidebar-preview-inner
-  sw-cms-stage-section-selection__sidebar-preview-placeholder
 ```

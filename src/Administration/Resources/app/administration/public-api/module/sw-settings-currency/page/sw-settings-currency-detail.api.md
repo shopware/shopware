@@ -52,18 +52,18 @@ computed
 
 methods
   abortOnLanguageChange(): any
-  createdComponent(): any
+  createdComponent(): Promise<any>
   invalidateCurrencyCaches(): any
-  loadCurrencyCountryRoundings(): any
+  loadCurrencyCountryRoundings(): Promise<any>
   loadCustomFieldSets(): any
-  loadEntityData(): any
+  loadEntityData(): Promise<any>
   onAddCountry(): any
   onCancel(): any
   onCancelEditCountry(): any
   onChangeCountrySearch(value: any): any
   onChangeLanguage(): any
   onClickEdit(item: any): any
-  onSave(): any
+  onSave(): Promise<any>
   onSaveCurrencyCountry(): any
   saveFinish(): any
   saveOnLanguageChange(): any
@@ -102,12 +102,4 @@ blocks
 
 crossings
   v-if  sw_settings_currency_detail_content_card_country_price_rounding_listing -> sw_settings_currency_detail_content_card_country_price_rounding_empty
-
-classes
-  sw-settings-currency-detail
-  sw-settings-currency-detail__currency-country-empty-state
-  sw-settings-currency-detail__currency-country-list
-  sw-settings-currency-detail__currency-country-toolbar
-  sw-settings-currency-detail__currency-country-toolbar-button
-  sw-settings-currency-detail__save-action
 ```

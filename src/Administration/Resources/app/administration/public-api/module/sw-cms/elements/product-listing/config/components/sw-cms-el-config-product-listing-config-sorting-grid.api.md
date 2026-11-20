@@ -58,9 +58,4 @@ methods
 
 blocks
   sw_cms_el_config_product_listing_config_sorting_grid  [private]
-
-classes
-  sw-cms-el-config-product-listing-config-sorting-grid  [private]
-  sw-cms-el-config-product-listing-config-sorting-grid__criteria  [private]
-  sw-cms-el-config-product-listing-config-sorting-grid__grid  [private]
 ```

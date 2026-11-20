@@ -33,7 +33,7 @@ computed
 
 methods
   createdComponent(): any  [private]
-  doSearch(term: any): any  [private]
+  doSearch(term: any): Promise<any>  [private]
   isNotAssigned(item: any): any  [private]
   onSelectItem(selection: any, item: any, selected: any): any  [private]
   paginate(arg0: any): any  [private]
@@ -48,11 +48,4 @@ blocks
       sw_settings_rule_add_assignment_listing_pagination  [private]
       sw_settings_rule_add_assignment_listing_tax_type  [scope: item] [private]
     sw_settings_rule_add_assignment_listing_toolbar  [private]
-
-classes
-  is--active  [private]
-  is--inactive  [private]
-  sw-data-grid__cell-content  [private]
-  sw-settings-rule-add-assignment-listing__card  [private]
-  sw-settings-rule-add-assignment-listing__grid  [private]
 ```

@@ -63,7 +63,7 @@ methods
   onSelectionChange(selection: any): any
   onShowCodeBulkDeleteModal(): any
   onShowCodeDeleteModal(id: any): any
-  routeToCustomer(redeemedCustomer: any): any
+  routeToCustomer(redeemedCustomer: any): Promise<any>
 
 blocks
   sw_promotion_v2_individual_codes_behavior
@@ -106,30 +106,4 @@ crossings
 
 refs
   individualCodesGrid  -> sw-one-to-many-grid
-
-classes
-  is--active
-  is--inactive
-  link
-  link-danger
-  sw-promotion-v2-individual-codes-behavior
-  sw-promotion-v2-individual-codes-behavior__add-codes-action
-  sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel
-  sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm
-  sw-promotion-v2-individual-codes-behavior__add-codes-modal
-  sw-promotion-v2-individual-codes-behavior__card
-  sw-promotion-v2-individual-codes-behavior__code-amount
-  sw-promotion-v2-individual-codes-behavior__code-bulk-delete-action
-  sw-promotion-v2-individual-codes-behavior__code-delete-action
-  sw-promotion-v2-individual-codes-behavior__confirm-delete-bulk-modal
-  sw-promotion-v2-individual-codes-behavior__confirm-delete-modal
-  sw-promotion-v2-individual-codes-behavior__content
-  sw-promotion-v2-individual-codes-behavior__customer-route-action
-  sw-promotion-v2-individual-codes-behavior__description
-  sw-promotion-v2-individual-codes-behavior__empty-state
-  sw-promotion-v2-individual-codes-behavior__empty-state-generate-action
-  sw-promotion-v2-individual-codes-behavior__generate-codes-action
-  sw-promotion-v2-individual-codes-behavior__grid
-  sw-promotion-v2-individual-codes-behavior__redeemed-customer-name
-  sw-promotion-v2-individual-codes-behavior__redeemed-state
 ```

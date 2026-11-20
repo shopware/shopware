@@ -32,10 +32,4 @@ blocks
     sw_extension_privacy_policy_extensions_modal_content  [private]
       sw_extension_privacy_policy_extensions_modal_intro  [private]
       sw_extension_privacy_policy_extensions_modal_text  [private]
-
-classes
-  sw-extension-privacy-policy-extensions-modal  [private]
-  sw-extension-privacy-policy-extensions-modal__close-button  [private]
-  sw-extension-privacy-policy-extensions-modal__intro  [private]
-  sw-extension-privacy-policy-extensions-modal__text  [private]
 ```

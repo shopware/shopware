@@ -37,14 +37,4 @@ blocks
           sw_plugin_box_container_plugin_data_description_author
           sw_plugin_box_container_plugin_data_description_label
         sw_plugin_box_container_plugin_data_icon
-
-classes
-  has--no-icon
-  sw-plugin-box
-  sw-plugin-box__author
-  sw-plugin-box__button
-  sw-plugin-box__container
-  sw-plugin-box__description
-  sw-plugin-box__icon
-  sw-plugin-box__label
 ```

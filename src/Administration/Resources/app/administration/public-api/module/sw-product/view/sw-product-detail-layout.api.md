@@ -51,10 +51,4 @@ blocks
     sw_product_detail_layout_cms_config
       sw_product_detail_layout_cms_config_form
       sw_product_detail_layout_cms_content_info
-
-classes
-  sw-product-detail-layout
-  sw-product-detail-layout__assignment
-  sw-product-detail-layout__content-info
-  sw-product-detail-layout__no-config
 ```

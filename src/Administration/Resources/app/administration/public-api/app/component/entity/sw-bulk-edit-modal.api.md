@@ -52,9 +52,6 @@ blocks
 refs
   bulkEditGrid  -> sw-data-grid  [private]
 
-classes
-  sw-bulk-edit-modal  [private]
-
 notes
   dynamic-slot slot  [private]
 ```

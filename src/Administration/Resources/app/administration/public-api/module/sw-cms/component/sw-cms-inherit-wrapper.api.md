@@ -46,11 +46,6 @@ methods
   onInheritanceRemove(): any  [private]
   onInheritanceRestore(): Promise<any>  [private]
 
-classes
-  is--inherited  [private]
-  sw-cms-inherit-wrapper  [private]
-  sw-cms-inherit-wrapper__label  [private]
-
 notes
   unresolved emits EVENTS.REMOVE  [private]
   unresolved emits EVENTS.RESTORE  [private]

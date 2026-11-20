@@ -35,7 +35,4 @@ blocks
 
 refs
   filterPanel  -> sw-filter-panel  [private]
-
-classes
-  sw-sidebar-filter-panel  [private]
 ```

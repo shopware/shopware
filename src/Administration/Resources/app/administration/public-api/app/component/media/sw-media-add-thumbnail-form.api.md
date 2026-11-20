@@ -40,12 +40,4 @@ blocks
       sw_media_add_thumbnail_form_height  [private]
       sw_media_add_thumbnail_form_lock_button  [private]
       sw_media_add_thumbnail_form_width  [private]
-
-classes
-  sw-media-add-thumbnail-form  [private]
-  sw-media-add-thumbnail-form__form-container  [private]
-  sw-media-add-thumbnail-form__input-height  [private]
-  sw-media-add-thumbnail-form__input-width  [private]
-  sw-media-add-thumbnail-form__lock  [private]
-  sw-media-folder-settings__add-thumbnail-size-action  [private]
 ```

@@ -48,12 +48,4 @@ blocks
       sw_category_detail_entry_point_navigation_list_link
     sw_category_entry_point_card_sales_channel_selection  [after v-if]
     sw_category_entry_point_card_selection
-
-classes
-  sw-category-entry-point-card
-  sw-category-entry-point-card__button-configure-home
-  sw-category-entry-point-card__entry-point-selection
-  sw-category-entry-point-card__navigation-entry
-  sw-category-entry-point-card__navigation-list
-  sw-category-entry-point-card__sales-channel-selection
 ```

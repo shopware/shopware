@@ -86,14 +86,14 @@ methods
   defineBulkEditData(name: any, value?: any, type?: any, isChanged?: any): any
   definePricesBulkEdit(): any
   getBulkEditFormGroups(): any
-  getParentProduct(): any
+  getParentProduct(): Promise<any>
   loadBulkEditData(): any
-  loadCurrencies(): any
-  loadCustomFieldSets(): any
-  loadDefaultCurrency(): any
+  loadCurrencies(): Promise<any>
+  loadCustomFieldSets(): Promise<any>
+  loadDefaultCurrency(): Promise<any>
   loadPreferenceUnits(): Promise<any>
-  loadRules(): any
-  loadTaxes(): any
+  loadRules(): Promise<any>
+  loadTaxes(): Promise<any>
   onChangeLanguage(languageId: any): any
   onChangePrices(item: any, value?: any): any
   onCustomFieldsChange(value: any): any
@@ -157,31 +157,4 @@ blocks
     sw_bulk_edit_product_smart_bar_back
     sw_bulk_edit_product_smart_bar_header
       sw_bulk_edit_product_smart_bar_header_title
-
-classes
-  is--disabled
-  is--variant
-  quick-link
-  smart-bar__back-btn
-  sw-bulk-edit-product
-  sw-bulk-edit-product-base___essential
-  sw-bulk-edit-product-base__advanced-prices
-  sw-bulk-edit-product-base__advanced-prices-selection
-  sw-bulk-edit-product-base__assignment
-  sw-bulk-edit-product-base__custom_fields
-  sw-bulk-edit-product-base__deliverability
-  sw-bulk-edit-product-base__guarantee
-  sw-bulk-edit-product-base__info
-  sw-bulk-edit-product-base__labelling
-  sw-bulk-edit-product-base__measures
-  sw-bulk-edit-product-base__media
-  sw-bulk-edit-product-base__prices
-  sw-bulk-edit-product-base__property
-  sw-bulk-edit-product-base__selling-packaging
-  sw-bulk-edit-product-base__seo
-  sw-bulk-edit-product-content-advanced-prices-modal
-  sw-bulk-edit-product__inheritance
-  sw-bulk-edit-product__restricted-fields
-  sw-bulk-edit-product__save-action
-  sw-bulk-edit__custom-fields
 ```

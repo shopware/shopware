@@ -31,13 +31,4 @@ blocks
       sw_rating_stars_value_stars  [private]
         sw_rating_stars_value_stars_full  [private]
         sw_rating_stars_value_stars_partial  [private]
-
-classes
-  star-empty  [private]
-  star-full  [private]
-  star-partial  [private]
-  sw-rating-stars  [private]
-  sw-rating-stars__placeholder  [private]
-  sw-rating-stars__star  [private]
-  sw-rating-stars__value  [private]
 ```

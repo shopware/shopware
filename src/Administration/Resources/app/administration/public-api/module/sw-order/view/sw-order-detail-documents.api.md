@@ -32,7 +32,4 @@ methods
 blocks
   sw_order_detail_documents
     sw_order_detail_documents_card
-
-classes
-  sw-order-detail-documents__save-warning
 ```

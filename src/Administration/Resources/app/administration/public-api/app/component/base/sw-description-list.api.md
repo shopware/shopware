@@ -23,7 +23,4 @@ computed
 blocks
   sw_description_list  [private]
     sw_description_list_slot_default  [private]
-
-classes
-  sw-description-list  [private]
 ```

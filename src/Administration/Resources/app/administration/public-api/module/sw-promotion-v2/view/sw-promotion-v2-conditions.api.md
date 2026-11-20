@@ -46,12 +46,4 @@ blocks
       sw_promotion_v2_rule_conditions_rule_select_cart_conditions  [after v-if]
       sw_promotion_v2_rule_conditions_rule_select_customer
       sw_promotion_v2_rule_conditions_rule_select_order_conditions
-
-classes
-  sw-promotion-v2-conditions
-  sw-promotion-v2-conditions__prevent-combination
-  sw-promotion-v2-conditions__rule-select-customer
-  sw-promotion-v2-conditions__rule-select-order-conditions
-  sw-promotion-v2-conditions__rules-exclusion-selection
-  sw-promotion-v2-conditions__sales-channel-selection
 ```

@@ -34,7 +34,4 @@ blocks
 refs
   seoUrlTemplateCard  -> sw-seo-url-template-card
   systemConfig  -> sw-system-config
-
-classes
-  sw-settings-seo
 ```

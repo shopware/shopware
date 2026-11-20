@@ -41,9 +41,4 @@ blocks
       sw_users_permissions_detailed_additional_permissions_additional_privileges_switches  [scope: privilege]
         sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content  [scope: privilege]
           sw_users_permissions_detailed_additional_permissions_additional_privileges_switches_content_switch  [scope: privilege, roleName, value]
-
-classes
-  sw-users-permissions-detailed-additional-permissions
-  sw-users-permissions-detailed-additional-permissions__headline
-  sw-users-permissions-detailed-additional-permissions__switches
 ```

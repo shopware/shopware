@@ -63,13 +63,4 @@ blocks
       sw_condition_value_before_content  [private]
       sw_condition_value_content  [private]
     sw_condition_base_error  [private]
-
-classes
-  sw-condition  [private]
-  sw-condition__container  [private]
-  sw-condition__context-button  [private]
-  sw-condition__create-after-action  [private]
-  sw-condition__create-before-action  [private]
-  sw-condition__placeholder  [private]
-  sw-condition__value-content  [private]
 ```

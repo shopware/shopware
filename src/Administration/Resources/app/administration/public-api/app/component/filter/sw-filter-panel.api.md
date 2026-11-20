@@ -51,9 +51,4 @@ blocks
       sw_multi_select_filter_content_path_label  [scope: filter] [private]
       sw_multi_select_filter_content_path_result_item  [scope: filter] [private]
         sw_multi_select_filter_content_path_result_label  [scope: filter, index, item] [private]
-
-classes
-  sw-filter-panel  [private]
-  sw-filter-panel__item  [private]
-  sw-select-result__result-item-text  [private]
 ```

@@ -51,14 +51,4 @@ blocks
 refs
   propertySearch  -> sw-property-search
   searchField  -> sw-simple-search-field
-
-classes
-  sw-product-add-properties-modal
-  sw-product-add-properties-modal__button-save
-  sw-product-add-properties-modal__search
-  sw-product-add-properties-modal__search-field
-  sw-product-add-properties-modal__toolbar
-  sw-property-search__search-field
-  sw-property-search__search-field-container
-  sw-property-search__toolbar
 ```

@@ -50,9 +50,4 @@ blocks
   sw_media_sidebar
     sw_media_sidebar_headline
     sw_media_sidebar_item_quickinfo_content  [after v-if]
-
-classes
-  sw-media-sidebar
-  sw-media-sidebar__headline
-  sw-media-sidebar__quickinfo-scroll-container
 ```

@@ -26,7 +26,4 @@ methods
 
 blocks
   sw_cms_el_html  [private]
-
-classes
-  sw-cms-el-html  [private]
 ```

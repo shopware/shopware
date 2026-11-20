@@ -82,24 +82,4 @@ blocks
         sw_review_detail_description_list_status
       sw_review_detail_custom_field_sets  [after v-if]
     sw_review_detail_header
-
-classes
-  star-count-description
-  star-count-display
-  status-switch
-  sw-review-base-info
-  sw-review-base-info-columns
-  sw-review-base-info__label
-  sw-review-detail
-  sw-review-detail-description-list__container
-  sw-review-detail__base-info-section
-  sw-review-detail__metadata
-  sw-review-detail__metadata-review-content
-  sw-review-detail__metadata-review-headline
-  sw-review-detail__metadata-review-stars
-  sw-review-detail__metadata-review-title
-  sw-review-detail__save-action
-  sw-review-properties
-  sw-review__comment-field
-  sw-review__language-select
 ```

@@ -45,7 +45,4 @@ methods
 
 blocks
   sw_order_customer_address_select
-
-classes
-  sw-order-customer-address-select
 ```

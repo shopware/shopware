@@ -53,14 +53,4 @@ blocks
   sw_vector_field_input
     sw_vector_field_input_inner
   sw_vector_field_label
-
-classes
-  is--disabled
-  is--linked
-  is--unlinked
-  sw-vector-field__input
-  sw-vector-field__input__x
-  sw-vector-field__input__y
-  sw-vector-field__input__z
-  sw-vector-field__lock-icon
 ```

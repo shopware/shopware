@@ -56,9 +56,4 @@ blocks
       sw_advanced_selection_product_list_grid_columns_tags_content  [scope: item, tag] [private]
     sw_advanced_selection_product_list_grid_columns_visibilities  [private]
       sw_advanced_selection_product_list_grid_columns_visibilities_content  [scope: item, visibility] [private]
-
-classes
-  is--active  [private]
-  is--inactive  [private]
-  sw-data-grid__cell-value  [private]
 ```

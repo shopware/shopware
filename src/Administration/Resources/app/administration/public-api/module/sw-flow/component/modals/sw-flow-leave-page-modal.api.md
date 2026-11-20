@@ -25,9 +25,4 @@ blocks
       sw_flow_leave_page_modal_action_cancel  [private]
       sw_flow_leave_page_modal_action_confirm  [private]
     sw_flow_leave_page_modal_content  [private]
-
-classes
-  sw-flow-leave-page-modal  [private]
-  sw-flow-leave-page-modal__leave-page  [private]
-  sw-flow-leave-page-modal__stay-on-page  [private]
 ```

@@ -45,8 +45,4 @@ crossings
 
 refs
   iframeRenderer  -> sw-iframe-renderer  [private]
-
-classes
-  smart-bar__back-btn  [private]
-  sw-extension-sdk-module  [private]
 ```

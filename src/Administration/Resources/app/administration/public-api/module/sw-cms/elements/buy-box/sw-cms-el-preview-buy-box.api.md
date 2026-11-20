@@ -13,11 +13,4 @@ component sw-cms-el-preview-buy-box  private  js  [private]
 
 blocks
   sw_cms_element_buy_box_preview  [private]
-
-classes
-  sw-cms-el-preview-buy-box  [private]
-  sw-cms-el-preview-buy-box__action  [private]
-  sw-cms-el-preview-buy-box__placeholder  [private]
-  sw-cms-el-preview-buy-box__placeholders  [private]
-  sw-cms-el-preview-buy-box__price  [private]
 ```

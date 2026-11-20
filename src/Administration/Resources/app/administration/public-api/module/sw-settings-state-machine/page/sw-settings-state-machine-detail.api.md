@@ -58,9 +58,4 @@ crossings
 
 refs
   stateMachineStateList  -> sw-settings-state-machine-state-list
-
-classes
-  sw-settings-state-machine-detail
-  sw-settings-state-machine-detail__cancel
-  sw-settings-state-machine-detail__save
 ```

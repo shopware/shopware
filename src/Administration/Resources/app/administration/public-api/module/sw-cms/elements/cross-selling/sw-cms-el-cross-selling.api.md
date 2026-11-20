@@ -47,12 +47,4 @@ blocks
 
 refs
   productHolder  -> div  [private]
-
-classes
-  sw-cms-el-cross-selling  [private]
-  sw-cms-el-cross-selling__content  [private]
-  sw-cms-el-cross-selling__navigation  [private]
-  sw-cms-el-cross-selling__navigation-button  [private]
-  sw-cms-el-cross-selling__product-holder  [private]
-  sw-cms-el-cross-selling__title  [private]
 ```

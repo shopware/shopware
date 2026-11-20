@@ -57,9 +57,4 @@ methods
 blocks
   sw_text_field  [replaced] [private]
     sw_url_field  [private]
-
-classes
-  sw-field--url  [private]
-  sw-field__url-input__prefix  [private]
-  sw-url-input-field__input  [private]
 ```

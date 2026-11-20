@@ -44,7 +44,7 @@ methods
   loadCustomFieldSets(): any
   onCancel(): any
   onChangeLanguage(): any
-  onSave(): any
+  onSave(): Promise<any>
   saveFinish(): any
 
 blocks
@@ -63,9 +63,4 @@ blocks
       sw_settings_delivery_time_detail_smart_bar_actions_cancel
       sw_settings_delivery_time_detail_smart_bar_actions_save
     sw_settings_delivery_time_detail_smart_bar_header
-
-classes
-  sw-delivery-time-detail__field-unit
-  sw-settings-delivery-time-detail
-  sw-settings-delivery-time-detail__save
 ```

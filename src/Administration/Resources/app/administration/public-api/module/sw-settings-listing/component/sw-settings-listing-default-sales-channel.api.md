@@ -54,13 +54,4 @@ crossings
 
 refs
   visibilityConfig  -> sw-settings-listing-visibility-detail
-
-classes
-  sw-settings-listing-default-sales-channel
-  sw-settings-listing-default-sales-channel__active-switch
-  sw-settings-listing-default-sales-channel__description
-  sw-settings-listing-default-sales-channel__options-container
-  sw-settings-listing-default-sales-channel__quick-link
-  sw-settings-listing-default-sales-channel__select
-  sw-settings-listing-default-sales-channel__visibility-modal
 ```

@@ -26,19 +26,4 @@ computed
 
 blocks
   sw_sso_error  [private]
-
-classes
-  sw-sso-error  [private]
-  sw-sso-error__button-container  [private]
-  sw-sso-error__card  [private]
-  sw-sso-error__container  [private]
-  sw-sso-error__description  [private]
-  sw-sso-error__loading-indicator  [private]
-  sw-sso-error__logged-in-as  [private]
-  sw-sso-error__logged-in-as-email  [private]
-  sw-sso-error__logged-in-as-text  [private]
-  sw-sso-error__logo  [private]
-  sw-sso-error__status  [private]
-  sw-sso-error__status-icon  [private]
-  sw-sso-error__title  [private]
 ```

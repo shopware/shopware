@@ -59,14 +59,4 @@ blocks
     sw_media_modal_footer
       sw_media_modal_move_cancel_button
       sw_media_modal_move_confirm_button
-
-classes
-  --parent
-  --target
-  sw-media-folder-content__switch-button
-  sw-media-modal-move
-  sw-media-modal-move-folder-breadcrumbs
-  sw-media-modal-move__breadcrumb-btn
-  sw-media-modal-move__confirm
-  sw-media-modal-move__folder-icon
 ```

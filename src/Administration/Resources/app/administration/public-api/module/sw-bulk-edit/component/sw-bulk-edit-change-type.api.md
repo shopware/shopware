@@ -40,8 +40,4 @@ blocks
   sw_bulk_edit_change_type
     sw_bulk_edit_change_type_select_field
     sw_bulk_edit_change_type_value_field
-
-classes
-  sw-bulk-edit-change-type
-  sw-bulk-edit-change-type__selection
 ```

@@ -13,10 +13,4 @@ component sw-cms-el-preview-product-description-reviews  private  js  [private]
 
 blocks
   sw_cms_element_product_description_reviews_preview  [private]
-
-classes
-  sw-cms-el-preview-product-description-reviews  [private]
-  sw-cms-el-preview-product-description-reviews__description-tab  [private]
-  sw-cms-el-preview-product-description-reviews__reviews-tab  [private]
-  sw-cms-el-preview-product-description-reviews__tabs  [private]
 ```

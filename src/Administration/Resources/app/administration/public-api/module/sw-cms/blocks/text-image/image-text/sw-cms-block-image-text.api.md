@@ -19,7 +19,4 @@ blocks
   sw_cms_block_image_text  [private]
     sw_cms_block_image_text_slot_left  [private]
     sw_cms_block_image_text_slot_right  [private]
-
-classes
-  sw-cms-block-image-text  [private]
 ```

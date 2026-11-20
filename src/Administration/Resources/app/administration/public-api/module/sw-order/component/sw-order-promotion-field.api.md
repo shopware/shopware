@@ -58,7 +58,7 @@ computed
 methods
   applyAutomaticPromotions(): Promise<any>
   createdComponent(): any  [deprecated tag:v6.8.0]
-  deleteAutomaticPromotions(): any  [deprecated tag:v6.8.0]
+  deleteAutomaticPromotions(): Promise<any>  [deprecated tag:v6.8.0]
   dismissPromotionUpdates(): any
   emitEntityData(): any
   emitLoadingChange(state: any): any  [deprecated tag:v6.8.0]
@@ -77,14 +77,4 @@ blocks
     sw_order_promotion_field_codes
     sw_order_promotion_field_switch
     sw_order_promotion_field_updates_modal
-
-classes
-  sw-order-promotion-field
-  sw-order-promotion-field__apply_auto_promotions__button
-  sw-order-promotion-field__apply_auto_promotions__text
-  sw-order-promotion-field__apply_auto_promotions__title
-  sw-order-promotion-field__updates_modal
-  sw-order-promotion-field__updates_modal__description
-  sw-order-promotion-field__updates_modal__list_item
-  sw-order-promotion-field__updates_modal__list_title
 ```

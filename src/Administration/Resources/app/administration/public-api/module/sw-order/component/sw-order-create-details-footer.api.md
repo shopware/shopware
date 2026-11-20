@@ -33,7 +33,7 @@ computed
 
 methods
   getCart(): any
-  getCurrency(): any
+  getCurrency(): Promise<any>
   updateContext(): any
   updateCustomerContext(): any
   updateOrderContext(): any
@@ -45,8 +45,4 @@ blocks
     sw_order_create_details_footer_payment_method
     sw_order_create_details_footer_sales_channel
     sw_order_create_details_footer_shipping_method
-
-classes
-  sw-order-create-details-footer
-  sw-order-create-details-footer__item
 ```

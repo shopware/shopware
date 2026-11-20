@@ -103,19 +103,4 @@ refs
   optionGrid  -> sw-grid  [private]
   optionSearchGrid  -> sw-grid  [private]
   searchField  -> mt-text-field  [private]
-
-classes
-  group_grid__column-name  [private]
-  sw-property-search  [private]
-  sw-property-search__search-field  [private]
-  sw-property-search__search-field-container  [private]
-  sw-property-search__search-selection  [private]
-  sw-property-search__search-selection__option_grid  [private]
-  sw-property-search__toolbar  [private]
-  sw-property-search__tree-selection  [private]
-  sw-property-search__tree-selection-container  [private]
-  sw-property-search__tree-selection__column-items-selected  [private]
-  sw-property-search__tree-selection__group_grid  [private]
-  sw-property-search__tree-selection__option_grid  [private]
-  sw-property-search__tree-selection__option_grid--option-value  [private]
 ```

@@ -37,9 +37,4 @@ methods
 
 blocks
   sw_cms_element_text  [private]
-
-classes
-  content-editor  [private]
-  sw-cms-el-text  [private]
-  sw-cms-el-text__mapping-preview  [private]
 ```

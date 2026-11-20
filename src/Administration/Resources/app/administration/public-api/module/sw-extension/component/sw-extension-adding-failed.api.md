@@ -37,8 +37,4 @@ blocks
     sw_extension_adding_failed_icon  [private]
     sw_extension_adding_failed_licence_cancellation  [after v-if] [private]
     sw_extension_adding_failed_notification  [private]
-
-classes
-  sw-extension-adding-failed  [private]
-  sw-extension-adding-failed__text-licence-cancellation  [private]
 ```

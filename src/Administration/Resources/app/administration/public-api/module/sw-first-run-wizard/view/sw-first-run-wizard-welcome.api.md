@@ -28,11 +28,4 @@ methods
 
 blocks
   sw_first_run_wizard_welcome  [private]
-
-classes
-  center  [private]
-  headline-welcome  [private]
-  sw-first-run-wizard-welcome  [private]
-  sw-first-run-wizard__welcome-image  [private]
-  text-welcome  [private]
 ```

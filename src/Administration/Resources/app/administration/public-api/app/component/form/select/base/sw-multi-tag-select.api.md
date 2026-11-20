@@ -81,13 +81,4 @@ crossings
 
 refs
   selectionList  -> sw-select-selection-list  [private]
-
-classes
-  sw-multi-tag-select  [private]
-  sw-multi-tag-select-invalid  [private]
-  sw-multi-tag-select-valid  [private]
-  sw-multi-tag-select-validation  [private]
-  sw-select-result-list  [private]
-  sw-select-result-list-popover  [private]
-  sw-select-result-list__content  [private]
 ```

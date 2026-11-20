@@ -63,10 +63,4 @@ blocks
 
 refs
   gridReview  -> sw-data-grid
-
-classes
-  sw-product-detail-reviews
-  sw-product-detail-reviews__action-delete
-  sw-product-detail-reviews__action-edit
-  sw-product-detail-reviews__list
 ```

@@ -40,8 +40,4 @@ blocks
       sw_country_state_detail_modal_position
       sw_country_state_detail_modal_shortcode
       sw_country_state_detail_modal_technical_name
-
-classes
-  sw-country-state-detail
-  sw-country-state-detail__save-button
 ```

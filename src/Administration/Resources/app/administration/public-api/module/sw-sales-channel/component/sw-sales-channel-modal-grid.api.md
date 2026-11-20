@@ -47,14 +47,4 @@ blocks
       sw_sales_channel_grid_columns_content  [scope: item]
       sw_sales_channel_grid_columns_icon  [scope: item]
     sw_sales_channel_modal_grid_loader  [after v-if]
-
-classes
-  sw-sales-channel-modal-grid
-  sw-sales-channel-modal-grid__actions
-  sw-sales-channel-modal-grid__icon
-  sw-sales-channel-modal-grid__icon-column
-  sw-sales-channel-modal-grid__item-content
-  sw-sales-channel-modal-grid__item-description
-  sw-sales-channel-modal-grid__item-name
-  sw-sales-channel-modal__add-channel-action
 ```

@@ -29,12 +29,4 @@ blocks
       sw_cms_toolbar_slot_title
     sw_cms_toolbar_tools
       sw_cms_toolbar_slot_tools
-
-classes
-  sw-cms-toolbar
-  sw-cms-toolbar__actions
-  sw-cms-toolbar__language-selection
-  sw-cms-toolbar__sidebar
-  sw-cms-toolbar__title
-  sw-cms-toolbar__tools
 ```

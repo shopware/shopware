@@ -40,8 +40,4 @@ blocks
       sw_property_detail_display_type
       sw_property_detail_position
       sw_property_detail_sorting_type
-
-classes
-  sw-property-detail__filterable
-  sw-property-detail__visible-on-detail
 ```

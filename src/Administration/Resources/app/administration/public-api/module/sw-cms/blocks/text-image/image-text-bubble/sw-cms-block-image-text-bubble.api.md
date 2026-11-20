@@ -21,10 +21,4 @@ slots
 
 blocks
   sw_cms_block_image_text_bubble  [private]
-
-classes
-  sw-cms-block-image-text-bubble  [private]
-  sw-cms-block-image-text-bubble__center  [private]
-  sw-cms-block-image-text-bubble__left  [private]
-  sw-cms-block-image-text-bubble__right  [private]
 ```

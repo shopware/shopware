@@ -30,8 +30,4 @@ methods
 blocks
   sw_bulk_edit_order_documents_download_documents
     sw_bulk_edit_order_documents_download_documents_content
-
-classes
-  sw-bulk-edit-order-documents-download-documents
-  sw-bulk-edit-order-documents-download-documents__checkbox
 ```

@@ -44,8 +44,4 @@ blocks
       sw_single_select_option_item_icon  [private]
     sw_single_select_option_item_text_holder  [private]
       sw_single_select_option_item_text  [private]
-
-classes
-  sw-select-option  [private]
-  sw-select-option__result-item-text  [private]
 ```

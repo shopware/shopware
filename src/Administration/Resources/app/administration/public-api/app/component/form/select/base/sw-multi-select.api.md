@@ -89,7 +89,4 @@ blocks
 refs
   selectionList  -> sw-select-selection-list  [private]
   swSelectResultList  -> sw-select-result-list  [private]
-
-classes
-  sw-multi-select  [private]
 ```

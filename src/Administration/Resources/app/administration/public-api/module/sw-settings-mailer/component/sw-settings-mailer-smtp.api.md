@@ -37,7 +37,4 @@ blocks
     sw_settings_mailer_smtp_port
     sw_settings_mailer_smtp_sender_address
     sw_settings_mailer_smtp_username
-
-classes
-  sw-settings-mailer-smtp
 ```

@@ -33,8 +33,4 @@ blocks
       sw_category_seo_form_meta_description_hint
     sw_category_seo_form_meta_title
       sw_category_seo_form_meta_title_hint
-
-classes
-  sw-category-seo-form
-  sw-category-seo-form__recommended-length
 ```

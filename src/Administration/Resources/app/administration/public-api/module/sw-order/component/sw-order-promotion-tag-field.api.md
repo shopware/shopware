@@ -40,10 +40,4 @@ blocks
 
 refs
   taggedFieldInput  -> input
-
-classes
-  sw-order-promotion-tag-field
-  sw-tagged-field
-  sw-tagged-field__input
-  sw-tagged-field__tag-list
 ```

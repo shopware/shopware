@@ -22,8 +22,4 @@ computed
 methods
   grantPermissions(done: () => void): Promise<any>  [private]
   prepareRevisions(isOpen: boolean): any  [private]
-
-classes
-  sw-settings-services-grant-permissions-modal__content  [private]
-  sw-settings-services-grant-permissions-modal__footer  [private]
 ```

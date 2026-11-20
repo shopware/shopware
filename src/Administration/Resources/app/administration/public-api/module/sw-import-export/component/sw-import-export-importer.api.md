@@ -61,14 +61,4 @@ blocks
     sw_import_export_importer_select_profile_label  [private]
     sw_import_export_importer_upload_csv_label  [after v-if] [private]
     sw_import_export_importer_warning_block  [private]
-
-classes
-  sw-import-export-importer  [private]
-  sw-import-export-importer__link  [private]
-  sw-import-export-importer__profile-select  [private]
-  sw-import-export-importer__text  [private]
-  sw-import-export-importer__title  [private]
-  sw-import-export-importer__variants-switch-field  [private]
-  sw-import-export-importer__variants-warning  [private]
-  sw-import-export-importer__variants-warning-links  [private]
 ```

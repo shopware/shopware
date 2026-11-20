@@ -41,14 +41,4 @@ methods
 
 blocks
   sw_first_run_wizard_store
-
-classes
-  error
-  message
-  success
-  sw-first-run-wizard-store
-  sw-first-run-wizard-store__heading
-  sw-first-run-wizard-store__label
-  sw-first-run-wizard-store__label-description
-  sw-first-run-wizard-store__label-text
 ```

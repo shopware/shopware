@@ -46,18 +46,4 @@ methods
   onConfirm(): any  [private]
   onMoveShopPermanentlyConfirmed(): any  [private]
   setSelectedStrategy(strategy: Strategy): any  [private]
-
-classes
-  sw-app-shop-id-change-modal  [private]
-  sw-app-shop-id-change-modal__button-strategy  [private]
-  sw-app-shop-id-change-modal__content-apps  [private]
-  sw-app-shop-id-change-modal__content-choices  [private]
-  sw-app-shop-id-change-modal__content-choices-description  [private]
-  sw-app-shop-id-change-modal__content-choices-label  [private]
-  sw-app-shop-id-change-modal__content-description  [private]
-  sw-app-shop-id-change-modal__content-fingerprint-item  [private]
-  sw-app-shop-id-change-modal__content-fingerprint-item-title  [private]
-  sw-app-shop-id-change-modal__content-fingerprint-items  [private]
-  sw-app-shop-id-change-modal__content-fingerprints  [private]
-  sw-app-shop-id-change-modal__content-migration-strategy  [private]
 ```

@@ -53,14 +53,4 @@ blocks
 
 refs
   selectWrapper  -> div  [private]
-
-classes
-  sw-select  [private]
-  sw-select__select-indicator  [private]
-  sw-select__select-indicator-clear  [private]
-  sw-select__select-indicator-expand  [private]
-  sw-select__select-indicator-expand--rotated  [private]
-  sw-select__select-indicator-hitbox  [private]
-  sw-select__selection  [private]
-  sw-select__selection-indicators  [private]
 ```

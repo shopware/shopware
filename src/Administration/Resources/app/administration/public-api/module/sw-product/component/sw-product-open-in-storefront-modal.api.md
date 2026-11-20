@@ -65,23 +65,4 @@ blocks
       sw_product_open_in_storefront_modal_invalid_domains  [private]
       sw_product_open_in_storefront_modal_maintenance  [private]
     sw_product_open_in_storefront_modal_sales_channel_select  [after v-if] [private]
-
-classes
-  is--disabled  [private]
-  mt-link--external  [private]
-  sw-product-open-in-storefront-modal  [private]
-  sw-product-open-in-storefront-modal__check  [private]
-  sw-product-open-in-storefront-modal__description  [private]
-  sw-product-open-in-storefront-modal__domain  [private]
-  sw-product-open-in-storefront-modal__domain-header  [private]
-  sw-product-open-in-storefront-modal__domain-text  [private]
-  sw-product-open-in-storefront-modal__domain-url  [private]
-  sw-product-open-in-storefront-modal__domains-headline  [private]
-  sw-product-open-in-storefront-modal__footer  [private]
-  sw-product-open-in-storefront-modal__invalid-domains  [private]
-  sw-product-open-in-storefront-modal__maintenance  [private]
-  sw-product-open-in-storefront-modal__no-sales-channels  [private]
-  sw-product-open-in-storefront-modal__result  [private]
-  sw-product-open-in-storefront-modal__sales-channel-select  [private]
-  sw-product-open-in-storefront-modal__unsaved-changes  [private]
 ```

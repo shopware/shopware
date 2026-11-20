@@ -51,12 +51,4 @@ blocks
 
 refs
   swLoginRecoveryRecoveryNewPasswordField  -> mt-password-field  [private]
-
-classes
-  sw-login-recovery-recovery  [private]
-  sw-login__content-description  [private]
-  sw-login__content-headline  [private]
-  sw-login__heading  [private]
-  sw-login__submit  [private]
-  sw-login__view-loader  [private]
 ```

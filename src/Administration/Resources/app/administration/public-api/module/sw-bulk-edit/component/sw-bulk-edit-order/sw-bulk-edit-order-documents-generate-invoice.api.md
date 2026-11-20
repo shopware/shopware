@@ -35,8 +35,4 @@ blocks
     sw_bulk_edit_order_documents_generate_invoice_placeholder
     sw_bulk_edit_order_documents_generate_invoice_textarea
     sw_bulk_edit_order_documents_generate_invoice_toggle_skip
-
-classes
-  sw-bulk-edit-order-documents-generate-invoice
-  sw-bulk-edit-order-documents-generate-invoice__item
 ```

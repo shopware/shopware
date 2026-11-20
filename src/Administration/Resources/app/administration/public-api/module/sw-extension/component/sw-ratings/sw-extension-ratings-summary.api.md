@@ -32,11 +32,4 @@ blocks
           sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar  [scope: ratingGroup] [private]
       sw_extension_ratings_summary_grid_rating_rows  [private]
         sw_extension_ratings_summary_grid_rating_rows_content  [scope: ratingGroup] [private]
-
-classes
-  sw-extension-ratings-summary  [private]
-  sw-extension-ratings-summary__average  [private]
-  sw-extension-ratings-summary__grid  [private]
-  sw-extension-ratings-summary__progress-bars  [private]
-  sw-extension-ratings-summary__rows  [private]
 ```

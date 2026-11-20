@@ -33,8 +33,4 @@ methods
 blocks
   sw_dismissible_notices  [private]
     sw_dismissible_notices_notice  [private]
-
-classes
-  sw-dismissible-notices  [private]
-  sw-dismissible-notices__notice  [private]
 ```

@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_vimeo_video  [private]
     sw_cms_block_vimeo_video_slot  [private]
-
-classes
-  sw-cms-block-vimeo-video  [private]
 ```

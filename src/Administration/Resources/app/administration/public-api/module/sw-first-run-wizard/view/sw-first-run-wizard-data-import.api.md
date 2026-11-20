@@ -48,25 +48,10 @@ methods
   findPluginKeyByName(name: any): any  [private]
   getInstalledPlugins(): any  [private]
   notInstalled(pluginKey: any): any  [private]
-  onInstall(pluginKey: any): any  [private]
+  onInstall(pluginKey: any): Promise<any>  [private]
   setTitle(): any  [private]
   updateButtons(): any  [private]
 
 blocks
   sw_first_run_wizard_data_import  [private]
-
-classes
-  button-plugin-install  [private]
-  installing-plugin  [private]
-  plugin-installed  [private]
-  plugin-status  [private]
-  sw-first-run-wizard-data-import  [private]
-  sw-first-run-wizard-data-import__card  [private]
-  sw-first-run-wizard-data-import__headline  [private]
-  sw-first-run-wizard-data-import__icon-demodata  [private]
-  sw-first-run-wizard-data-import__icon-migration  [private]
-  sw-first-run-wizard-data-import__message  [private]
-  sw-first-run-wizard-import-data__headline  [private]
-  sw-first-run-wizard-plugin-installation__error  [private]
-  sw-loader-info-text  [private]
 ```

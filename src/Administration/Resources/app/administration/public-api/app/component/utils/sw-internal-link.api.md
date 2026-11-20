@@ -33,8 +33,4 @@ blocks
   sw_internal_link  [private]
     sw_internal_link__icon  [private]
     sw_internal_link__slot  [private]
-
-classes
-  sw-internal-link  [private]
-  sw-internal-link--disabled  [private]
 ```

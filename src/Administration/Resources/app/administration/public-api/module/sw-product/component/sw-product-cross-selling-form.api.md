@@ -95,17 +95,4 @@ blocks
 
 refs
   modalPreview  -> sw-product-stream-modal-preview
-
-classes
-  is--disabled
-  product-detail-cross-selling-form
-  product-detail-cross-selling-form__card-container
-  sw-card__quick-link
-  sw-product-cross-selling-form__links
-  sw-product-cross_selling-context-item__delete-action
-  sw-product-detail-cross-selling__active-switch
-  sw-product-detail-cross-selling__context-button
-  sw-product-detail-cross-selling__delete-button
-  sw-product-detail-cross-selling__delete-modal
-  sw-select-cross-selling__select-product-stream
 ```

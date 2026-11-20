@@ -48,29 +48,4 @@ blocks
 
 crossings
   v-if  sw_cms_element_product_box_info_skeleton -> sw_cms_element_product_box_info  [private]
-
-classes
-  sw-cms-el-product-box  [private]
-  sw-cms-el-product-box__actions  [private]
-  sw-cms-el-product-box__badge-discount  [private]
-  sw-cms-el-product-box__badge-new  [private]
-  sw-cms-el-product-box__badge-topseller  [private]
-  sw-cms-el-product-box__badges  [private]
-  sw-cms-el-product-box__buy-action  [private]
-  sw-cms-el-product-box__content  [private]
-  sw-cms-el-product-box__description  [private]
-  sw-cms-el-product-box__image  [private]
-  sw-cms-el-product-box__image-link  [private]
-  sw-cms-el-product-box__info  [private]
-  sw-cms-el-product-box__media  [private]
-  sw-cms-el-product-box__name  [private]
-  sw-cms-el-product-box__price  [private]
-  sw-cms-el-product-box__price-info  [private]
-  sw-cms-el-product-box__price-unit  [private]
-  sw-cms-el-product-box__price-unit-content  [private]
-  sw-cms-el-product-box__price-unit-label  [private]
-  sw-cms-el-product-box__price-unit-reference  [private]
-  sw-cms-el-product-box__skeleton-description  [private]
-  sw-cms-el-product-box__skeleton-name  [private]
-  sw-cms-el-product-box__skeleton-price  [private]
 ```

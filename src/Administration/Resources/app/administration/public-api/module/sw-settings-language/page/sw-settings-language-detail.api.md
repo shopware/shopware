@@ -69,9 +69,9 @@ methods
   createdComponent(): any
   invalidateLanguageCaches(): any
   isLocaleAlreadyUsed(itemId: any): any
-  loadCustomFieldSets(): any
-  loadEntityData(): any
-  loadSnippetMetadata(): any
+  loadCustomFieldSets(): Promise<any>
+  loadEntityData(): Promise<any>
+  loadSnippetMetadata(): Promise<any>
   onCancel(): any
   onInputLanguage(parentId: any): any
   onOpenSalesChannelSettings(): any
@@ -103,34 +103,4 @@ blocks
 
 crossings
   v-if  sw_settings_language_detail_sales_channels_assigned -> sw_settings_language_detail_sales_channels_empty
-
-classes
-  is--loading
-  sw-settings-language--alert-change-parent
-  sw-settings-language-detail
-  sw-settings-language-detail__active
-  sw-settings-language-detail__card-title
-  sw-settings-language-detail__cards-row
-  sw-settings-language-detail__content-card
-  sw-settings-language-detail__created-banner
-  sw-settings-language-detail__name
-  sw-settings-language-detail__sales-channel
-  sw-settings-language-detail__sales-channel-icon
-  sw-settings-language-detail__sales-channel-link
-  sw-settings-language-detail__sales-channels-card
-  sw-settings-language-detail__sales-channels-intro
-  sw-settings-language-detail__sales-channels-list
-  sw-settings-language-detail__sales-channels-settings
-  sw-settings-language-detail__sales-channels-toggle
-  sw-settings-language-detail__save-action
-  sw-settings-language-detail__select-iso-code
-  sw-settings-language-detail__select-locale
-  sw-settings-language-detail__select-parent
-  sw-settings-language-detail__snippet-link
-  sw-settings-language-detail__snippet-link-wrapper
-  sw-settings-language-detail__snippet-updates-actions
-  sw-settings-language-detail__snippet-updates-button
-  sw-settings-language-detail__snippet-updates-card
-  sw-settings-language-detail__snippet-updates-help
-  sw-settings-language-detail__snippet-updates-status
 ```

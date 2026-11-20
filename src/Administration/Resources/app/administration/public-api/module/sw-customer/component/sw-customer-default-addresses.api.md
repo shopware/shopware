@@ -35,7 +35,4 @@ blocks
       sw_customer_default_addresses_billing_postal
     sw_customer_default_addresses_shipping
       sw_customer_default_addresses_shipping_postal
-
-classes
-  sw-customer-default-addresses
 ```

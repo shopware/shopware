@@ -51,16 +51,4 @@ blocks
     sw_list_price_field_regulation_price  [private]
     sw_product_price_form_purchase_price_field  [private]
       sw_product_price_form_purchase_price_field_content  [private]
-
-classes
-  sw-list-price-field  [private]
-  sw-list-price-field__list-price  [private]
-  sw-list-price-field__list-price-field  [private]
-  sw-list-price-field__price  [private]
-  sw-list-price-field__price-field  [private]
-  sw-list-price-field__purchase-price  [private]
-  sw-list-price-field__regulation-price  [private]
-  sw-list-price-field__regulation-price-field  [private]
-  sw-list-price-field__vertical  [private]
-  sw-purchase-price-field  [private]
 ```

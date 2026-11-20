@@ -128,14 +128,4 @@ refs
   codeEditor  -> sw-code-editor  [private]
   text-editor-toolbar  -> sw-text-editor-toolbar  [private]
   textEditor  -> div  [private]
-
-classes
-  sw-text-editor  [private]
-  sw-text-editor__box  [private]
-  sw-text-editor__content  [private]
-  sw-text-editor__content-editor  [private]
-  sw-text-editor__content-placeholder  [private]
-  sw-text-editor__label  [private]
-  sw-text-editor__text-length  [private]
-  sw-text-editor__word_count  [private]
 ```

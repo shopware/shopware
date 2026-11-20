@@ -39,10 +39,4 @@ blocks
       sw_order_state_card_entry_description  [scope: entry, index]
       sw_order_state_card_entry_icon  [scope: entry, index]
     sw_order_state_card_entry_state_select
-
-classes
-  sw-order-state-card__date
-  sw-order-state-card__history-entry
-  sw-order-state-card__text
-  sw-order-state-history-card-entry
 ```

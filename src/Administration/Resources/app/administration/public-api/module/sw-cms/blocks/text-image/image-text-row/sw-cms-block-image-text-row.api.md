@@ -21,10 +21,4 @@ slots
 
 blocks
   sw_cms_block_image_text_row  [private]
-
-classes
-  sw-cms-block-image-text-row  [private]
-  sw-cms-block-image-text-row__center  [private]
-  sw-cms-block-image-text-row__left  [private]
-  sw-cms-block-image-text-row__right  [private]
 ```

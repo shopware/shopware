@@ -42,17 +42,4 @@ blocks
       sw_settings_content_card_view
         sw_settings_content_card_content_grid
         sw_settings_content_card_view_header
-
-classes
-  sw-settings-index
-  sw-settings-index__card-view
-  sw-settings-index__empty-state
-  sw-settings__card--hero
-  sw-settings__content-change-notices
-  sw-settings__content-grid
-  sw-settings__content-group
-  sw-settings__content-group-title
-  sw-settings__content-header
-  sw-settings__content-header-search
-  sw-settings__content-header-title
 ```

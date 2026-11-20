@@ -36,10 +36,4 @@ blocks
         sw_extension_deactivation_modal_footer_cancel  [private]
         sw_extension_deactivation_modal_footer_deactivate  [private]
       sw_installed_extension_card_deactivation_content_modal_body  [private]
-
-classes
-  sw-extension-deactivation-modal  [private]
-  sw-extension-deactivation-modal__bold-paragraph  [private]
-  sw-extension-deactivation-modal__description  [private]
-  sw-extension-deactivation-modal__hint-paragraph  [private]
 ```

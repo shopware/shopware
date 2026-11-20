@@ -126,20 +126,4 @@ crossings
 
 refs
   demoMediaGrid  -> div  [private]
-
-classes
-  sw-cms-el-config-image-gallery  [private]
-  sw-cms-el-config-image-gallery__mapping-preview  [private]
-  sw-cms-el-config-image-gallery__preview-image  [private]
-  sw-cms-el-config-image-gallery__setting-display-mode  [private]
-  sw-cms-el-config-image-gallery__setting-navigations  [private]
-  sw-cms-el-config-image-gallery__setting-option  [private]
-  sw-cms-el-config-image-gallery__settings-navigation  [private]
-  sw-cms-el-config-image-gallery__settings-options  [private]
-  sw-cms-el-config-image-gallery__settings-options-toggles  [private]
-  sw-cms-el-config-image-gallery__settings-use-fetch-priority-on-first-item  [private]
-  sw-cms-el-config-image-gallery__tab-content  [private]
-  sw-cms-el-config-image-gallery__tab-settings  [private]
-  sw-cms-el-config-image-gallery__tabs  [private]
-  sw-cms-el-config-image__preview-info  [private]
 ```

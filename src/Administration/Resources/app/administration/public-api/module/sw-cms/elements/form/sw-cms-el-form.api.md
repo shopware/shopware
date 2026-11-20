@@ -22,7 +22,4 @@ methods
 
 blocks
   sw_cms_element_form  [private]
-
-classes
-  sw-cms-el-form  [private]
 ```

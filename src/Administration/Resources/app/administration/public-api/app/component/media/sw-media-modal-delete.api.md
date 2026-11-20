@@ -38,7 +38,7 @@ computed
 
 methods
   _checkInUsage(mediaItem: any): any
-  _deleteSelection(item: any): any
+  _deleteSelection(item: any): Promise<any>
   closeDeleteModal(originalDomEvent: any): any
   createdComponent(): any
   deleteSelection(): Promise<any>
@@ -51,9 +51,4 @@ blocks
     sw_media_modal_footer
       sw_media_modal_delete_cancel_button
       sw_media_modal_delete_confirm_button
-
-classes
-  sw-media-modal-delete
-  sw-media-modal-delete__confirm
-  sw-media-modal-delete__media-list-item
 ```

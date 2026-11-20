@@ -37,15 +37,4 @@ methods
 
 blocks
   sw_first_run_wizard_finish  [private]
-
-classes
-  headline  [private]
-  headline-useful-links  [private]
-  list-useful-links  [private]
-  message  [private]
-  restart-progress  [private]
-  sw-first-run-wizard-finish  [private]
-  sw-first-run-wizard-finish__bubble  [private]
-  sw-first-run-wizard-finish__icon  [private]
-  sw-loader-info-text  [private]
 ```

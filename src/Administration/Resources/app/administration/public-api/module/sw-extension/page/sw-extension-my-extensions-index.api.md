@@ -36,7 +36,4 @@ blocks
       sw_extension_my_extensions_index_smart_bar_tabs_app  [private]
       sw_extension_my_extensions_index_smart_bar_tabs_recommendation  [private]
       sw_extension_my_extensions_index_smart_bar_tabs_theme  [private]
-
-classes
-  sw-extension-store-purchased  [private]
 ```

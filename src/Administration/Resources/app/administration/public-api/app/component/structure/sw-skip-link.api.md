@@ -20,8 +20,4 @@ methods
 
 blocks
   sw_skip_link  [private]
-
-classes
-  sw-skip-link  [private]
-  sw-skip-link__focussed  [private]
 ```

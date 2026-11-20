@@ -47,8 +47,4 @@ methods
 blocks
   sw_sales_channel_config  [private]
     sw_sales_channel_config_switch  [private]
-
-classes
-  sw-sales-channel-config  [private]
-  sw-sales-channel-config__global-sales-channel-switch  [private]
 ```

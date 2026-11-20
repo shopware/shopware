@@ -77,14 +77,4 @@ crossings
 
 refs
   cmsProductSelection  -> sw-entity-single-select  [private]
-
-classes
-  sw-cms-el-config-cross-selling  [private]
-  sw-cms-el-config-cross-selling__products  [private]
-  sw-cms-el-config-cross-selling__tab-content  [private]
-  sw-cms-el-config-cross-selling__tab-options  [private]
-  sw-cms-el-config-cross-selling__tab-options-speed  [private]
-  sw-cms-el-config-cross-selling__tabs  [private]
-  sw-cms-el-config-cross-selling__warning-text  [private]
-  sw-select-result__result-item-text  [private]
 ```

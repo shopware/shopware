@@ -48,8 +48,4 @@ blocks
 
 refs
   cmsProductSelection  -> sw-entity-single-select  [private]
-
-classes
-  sw-cms-el-config-product-box  [private]
-  sw-select-result__result-item-text  [private]
 ```

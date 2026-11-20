@@ -66,15 +66,15 @@ methods
   indexProducts(ids: any): any
   isErrorNavigationEntryPoint(category: any): any
   isHighlighted(arg0: any): any
-  loadActiveCategory(): any
-  loadRootCategories(): any
-  onDeleteCategory(arg0: any): any
-  onGetTreeItems(parentId: any): any
+  loadActiveCategory(): Promise<any>
+  loadRootCategories(): Promise<any>
+  onDeleteCategory(arg0: any): Promise<any>
+  onGetTreeItems(parentId: any): Promise<any>
   onUpdatePositions(arg0: any): any
   openInitialTree(): any
   removeFromStore(id: any): any
   syncProducts(categoryId: any): any
-  syncSiblings(arg0: any): any
+  syncSiblings(arg0: any): Promise<any>
 
 blocks
   sw_category_tree
@@ -82,8 +82,4 @@ blocks
 
 refs
   categoryTree  -> sw-tree
-
-classes
-  sw-category-tree
-  sw-category-tree__inner
 ```

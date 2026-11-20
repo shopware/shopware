@@ -43,8 +43,8 @@ methods
   doSsoForwarding(): any  [private]
   forwardLogin(): Promise<any>  [private]
   handleLoginError(response: unknown): any  [private]
-  handleLoginSuccess(): any  [private]
-  loginUserWithPassword(): any  [private]
+  handleLoginSuccess(): Promise<any>  [private]
+  loginUserWithPassword(): Promise<any>  [private]
   showLoginErrorFromResponse(response: unknown): any  [private]
 
 blocks
@@ -59,19 +59,4 @@ blocks
     sw_login_login_submit  [after v-if] [private]
       sw_login_login_submit_button  [private]
     sw_login_login_user_field  [private]
-
-classes
-  sw-login-login  [private]
-  sw-login__alert-banner  [private]
-  sw-login__content-headline  [private]
-  sw-login__error-banner  [private]
-  sw-login__heading  [private]
-  sw-login__login-action  [private]
-  sw-login__sso  [private]
-  sw-login__sso-button  [private]
-  sw-login__sso-button-icon  [private]
-  sw-login__sso-divider  [private]
-  sw-login__sso-divider-text  [private]
-  sw-login__submit  [private]
-  sw-login__view-loader  [private]
 ```

@@ -39,9 +39,4 @@ blocks
       sw_sales_channel_detail_header_headline  [inherited]
     sw_sales_channel_detail_language_switch  [replaced]
     sw_sales_channel_detail_sidebar  [inherited]
-
-classes
-  sw-sales-channel-detail
-  sw-sales-channel-detail__agentic-commerce-deprecation-banner
-  sw-sales-channel-detail__save-action
 ```

@@ -56,17 +56,17 @@ methods
   createNewElement(contextItem: any, parentId: any, name?: any): any
   createNewLandingPage(name: any): any
   createdComponent(): any
-  deleteCheckedItems(checkedItems: any): any
+  deleteCheckedItems(checkedItems: any): Promise<any>
   duplicateElement(contextItem: any): any
   getLandingPageUrl(landingPage: any): any
-  loadLandingPages(): any
-  loadMoreLandingPages(): any
+  loadLandingPages(): Promise<any>
+  loadMoreLandingPages(): Promise<any>
   newLandingPageUrl(): any
-  onDeleteLandingPage(arg0: any): any
+  onDeleteLandingPage(arg0: any): Promise<any>
   reloadLandingPages(): Promise<any>
   removeFromStore(id: any): any
   resetLandingPages(): any
-  syncLandingPages(): any
+  syncLandingPages(): Promise<any>
 
 blocks
   sw_landing_page_tree
@@ -84,15 +84,4 @@ crossings
 
 refs
   landingPageTree  -> sw-tree
-
-classes
-  sw-context-menu__duplicate-action
-  sw-context-menu__group-button-delete
-  sw-landing-page-tree
-  sw-landing-page-tree__add-button
-  sw-landing-page-tree__add-button-button
-  sw-landing-page-tree__inner
-  sw-landing-page-tree__load-more
-  sw-landing-page-tree__load-more-button
-  sw-tree-item__context_button
 ```

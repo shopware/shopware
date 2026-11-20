@@ -28,7 +28,7 @@ computed
   operators: any
 
 methods
-  createdComponent(): any
+  createdComponent(): Promise<any>
   getCategoryBreadcrumb(category: any): any
   setCategoryIds(categories: any): any
 
@@ -49,17 +49,4 @@ blocks
             sw_condition_line_item_in_category_field_result_item_content  [scope: addItem, descriptionPosition, displayLabelProperty, highlightSearchTerm, index, isSelected, isSelectionDisabled, item, searchTerm]
         sw_condition_line_item_in_category_field_operator
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-base-line-item__matches-all
-  sw-condition-line-item-in-category
-  sw-condition-line-item-in-category__help-text
-  sw-condition-line-item-in-category__result-item
-  sw-condition__condition-value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

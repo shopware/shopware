@@ -18,7 +18,4 @@ computed
   status: any  [private]
   statusText: any  [private]
   variant: any  [private]
-
-classes
-  sw-user-sso-status-label  [private]
 ```

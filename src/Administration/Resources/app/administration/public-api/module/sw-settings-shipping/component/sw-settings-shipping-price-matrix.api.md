@@ -100,24 +100,4 @@ blocks
       sw_settings_shipping_price_matrix_topbar_new_price
       sw_settings_shipping_price_matrix_topbar_rule_select
     sw_settings_shipping_price_matrix_topbar_alert
-
-classes
-  sw-settings-shipping-price-matrix
-  sw-settings-shipping-price-matrix__action-delete
-  sw-settings-shipping-price-matrix__action-duplicate
-  sw-settings-shipping-price-matrix__column-calculation-rule-select
-  sw-settings-shipping-price-matrix__confirm-delete-text
-  sw-settings-shipping-price-matrix__empty
-  sw-settings-shipping-price-matrix__empty--select-property
-  sw-settings-shipping-price-matrix__empty-text
-  sw-settings-shipping-price-matrix__empty-text-or
-  sw-settings-shipping-price-matrix__new-matrix-alert
-  sw-settings-shipping-price-matrix__price
-  sw-settings-shipping-price-matrix__price-group-context
-  sw-settings-shipping-price-matrix__price-inherit-icon
-  sw-settings-shipping-price-matrix__price-load-all
-  sw-settings-shipping-price-matrix__price-load-all-button
-  sw-settings-shipping-price-matrix__top-container
-  sw-settings-shipping-price-matrix__top-container-add-new-rule
-  sw-settings-shipping-price-matrix__top-container-rule-select
 ```

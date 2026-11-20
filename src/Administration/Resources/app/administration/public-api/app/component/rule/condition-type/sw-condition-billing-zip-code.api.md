@@ -39,15 +39,4 @@ blocks
         sw_condition_billing_zip_code_field_operator
         sw_condition_billing_zip_code_field_zip_codes
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-billing-zip-code
-  sw-condition-zipcode-type-select
-  sw-condition__condition-value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

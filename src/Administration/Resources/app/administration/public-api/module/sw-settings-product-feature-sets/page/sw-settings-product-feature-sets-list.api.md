@@ -39,7 +39,7 @@ methods
   metaInfo(): any
   onChangeLanguage(languageId: any): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onInlineEditSave(promise: any, productFeatureSets: any): any
   renderFeaturePreview(features: any): any
@@ -67,13 +67,4 @@ blocks
 
 refs
   swSettingsProductFeatureSetsGrid  -> sw-entity-listing
-
-classes
-  sw-product-feature-sets-list__content
-  sw-product-feature-sets-list__delete-action
-  sw-product-feature-sets-list__edit-action
-  sw-settings-product-feature-sets-list
-  sw-settings-product-feature-sets-list-grid
-  sw-settings-product-feature-sets-list-grid__create-button
-  sw-settings-product-feature-sets-list__confirm-delete-text
 ```

@@ -19,7 +19,4 @@ methods
 
 blocks
   sw_in_app_purchase_checkout_modal  [private]
-
-classes
-  sw-in-app-purchase-checkout  [private]
 ```

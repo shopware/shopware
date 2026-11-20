@@ -54,11 +54,4 @@ blocks
       sw_settings_payment_overview_smart_bar_actions_add
     sw_settings_payment_overview_smart_bar_header
       sw_settings_payment_overview_smart_bar_header_title
-
-classes
-  sw-settings-payment-overview
-  sw-settings-payment-overview__button-create
-  sw-settings-payment-overview__content
-  sw-settings-payment-overview__sorting_modal_card
-  sw-settings-payment-overview__title
 ```

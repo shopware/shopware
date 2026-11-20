@@ -64,10 +64,4 @@ blocks
       sw_category_detail_product_assignment_type_select
         sw_category_detail_product_assignment_manual_alert
         sw_category_detail_product_assignment_type_select_field
-
-classes
-  sw-category-detail-products
-  sw-category-detail-products__product-assignment-type-select
-  sw-category-detail-products__product-stream-preview-link
-  sw-category-detail-products__product-stream-select
 ```

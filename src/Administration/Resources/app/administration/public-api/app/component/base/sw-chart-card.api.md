@@ -16,7 +16,7 @@ props
   cardSubtitle?: string  default=literal  [private]
   cardTitle?: string  default=literal  [private]
   defaultRangeIndex?: number  default=factory  [private]
-  helpText?: string | object  default=factory  [private]
+  helpText?: object | string  default=factory  [private]
   isLoading?: boolean  default=literal  [private]
   positionIdentifier: string  default=literal  [private]
 
@@ -50,10 +50,4 @@ blocks
     sw_chart_card_title  [private]
       sw_chart_card_title_help_text  [private]
       sw_chart_card_title_slot  [private]
-
-classes
-  sw-chart-card  [private]
-  sw-chart-card__header-right  [private]
-  sw-chart-card__title  [private]
-  sw-chart-card__title-help-text  [private]
 ```

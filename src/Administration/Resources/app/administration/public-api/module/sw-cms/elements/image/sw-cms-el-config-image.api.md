@@ -57,14 +57,4 @@ blocks
     sw_cms_element_image_config_media_upload  [scope: isInherited] [private]
     sw_cms_element_image_config_min_height  [private]
     sw_cms_element_image_config_vertical_align  [private]
-
-classes
-  sw-cms-el-config-image  [private]
-  sw-cms-el-config-image__display-mode  [private]
-  sw-cms-el-config-image__is-decorative  [private]
-  sw-cms-el-config-image__link  [private]
-  sw-cms-el-config-image__link-aria-label  [private]
-  sw-cms-el-config-image__link-tab  [private]
-  sw-cms-el-config-image__mapping-preview  [private]
-  sw-cms-el-config-image__preview-info  [private]
 ```

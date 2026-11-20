@@ -20,10 +20,4 @@ emits
 
 blocks
   sw_cms_visibility_toggle  [private]
-
-classes
-  sw-cms-visibility-toggle  [private]
-  sw-cms-visibility-toggle-wrapper  [private]
-  sw-cms-visibility-toggle__button  [private]
-  sw-cms-visibility-toggle__text  [private]
 ```

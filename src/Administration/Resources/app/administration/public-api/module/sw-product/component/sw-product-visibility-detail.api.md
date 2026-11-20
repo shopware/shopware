@@ -39,12 +39,4 @@ blocks
         sw_product_visibility_detail_columns_sales_channel_label  [scope: item]
       sw_product_visibility_detail_columns_search_only  [scope: item]
     sw_product_visibility_detail_pagination
-
-classes
-  sw-product-visibility-detail
-  sw-product-visibility-detail__column-all
-  sw-product-visibility-detail__column-sales-channel
-  sw-product-visibility-detail__link-only
-  sw-product-visibility-detail__name
-  sw-product-visibility-detail__search-only
 ```

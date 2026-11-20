@@ -30,9 +30,6 @@ blocks
 refs
   component  -> component
 
-classes
-  sw-form-field-renderer
-
 notes
   dynamic-slot slotName
 ```

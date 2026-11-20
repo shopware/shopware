@@ -40,7 +40,7 @@ methods
   createdComponent(): any  [private]
   destroyedComponent(): any  [private]
   getActiveImage(): Promise<any>  [private]
-  loadImage(element: any): any  [private]
+  loadImage(element: any): Promise<any>  [private]
   onClickClose(): any  [private]
   onClickReset(): any  [private]
   onClickZoomIn(): any  [private]
@@ -69,13 +69,4 @@ refs
   btnReset  -> button  [private]
   btnZoomIn  -> button  [private]
   btnZoomOut  -> button  [private]
-
-classes
-  sw-image-preview-modal  [private]
-  sw-image-preview-modal__action  [private]
-  sw-image-preview-modal__button-action  [private]
-  sw-image-preview-modal__button-close  [private]
-  sw-image-preview-modal__divider  [private]
-  sw-image-preview-modal__image-slider  [private]
-  sw-image-preview-modal__thumbnail-slider  [private]
 ```

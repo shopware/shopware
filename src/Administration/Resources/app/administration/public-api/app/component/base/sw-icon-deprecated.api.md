@@ -31,12 +31,8 @@ computed
   styles: any  [private]
 
 methods
-  loadIconSvgData(variant: any, iconName: any, iconFullName: any): any  [private]
+  loadIconSvgData(variant: any, iconName: any, iconFullName: any): Promise<any>  [private]
 
 blocks
   sw_icon_deprecated  [private]
-
-classes
-  sw-icon  [private]
-  sw-icon--fill  [private]
 ```

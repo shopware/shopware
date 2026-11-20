@@ -45,10 +45,10 @@ computed
 methods
   createProductCriteria(filter: any): any
   createdComponent(): any
-  getProductStreamFilter(id: any): any
-  getProductStreams(): any
-  getProducts(filter?: any): any
-  getProductsFromProductStreams(productStreams: any): any
+  getProductStreamFilter(id: any): Promise<any>
+  getProductStreams(): Promise<any>
+  getProducts(filter?: any): Promise<any>
+  getProductsFromProductStreams(productStreams: any): Promise<any>
   onOpen(productStream: any): any
   onPaginate(data: any): any
   onSearch(term: any): any
@@ -73,9 +73,4 @@ refs
   alert  -> mt-banner
   cardSectionSecondary  -> sw-card-section
   productStreamListing  -> sw-entity-listing
-
-classes
-  sw-sales-channel-products-assignment-dynamic-product-groups
-  sw-sales-channel-products-assignment-dynamic-product-groups__card-section-primary
-  sw-sales-channel-products-assignment-dynamic-product-groups__link-open
 ```

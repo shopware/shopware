@@ -61,10 +61,10 @@ methods
   abortOnLanguageChange(): any
   addSalesChannel(salesChannel: any): any
   buildSelectedSalesChannelsCollection(): any
-  checkPatternCollision(): any
+  checkPatternCollision(): Promise<any>
   createdComponent(): Promise<any>
-  getPreview(): any
-  getState(): any
+  getPreview(): Promise<any>
+  getState(): Promise<any>
   invalidateNumberRangeCaches(): any
   loadCustomFieldSets(): any
   loadEntityData(): Promise<any>
@@ -107,13 +107,4 @@ blocks
       sw_settings_number_range_detail_language_info
     sw_settings_number_range_detail_header
     sw_settings_number_range_detail_language_switch
-
-classes
-  sw-number-range-detail__select-type
-  sw-number_range-quickinfo__alert-global-type
-  sw-settings-number-range-detail
-  sw-settings-number-range-detail-assignment
-  sw-settings-number-range-detail__field_default
-  sw-settings-number-range-detail__pattern-collision-warning
-  sw-settings-number-range-detail__save-action
 ```

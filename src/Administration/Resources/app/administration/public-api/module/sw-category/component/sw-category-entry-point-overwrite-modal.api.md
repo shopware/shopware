@@ -23,8 +23,4 @@ methods
 
 blocks
   sw_category_entry_point_overwrite_modal
-
-classes
-  sw-category-entry-point-overwrite-modal
-  sw-confirm-modal__text
 ```

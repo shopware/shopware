@@ -16,12 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_text_bubble_preview  [private]
-
-classes
-  sw-cms-preview-image-text-bubble  [private]
-  sw-cms-preview-image-text-bubble__center  [private]
-  sw-cms-preview-image-text-bubble__image  [private]
-  sw-cms-preview-image-text-bubble__left  [private]
-  sw-cms-preview-image-text-bubble__right  [private]
-  sw-cms-preview-image-text-bubble__text  [private]
 ```

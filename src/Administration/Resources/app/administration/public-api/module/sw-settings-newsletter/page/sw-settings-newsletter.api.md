@@ -36,9 +36,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-newsletter
-  sw-settings-newsletter__save-action
 ```

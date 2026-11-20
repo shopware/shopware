@@ -23,11 +23,4 @@ blocks
     sw_import_export_edit_profile_import_settings_create_switch
     sw_import_export_edit_profile_import_settings_headline
     sw_import_export_edit_profile_import_settings_update_switch
-
-classes
-  sw-import-export-edit-profile-import-settings
-  sw-import-export-edit-profile-import-settings__container
-  sw-import-export-edit-profile-import-settings__create-switch
-  sw-import-export-edit-profile-import-settings__headline
-  sw-import-export-edit-profile-import-settings__update-switch
 ```

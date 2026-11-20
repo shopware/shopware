@@ -68,12 +68,4 @@ blocks
 
 refs
   popoverContent  -> div  [private]
-
-classes
-  sw-select-result-list  [private]
-  sw-select-result-list-popover  [private]
-  sw-select-result-list__content  [private]
-  sw-select-result-list__content_empty  [private]
-  sw-select-result-list__empty  [private]
-  sw-select-result-list__item-list  [private]
 ```

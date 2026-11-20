@@ -45,11 +45,4 @@ blocks
 
 refs
   galleryItemHolder  -> div  [private]
-
-classes
-  sw-cms-el-image-gallery  [private]
-  sw-cms-el-image-gallery__grid  [private]
-  sw-cms-el-image-gallery__grid-arrow  [private]
-  sw-cms-el-image-gallery__item-holder  [private]
-  sw-cms-el-image-gallery__item-placeholder  [private]
 ```

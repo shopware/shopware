@@ -41,18 +41,6 @@ blocks
       sw_category_view_tabs_products  [until v6.8.0]
       sw_category_view_tabs_seo  [until v6.8.0]
 
-classes
-  sw-category-detail-page__tabs
-  sw-category-detail__tab-base  [until v6.8.0]
-  sw-category-detail__tab-cms  [until v6.8.0]
-  sw-category-detail__tab-custom-entity  [until v6.8.0]
-  sw-category-detail__tab-products  [until v6.8.0]
-  sw-category-detail__tab-seo  [until v6.8.0]
-  sw-category-view
-  swag-category-view__column-info
-  swag-category-view__column-info-content
-  swag-category-view__column-info-header
-
 notes
   unresolved computed ...mapPageErrors(errorConfig)
 ```

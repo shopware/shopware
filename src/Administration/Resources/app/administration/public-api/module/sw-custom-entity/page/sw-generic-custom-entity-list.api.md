@@ -53,12 +53,4 @@ methods
 
 blocks
   sw_generic_custom_entity_list  [private]
-
-classes
-  sw-generic-custom-entity-list  [private]
-  sw-generic-custom-entity-list__button-add  [private]
-  sw-generic-custom-entity-list__content  [private]
-  sw-generic-custom-entity-list__content-empty-state  [private]
-  sw-generic-custom-entity-list__content-list  [private]
-  sw-generic-custom-entity-list__title  [private]
 ```

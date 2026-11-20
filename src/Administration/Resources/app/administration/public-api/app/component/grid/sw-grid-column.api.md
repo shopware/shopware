@@ -42,11 +42,4 @@ blocks
       sw_grid_column_slot_default  [private]
     sw_grid_column_editing  [private]
       sw_grid_column_slot_inline_edit  [private]
-
-classes
-  is--truncate  [private]
-  sw-grid-column  [private]
-  sw-grid__cell  [private]
-  sw-grid__cell-content  [private]
-  sw-grid__cell-inline-editing  [private]
 ```

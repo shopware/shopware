@@ -37,14 +37,4 @@ blocks
     sw_order_create_details_body_shipping_address
       sw_order_create_details_body_shipping_address_content
       sw_order_create_details_body_shipping_address_identical
-
-classes
-  is-billing
-  is-shipping
-  sw-order-create-details-body
-  sw-order-create-details-body__address-identical
-  sw-order-create-details-body__address-identical-text
-  sw-order-create-details-body__item
-  sw-order-create-details-body__item-label
-  sw-order-create-details-body__item-label-button
 ```

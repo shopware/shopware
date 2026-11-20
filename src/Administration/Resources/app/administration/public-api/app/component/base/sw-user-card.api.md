@@ -48,11 +48,4 @@ blocks
         sw_user_card_slot_data_additional  [private]
       sw_user_card_row_secondary  [private]
         sw_user_card_slot_default  [private]
-
-classes
-  sw-user-card  [private]
-  sw-user-card__actions  [private]
-  sw-user-card__metadata  [private]
-  sw-user-card__metadata-item  [private]
-  sw-user-card__metadata-user-name  [private]
 ```

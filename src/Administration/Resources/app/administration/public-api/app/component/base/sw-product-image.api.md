@@ -35,17 +35,4 @@ blocks
     sw_product_image_placeholder  [private]
     sw_product_image_preview  [private]
       sw_product_image_preview_spatial_labels  [after v-if] [private]
-
-classes
-  is--invalid-drag  [private]
-  sw-label__ar-ready  [private]
-  sw-label__spatial  [private]
-  sw-product-image  [private]
-  sw-product-image__button-cover  [private]
-  sw-product-image__button-delete  [private]
-  sw-product-image__context-button  [private]
-  sw-product-image__cover-label  [private]
-  sw-product-image__image  [private]
-  sw-product-image__placeholder-icon  [private]
-  sw-product-image__spatial-label  [private]
 ```

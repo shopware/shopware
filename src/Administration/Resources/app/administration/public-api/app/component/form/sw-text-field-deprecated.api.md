@@ -52,7 +52,4 @@ methods
 
 blocks
   sw_text_field  [private]
-
-classes
-  sw-field--text  [private]
 ```

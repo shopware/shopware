@@ -13,7 +13,4 @@ component sw-context-menu-divider  private  js  [private]
 
 blocks
   sw_context_menu_divider  [private]
-
-classes
-  sw_context_menu_divider  [private]
 ```

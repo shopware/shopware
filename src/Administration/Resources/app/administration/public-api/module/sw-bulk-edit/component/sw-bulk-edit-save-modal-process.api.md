@@ -66,17 +66,4 @@ blocks
     sw_bulk_edit_save_modal_process_content  [after v-if]
     sw_bulk_edit_save_modal_process_generate_document
     sw_bulk_edit_save_modal_process_icon
-
-classes
-  progress
-  progress__bar
-  progress__bar-fill
-  progress__label
-  sw-bulk-edit-save-modal-process
-  sw-bulk-edit-save-modal-process__generate-document
-  sw-bulk-edit-save-modal-process__generate-document-container
-  sw-bulk-edit-save-modal__help-text
-  sw-bulk-edit-save-modal__icon
-  sw-bulk-edit-save-modal__loading-icon
-  sw-bulk-edit-save-modal__warning
 ```

@@ -52,18 +52,4 @@ blocks
 
 refs
   inlineEditFieldName  -> sw-confirm-field
-
-classes
-  is--danger
-  quickaction--delete
-  quickaction--dissolve
-  quickaction--move
-  quickaction--settings
-  sw-media-folder-info
-  sw-media-quickinfo-metadata-createdAt
-  sw-media-quickinfo-metadata-name
-  sw-media-sidebar__metadata-list
-  sw-media-sidebar__quickaction
-  sw-media-sidebar__quickactions-icon
-  sw-media-sidebar__quickactions-list
 ```

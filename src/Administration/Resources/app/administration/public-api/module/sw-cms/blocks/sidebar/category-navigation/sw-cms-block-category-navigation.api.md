@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_sidebar_category_navigation  [private]
-
-classes
-  sw-cms-block-sidebar-category-navigation  [private]
 ```

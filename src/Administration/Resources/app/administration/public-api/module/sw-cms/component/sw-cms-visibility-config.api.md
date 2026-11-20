@@ -22,11 +22,4 @@ methods
 
 blocks
   sw_cms_visibility_config  [private]
-
-classes
-  sw-cms-visibility-config  [private]
-  sw-cms-visibility-config__checkbox  [private]
-  sw-cms-visibility-config__checkbox-group  [private]
-  sw-cms-visibility-config__checkbox-group-label  [private]
-  sw-cms-visibility-config__checkbox-input  [private]
 ```

@@ -40,11 +40,4 @@ methods
 
 blocks
   sw_flow_grant_download_access_modal  [private]
-
-classes
-  sw-flow-grant-download-access-modal  [private]
-  sw-flow-grant-download-access-modal__cancel-button  [private]
-  sw-flow-grant-download-access-modal__content  [private]
-  sw-flow-grant-download-access-modal__save-button  [private]
-  sw-flow-grant-download-access-modal__value-field  [private]
 ```

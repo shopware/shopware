@@ -18,16 +18,4 @@ data
 
 methods
   hideBanner(): Promise<any>  [private]
-
-classes
-  sw-settings-services-dashboard-banner__button  [private]
-  sw-settings-services-dashboard-banner__container  [private]
-  sw-settings-services-dashboard-banner__content  [private]
-  sw-settings-services-dashboard-banner__description  [private]
-  sw-settings-services-dashboard-banner__graphic  [private]
-  sw-settings-services-dashboard-banner__graphic--dark  [private]
-  sw-settings-services-dashboard-banner__graphic--light  [private]
-  sw-settings-services-dashboard-banner__graphics  [private]
-  sw-settings-services-dashboard-banner__text  [private]
-  sw-settings-services-dashboard-banner__title  [private]
 ```

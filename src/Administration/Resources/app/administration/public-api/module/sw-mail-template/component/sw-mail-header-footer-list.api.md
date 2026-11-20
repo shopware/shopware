@@ -37,7 +37,7 @@ methods
   getListColumns(): any
   getMailHeaderFooterCriteria(mailHeaderFooter: any): any
   getSalesChannelsString(item: any): any
-  onDelete(item: any): any
+  onDelete(item: any): Promise<any>
   onDuplicate(id: any): any
   onEdit(mailHeaderFooter: any): any
   onMultipleDelete(): any
@@ -55,8 +55,4 @@ blocks
 
 refs
   listing  -> sw-entity-listing
-
-classes
-  sw-mail-header-footer-list-grid__duplicate-action
-  sw-mail-templates-list-grid
 ```

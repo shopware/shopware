@@ -37,9 +37,4 @@ methods
 
 blocks
   sw_text_field  [replaced] [private]
-
-classes
-  sw-field--password  [private]
-  sw-field--password__container  [private]
-  sw-field__toggle-password-visibility  [private]
 ```

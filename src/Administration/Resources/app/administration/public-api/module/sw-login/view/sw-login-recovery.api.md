@@ -48,13 +48,4 @@ blocks
 
 refs
   swLoginRecoveryEmailField  -> mt-text-field  [private]
-
-classes
-  sw-login-recovery  [private]
-  sw-login__alert-banner  [private]
-  sw-login__content-description  [private]
-  sw-login__content-headline  [private]
-  sw-login__heading  [private]
-  sw-login__recovery-form  [private]
-  sw-login__submit  [private]
 ```

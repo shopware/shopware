@@ -74,18 +74,4 @@ blocks
 
 crossings
   v-if  sw_promotion_v2_detail_base_codes_type_fixed -> sw_promotion_v2_detail_base_codes_type_individual
-
-classes
-  sw-promotion-v2-detail-base
-  sw-promotion-v2-detail-base__card-codes
-  sw-promotion-v2-detail-base__card-general
-  sw-promotion-v2-detail-base__field-active
-  sw-promotion-v2-detail-base__field-code-type
-  sw-promotion-v2-detail-base__field-max-uses-global
-  sw-promotion-v2-detail-base__field-max-uses-per-customer
-  sw-promotion-v2-detail-base__field-name
-  sw-promotion-v2-detail-base__field-valid-from
-  sw-promotion-v2-detail-base__field-valid-until
-  sw-promotion-v2-detail-base__fixed-field-code
-  sw-promotion-v2-detail-base__fixed-generate-button
 ```

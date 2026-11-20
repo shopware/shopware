@@ -59,12 +59,4 @@ blocks
     sw_flow_generate_document_modal_footer  [after v-if] [private]
       sw_flow_generate_document_modal_footer_cancel_button  [private]
       sw_flow_generate_document_modal_footer_save_button  [private]
-
-classes
-  sw-flow-generate-document-modal  [private]
-  sw-flow-generate-document-modal__cancel-button  [private]
-  sw-flow-generate-document-modal__file-formats-select  [private]
-  sw-flow-generate-document-modal__save-button  [private]
-  sw-flow-generate-document-modal__type-multi-select  [private]
-  sw-flow-generate-document-modal__type-select  [private]
 ```

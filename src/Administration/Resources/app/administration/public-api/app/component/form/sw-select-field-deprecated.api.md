@@ -46,11 +46,4 @@ methods
 
 blocks
   sw_block_field  [private]
-
-classes
-  is--placeholder  [private]
-  sw-field--select  [private]
-  sw-field--select__loader  [private]
-  sw-field--select__options  [private]
-  sw-field--select__placeholder-option  [private]
 ```

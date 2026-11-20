@@ -28,10 +28,4 @@ blocks
     sw_settings_item_icon
     sw_settings_item_label
       sw_settings_item_new_badge
-
-classes
-  sw-settings-item
-  sw-settings-item__icon
-  sw-settings-item__label
-  sw-settings-item__new-badge
 ```

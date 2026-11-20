@@ -19,13 +19,4 @@ computed
 
 blocks
   sw_skeleton  [private]
-
-classes
-  sw-skeleton  [private]
-  sw-skeleton-bar  [private]
-  sw-skeleton__detail-container  [private]
-  sw-skeleton__media-preview  [private]
-  sw-skeleton__media-subtitle  [private]
-  sw-skeleton__tree-item-checkbox  [private]
-  sw-skeleton__tree-item-text  [private]
 ```

@@ -32,14 +32,4 @@ methods
 
 blocks
   sw_custom_entity_input_field  [private]
-
-classes
-  sw-custom-entity-input-field  [private]
-  sw-custom-entity-input-field__boolean  [private]
-  sw-custom-entity-input-field__date  [private]
-  sw-custom-entity-input-field__float  [private]
-  sw-custom-entity-input-field__int  [private]
-  sw-custom-entity-input-field__string  [private]
-  sw-custom-entity-input-field__text  [private]
-  sw-custom-entity-input-field__undefined  [private]
 ```

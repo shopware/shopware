@@ -37,19 +37,4 @@ methods
 
 blocks
   sw_settings_message_stats  [private]
-
-classes
-  sw-settings-message-stats  [private]
-  sw-settings-message-stats__banner-container  [private]
-  sw-settings-message-stats__description  [private]
-  sw-settings-message-stats__divider  [private]
-  sw-settings-message-stats__empty-state  [private]
-  sw-settings-message-stats__message-types  [private]
-  sw-settings-message-stats__stat-content  [private]
-  sw-settings-message-stats__stat-header  [private]
-  sw-settings-message-stats__stat-icon  [private]
-  sw-settings-message-stats__stat-item  [private]
-  sw-settings-message-stats__stat-item-accent  [private]
-  sw-settings-message-stats__stat-value  [private]
-  sw-settings-message-stats__stats-grid  [private]
 ```

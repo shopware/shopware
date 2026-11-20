@@ -39,9 +39,4 @@ methods
 blocks
   sw_language_info  [private]
     sw_language_info_text  [private]
-
-classes
-  sw-language-info  [private]
-  sw-language-info__link-parent  [private]
-  sw_language-info__info  [private]
 ```

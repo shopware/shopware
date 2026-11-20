@@ -16,8 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_highlight_row_preview  [private]
-
-classes
-  sw-cms-preview-image-highlight-row  [private]
-  sw-cms-preview-image-highlight-row__image  [private]
 ```

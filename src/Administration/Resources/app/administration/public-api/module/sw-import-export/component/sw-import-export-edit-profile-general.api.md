@@ -50,11 +50,4 @@ crossings
 
 refs
   objectTypeSelect  -> sw-single-select
-
-classes
-  sw-import-export-edit-profile-general
-  sw-import-export-edit-profile-general__object-type-field
-  sw-import-export-edit-profile-general__object-type-select
-  sw-import-export-edit-profile-general__text
-  sw-import-export-edit-profile-general__type-select
 ```

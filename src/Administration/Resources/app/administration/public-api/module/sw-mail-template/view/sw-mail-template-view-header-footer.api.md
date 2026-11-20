@@ -20,7 +20,4 @@ blocks
 
 refs
   mailHeaderFooterList  -> sw-mail-header-footer-list  [private]
-
-classes
-  sw-mail-template-view-header-footer  [private]
 ```

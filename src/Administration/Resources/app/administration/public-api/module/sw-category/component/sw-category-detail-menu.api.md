@@ -39,8 +39,4 @@ blocks
     sw_category_detail_menu_description  [after v-if]
     sw_category_detail_menu_media
     sw_category_detail_menu_media_modal
-
-classes
-  sw-category-detail-base__description
-  sw-category-detail-base__menu
 ```

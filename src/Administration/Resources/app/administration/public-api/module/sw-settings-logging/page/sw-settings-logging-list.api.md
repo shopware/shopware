@@ -41,7 +41,7 @@ computed
 
 methods
   closeInfoModal(): any
-  getList(): any
+  getList(): Promise<any>
   getLogColumns(): any
   logLevelToString(level: any): any
   showInfoModal(entryContents: any): any
@@ -64,9 +64,4 @@ blocks
     sw_settings_logging_list_smart_bar_header
       sw_settings_logging_list_smart_bar_header_title
         sw_settings_logging_list_smart_bar_header_title_text
-
-classes
-  sw-settings-logging-list
-  sw-settings-logging-list__custom-content
-  sw-settings-logging-list__sidebar
 ```

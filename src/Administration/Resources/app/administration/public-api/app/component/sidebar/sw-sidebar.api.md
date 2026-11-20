@@ -56,10 +56,4 @@ blocks
     sw_sidebar_navigation  [private]
       sw_sidebar_navigation_list  [private]
         sw_sidebar_navigation_item  [scope: index, item, section] [private]
-
-classes
-  sw-sidebar  [private]
-  sw-sidebar__content  [private]
-  sw-sidebar__navigation  [private]
-  sw_sidebar__navigation-list  [private]
 ```

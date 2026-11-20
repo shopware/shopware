@@ -67,16 +67,6 @@ blocks
       sw_code_editor_sanitize_info_content_hint  [private]
     sw_text_editor_label  [private]
 
-classes
-  sw-code-editor  [private]
-  sw-code-editor__editor  [private]
-  sw-code-editor__sanitize-bar  [private]
-  sw-code-editor__sanitize-info  [private]
-  sw-code-editor__sanitize-info--visible  [private]
-  sw-code-editor__sanitize-text  [private]
-  sw-code-editor__sanitized-hint  [private]
-  sw-code-editor__sanitized-hint--visible  [private]
-
 notes
   dynamic-ref `editor${editorId}`  [private]
 ```

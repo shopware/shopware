@@ -48,7 +48,4 @@ blocks
 
 refs
   edit-field  -> component
-
-classes
-  sw-order-saveable-field
 ```

@@ -38,7 +38,7 @@ computed
   productRepository: any
 
 methods
-  getProducts(): any
+  getProducts(): Promise<any>
   onChangePage(data: any): any
   onChangeSearchTerm(searchTerm: any): any
   onSelectionChange(selection: any): any
@@ -57,8 +57,4 @@ crossings
 
 refs
   cardSectionSecondary  -> sw-card-section
-
-classes
-  sw-sales-channel-products-assignment-single-products
-  sw-sales-channel-products-assignment-single-products__card-section-primary
 ```

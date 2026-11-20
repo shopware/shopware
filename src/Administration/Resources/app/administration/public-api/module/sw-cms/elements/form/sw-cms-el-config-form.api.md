@@ -52,9 +52,4 @@ blocks
 
 crossings
   v-if  sw_cms_el_form_config_content -> sw_cms_el_form_config_options  [until v6.8.0] [private]
-
-classes
-  sw-cms-el-config-form__tab-content  [private]
-  sw-cms-el-config-form__tab-options  [private]
-  sw-cms-el-config-form__tabs  [private]
 ```

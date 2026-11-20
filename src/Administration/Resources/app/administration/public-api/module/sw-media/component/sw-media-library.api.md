@@ -105,18 +105,4 @@ blocks
 refs
   mediaGrid  -> sw-media-grid
   scrollContainer  -> div
-
-classes
-  sw-media-index__create-folder-action
-  sw-media-library
-  sw-media-library__display-options
-  sw-media-library__empty-state
-  sw-media-library__load-all-button
-  sw-media-library__load-buttons
-  sw-media-library__load-more-button
-  sw-media-library__options-container
-  sw-media-library__parent-folder
-  sw-media-library__scroll-container
-  sw-media-library__scroll-content
-  sw-media-library_media-grid
 ```

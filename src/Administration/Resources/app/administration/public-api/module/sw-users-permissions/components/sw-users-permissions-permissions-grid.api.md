@@ -75,16 +75,4 @@ blocks
         sw_users_permissions_permissions_grid_permissions_roles_field  [scope: permission, role]
       sw_users_permissions_permissions_grid_permissions_title  [scope: permission]
         sw_users_permissions_permissions_grid_permissions_title_content  [scope: permission]
-
-classes
-  is--even
-  sw-users-permissions-permissions-grid
-  sw-users-permissions-permissions-grid__all
-  sw-users-permissions-permissions-grid__checkbox-wrapper
-  sw-users-permissions-permissions-grid__entry
-  sw-users-permissions-permissions-grid__entry-header
-  sw-users-permissions-permissions-grid__grid
-  sw-users-permissions-permissions-grid__parent
-  sw-users-permissions-permissions-grid__role_all
-  sw-users-permissions-permissions-grid__title
 ```

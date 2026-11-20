@@ -76,16 +76,4 @@ blocks
       sw_product_media_form_grid_items
         sw_product_media_form_grid_item  [scope: mediaItem]
     sw_product_media_form_upload
-
-classes
-  is--disabled
-  is--placeholder
-  preview-cover
-  sw-product-media-form
-  sw-product-media-form__column
-  sw-product-media-form__cover-container
-  sw-product-media-form__cover-image
-  sw-product-media-form__grid
-  sw-product-media-form__preview-cover
-  sw-product-media-form__previews
 ```

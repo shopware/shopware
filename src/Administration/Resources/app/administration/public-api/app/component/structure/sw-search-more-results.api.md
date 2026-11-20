@@ -31,8 +31,4 @@ blocks
   sw_search_more_results  [private]
     sw_search_more_results_content  [private]
       sw_search_more_results_slot_content  [private]
-
-classes
-  sw-search-more-results__link  [private]
-  sw-search-more-results__link--v2  [private]
 ```

@@ -30,13 +30,4 @@ blocks
       sw_collapse_panel_header_slot  [replaced]
         sw_model_editor_collapse_buttons
         sw_model_editor_collapse_title
-
-classes
-  sw-collapse
-  sw-collapse__content
-  sw-collapse__header
-  sw-model-editor-collapse__button
-  sw-model-editor-collapse__header
-  sw-model-editor-collapse__indicator
-  sw-model-editor-collapse__title
 ```

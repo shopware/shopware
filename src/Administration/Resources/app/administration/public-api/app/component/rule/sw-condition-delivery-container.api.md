@@ -37,9 +37,6 @@ methods
 blocks
   sw_condition_delivery_container  [private]
 
-classes
-  condition-delivery-container  [private]
-
 notes
   unresolved options setup  [private]
 ```

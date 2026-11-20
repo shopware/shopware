@@ -55,7 +55,7 @@ methods
   onDismissRule(): any
   onDropMedia(mediaItem: any): any
   onError(error: any): any
-  onSave(): any
+  onSave(): Promise<any>
   onSaveRule(ruleId: any): any
   onUnlinkLogo(): any
   openMediaSidebar(): any
@@ -94,21 +94,4 @@ blocks
 
 refs
   mediaSidebarItem  -> sw-sidebar-media-item
-
-classes
-  sw-payment-detail__save-action
-  sw-settings-payment-detail
-  sw-settings-payment-detail-delete
-  sw-settings-payment-detail-delete__container
-  sw-settings-payment-detail__condition_container
-  sw-settings-payment-detail__description
-  sw-settings-payment-detail__field-active
-  sw-settings-payment-detail__field-after-order
-  sw-settings-payment-detail__field-availability-rule
-  sw-settings-payment-detail__field-name
-  sw-settings-payment-detail__field-position
-  sw-settings-payment-detail__field-technical-name
-  sw-settings-payment-detail__logo-image-upload
-  sw_theme_manager__confirm-delete-text
-  text-secondary
 ```

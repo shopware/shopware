@@ -38,7 +38,7 @@ computed
 
 methods
   createdComponent(): any
-  fetchCustomFields(): any
+  fetchCustomFields(): Promise<any>
   fetchDefaultSorting(): any
   fetchProductSortingEntity(): Promise<any>
   getCriteriaTemplate(fieldName: any): any
@@ -50,7 +50,7 @@ methods
   onChangeLanguage(): any
   onConfirmDeleteCriteria(): any
   onDeleteCriteria(toBeRemovedItem: any): any
-  onSave(): any
+  onSave(): Promise<any>
   saveProductSorting(): Promise<any>
   searchForAlreadyExistingKey(key: any): Promise<any>
   transformCustomFieldCriterias(): any
@@ -70,8 +70,4 @@ blocks
     sw_settings_listing_option_base_smart_bar_actions
       sw_settings_listing_option_base_smart_bar_actions_save
     sw_settings_listing_option_base_smart_bar_heading
-
-classes
-  sw-settings-listing-base
-  sw-settings-listing-base__locked-info
 ```

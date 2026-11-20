@@ -76,16 +76,4 @@ crossings
   v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_email -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_detail  [private]
   v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_link -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone  [private]
   v-if  sw_text_editor_toolbar_button_link_menu_content_type_inputs_phone -> sw_text_editor_toolbar_button_link_menu_content_type_inputs_email  [private]
-
-classes
-  sw-text-editor-link-menu__button-variant  [private]
-  sw-text-editor-link-menu__entity-single-select  [private]
-  sw-text-editor-toolbar-button__link-menu  [private]
-  sw-text-editor-toolbar-button__link-menu-buttons  [private]
-  sw-text-editor-toolbar-button__link-menu-buttons-button-insert  [private]
-  sw-text-editor-toolbar-button__link-menu-buttons-button-remove  [private]
-  sw-text-editor-toolbar-button__link-menu-content  [private]
-  sw-text-editor-toolbar-button__link-menu-display-button  [private]
-  sw-text-editor-toolbar-button__link-menu-new-tab  [private]
-  sw-text-editor-toolbar-button__link-menu-switch  [private]
 ```

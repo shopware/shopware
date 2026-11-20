@@ -51,7 +51,7 @@ methods
   createdComponent(): any
   getCurrencyById(currencyId: any): any
   getPriceByCurrency(basePrice: any, currencyId: any): any
-  loadCurrencies(): any
+  loadCurrencies(): Promise<any>
   onToggleCurrencyModal(taxFreeType: any): any
   openCompanyTaxModal(): any
   openCustomerTaxModal(): any
@@ -81,21 +81,4 @@ blocks
       sw_settings_country_general_content_show_company_tax_free_currency_dependent_values
       sw_settings_country_general_content_show_currency_dependent_modal  [after v-if]
       sw_settings_country_general_content_show_tax_free_currency_dependent_values
-
-classes
-  customer-tax-amount
-  sw-settings-country-general-company-tax
-  sw-settings-country-general-customer-tax
-  sw-settings-country-general__company-select-currency
-  sw-settings-country-general__currency-dependent-modal
-  sw-settings-country-general__customer-select-currency
-  sw-settings-country-general__field-check-vatid-format
-  sw-settings-country-general__input-amount
-  sw-settings-country-general__is-eu
-  sw-settings-country-general__option-items
-  sw-settings-country-general__options-container
-  sw-settings-country-general__select
-  sw-settings-country-general__vat-id-required
-  switch-field-company-tax-free
-  switch-field-customer-tax-free
 ```

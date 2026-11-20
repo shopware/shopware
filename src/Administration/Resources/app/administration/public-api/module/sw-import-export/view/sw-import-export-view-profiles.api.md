@@ -43,12 +43,12 @@ methods
   onCloseNewProfileWizard(): any  [private]
   onDeleteProfile(id: any): any  [private]
   onDownloadTemplate(profile: any): Promise<any>  [private]
-  onDuplicateProfile(item: any): any  [private]
+  onDuplicateProfile(item: any): Promise<any>  [private]
   onEditProfile(id: any): Promise<any>  [private]
   onError(error: any): any  [private]
   onSearch(): any  [private]
   reloadContent(): any  [private]
-  saveSelectedProfile(): any  [private]
+  saveSelectedProfile(): Promise<any>  [private]
 
 blocks
   sw_import_export_view_profile  [private]
@@ -68,16 +68,4 @@ blocks
 
 refs
   listing  -> sw-entity-listing  [private]
-
-classes
-  sw-import-export-view-profiles  [private]
-  sw-import-export-view-profiles__create-action  [private]
-  sw-import-export-view-profiles__grid-card  [private]
-  sw-import-export-view-profiles__listing  [private]
-  sw-import-export-view-profiles__listing-delete-action  [private]
-  sw-import-export-view-profiles__listing-download-template-action  [private]
-  sw-import-export-view-profiles__listing-duplicate-action  [private]
-  sw-import-export-view-profiles__listing-open-action  [private]
-  sw-import-export-view-profiles__search  [private]
-  sw-import-export-view-profiles__toolbar  [private]
 ```

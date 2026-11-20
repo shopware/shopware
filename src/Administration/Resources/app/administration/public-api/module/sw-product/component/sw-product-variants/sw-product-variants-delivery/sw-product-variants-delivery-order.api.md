@@ -32,8 +32,4 @@ blocks
 
 crossings
   v-if  sw_product_variants_delivery_order_groups_sw_tree -> sw_product_variants_delivery_order_loader
-
-classes
-  sw-product-variants-delivery-order
-  sw-product-variants-delivery-order__groups
 ```

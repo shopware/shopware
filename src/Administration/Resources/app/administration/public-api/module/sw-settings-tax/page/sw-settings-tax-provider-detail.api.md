@@ -44,12 +44,4 @@ methods
 
 blocks
   sw_settings_tax_provider  [private]
-
-classes
-  sw-settings-tax-tax-provider-detail  [private]
-  sw-settings-tax-tax-provider-detail-info  [private]
-  sw-settings-tax-tax-provider-detail__field-active  [private]
-  sw-settings-tax-tax-provider-detail__field-availability-rule  [private]
-  sw-settings-tax-tax-provider-detail__field-priority  [private]
-  sw-settings-tax-tax-provider-detail__save-action  [private]
 ```

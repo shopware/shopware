@@ -30,10 +30,4 @@ blocks
 
 refs
   shortcutModal  -> sw-shortcut-overview  [private]
-
-classes
-  sw-help-center  [private]
-  sw-help-center__badge  [private]
-  sw-help-center__button  [private]
-  sw-help-center__menu  [private]
 ```

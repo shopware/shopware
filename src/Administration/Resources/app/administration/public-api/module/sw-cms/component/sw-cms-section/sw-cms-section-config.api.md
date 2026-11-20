@@ -53,11 +53,4 @@ blocks
       sw_cms_sidebar_section_config_css_classes_field
       sw_cms_sidebar_section_config_sidebar_mobile
       sw_cms_sidebar_section_config_sizing_field
-
-classes
-  is--danger
-  sw-cms-section-config
-  sw-cms-section-config__quickaction
-  sw-cms-section-config__quickactions-list
-  sw-cms-section-config__settings
 ```

@@ -32,7 +32,4 @@ methods
 
 blocks
   sw_field_copyable  [private]
-
-classes
-  sw-field-copyable  [private]
 ```

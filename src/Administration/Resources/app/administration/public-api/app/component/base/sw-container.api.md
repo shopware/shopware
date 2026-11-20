@@ -36,7 +36,4 @@ methods
 blocks
   sw_container  [private]
     sw_container_slot_default  [private]
-
-classes
-  sw-container  [private]
 ```

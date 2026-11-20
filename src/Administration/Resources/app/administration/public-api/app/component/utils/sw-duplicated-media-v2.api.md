@@ -75,19 +75,4 @@ blocks
       sw_duplicated_media_v2_cancel_button  [after v-if]
       sw_duplicated_media_v2_save_selection
       sw_duplicated_media_v2_upload_button
-
-classes
-  sw-duplicated-media-v2
-  sw-duplicated-media-v2__additional-error-count
-  sw-duplicated-media-v2__description
-  sw-duplicated-media-v2__options
-  sw-duplicated-media-v2__preview
-  sw-duplicated-media-v2__preview-separator
-  sw-duplicated-media-v2__preview_label
-  sw-duplicated-media-v2__spacer
-  sw-duplicated-media-v2__target-details
-  sw-duplicated-media-v2__target-label
-  sw-duplicated-media-v2__target-preview
-  sw-duplicated-media-v2__target-upload
-  sw-duplicated-media-v2__upload
 ```

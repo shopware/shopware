@@ -72,7 +72,4 @@ blocks
       sw_order_address_modal_tabs_content  [scope: active] [until v6.8.0]
         sw_order_address_modal_tabs_content_edit_address  [scope: active] [until v6.8.0]
         sw_order_address_modal_tabs_content_select_address  [scope: active] [until v6.8.0]
-
-classes
-  sw-order-address-modal
 ```

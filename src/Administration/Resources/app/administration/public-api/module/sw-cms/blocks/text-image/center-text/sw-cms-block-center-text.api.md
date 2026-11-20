@@ -18,10 +18,4 @@ slots
 
 blocks
   sw_cms_block_center_text  [private]
-
-classes
-  sw-cms-block-center-text  [private]
-  sw-cms-block-center-text__image-left  [private]
-  sw-cms-block-center-text__image-right  [private]
-  sw-cms-block-center-text__text  [private]
 ```

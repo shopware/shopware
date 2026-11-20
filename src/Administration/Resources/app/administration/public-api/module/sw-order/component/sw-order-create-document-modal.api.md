@@ -67,27 +67,4 @@ methods
 
 blocks
   sw_order_create_document_modal  [private]
-
-classes
-  sw-order-create-document-modal  [private]
-  sw-order-create-document-modal__body  [private]
-  sw-order-create-document-modal__comment  [private]
-  sw-order-create-document-modal__content  [private]
-  sw-order-create-document-modal__create-button  [private]
-  sw-order-create-document-modal__create-button-arrow  [private]
-  sw-order-create-document-modal__create-button-download  [private]
-  sw-order-create-document-modal__create-button-send  [private]
-  sw-order-create-document-modal__delivery-date  [private]
-  sw-order-create-document-modal__divider  [private]
-  sw-order-create-document-modal__document-date  [private]
-  sw-order-create-document-modal__document-number  [private]
-  sw-order-create-document-modal__document-type  [private]
-  sw-order-create-document-modal__empty-state  [private]
-  sw-order-create-document-modal__file-formats  [private]
-  sw-order-create-document-modal__header-fields  [private]
-  sw-order-create-document-modal__preview-button  [private]
-  sw-order-create-document-modal__preview-button-arrow  [private]
-  sw-order-create-document-modal__preview-button-option  [private]
-  sw-order-create-document-modal__referenced-document-number  [private]
-  sw-order-create-document-modal__type-specific-fields  [private]
 ```

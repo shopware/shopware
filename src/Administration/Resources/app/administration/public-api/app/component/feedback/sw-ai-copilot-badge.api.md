@@ -16,9 +16,4 @@ props
 
 blocks
   sw_ai_copilot_badge  [private]
-
-classes
-  disambiguation  [private]
-  sw-ai-copilot-badge  [private]
-  sw-ai-copilot-badge__label  [private]
 ```

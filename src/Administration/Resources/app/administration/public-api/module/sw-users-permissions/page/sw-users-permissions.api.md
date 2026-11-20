@@ -39,7 +39,4 @@ refs
   configuration  -> sw-users-permissions-configuration
   roleListing  -> sw-users-permissions-role-listing
   userListing  -> sw-users-permissions-user-listing
-
-classes
-  sw-users-permissions
 ```

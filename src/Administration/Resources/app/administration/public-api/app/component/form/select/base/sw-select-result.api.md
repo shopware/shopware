@@ -52,11 +52,4 @@ blocks
     sw_select_result_item_preview  [private]
     sw_select_result_item_text_holder  [private]
       sw_select_result_item_text  [private]
-
-classes
-  sw-select-result  [private]
-  sw-select-result__result-item-checkmark  [private]
-  sw-select-result__result-item-description  [private]
-  sw-select-result__result-item-preview  [private]
-  sw-select-result__result-item-text  [private]
 ```

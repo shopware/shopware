@@ -19,7 +19,4 @@ computed
 
 blocks
   sw_settings_usage_data  [private]
-
-classes
-  sw-settings-usage-data  [private]
 ```

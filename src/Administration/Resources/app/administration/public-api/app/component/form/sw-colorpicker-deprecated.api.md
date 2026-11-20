@@ -105,30 +105,4 @@ blocks
 
 refs
   colorPicker  -> div  [private]
-
-classes
-  active  [private]
-  is--hex  [private]
-  is--invalid  [private]
-  is--small  [private]
-  sw-colorpicker  [private]
-  sw-colorpicker__alpha-slider  [private]
-  sw-colorpicker__colorpicker  [private]
-  sw-colorpicker__colorpicker-input  [private]
-  sw-colorpicker__colorpicker-position  [private]
-  sw-colorpicker__colorpicker-previewBackground  [private]
-  sw-colorpicker__colorpicker-previewColor  [private]
-  sw-colorpicker__colorpicker-selection  [private]
-  sw-colorpicker__colorpicker-selector  [private]
-  sw-colorpicker__colorpicker-slider-range  [private]
-  sw-colorpicker__colorpicker-wrapper  [private]
-  sw-colorpicker__input  [private]
-  sw-colorpicker__input-row  [private]
-  sw-colorpicker__previewBackground  [private]
-  sw-colorpicker__previewColor  [private]
-  sw-colorpicker__previewWrapper  [private]
-  sw-colorpicker__row  [private]
-  sw-colorpicker__row-column  [private]
-  sw-colorpicker__row-column-label  [private]
-  sw-colorpicker__sliders  [private]
 ```

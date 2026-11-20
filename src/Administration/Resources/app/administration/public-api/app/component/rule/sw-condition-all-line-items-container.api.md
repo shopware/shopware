@@ -36,7 +36,4 @@ methods
 
 blocks
   sw_condition_all_line_items_container  [private]
-
-classes
-  condition-all-line-items-container  [private]
 ```

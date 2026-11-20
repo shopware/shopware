@@ -79,17 +79,4 @@ blocks
     sw_settings_cache_smart_bar_header
       sw_settings_cache_smart_bar_header_title
         sw_settings_cache_smart_bar_header_title_text
-
-classes
-  sw-settings-cache
-  sw-settings-cache__card
-  sw-settings-cache__card-indexes
-  sw-settings-cache__card-section-heading
-  sw-settings-cache__card-toolbar
-  sw-settings-cache__card-toolbar-heading
-  sw-settings-cache__indexers-entry
-  sw-settings-cache__indexers-list
-  sw-settings-cache__indexers-placeholder
-  sw-settings-cache__indexers-select
-  sw-settings-cache__skip-indexers-select
 ```

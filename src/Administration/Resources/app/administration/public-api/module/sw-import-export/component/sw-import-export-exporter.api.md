@@ -55,12 +55,4 @@ blocks
     sw_import_export_exporter_profile_select  [after v-if] [private]
     sw_import_export_exporter_profile_select_product_variants_switch  [private]
     sw_import_export_exporter_progress  [after v-if] [private]
-
-classes
-  sw-import-export-exporter  [private]
-  sw-import-export-exporter__link  [private]
-  sw-import-export-exporter__profile-select  [private]
-  sw-import-export-exporter__variants-switch-field  [private]
-  sw-import-export-exporter__variants-warning  [private]
-  sw-import-export-exporter__variants-warning-links  [private]
 ```

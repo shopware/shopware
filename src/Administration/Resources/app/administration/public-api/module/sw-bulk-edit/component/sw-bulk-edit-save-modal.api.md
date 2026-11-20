@@ -49,11 +49,4 @@ blocks
     sw_bulk_edit_save_modal_footer
       sw_bulk_edit_save_modal_footer_left
       sw_bulk_edit_save_modal_footer_right
-
-classes
-  footer-left
-  footer-right
-  sw-bulk-edit-save-modal
-  sw-bulk-edit-save-modal-body
-  sw-bulk-edit-save-modal__component
 ```

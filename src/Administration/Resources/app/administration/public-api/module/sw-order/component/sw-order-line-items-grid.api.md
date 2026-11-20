@@ -69,7 +69,7 @@ methods
   onDeleteItem(item: any): any
   onDeleteSelectedItems(): any
   onInlineEditCancel(item: any): any
-  onInlineEditSave(item: any): any
+  onInlineEditSave(item: any): Promise<any>
   onInsertBlankItem(): any
   onInsertCreditItem(): any
   onInsertExistingItem(): any
@@ -143,23 +143,4 @@ crossings
 refs
   dataGrid  -> sw-data-grid
   itemFilter  -> sw-card-filter
-
-classes
-  sw-order-line-items-grid
-  sw-order-line-items-grid__actions-container
-  sw-order-line-items-grid__actions-container-add-product-btn
-  sw-order-line-items-grid__can-create-discounts-button
-  sw-order-line-items-grid__create-custom-item
-  sw-order-line-items-grid__data-grid
-  sw-order-line-items-grid__delete-item-modal
-  sw-order-line-items-grid__item-label
-  sw-order-line-items-grid__item-nested-indicator
-  sw-order-line-items-grid__item-payload-options
-  sw-order-line-items-grid__item-product
-  sw-order-line-items-grid__item-tax-tooltip
-  sw-order-line-items-grid__nested-indicator-icon
-  sw-order-list__confirm-delete-text
-  sw_order_line_items_grid-actions_modal__close-action
-  sw_order_line_items_grid-actions_modal__confirm-action
-  sw_order_line_items_grid-item__delete-action
 ```

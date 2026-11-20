@@ -32,11 +32,4 @@ blocks
     sw_extension_domains_modal_list  [private]
       sw_extension_domains_modal_list_entry  [private]
     sw_extension_domains_modal_list_title  [private]
-
-classes
-  sw-extension-domains-modal  [private]
-  sw-extension-domains-modal__description  [private]
-  sw-extension-domains-modal__list  [private]
-  sw-extension-domains-modal__list-item  [private]
-  sw-extension-domains-modal__list-title  [private]
 ```

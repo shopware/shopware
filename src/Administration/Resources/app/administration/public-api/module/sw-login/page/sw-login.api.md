@@ -43,14 +43,4 @@ blocks
         sw_login_loader  [private]
         sw_login_view  [private]
       sw_login_logo  [private]
-
-classes
-  is--login-error  [private]
-  is--login-success  [private]
-  sw-login  [private]
-  sw-login__back-link  [private]
-  sw-login__card  [private]
-  sw-login__container  [private]
-  sw-login__forgot-password-action  [private]
-  sw-login__logo  [private]
 ```

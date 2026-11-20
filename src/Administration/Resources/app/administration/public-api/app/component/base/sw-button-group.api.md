@@ -24,7 +24,4 @@ computed
 blocks
   sw_button_group  [private]
     sw_button_group_slot_default  [private]
-
-classes
-  sw-button-group  [private]
 ```

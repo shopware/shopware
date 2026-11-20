@@ -65,12 +65,4 @@ blocks
 
 refs
   cmsProductSelection  -> sw-entity-single-select  [private]
-
-classes
-  sw-cms-el-config-product-description-reviews-config__tab-content  [private]
-  sw-cms-el-config-product-description-reviews-rating  [private]
-  sw-cms-el-config-product-description-reviews__tab-options  [private]
-  sw-cms-el-config-product-description-reviews__tabs  [private]
-  sw-cms-el-config-product-description-reviews__warning  [private]
-  sw-select-result__result-item-text  [private]
 ```

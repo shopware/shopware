@@ -33,13 +33,4 @@ blocks
     sw_bulk_edit_save_modal_confirm_trigger_flows
       sw_bulk_edit_save_modal_confirm_trigger_flows_alert  [after v-if]
       sw_bulk_edit_save_modal_confirm_trigger_flows_switch
-
-classes
-  sw-bulk-edit-save-modal-confirm
-  sw-bulk-edit-save-modal-confirm__trigger-flows
-  sw-bulk-edit-save-modal-confirm__trigger-flows-alert
-  sw-bulk-edit-save-modal-confirm__trigger-flows-switch
-  sw-bulk-edit-save-modal__help-text
-  sw-bulk-edit-save-modal__warning
-  sw-bulk-edit-save-modal__warning-document-deletion
 ```

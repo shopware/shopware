@@ -29,9 +29,4 @@ computed
 
 blocks
   sw_button_process  [private]
-
-classes
-  sw-button-process  [private]
-  sw-button-process__content  [private]
-  sw-button-process__status-indicator  [private]
 ```

@@ -42,12 +42,4 @@ blocks
     sw_media_breadcrumbs_current_folder  [after v-if]
     sw_media_breadcrumbs_parent_folder
     sw_media_breadcrumbs_root_folder
-
-classes
-  sw-media-breadcrumbs
-  sw-media-breadcrumbs__arrow-separator
-  sw-media-breadcrumbs__button-back-to-root
-  sw-media-breadcrumbs__current-folder
-  sw-media-breadcrumbs__entry
-  sw-media-breadcrumbs__parent-folder
 ```

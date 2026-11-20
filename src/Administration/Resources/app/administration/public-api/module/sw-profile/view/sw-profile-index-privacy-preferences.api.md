@@ -10,7 +10,4 @@ component sw-profile-index-privacy-preferences  private  ts  [private]
   source src/module/sw-profile/view/sw-profile-index-privacy-preferences/index.ts  [private]
   template src/module/sw-profile/view/sw-profile-index-privacy-preferences/sw-profile-index-privacy-preferences.html.twig  [private]
   visibility-source export  [private]
-
-classes
-  sw-profile-index-privacy-preferences  [private]
 ```

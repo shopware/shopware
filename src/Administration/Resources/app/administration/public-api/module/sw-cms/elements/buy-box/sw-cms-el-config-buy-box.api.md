@@ -64,13 +64,4 @@ blocks
 
 refs
   cmsProductSelection  -> sw-entity-single-select  [private]
-
-classes
-  sw-cms-el-config-buy-box  [private]
-  sw-cms-el-config-buy-box__alignment  [private]
-  sw-cms-el-config-buy-box__tab-content  [private]
-  sw-cms-el-config-buy-box__tab-options  [private]
-  sw-cms-el-config-buy-box__tabs  [private]
-  sw-cms-el-config-buy-box__warning  [private]
-  sw-select-result__result-item-text  [private]
 ```

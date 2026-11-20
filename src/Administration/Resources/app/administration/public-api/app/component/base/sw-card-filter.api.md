@@ -38,8 +38,4 @@ blocks
     sw_card_filter_bar_container  [private]
       sw_card_filter_bar_container_field  [private]
     sw_card_filter_bar_container_field_filter  [private]
-
-classes
-  sw-card-filter  [private]
-  sw-card-filter-filter  [private]
 ```

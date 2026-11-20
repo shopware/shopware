@@ -47,9 +47,4 @@ blocks
 
 crossings
   v-if  sw_sales_channel_modal_grid -> sw_sales_channel_modal_detail
-
-classes
-  sw-sales-channel-modal
-  sw-sales-channel-modal__add-sales-channel-action
-  sw-sales-channel-modal__footer_left
 ```

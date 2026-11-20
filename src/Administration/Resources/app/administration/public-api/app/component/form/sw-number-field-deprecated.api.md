@@ -63,7 +63,4 @@ methods
 blocks
   sw_text_field  [replaced] [private]
     sw_number_field  [private]
-
-classes
-  sw-field--number  [private]
 ```

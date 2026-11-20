@@ -38,8 +38,4 @@ blocks
     sw_settings_listing_option_base_smart_bar_actions  [inherited]
       sw_settings_listing_option_base_smart_bar_actions_save  [inherited]
     sw_settings_listing_option_base_smart_bar_heading  [inherited]
-
-classes
-  sw-settings-listing-base
-  sw-settings-listing-base__locked-info
 ```

@@ -61,8 +61,4 @@ blocks
       sw_users_permissions_role_detail_smart_bar_actions_button_save
     sw_users_permissions_role_detail_smart_bar_header
       sw_users_permissions_role_detail_smart_bar_header_title
-
-classes
-  sw-users-permissions-role-detail
-  sw-users-permissions-role-detail__button-save
 ```

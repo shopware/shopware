@@ -26,13 +26,4 @@ blocks
       sw_condition_value_before_content  [inherited]
       sw_condition_value_content  [replaced]
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-not-found
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

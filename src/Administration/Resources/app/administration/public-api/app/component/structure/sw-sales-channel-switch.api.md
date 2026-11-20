@@ -33,7 +33,7 @@ methods
   emitChange(): any  [private]
   onChange(id: any): any  [private]
   onClickRevertUnsavedChanges(): any  [private]
-  onClickSaveChanges(): any  [private]
+  onClickSaveChanges(): Promise<any>  [private]
   onCloseChangesModal(): any  [private]
 
 blocks
@@ -48,7 +48,4 @@ blocks
 
 refs
   salesChannelSelect  -> sw-entity-single-select  [private]
-
-classes
-  sw-sales-channel-switch  [private]
 ```

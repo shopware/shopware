@@ -19,7 +19,4 @@ methods
 
 blocks
   sw_app_topbar_button  [private]
-
-classes
-  sw-app-topbar-button  [private]
 ```

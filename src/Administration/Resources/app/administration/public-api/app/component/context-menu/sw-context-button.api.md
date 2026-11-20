@@ -62,9 +62,4 @@ blocks
 refs
   swContextButton  -> button  [private]
   swContextMenu  -> sw-context-menu  [private]
-
-classes
-  sw-context-button  [private]
-  sw-context-button__button  [private]
-  sw-context-button__menu-position  [private]
 ```

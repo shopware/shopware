@@ -72,12 +72,4 @@ blocks
 
 refs
   mediaLibrary  -> sw-media-library
-
-classes
-  sw-media-index
-  sw-media-index__media-library
-  sw-media-index__navigation
-  sw-media-index__navigation-breadcrumb
-  sw-media-index__navigation-label
-  sw-media-index__page-content
 ```

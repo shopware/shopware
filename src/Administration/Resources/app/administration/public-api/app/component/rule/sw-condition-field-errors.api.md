@@ -28,11 +28,4 @@ methods
 
 blocks
   sw_condition_field_errors  [private]
-
-classes
-  sw-condition-field-errors  [private]
-  sw-condition-field-errors__icon  [private]
-  sw-condition-field-errors__message  [private]
-  sw-condition-field-errors__prefix  [private]
-  sw-condition-field-errors__summary  [private]
 ```

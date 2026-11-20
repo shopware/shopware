@@ -62,7 +62,7 @@ methods
   onClosePromotionModal(): any
   onRemoveExistingCode(item: PromotionCodeTag): any
   onRemoveItems(lineItemKeys: string[]): Promise<void>
-  onSavePromotionModal(): any
+  onSavePromotionModal(): Promise<any>
   onSubmitCode(code: string): Promise<void>
   toggleAutomaticPromotions(visibility: boolean): void
   updateContext(): Promise<void>
@@ -80,21 +80,4 @@ blocks
     sw_order_create_details_payment  [after v-if]
     sw_order_create_details_promotion_modal  [after v-if]
     sw_order_create_details_shipping
-
-classes
-  sw-order-create-details
-  sw-order-create-details__disable-auto-promotion
-  sw-order-create-details__email
-  sw-order-create-details__order
-  sw-order-create-details__payment
-  sw-order-create-details__phone-number
-  sw-order-create-details__shipping
-  sw-order-create-options__order-language
-  sw-order-create-options__sales-channel
-  sw_order_create-details__currency
-  sw_order_create-details__payment-container
-  sw_order_create-details__payment-method
-  sw_order_create-details__shipping
-  sw_order_create_details__order-container
-  sw_order_create_details__shipping-container
 ```

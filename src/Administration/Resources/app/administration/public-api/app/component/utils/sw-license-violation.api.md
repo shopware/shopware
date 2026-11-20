@@ -42,23 +42,11 @@ methods
   fetchPlugins(): any  [private]
   finishLoading(key: any): any  [private]
   getPluginForViolation(violation: any): any  [private]
-  getPluginViolation(): any  [private]
+  getPluginViolation(): Promise<any>  [private]
   onCloseDeleteModal(): any  [private]
-  onConfirmDelete(): any  [private]
+  onConfirmDelete(): Promise<any>  [private]
   reloadViolations(): any  [private]
 
 blocks
   sw_license_violation  [private]
-
-classes
-  sw-license-violation  [private]
-  sw-license-violation-confirm-delete  [private]
-  sw-license-violation__removal-hint  [private]
-  sw-license-violation__table  [private]
-  sw-license-violation__table-action-remove  [private]
-  sw-license-violation__table-actions  [private]
-  sw-license-violation__table-actions-wrap  [private]
-  sw-license-violation__table-name  [private]
-  sw-license-violation__text  [private]
-  sw-plugin-list__confirm-delete-text  [private]
 ```

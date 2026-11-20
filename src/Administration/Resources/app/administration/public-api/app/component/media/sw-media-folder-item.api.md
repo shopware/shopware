@@ -100,19 +100,4 @@ crossings
 
 refs
   itemName  -> div
-
-classes
-  is--inner
-  sw-context-menu__group
-  sw-media-base-item__name
-  sw-media-base-item__name-field
-  sw-media-context-item__delete-folder-action
-  sw-media-context-item__dissolve-folder-action
-  sw-media-context-item__move-folder-action
-  sw-media-context-item__open-settings-action
-  sw-media-context-item__rename-folder-action
-  sw-media-context-item__show-media-action
-  sw-media-folder-item
-  sw-media-folder-item__folder-thumbnails
-  sw-media-folder-item__metadata
 ```

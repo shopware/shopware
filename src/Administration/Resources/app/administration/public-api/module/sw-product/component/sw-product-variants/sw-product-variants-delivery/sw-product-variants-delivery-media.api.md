@@ -47,11 +47,4 @@ blocks
 
 refs
   variantsMedia  -> sw-data-grid
-
-classes
-  is--selected
-  sw-product-variants-delivery-media
-  sw-product-variants-delivery-media__groupElement
-  sw-product-variants-delivery-media__groups
-  sw-product-variants-delivery-media__media
 ```

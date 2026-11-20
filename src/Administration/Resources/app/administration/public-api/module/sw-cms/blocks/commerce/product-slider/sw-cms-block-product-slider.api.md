@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_product_slider  [private]
-
-classes
-  sw-cms-block-product-slider  [private]
 ```

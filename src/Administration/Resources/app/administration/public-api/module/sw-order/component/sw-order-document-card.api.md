@@ -80,11 +80,11 @@ methods
   documentTypeAvailable(documentType: any): any  [deprecated tag:v6.8.0]
   documentTypeLabel(document: any): any
   downloadDocument(documentId: any, documentDeepLink: any, fileType: any): any
-  downloadDocumentArchive(documentId: any): any
-  finishDocumentCreation(): any
+  downloadDocumentArchive(documentId: any): Promise<any>
+  finishDocumentCreation(): Promise<any>
   getDocumentActionFormats(document: any): any
   getDocumentFileFormats(document: any): any
-  getList(): any
+  getList(): Promise<any>
   hasMultipleDocumentActionFormats(document: any): any
   invoiceExists(): any  [deprecated tag:v6.8.0]
   markDocumentAsSent(documentId: any): any
@@ -96,7 +96,7 @@ methods
   onCloseSendDocumentModal(): any
   onCloseUploadDocumentModal(): any
   onCreateDocument(params: any, additionalAction: any, referencedDocumentId?: any, file?: any): Promise<any>
-  onDeleteDocument(id: any): any
+  onDeleteDocument(id: any): Promise<any>
   onDocumentSent(): any
   onDownload(id: any, deepLink: any, fileType: any): any
   onDownloadAll(document: any): any
@@ -106,7 +106,7 @@ methods
   onMarkDocumentAsUnsent(id: any): any
   onOpenDocument(id: any, deepLink: any, fileType: any): any
   onPrepareDocument(): any  [deprecated tag:v6.9.0]
-  onPreview(params: any, fileType: any): any
+  onPreview(params: any, fileType: any): Promise<any>
   onSearchTermChange(searchTerm: any): any
   onSendDocument(id: any): any
   onShowDeleteDocumentModal(id: any): any
@@ -155,23 +155,4 @@ blocks
 
 refs
   entityListing  -> sw-entity-listing
-
-classes
-  sw-listing__confirm-delete-text  [from v6.8.0]
-  sw-order-detail-base__document-grid
-  sw-order-document-card__actions-button  [from v6.8.0]
-  sw-order-document-card__context-button-delete
-  sw-order-document-card__context-button-download-all-formats  [from v6.8.0]
-  sw-order-document-card__context-button-download-format  [from v6.8.0]
-  sw-order-document-card__context-button-download-pdf
-  sw-order-document-card__context-button-mark-sent
-  sw-order-document-card__context-button-mark-unsent
-  sw-order-document-card__context-button-open-format  [from v6.8.0]
-  sw-order-document-card__context-button-open-pdf
-  sw-order-document-card__context-button-send
-  sw-order-document-card__empty-state
-  sw-order-document-card__grid
-  sw-order-document-grid-button
-  sw-order-document-grid-button-arrow  [from v6.8.0]
-  sw-order-document-grid-button-upload  [from v6.8.0]
 ```

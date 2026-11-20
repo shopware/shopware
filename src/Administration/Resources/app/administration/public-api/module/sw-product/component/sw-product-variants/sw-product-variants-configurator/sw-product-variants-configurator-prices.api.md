@@ -50,15 +50,4 @@ blocks
           sw_product_variants_configurator_prices_column_name
       sw_product_variants_configurator_prices_search
         sw_product_variants_configurator_prices_search_field
-
-classes
-  is--selected
-  sw-product-variants-configurator-prices
-  sw-product-variants-configurator-prices__alert
-  sw-product-variants-configurator-prices__grid-wrapper
-  sw-product-variants-configurator-prices__groupElement
-  sw-product-variants-configurator-prices__groups
-  sw-product-variants-configurator-prices__prices
-  sw-product-variants-configurator-prices__search
-  sw-product-variants-configurator-prices__table
 ```

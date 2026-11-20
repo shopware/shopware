@@ -51,8 +51,4 @@ methods
   getDefaultMeasurementSystems(): any
   getUnitOptionsByType(type: any): any
   onMeasurementSystemChange(technicalName: any): Promise<any>
-
-classes
-  mt-select-result-list-popover-wrapper__length-unit-short-name
-  mt-select-result-list-popover-wrapper__mass-unit-short-name
 ```

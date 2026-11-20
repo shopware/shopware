@@ -51,18 +51,4 @@ blocks
           sw_order_create_search_customer_slot_selection_label_property
       sw_order_create_details_header_profile_summary
     sw_order_create_details_new_customer_modal
-
-classes
-  has-many-childrens
-  sw-order-create-details-header
-  sw-order-create-details-header__customer-result
-  sw-order-create-details-header__customer-result-item
-  sw-order-user-card__container
-  sw-order-user-card__info-summary
-  sw-order-user-card__metadata
-  sw-order-user-card__metadata-item
-  sw-order-user-card__metadata-price
-  sw-order-user-card__metadata-user-name
-  text-gray-500
-  text-truncate
 ```

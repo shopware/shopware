@@ -56,15 +56,4 @@ blocks
       sw_flow_affiliate_and_campaign_code_modal_entity  [private]
     sw_flow_affiliate_and_campaign_code_modal_footer_cancel_button  [private]
     sw_flow_affiliate_and_campaign_code_modal_footer_save_button  [private]
-
-classes
-  sw-flow-affiliate-and-campaign-code-modal  [private]
-  sw-flow-affiliate-and-campaign-code-modal__affiliate-code  [private]
-  sw-flow-affiliate-and-campaign-code-modal__affiliate-code-overwrite  [private]
-  sw-flow-affiliate-and-campaign-code-modal__campaign-code  [private]
-  sw-flow-affiliate-and-campaign-code-modal__campaign-code-overwrite  [private]
-  sw-flow-affiliate-and-campaign-code-modal__cancel-button  [private]
-  sw-flow-affiliate-and-campaign-code-modal__content  [private]
-  sw-flow-affiliate-and-campaign-code-modal__entity  [private]
-  sw-flow-affiliate-and-campaign-code-modal__save-button  [private]
 ```

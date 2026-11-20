@@ -26,9 +26,4 @@ computed
 methods
   emitClose(): any  [private]
   emitConfirm(): any  [private]
-
-classes
-  sw-extension-bulk-deactivation-modal  [private]
-  sw-extension-bulk-deactivation-modal__bold-paragraph  [private]
-  sw-extension-bulk-deactivation-modal__list  [private]
 ```

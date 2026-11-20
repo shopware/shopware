@@ -40,10 +40,4 @@ blocks
       sw_confirm_modal_footer_confirm  [private]
     sw_confirm_modal_text  [private]
       sw_confirm_modal_text_default  [private]
-
-classes
-  sw-confirm-modal  [private]
-  sw-confirm-modal__button-cancel  [private]
-  sw-confirm-modal__button-confirm  [private]
-  sw-confirm-modal__text  [private]
 ```

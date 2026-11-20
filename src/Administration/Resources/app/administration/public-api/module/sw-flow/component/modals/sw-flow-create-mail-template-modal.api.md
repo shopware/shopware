@@ -42,9 +42,9 @@ computed
 
 methods
   createdComponent(): any  [private]
-  getMailTemplate(): any  [private]
-  getMailTemplateType(): any  [private]
-  onAddMailTemplate(): any  [private]
+  getMailTemplate(): Promise<any>  [private]
+  getMailTemplateType(): Promise<any>  [private]
+  onAddMailTemplate(): Promise<any>  [private]
   onChangeType(id: any): Promise<any>  [private]
   onClose(): any  [private]
 
@@ -65,15 +65,4 @@ blocks
 refs
   htmlEditor  -> sw-code-editor  [private]
   plainEditor  -> sw-code-editor  [private]
-
-classes
-  sw-flow-create-mail-template-modal  [private]
-  sw-flow-create-mail-template-modal__cancel-button  [private]
-  sw-flow-create-mail-template-modal__content-html  [private]
-  sw-flow-create-mail-template-modal__content-plain  [private]
-  sw-flow-create-mail-template-modal__description  [private]
-  sw-flow-create-mail-template-modal__save-button  [private]
-  sw-flow-create-mail-template-modal__sender-name  [private]
-  sw-flow-create-mail-template-modal__subject  [private]
-  sw-flow-create-mail-template-modal__type  [private]
 ```

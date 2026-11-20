@@ -24,9 +24,4 @@ computed
 
 blocks
   sw_contextual_field  [private]
-
-classes
-  is--prefix  [private]
-  sw-contextual-field  [private]
-  sw-field__addition  [private]
 ```

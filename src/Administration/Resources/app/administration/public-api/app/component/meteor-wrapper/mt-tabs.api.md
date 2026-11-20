@@ -45,7 +45,4 @@ blocks
 
 refs
   mtTabsOriginal  -> mt-tabs-original  [private]
-
-classes
-  mt-tabs__custom-content  [private]
 ```

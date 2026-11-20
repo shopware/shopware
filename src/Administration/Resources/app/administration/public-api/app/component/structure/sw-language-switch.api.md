@@ -39,7 +39,7 @@ methods
   destroyedComponent(): any  [private]
   emitChange(): any  [private]
   onClickRevertUnsavedChanges(): any  [private]
-  onClickSaveChanges(): any  [private]
+  onClickSaveChanges(): Promise<any>  [private]
   onCloseChangesModal(): any  [private]
   onInput(newLanguageId: any): any  [private]
 
@@ -52,8 +52,4 @@ blocks
         sw_language_switch_footer_button_save  [private]
       sw_language_switch_message  [private]
     sw_language_switch_select  [after v-if] [private]
-
-classes
-  sw-language-switch  [private]
-  sw-language-switch__select  [private]
 ```

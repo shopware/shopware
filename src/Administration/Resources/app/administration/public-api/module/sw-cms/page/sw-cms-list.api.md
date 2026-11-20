@@ -71,7 +71,7 @@ methods
   addLinkedLayoutsAggregation(criteria: any): any
   beforeUnmountComponent(): any
   createdComponent(): Promise<any>
-  deleteCmsPage(page: any): any
+  deleteCmsPage(page: any): Promise<any>
   deleteDisabledToolTip(page: any): any
   getColumnConfig(): any
   getDefaultFolderId(): any
@@ -114,7 +114,7 @@ methods
   optionContextDeleteDisabled(page: any): any
   registerLayoutResizeObserver(): any
   resetList(): any
-  saveCmsPage(page: any, context?: any): any
+  saveCmsPage(page: any, context?: any): Promise<any>
   saveGridUserSettings(): any
   setPageContext(): any
   showDefaultLayoutContextMenu(cmsPage: any): any
@@ -175,35 +175,4 @@ blocks
 
 crossings
   v-if  sw_cms_list_listing_list_grid -> sw_cms_list_listing_list_card
-
-classes
-  sw-cms-list
-  sw-cms-list--compact
-  sw-cms-list-item__option-delete
-  sw-cms-list-item__option-duplicate
-  sw-cms-list-item__option-preview
-  sw-cms-list-item__option-set-as-default
-  sw-cms-list-item__options
-  sw-cms-list__actions
-  sw-cms-list__actions-mode
-  sw-cms-list__actions-sorting
-  sw-cms-list__confirm-set-as-default-modal
-  sw-cms-list__content
-  sw-cms-list__context-menu-item-delete
-  sw-cms-list__context-menu-item-duplicate
-  sw-cms-list__context-menu-item-edit
-  sw-cms-list__context-menu-item-rename
-  sw-cms-list__icon-lock
-  sw-cms-list__list
-  sw-cms-list__list-card
-  sw-cms-list__list-data-grid
-  sw-cms-list__list-grid
-  sw-cms-list__list-grid-content
-  sw-cms-list__list-pagination
-  sw-cms-list__listing
-  sw-cms-list__sidebar
-  sw-cms-list__type-nav
-  sw_tree__confirm-delete-text
-  sw_tree__confirm-rename-text
-  sw_tree__confirm-rename-text-field
 ```

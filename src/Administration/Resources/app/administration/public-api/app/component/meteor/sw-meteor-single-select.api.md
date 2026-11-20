@@ -70,11 +70,4 @@ blocks
 
 refs
   searchField  -> sw-simple-search-field  [private]
-
-classes
-  sw-meteor-single-select  [private]
-  sw-meteor-single-select__label  [private]
-  sw-meteor-single-select__preview  [private]
-  sw-meteor-single-select__result-list  [private]
-  sw-meteor-single-select__selected-value-label  [private]
 ```

@@ -35,13 +35,4 @@ blocks
     sw_cms_missing_element_modal_paragraph  [private]
     sw_cms_missing_element_modal_subtitle  [private]
     sw_cms_missing_element_modal_title  [private]
-
-classes
-  sw-cms-missing-element-modal  [private]
-  sw-cms-missing-element-modal__button-cancel  [private]
-  sw-cms-missing-element-modal__button-save  [private]
-  sw-cms-missing-element-modal__dont-remind  [private]
-  sw-cms-missing-element-modal__paragraph  [private]
-  sw-cms-missing-element-modal__subtitle  [private]
-  sw-cms-missing-element-modal__title  [private]
 ```

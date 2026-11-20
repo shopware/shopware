@@ -45,10 +45,4 @@ blocks
       sw_settings_state_machine_list_smart_bar_header_title
         sw_settings_state_machine_list_smart_bar_header_amount
         sw_settings_state_machine_list_smart_bar_header_title_text
-
-classes
-  sw-page__smart-bar-amount
-  sw-settings-state-machine-list
-  sw-settings-state-machine-list-grid
-  sw-settings-state-machine__edit-action
 ```

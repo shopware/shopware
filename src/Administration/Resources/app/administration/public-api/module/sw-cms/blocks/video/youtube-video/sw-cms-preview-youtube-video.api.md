@@ -16,9 +16,4 @@ computed
 
 blocks
   sw_cms_block_youtube_video_preview  [private]
-
-classes
-  sw-cms-preview-youtube-video  [private]
-  sw-cms-preview-youtube-video__icon  [private]
-  sw-cms-preview-youtube-video__img  [private]
 ```

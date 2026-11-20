@@ -19,7 +19,4 @@ blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [inherited]
       sw_custom_field_type_base_labels  [inherited]
-
-classes
-  sw-custom-field-type-base
 ```

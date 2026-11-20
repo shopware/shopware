@@ -23,9 +23,4 @@ blocks
   sw_loader  [private]
     sw_loader_container  [private]
       sw_loader_element  [private]
-
-classes
-  sw-loader  [private]
-  sw-loader-element  [private]
-  sw-loader__container  [private]
 ```

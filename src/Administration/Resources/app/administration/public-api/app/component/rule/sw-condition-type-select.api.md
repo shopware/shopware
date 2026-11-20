@@ -41,8 +41,4 @@ methods
 
 blocks
   sw_condition_type_select  [private]
-
-classes
-  sw-condition-type-select  [private]
-  sw-condition-type-select__select  [private]
 ```

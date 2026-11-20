@@ -60,14 +60,4 @@ blocks
         sw_inherit_wrapper_toggle_wrapper_field  [private]
         sw_inherit_wrapper_toggle_wrapper_help_text  [private]
         sw_inherit_wrapper_toggle_wrapper_label  [after v-if] [private]
-
-classes
-  has--parent  [private]
-  is--inherited  [private]
-  is--required  [private]
-  sw-inherit-wrapper  [private]
-  sw-inherit-wrapper__help-text  [private]
-  sw-inherit-wrapper__inheritance-icon  [private]
-  sw-inherit-wrapper__inheritance-label  [private]
-  sw-inherit-wrapper__toggle-wrapper  [private]
 ```

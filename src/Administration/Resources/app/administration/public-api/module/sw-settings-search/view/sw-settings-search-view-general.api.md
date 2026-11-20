@@ -28,7 +28,4 @@ blocks
     sw_settings_search_excluded_search_terms_card
     sw_settings_search_search_behaviour_card
     sw_settings_search_searchable_content_card
-
-classes
-  sw-settings-search__view-general
 ```

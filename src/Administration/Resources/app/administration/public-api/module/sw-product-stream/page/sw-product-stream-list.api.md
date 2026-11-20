@@ -38,7 +38,7 @@ methods
   onDeleteItemFailed(arg0: any): any  [private]
   onDeleteItemsFailed(arg0: any): any  [private]
   onDuplicate(item: any): any  [private]
-  onInlineEditSave(promise: any, productStream: any): any  [private]
+  onInlineEditSave(promise: any, productStream: any): Promise<any>  [private]
 
 blocks
   sw_product_stream_list  [private]
@@ -67,13 +67,4 @@ crossings
 
 refs
   swProductStreamGrid  -> sw-entity-listing  [private]
-
-classes
-  sw-entity-listing__context-menu-edit-delete  [private]
-  sw-entity-listing__context-menu-edit-duplicate  [private]
-  sw-page__smart-bar-amount  [private]
-  sw-product-stream-list  [private]
-  sw-product-stream-list-grid  [private]
-  sw-product-stream-list__content  [private]
-  sw-product-stream-list__create-action  [private]
 ```

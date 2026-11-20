@@ -52,15 +52,4 @@ methods
   loadFiles(): Promise<any>
   onChangePage(data: any): any
   onToggleEnabled(file: any): any
-
-classes
-  sw-sales-channel-detail-agentic-files
-  sw-sales-channel-detail-agentic-files__description
-  sw-sales-channel-detail-agentic-files__description-cell
-  sw-sales-channel-detail-agentic-files__file-link
-  sw-sales-channel-detail-agentic-files__file-name
-  sw-sales-channel-detail-agentic-files__file-text
-  sw-sales-channel-detail-agentic-files__headline
-  sw-sales-channel-detail-agentic-files__public-path
-  sw-sales-channel-detail-agentic-files__title
 ```

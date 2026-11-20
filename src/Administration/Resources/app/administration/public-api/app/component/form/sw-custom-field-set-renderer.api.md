@@ -113,9 +113,4 @@ crossings
 
 refs
   tabComponent  -> sw-tabs  [until v6.8.0] [private]
-
-classes
-  mt-tabs__custom-content  [from v6.8.0] [private]
-  sw-custom-field-set-renderer  [private]
-  sw-custom-field-set-renderer__card-tabs  [private]
 ```

@@ -20,10 +20,4 @@ computed
 
 blocks
   sw_settings_country_preview_template  [private]
-
-classes
-  is--loading  [private]
-  sw-settings-country-preview-template  [private]
-  sw-settings-country-preview-template__content  [private]
-  sw-settings-country-preview-template__loader  [private]
 ```

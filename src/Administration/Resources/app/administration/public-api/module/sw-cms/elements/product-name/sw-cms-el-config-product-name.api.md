@@ -32,10 +32,4 @@ blocks
 
 refs
   swCmsTextEditor  -> mt-text-editor  [from v6.8.0] [private]
-
-classes
-  sw-cms-el-config-text__mapping-preview  [private]
-  sw-cms-el-config-text__tab-content  [private]
-  sw-cms-el-config-text__tab-settings  [private]
-  sw-cms-el-config-text__tabs  [private]
 ```

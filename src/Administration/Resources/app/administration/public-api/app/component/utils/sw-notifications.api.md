@@ -39,10 +39,4 @@ blocks
           sw_notifications_item_actions  [scope: index, notification] [private]
             sw_notifications_item_action_item  [scope: action, index, notification] [private]
           sw_notifications_item_content  [scope: index, notification] [private]
-
-classes
-  sw-notification__alert  [private]
-  sw-notifications  [private]
-  sw-notifications__actions  [private]
-  sw-notifications__message  [private]
 ```

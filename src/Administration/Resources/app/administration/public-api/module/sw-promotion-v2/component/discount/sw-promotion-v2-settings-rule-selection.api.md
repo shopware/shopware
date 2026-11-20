@@ -23,8 +23,4 @@ blocks
   sw_promotion_v2_settings_rule_selection
     sw_promotion_v2_settings_rule_selection_description
     sw_promotion_v2_settings_rule_selection_selection
-
-classes
-  sw-promotion-v2-settings-rule-selection
-  sw-promotion-v2-settings-rule-selection__description
 ```

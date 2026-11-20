@@ -33,9 +33,4 @@ methods
 
 blocks
   sw_extension_teaser_popover  [private]
-
-classes
-  sw-extension-teaser-popover  [private]
-  sw-extension-teaser-popover__content  [private]
-  sw-extension-teaser-popover__trigger  [private]
 ```

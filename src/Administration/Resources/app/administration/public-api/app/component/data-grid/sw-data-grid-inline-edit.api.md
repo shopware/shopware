@@ -44,8 +44,4 @@ crossings
   v-if  sw_data_grid_inline_edit_type_boolean -> sw_data_grid_inline_edit_type_unknown  [private]
   v-if  sw_data_grid_inline_edit_type_number -> sw_data_grid_inline_edit_type_boolean  [private]
   v-if  sw_data_grid_inline_edit_type_string -> sw_data_grid_inline_edit_type_number  [private]
-
-classes
-  sw-data-grid-inline-edit  [private]
-  sw-data-grid-inline-edit__placeholder  [private]
 ```

@@ -49,7 +49,7 @@ computed
 
 methods
   checkValidation(parentProfile: any): any  [private]
-  getParentProfileSelected(): any  [private]
+  getParentProfileSelected(): Promise<any>  [private]
   loadSystemRequiredFieldsForEntity(entityName: any): any  [private]
   resetViolations(): any  [private]
   saveProfile(): any  [private]
@@ -84,12 +84,4 @@ blocks
       sw_import_export_edit_profile_violation_modal_message  [private]
       sw_import_export_edit_profile_violation_modal_required_fields  [private]
         sw_import_export_edit_profile_violation_modal_required_field  [private]
-
-classes
-  sw-import-export-edit-profile-modal  [private]
-  sw-import-export-edit-profile-modal__save-action  [private]
-  sw-import-export-edit-profile-modal__text  [private]
-  sw-import-export-edit-profile-modal__violation-modal  [private]
-  sw-import-export-edit-profile-modal__violation-modal-duplicate-mapping  [private]
-  sw-import-export-edit-profile-modal__violation-modal-missing-required-field  [private]
 ```

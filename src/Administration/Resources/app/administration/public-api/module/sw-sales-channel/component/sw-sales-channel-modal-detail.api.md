@@ -20,16 +20,4 @@ blocks
       sw_sales_channel_modal_detail_header_icon
       sw_sales_channel_modal_detail_header_meta
     sw_sales_channel_modal_detail_screenshots
-
-classes
-  sw-sales-channel-modal-detail
-  sw-sales-channel-modal-detail__description-long-text
-  sw-sales-channel-modal-detail__description-long-title
-  sw-sales-channel-modal-detail__header
-  sw-sales-channel-modal-detail__header-icon
-  sw-sales-channel-modal-detail__header-manufacturer
-  sw-sales-channel-modal-detail__header-meta
-  sw-sales-channel-modal-detail__header-name
-  sw-sales-channel-modal-detail__screenshot
-  sw-sales-channel-modal-detail__screenshots
 ```

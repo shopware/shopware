@@ -29,8 +29,4 @@ methods
 
 blocks
   sw_condition_type_select  [private]
-
-classes
-  sw-condition-operator-select  [private]
-  sw-condition-operator-select__select  [private]
 ```

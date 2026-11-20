@@ -66,9 +66,4 @@ blocks
     sw_date_filter_from_field  [after v-if] [private]
     sw_date_filter_timeframe  [private]
     sw_date_filter_to_field  [private]
-
-classes
-  sw-date-filter__from  [private]
-  sw-date-filter__timeframe  [private]
-  sw-date-filter__to  [private]
 ```

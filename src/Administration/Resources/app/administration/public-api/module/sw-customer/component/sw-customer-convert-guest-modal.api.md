@@ -38,18 +38,6 @@ blocks
       sw_customer_guest_convert_customer_modal_option_manual
       sw_customer_guest_convert_customer_modal_option_reset
 
-classes
-  sw-customer-guest-convert-customer-modal
-  sw-customer-guest-convert-customer-modal__action
-  sw-customer-guest-convert-customer-modal__content
-  sw-customer-guest-convert-customer-modal__description
-  sw-customer-guest-convert-customer-modal__input
-  sw-customer-guest-convert-customer-modal__manual-form
-  sw-customer-guest-convert-customer-modal__option
-  sw-customer-guest-convert-customer-modal__option--manual
-  sw-customer-guest-convert-customer-modal__option--reset
-  sw-customer-guest-convert-customer-modal__title
-
 notes
   unresolved computed ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].cust...
 ```

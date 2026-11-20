@@ -43,7 +43,7 @@ computed
 methods
   cleanUpCodes(cleanUpIndividual: any, cleanUpFixed: any): any
   createdComponent(): any
-  loadEntityData(): any
+  loadEntityData(): Promise<any>
   onCancel(): any
   onChangeLanguage(): any
   onCleanUpCodes(cleanUpIndividual: any, cleanUpFixed: any): any
@@ -54,7 +54,7 @@ methods
   onSave(): any
   saveFinish(): any
   savePromotion(): Promise<any>
-  savePromotionSetGroups(): any
+  savePromotionSetGroups(): Promise<any>
 
 blocks
   sw_promotion_v2_detail
@@ -75,16 +75,6 @@ blocks
       sw_promotion_v2_detail_content_view
     sw_promotion_v2_detail_header
     sw_promotion_v2_detail_language_switch
-
-classes
-  sw-promotion-v2-detail
-  sw-promotion-v2-detail-page__tabs
-  sw-promotion-v2-detail__cancel-action
-  sw-promotion-v2-detail__change-modal
-  sw-promotion-v2-detail__change-modal-cancel-action
-  sw-promotion-v2-detail__change-modal-confirm-action
-  sw-promotion-v2-detail__content-view-skeleton
-  sw-promotion-v2-detail__save-action
 
 notes
   unresolved computed ...mapPageErrors(errorConfig)

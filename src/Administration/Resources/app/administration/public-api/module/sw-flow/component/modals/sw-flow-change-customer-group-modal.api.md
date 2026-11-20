@@ -42,10 +42,4 @@ blocks
       sw_flow_change_customer_group_modal_footer_cancel_button  [private]
       sw_flow_change_customer_group_modal_footer_save_button  [private]
     sw_flow_change_customer_group_modal_select  [private]
-
-classes
-  sw-flow-change-customer-group-modal  [private]
-  sw-flow-change-customer-group-modal__cancel-button  [private]
-  sw-flow-change-customer-group-modal__save-button  [private]
-  sw-flow-change-customer-group-modal__type-select  [private]
 ```

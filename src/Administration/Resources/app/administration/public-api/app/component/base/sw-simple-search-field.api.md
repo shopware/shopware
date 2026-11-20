@@ -40,9 +40,4 @@ blocks
     sw_simple_search_field_input  [private]
     sw_simple_search_field_search_icon  [private]
       sw_simple_search_field_slot_search_icon  [private]
-
-classes
-  sw-simple-search-field  [private]
-  sw-simple-search-field__input  [private]
-  sw-simple-search-field__search-icon  [private]
 ```

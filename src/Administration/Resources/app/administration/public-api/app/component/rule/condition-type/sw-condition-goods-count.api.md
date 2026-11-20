@@ -33,16 +33,4 @@ blocks
         sw_condition_goods_count_field_operator
         sw_condition_goods_count_filter_button
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-goods-count
-  sw-condition-goods-count__filter
-  sw-condition-goods-count__numfield
-  sw-condition-goods-count__value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

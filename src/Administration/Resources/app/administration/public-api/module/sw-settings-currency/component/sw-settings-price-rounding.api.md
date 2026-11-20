@@ -43,16 +43,4 @@ blocks
     sw_settings_price_rounding_spacer
     sw_settings_price_rounding_subline_grand
     sw_settings_price_rounding_subline_items
-
-classes
-  sw-settings-price-rounding
-  sw-settings-price-rounding__grand-interval-select
-  sw-settings-price-rounding__header-info
-  sw-settings-price-rounding__header-warning
-  sw-settings-price-rounding__headline
-  sw-settings-price-rounding__info-text
-  sw-settings-price-rounding__item-interval-select
-  sw-settings-price-rounding__round-for-net-checkbox
-  sw-settings-price-rounding__rounding-container
-  sw-settings-price-rounding__spacer
 ```

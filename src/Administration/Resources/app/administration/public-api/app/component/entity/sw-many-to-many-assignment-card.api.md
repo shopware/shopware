@@ -75,7 +75,7 @@ methods
   getKey(object: any, keyPath: any, defaultValue: any): any  [private]
   initData(): any  [private]
   isSelected(item: any): any  [private]
-  loadResultCollection(): any  [private]
+  loadResultCollection(): Promise<any>  [private]
   onClear(): any  [private]
   onItemSelect(item: any): any  [private]
   onSearchTermChange(input: any): any  [private]
@@ -84,7 +84,7 @@ methods
   paginateGrid(arg0?: any): any  [private]
   paginateResult(): any  [private]
   removeFromGrid(item: any): any  [private]
-  removeItem(item: any): any  [private]
+  removeItem(item: any): Promise<any>  [private]
   resetActiveItem(): any  [private]
   resetSearchCriteria(): any  [private]
   searchItems(): Promise<any>  [private]
@@ -117,13 +117,6 @@ refs
   searchInput  -> input  [private]
   selectBase  -> sw-select-base  [private]
   swSelectResultList  -> sw-select-result-list  [private]
-
-classes
-  sw-entity-many-to-many-select  [private]
-  sw-many-to-many-assignment-card  [private]
-  sw-many-to-many-assignment-card__empty-state  [private]
-  sw-many-to-many-assignment-card__grid  [private]
-  sw-many-to-many-assignment-card__select-container  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

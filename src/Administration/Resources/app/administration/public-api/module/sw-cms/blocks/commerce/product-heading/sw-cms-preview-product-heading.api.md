@@ -17,11 +17,4 @@ blocks
       sw_cms_preview_product_heading_placeholder_container  [private]
         sw_cms_preview_product_heading_placeholder  [private]
     sw_cms_preview_product_heading_name  [private]
-
-classes
-  sw-cms-preview-product-heading  [private]
-  sw-cms-preview-product-heading__logo  [private]
-  sw-cms-preview-product-heading__name  [private]
-  sw-cms-preview-product-heading__placeholder  [private]
-  sw-cms-preview-product-heading__placeholder-container  [private]
 ```

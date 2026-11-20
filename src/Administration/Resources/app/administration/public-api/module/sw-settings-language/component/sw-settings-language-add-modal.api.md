@@ -53,14 +53,4 @@ blocks
     sw_settings_language_add_modal_hint  [after v-if]
     sw_settings_language_add_modal_select
     sw_settings_language_add_modal_selection_info
-
-classes
-  sw-settings-language-add-modal
-  sw-settings-language-add-modal__add-action
-  sw-settings-language-add-modal__create-custom
-  sw-settings-language-add-modal__footer-actions
-  sw-settings-language-add-modal__hint
-  sw-settings-language-add-modal__language-select
-  sw-settings-language-add-modal__selection-info
-  sw-settings-language-add-modal__selection-info-item
 ```

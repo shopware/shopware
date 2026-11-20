@@ -60,12 +60,4 @@ blocks
 refs
   mediaLibrary  -> sw-media-library
   swMediaModal  -> sw-modal
-
-classes
-  sw-media-save-modal
-  sw-media-save-modal__breadcrumbs-and-search
-  sw-media-save-modal__button-cancel
-  sw-media-save-modal__button-save
-  sw-media-save-modal__content
-  sw-media-save-modal__input-file-name
 ```

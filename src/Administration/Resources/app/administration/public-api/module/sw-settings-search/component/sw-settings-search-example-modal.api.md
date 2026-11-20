@@ -26,12 +26,4 @@ blocks
       sw_settings_search_searchable_content_example_modal_result
     sw_settings_search_searchable_content_example_modal_footer
       sw_settings_search_searchable_content_example_modal_close
-
-classes
-  sw-field
-  sw-settings-search-example-modal
-  sw-settings-search__example-text
-  sw-settings-search__searchable-content-example-detail
-  sw-settings-search__searchable-content-example-list
-  sw-settings-search__searchable-content-example-wrapper
 ```

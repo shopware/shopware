@@ -34,8 +34,4 @@ blocks
     sw_media_modal_folder_dissolve_footer
       sw_media_modal_folder_dissolve__cancel_button
       sw_media_modal_folder_dissolve_confirm_button
-
-classes
-  sw-media-modal-folder-dissolve
-  sw-media-modal-folder-dissolve__confirm
 ```

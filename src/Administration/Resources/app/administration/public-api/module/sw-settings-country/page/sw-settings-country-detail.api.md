@@ -56,7 +56,7 @@ methods
   loadUserConfig(): Promise<any>
   onCancel(): any
   onChangeLanguage(): any
-  onSave(): any
+  onSave(): Promise<any>
   onSaveModal(): any
   onUpdateCountry(path: any, value: any): any
   saveFinish(): any
@@ -79,11 +79,4 @@ blocks
         sw_settings_country_mt_tabs_header  [from v6.8.0]
     sw_settings_country_detail_header
     sw_settings_country_detail_language_switch
-
-classes
-  sw-settings-country-detail
-  sw-settings-country-detail__save-action
-  sw-settings-country__address-handling-tab  [until v6.8.0]
-  sw-settings-country__setting-tab  [until v6.8.0]
-  sw-settings-country__state-tab  [until v6.8.0]
 ```

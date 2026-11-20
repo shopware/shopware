@@ -31,9 +31,4 @@ blocks
     sw_settings_country_currency_hamburger_menu_loader
     sw_settings_country_currency_hamburger_menu_trigger
       sw_country_currency_hamburger_menu_icon
-
-classes
-  sw-settings-country-currency-hamburger-menu__button
-  sw-settings-country-currency-hamburger-menu__item
-  sw-settings-country-currency-hamburger-menu__wrapper
 ```

@@ -18,7 +18,4 @@ slots
 
 blocks
   sw_cms_block_product_three_column  [private]
-
-classes
-  sw-cms-block-product-three-column  [private]
 ```

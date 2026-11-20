@@ -70,7 +70,7 @@ methods
   getMediaDefaultFolderId(): any
   getUserData(): Promise<any>
   handleUserSaveError(error: any): any
-  loadLanguages(): any
+  loadLanguages(): Promise<any>
   loadMediaItem(targetId: any): any
   onChangeNewPassword(newPassword: any): any
   onChangeNewPasswordConfirm(newPasswordConfirm: any): any
@@ -87,11 +87,11 @@ methods
   saveFinish(): Promise<any>
   saveMinSearchTermLength(): any
   saveUser(context: any): any
-  saveUserModuleIconColors(): any
-  saveUserSearchPreferences(): any
-  saveUserTheme(): any
+  saveUserModuleIconColors(): Promise<any>
+  saveUserSearchPreferences(): Promise<any>
+  saveUserTheme(): Promise<any>
   setMediaItem(arg0: any): any
-  updateCurrentUser(): any
+  updateCurrentUser(): Promise<any>
 
 blocks
   sw_profile_index
@@ -105,8 +105,4 @@ blocks
       sw_profile_index_mt_tabs  [from v6.8.0]
       sw_profile_index_tabs_item_general  [until v6.8.0]
       sw_profile_index_tabs_item_search_preferences  [until v6.8.0]
-
-classes
-  sw-profile-index
-  sw-profile__save-action
 ```

@@ -55,7 +55,7 @@ methods
   onCancel(): any
   onChangeDefaultTaxRate(): any
   onChangeLanguage(languageId: any): any
-  onSave(): any
+  onSave(): Promise<any>
   reloadDefaultTaxRate(): any
   saveOnLanguageChange(): any
 
@@ -72,11 +72,4 @@ blocks
       sw_settings_tax_detail_custom_field_sets  [after v-if]
       sw_settings_tax_detail_rule_card
     sw_settings_tax_detail_header
-
-classes
-  sw-settings-tax-detail
-  sw-settings-tax-detail__default-tax-rate
-  sw-settings-tax-detail__save-action
-  sw-settings-tax-detail__switches
-  sw-settings-tax-detail__tax-rule-grid
 ```

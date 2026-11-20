@@ -31,16 +31,4 @@ methods
 
 blocks
   sw_generic_seo_general_card  [private]
-
-classes
-  sw-generic-seo-general-card  [private]
-  sw-generic-seo-general-card__google-preview  [private]
-  sw-generic-seo-general-card__google-preview-container  [private]
-  sw-generic-seo-general-card__google-preview-description  [private]
-  sw-generic-seo-general-card__google-preview-header  [private]
-  sw-generic-seo-general-card__google-preview-link  [private]
-  sw-generic-seo-general-card__google-preview-title  [private]
-  sw-generic-seo-general-card__seo-meta-description-input  [private]
-  sw-generic-seo-general-card__seo-meta-title-input  [private]
-  sw-generic-seo-general-card__seo-url-input  [private]
 ```

@@ -66,26 +66,4 @@ blocks
         sw_cms_create_wizard_page_name
       sw_cms_create_wizard_page_preview
       sw_cms_create_wizard_third_step_back
-
-classes
-  sw-cms-create-wizard
-  sw-cms-create-wizard__back
-  sw-cms-create-wizard__inner
-  sw-cms-create-wizard__name-select
-  sw-cms-create-wizard__page-completion
-  sw-cms-create-wizard__page-completion-buttons
-  sw-cms-create-wizard__page-completion-custom-entity
-  sw-cms-create-wizard__page-completion-name
-  sw-cms-create-wizard__page-preview
-  sw-cms-create-wizard__page-type
-  sw-cms-create-wizard__page-type-selection
-  sw-cms-create-wizard__preview_image
-  sw-cms-create-wizard__preview_info
-  sw-cms-create-wizard__section-selection
-  sw-cms-create-wizard__step-1
-  sw-cms-create-wizard__step-2
-  sw-cms-create-wizard__step-3
-  sw-cms-create-wizard__step1-helptext
-  sw-cms-create-wizard__step2-helptext
-  sw-cms-create-wizard__title
 ```

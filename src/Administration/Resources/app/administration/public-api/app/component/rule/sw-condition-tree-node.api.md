@@ -35,7 +35,4 @@ methods
 
 blocks
   sw_condtion_tree_node  [private]
-
-classes
-  condition-tree-node  [private]
 ```

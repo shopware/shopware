@@ -56,15 +56,15 @@ methods
   createRule(): any  [private]
   createdComponent(): any  [private]
   getRuleDetail(): any  [private]
-  loadConditionData(): any  [private]
-  loadConditions(conditions?: any): any  [private]
-  loadRule(ruleId: any): any  [private]
+  loadConditionData(): Promise<any>  [private]
+  loadConditions(conditions?: any): Promise<any>  [private]
+  loadRule(ruleId: any): Promise<any>  [private]
   onClose(): any  [private]
   onConditionsChanged(arg0: any): any  [private]
   onSaveRule(): any  [private]
   saveRule(): any  [private]
   showErrorNotification(): any  [private]
-  syncConditions(): any  [private]
+  syncConditions(): Promise<any>  [private]
 
 blocks
   sw_flow_rule_modal  [private]
@@ -91,18 +91,4 @@ blocks
         sw_flow_rule_modal_mt_tab_rule_content  [after v-if] [from v6.8.0] [private]
           sw_flow_rule_modal_mt_conditions_card  [after v-if] [from v6.8.0] [private]
       sw_flow_rule_modal_mt_tabs  [from v6.8.0] [private]
-
-classes
-  sw-flow-rule-modal  [private]
-  sw-flow-rule-modal__cancel-button  [private]
-  sw-flow-rule-modal__content  [private]
-  sw-flow-rule-modal__description  [private]
-  sw-flow-rule-modal__name  [private]
-  sw-flow-rule-modal__priority  [private]
-  sw-flow-rule-modal__product-type-warning  [private]
-  sw-flow-rule-modal__rule  [private]
-  sw-flow-rule-modal__save-button  [private]
-  sw-flow-rule-modal__tab-detail  [until v6.8.0] [private]
-  sw-flow-rule-modal__tab-rule  [until v6.8.0] [private]
-  sw-flow-rule-modal__type  [private]
 ```

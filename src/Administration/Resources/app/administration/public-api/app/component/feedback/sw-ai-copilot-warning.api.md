@@ -19,7 +19,4 @@ computed
 
 blocks
   sw_ai_copilot_warning  [private]
-
-classes
-  sw-ai-copilot-warning  [private]
 ```

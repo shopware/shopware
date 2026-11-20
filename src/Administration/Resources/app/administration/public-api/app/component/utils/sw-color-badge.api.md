@@ -26,7 +26,4 @@ computed
 blocks
   sw_color_badge  [private]
     sw_color_badfge_slot_default  [private]
-
-classes
-  sw-color-badge  [private]
 ```

@@ -115,42 +115,4 @@ blocks
       sw_integration_mcp_allowlist_no_selection_banner  [after v-if]
       sw_integration_mcp_allowlist_stale  [after v-if]
     sw_integration_mcp_allowlist_types
-
-classes
-  has--description
-  is--disabled
-  sw-integration-mcp-allowlist
-  sw-integration-mcp-allowlist__admin-banner
-  sw-integration-mcp-allowlist__all-tools-row
-  sw-integration-mcp-allowlist__coverage-banner
-  sw-integration-mcp-allowlist__dep-badge
-  sw-integration-mcp-allowlist__group
-  sw-integration-mcp-allowlist__group-checkbox
-  sw-integration-mcp-allowlist__group-chevron
-  sw-integration-mcp-allowlist__group-header
-  sw-integration-mcp-allowlist__group-label
-  sw-integration-mcp-allowlist__item-content
-  sw-integration-mcp-allowlist__item-header
-  sw-integration-mcp-allowlist__missing-privileges-icon
-  sw-integration-mcp-allowlist__missing-privileges-list
-  sw-integration-mcp-allowlist__no-selection-banner
-  sw-integration-mcp-allowlist__privilege-label
-  sw-integration-mcp-allowlist__privilege-list
-  sw-integration-mcp-allowlist__requires-badge
-  sw-integration-mcp-allowlist__stale-banner
-  sw-integration-mcp-allowlist__sticky
-  sw-integration-mcp-allowlist__toggle-all
-  sw-integration-mcp-allowlist__tool
-  sw-integration-mcp-allowlist__tool-chevron
-  sw-integration-mcp-allowlist__tool-description
-  sw-integration-mcp-allowlist__tool-warning
-  sw-integration-mcp-allowlist__tools
-  sw-integration-mcp-allowlist__type-all-switch
-  sw-integration-mcp-allowlist__type-chevron
-  sw-integration-mcp-allowlist__type-count
-  sw-integration-mcp-allowlist__type-header
-  sw-integration-mcp-allowlist__type-info
-  sw-integration-mcp-allowlist__type-list
-  sw-integration-mcp-allowlist__type-section
-  sw-integration-mcp-allowlist__type-title
 ```

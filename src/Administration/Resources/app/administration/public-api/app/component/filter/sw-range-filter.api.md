@@ -37,9 +37,4 @@ blocks
       sw_range_filter_divider  [private]
       sw_range_filter_from_field  [private]
       sw_range_filter_to_field  [private]
-
-classes
-  sw-container--has-divider  [private]
-  sw-range-filter  [private]
-  sw-range-filter__divider  [private]
 ```

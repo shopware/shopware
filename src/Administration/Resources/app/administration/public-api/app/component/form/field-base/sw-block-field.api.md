@@ -32,8 +32,4 @@ methods
 
 blocks
   sw_block_field  [private]
-
-classes
-  sw-block-field  [private]
-  sw-block-field__block  [private]
 ```

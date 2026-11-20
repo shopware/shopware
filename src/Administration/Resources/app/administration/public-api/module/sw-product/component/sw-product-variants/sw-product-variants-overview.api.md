@@ -70,7 +70,7 @@ methods
   getDownloadsSource(item: any): any
   getFilterCriteria(): any
   getFilterOptions(): any
-  getList(): any
+  getList(): Promise<any>
   getOptionsForGroup(groupId: any): any
   isActiveFieldInherited(variant: any): any
   isMediaFieldInherited(variant: any): any
@@ -152,32 +152,4 @@ crossings
 
 refs
   variantGrid  -> sw-data-grid
-
-classes
-  is--active
-  is--inactive
-  link
-  link-danger
-  link-primary
-  sw-configuration-option-list__toolbar
-  sw-product-detail-context-prices__inherited-icon
-  sw-product-variants-overview
-  sw-product-variants-overview__active-inherited-icon
-  sw-product-variants-overview__bulk-delete-action
-  sw-product-variants-overview__bulk-edit-modal
-  sw-product-variants-overview__data-grid
-  sw-product-variants-overview__delete-modal
-  sw-product-variants-overview__digital-indicator
-  sw-product-variants-overview__filter-buttons
-  sw-product-variants-overview__filter-list-button
-  sw-product-variants-overview__modal--cancel-button
-  sw-product-variants-overview__modal--confirm-delete-text
-  sw-product-variants-overview__single-variation
-  sw-product-variants-overview__variation-link
-  sw-product-variants-overview__variation-link-icon
-  sw-product-variants-overview__variation-link-name
-  sw-product-variants-overview_media__inherited-icon
-  sw-product-variants-overview_product-number
-  sw-product-variants__configure-storefront-action
-  sw-product-variants__generate-action
 ```

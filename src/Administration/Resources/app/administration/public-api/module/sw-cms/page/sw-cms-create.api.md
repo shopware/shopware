@@ -45,18 +45,4 @@ blocks
           sw_cms_detail_toolbar_back_button  [inherited] [private]
           sw_cms_detail_toolbar_page_name  [inherited] [private]
           sw_cms_detail_toolbar_page_type  [inherited] [private]
-
-classes
-  is--active  [private]
-  is--disabled  [private]
-  sw-cms-detail  [private]
-  sw-cms-detail__actions  [private]
-  sw-cms-detail__back-btn  [private]
-  sw-cms-detail__content  [private]
-  sw-cms-detail__device-actions  [private]
-  sw-cms-detail__page-defaults  [private]
-  sw-cms-detail__page-info  [private]
-  sw-cms-detail__page-name  [private]
-  sw-cms-detail__page-type  [private]
-  sw-cms-detail__save-action  [private]
 ```

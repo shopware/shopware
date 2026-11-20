@@ -43,8 +43,4 @@ blocks
     sw_product_measurement_form_width_height_container
       sw_product_measurement_form_height_field
       sw_product_measurement_form_width_field
-
-classes
-  sw-product-measurement-form
-  sw-product-measurement-form__description-group
 ```

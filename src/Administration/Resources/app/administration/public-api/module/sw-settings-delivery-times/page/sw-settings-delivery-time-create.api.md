@@ -30,9 +30,4 @@ blocks
       sw_settings_delivery_time_detail_smart_bar_actions_cancel  [inherited]
       sw_settings_delivery_time_detail_smart_bar_actions_save  [inherited]
     sw_settings_delivery_time_detail_smart_bar_header  [inherited]
-
-classes
-  sw-delivery-time-detail__field-unit
-  sw-settings-delivery-time-detail
-  sw-settings-delivery-time-detail__save
 ```

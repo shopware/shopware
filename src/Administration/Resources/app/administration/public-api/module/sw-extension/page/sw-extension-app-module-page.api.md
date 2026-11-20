@@ -45,8 +45,4 @@ methods
 
 blocks
   sw_extension_app_module_page  [private]
-
-classes
-  sw-extension-app-module-page  [private]
-  sw-extension-app-module-page__app-content  [private]
 ```

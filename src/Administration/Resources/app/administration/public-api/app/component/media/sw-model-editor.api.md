@@ -79,19 +79,4 @@ methods
 
 blocks
   sw_model_editor
-
-classes
-  sw-model-editor
-  sw-model-editor-canvas
-  sw-model-editor-canvas-ui__button
-  sw-model-editor-canvas-ui__button-container
-  sw-model-editor-canvas-ui__edit-options
-  sw-model-editor-canvas-wrapper
-  sw-model-editor-content
-  sw-model-editor-loader
-  sw-model-editor-sidebar
-  sw-model-editor-sidebar-content
-  sw-model-editor-sidebar-content-item
-  sw-model-editor-sidebar-content-item-body
-  sw-model-editor-sidebar-content-item-header
 ```

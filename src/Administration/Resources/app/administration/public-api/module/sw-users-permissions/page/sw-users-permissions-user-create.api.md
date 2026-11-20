@@ -15,7 +15,7 @@ computed
   userPasswordError: any
 
 methods
-  loadUser(): any
+  loadUser(): Promise<any>
   onSave(): any
   saveFinish(): any
 
@@ -75,34 +75,4 @@ blocks
 
 crossings
   v-if  sw_settings_user_detail_detail_modal_inner_field_help_text -> sw_settings_user_detail_detail_modal_inner_help_text
-
-classes
-  sw-field
-  sw-product-list__edit-action
-  sw-settings-user-detail
-  sw-settings-user-detail__cards
-  sw-settings-user-detail__detail
-  sw-settings-user-detail__grid
-  sw-settings-user-detail__grid-aclRoles
-  sw-settings-user-detail__grid-active
-  sw-settings-user-detail__grid-context-menu-delete
-  sw-settings-user-detail__grid-context-menu-edit
-  sw-settings-user-detail__grid-eMail
-  sw-settings-user-detail__grid-firstName
-  sw-settings-user-detail__grid-is-admin
-  sw-settings-user-detail__grid-jobTitle
-  sw-settings-user-detail__grid-language
-  sw-settings-user-detail__grid-lastName
-  sw-settings-user-detail__grid-module-icon-colors
-  sw-settings-user-detail__grid-password
-  sw-settings-user-detail__grid-profile-picture
-  sw-settings-user-detail__grid-theme
-  sw-settings-user-detail__grid-timezone
-  sw-settings-user-detail__grid-username
-  sw-settings-user-detail__information-grid
-  sw-settings-user-detail__roles-permissions-grid
-  sw-settings-user-detail__save-action
-  sw-settings-user-detail__secret-help-text-alert
-  sw-settings-user-detail__secret-help-text-button
-  sw-settings-user-detail__user-interface-grid
 ```

@@ -52,19 +52,4 @@ blocks
     sw_cms_element_video_config_media_upload  [scope: isInherited] [private]
     sw_cms_element_video_config_min_height  [private]
     sw_cms_element_video_config_vertical_align  [private]
-
-classes
-  sw-cms-el-config-video  [private]
-  sw-cms-el-config-video__aria-label  [private]
-  sw-cms-el-config-video__checkboxes  [private]
-  sw-cms-el-config-video__checkboxes-auto-play  [private]
-  sw-cms-el-config-video__checkboxes-loop  [private]
-  sw-cms-el-config-video__checkboxes-muted  [private]
-  sw-cms-el-config-video__checkboxes-plays-inline  [private]
-  sw-cms-el-config-video__checkboxes-show-controls  [private]
-  sw-cms-el-config-video__checkboxes-show-cover  [private]
-  sw-cms-el-config-video__display-mode  [private]
-  sw-cms-el-config-video__mapping-preview  [private]
-  sw-cms-el-config-video__mapping-preview-info  [private]
-  sw-cms-el-config-video__mapping-preview-video  [private]
 ```

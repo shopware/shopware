@@ -27,8 +27,4 @@ blocks
         sw_extension_rating_modal_slot_footer_buttons_cancel  [private]
         sw_extension_rating_modal_slot_footer_buttons_submit  [private]
       sw_extension_rating_modal_slot_footer_gtc_checkbox  [private]
-
-classes
-  sw-extension-rating-modal  [private]
-  sw-extension-rating-modal__buttons  [private]
 ```

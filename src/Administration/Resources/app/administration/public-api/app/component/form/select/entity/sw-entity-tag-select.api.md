@@ -27,7 +27,7 @@ data
 
 methods
   addItem(item: any): any  [private]
-  checkTagExists(term: any): any  [private]
+  checkTagExists(term: any): Promise<any>  [private]
   createNewTag(): any  [private]
   filterSearchGeneratedTags(): any  [private]
   resetActiveItem(position?: any): any  [private]
@@ -58,9 +58,4 @@ refs
   selectBase  -> sw-select-base  [private]
   selectionList  -> sw-select-selection-list  [private]
   swSelectResultList  -> sw-select-result-list  [private]
-
-classes
-  sw-entity-multi-select  [private]
-  sw-multi-select-filtering__advanced-selection  [private]
-  sw-select-result  [private]
 ```

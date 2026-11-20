@@ -20,7 +20,7 @@ props
   disabled?: boolean  default=literal  [private]
   entity?: Extract<keyof EntitySchema.EntityKeys, string> | null  default=literal  [private]
   label?: string  default=literal  [private]
-  valueTypes?: string | any[]  default=literal  [private]
+  valueTypes?: any[] | string  default=literal  [private]
 
 slots
   default  {}  block=sw_cms_mapping_field_content  [private]
@@ -62,19 +62,4 @@ blocks
 crossings
   v-if  sw_cms_mapping_field_content -> sw_cms_mapping_field  [private]
   v-if  sw_cms_mapping_field_mapping_selection -> sw_cms_mapping_field_mapping_remove_action  [private]
-
-classes
-  is--disabled  [private]
-  sw-cms-mapping-field  [private]
-  sw-cms-mapping-field__action  [private]
-  sw-cms-mapping-field__action-label  [private]
-  sw-cms-mapping-field__action-remove  [private]
-  sw-cms-mapping-field__empty-demo  [private]
-  sw-cms-mapping-field__form-field  [private]
-  sw-cms-mapping-field__info  [private]
-  sw-cms-mapping-field__label  [private]
-  sw-cms-mapping-field__mapping-value  [private]
-  sw-cms-mapping-field__options  [private]
-  sw-cms-mapping-field__preview  [private]
-  sw-cms-mapping-field__selection  [private]
 ```

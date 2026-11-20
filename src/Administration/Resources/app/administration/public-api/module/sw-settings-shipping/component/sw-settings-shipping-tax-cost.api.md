@@ -42,9 +42,4 @@ blocks
 
 refs
   taxIdSelection  -> sw-entity-single-select
-
-classes
-  sw-settings-shipping-tax-cost
-  sw-settings-shipping__tax-rate
-  sw-settings-shipping__tax-type-selection
 ```

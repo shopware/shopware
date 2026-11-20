@@ -33,7 +33,4 @@ methods
 blocks
   sw_order_state_change_modal
     sw_order_state_change_modal_attach_documents_component
-
-classes
-  sw-order-state-change-modal
 ```

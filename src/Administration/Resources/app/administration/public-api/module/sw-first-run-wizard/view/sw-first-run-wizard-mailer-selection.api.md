@@ -37,18 +37,4 @@ methods
 
 blocks
   sw_first_run_wizard_mailer_selection  [private]
-
-classes
-  is--selected  [private]
-  sw-first-run-wizard-mailer-selection  [private]
-  sw-first-run-wizard-mailer-selection__description  [private]
-  sw-first-run-wizard-mailer-selection__headline  [private]
-  sw-first-run-wizard-mailer-selection__help-text  [private]
-  sw-first-run-wizard-mailer-selection__illustration  [private]
-  sw-first-run-wizard-mailer-selection__note  [private]
-  sw-first-run-wizard-mailer-selection__selection  [private]
-  sw-first-run-wizard-mailer-selection__selection-icon  [private]
-  sw-first-run-wizard-mailer-selection__selections  [private]
-  sw-first-run-wizard-mailer-selection__subline  [private]
-  sw-first-run-wizard-mailer-selection__text-light  [private]
 ```

@@ -40,15 +40,4 @@ methods
 
 blocks
   sw_plugin_card  [private]
-
-classes
-  bottom  [private]
-  button-plugin-install  [private]
-  plugin-installed  [private]
-  plugin-status  [private]
-  sw-plugin-card  [private]
-  sw-plugin-card__info  [private]
-  sw-plugin-card__label  [private]
-  sw-plugin-card__manufacturer  [private]
-  sw-plugin-card__short-description  [private]
 ```

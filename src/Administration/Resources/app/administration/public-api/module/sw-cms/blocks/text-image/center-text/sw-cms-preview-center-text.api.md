@@ -16,8 +16,4 @@ computed
 
 blocks
   sw_cms_block_center_text_preview  [private]
-
-classes
-  sw-cms-preview-center-text  [private]
-  sw-cms-preview-center-text__text  [private]
 ```

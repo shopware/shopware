@@ -48,16 +48,16 @@ computed
   listFilters: any
 
 methods
-  createdComponent(): any  [deprecated tag:v6.8.0]
+  createdComponent(): Promise<any>  [deprecated tag:v6.8.0]
   getCustomerColumns(): any
   getList(): Promise<any>
-  loadFilterValues(): any  [deprecated tag:v6.8.0]
+  loadFilterValues(): Promise<any>  [deprecated tag:v6.8.0]
   onBulkEditItems(): Promise<any>
   onBulkEditModalClose(): any
   onBulkEditModalOpen(): any
   onChangeLanguage(): Promise<any>
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onInlineEditSave(promise: any, customer: any): any
   updateCriteria(criteria: any): any  [deprecated tag:v6.8.0]
@@ -115,25 +115,4 @@ crossings
 refs
   bulkEditModal  -> sw-bulk-edit-modal
   swCustomerGrid  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  sw-customer-bulk-edit-modal
-  sw-customer-list
-  sw-customer-list-grid
-  sw-customer-list__avatar
-  sw-customer-list__button-create
-  sw-customer-list__confirm-delete-text
-  sw-customer-list__content
-  sw-customer-list__created-by-admin-label
-  sw-customer-list__delete-action
-  sw-customer-list__edit-action
-  sw-customer-list__inline-edit-first-name
-  sw-customer-list__inline-edit-last-name
-  sw-customer-list__metadata-customer-guest-label
-  sw-customer-list__requested-group-label
-  sw-customer-list__sidebar
-  sw-customer-list__view-action
-  sw-page__smart-bar-amount
 ```

@@ -35,12 +35,12 @@ computed
 
 methods
   createdComponent(): any  [private]
-  insertEntities(): any  [private]
+  insertEntities(): Promise<any>  [private]
   loadEntities(): any  [private]
   onAdd(): any  [private]
   onCloseAddModal(): any  [private]
   onSelect(selection: any): any  [private]
-  updateEntities(): any  [private]
+  updateEntities(): Promise<any>  [private]
 
 blocks
   sw_settings_rule_add_assignment_modal  [private]
@@ -52,10 +52,4 @@ blocks
 
 crossings
   v-if  sw_settings_rule_add_assignment_modal_category_tree -> sw_settings_rule_add_assignment_modal_listing  [private]
-
-classes
-  sw-settings-rule-add-assignment-modal  [private]
-  sw-settings-rule-add-assignment-modal__cancel-button  [private]
-  sw-settings-rule-add-assignment-modal__confirm-button  [private]
-  sw-settings-rule-detail-assignments__entity-listing  [private]
 ```

@@ -20,7 +20,4 @@ blocks
 
 refs
   mailTemplateList  -> sw-mail-template-list  [private]
-
-classes
-  sw-mail-template-view-templates  [private]
 ```

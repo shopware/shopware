@@ -44,13 +44,4 @@ blocks
     sw_product_deliverability_form_restock_field  [after v-if]
     sw_product_deliverability_form_shipping_free_field  [after v-if]
     sw_product_deliverability_form_stock_field
-
-classes
-  product-deliverability-form
-  product-deliverability-form__delivery-time
-  sw-product-deliverability__max-purchase
-  sw-product-deliverability__min-purchase
-  sw-product-deliverability__purchase-step
-  sw-product-deliverability__restock-field
-  sw-product-deliverability__shipping-free
 ```

@@ -65,9 +65,4 @@ refs
   selectBase  -> sw-select-base
   selectionList  -> sw-select-selection-list
   swSelectResultList  -> sw-select-result-list
-
-classes
-  sw-entity-multi-select
-  sw-multi-select-filtering__advanced-selection
-  sw-select-result
 ```

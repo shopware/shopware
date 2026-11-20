@@ -39,13 +39,10 @@ computed
 methods
   createdComponent(): Promise<any>
   loadMailerSettings(): Promise<any>
-  saveMailerSettings(): any
+  saveMailerSettings(): Promise<any>
   setTitle(): any
   updateButtons(): any
 
 blocks
   sw_first_run_wizard_mailer_smtp
-
-classes
-  sw-first-run-wizard-mailer-smtp
 ```

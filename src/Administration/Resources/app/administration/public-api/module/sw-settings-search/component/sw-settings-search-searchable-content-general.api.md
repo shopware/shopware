@@ -63,12 +63,4 @@ blocks
 
 refs
   swSettingsSearchableContentGrid  -> sw-entity-listing
-
-classes
-  sw-settings-search-field-select
-  sw-settings-search__searchable-content-general
-  sw-settings-search__searchable-content-list
-  sw-settings-search__searchable-content-list-action
-  sw-settings-search__searchable-content-list-edit
-  sw-settings-search__searchable-content-list-reset
 ```

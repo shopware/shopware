@@ -26,14 +26,4 @@ refs
   codeEditor  -> sw-code-editor
   text-editor-toolbar  -> sw-text-editor-toolbar
   textEditor  -> div
-
-classes
-  sw-text-editor
-  sw-text-editor__box
-  sw-text-editor__content
-  sw-text-editor__content-editor
-  sw-text-editor__content-placeholder
-  sw-text-editor__label
-  sw-text-editor__text-length
-  sw-text-editor__word_count
 ```

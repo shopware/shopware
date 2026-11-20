@@ -45,9 +45,4 @@ blocks
 
 crossings
   v-if  sw_context_menu_item_router_link -> sw_context_menu_item_entry  [private]
-
-classes
-  is--disabled  [private]
-  sw-context-menu-item  [private]
-  sw-context-menu-item__text  [private]
 ```

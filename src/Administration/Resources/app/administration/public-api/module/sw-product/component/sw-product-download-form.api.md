@@ -61,19 +61,4 @@ methods
 
 blocks
   sw_product_download_form  [private]
-
-classes
-  is--disabled  [private]
-  sw-product-download-form  [private]
-  sw-product-download-form-row__changed-date  [private]
-  sw-product-download-form-row__context  [private]
-  sw-product-download-form-row__context-download  [private]
-  sw-product-download-form-row__context-remove  [private]
-  sw-product-download-form-row__info  [private]
-  sw-product-download-form-row__mime  [private]
-  sw-product-download-form-row__name  [private]
-  sw-product-download-form-row__size  [private]
-  sw-product-download-form__grid  [private]
-  sw-product-download-form__previews  [private]
-  sw-product-download-form__row  [private]
 ```

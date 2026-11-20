@@ -51,11 +51,4 @@ blocks
 
 refs
   requirementsNotice  -> mt-banner
-
-classes
-  sw-product-guarantee-form
-  sw-product-guarantee-form__requirements-notice
-  sw-product-guarantee-form__switches
-  sw-product-guarantee-form__terms-media
-  sw-product-guarantee-form__terms-url
 ```

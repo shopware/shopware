@@ -46,15 +46,4 @@ blocks
             sw_media_folder_content_folder_button_icon  [scope: folder, index]
           sw_media_folder_content_switch_button  [scope: folder, index]
         sw_media_folder_content_folder_icon
-
-classes
-  is--selected
-  sw-media-folder-content
-  sw-media-folder-content__button
-  sw-media-folder-content__folder-button
-  sw-media-folder-content__folder-icon
-  sw-media-folder-content__folder-listing
-  sw-media-folder-content__list-item
-  sw-media-folder-content__parent-folder
-  sw-media-folder-content__switch-button
 ```

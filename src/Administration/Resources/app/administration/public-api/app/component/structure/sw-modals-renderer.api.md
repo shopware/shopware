@@ -21,9 +21,4 @@ methods
 
 blocks
   sw_modals_renderer  [private]
-
-classes
-  has-iframe  [private]
-  sw-modals-renderer  [private]
-  sw-modals-renderer__modal  [private]
 ```

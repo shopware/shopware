@@ -23,7 +23,4 @@ blocks
     sw_select_rating  [private]
       sw_select_rating_input  [private]
         sw_select_rating_input_stars  [private]
-
-classes
-  sw-field--rating-select  [private]
 ```

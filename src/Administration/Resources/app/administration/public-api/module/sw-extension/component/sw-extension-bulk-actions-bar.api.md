@@ -23,17 +23,4 @@ emits
 
 methods
   onAction(action: any, applicableCount: any): any  [private]
-
-classes
-  is--disabled  [private]
-  link  [private]
-  sw-extension-bulk-actions-bar  [private]
-  sw-extension-bulk-actions-bar__action  [private]
-  sw-extension-bulk-actions-bar__action--danger  [private]
-  sw-extension-bulk-actions-bar__actions  [private]
-  sw-extension-bulk-actions-bar__count  [private]
-  sw-extension-bulk-actions-bar__deselect  [private]
-  sw-extension-bulk-actions-bar__label  [private]
-  sw-extension-bulk-actions-bar__select-all  [private]
-  sw-extension-bulk-actions-bar__selection  [private]
 ```

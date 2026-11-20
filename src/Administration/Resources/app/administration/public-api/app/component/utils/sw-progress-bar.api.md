@@ -26,9 +26,4 @@ blocks
   sw_progress_bar  [private]
     sw_progress_bar_total  [private]
       sw_progress_bar_total_value  [private]
-
-classes
-  sw-progress-bar  [private]
-  sw-progress-bar__total  [private]
-  sw-progress-bar__value  [private]
 ```

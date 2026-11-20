@@ -59,12 +59,4 @@ blocks
       sw_sidebar_item_close_button  [private]
       sw_sidebar_item_headline_slot  [private]
       sw_sidebar_item_title  [private]
-
-classes
-  sw-sidebar-item  [private]
-  sw-sidebar-item__close-button  [private]
-  sw-sidebar-item__content  [private]
-  sw-sidebar-item__headline  [private]
-  sw-sidebar-item__scrollable-container  [private]
-  sw-sidebar-item__title  [private]
 ```

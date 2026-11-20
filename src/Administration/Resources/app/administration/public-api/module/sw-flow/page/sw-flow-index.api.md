@@ -38,12 +38,4 @@ blocks
   sw_flow_index_modal_content_custom  [private]
   sw_flow_index_smart_bar_actions_extension  [private]
   sw_flow_tabs_header_extension  [until v6.8.0] [private]
-
-classes
-  sw-flow-list-index  [private]
-  sw-flow-list__create  [private]
-  sw-flow-list__tab  [private]
-  sw-flow-listing__tab-flow-templates  [until v6.8.0] [private]
-  sw-flow-listing__tab-my-flows  [until v6.8.0] [private]
-  sw-page__smart-bar-amount  [private]
 ```

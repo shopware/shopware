@@ -34,8 +34,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config
-
-classes
-  sw-settings-sitemap
-  sw-settings-sitemap__save-action
 ```

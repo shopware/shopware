@@ -121,18 +121,4 @@ crossings
 refs
   dataGrid  -> sw-data-grid
   itemFilter  -> sw-card-filter
-
-classes
-  link
-  link-danger
-  sw-order-line-items-grid-sales-channel
-  sw-order-line-items-grid-sales-channel__add-credit-item
-  sw-order-line-items-grid-sales-channel__add-custom-item
-  sw-order-line-items-grid-sales-channel__add-product
-  sw-order-line-items-grid-sales-channel__data-grid
-  sw-order-line-items-grid-sales-channel__item-label
-  sw-order-line-items-grid-sales-channel__item-payload-options
-  sw-order-line-items-grid-sales-channel__item-tax-tooltip
-  sw-order-line-items-grid-sales-channel__quantity
-  sw-order-line-items-grid__item-label
 ```

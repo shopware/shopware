@@ -38,18 +38,4 @@ blocks
     sw_order_create_general_info_summary  [private]
       sw_order_create_general_info_summary_main  [private]
       sw_order_create_general_info_summary_sub  [private]
-
-classes
-  sw-order-create-general-info__order-state  [private]
-  sw-order-create-general-info__order-state-delivery  [private]
-  sw-order-create-general-info__order-state-order  [private]
-  sw-order-create-general-info__order-state-payment  [private]
-  sw-order-create-general-info__order-states  [private]
-  sw-order-create-general-info__order-tags  [private]
-  sw-order-create-general-info__summary  [private]
-  sw-order-create-general-info__summary-main  [private]
-  sw-order-create-general-info__summary-main-header  [private]
-  sw-order-create-general-info__summary-main-total  [private]
-  sw-order-create-general-info__summary-sub  [private]
-  sw-order-create-general-info__summary-sub-description  [private]
 ```

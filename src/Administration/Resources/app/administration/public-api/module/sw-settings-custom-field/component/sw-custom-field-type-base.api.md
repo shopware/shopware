@@ -29,7 +29,4 @@ blocks
   sw_custom_field_type_base
     sw_custom_field_type_base_content
       sw_custom_field_type_base_labels
-
-classes
-  sw-custom-field-type-base
 ```

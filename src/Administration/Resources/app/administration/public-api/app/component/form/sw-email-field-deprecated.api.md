@@ -31,7 +31,4 @@ blocks
         sw_email_field_input_inner  [scope: disabled, error, hasPrefix, hasSuffix, identification, removeFocusClass, setFocusClass, size] [private]
       sw_email_field_prefix  [private]
         sw_email_field_prefix_inner  [scope: disabled, identification] [private]
-
-classes
-  sw-field--email  [private]
 ```

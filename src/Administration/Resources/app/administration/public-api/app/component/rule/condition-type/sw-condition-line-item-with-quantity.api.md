@@ -37,14 +37,4 @@ blocks
         sw_condition_line_item_with_quantity_field_product
         sw_condition_line_item_with_quantity_field_quantity
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-base-line-item__matches-all
-  sw-condition-line-item-with-quantity
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

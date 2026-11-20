@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_product_description_reviews  [private]
     sw_cms_block_product_description_reviews_slot_content  [private]
-
-classes
-  sw-cms-block-product-description-reviews  [private]
 ```

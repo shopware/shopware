@@ -34,9 +34,4 @@ blocks
       sw_promotion_detail_discounts_actions_add  [private]
     sw_promotion_detail_discounts_items  [private]
       sw_promotion_detail_discounts_item_form  [private]
-
-classes
-  promotion-detail-discounts__action_add  [private]
-  sw-promotion-detail-discounts  [private]
-  sw-promotion-detail-discounts__discount-list  [private]
 ```

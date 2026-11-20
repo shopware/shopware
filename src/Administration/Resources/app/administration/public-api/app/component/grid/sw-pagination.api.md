@@ -56,16 +56,4 @@ blocks
 
 crossings
   v-if  sw_pagination_page_list_item_button -> sw_pagination_page_list_item_separator  [private]
-
-classes
-  is-active  [private]
-  sw-pagination  [private]
-  sw-pagination__list  [private]
-  sw-pagination__list-button  [private]
-  sw-pagination__list-item  [private]
-  sw-pagination__list-separator  [private]
-  sw-pagination__page-button  [private]
-  sw-pagination__page-button-next  [private]
-  sw-pagination__page-button-prev  [private]
-  sw-pagination__per-page  [private]
 ```

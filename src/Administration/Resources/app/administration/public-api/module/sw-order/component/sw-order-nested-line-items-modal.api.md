@@ -49,17 +49,4 @@ blocks
 
 crossings
   v-if  sw_order_nested_line_item_modal_loader -> sw_order_nested_line_item_modal_container
-
-classes
-  sw-order-nested-line-items-modal
-  sw-order-nested-line-items-modal__container
-  sw-order-nested-line-items-modal__content
-  sw-order-nested-line-items-modal__header-container
-  sw-order-nested-line-items-modal__header-item
-  sw-order-nested-line-items-modal__header-label
-  sw-order-nested-line-items-modal__header-quantity
-  sw-order-nested-line-items-modal__header-tax
-  sw-order-nested-line-items-modal__header-total-price
-  sw-order-nested-line-items-modal__header-unit-price
-  sw-order-nested-line-items-modal__loader
 ```

@@ -39,7 +39,7 @@ computed
 
 methods
   checkValidation(parentProfile: any): any
-  getParentProfileSelected(): any
+  getParentProfileSelected(): Promise<any>
   loadSystemRequiredFieldsForEntity(entityName: any): any
   onClose(): any
   onCurrentPageChange(activePageIndex: any): any
@@ -49,7 +49,7 @@ methods
   onNextPage(): any
   pageTitleSnippet(snippet: any): any
   resetViolations(): any
-  saveProfile(): any
+  saveProfile(): Promise<any>
 
 blocks
   sw_import_export_new_profile_wizard
@@ -71,9 +71,4 @@ crossings
 
 refs
   wizard  -> sw-wizard
-
-classes
-  sw-import-export-new-profile-wizard
-  sw-import-export-new-profile-wizard__footer-right-button-group
-  sw-import-export-new-profile-wizard__violation-modal
 ```

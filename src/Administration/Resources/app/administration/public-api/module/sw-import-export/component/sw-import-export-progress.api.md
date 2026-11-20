@@ -26,10 +26,4 @@ blocks
   sw_import_export_progress  [private]
     sw_import_export_progress_start_process  [private]
     sw_import_export_progress_start_process_dryrun  [private]
-
-classes
-  sw-import-export-progress  [private]
-  sw-import-export-progress__progress  [private]
-  sw-import-export-progress__start-process-action  [private]
-  sw-import-export-progress__start-process-dryrun-action  [private]
 ```

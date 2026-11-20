@@ -46,11 +46,4 @@ blocks
 
 crossings
   v-if  sw_cms_element_video_content_placeholder -> sw_cms_element_video_content_media  [private]
-
-classes
-  sw-cms-el-video  [private]
-  sw-cms-el-video__content  [private]
-  sw-cms-el-video__content-placeholder  [private]
-  sw-cms-el-video__content-video  [private]
-  sw-cms-el-video__placeholder-icon  [private]
 ```

@@ -94,21 +94,6 @@ crossings
 refs
   filterPanel  -> sw-filter-panel  [private]
 
-classes
-  sw-entity-advanced-selection-modal  [private]
-  sw-entity-advanced-selection-modal__button-apply  [private]
-  sw-entity-advanced-selection-modal__button-cancel  [private]
-  sw-entity-advanced-selection-modal__card-filter  [private]
-  sw-entity-advanced-selection-modal__content  [private]
-  sw-entity-advanced-selection-modal__empty-state  [private]
-  sw-entity-advanced-selection-modal__filter-badge  [private]
-  sw-entity-advanced-selection-modal__filter-footer  [private]
-  sw-entity-advanced-selection-modal__filter-headline  [private]
-  sw-entity-advanced-selection-modal__filter-list-button  [private]
-  sw-entity-advanced-selection-modal__filter-panel  [private]
-  sw-entity-advanced-selection-modal__filter-reset  [private]
-  sw-entity-advanced-selection-modal__grid  [private]
-
 notes
   dynamic-slot `column-${column.property}`  [private]
   dynamic-slot `preview-${column.property}`  [private]

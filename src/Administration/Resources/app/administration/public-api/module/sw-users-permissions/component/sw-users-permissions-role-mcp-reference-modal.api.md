@@ -58,21 +58,4 @@ blocks
 
 crossings
   <div>  sw_users_permissions_role_mcp_reference_modal -> sw_users_permissions_role_mcp_reference_modal_content
-
-classes
-  is--dynamic
-  is--granted
-  is--missing
-  sw-users-permissions-role-mcp-reference-modal
-  sw-users-permissions-role-mcp-reference-modal__content
-  sw-users-permissions-role-mcp-reference-modal__legend
-  sw-users-permissions-role-mcp-reference-modal__legend-label
-  sw-users-permissions-role-mcp-reference-modal__privilege-chip
-  sw-users-permissions-role-mcp-reference-modal__row
-  sw-users-permissions-role-mcp-reference-modal__row-chips
-  sw-users-permissions-role-mcp-reference-modal__row-grant
-  sw-users-permissions-role-mcp-reference-modal__row-label
-  sw-users-permissions-role-mcp-reference-modal__save-reminder
-  sw-users-permissions-role-mcp-reference-modal__toolbar
-  sw-users-permissions-role-mcp-reference-modal__toolbar-viewmode-select
 ```

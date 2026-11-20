@@ -29,7 +29,4 @@ methods
 
 blocks
   sw_sorting_select  [private]
-
-classes
-  sw-cms-list__actions-sorting  [private]
 ```

@@ -24,7 +24,4 @@ computed
 methods
   onConfirm(): Promise<any>  [private]
   resetSlotOverrides(): any  [private]
-
-classes
-  sw-category-layout-card__desc-reset  [private]
 ```

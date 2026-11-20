@@ -22,9 +22,4 @@ computed
 methods
   onLegalLinkClick(): any  [private]
   updateConsent(newValue: boolean): Promise<any>  [private]
-
-classes
-  sw-settings-usage-data-profile-consent  [private]
-  sw-settings-usage-data-profile-consent__consent  [private]
-  sw-settings-usage-data-profile-consent__intro  [private]
 ```

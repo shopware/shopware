@@ -22,7 +22,7 @@ computed
   showNumberRangeStateFields: any
 
 methods
-  checkPatternCollision(): any
+  checkPatternCollision(): Promise<any>
   createdComponent(): Promise<any>
   getProductNumberRanges(): Promise<any>
   onChangeType(id: any, numberRange: any): any
@@ -56,14 +56,4 @@ blocks
       sw_settings_number_range_detail_language_info  [inherited]
     sw_settings_number_range_detail_header  [inherited]
     sw_settings_number_range_detail_language_switch  [replaced]
-
-classes
-  sw-number-range-detail__select-type
-  sw-number_range-quickinfo__alert-global-type
-  sw-number_range-quickinfo__product-alert
-  sw-settings-number-range-detail
-  sw-settings-number-range-detail-assignment
-  sw-settings-number-range-detail__field_default
-  sw-settings-number-range-detail__pattern-collision-warning
-  sw-settings-number-range-detail__save-action
 ```

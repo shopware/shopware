@@ -57,17 +57,4 @@ blocks
     sw_text_editor_toolbar_table_button_table_grid_input  [private]
     sw_text_editor_toolbar_table_button_table_head_switch  [private]
     sw_text_editor_toolbar_table_button_table_insert  [private]
-
-classes
-  sw-text-editor-toolbar-table-button  [private]
-  sw-text-editor-toolbar-table-button__col  [private]
-  sw-text-editor-toolbar-table-button__col-placeholder  [private]
-  sw-text-editor-toolbar-table-button__grid-info  [private]
-  sw-text-editor-toolbar-table-button__grid-input  [private]
-  sw-text-editor-toolbar-table-button__grid-input-icon  [private]
-  sw-text-editor-toolbar-table-button__insert  [private]
-  sw-text-editor-toolbar-table-button__row  [private]
-  sw-text-editor-toolbar-table-button__table  [private]
-  sw-text-editor-toolbar-table-button__table-body  [private]
-  sw-text-editor-toolbar-table-button__table-head  [private]
 ```

@@ -42,7 +42,4 @@ blocks
     sw_settings_state_machine_state_detail_footer
       sw_settings_state_machine_state_detail_footer_cancel
       sw_settings_state_machine_state_detail_footer_save
-
-classes
-  sw-settings-state-machine-state-modal__settings-modal
 ```

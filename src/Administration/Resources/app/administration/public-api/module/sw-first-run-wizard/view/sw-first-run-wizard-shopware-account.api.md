@@ -29,21 +29,9 @@ computed
 methods
   createdComponent(): any
   setTitle(): any
-  testCredentials(): any
+  testCredentials(): Promise<any>
   updateButtons(): any
 
 blocks
   sw_first_run_wizard_shopware_account
-
-classes
-  create-account
-  external-link
-  forgot-password
-  headline
-  input-field-mail
-  input-field-password
-  message
-  sw-first-run-wizard-shopware-account
-  sw-first-run-wizard-shopware-account__error
-  sw-first-run-wizard-shopware-account__illustration
 ```

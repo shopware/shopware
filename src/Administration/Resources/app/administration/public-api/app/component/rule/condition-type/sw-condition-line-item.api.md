@@ -30,7 +30,7 @@ computed
   resultCriteria: any  [deprecated tag:v6.8.0]
 
 methods
-  createdComponent(): any
+  createdComponent(): Promise<any>
   setIds(productCollection: any): any
 
 blocks
@@ -48,16 +48,4 @@ blocks
           sw_condition_line_item_results_variant_info  [scope: item]
         sw_condition_line_item_field_operator
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-base-line-item__matches-all
-  sw-condition-line-item
-  sw-condition__condition-value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
-  sw-select-result__result-item-text
 ```

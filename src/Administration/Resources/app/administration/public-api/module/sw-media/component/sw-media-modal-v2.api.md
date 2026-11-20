@@ -112,20 +112,4 @@ blocks
 refs
   mediaLibrary  -> sw-media-library
   swMediaModal  -> mt-modal
-
-classes
-  sw-media-modal-v2
-  sw-media-modal-v2__breadcrumbs-and-search
-  sw-media-modal-v2__breadcrumbs-and-search--compact
-  sw-media-modal-v2__content
-  sw-media-modal-v2__extension-content  [from v6.8.0]
-  sw-media-modal-v2__footer
-  sw-media-modal-v2__library-content
-  sw-media-modal-v2__tab-content
-  sw-media-modal-v2__tabs
-  sw-media-modal-v2__tabs--meteor  [from v6.8.0]
-  sw-media-modal-v2__tabs-navigation  [from v6.8.0]
-  sw-media-modal-v2__upload-container
-  sw-media-modal-v2__upload-media-grid--compact
-  sw-media-modal-v2__uploads-content
 ```

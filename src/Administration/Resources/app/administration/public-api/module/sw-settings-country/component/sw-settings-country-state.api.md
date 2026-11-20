@@ -42,8 +42,8 @@ methods
   onAddCountryState(): any
   onCancelCountryState(): any
   onClickCountryState(item: any): any
-  onDeleteCountryStates(): any
-  onSaveCountryState(countryState: any): any
+  onDeleteCountryStates(): Promise<any>
+  onSaveCountryState(countryState: any): Promise<any>
   onSearchCountryState(): any
   refreshCountryStateList(): any
 
@@ -60,12 +60,4 @@ blocks
 
 refs
   countryStateGrid  -> sw-one-to-many-grid
-
-classes
-  sw-settings-country-state
-  sw-settings-country-state-list__content
-  sw-settings-country-state-list__delete-button
-  sw-settings-country-state__add-country-state-button
-  sw-settings-country-state__edit-country-state-action
-  sw-settings-country-state__link
 ```

@@ -56,17 +56,6 @@ blocks
       sw_settings_mailer_smart_bar_header_title
         sw_settings_mailer_smart_bar_header_title_text
 
-classes
-  sw-settings-mailer
-  sw-settings-mailer__description
-  sw-settings-mailer__first-configuration
-  sw-settings-mailer__headline
-  sw-settings-mailer__help-text
-  sw-settings-mailer__input-fields
-  sw-settings-mailer__radio-selection
-  sw-settings-mailer__select-agent
-  sw-settings-mailer__switch-disable-delivery
-
 notes
   unresolved data ...defaultMailerSettings
 ```

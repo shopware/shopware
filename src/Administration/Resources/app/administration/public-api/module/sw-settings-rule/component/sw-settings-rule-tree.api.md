@@ -38,13 +38,4 @@ blocks
         sw_tree_delete_modal_cancel  [inherited] [private]
         sw_tree_delete_modal_confirm  [inherited] [private]
     sw_tree_search  [inherited] [private]
-
-classes
-  sw-tree  [private]
-  sw-tree-actions__delete_categories  [private]
-  sw-tree-actions__headline  [private]
-  sw-tree__content  [private]
-  sw-tree__search  [private]
-  sw_tree__confirm-delete-text  [private]
-  tree-items  [private]
 ```

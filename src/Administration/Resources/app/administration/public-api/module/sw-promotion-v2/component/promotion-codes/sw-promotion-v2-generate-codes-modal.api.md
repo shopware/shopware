@@ -65,20 +65,4 @@ blocks
 
 crossings
   v-if  sw_promotion_v2_generate_codes_modal_container_pattern_simple -> sw_promotion_v2_generate_codes_modal_container_pattern_custom
-
-classes
-  sw-promotion-v2-generate-codes-modal
-  sw-promotion-v2-generate-codes-modal__button-cancel
-  sw-promotion-v2-generate-codes-modal__button-generate
-  sw-promotion-v2-generate-codes-modal__code-amount
-  sw-promotion-v2-generate-codes-modal__container-generate
-  sw-promotion-v2-generate-codes-modal__container-pattern
-  sw-promotion-v2-generate-codes-modal__content
-  sw-promotion-v2-generate-codes-modal__custom-pattern
-  sw-promotion-v2-generate-codes-modal__description
-  sw-promotion-v2-generate-codes-modal__prefix
-  sw-promotion-v2-generate-codes-modal__preview
-  sw-promotion-v2-generate-codes-modal__replacement
-  sw-promotion-v2-generate-codes-modal__suffix
-  sw-promotion-v2-generate-codes-modal__warning
 ```

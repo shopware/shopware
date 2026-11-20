@@ -65,15 +65,4 @@ blocks
     sw_promotion_v2_settings_discount_type_price
       sw_promotion_v2_settings_discount_type_price_suffix
     sw_promotion_v2_settings_discount_type_type
-
-classes
-  sw-promotion-v2-settings-discount-type
-  sw-promotion-v2-settings-discount-type__advanced-prices
-  sw-promotion-v2-settings-discount-type__field-apply-discount-to
-  sw-promotion-v2-settings-discount-type__field-max-discount
-  sw-promotion-v2-settings-discount-type__field-price
-  sw-promotion-v2-settings-discount-type__field-select-discount-type
-  sw-promotion-v2-settings-discounts-type__advanced-prices-column-price
-  sw-promotion-v2-settings-discounts-type__advanced-prices-modal
-  sw-promotion-v2-settings-discounts-type__advances-prices-column-name
 ```

@@ -68,16 +68,4 @@ crossings
 refs
   flyoutLinkMenu  -> div  [private]
   flyoutMenu  -> div  [private]
-
-classes
-  sw-text-editor-toolbar-button  [private]
-  sw-text-editor-toolbar-button__children  [private]
-  sw-text-editor-toolbar-button__children-child  [private]
-  sw-text-editor-toolbar-button__children-child-content  [private]
-  sw-text-editor-toolbar-button__children-empty  [private]
-  sw-text-editor-toolbar-button__children-inner-container  [private]
-  sw-text-editor-toolbar-button__children-search  [private]
-  sw-text-editor-toolbar-button__icon  [private]
-  sw-text-editor-toolbar-button__table-menu  [private]
-  visually-hidden  [private]
 ```

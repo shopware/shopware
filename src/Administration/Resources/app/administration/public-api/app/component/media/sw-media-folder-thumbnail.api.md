@@ -21,10 +21,4 @@ computed
 
 blocks
   sw_media_folder_thumbnail  [private]
-
-classes
-  is--back  [private]
-  is--back-breadcrumb  [private]
-  is--colored  [private]
-  sw-media-folder-thumbnail  [private]
 ```

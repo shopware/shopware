@@ -36,8 +36,4 @@ blocks
       sw_sales_channel_detail_analytics_fields_track_orders  [private]
         sw_sales_channel_detail_analytics_fields_enhanced_conversions  [private]
       sw_sales_channel_detail_analytics_tracking_description  [private]
-
-classes
-  sw-sales-channel-detail-analytics__description  [private]
-  sw-sales-channel-detail-analytics__headline-text  [private]
 ```

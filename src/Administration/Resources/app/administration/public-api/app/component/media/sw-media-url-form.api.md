@@ -43,10 +43,4 @@ blocks
       sw_media_url_form_submit_button
     sw_media_url_form_input
     sw_media_url_form_input_inline
-
-classes
-  sw-media-url-form
-  sw-media-url-form__extension-input
-  sw-media-url-form__submit-button
-  sw-media-url-form__url-input
 ```

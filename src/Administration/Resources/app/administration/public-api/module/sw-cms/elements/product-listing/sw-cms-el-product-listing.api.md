@@ -26,10 +26,4 @@ methods
 
 blocks
   sw_cms_element_product_listing  [private]
-
-classes
-  sw-cms-el-product-listing  [private]
-  sw-cms-el-product-listing__content  [private]
-  sw-cms-el-product-listing__pagination  [private]
-  sw-cms-el-product-listing__pagination-entry  [private]
 ```

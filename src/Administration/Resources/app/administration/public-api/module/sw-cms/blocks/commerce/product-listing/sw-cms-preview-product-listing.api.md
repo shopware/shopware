@@ -13,9 +13,4 @@ component sw-cms-preview-product-listing  private  js  [private]
 
 blocks
   sw_cms_block_product_listing_preview  [private]
-
-classes
-  sw-cms-preview-product-listing  [private]
-  sw-cms-preview-product-listing__filter  [private]
-  sw-cms-preview-product-listing__filter-panel  [private]
 ```

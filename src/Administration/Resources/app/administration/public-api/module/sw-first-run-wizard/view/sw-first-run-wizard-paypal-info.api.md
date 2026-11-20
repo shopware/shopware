@@ -31,22 +31,10 @@ methods
   _reloadPage(): any
   activatePayPalAndRedirect(): any
   createdComponent(): any
-  installPayPal(): any
+  installPayPal(): Promise<any>
   setTitle(): any
   updateButtons(): any
 
 blocks
   sw_first_run_wizard_paypal_info
-
-classes
-  disclaimer
-  headline
-  paymethod
-  paymethods
-  sw-first-run-wizard-paypal
-  sw-first-run-wizard-paypal-info
-  sw-first-run-wizard-paypal-info__icon
-  sw-first-run-wizard-paypal-install
-  sw-first-run-wizard-paypal__error
-  sw-loader-info-text
 ```

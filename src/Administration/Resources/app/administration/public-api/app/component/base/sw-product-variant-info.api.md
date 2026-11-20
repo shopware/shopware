@@ -43,10 +43,4 @@ blocks
     sw_product_variant_info_options  [private]
       sw_product_variant_info_options_text  [after v-if] [scope: index, variation] [private]
     sw_product_variant_info_product_name  [private]
-
-classes
-  sw-product-variant-info  [private]
-  sw-product-variant-info__product-name  [private]
-  sw-product-variant-info__specification  [private]
-  sw-product-variant-info__text  [private]
 ```

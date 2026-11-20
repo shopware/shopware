@@ -57,8 +57,4 @@ blocks
         sw_newsletter_recipient_detail_form_title
         sw_newsletter_recipient_detail_form_zip_code
     sw_newsletter_recipient_detail_header
-
-classes
-  sw-newsletter-recipient-detail
-  sw-newsletter-recipient-detail__tags
 ```

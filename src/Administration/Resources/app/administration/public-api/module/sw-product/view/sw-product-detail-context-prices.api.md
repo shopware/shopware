@@ -113,25 +113,4 @@ blocks
 
 crossings
   v-if  sw_product_detail_prices_price_card_price_group_grid -> sw_product_detail_prices_price_card_price_group_empty_state
-
-classes
-  context-price
-  is--inherited
-  product-detail-context-prices__context-delete
-  product-detail-context-prices__price-field-wrapper
-  sw-product-detail-context-prices
-  sw-product-detail-context-prices__add-new-rule
-  sw-product-detail-context-prices__empty-state
-  sw-product-detail-context-prices__empty-state-card
-  sw-product-detail-context-prices__empty-state-select-rule
-  sw-product-detail-context-prices__inherit-switch
-  sw-product-detail-context-prices__inherit-toggle-wrapper
-  sw-product-detail-context-prices__inheritance-icon
-  sw-product-detail-context-prices__inheritance-label
-  sw-product-detail-context-prices__inherited-icon
-  sw-product-detail-context-prices__price-group-hint
-  sw-product-detail-context-prices__toolbar
-  sw-product-detail-context-prices__toolbar-duplicate
-  sw-product-detail-context-prices__toolbar-selection
-  sw-product-detail-context-prices__type-label
 ```

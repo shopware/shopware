@@ -24,9 +24,4 @@ computed
 
 blocks
   sw_data_grid_column_boolean  [private]
-
-classes
-  is--active  [private]
-  is--inactive  [private]
-  sw-data-grid-column-boolean  [private]
 ```

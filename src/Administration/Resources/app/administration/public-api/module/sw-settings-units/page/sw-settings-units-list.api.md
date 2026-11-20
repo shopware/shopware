@@ -54,12 +54,4 @@ blocks
 
 refs
   swDataGrid  -> sw-data-grid  [private]
-
-classes
-  sw-settings-units  [private]
-  sw-settings-units-card-empty  [private]
-  sw-settings-units-grid  [private]
-  sw-settings-units__create-action  [private]
-  sw-settings-units__delete-action  [private]
-  sw-settings-units__edit-action  [private]
 ```

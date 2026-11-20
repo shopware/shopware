@@ -25,11 +25,4 @@ blocks
     sw_import_export_edit_profile_indicators_headline
     sw_import_export_edit_profile_indicators_separator_field
     sw_import_export_edit_profile_indicators_text
-
-classes
-  sw-import-export-edit-profile-indicators
-  sw-import-export-edit-profile-indicators__enclosure-select
-  sw-import-export-edit-profile-indicators__headline
-  sw-import-export-edit-profile-indicators__separator-select
-  sw-import-export-edit-profile-indicators__text
 ```

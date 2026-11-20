@@ -47,7 +47,7 @@ methods
   getRuleColumns(): any  [private]
   onChangeLanguage(languageId: any): any  [private]
   onDuplicate(referenceRule: any): any  [private]
-  onInlineEditSave(promise: any, rule: any): any  [private]
+  onInlineEditSave(promise: any, rule: any): Promise<any>  [private]
   updateCriteria(criteria: any): any  [private]
 
 blocks
@@ -76,11 +76,4 @@ crossings
 
 refs
   swRuleGrid  -> sw-entity-listing  [private]
-
-classes
-  sw-data-grid__cell-value  [private]
-  sw-page__smart-bar-amount  [private]
-  sw-rule-list-grid  [private]
-  sw-settings-rule-list  [private]
-  sw-settings-rule-list__content  [private]
 ```

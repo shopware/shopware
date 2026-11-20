@@ -18,7 +18,4 @@ blocks
   sw_inheritance_warning  [private]
     sw_inheritance_warning_icon  [private]
     sw_inheritance_warning_text  [private]
-
-classes
-  sw-inheritance-warning  [private]
 ```

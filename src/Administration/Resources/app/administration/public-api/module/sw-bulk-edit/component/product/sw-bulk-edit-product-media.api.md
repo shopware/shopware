@@ -31,7 +31,7 @@ computed
   productMediaRepository: any
 
 methods
-  addMedia(media: any): any
+  addMedia(media: any): Promise<any>
   createdComponent(): any
   getMediaDefaultFolderId(): any
   isExistingMedia(media: any): any
@@ -42,7 +42,4 @@ blocks
   sw_bulk_edit_product_media
     sw_bulk_edit_product_media_form
     sw_bulk_edit_product_media_modal
-
-classes
-  sw-bulk-edit-product-media
 ```

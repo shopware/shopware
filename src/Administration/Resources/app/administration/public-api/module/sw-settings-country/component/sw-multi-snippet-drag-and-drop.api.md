@@ -83,24 +83,4 @@ blocks
 
 refs
   selectionList  -> ul  [private]
-
-classes
-  is--drag-preview-source  [private]
-  is--drag-previewing  [private]
-  is--dragging-snippet  [private]
-  sw-multi-snippet-drag-and-drop  [private]
-  sw-multi-snippet-drag-and-drop__action  [private]
-  sw-multi-snippet-drag-and-drop__add-icon  [private]
-  sw-multi-snippet-drag-and-drop__context-button  [private]
-  sw-multi-snippet-drag-and-drop__drop-zone  [private]
-  sw-multi-snippet-drag-and-drop__drop-zone--after  [private]
-  sw-multi-snippet-drag-and-drop__drop-zone--before  [private]
-  sw-multi-snippet-drag-and-drop__placeholder  [private]
-  sw-multi-snippet-drag-and-drop__snippet  [private]
-  sw-multi-snippet-select  [private]
-  sw-select-selection-list  [private]
-  sw-select-selection-list__input  [private]
-  sw-select-selection-list__input-wrapper  [private]
-  sw-select-selection-list__item  [private]
-  sw-select-selection-list__item-holder  [private]
 ```

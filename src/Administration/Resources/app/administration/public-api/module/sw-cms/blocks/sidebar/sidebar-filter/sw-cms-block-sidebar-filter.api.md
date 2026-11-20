@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_sidebar_filter  [private]
-
-classes
-  sw-cms-block-sidebar-filter  [private]
 ```

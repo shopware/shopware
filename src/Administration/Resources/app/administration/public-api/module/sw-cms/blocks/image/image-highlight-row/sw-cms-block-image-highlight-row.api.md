@@ -18,7 +18,4 @@ slots
 
 blocks
   sw_cms_block_image_highlight_row  [private]
-
-classes
-  sw-cms-block-image-highlight-row  [private]
 ```

@@ -17,7 +17,7 @@ provide
 
 props
   backLabel?: string  default=literal  [private]
-  backRoute?: string | object  default=literal  [private]
+  backRoute?: object | string  default=literal  [private]
   headerBorderColor?: string  default=literal  [private]
   showSearchBar?: boolean  default=literal  [private]
   showSmartBar?: boolean  default=literal  [private]
@@ -97,29 +97,4 @@ blocks
 
 refs
   swPageContent  -> div  [private]
-
-classes
-  smart-bar__actions  [private]
-  smart-bar__back-btn  [private]
-  smart-bar__back-btn--compact  [private]
-  smart-bar__back-link  [private]
-  smart-bar__back-link-label  [private]
-  smart-bar__content  [private]
-  smart-bar__header  [private]
-  smart-bar__language-switch  [private]
-  sw-page  [private]
-  sw-page__back-btn-container  [private]
-  sw-page__content  [private]
-  sw-page__head-area  [private]
-  sw-page__main-content  [private]
-  sw-page__main-content-inner  [private]
-  sw-page__search-bar  [private]
-  sw-page__side-content  [private]
-  sw-page__side-content-inner  [private]
-  sw-page__sidebar  [private]
-  sw-page__sidebar-container  [private]
-  sw-page__smart-bar  [private]
-  sw-page__smart-bar-divider  [private]
-  sw-page__top-bar  [private]
-  sw-page__top-bar-actions  [private]
 ```

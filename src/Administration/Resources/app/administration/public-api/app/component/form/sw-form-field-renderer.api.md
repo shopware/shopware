@@ -51,7 +51,7 @@ methods
   createRepository(entity: any): any  [private]
   createdComponent(): any  [private]
   emitUpdate(data: any): any  [private]
-  fetchSystemCurrency(): any  [private]
+  fetchSystemCurrency(): Promise<any>  [private]
   getComponentFromType(customType?: any): any  [private]
   getScopedSlots(): any  [private]
   getTranslations(componentName: any, config?: any, translatableFields?: any): any  [private]
@@ -64,9 +64,6 @@ blocks
 
 refs
   component  -> component  [private]
-
-classes
-  sw-form-field-renderer  [private]
 
 notes
   dynamic-slot slotName  [private]

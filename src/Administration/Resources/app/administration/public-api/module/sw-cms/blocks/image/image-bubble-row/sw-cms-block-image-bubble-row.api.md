@@ -18,7 +18,4 @@ slots
 
 blocks
   sw_cms_block_image_bubble_row  [private]
-
-classes
-  sw-cms-block-image-bubble-row  [private]
 ```

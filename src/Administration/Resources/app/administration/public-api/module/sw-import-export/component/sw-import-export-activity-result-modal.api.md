@@ -65,36 +65,4 @@ blocks
           sw_import_export_activity_result_modal_info_mainEntity_list_update
           sw_import_export_activity_result_modal_info_mainEntity_list_update_error
           sw_import_export_activity_result_modal_info_mainEntity_list_update_skip
-
-classes
-  sw-import-export-activity-result-modal
-  sw-import-export-activity-result-modal__activity
-  sw-import-export-activity-result-modal__activity-description
-  sw-import-export-activity-result-modal__activity-header
-  sw-import-export-activity-result-modal__activity-headline
-  sw-import-export-activity-result-modal__color-badge
-  sw-import-export-activity-result-modal__download-button
-  sw-import-export-activity-result-modal__download-failed
-  sw-import-export-activity-result-modal__download-section
-  sw-import-export-activity-result-modal__info
-  sw-import-export-activity-result-modal__list-item
-  sw-import-export-activity-result-modal__log-info
-  sw-import-export-activity-result-modal__log-info-content
-  sw-import-export-activity-result-modal__log-info-date
-  sw-import-export-activity-result-modal__log-info-file-name
-  sw-import-export-activity-result-modal__log-info-file-size
-  sw-import-export-activity-result-modal__log-info-imported
-  sw-import-export-activity-result-modal__log-info-profile
-  sw-import-export-activity-result-modal__log-info-state
-  sw-import-export-activity-result-modal__log-info-type
-  sw-import-export-activity-result-modal__log-info-user
-  sw-import-export-activity-result-modal__main-activity
-  sw-import-export-activity-result-modal__main-activity-content
-  sw-import-export-activity-result-modal__main-activity-insert
-  sw-import-export-activity-result-modal__main-activity-insert-error
-  sw-import-export-activity-result-modal__main-activity-insert-skip
-  sw-import-export-activity-result-modal__main-activity-other-error
-  sw-import-export-activity-result-modal__main-activity-update
-  sw-import-export-activity-result-modal__main-activity-update-error
-  sw-import-export-activity-result-modal__main-activity-update-skip
 ```

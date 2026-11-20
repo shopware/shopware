@@ -63,15 +63,15 @@ computed
   visibleValues: any  [private]
 
 methods
-  addItem(item: any): any  [private]
+  addItem(item: any): Promise<any>  [private]
   closeAdvancedSelectionModal(): any  [private]
   createdComponent(): any  [private]
   debouncedSearch(): any  [private]
   displayAssigned(collection: any): any  [private]
   displaySearch(result: any): any  [private]
   emitChanges(ids: any): any  [private]
-  fetchDisplayItems(): any  [private]
-  findAssignedEntities(ids: any, searchResult: any): any  [private]
+  fetchDisplayItems(): Promise<any>  [private]
+  findAssignedEntities(ids: any, searchResult: any): Promise<any>  [private]
   getKey(object: any, keyPath: any, defaultValue: any): any  [private]
   initData(): any  [private]
   isSelected(item: any): any  [private]
@@ -82,13 +82,13 @@ methods
   openAdvancedSelectionModal(): any  [private]
   paginateDisplayList(): any  [private]
   paginateResult(): any  [private]
-  remove(item: any): any  [private]
+  remove(item: any): Promise<any>  [private]
   removeIdFromList(id: any): any  [private]
   resetActiveItem(): any  [private]
   resetResultCollection(): any  [private]
   resetSearchCriteria(): any  [private]
   search(): any  [private]
-  sendSearchRequest(): any  [private]
+  sendSearchRequest(): Promise<any>  [private]
 
 blocks
   sw_entity_many_to_many_select  [private]
@@ -112,9 +112,4 @@ refs
   selectBase  -> sw-select-base  [private]
   selectionList  -> sw-select-selection-list  [private]
   swSelectResultList  -> sw-select-result-list  [private]
-
-classes
-  sw-entity-many-to-many-select  [private]
-  sw-many-to-many-select-filtering__advanced-selection  [private]
-  sw-select-result  [private]
 ```

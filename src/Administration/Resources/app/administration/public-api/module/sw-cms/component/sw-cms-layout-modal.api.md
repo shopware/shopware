@@ -54,7 +54,7 @@ methods
   closeModal(): any  [private]
   createdComponent(): any  [private]
   getDefaultLayouts(): Promise<any>  [private]
-  getList(): any  [private]
+  getList(): Promise<any>  [private]
   getPageType(page: any): any  [private]
   gridItemClasses(pageId: any, index: any): any  [private]
   onSearch(value: any): any  [private]
@@ -92,19 +92,4 @@ crossings
   <mt-radio-group-root>  sw_cms_layout_modal_content_container -> sw_cms_layout_modal_content_listing  [private]
   <sw-container>  sw_cms_layout_modal_content_container -> sw_cms_layout_modal_content_listing  [private]
   v-if  sw_cms_layout_modal_loader -> sw_cms_layout_modal_content_container  [private]
-
-classes
-  sw-cms-layout-modal  [private]
-  sw-cms-layout-modal__actions-mode  [private]
-  sw-cms-layout-modal__actions-sorting  [private]
-  sw-cms-layout-modal__button-select-layout  [private]
-  sw-cms-layout-modal__content  [private]
-  sw-cms-layout-modal__content-pagination  [private]
-  sw-cms-layout-modal__content-radio  [private]
-  sw-cms-layout-modal__header  [private]
-  sw-cms-layout-modal__header-search  [private]
-  sw-cms-layout-modal__header-sorting-select  [private]
-  sw-cms-layout-modal__radio-group  [private]
-  sw-cms-list__list-data-grid  [private]
-  visually-hidden  [private]
 ```

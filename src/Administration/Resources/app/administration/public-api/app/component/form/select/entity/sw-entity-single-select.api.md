@@ -40,7 +40,7 @@ props
   highlightSearchTerm?: boolean  default=literal  [private]
   label?: string  default=literal  [private]
   labelCallback?: (...args: any[]) => any  default=literal  [private]
-  labelProperty?: string | any[]  default=literal  [private]
+  labelProperty?: any[] | string  default=literal  [private]
   placeholder?: string  default=literal  [private]
   popoverClasses?: any[]  default=factory  [private]
   resetOption?: string  default=literal  [private]
@@ -90,7 +90,7 @@ computed
 
 methods
   addItem(item: any): any  [private]
-  checkEntityExists(term: any): any  [private]
+  checkEntityExists(term: any): Promise<any>  [private]
   clearInput(): any  [private]
   clearSelection(): any  [private]
   closeAdvancedSelectionModal(): any  [private]
@@ -110,8 +110,8 @@ methods
   handleSearchPromise(): any  [private]
   isSelected(item: any): any  [private]
   isSelectionDisabled(selection: any): any  [private]
-  loadData(): any  [private]
-  loadSelected(): any  [private]
+  loadData(): Promise<any>  [private]
+  loadSelected(): Promise<any>  [private]
   onAdvancedSelectionSubmit(selectedItems: any): any  [private]
   onInputSearchTerm(event: any): any  [private]
   onSelectCollapsed(): any  [private]
@@ -149,13 +149,4 @@ refs
   resultsList  -> sw-select-result-list  [private]
   selectBase  -> sw-select-base  [private]
   swSelectInput  -> input  [private]
-
-classes
-  sw-entity-single-select  [private]
-  sw-entity-single-select__selection  [private]
-  sw-entity-single-select__selection-active  [private]
-  sw-entity-single-select__selection-input  [private]
-  sw-entity-single-select__selection-text  [private]
-  sw-select-result  [private]
-  sw-single-select-filtering__advanced-selection  [private]
 ```

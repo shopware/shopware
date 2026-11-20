@@ -36,7 +36,7 @@ methods
   metaInfo(): any
   onChangeLanguage(languageId: any): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onInlineEditSave(promise: any, currency: any): any
 
@@ -64,14 +64,4 @@ blocks
 
 refs
   swSettingsCurrencyGrid  -> sw-entity-listing
-
-classes
-  sw-currency-list__content
-  sw-currency-list__delete-action
-  sw-currency-list__edit-action
-  sw-page__smart-bar-amount
-  sw-settings-currency-list
-  sw-settings-currency-list-grid
-  sw-settings-currency-list__button-create
-  sw-settings-currency-list__confirm-delete-text
 ```

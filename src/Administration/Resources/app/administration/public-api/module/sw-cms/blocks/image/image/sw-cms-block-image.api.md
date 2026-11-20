@@ -17,7 +17,4 @@ slots
 blocks
   sw_cms_block_image  [private]
     sw_cms_block_image_slot_image  [private]
-
-classes
-  sw-cms-block-image  [private]
 ```

@@ -40,15 +40,4 @@ methods
 
 blocks
   sw_settings_tax_provider_sorting_modal  [private]
-
-classes
-  sw-modal__body  [private]
-  sw-settings-tax-provider-sorting-modal  [private]
-  sw-settings-tax-provider-sorting-modal__cancel-button  [private]
-  sw-settings-tax-provider-sorting-modal__save-button  [private]
-  sw-settings-tax-provider-sorting-modal__subtitle  [private]
-  sw-settings-tax-provider-sorting-modal__tax-provider-list  [private]
-  sw-settings-tax-provider-sorting-modal__tax-provider-list-item  [private]
-  sw-settings-tax-provider-sorting-modal__tax-provider-list-item__action  [private]
-  sw-settings-tax-provider-sorting-modal__tax-provider-list-item__name  [private]
 ```

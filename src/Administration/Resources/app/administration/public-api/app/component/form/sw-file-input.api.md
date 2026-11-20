@@ -70,19 +70,4 @@ refs
   dropzone  -> div  [private]
   fileForm  -> form  [private]
   fileInput  -> input  [private]
-
-classes
-  has--source  [private]
-  sw-file-input  [private]
-  sw-file-input__actions  [private]
-  sw-file-input__button  [private]
-  sw-file-input__dropzone  [private]
-  sw-file-input__file-form  [private]
-  sw-file-input__file-headline  [private]
-  sw-file-input__file-info  [private]
-  sw-file-input__file-input  [private]
-  sw-file-input__header  [private]
-  sw-file-input__label  [private]
-  sw-file-input__remove-icon  [private]
-  sw-file-input__upload-caption  [private]
 ```

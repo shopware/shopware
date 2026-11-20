@@ -86,11 +86,4 @@ refs
   category  -> sw-sales-channel-product-assignment-categories
   product  -> sw-sales-channel-products-assignment-single-products
   productGroup  -> sw-sales-channel-products-assignment-dynamic-product-groups
-
-classes
-  sw-sales-channel-products-assignment-modal
-  sw-sales-channel-products-assignment-modal__close-button
-  sw-sales-channel-products-assignment-modal__content
-  sw-sales-channel-products-assignment-modal__content--mt-tabs  [from v6.8.0]
-  sw-sales-channel-products-assignment-modal__tabs
 ```

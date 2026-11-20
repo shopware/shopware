@@ -41,7 +41,7 @@ methods
   loadEntityData(): any
   onCancel(): any
   onChangeLanguage(): any
-  onSave(): any
+  onSave(): Promise<any>
   saveFinish(): any
   saveOnLanguageChange(): any
 
@@ -57,11 +57,4 @@ blocks
       sw_settings_product_feature_set_detail_content_values_card
     sw_settings_product_feature_set_detail_header
     sw_settings_product_feature_set_detail_language_switch
-
-classes
-  sw-settings-currency-detail__save-action
-  sw-settings-product-feature-sets-detail
-  sw-settings-product-feature-sets-detail__description
-  sw-settings-product-feature-sets-detail__name
-  sw-settings-product-feature-sets-detail__tax-rule-grid
 ```

@@ -73,15 +73,4 @@ blocks
       sw_meteor_card_toolbar  [after v-if] [private]
         sw_meteor_card_toolbar_inner  [private]
           sw_meteor_card_slot_toolbar  [private]
-
-classes
-  sw-meteor-card  [private]
-  sw-meteor-card__content  [private]
-  sw-meteor-card__content-wrapper  [private]
-  sw-meteor-card__footer  [private]
-  sw-meteor-card__header  [private]
-  sw-meteor-card__header-action  [private]
-  sw-meteor-card__header-grid  [private]
-  sw-meteor-card__title  [private]
-  sw-meteor-card__toolbar  [private]
 ```

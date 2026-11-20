@@ -88,20 +88,4 @@ blocks
 
 refs
   customerFilter  -> sw-card-filter
-
-classes
-  sw-field__radio-input
-  sw-field__radio-state
-  sw-order-customer-grid
-  sw-order-customer-grid__add-customer
-  sw-order-customer-grid__container
-  sw-order-customer-grid__content
-  sw-order-customer-grid__customer-changes--description
-  sw-order-customer-grid__customer-changes-modal
-  sw-order-customer-grid__empty-state
-  sw-order-customer-grid__sales-channel-selection
-  sw-order-customer-grid__sales-channel-selection--description
-  sw-order-customer-grid__sales-channel-selection--notification-alert
-  sw-order-customer-grid__sales-channel-selection-modal
-  sw-order-customer-grid__toolbar
 ```

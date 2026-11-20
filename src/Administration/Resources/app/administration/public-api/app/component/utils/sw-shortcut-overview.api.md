@@ -47,14 +47,4 @@ blocks
       sw_shortcut_overview_modal_section_navigation  [private]
       sw_shortcut_overview_modal_section_special_shortcuts  [private]
         sw_shortcut_overview_modal_section_accessibility  [private]
-
-classes
-  sw-shortcut-overview  [private]
-  sw-shortcut-overview--modal  [private]
-  sw-shortcut-overview__disable-shortcuts-toggle  [private]
-  sw-shortcut-overview__section  [private]
-  sw-shortcut-overview__section-accessibility  [private]
-  sw-shortcut-overview__section-adding-items  [private]
-  sw-shortcut-overview__section-general-shortcuts  [private]
-  sw-shortcut-overview__section-navigation  [private]
 ```

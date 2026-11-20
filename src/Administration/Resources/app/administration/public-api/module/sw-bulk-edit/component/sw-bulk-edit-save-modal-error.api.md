@@ -27,11 +27,4 @@ blocks
   sw_bulk_edit_save_modal_error
     sw_bulk_edit_save_modal_error_content
     sw_bulk_edit_save_modal_error_icon
-
-classes
-  sw-bulk-edit-save-modal-error
-  sw-bulk-edit-save-modal-error__failed-status-description
-  sw-bulk-edit-save-modal-error__failed-status-list
-  sw-bulk-edit-save-modal__help-text
-  sw-bulk-edit-save-modal__icon
 ```

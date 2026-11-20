@@ -60,14 +60,4 @@ blocks
 
 refs
   swDataGrid  -> sw-data-grid
-
-classes
-  sw-product-variants-configurator-restrictions
-  sw-product-variants-configurator-restrictions__button-new-restriction
-  sw-product-variants-configurator-restrictions__grid-wrapper
-  sw-product-variants-configurator-restrictions__group-name
-  sw-product-variants-configurator-restrictions__modal
-  sw-product-variants-configurator-restrictions__modal-main
-  sw-product-variants-configurator-restrictions__search
-  sw-product-variants-configurator-restrictions__seperator
 ```

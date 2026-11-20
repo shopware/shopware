@@ -49,16 +49,16 @@ computed
 methods
   closeModal(): any
   createdComponent(): Promise<any>
-  fetchStateMachineStates(field: any): any
-  fetchStatusOptions(field: any): any
-  fetchToStateMachineTransitions(states: any): any
-  getLatestOrderStatus(): any
+  fetchStateMachineStates(field: any): Promise<any>
+  fetchStatusOptions(field: any): Promise<any>
+  fetchToStateMachineTransitions(states: any): Promise<any>
+  getLatestOrderStatus(): Promise<any>
   loadBulkEditData(): any
-  loadCustomFieldSets(): any
+  loadCustomFieldSets(): Promise<any>
   onChangeDocument(type: any, isChanged: any): any
   onCustomFieldsChange(value: any): any
   onProcessData(): any
-  onSave(): any
+  onSave(): Promise<any>
   openModal(): any
   setRouteMetaModule(): any
   toStateMachineStatesCriteria(states: any): any
@@ -79,16 +79,6 @@ blocks
       sw_bulk_edit_order_actions_save
     sw_bulk_edit_order_search_bar
     sw_bulk_edit_order_smart_bar_header
-
-classes
-  sw-bulk-edit-order
-  sw-bulk-edit-order-base__custom_fields
-  sw-bulk-edit-order-base__documents
-  sw-bulk-edit-order-base__status
-  sw-bulk-edit-order-base__tags
-  sw-bulk-edit-order__restricted-fields
-  sw-bulk-edit-order__save-action
-  sw-bulk-edit__custom-fields
 
 notes
   unresolved computed ...deprecatedComputed

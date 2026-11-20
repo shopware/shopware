@@ -49,7 +49,7 @@ methods
   fieldError(field: any): any  [private]
   getConfig(): any  [private]
   getEntityOptions(): any  [private]
-  getTagCollection(): any  [private]
+  getTagCollection(): Promise<any>  [private]
   onAddTag(data: any): any  [private]
   onClose(): any  [private]
   onRemoveTag(data: any): any  [private]
@@ -63,12 +63,4 @@ blocks
       sw_flow_tag_modal_to_field  [private]
     sw_flow_tag_modal_footer_cancel_button  [private]
     sw_flow_tag_modal_footer_save_button  [private]
-
-classes
-  sw-flow-tag-modal  [private]
-  sw-flow-tag-modal__cancel-button  [private]
-  sw-flow-tag-modal__content  [private]
-  sw-flow-tag-modal__save-button  [private]
-  sw-flow-tag-modal__tags-field  [private]
-  sw-flow-tag-modal__to-field  [private]
 ```

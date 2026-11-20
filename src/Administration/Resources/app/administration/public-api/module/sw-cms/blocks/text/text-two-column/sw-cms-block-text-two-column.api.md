@@ -17,7 +17,4 @@ slots
 
 blocks
   sw_cms_block_text_two_column  [private]
-
-classes
-  sw-cms-block-text-two-column  [private]
 ```

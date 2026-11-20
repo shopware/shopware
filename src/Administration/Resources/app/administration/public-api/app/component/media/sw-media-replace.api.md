@@ -54,34 +54,4 @@ refs
   dropzone  -> div
   fileForm  -> form
   fileInput  -> input
-
-classes
-  has--source
-  is--fallback
-  is--small
-  open-media-sidebar
-  sw-media-upload-v2
-  sw-media-upload-v2__actions
-  sw-media-upload-v2__button
-  sw-media-upload-v2__button-compact-upload
-  sw-media-upload-v2__button-context-menu
-  sw-media-upload-v2__button-file-upload
-  sw-media-upload-v2__button-open-context-menu
-  sw-media-upload-v2__button-url-upload
-  sw-media-upload-v2__content
-  sw-media-upload-v2__dropzone
-  sw-media-upload-v2__fallback-icon
-  sw-media-upload-v2__file-headline
-  sw-media-upload-v2__file-info
-  sw-media-upload-v2__file-input
-  sw-media-upload-v2__form
-  sw-media-upload-v2__header
-  sw-media-upload-v2__help-text
-  sw-media-upload-v2__label
-  sw-media-upload-v2__preview
-  sw-media-upload-v2__remove-icon
-  sw-media-upload-v2__switch-mode
-  sw-media-upload-v2__upload-caption
-  sw-media-upload-v2__url-form
-  upload
 ```

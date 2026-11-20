@@ -89,17 +89,4 @@ blocks
     sw_settings_customer_group_detail_smart_bar_header
       sw_settings_customer_group_detail_smart_bar_header_title
         sw_settings_customer_group_detail_smart_bar_header_title_text
-
-classes
-  sw-settings-customer-group-detail
-  sw-settings-customer-group-detail-content-registration-card__info-text
-  sw-settings-customer-group-detail__cancel
-  sw-settings-customer-group-detail__name
-  sw-settings-customer-group-detail__price-basis
-  sw-settings-customer-group-detail__registration-form-switch
-  sw-settings-customer-group-detail__registration-form-title
-  sw-settings-customer-group-detail__registration-only-companies-can-register
-  sw-settings-customer-group-detail__sales-channel
-  sw-settings-customer-group-detail__save
-  sw-settings-customer-group-detail__tax-display
 ```

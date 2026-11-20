@@ -24,7 +24,4 @@ methods
 
 blocks
   sw_order_create_create_initial
-
-classes
-  sw-order-create-initial
 ```

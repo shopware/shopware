@@ -18,9 +18,4 @@ props
 blocks
   sw_wizard_dot_navigation  [private]
     sw_wizard_dot_navigation_item  [private]
-
-classes
-  is--active  [private]
-  sw-wizard-dot-navigation  [private]
-  sw-wizard-dot-navigation__item  [private]
 ```

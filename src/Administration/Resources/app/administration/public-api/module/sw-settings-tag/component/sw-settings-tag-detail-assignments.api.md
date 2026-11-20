@@ -66,8 +66,8 @@ methods
   onSelectionChange(selection: any, item: any, selected: any): any
   onTermChange(term: any): Promise<any>
   parentHasTags(id: any, parentId: any): any
-  search(criteria: any): any
-  searchInheritedEntities(criteria: any): any
+  search(criteria: any): Promise<any>
+  searchInheritedEntities(criteria: any): Promise<any>
 
 blocks
   sw_settings_tag_detail_assignments
@@ -98,18 +98,6 @@ crossings
   v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_newsletter_recipient -> sw_settings_tag_detail_assignments_entities_grid_column_name_default
   v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_order -> sw_settings_tag_detail_assignments_entities_grid_column_name_media
   v-if  sw_settings_tag_detail_assignments_entities_grid_column_name_product -> sw_settings_tag_detail_assignments_entities_grid_column_name_category
-
-classes
-  associations-grid__count
-  associations-grid__row
-  is--selected
-  sw-data-grid__cell-content
-  sw-settings-tag-detail-assignments
-  sw-settings-tag-detail-assignments__associations-grid
-  sw-settings-tag-detail-assignments__card
-  sw-settings-tag-detail-assignments__entities-grid
-  sw-settings-tag-detail-assignments__filter-selected
-  sw-settings-tag-detail-assignments__total-selected
 
 notes
   unresolved data ...this.initialCounts

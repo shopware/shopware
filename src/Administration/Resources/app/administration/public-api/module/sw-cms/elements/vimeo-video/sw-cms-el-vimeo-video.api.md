@@ -32,8 +32,4 @@ methods
 
 blocks
   sw_cms_el_vimeo_video  [private]
-
-classes
-  sw-cms-el-vimeo-video  [private]
-  sw-cms-el-vimeo-video__video  [private]
 ```

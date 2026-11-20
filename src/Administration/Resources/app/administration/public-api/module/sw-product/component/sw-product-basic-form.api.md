@@ -43,7 +43,7 @@ methods
   createdComponent(): any
   getInheritValue(firstKey: any, secondKey: any): any
   loadCoverImageDescriptionHintConfig(): Promise<any>
-  loadProductNumberRangeId(): any
+  loadProductNumberRangeId(): Promise<any>
   onCloseCoverImageDescriptionHint(): Promise<any>
   updateIsTitleRequired(): any
 
@@ -55,12 +55,4 @@ blocks
     sw_product_basic_form_manufacturer_field
     sw_product_basic_form_title_field
     sw_product_settings_form_mark_as_topseller_field
-
-classes
-  product-basic-form
-  product-basic-form__switches
-  sw-product-basic-form__cover-image-description-hint
-  sw-product-basic-form__inheritance-wrapper-description
-  sw-product-basic-form__promotion-switch
-  sw-select-product__select_manufacturer
 ```

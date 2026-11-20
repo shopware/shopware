@@ -97,16 +97,4 @@ blocks
     sw_admin_menu_item_router_link  [scope: tooltipProps] [private]
     sw_admin_menu_item_text  [after v-if] [private]
     sw_sidebar_sub_items_list  [private]
-
-classes
-  collapsible-text  [private]
-  hide-on-collapse  [private]
-  router-link-active  [private]
-  sw-admin-menu__navigation-item-row  [private]
-  sw-admin-menu__navigation-link  [private]
-  sw-admin-menu__navigation-link-expand-icon  [private]
-  sw-admin-menu__navigation-link-expand-icon-box  [private]
-  sw-admin-menu__navigation-link-icon  [private]
-  sw-admin-menu__navigation-link-label  [private]
-  sw-admin-menu__sub-navigation-list  [private]
 ```

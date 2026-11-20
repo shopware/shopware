@@ -15,11 +15,4 @@ blocks
   sw_cms_block_product_description_reviews_preview  [private]
     sw_cms_block_product_description_reviews_preview_content  [private]
     sw_cms_block_product_description_reviews_preview_tabs  [private]
-
-classes
-  sw-cms-block-preview-product-description-reviews  [private]
-  sw-cms-block-preview-product-description-reviews__content  [private]
-  sw-cms-block-preview-product-description-reviews__tab-description  [private]
-  sw-cms-block-preview-product-description-reviews__tab-reviews  [private]
-  sw-cms-block-preview-product-description-reviews__tabs  [private]
 ```

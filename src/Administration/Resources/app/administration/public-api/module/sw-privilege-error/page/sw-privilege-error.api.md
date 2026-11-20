@@ -24,10 +24,4 @@ blocks
         sw_privilege_error_inner_content_description
         sw_privilege_error_inner_content_headline
         sw_privilege_error_inner_content_image
-
-classes
-  sw-privilege-error
-  sw-privilege-error__access-denied-image
-  sw-privilege-error__back-button
-  sw-privilege-error__content
 ```

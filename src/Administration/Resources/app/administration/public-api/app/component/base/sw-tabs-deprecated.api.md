@@ -87,13 +87,4 @@ blocks
 
 refs
   swTabContent  -> div  [private]
-
-classes
-  sw-tabs  [private]
-  sw-tabs__arrow  [private]
-  sw-tabs__arrow--left  [private]
-  sw-tabs__arrow--right  [private]
-  sw-tabs__content  [private]
-  sw-tabs__custom-content  [private]
-  sw-tabs__slider  [private]
 ```

@@ -21,8 +21,4 @@ blocks
   sw_version  [private]
     sw_version_info  [private]
       sw_version_info_text  [private]
-
-classes
-  sw-version  [private]
-  sw-version__info  [private]
 ```

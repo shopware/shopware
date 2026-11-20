@@ -78,16 +78,4 @@ blocks
         sw_order_create_address_modal_empty_state_content  [deprecated tag:v6.8.0]
       sw_order_create_address_modal_toolbar
         sw_order_create_address_modal_add_button
-
-classes
-  is--empty
-  is--selected
-  sw-order-create-address-modal
-  sw-order-create-address-modal__add-btn
-  sw-order-create-address-modal__card
-  sw-order-create-address-modal__card-body
-  sw-order-create-address-modal__card-filter
-  sw-order-create-address-modal__card-label
-  sw-order-create-address-modal__edit-btn
-  sw-order-create-address-modal__select-btn
 ```

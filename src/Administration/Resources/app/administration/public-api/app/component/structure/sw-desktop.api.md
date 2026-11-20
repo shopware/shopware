@@ -43,9 +43,4 @@ blocks
     sw_desktop_content  [after v-if] [private]
       sw_desktop_content_view  [private]
     sw_desktop_sidebar  [after v-if] [private]
-
-classes
-  sw-desktop  [private]
-  sw-desktop__content  [private]
-  sw-staging-bar  [private]
 ```

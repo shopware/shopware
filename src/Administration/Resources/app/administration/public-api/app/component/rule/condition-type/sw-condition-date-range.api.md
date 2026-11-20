@@ -39,18 +39,4 @@ blocks
           sw_condiiton_date_range_field_to_date  [deprecated tag:v6.8.0]
         sw_condition_date_range_field_use_time
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-date-range
-  sw-condition-date-range__from-date
-  sw-condition-date-range__timezone
-  sw-condition-date-range__to-date
-  sw-condition-date-range__use-time
-  sw-condition__condition-value
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

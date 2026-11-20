@@ -43,13 +43,4 @@ blocks
       sw_empty_state_icon  [private]
         sw_empty_state_slot_icon  [private]
       sw_empty_state_title  [private]
-
-classes
-  sw-empty-state  [private]
-  sw-empty-state__actions  [private]
-  sw-empty-state__description  [private]
-  sw-empty-state__description-content  [private]
-  sw-empty-state__element  [private]
-  sw-empty-state__icon  [private]
-  sw-empty-state__title  [private]
 ```

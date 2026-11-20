@@ -21,7 +21,4 @@ data
 
 blocks
   sw_cms_preview_html  [private]
-
-classes
-  sw-cms-preview-html  [private]
 ```

@@ -80,21 +80,4 @@ blocks
   sw_settings_country_address_handling  [private]
     sw_settings_country_address_handling_formatting  [private]
     sw_settings_country_address_handling_options  [private]
-
-classes
-  advanced-postal-code  [private]
-  is--disabled  [private]
-  is--row-drag-preview-source  [private]
-  is--row-dragging  [private]
-  is--row-placeholder  [private]
-  sw-settings-country-address-handling  [private]
-  sw-settings-country-address-handling__address-markup  [private]
-  sw-settings-country-address-handling__address-preview  [private]
-  sw-settings-country-address-handling__button-reset  [private]
-  sw-settings-country-address-handling__customer-select  [private]
-  sw-settings-country-address-handling__option-items  [private]
-  sw-settings-country-address-handling__options-container  [private]
-  sw-settings-country-address-handling__preview-separator  [private]
-  sw-settings-country-address-handling__preview-title  [private]
-  sw-settings-country-address-handling__text-field  [private]
 ```

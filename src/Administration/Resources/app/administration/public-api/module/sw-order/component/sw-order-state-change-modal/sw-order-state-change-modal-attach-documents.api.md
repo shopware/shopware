@@ -35,11 +35,4 @@ blocks
 
 refs
   attachDocuments  -> sw-order-document-card
-
-classes
-  sw-order-detail-base__documents-grid
-  sw-order-state-change-modal-attach-document
-  sw-order-state-change-modal-attach-documents__button
-  sw-order-state-change-modal-attach-documents__button-wrapper
-  sw-order-state-change-modal-attach-documents__switch
 ```

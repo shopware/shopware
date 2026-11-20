@@ -65,16 +65,4 @@ methods
 
 blocks
   sw_generic_custom_entity_detail  [private]
-
-classes
-  sw-generic-custom-entity-detail  [private]
-  sw-generic-custom-entity-detail__card  [private]
-  sw-generic-custom-entity-detail__field  [private]
-  sw-generic-custom-entity-detail__save-action  [private]
-  sw-generic-custom-entity-detail__tab  [private]
-  sw-generic-custom-entity-detail__tab-cms-aware  [private]
-  sw-generic-custom-entity-detail__tab-content  [from v6.8.0] [private]
-  sw-generic-custom-entity-detail__tab-item  [until v6.8.0] [private]
-  sw-generic-custom-entity-detail__tabs  [private]
-  sw-generic-custom-entity-detail__title  [private]
 ```

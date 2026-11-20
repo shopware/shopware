@@ -17,7 +17,4 @@ slots
 
 blocks
   sw_cms_block_image_text_cover  [private]
-
-classes
-  sw-cms-block-image-text-cover  [private]
 ```

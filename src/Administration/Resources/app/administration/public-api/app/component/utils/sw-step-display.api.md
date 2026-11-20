@@ -35,7 +35,4 @@ methods
 blocks
   sw_step_display  [private]
     sw_step_display_slot  [private]
-
-classes
-  sw-step-display  [private]
 ```

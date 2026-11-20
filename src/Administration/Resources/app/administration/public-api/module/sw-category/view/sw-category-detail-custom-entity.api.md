@@ -36,9 +36,4 @@ methods
 
 blocks
   sw_category_detail_custom_entity  [private]
-
-classes
-  sw-category-detail-custom-entity  [private]
-  sw-category-detail-custom-entity__assignment  [private]
-  sw-category-detail-custom-entity__selection-container  [private]
 ```

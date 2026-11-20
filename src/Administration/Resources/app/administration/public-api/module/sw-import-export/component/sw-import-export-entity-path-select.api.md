@@ -132,11 +132,4 @@ refs
   resultsList  -> sw-select-result-list  [private]
   selectBase  -> sw-select-base  [private]
   swSelectInput  -> input  [private]
-
-classes
-  sw-import-export-entity-path-select  [private]
-  sw-import-export-entity-path-select__listing-seperator  [private]
-  sw-import-export-entity-path-select__selection  [private]
-  sw-import-export-entity-path-select__selection-input  [private]
-  sw-import-export-entity-path-select__selection-text  [private]
 ```

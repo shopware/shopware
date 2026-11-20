@@ -39,14 +39,4 @@ blocks
         sw_sidebar_collapse_buttons  [private]
         sw_sidebar_collapse_title  [private]
           sw_sidebar_collapse_panel_header_slot  [private]
-
-classes
-  sw-collapse  [private]
-  sw-collapse__content  [private]
-  sw-sidebar-collapse__actions  [private]
-  sw-sidebar-collapse__collapse-button  [private]
-  sw-sidebar-collapse__expand-button  [private]
-  sw-sidebar-collapse__header  [private]
-  sw-sidebar-collapse__indicator  [private]
-  sw-sidebar-collapse__title  [private]
 ```

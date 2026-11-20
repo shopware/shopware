@@ -30,7 +30,4 @@ blocks
     sw_wizard_page_slot_default  [replaced]
       sw_wizard_discount_selection
       sw_wizard_discount_selection_option_selection
-
-classes
-  sw-wizard-page
 ```

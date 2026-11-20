@@ -18,9 +18,4 @@ blocks
   sw_not_found  [private]
     sw_not_found_page_content  [private]
       sw_not_found_back_button  [private]
-
-classes
-  sw-not-found  [private]
-  sw-not-found__back-button  [private]
-  sw-not-found__content  [private]
 ```

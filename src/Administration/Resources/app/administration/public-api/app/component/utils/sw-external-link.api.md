@@ -31,8 +31,4 @@ methods
 
 blocks
   sw_external_link  [private]
-
-classes
-  sw-external-link  [private]
-  sw-external-link__icon  [private]
 ```

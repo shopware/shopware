@@ -35,7 +35,7 @@ methods
   getList(): any
   onChangeLanguage(languageId: any): any
   onCloseDeleteModal(): any
-  onConfirmDelete(id: any): any
+  onConfirmDelete(id: any): Promise<any>
   onDelete(id: any): any
   onInlineEditSave(promise: any, country: any): any
 
@@ -68,15 +68,4 @@ blocks
 
 refs
   swSettingsCountryGrid  -> sw-entity-listing
-
-classes
-  is--active
-  is--inactive
-  sw-country-list__delete-action
-  sw-country-list__edit-action
-  sw-page__smart-bar-amount
-  sw-settings-country-list
-  sw-settings-country-list-grid
-  sw-settings-country-list__button-create
-  sw-settings-country-list__confirm-delete-text
 ```

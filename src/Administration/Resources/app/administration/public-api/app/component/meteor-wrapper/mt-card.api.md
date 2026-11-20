@@ -24,9 +24,6 @@ methods
 blocks
   mt_card  [private]
 
-classes
-  mt-card__wrapper  [private]
-
 notes
   dynamic-slot name  [private]
 ```

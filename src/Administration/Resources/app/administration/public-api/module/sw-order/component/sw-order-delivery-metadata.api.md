@@ -40,8 +40,4 @@ blocks
         sw_order_delivery_metadata_slot
       sw_order_delivery_metadata_shipping_address
         sw_order_delivery_metadata_delivery_phone_number
-
-classes
-  sw-order-delivery-metadata
-  sw-order-delivery-metdata__address
 ```

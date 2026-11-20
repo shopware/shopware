@@ -50,12 +50,4 @@ blocks
           sw_custom_field_type_select_options_container_technical_name  [inherited] [scope: index, option]
         sw_custom_field_type_select_options_delete  [inherited] [scope: index, option]
         sw_custom_field_type_select_options_label  [inherited] [scope: index, option]
-
-classes
-  sw-custom-field-detail__switch
-  sw-custom-field-type-base
-  sw-custom-field-type-select__button-add
-  sw-custom-field-type-select__delete-option-button
-  sw-custom-field-type-select__option-container
-  sw-custom-field-type-select__option-label
 ```

@@ -44,13 +44,4 @@ blocks
         sw_alert_title  [private]
       sw_alert_close  [after v-if] [private]
       sw_alert_icon  [private]
-
-classes
-  sw-alert  [private]
-  sw-alert__actions  [private]
-  sw-alert__body  [private]
-  sw-alert__close  [private]
-  sw-alert__icon  [private]
-  sw-alert__message  [private]
-  sw-alert__title  [private]
 ```

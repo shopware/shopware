@@ -58,17 +58,4 @@ blocks
     sw_card_toolbar  [after v-if] [private]
       sw_card_toolbar_inner  [private]
         sw_card_slot_toolbar  [private]
-
-classes
-  sw-card  [private]
-  sw-card-wrapper  [private]
-  sw-card__avatar  [private]
-  sw-card__content  [private]
-  sw-card__context-menu  [private]
-  sw-card__header  [private]
-  sw-card__subtitle  [private]
-  sw-card__title  [private]
-  sw-card__titles  [private]
-  sw-card__titles-right-slot  [private]
-  sw-card__toolbar  [private]
 ```

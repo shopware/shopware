@@ -50,9 +50,4 @@ blocks
 crossings
   v-if  sw_button_link -> sw_button_button  [private]
   v-if  sw_button_router_link -> sw_button_link  [private]
-
-classes
-  sw-button  [private]
-  sw-button__content  [private]
-  sw-button_loader  [private]
 ```

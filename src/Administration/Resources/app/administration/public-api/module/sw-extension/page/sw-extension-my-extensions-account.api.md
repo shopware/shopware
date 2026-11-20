@@ -45,20 +45,4 @@ methods
 
 blocks
   sw_extension_my_extensions_account  [private]
-
-classes
-  new-account-link  [private]
-  sw-extension-my-extensions-account  [private]
-  sw-extension-my-extensions-account__login-button  [private]
-  sw-extension-my-extensions-account__logout-button  [private]
-  sw-extension-my-extensions-account__password-field  [private]
-  sw-extension-my-extensions-account__shopware-id-field  [private]
-  sw-extension-my-extensions-account__wrapper  [private]
-  sw-extension-my-extensions-account__wrapper-content  [private]
-  sw-extension-my-extensions-account__wrapper-content-login-footer  [private]
-  sw-extension-my-extensions-account__wrapper-content-login-form  [private]
-  sw-extension-my-extensions-account__wrapper-content-login-message  [private]
-  sw-extension-my-extensions-account__wrapper-content-login-status  [private]
-  sw-extension-my-extensions-account__wrapper-content-login-status-id  [private]
-  sw-extension-my-extensions-account__wrapper-illustration  [private]
 ```

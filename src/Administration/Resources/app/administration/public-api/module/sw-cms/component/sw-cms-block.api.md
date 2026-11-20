@@ -48,9 +48,4 @@ blocks
     sw_cms_block_content  [after v-if]
       sw_cms_block_slot_default
     sw_cms_block_overlay  [after v-if]
-
-classes
-  sw-cms-block
-  sw-cms-block__config-overlay
-  sw-cms-block__content
 ```

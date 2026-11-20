@@ -23,7 +23,4 @@ blocks
   sw_category_detail_seo
     sw_category_detail_seo_config
     sw_category_detail_seo_list
-
-classes
-  sw-category-detail-seo
 ```

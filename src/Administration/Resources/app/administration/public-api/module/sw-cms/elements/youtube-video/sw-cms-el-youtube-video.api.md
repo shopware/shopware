@@ -31,8 +31,4 @@ methods
 
 blocks
   sw_cms_element_youtube_video  [private]
-
-classes
-  sw-cms-el-youtube-video  [private]
-  sw-cms-el-youtube-video__video  [private]
 ```

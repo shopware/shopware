@@ -68,21 +68,4 @@ refs
   optionGrid  -> sw-grid
   optionSearchGrid  -> sw-grid
   searchField  -> sw-simple-search-field
-
-classes
-  group_grid__column-name
-  sw-product-variants-configurator-selection-search__search-field
-  sw-product-variants-configurator-selection__toolbar
-  sw-property-search
-  sw-property-search__search-field
-  sw-property-search__search-field-container
-  sw-property-search__search-selection
-  sw-property-search__search-selection__option_grid
-  sw-property-search__toolbar
-  sw-property-search__tree-selection
-  sw-property-search__tree-selection-container
-  sw-property-search__tree-selection__column-items-selected
-  sw-property-search__tree-selection__group_grid
-  sw-property-search__tree-selection__option_grid
-  sw-property-search__tree-selection__option_grid--option-value
 ```

@@ -114,22 +114,4 @@ blocks
               sw_order_detail_base_secondary_info_tracking_codes_input
                 sw_order_detail_base_secondary_info_tracking_codes_input_content
                 sw_order_detail_base_secondary_info_tracking_codes_input_label
-
-classes
-  sw-order-base__label-sales-channel
-  sw-order-inline-field__truncateable
-  sw-order-user-card
-  sw-order-user-card__address-add-button
-  sw-order-user-card__address-edit-button
-  sw-order-user-card__address-phone-label
-  sw-order-user-card__container
-  sw-order-user-card__info-summary
-  sw-order-user-card__metadata
-  sw-order-user-card__metadata-item
-  sw-order-user-card__metadata-price
-  sw-order-user-card__metadata-user-name
-  sw-order-user-card__summary-vertical
-  sw-order-user-card__tag-select
-  sw-order-user-card__tracking-code-link
-  sw-order-user-card__tracking-code-select
 ```

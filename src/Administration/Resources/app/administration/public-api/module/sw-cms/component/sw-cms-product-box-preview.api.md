@@ -19,12 +19,4 @@ computed
 
 blocks
   sw_cms_product_box_preview  [private]
-
-classes
-  has--text  [private]
-  sw-cms-product-box-preview  [private]
-  sw-cms-product-box-preview__action  [private]
-  sw-cms-product-box-preview__description  [private]
-  sw-cms-product-box-preview__image  [private]
-  sw-cms-product-box-preview__name  [private]
 ```

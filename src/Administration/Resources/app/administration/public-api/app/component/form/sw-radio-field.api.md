@@ -42,20 +42,6 @@ blocks
   sw_radio_field  [private]
     sw_radio_field_help_text  [scope: disabled, error, helpText, identification, index, option] [private]
 
-classes
-  error--selection  [private]
-  group-bordered  [private]
-  is--disabled  [private]
-  sw-field--radio  [private]
-  sw-field__radio-description  [private]
-  sw-field__radio-group  [private]
-  sw-field__radio-input  [private]
-  sw-field__radio-option  [private]
-  sw-field__radio-option-checked  [private]
-  sw-field__radio-option-description  [private]
-  sw-field__radio-option-label  [private]
-  sw-field__radio-state  [private]
-
 notes
   dynamic-slot `custom-field-${option.value}`  [private]
 ```

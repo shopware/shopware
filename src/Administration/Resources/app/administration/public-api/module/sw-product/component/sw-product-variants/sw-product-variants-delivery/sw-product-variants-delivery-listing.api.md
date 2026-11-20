@@ -59,16 +59,4 @@ blocks
         sw_product_variants_delivery_variant_mode_selection
     sw_product_variants_delivery_listing_mode
       sw_product_variants_delivery_listing_mode_selection
-
-classes
-  is--disabled
-  sw-product-variants-delivery-listing
-  sw-product-variants-delivery-listing-config
-  sw-product-variants-delivery-listing-config-options
-  sw-product-variants-delivery-listing-mode
-  sw-product-variants-delivery-listing__groupElement
-  sw-product-variants-delivery-listing__option-explanation
-  sw-product-variants-delivery-listing_entity-select
-  sw-product-variants-delivery-listing_variant-selection
-  sw-select-result__result-item-text
 ```

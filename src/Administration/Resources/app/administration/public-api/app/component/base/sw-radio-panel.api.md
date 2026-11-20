@@ -47,13 +47,4 @@ blocks
         sw_radio_panel_body_image  [private]
         sw_radio_panel_body_title  [private]
     sw_radio_panel_input  [private]
-
-classes
-  is--truncate  [private]
-  sw-radio-panel  [private]
-  sw-radio-panel__body  [private]
-  sw-radio-panel__description  [private]
-  sw-radio-panel__image  [private]
-  sw-radio-panel__radio  [private]
-  sw-radio-panel__title  [private]
 ```

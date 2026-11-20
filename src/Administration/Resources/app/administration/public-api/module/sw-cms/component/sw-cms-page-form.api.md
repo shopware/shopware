@@ -56,27 +56,4 @@ blocks
 
 crossings
   v-if  sw_cms_page_form_section_empty_state_block -> sw_cms_page_form_section  [private]
-
-classes
-  is--empty  [private]
-  sw-cms-page-form  [private]
-  sw-cms-page-form__banner-inheritance  [private]
-  sw-cms-page-form__block-card  [private]
-  sw-cms-page-form__block-device-actions  [private]
-  sw-cms-page-form__device-actions  [private]
-  sw-cms-page-form__element-config  [private]
-  sw-cms-page-form__empty-state-text  [private]
-  sw-cms-page-form__section  [private]
-  sw-cms-page-form__section-action  [private]
-  sw-cms-page-form__section-action-icon  [private]
-  sw-cms-page-form__section-action-label  [private]
-  sw-cms-page-form__section-actions  [private]
-  sw-cms-page-form__section-divider  [private]
-  sw-cms-page-form__section-name  [private]
-  sw-cms-page-form__section-name-icon  [private]
-  sw-cms-page-form__section-name-label  [private]
-  sw-cms-page-form__section-type  [private]
-  sw-cms-page-form__section-type-icon  [private]
-  sw-cms-page-form__section-type-label  [private]
-  sw-cms-page-form__section-type-name  [private]
 ```

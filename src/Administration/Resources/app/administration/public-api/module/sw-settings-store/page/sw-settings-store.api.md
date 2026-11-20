@@ -36,8 +36,4 @@ blocks
 
 refs
   systemConfig  -> sw-system-config  [private]
-
-classes
-  sw-settings-store  [private]
-  sw-store-detail__save-action  [private]
 ```

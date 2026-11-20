@@ -50,9 +50,4 @@ blocks
     sw_snippet_field_edit_modal_footer  [private]
       sw_snippet_field_edit_modal_close_button  [private]
       sw_snippet_field_edit_modal_footer_button  [private]
-
-classes
-  sw-snippet-field-edit-modal  [private]
-  sw-snippet-field-edit-modal__save-action  [private]
-  sw-snippet-field-edit-modal__translation-field  [private]
 ```

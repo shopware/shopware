@@ -85,14 +85,4 @@ blocks
 
 refs
   itemName  -> div
-
-classes
-  sw-media-base-item__name
-  sw-media-base-item__name-field
-  sw-media-context-item__move-media-action
-  sw-media-context-item__remove-video-cover-action
-  sw-media-context-item__replace-media-action
-  sw-media-context-item__set-video-cover-action
-  sw-media-media-item
-  sw-media-media-item__metadata
 ```

@@ -48,9 +48,4 @@ methods
 
 blocks
   sw_settings_units_detail  [private]
-
-classes
-  sw-settings-units  [private]
-  sw-settings-units__create-action  [private]
-  sw-settings-units__unece-code  [private]
 ```

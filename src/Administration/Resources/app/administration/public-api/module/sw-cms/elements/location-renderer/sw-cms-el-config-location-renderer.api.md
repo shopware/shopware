@@ -33,7 +33,4 @@ methods
 
 blocks
   sw_cms_el_config_location_renderer  [private]
-
-classes
-  sw-cms-el-config-location-renderer  [private]
 ```

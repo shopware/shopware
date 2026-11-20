@@ -16,7 +16,4 @@ slots
 
 blocks
   sw_cms_block_html_slot_html_content  [private]
-
-classes
-  sw-cms-block-html  [private]
 ```

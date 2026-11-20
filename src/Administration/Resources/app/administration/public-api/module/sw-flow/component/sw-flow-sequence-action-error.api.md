@@ -25,10 +25,4 @@ methods
 
 blocks
   sw_flow_sequence_action_error  [private]
-
-classes
-  sw-flow-sequence-action-error  [private]
-  sw-flow-sequence-action-error__content  [private]
-  sw-flow-sequence-action-error__context-button  [private]
-  sw-flow-sequence-action-error__delete-action  [private]
 ```

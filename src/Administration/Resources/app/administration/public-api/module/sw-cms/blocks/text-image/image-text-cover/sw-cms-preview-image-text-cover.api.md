@@ -16,9 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_text_cover_preview  [private]
-
-classes
-  sw-cms-preview-image-text-cover  [private]
-  sw-cms-preview-image-text-cover__image  [private]
-  sw-cms-preview-image-text-cover__text  [private]
 ```

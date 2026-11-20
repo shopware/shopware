@@ -39,10 +39,4 @@ blocks
   sw_step_item  [private]
     sw_step_item_bubble  [private]
     sw_step_item_description  [private]
-
-classes
-  sw-step-item  [private]
-  sw-step-item__bubble  [private]
-  sw-step-item__description  [private]
-  sw-step-item__icon  [private]
 ```

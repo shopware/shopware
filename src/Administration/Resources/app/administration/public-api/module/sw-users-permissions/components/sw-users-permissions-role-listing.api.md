@@ -39,7 +39,7 @@ methods
   createdComponent(): any
   deleteRole(context: any): any
   getItemToDelete(item: any): any
-  getList(): any
+  getList(): Promise<any>
   onCloseConfirmPasswordModal(): any
   onCloseDeleteModal(): any
   onConfirmDelete(): any
@@ -69,13 +69,4 @@ blocks
 
 crossings
   v-if  sw_users_permissions_role_listing_grid -> sw_users_permissions_role_listing_empty_state
-
-classes
-  sw-users-permissions-role-listing
-  sw-users-permissions-role-listing__add-role-button
-  sw-users-permissions-role-listing__confirm-delete-button
-  sw-users-permissions-role-listing__confirm-delete-text
-  sw-users-permissions-role-listing__context-menu-delete
-  sw-users-permissions-role-listing__context-menu-edit
-  sw-users-permissions-role-listing__toolbar
 ```

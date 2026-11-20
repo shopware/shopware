@@ -51,10 +51,4 @@ blocks
 
 refs
   taggedFieldInput  -> input  [private]
-
-classes
-  sw-tagged-field  [private]
-  sw-tagged-field__input  [private]
-  sw-tagged-field__input-list-entry  [private]
-  sw-tagged-field__tag-list  [private]
 ```

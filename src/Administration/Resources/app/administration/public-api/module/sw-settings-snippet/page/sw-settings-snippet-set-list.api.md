@@ -50,9 +50,9 @@ methods
   createInlineErrorNote(name: any): any
   createInlineSuccessNote(name: any): any
   createNotEditableErrorNote(): any
-  getList(): any
+  getList(): Promise<any>
   getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [deprecated tag:v6.8.0]
-  loadBaseFiles(): any
+  loadBaseFiles(): Promise<any>
   onAddSnippetSet(): Promise<any>
   onClone(id: any): any  [deprecated tag:v6.8.0]
   onConfirmClone(id: any): Promise<any>
@@ -114,15 +114,4 @@ blocks
 
 refs
   snippetSetList  -> sw-entity-listing
-
-classes
-  sw-settings-snippet-set-list
-  sw-settings-snippet-set-list__action-add
-  sw-settings-snippet-set-list__container
-  sw-settings-snippet-set__column-base-file
-  sw-settings-snippet-set__column-name
-  sw-snippet-set-list__list
-  sw-snippet-set-list__list-context-clone
-  sw-snippet-set-list__list-context-delete
-  sw-snippet-set-list__list-context-edit
 ```

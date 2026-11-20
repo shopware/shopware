@@ -29,9 +29,4 @@ blocks
     sw_settings_search_search_behaviour_condition
     sw_settings_search_search_behaviour_search_term_length
     sw_settings_search_search_behaviour_title
-
-classes
-  sw-settings-search-search-behaviour
-  sw-settings-search__search-behaviour-condition
-  sw-settings-search__search-behaviour-title
 ```

@@ -26,7 +26,4 @@ methods
 blocks
   sw_settings_search_view_live_search_keyword
     sw_settings_search_view_live_search_keyword_highlight
-
-classes
-  sw-settings-search-live-search-keyword
 ```

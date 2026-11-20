@@ -21,8 +21,4 @@ blocks
       sw_extension_adding_success_headline  [private]
       sw_extension_adding_success_icon  [private]
       sw_extension_adding_success_sub_headline  [private]
-
-classes
-  sw-extension-adding-success  [private]
-  sw-extension-buy-modal__content-installed  [private]
 ```

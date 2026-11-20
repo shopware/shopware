@@ -16,8 +16,4 @@ computed
 
 blocks
   sw_cms_block_image_bubble_row_preview  [private]
-
-classes
-  sw-cms-preview-image-bubble-row  [private]
-  sw-cms-preview-image-bubble-row__image  [private]
 ```

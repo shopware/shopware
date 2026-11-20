@@ -48,7 +48,7 @@ methods
   checkIfPropertiesExists(): any
   createdComponent(): any
   getGroupIds(): any
-  getProperties(): any
+  getProperties(): Promise<any>
   onCancelAddPropertiesModal(): any
   onChangeSearchTerm(searchTerm: any): any
   onDeleteProperties(): any
@@ -83,19 +83,4 @@ blocks
 
 refs
   entityListing  -> sw-entity-listing
-
-classes
-  has--no-properties
-  has--no-search-result
-  is--disabled
-  mt-card__title
-  sw-inherit-wrapper__card-title
-  sw-inherit-wrapper__card-title--inherited
-  sw-inherit-wrapper__inheritance-icon
-  sw-product-properties
-  sw-product-properties-list__column-values
-  sw-product-properties__button-add-property
-  sw-product-properties__card
-  sw-product-properties__empty-state
-  sw-product-properties__list
 ```

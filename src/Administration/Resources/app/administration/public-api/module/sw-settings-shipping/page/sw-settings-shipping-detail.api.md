@@ -59,13 +59,13 @@ methods
   filterIncompletePrices(): any
   getIncompletePrices(): any
   loadCurrencies(): any
-  loadCustomFieldSets(): any
+  loadCustomFieldSets(): Promise<any>
   loadEntityData(): any
   onCancel(): any
   onChangeLanguage(): any
   onDropMedia(mediaItem: any): any
   onError(error: any): any
-  onSave(): any
+  onSave(): Promise<any>
   onSaveRule(ruleId: any): any
   onUnlinkLogo(): any
   openMediaSidebar(): any
@@ -108,15 +108,4 @@ crossings
 refs
   mediaSidebarItem  -> sw-sidebar-media-item
   priceMatrices  -> sw-settings-shipping-price-matrices
-
-classes
-  sw-settings-shipping-detail
-  sw-settings-shipping-detail__condition_container
-  sw-settings-shipping-detail__delivery-time
-  sw-settings-shipping-detail__description
-  sw-settings-shipping-detail__field-position
-  sw-settings-shipping-detail__field-technical-name
-  sw-settings-shipping-detail__logo-image-upload
-  sw-settings-shipping-detail__top-rule
-  sw-settings-shipping-method-detail__save-action
 ```

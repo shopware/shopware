@@ -46,10 +46,4 @@ blocks
     sw_product_detail_specifications_measures_packaging  [after v-if]
       sw_product_detail_specifications_measures_packaging_content
     sw_product_detail_specifications_property  [after v-if]
-
-classes
-  sw-product-detail-specification__custom-fields
-  sw-product-detail-specification__essential-characteristics
-  sw-product-detail-specification__measurement
-  sw-product-detail-specification__selling-packaging
 ```

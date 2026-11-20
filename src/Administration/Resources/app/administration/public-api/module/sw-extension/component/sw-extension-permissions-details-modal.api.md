@@ -43,14 +43,4 @@ blocks
           sw_extension_permissions_details_modal_table_head_row  [private]
     sw_extension_permissions_details_modal_footer  [private]
       sw_extension_permissions_details_modal_footer_inner  [private]
-
-classes
-  sw-extension-permissions-details-modal  [private]
-  sw-extension-permissions-details-modal__category  [private]
-  sw-extension-permissions-details-modal__entity-label  [private]
-  sw-extension-permissions-details-modal__grid-columns  [private]
-  sw-extension-permissions-details-modal__operation  [private]
-  sw-extension-permissions-details-modal__operation-header  [private]
-  sw-extension-permissions-details-modal__operations  [private]
-  sw-extension-permissions-details-modal__table  [private]
 ```

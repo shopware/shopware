@@ -22,8 +22,4 @@ methods
 
 blocks
   sw_cms_element_sidebar_filter  [private]
-
-classes
-  sw-cms-element-sidebar-filter  [private]
-  sw-cms-element-sidebar-filter__element  [private]
 ```

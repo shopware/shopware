@@ -56,11 +56,4 @@ blocks
       sw_cms_block_config_background_image_field  [private]
         sw_cms_block_config_background_image_position_field  [private]
       sw_cms_block_config_name_field  [private]
-
-classes
-  is--danger  [private]
-  sw-cms-block-config  [private]
-  sw-cms-block-config__quickaction  [private]
-  sw-cms-block-config__quickactions-list  [private]
-  sw-cms-section-config__settings  [private]
 ```

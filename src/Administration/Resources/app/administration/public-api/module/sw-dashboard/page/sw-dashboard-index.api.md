@@ -43,22 +43,4 @@ blocks
           sw_dashboard_index_content_intro  [private]
             sw_dashboard_index_content_intro_content_headline  [private]
             sw_dashboard_index_content_intro_welcome_message  [private]
-
-classes
-  sw-dashboard-index  [private]
-  sw-dashboard-index__card  [private]
-  sw-dashboard-index__card--bg-checklist  [private]
-  sw-dashboard-index__card--dimmed  [private]
-  sw-dashboard-index__card-button  [private]
-  sw-dashboard-index__card-grid  [private]
-  sw-dashboard-index__card-list  [private]
-  sw-dashboard-index__card-list-item  [private]
-  sw-dashboard-index__card-text  [private]
-  sw-dashboard-index__card-title  [private]
-  sw-dashboard-index__content  [private]
-  sw-dashboard-index__welcome-message  [private]
-  sw-dashboard-index__welcome-text  [private]
-  sw-dashboard-index__welcome-title  [private]
-  sw-dashboard__after-content  [private]
-  sw-dashboard__before-content  [private]
 ```

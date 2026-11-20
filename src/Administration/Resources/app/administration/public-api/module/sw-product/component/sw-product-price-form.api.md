@@ -56,12 +56,4 @@ blocks
 
 refs
   taxIdInheritation  -> sw-inherit-wrapper
-
-classes
-  sw-card__quick-link
-  sw-product-price-form
-  sw-product-price-form__links
-  sw-product-price-form__price-list
-  sw-product-price-form__prices
-  sw-product-price-form__tax-rate
 ```

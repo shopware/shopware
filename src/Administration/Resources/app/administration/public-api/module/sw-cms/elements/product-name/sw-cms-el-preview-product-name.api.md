@@ -13,8 +13,4 @@ component sw-cms-el-preview-product-name  private  js  [private]
 
 blocks
   sw_cms_element_product_name_preview  [private]
-
-classes
-  sw-cms-el-preview-product-name  [private]
-  sw-cms-el-preview-product-name__heading  [private]
 ```

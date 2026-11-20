@@ -28,7 +28,4 @@ blocks
     sw_settings_listing_delete_modal_footer
       sw_settings_listing_delete_modal_footer_cancel_button
       sw_settings_listing_delete_modal_footer_delete_button
-
-classes
-  sw-settings-listing-delete-modal
 ```

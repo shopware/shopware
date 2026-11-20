@@ -13,10 +13,4 @@ component sw-cms-el-preview-category-navigation  private  js  [private]
 
 blocks
   sw_cms_element_category_navigation_preview  [private]
-
-classes
-  sw-cms-el-category-navigation__placeholder  [private]
-  sw-cms-el-category-navigation__placeholder--subcategory  [private]
-  sw-cms-el-category-placeholder-listing  [private]
-  sw-cms-el-preview-category-navigation  [private]
 ```

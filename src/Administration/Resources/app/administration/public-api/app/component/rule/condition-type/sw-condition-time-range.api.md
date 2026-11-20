@@ -36,13 +36,4 @@ blocks
         sw_condition_time_range_field_timezone
         sw_condition_time_range_field_to_time
     sw_condition_base_error  [inherited]
-
-classes
-  sw-condition
-  sw-condition-time-range
-  sw-condition__container
-  sw-condition__context-button
-  sw-condition__create-after-action
-  sw-condition__create-before-action
-  sw-condition__value-content
 ```

@@ -68,7 +68,4 @@ methods
 
 blocks
   sw_condition_tree  [private]
-
-classes
-  sw-condition-tree  [private]
 ```

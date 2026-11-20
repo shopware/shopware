@@ -40,9 +40,4 @@ blocks
     sw_label_status_color_badge  [private]
     sw_label_text_holder  [after v-if] [private]
       sw_label_slot_default  [private]
-
-classes
-  sw-label  [private]
-  sw-label__caption  [private]
-  sw-label__dismiss  [private]
 ```

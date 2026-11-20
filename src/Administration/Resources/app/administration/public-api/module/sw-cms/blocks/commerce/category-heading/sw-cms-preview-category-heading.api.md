@@ -14,8 +14,4 @@ component sw-cms-preview-category-heading  private  js  [private]
 blocks
   sw_cms_preview_category_heading  [private]
     sw_cms_preview_category_heading_name  [private]
-
-classes
-  sw-cms-preview-category-heading  [private]
-  sw-cms-preview-category-heading__name  [private]
 ```

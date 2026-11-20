@@ -108,10 +108,4 @@ crossings
 
 refs
   routerLink  -> router-link  [private]
-
-classes
-  sw-search-bar-item  [private]
-  sw-search-bar-item--v2  [private]
-  sw-search-bar-item__label  [private]
-  sw-search-bar-item__link  [private]
 ```

@@ -114,20 +114,4 @@ crossings
 refs
   rowRefs  -> sw-grid-row  list  [private]
   swGridBody  -> div  [private]
-
-classes
-  is--deleted  [private]
-  is--new  [private]
-  is--selected  [private]
-  is--sortable  [private]
-  is--sorted  [private]
-  sw-grid  [private]
-  sw-grid-column  [private]
-  sw-grid__body  [private]
-  sw-grid__cell-content  [private]
-  sw-grid__cell-label  [private]
-  sw-grid__content  [private]
-  sw-grid__header  [private]
-  sw-grid__pagination  [private]
-  sw-grid_cell-sortable  [private]
 ```

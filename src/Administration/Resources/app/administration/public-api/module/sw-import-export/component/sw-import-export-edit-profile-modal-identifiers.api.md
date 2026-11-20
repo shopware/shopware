@@ -46,9 +46,4 @@ blocks
 
 crossings
   v-if  sw_import_export_edit_profile_modal_identifiers_grid -> sw_import_export_edit_profile_modal_identifiers_empty_state  [private]
-
-classes
-  sw-import-export-edit-profile-modal-identifiers  [private]
-  sw-import-export-edit-profile-modal-identifiers__empty-state  [private]
-  sw-import-export-edit-profile-modal-identifiers__grid  [private]
 ```

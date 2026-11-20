@@ -41,9 +41,4 @@ blocks
     sw_settings_shipping_detail_advanced_prices_actions
       sw_settings_shipping_detail_advanced_prices_actions_add_button
     sw_settings_shipping_price_matrices_price_matrix
-
-classes
-  sw-settings-shipping-price-matrices
-  sw-settings-shipping-price-matrices__actions
-  sw-settings-shipping-price-matrices__actions-add-matrix
 ```

@@ -111,19 +111,4 @@ blocks
                 sw_media_modal_folder_settings_thumbnail_size_switch  [scope: active, index, size] [until v6.8.0] [private]
       sw_media_modal_folder_settings_tab_item_settings  [scope: active] [until v6.8.0] [private]
       sw_media_modal_folder_settings_tab_item_thumbnails  [scope: active] [until v6.8.0] [private]
-
-classes
-  sw-media-folder-settings__settings-tab  [until v6.8.0] [private]
-  sw-media-folder-settings__thumbnails-tab  [until v6.8.0] [private]
-  sw-media-modal-folder-settings  [private]
-  sw-media-modal-folder-settings__confirm  [private]
-  sw-media-modal-folder-settings__delete-thumbnail  [private]
-  sw-media-modal-folder-settings__tabs  [from v6.8.0] [private]
-  sw-media-modal-folder-settings__thumbnail-size-entry  [private]
-  sw-media-modal-folder-settings__thumbnails-container  [private]
-  sw-media-modal-folder-settings__thumbnails-left-container  [private]
-  sw-media-modal-folder-settings__thumbnails-list  [private]
-  sw-media-modal-folder-settings__thumbnails-list-caption  [private]
-  sw-media-modal-folder-settings__thumbnails-list-container  [private]
-  sw-media-modal-folder-settings__thumbnails-right-container  [private]
 ```

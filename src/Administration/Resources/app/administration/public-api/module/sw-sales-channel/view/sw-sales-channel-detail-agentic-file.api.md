@@ -80,41 +80,4 @@ methods
   resetTemplateOverride(): any
   writeConfigurationToSalesChannel(configuration: any): any
   writeCustomNotesToSalesChannelFile(customNotes: any): any
-
-classes
-  sw-sales-channel-detail-agentic-file
-  sw-sales-channel-detail-agentic-file__back-link
-  sw-sales-channel-detail-agentic-file__content-sources-toggle
-  sw-sales-channel-detail-agentic-file__custom-notes
-  sw-sales-channel-detail-agentic-file__custom-notes-input
-  sw-sales-channel-detail-agentic-file__description
-  sw-sales-channel-detail-agentic-file__details
-  sw-sales-channel-detail-agentic-file__empty-preview
-  sw-sales-channel-detail-agentic-file__header
-  sw-sales-channel-detail-agentic-file__header-description
-  sw-sales-channel-detail-agentic-file__headline
-  sw-sales-channel-detail-agentic-file__headline-row
-  sw-sales-channel-detail-agentic-file__metadata
-  sw-sales-channel-detail-agentic-file__metadata-item
-  sw-sales-channel-detail-agentic-file__metadata-label
-  sw-sales-channel-detail-agentic-file__metadata-value
-  sw-sales-channel-detail-agentic-file__override-input
-  sw-sales-channel-detail-agentic-file__override-modal
-  sw-sales-channel-detail-agentic-file__override-modal-apply
-  sw-sales-channel-detail-agentic-file__override-modal-content
-  sw-sales-channel-detail-agentic-file__override-modal-reset
-  sw-sales-channel-detail-agentic-file__preview
-  sw-sales-channel-detail-agentic-file__preview-section
-  sw-sales-channel-detail-agentic-file__public-path
-  sw-sales-channel-detail-agentic-file__public-path-disabled
-  sw-sales-channel-detail-agentic-file__public-path-link
-  sw-sales-channel-detail-agentic-file__section-headline
-  sw-sales-channel-detail-agentic-file__source
-  sw-sales-channel-detail-agentic-file__source-button
-  sw-sales-channel-detail-agentic-file__source-name
-  sw-sales-channel-detail-agentic-file__state-action
-  sw-sales-channel-detail-agentic-file__templates
-  sw-sales-channel-detail-agentic-file__templates--collapsed
-  sw-sales-channel-detail-agentic-file__title
-  sw-sales-channel-detail-agentic-file__top-bar
 ```

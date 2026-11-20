@@ -33,9 +33,4 @@ blocks
   sw_import_export_new_profile_wizard_mapping_page
     sw_import_export_new_profile_wizard_mapping_page_mapping
     sw_import_export_new_profile_wizard_mapping_page_text
-
-classes
-  sw-import-export-new-profile-wizard-mapping-page
-  sw-import-export-new-profile-wizard-mapping-page__mapping
-  sw-import-export-new-profile-wizard-mapping-page__text
 ```

@@ -17,7 +17,4 @@ props
 blocks
   sw_order_customer_comment
     sw_order_customer_comment_content
-
-classes
-  sw-order-customer-comment
 ```

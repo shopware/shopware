@@ -24,7 +24,4 @@ methods
 
 blocks
   sw_cms_el_preview_location_renderer  [private]
-
-classes
-  sw-cms-el-preview-location-renderer  [private]
 ```

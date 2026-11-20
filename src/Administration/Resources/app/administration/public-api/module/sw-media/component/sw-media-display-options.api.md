@@ -35,8 +35,4 @@ blocks
   sw_media_display_options
     sw_media_display_options_presentation
     sw_media_display_options_sorting  [after v-if]
-
-classes
-  sw-media-display-options__label-presentation
-  sw-media-display-options__label-sort
 ```

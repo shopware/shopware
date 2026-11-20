@@ -58,14 +58,4 @@ blocks
     sw_flow_app_action_modal_footer_cancel_button  [private]
     sw_flow_app_action_modal_footer_save_button  [private]
     sw_flow_app_action_modal_header  [private]
-
-classes
-  sw-flow-app-action-modal  [private]
-  sw-flow-app-action-modal__app-badge  [private]
-  sw-flow-app-action-modal__cancel-button  [private]
-  sw-flow-app-action-modal__headcontent  [private]
-  sw-flow-app-action-modal__header  [private]
-  sw-flow-app-action-modal__headline  [private]
-  sw-flow-app-action-modal__paragraph  [private]
-  sw-flow-app-action-modal__save-button  [private]
 ```

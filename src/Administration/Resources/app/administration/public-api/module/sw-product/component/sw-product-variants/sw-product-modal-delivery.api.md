@@ -51,10 +51,4 @@ blocks
       sw_product_modal_delivery_sidebar_tabs
         sw_product_modal_delivery_sidebar_mt_tabs  [from v6.8.0]
         sw_product_modal_delivery_sidebar_tabs_items  [until v6.8.0]
-
-classes
-  sw-product-modal-delivery
-  sw-product-modal-delivery__main
-  sw-product-modal-delivery__save-button
-  sw-product-modal-delivery__sidebar
 ```

@@ -55,16 +55,16 @@ methods
   createNewCustomerAddress(): any
   createPrefix(string: any, replace: any): any
   createdComponent(): any
-  getCustomFieldSet(): any
+  getCustomFieldSet(): Promise<any>
   getCustomer(): any
   isValidAddress(address: any): any
   onAddressChange(customerAddressId: any, edited?: any): any
   onChangeDefaultAddress(data: any): any
   onCreateNewAddress(): any
   onEditAddress(id: any): any
-  onSaveAddress(): any
+  onSaveAddress(): Promise<any>
   removeRequiredFieldError(address: any, field: any): any
-  renderSelectedAddress(): any
+  renderSelectedAddress(): Promise<any>
 
 blocks
   sw_order_address_selection
@@ -75,17 +75,4 @@ blocks
         sw_order_address_modal_actions_apply
       sw_order_address_modal_content
     sw_order_address_selection_selected_address
-
-classes
-  sw-order-address
-  sw-order-address-selection
-  sw-order-address-selection__edit-action
-  sw-order-address-selection__information
-  sw-order-address-selection__order-address
-  sw-order-address-selection__selected-address
-  sw-order-address-selection__selected-address-content
-  sw-select-result
-  sw-select-result__add-new-address
-  sw-select-result__item-list
-  text-gray
 ```

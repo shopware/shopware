@@ -52,15 +52,4 @@ blocks
     sw_category_detail_link_type_select_entity_landing_page  [after v-if]
     sw_category_detail_link_type_select_entity_product  [after v-if]
     sw_category_detail_link_type_select_main
-
-classes
-  sw-category-link-settings
-  sw-category-link-settings__entity
-  sw-category-link-settings__external-link
-  sw-category-link-settings__link-has-protocol
-  sw-category-link-settings__link-new-tab
-  sw-category-link-settings__selection-category
-  sw-category-link-settings__selection-landing-page
-  sw-category-link-settings__selection-product
-  sw-category-link-settings__type
 ```

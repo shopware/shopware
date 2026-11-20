@@ -63,15 +63,4 @@ blocks
       sw_extension_permissions_modal_footer_inner  [private]
         sw_extension_permissions_modal_footer_action  [private]
         sw_extension_permissions_modal_footer_close  [private]
-
-classes
-  sw-extension-permissions-modal  [private]
-  sw-extension-permissions-modal__categories  [private]
-  sw-extension-permissions-modal__category  [private]
-  sw-extension-permissions-modal__category-label  [private]
-  sw-extension-permissions-modal__description  [private]
-  sw-extension-permissions-modal__detail-link  [private]
-  sw-extension-permissions-modal__domain-hint  [private]
-  sw-extension-permissions-modal__image  [private]
-  sw-extension-permissions-modal__intro  [private]
 ```

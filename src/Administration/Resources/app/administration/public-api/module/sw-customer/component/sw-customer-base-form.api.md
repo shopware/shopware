@@ -45,14 +45,6 @@ blocks
     sw_customer_base_form_title_field
     sw_customer_base_form_vat_id_field
 
-classes
-  sw-customer-base-form
-  sw-customer-base-form__account-type-select
-  sw-customer-base-form__customer-group-select
-  sw-customer-base-form__language-select
-  sw-customer-base-form__sales-channel-select
-  sw-customer-base-form__salutation-select
-
 notes
   unresolved computed ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer...
 ```

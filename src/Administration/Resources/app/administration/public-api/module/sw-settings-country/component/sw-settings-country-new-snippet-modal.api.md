@@ -50,17 +50,4 @@ blocks
 refs
   searchInput  -> input  [private]
   selectionList  -> ul  [private]
-
-classes
-  sw-multi-snippet-select  [private]
-  sw-select-selection-list  [private]
-  sw-select-selection-list__item  [private]
-  sw-select-selection-list__item-holder  [private]
-  sw-settings-country-new-snippet-modal  [private]
-  sw-settings-country-new-snippet-modal__input-field  [private]
-  sw-settings-country-new-snippet-modal__loader  [private]
-  sw-settings-country-new-snippet-modal__search-field  [private]
-  sw-settings-country-new-snippet-modal__search-icon  [private]
-  sw-settings-country-new-snippet-modal__tree-item-button  [private]
-  sw-tree-item__label  [private]
 ```

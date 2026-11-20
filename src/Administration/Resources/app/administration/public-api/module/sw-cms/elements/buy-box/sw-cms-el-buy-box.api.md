@@ -42,23 +42,4 @@ blocks
         sw_cms_element_buybox_skeleton_quantity  [private]
       sw_cms_element_buybox_skeleton_info  [private]
       sw_cms_element_buybox_skeleton_product_number  [private]
-
-classes
-  sw-cms-el-buy-box  [private]
-  sw-cms-el-buy-box__actions  [private]
-  sw-cms-el-buy-box__buy-action  [private]
-  sw-cms-el-buy-box__content  [private]
-  sw-cms-el-buy-box__form  [private]
-  sw-cms-el-buy-box__icon  [private]
-  sw-cms-el-buy-box__placeholder  [private]
-  sw-cms-el-buy-box__price  [private]
-  sw-cms-el-buy-box__product-number  [private]
-  sw-cms-el-buy-box__product-number-title  [private]
-  sw-cms-el-buy-box__quantity  [private]
-  sw-cms-el-buy-box__shipping-info  [private]
-  sw-cms-el-buy-box__skeleton  [private]
-  sw-cms-el-buy-box__tax-info  [private]
-  sw-cms-el-buy-box__variant  [private]
-  sw-cms-el-buy-box__variant-title  [private]
-  sw-cms-el-buy-box__variants  [private]
 ```

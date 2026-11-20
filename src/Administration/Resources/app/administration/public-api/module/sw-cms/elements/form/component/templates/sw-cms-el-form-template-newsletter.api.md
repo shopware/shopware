@@ -16,13 +16,4 @@ props
 
 blocks
   sw_cms_el_form_newsletter  [private]
-
-classes
-  sw-cms-el-form-contact-form-group  [private]
-  sw-cms-el-form-headline  [private]
-  sw-cms-el-form-newsletter  [private]
-  sw-cms-el-form-newsletter__note  [private]
-  sw-cms-el-form-newsletter__privacy  [private]
-  sw-cms-el-form__action  [private]
-  three-items  [private]
 ```

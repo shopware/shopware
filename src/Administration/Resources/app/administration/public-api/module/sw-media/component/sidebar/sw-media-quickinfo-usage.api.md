@@ -78,12 +78,4 @@ blocks
 crossings
   v-if  sw_media_quickinfo_usage_empty_state -> sw_media_quickinfo_usage_list
   v-if  sw_media_quickinfo_usage_loader -> sw_media_quickinfo_usage_empty_state
-
-classes
-  sw-media-quickinfo-usage
-  sw-media-quickinfo-usage__info-not-used
-  sw-media-quickinfo-usage__item
-  sw-media-quickinfo-usage__label
-  sw-media-quickinfo-usage__list
-  sw-media-quickinfo-usage__loading-indicator
 ```

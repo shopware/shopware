@@ -51,7 +51,7 @@ methods
   getTranslatedEventName(value: any): any  [private]
   isValidTrigger(eventName: any): any  [private]
   onCloseDeleteModal(): any  [private]
-  onConfirmDelete(item: any): any  [private]
+  onConfirmDelete(item: any): Promise<any>  [private]
   onDeleteFlow(item: any): any  [private]
   onDuplicateFlow(item: any): any  [private]
   onEditFlow(item: any): any  [private]
@@ -80,17 +80,4 @@ blocks
     sw_flow_list_search_bar  [private]
     sw_flow_list_smart_bar_actions  [private]
     sw_flow_list_smart_bar_header  [private]
-
-classes
-  sw-context-menu-item--danger  [private]
-  sw-flow-list  [private]
-  sw-flow-list-card  [private]
-  sw-flow-list__empty-state  [private]
-  sw-flow-list__event-name  [private]
-  sw-flow-list__event-name-label  [private]
-  sw-flow-list__event-name-unknown  [private]
-  sw-flow-list__grid  [private]
-  sw-flow-list__item-delete  [private]
-  sw-flow-list__item-duplicate  [private]
-  sw-flow-list__item-edit  [private]
 ```

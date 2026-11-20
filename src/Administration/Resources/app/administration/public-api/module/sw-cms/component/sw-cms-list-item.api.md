@@ -48,15 +48,4 @@ blocks
     sw_cms_list_item_image
     sw_cms_list_item_info
     sw_cms_list_item_options
-
-classes
-  is--empty
-  sw-cms-list-item
-  sw-cms-list-item__image
-  sw-cms-list-item__info
-  sw-cms-list-item__is-default
-  sw-cms-list-item__locked
-  sw-cms-list-item__placeholder
-  sw-cms-list-item__status
-  sw-cms-list-item__title
 ```

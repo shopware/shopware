@@ -55,12 +55,4 @@ blocks
       sw_maintain_currencies_modal_grid_column_price  [private]
         sw_maintain_currencies_modal_grid_column_price_field  [scope: item] [private]
         sw_maintain_currencies_modal_grid_column_price_field_label  [private]
-
-classes
-  sw-maintain-currencies-modal  [private]
-  sw-maintain-currencies-modal__list-price-label  [private]
-  sw-maintain-currencies-modal__price-label  [private]
-  sw-maintain-currencies-modal__price-label-wrapper  [private]
-  sw-maintain-currencies-modal__reference-price-label  [private]
-  sw-price-form__inherited-icon  [private]
 ```

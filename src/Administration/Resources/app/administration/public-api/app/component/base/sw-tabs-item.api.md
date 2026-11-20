@@ -26,7 +26,7 @@ props
   hasError?: boolean  default=literal  [private]
   hasWarning?: boolean  default=literal  [private]
   name?: string  default=literal  [private]
-  route?: string | object  default=literal  [private]
+  route?: object | string  default=literal  [private]
   warningTooltip?: string  default=factory  [private]
 
 emits
@@ -59,9 +59,4 @@ blocks
 
 refs
   sw-tabs-item  -> component  [private]
-
-classes
-  sw-tabs-item  [private]
-  sw-tabs-item__error-badge  [private]
-  sw-tabs-item__warning-badge  [private]
 ```

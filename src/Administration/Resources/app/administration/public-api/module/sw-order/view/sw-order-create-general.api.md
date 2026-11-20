@@ -45,11 +45,4 @@ methods
 
 blocks
   sw_order_create_general
-
-classes
-  sw-order-create-general
-  sw-order-create-general__general-info
-  sw-order-create-general__line-items
-  sw-order-create-summary
-  sw-order-create-summary__data
 ```

@@ -35,7 +35,4 @@ methods
 blocks
   sw_wizard_page  [private]
     sw_wizard_page_slot_default  [private]
-
-classes
-  sw-wizard-page  [private]
 ```

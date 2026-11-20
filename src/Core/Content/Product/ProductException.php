@@ -29,6 +29,9 @@ class ProductException extends HttpException
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
     final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
     public const MISSING_REQUEST_PARAMETER_CODE = 'PRODUCT__MISSING_REQUEST_PARAMETER_CODE';
+    final public const PRODUCT_DOCUMENT_ARCHIVE_NOT_FOUND = 'PRODUCT__DOCUMENT_ARCHIVE_NOT_FOUND';
+    final public const PRODUCT_DOCUMENT_ARCHIVE_THROTTLED = 'PRODUCT__DOCUMENT_ARCHIVE_THROTTLED';
+    final public const PRODUCT_DOCUMENT_ARCHIVE_FAILED = 'PRODUCT__DOCUMENT_ARCHIVE_FAILED';
 
     public static function invalidCheapestPriceFacade(string $id): self
     {
@@ -166,6 +169,37 @@ class ProductException extends HttpException
             self::MISSING_REQUEST_PARAMETER_CODE,
             'Parameter "{{ parameterName }}" is missing.',
             ['parameterName' => $name]
+        );
+    }
+
+    public static function documentArchiveNotFound(string $productId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::PRODUCT_DOCUMENT_ARCHIVE_NOT_FOUND,
+            'The product "{{ productId }}" has no documents to download.',
+            ['productId' => $productId]
+        );
+    }
+
+    public static function documentArchiveThrottled(int $waitTime, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_TOO_MANY_REQUESTS,
+            self::PRODUCT_DOCUMENT_ARCHIVE_THROTTLED,
+            'Too many downloads of product documents. Please try again in {{ seconds }} seconds.',
+            ['seconds' => $waitTime],
+            $previous
+        );
+    }
+
+    public static function documentArchiveFailed(string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PRODUCT_DOCUMENT_ARCHIVE_FAILED,
+            'The documents archive could not be created: {{ reason }}',
+            ['reason' => $reason]
         );
     }
 }

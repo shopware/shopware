@@ -1041,6 +1041,60 @@
                     }
                 ]
             }
+        },
+        "/product/{productId}/documents/archive": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Download all documents of a product as one ZIP file",
+                "description": "Returns the documents the product page shows, in the language of the context, as one ZIP file. A variant without documents of its own gets the documents of its parent. Downloads are rate limited per IP address.",
+                "operationId": "downloadProductDocumentsArchive",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "Product ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The ZIP file with the documents of the product.",
+                        "content": {
+                            "application/zip": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No product exists for the given `productId` in this sales channel, or none of its documents has a public file."
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many downloads from this IP address. The waiting time is contained in the error."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
         }
     }
 }

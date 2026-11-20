@@ -27,10 +27,6 @@ export default Shopware.Component.wrapComponentConfig({
         'mediaDefaultFolderService',
     ],
 
-    props: {
-        disabled: { type: Boolean, required: false, default: false },
-    },
-
     data() {
         return {
             page: 1,
@@ -109,7 +105,7 @@ export default Shopware.Component.wrapComponentConfig({
 
         canEdit(): boolean {
             const isLanguageReady = this.isSystemDefaultLanguage || this.documentContext.language?.id === this.languageId;
-            return !this.disabled && this.acl.can('product.editor') && isLanguageReady;
+            return this.acl.can('product.editor') && isLanguageReady;
         },
 
         canAddDocuments(): boolean {

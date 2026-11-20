@@ -2,6 +2,7 @@
  * @sw-package inventory
  */
 import escape from 'lodash-es/escape';
+import useDocumentDefaultLanguage from '../use-document-default-language';
 import './sw-product-document-add-button.scss';
 import template from './sw-product-document-add-button.html.twig';
 
@@ -12,7 +13,6 @@ export default Shopware.Component.wrapComponentConfig({
     emits: ['documents-add'],
 
     props: {
-        defaultLanguageName: { type: String, required: false, default: '' },
         isInherited: {
             type: Boolean,
             required: false,
@@ -23,6 +23,10 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
+    },
+
+    setup() {
+        return useDocumentDefaultLanguage();
     },
 
     computed: {

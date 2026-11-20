@@ -5,6 +5,7 @@ import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.moc
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type { ComponentPublicInstance } from 'vue';
 import {
+    mockVariantSync,
     withProductStates,
     createProduct,
     cleanupWrappers,
@@ -12,6 +13,7 @@ import {
     clickButton,
     selectMedia,
     createMedia,
+    getDocuments,
 } from './helpers';
 
 describe('sw-product-document-form variant persistence', () => {
@@ -37,6 +39,7 @@ describe('sw-product-document-form variant persistence', () => {
         Shopware.Context.api.languageId = originalLanguage;
         Shopware.Store.get('context').api.language = originalLanguageMetadata;
         cleanupWrappers();
+        jest.restoreAllMocks();
     });
 
     function getResponses() {
@@ -134,114 +137,96 @@ describe('sw-product-document-form variant persistence', () => {
         return withProductStates((await repositoryFactory.create('product').get(productId, Shopware.Context.api))!);
     }
 
-    it.each(['title', 'file'])('saves and reloads a German %s edit while preserving the other fallback', async (field) => {
-        const repository = repositoryFactory.create('product', '', { useSync: true });
-        const productId = createProduct().id;
-        const variantId = createProduct().id;
-        const documentId = repositoryFactory.create('product_document').create().id;
-        const variantDocumentId = repositoryFactory.create('product_document').create().id;
-        const store = Shopware.Store.get('swProductDetail');
-        store.product = await loadProduct(productId, documentId);
-        const variant = await loadProduct(variantId, variantDocumentId);
-        const title = field === 'title' ? 'Handbuch' : 'Manual';
-        const mediaId = field === 'file' ? germanMediaId : englishMediaId;
+    it.each(['title', 'file'])(
+        'saves a German %s edit on the parent only and queues the variant update while preserving the other fallback',
+        async (field) => {
+            const repository = repositoryFactory.create('product', '', { useSync: true });
+            const productId = createProduct().id;
+            const documentId = repositoryFactory.create('product_document').create().id;
+            const store = Shopware.Store.get('swProductDetail');
+            store.product = await loadProduct(productId, documentId);
+            const title = field === 'title' ? 'Handbuch' : 'Manual';
+            const mediaId = field === 'file' ? germanMediaId : englishMediaId;
 
-        jest.spyOn(repository, 'search').mockResolvedValueOnce(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-        );
-        const wrapper = await createWrapper(undefined, undefined, repository);
-        await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
-        if (field === 'title') {
-            wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', title);
-        } else {
-            const replacement = createMedia('german-manual');
-            replacement.id = germanMediaId;
-            await selectMedia(wrapper, [replacement]);
-        }
-        wrapper
-            .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
-            .vm.$emit('update:checked', true);
-        await clickButton(wrapper, 'global.default.apply');
-        await flushPromises();
-        const changedField = field === 'title' ? { title } : { mediaId };
-        const beforeSave = new ChangesetGenerator().generate(store.product);
-        const responses = getResponses();
-        const syncSpy = jest.spyOn(repository.httpClient, 'post');
-        responses.addResponse({ method: 'POST', url: '_action/sync', status: 400, response: { errors: [] } });
-        await expect(repository.save(store.product, Shopware.Context.api)).rejects.toMatchObject({
-            response: { status: 400 },
-        });
-        expect(new ChangesetGenerator().generate(store.product)).toEqual(beforeSave);
-        responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: {} });
-        await repository.save(store.product, Shopware.Context.api);
-        const operations = [
-            {
-                key: 'write',
-                action: 'upsert',
-                entity: 'product',
-                payload: [
-                    {
-                        id: productId,
-                        versionId,
-                        documents: [{ id: documentId, versionId, ...changedField }],
-                        children: [
-                            {
-                                id: variantId,
-                                versionId,
-                                documents: [{ id: variantDocumentId, versionId, ...changedField }],
-                            },
-                        ],
-                    },
-                ],
-            },
-        ];
-        expect(syncSpy.mock.calls[0][1]).toEqual(operations);
-        expect(syncSpy.mock.calls[1][1]).toEqual(operations);
-        expect(syncSpy.mock.calls[1][2]).toMatchObject({
-            headers: { 'single-operation': true, 'sw-language-id': germanLanguageId },
-        });
-        store.product = await loadProduct(
-            productId,
-            documentId,
-            field === 'title' ? title : null,
-            field === 'file' ? mediaId : null,
-        );
-        const reloaded = await loadProduct(
-            variantId,
-            variantDocumentId,
-            field === 'title' ? title : null,
-            field === 'file' ? mediaId : null,
-            'Updated manual',
-            germanMediaId,
-        );
-        expect(reloaded.documents![0]).toMatchObject({
-            title: field === 'title' ? title : null,
-            mediaId: field === 'file' ? mediaId : null,
-            translated: { title: field === 'title' ? title : 'Updated manual', mediaId: germanMediaId },
-        });
-        expect(
-            reloaded.documents![0].translations.find(
-                (translation) => translation.languageId === Shopware.Context.api.systemLanguageId,
-            ),
-        ).toMatchObject({ title: 'Updated manual', mediaId: germanMediaId });
-        expect(new ChangesetGenerator().generate(reloaded).changes).toBeNull();
-        expect(new ChangesetGenerator().generate(store.product).changes).toBeNull();
-    });
+            mockVariantSync.mockResolvedValueOnce(['variant-a']);
+            const wrapper = await createWrapper(undefined, undefined, repository);
+            await wrapper.findAll('sw-context-menu-item-stub')[0].trigger('click');
+            if (field === 'title') {
+                wrapper.getComponent<ComponentPublicInstance>('.mt-text-field').vm.$emit('update:modelValue', title);
+            } else {
+                const replacement = createMedia('german-manual');
+                replacement.id = germanMediaId;
+                await selectMedia(wrapper, [replacement]);
+            }
+            wrapper
+                .getComponent<ComponentPublicInstance>('.sw-product-document-form__apply-to-variants')
+                .vm.$emit('update:checked', true);
+            await clickButton(wrapper, 'global.default.apply');
+            await flushPromises();
+            const changedField = field === 'title' ? { title } : { mediaId };
+            const operation = { mediaId: englishMediaId, title: 'Manual', changes: changedField };
+            expect(mockVariantSync).toHaveBeenCalledTimes(1);
+            expect(mockVariantSync).toHaveBeenCalledWith(productId, [operation], true);
+            expect(store.documentVariantOperations).toEqual({ [documentId]: operation });
 
-    it('includes loaded variant deletions in the parent Sync save and reloads both removals', async () => {
+            const beforeSave = new ChangesetGenerator().generate(store.product);
+            const responses = getResponses();
+            const syncSpy = jest.spyOn(repository.httpClient, 'post');
+            responses.addResponse({ method: 'POST', url: '_action/sync', status: 400, response: { errors: [] } });
+            await expect(repository.save(store.product, Shopware.Context.api)).rejects.toMatchObject({
+                response: { status: 400 },
+            });
+            expect(new ChangesetGenerator().generate(store.product)).toEqual(beforeSave);
+            responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: {} });
+            await repository.save(store.product, Shopware.Context.api);
+            const operations = [
+                {
+                    key: 'write',
+                    action: 'upsert',
+                    entity: 'product',
+                    payload: [
+                        {
+                            id: productId,
+                            versionId,
+                            documents: [{ id: documentId, versionId, ...changedField, translated: { title, mediaId } }],
+                        },
+                    ],
+                },
+            ];
+            expect(syncSpy).toHaveBeenCalledTimes(2);
+            expect(syncSpy.mock.calls[0][1]).toEqual(operations);
+            expect(syncSpy.mock.calls[1][1]).toEqual(operations);
+            expect(syncSpy.mock.calls[1][2]).toMatchObject({
+                headers: { 'single-operation': true, 'sw-language-id': germanLanguageId },
+            });
+            expect(mockVariantSync).toHaveBeenCalledTimes(1);
+
+            store.product = await loadProduct(
+                productId,
+                documentId,
+                field === 'title' ? title : null,
+                field === 'file' ? mediaId : null,
+            );
+            await flushPromises();
+            expect(getDocuments()![0]).toMatchObject({
+                title: field === 'title' ? title : null,
+                mediaId: field === 'file' ? mediaId : null,
+                translated: { title, mediaId },
+            });
+            expect(wrapper.text()).toContain(title);
+            expect(new ChangesetGenerator().generate(store.product).changes).toBeNull();
+        },
+    );
+
+    it('deletes only the parent document in the Sync save and queues the variant removal', async () => {
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
         const repository = repositoryFactory.create('product', '', { useSync: true });
         const productId = createProduct().id;
-        const variantId = createProduct().id;
         const documentId = repositoryFactory.create('product_document').create().id;
-        const variantDocumentId = repositoryFactory.create('product_document').create().id;
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct(productId, documentId, 'Manual', englishMediaId);
-        const variant = await loadProduct(variantId, variantDocumentId, 'Manual', englishMediaId);
 
-        jest.spyOn(repository, 'search').mockResolvedValueOnce(
-            new Shopware.Data.EntityCollection('/product', 'product', Shopware.Context.api, null, [variant]),
-        );
+        mockVariantSync.mockResolvedValueOnce(['variant-a']);
         const wrapper = await createWrapper(undefined, undefined, repository);
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');
         wrapper
@@ -249,21 +234,23 @@ describe('sw-product-document-form variant persistence', () => {
             .vm.$emit('update:checked', true);
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
+        const operation = { mediaId: englishMediaId, title: 'Manual' };
+        expect(mockVariantSync).toHaveBeenCalledWith(productId, [operation], true);
+        expect(store.documentVariantOperations).toEqual({ [documentId]: operation });
+
         const responses = getResponses();
         responses.addResponse({ method: 'POST', url: '_action/sync', status: 200, response: {} });
         const syncSpy = jest.spyOn(repository.httpClient, 'post');
         const deleteSpy = jest.spyOn(repository.httpClient, 'delete');
         await repository.save(store.product, Shopware.Context.api);
-        expect(syncSpy.mock.calls[0][1]).toContainEqual({
-            action: 'delete',
-            entity: 'product_document',
-            payload: [{ id: documentId }, { id: variantDocumentId }],
-        });
-        expect(syncSpy.mock.calls[0][1]).not.toEqual(expect.arrayContaining([expect.objectContaining({ entity: 'media' })]));
+        expect(syncSpy).toHaveBeenCalledTimes(1);
+        expect(syncSpy.mock.calls[0][1]).toEqual([
+            { action: 'delete', entity: 'product_document', payload: [{ id: documentId }] },
+        ]);
         expect(deleteSpy).not.toHaveBeenCalled();
+        expect(mockVariantSync).toHaveBeenCalledTimes(1);
         store.product = await loadProduct(productId, null);
         expect(store.product.documents).toHaveLength(0);
-        expect((await loadProduct(variantId, null)).documents).toHaveLength(0);
         expect(new ChangesetGenerator().generate(store.product)).toEqual({ changes: null, deletionQueue: [] });
     });
 });

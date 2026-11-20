@@ -69,7 +69,14 @@ describe('sw-product-detail-base document save and reload', () => {
             const document = {
                 id: documentId,
                 type: 'product_document',
-                attributes: { extensions: {}, productId, mediaId: media.id, title, position: 0 },
+                attributes: {
+                    extensions: {},
+                    productId,
+                    mediaId: media.id,
+                    title,
+                    position: 0,
+                    translated: { title, mediaId: media.id },
+                },
                 relationships: {
                     translations: {
                         data: translationRows.map(({ id: translationId, type }) => ({ id: translationId, type })),

@@ -99,6 +99,21 @@ export default {
             return Shopware.Store.get('swProductDetail').product;
         },
 
+        /** @private */
+        productDocumentVariantService() {
+            return Shopware.Service('productDocumentVariantService');
+        },
+
+        /** @private */
+        documentVariantOperations: {
+            get() {
+                return Shopware.Store.get('swProductDetail').documentVariantOperations;
+            },
+            set(operations) {
+                Shopware.Store.get('swProductDetail').documentVariantOperations = operations;
+            },
+        },
+
         parentProduct() {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
@@ -565,8 +580,6 @@ export default {
 
             Shopware.Store.get('swProductDetail').setLoading(['product', true]);
 
-            // Opening an existing product may not change the language ID; preload document labels and fallbacks.
-            this.loadLanguage(Shopware.Context.api.languageId);
             await this.initProductMeasurementUnits();
 
             // initialize default state
@@ -860,6 +873,7 @@ export default {
 
                     Shopware.Store.get('swProductDetail').isDownloadExternallyManaged = !product.downloads?.length;
                     Shopware.Store.get('swProductDetail').product = product;
+                    this.documentVariantOperations = {};
 
                     if (this.product.parentId) {
                         await this.loadParentProduct();
@@ -1080,7 +1094,7 @@ export default {
         },
 
         abortOnLanguageChange() {
-            return this.productRepository.hasChanges(this.product);
+            return this.productRepository.hasChanges(this.product) || Object.keys(this.documentVariantOperations).length > 0;
         },
 
         saveOnLanguageChange() {
@@ -1303,12 +1317,15 @@ export default {
             };
 
             return new Promise((resolve) => {
+                const saveDocumentVariants = this.getDocumentVariantsSaver();
+
                 // check if product exists
                 if (!this.productRepository.hasChanges(this.product)) {
-                    updateSeoUrls();
-                    Shopware.Store.get('swProductDetail').setLoading(['product', false]);
-                    resolve('empty');
-                    Shopware.Store.get('swProductDetail').setLoading(['product', false]);
+                    saveDocumentVariants().then(() => {
+                        updateSeoUrls();
+                        Shopware.Store.get('swProductDetail').setLoading(['product', false]);
+                        resolve('empty');
+                    });
                     return;
                 }
 
@@ -1322,6 +1339,7 @@ export default {
                 // save product
                 this.syncRepository
                     .save(this.product, this.productApiContext)
+                    .then(saveDocumentVariants)
                     .then(() => {
                         updateSeoUrls();
 
@@ -1347,6 +1365,28 @@ export default {
                         resolve(response);
                     });
             });
+        },
+
+        /** @private */
+        getDocumentVariantsSaver() {
+            const operations = Object.values(this.documentVariantOperations);
+            const productId = this.product.id;
+            const { languageId } = this.productApiContext;
+
+            return async () => {
+                if (!operations.length) {
+                    return;
+                }
+
+                try {
+                    await this.productDocumentVariantService.sync(productId, operations, false, languageId);
+                    this.documentVariantOperations = {};
+                } catch {
+                    this.createNotificationError({
+                        message: this.$t('sw-product.documentForm.errorSaveVariants'),
+                    });
+                }
+            };
         },
 
         trackProductSaveEvents(productType, productIsNew, productWasActivated) {
@@ -1405,7 +1445,8 @@ export default {
             return '';
         },
 
-        onDuplicate() {
+        async onDuplicate() {
+            await this.getDocumentVariantsSaver()();
             this.cloning = true;
         },
 
@@ -1500,30 +1541,14 @@ export default {
         },
 
         async loadLanguage(newLanguageId) {
-            if (!newLanguageId) {
-                return;
-            }
+            const language = await this.languageRepository.get(
+                newLanguageId,
+                { ...Shopware.Context.api, inheritance: true },
+                this.languageCriteria,
+            );
 
-            try {
-                const language = await this.languageRepository.get(
-                    newLanguageId,
-                    { ...Shopware.Context.api, inheritance: true },
-                    this.languageCriteria,
-                );
-
-                if (newLanguageId !== Shopware.Context.api.languageId) {
-                    return;
-                }
-
-                Shopware.Store.get('swProductDetail').documentLanguage = language;
+            if (newLanguageId === Shopware.Context.api.languageId) {
                 Shopware.Store.get('context').api.language = language;
-            } catch {
-                if (newLanguageId === Shopware.Context.api.languageId) {
-                    Shopware.Store.get('swProductDetail').documentLanguage = null;
-                    this.createNotificationError({
-                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
-                    });
-                }
             }
         },
 

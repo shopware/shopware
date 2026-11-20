@@ -162,7 +162,14 @@ describe('sw-product-document-form translated editing', () => {
         expect(patchSpy.mock.calls[0][1]).toEqual({
             id: productId,
             versionId,
-            documents: [{ id: documentId, versionId, ...changedField }],
+            documents: [
+                {
+                    id: documentId,
+                    versionId,
+                    ...changedField,
+                    translated: { title: 'Manual', mediaId: englishMedia.id, ...changedField },
+                },
+            ],
         });
         expect(patchSpy.mock.calls[0][2]).toMatchObject({ headers: { 'sw-language-id': germanLanguageId } });
         const savedTitle = field === 'title' ? 'Handbuch' : null;

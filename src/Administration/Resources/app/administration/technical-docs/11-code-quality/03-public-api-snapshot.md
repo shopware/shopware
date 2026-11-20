@@ -19,7 +19,7 @@ Regenerate it after such a change and commit the result:
 composer admin:generate-public-api
 ```
 
-`scripts/generate-public-api/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
+`scripts/generate-public-api/snapshot/committed-snapshot.spec.ts` fails while the committed files differ from the sources.
 When a block of the committed snapshot is gone from the templates, it reports that as a breaking change and names the block.
 Regenerating the snapshot makes both tests pass, because they compare files and judge no change.
 The break check judges a change, see "Break check".
@@ -110,7 +110,7 @@ The runtime applies overrides with the same index in the order they are register
 Unlike an extend template, each top-level block of an override is applied on its own, so a later block can replace one that an earlier block kept or added.
 
 Some blocks of an extend or override template never render: the runtime drops a block that replaces nothing, without a warning.
-Such a block is in no report, and `scripts/generate-public-api/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
+Such a block is in no report, and `scripts/generate-public-api/read/template/extend-chain.spec/runtime.spec.ts` fails when a template declares one.
 The same spec registers every template with the runtime factory and compares the blocks of each component with the snapshot, their origin included.
 
 ### Block structure
@@ -147,7 +147,7 @@ crossings
 
 The structure is read from the template a component renders, after the merge along its extend chain.
 An inherited block has the context of its place in the parent, and a block the child adds has the context of the place it renders in.
-`scripts/generate-public-api/block-structure.spec/compiler.spec.ts` asks the Vue compiler the same questions about every block of the Administration and compares the answers.
+`scripts/generate-public-api/read/template/block-structure.spec/compiler.spec.ts` asks the Vue compiler the same questions about every block of the Administration and compares the answers.
 
 The generator also keeps the conditions of the chain a block follows, whether the content of the block continues that chain, and where each variable comes from, for example `v-for products` or `slot sw-data-grid#actions`.
 The break check compares them, see "Break check".
@@ -236,7 +236,7 @@ A note says that a section may miss members, with the start of the source the ge
 | `unresolved options <source>` | A spread into the options object, a `setup` function, or a source without an options object, such as a native component |
 | `dynamic-ref <expression>`, `dynamic-slot <expression>` | A bound `:ref` or a `<slot :name>` |
 
-`scripts/generate-public-api/component-members.spec/runtime.spec.ts` loads every component of the Administration and compares the names with the options object at runtime.
+`scripts/generate-public-api/read/options/option-members.spec/runtime.spec.ts` loads every component of the Administration and compares the names with the options object at runtime.
 A section with a note may hold fewer names than the runtime, every other section has to hold the same.
 
 ### Flag states
@@ -369,7 +369,7 @@ The generator rejects those for the committed snapshot, and the check leaves the
 
 ### Rules for blocks
 
-`block-rules.ts` holds one rule per kind of change.
+`break-check/rules/block-rules.ts` holds one rule per kind of change.
 A rule compares the blocks of one component in one flag state, and its text says what an override of the block notices.
 
 | Rule | Group | Reported when | An override notices |
@@ -401,7 +401,7 @@ A rule compares the blocks of one component in one flag state, and its text says
 
 ### Rules for members
 
-`member-rules.ts` builds one rule per kind of member for a member that is gone and one for a new member, from the table of kinds in `component-members.ts`.
+`break-check/rules/member-rules.ts` builds one rule per kind of member for a member that is gone and one for a new member, from the table of kinds in `model/members.ts`.
 The rules below those are about what only one kind has.
 
 | Rule | Group | Reported when | A plugin notices |
@@ -469,7 +469,7 @@ An accepted break, which a file in the repository would allow, does not exist ye
 
 ### Summary
 
-`classifyChanges` in `break-check.ts` returns the findings as data, and `formatFindings` in `findings.ts` prints them as the summary of the break check.
+`classifyChanges` in `break-check/break-check.ts` returns the findings as data, and `printFindings` in `break-check/print-findings.ts` prints them as the summary of the break check.
 A finding has a group, a rule such as `block_moved_parent`, the id of its element, the flag states it applies to, an explanation, and optionally a fix, a possible rename, the extend children it also affects and the location in the head commit.
 
 ```text
@@ -494,7 +494,7 @@ The kind of the element below the owner, `block` in this example, decides which 
 
 ## Fixtures
 
-Each folder in `scripts/generate-public-api/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
+Each folder in `scripts/generate-public-api/testing/__fixtures__/` is one case: a small source tree before and after a change, and the output expected for it.
 
 | Path | Content |
 |---|---|
@@ -509,7 +509,7 @@ The script part of a component stays empty unless the case covers it, even where
 This keeps the expected snapshot of a case free of unit kinds that are designed later.
 
 The `expected/` folders are written by hand and are the specification the generator is built against.
-`fixtures.spec.ts` checks that `formatFindings` prints `findings.json` as `findings.txt`, so the two files cannot drift apart.
+`testing/fixtures.spec.ts` checks that `printFindings` prints `findings.json` as `findings.txt`, so the two files cannot drift apart.
 The expected snapshots hold whole files with every unit kind, while the generator covers one kind at a time.
 `fixtures.spec.ts` therefore compares each case several times:
 
@@ -538,9 +538,9 @@ The members have three unit kinds:
 | `member-findings` | The findings on props, computed properties, methods, refs and classes |
 
 A unit kind can only list a part that some case expects.
-No case has mixins, provided values or notes, so `component-members.spec/snapshot.spec.ts` covers those sections.
+No case has mixins, provided values or notes, so `read/options/option-members.spec/snapshot.spec.ts` covers those sections.
 
-`expected-failures.ts` lists what cannot pass yet, in two lists:
+`testing/expected-failures.ts` lists what cannot pass yet, in two lists:
 
 - `views` names a unit kind, or `complete`, that no case passes yet.
 - `comparisons` names single comparisons such as `block-moved/block-findings`, for a view that other cases pass already.
@@ -551,10 +551,10 @@ So is a section, member, key or element kind of a unit kind that occurs in no ex
 
 To build the next part:
 
-1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `fixture-runner.ts` when it is a new one.
-   A new unit kind goes into `views` of `expected-failures.ts`.
-2. Implement it behind `generateSnapshot` in `snapshot.ts` and `classifyChanges` in `break-check.ts`.
-   The generator reads the sources into the model of `model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
+1. Add its fixture cases, and its unit kind to `UNIT_KINDS` in `testing/fixture-runner.ts` when it is a new one.
+   A new unit kind goes into `views` of `testing/expected-failures.ts`.
+2. Implement it behind `generateSnapshot` in `snapshot/snapshot.ts` and `classifyChanges` in `break-check/break-check.ts`.
+   `read/build-model.ts` reads the sources into the model of `model/model.ts`, and the printers turn the model into files, so a new part adds to the model and to each printer.
 3. Once some cases pass the kind, remove it from `views` and list the cases that still fail in `comparisons`.
    The part is done when its entries are gone.
 4. Run `composer admin:generate-public-api` and commit the changed files in `public-api/`.

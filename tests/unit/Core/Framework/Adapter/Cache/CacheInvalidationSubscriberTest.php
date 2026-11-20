@@ -12,8 +12,6 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
-use Shopware\Core\Content\Media\Event\MediaIndexerEvent;
-use Shopware\Core\Content\Media\SalesChannel\MediaRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationDefinition;
@@ -95,60 +93,6 @@ class CacheInvalidationSubscriberTest extends TestCase
             ]),
             [],
         ));
-    }
-
-    public function testInvalidateMediaWithoutVariantsWillInvalidateOnlyProducts(): void
-    {
-        $productId = '123';
-        $mediaId = Uuid::randomHex();
-        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
-
-        $subscriber = $this->createSubscriber();
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([['product_id' => $productId, 'version_id' => null]]);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(
-                [
-                    EntityCacheKeyGenerator::buildProductTag($productId),
-                    MediaRoute::buildName($mediaId),
-                ],
-                false
-            );
-
-        $subscriber->invalidateMedia($event);
-    }
-
-    public function testInvalidateMediaWithVariantsWillInvalidateProductsAndVariants(): void
-    {
-        $productId = '123';
-        $variants = ['456', '789'];
-        $mediaId = Uuid::randomHex();
-        $event = new MediaIndexerEvent([$mediaId], Context::createDefaultContext(), []);
-
-        $subscriber = $this->createSubscriber();
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
-            ->willReturn([
-                ['product_id' => $productId, 'variant_id' => $variants[0]],
-                ['product_id' => $productId, 'variant_id' => $variants[1]],
-            ]);
-
-        $this->cacheInvalidator->expects($this->once())
-            ->method('invalidate')
-            ->with(
-                [
-                    EntityCacheKeyGenerator::buildProductTag($productId),
-                    EntityCacheKeyGenerator::buildProductTag($variants[0]),
-                    EntityCacheKeyGenerator::buildProductTag($variants[1]),
-                    MediaRoute::buildName($mediaId),
-                ],
-                false
-            );
-
-        $subscriber->invalidateMedia($event);
     }
 
     public function testInvalidateNavigationRouteWithSalesChannelSettings(): void

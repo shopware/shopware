@@ -365,32 +365,20 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        /** @var list<array{'product_id':string, 'variant_id':string|null}> $productIds */
-        $productIds = $this->connection->fetchAllAssociative(
-            'SELECT
-                    LOWER(HEX(pm.product_id)) as product_id,
-                    IF(variant.id IS NULL,  NULL, LOWER(HEX(variant.id))) as variant_id
-                    FROM product_media AS pm
-                    LEFT JOIN product as variant ON (pm.product_id = variant.parent_id)
-                    WHERE media_id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($event->getIds())],
-            ['ids' => ArrayParameterType::STRING]
-        );
+        foreach ($this->getMediaProductBatches($event->getIds()) as $rows) {
+            $productIds = array_unique(array_column($rows, 'product_id'));
+            $variantIds = array_filter(array_column($rows, 'variant_id'));
+            $tags = array_map(
+                static fn (string $id) => ProductDetailRoute::buildName(Uuid::fromBytesToHex($id)),
+                array_merge($productIds, $variantIds)
+            );
 
-        $variantIds = array_filter(array_column($productIds, 'variant_id'));
-        $uniqueProductIds = array_unique(array_column($productIds, 'product_id'));
-        $productIds = array_merge(
-            $uniqueProductIds,
-            $variantIds,
-        );
-
-        $tags = array_map(ProductDetailRoute::buildName(...), $productIds);
-
-        if (Feature::isActive('CACHE_REWORK')) {
-            $tags = array_merge($tags, array_map(MediaRoute::buildName(...), $event->getIds()));
+            $this->cacheInvalidator->invalidate($tags);
         }
 
-        $this->cacheInvalidator->invalidate($tags);
+        if (Feature::isActive('CACHE_REWORK')) {
+            $this->cacheInvalidator->invalidate(array_map(MediaRoute::buildName(...), $event->getIds()));
+        }
     }
 
     public function invalidateContext(EntityWrittenContainerEvent $event): void
@@ -489,6 +477,76 @@ class CacheInvalidationSubscriber
         $this->cacheInvalidator->invalidate(
             array_map(EntityCacheKeyGenerator::buildStreamTag(...), $ids)
         );
+    }
+
+    /**
+     * The fast path reads up to 100,000 joined rows for all requested media without sorting.
+     * A result below the limit is complete and can be yielded directly.
+     * Reaching the limit may truncate the result, so the probe is discarded and each media item
+     * is read using ordered keyset pagination over product and variant IDs.
+     * This scopes sorting to one media item's matches and lets the caller invalidate each batch
+     * before fetching the next, keeping PHP memory bounded as the number of matches grows.
+     * Duplicate cursor pairs produce identical tags and can safely be skipped on subsequent pages.
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return \Generator<int, list<array{product_id: string, variant_id: string|null}>>
+     */
+    private function getMediaProductBatches(array $mediaIds): \Generator
+    {
+        $query = 'SELECT pm.product_id, variant.id as variant_id
+            FROM product_media AS pm
+            LEFT JOIN product AS variant ON (pm.product_id = variant.parent_id)
+            WHERE pm.media_id IN (:ids)';
+
+        /** @var list<array{product_id: string, variant_id: string|null}> $rows */
+        $rows = $this->connection->fetchAllAssociative(
+            $query . ' LIMIT 100000',
+            ['ids' => Uuid::fromHexToBytesList($mediaIds)],
+            ['ids' => ArrayParameterType::STRING]
+        );
+
+        if (\count($rows) < 100000) {
+            if ($rows !== []) {
+                yield $rows;
+            }
+
+            return;
+        }
+
+        unset($rows);
+
+        // Sort one media item's matches at a time instead of repeatedly sorting the combined result.
+        foreach ($mediaIds as $mediaId) {
+            $lastProductId = '';
+            $lastVariantId = null;
+
+            do {
+                /** @var list<array{product_id: string, variant_id: string|null}> $rows */
+                $rows = $this->connection->fetchAllAssociative(
+                    $query . ' AND (pm.product_id > :lastProductId
+                        OR (pm.product_id = :lastProductId AND variant.id > :lastVariantId))
+                        ORDER BY pm.product_id, variant.id LIMIT 100000',
+                    [
+                        'ids' => [Uuid::fromHexToBytes($mediaId)],
+                        'lastProductId' => $lastProductId,
+                        'lastVariantId' => $lastVariantId,
+                    ],
+                    ['ids' => ArrayParameterType::STRING]
+                );
+
+                if ($rows === []) {
+                    break;
+                }
+
+                $lastRow = $rows[array_key_last($rows)];
+                $lastProductId = $lastRow['product_id'];
+                $lastVariantId = $lastRow['variant_id'];
+
+                // Equal cursor pairs produce the same tags and can be skipped on the next page.
+                yield $rows;
+            } while (\count($rows) === 100000);
+        }
     }
 
     /**

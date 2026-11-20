@@ -2,10 +2,29 @@
  * @sw-package framework
  */
 
-const nodeContainsLeadingBlockComment = (node) => {
-    const comments = findComments(node);
+const { createJiti } = require('jiti');
 
-    const leadingComment = comments?.find(c => c.loc.end.line === (node.loc.start.line - 1));
+const { isEslintDirective } = createJiti(__filename)('./utils/eslint-directive.ts');
+
+/**
+ * The comment on the line above `node`. ESLint directives in between are skipped,
+ * so disabling another rule for the declaration keeps its declaration comment valid.
+ */
+function findLeadingComment(node) {
+    const comments = findComments(node) ?? [];
+    let line = node.loc.start.line;
+    let comment;
+
+    do {
+        comment = comments.find(c => c.loc.end.line === (line - 1));
+        line = comment?.loc.start.line;
+    } while (comment && isEslintDirective(comment.value));
+
+    return comment;
+}
+
+const nodeContainsLeadingBlockComment = (node) => {
+    const leadingComment = findLeadingComment(node);
 
     if (!leadingComment) {
         return false;

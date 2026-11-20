@@ -85,7 +85,7 @@ class ResetPasswordRouteTest extends TestCase
             ->willReturnCallback(function (string $route, string $key) use (&$resetCalls): void {
                 $resetCalls[] = [$route, $key];
             });
-        $rateLimiter->expects($this->exactly(2))
+        $rateLimiter->expects($this->exactly(3))
             ->method('resetIfConfigured')
             ->willReturnCallback(function (string $route, string $key) use (&$resetIfConfiguredCalls): void {
                 $resetIfConfiguredCalls[] = [$route, $key];
@@ -130,6 +130,7 @@ class ResetPasswordRouteTest extends TestCase
         static::assertSame([
             [RateLimiter::LOGIN_USER, $expectedEmailKey],
             [RateLimiter::LOGIN_CLIENT, $ip],
+            [RateLimiter::RESET_PASSWORD_USER, $expectedEmailKey],
         ], $resetIfConfiguredCalls);
     }
 

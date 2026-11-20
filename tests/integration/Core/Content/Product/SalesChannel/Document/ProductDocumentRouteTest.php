@@ -1,0 +1,233 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Document;
+
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+
+/**
+ * @internal
+ */
+#[Package('inventory')]
+#[Group('store-api')]
+class ProductDocumentRouteTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
+
+    private KernelBrowser $browser;
+
+    private IdsCollection $ids;
+
+    protected function setUp(): void
+    {
+        $this->ids = new IdsCollection();
+
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel'),
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM], ['id' => $this->getDeDeLanguageId()]],
+        ]);
+
+        $this->createData();
+    }
+
+    public function testLoadReturnsTheDocumentsWithAPublicFile(): void
+    {
+        $response = $this->fetch('drill');
+
+        static::assertSame(1, $response['total']);
+        static::assertSame(['Manual'], array_column(array_column($response['elements'], 'translated'), 'title'));
+        static::assertSame($this->ids->get('manual'), $response['elements'][0]['media']['id']);
+    }
+
+    public function testLoadCountsOnlyTheDocumentsWithAPublicFileAcrossPages(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', ['limit' => 1, 'page' => 1, 'total-count-mode' => 'exact']);
+
+        $response = $this->decode();
+        static::assertSame(1, $response['total']);
+        static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
+    }
+
+    public function testLoadLeavesOutTheFilesOfTheTranslations(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
+            'associations' => ['translations' => ['associations' => ['media' => []]]],
+        ]);
+
+        $response = $this->decode();
+        static::assertSame(1, $response['total']);
+        static::assertSame($this->ids->get('datasheet'), $response['elements'][0]['media']['id']);
+        static::assertCount(2, $response['elements'][0]['translations']);
+        foreach ($response['elements'][0]['translations'] as $translation) {
+            static::assertArrayNotHasKey('media', $translation);
+        }
+    }
+
+    public function testLoadLeavesOutTheProductOfTheDocuments(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', [
+            'associations' => ['product' => ['associations' => ['productReviews' => []]]],
+        ]);
+
+        $response = $this->decode();
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(1, $response['total']);
+        static::assertArrayNotHasKey('product', $response['elements'][0]);
+    }
+
+    public function testLoadRejectsCriteriaOnTheProductOfTheDocuments(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', [
+            'filter' => [['type' => 'contains', 'field' => 'product.productReviews.content', 'value' => 'secret']],
+        ]);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $this->decode()['errors'][0]['code']);
+    }
+
+    public function testLoadRejectsCriteriaOnTheFilesOfTheTranslations(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
+            'aggregations' => [['name' => 'paths', 'type' => 'terms', 'field' => 'translations.media.path']],
+        ]);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $this->decode()['errors'][0]['code']);
+    }
+
+    public function testLoadReturnsWholeDocumentsWhenTheRequestAsksForFields(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', ['fields' => ['id']]);
+
+        $response = $this->decode();
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertSame($this->ids->get('manual'), $response['elements'][0]['media']['id']);
+    }
+
+    public function testLoadReturnsTheDocumentsAVariantInheritsFromItsParent(): void
+    {
+        $response = $this->fetch('drill-red');
+
+        static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
+    }
+
+    public function testLoadReturnsTheOwnDocumentsOfAVariant(): void
+    {
+        $response = $this->fetch('drill-blue');
+
+        static::assertSame(['Blue sheet'], array_column(array_column($response['elements'], 'translated'), 'title'));
+        static::assertSame($this->ids->get('blue-sheet'), $response['elements'][0]['media']['id']);
+    }
+
+    public function testLoadResolvesTheTitleAndFileOfTheRequestedLanguage(): void
+    {
+        $this->browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, $this->getDeDeLanguageId());
+
+        $response = $this->fetch('drill');
+
+        static::assertSame(['Handbuch'], array_column(array_column($response['elements'], 'translated'), 'title'));
+        static::assertSame($this->ids->get('handbuch'), $response['elements'][0]['media']['id']);
+    }
+
+    public function testLoadSupportsGetRequests(): void
+    {
+        $this->browser->request('GET', '/store-api/product/' . $this->ids->get('drill') . '/documents');
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(1, $this->decode()['total']);
+    }
+
+    public function testLoadReturnsNotFoundForAProductThatIsNotVisible(): void
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get('hidden') . '/documents');
+
+        static::assertSame(404, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(ProductException::productNotFound($this->ids->get('hidden'))->getErrorCode(), $this->decode()['errors'][0]['code']);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function fetch(string $product): array
+    {
+        $this->browser->request('POST', '/store-api/product/' . $this->ids->get($product) . '/documents');
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        return $this->decode();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function decode(): array
+    {
+        return json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    private function createData(): void
+    {
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('media.repository')->create(array_map(fn (string $name): array => [
+            'id' => $this->ids->create($name),
+            'private' => false,
+            'fileName' => $name,
+            'fileExtension' => 'pdf',
+            'mimeType' => 'application/pdf',
+            'fileSize' => 1024,
+            'path' => 'media/' . $name . '.pdf',
+        ], ['manual', 'handbuch', 'certificate', 'certificate-copy', 'blue-sheet', 'datasheet', 'datenblatt']), $context);
+
+        $blue = (new ProductBuilder($this->ids, 'drill-blue'))->build();
+        $blue['documents'] = [['title' => 'Blue sheet', 'mediaId' => $this->ids->get('blue-sheet')]];
+
+        $drill = (new ProductBuilder($this->ids, 'drill'))
+            ->price(10)
+            ->visibility($this->ids->get('sales-channel'))
+            ->variant((new ProductBuilder($this->ids, 'drill-red'))->build())
+            ->variant($blue)
+            ->build();
+        $drill['documents'] = [
+            [
+                'id' => $this->ids->create('manual-document'),
+                'position' => 0,
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => ['title' => 'Manual', 'mediaId' => $this->ids->get('manual')],
+                    $this->getDeDeLanguageId() => ['title' => 'Handbuch', 'mediaId' => $this->ids->get('handbuch')],
+                ],
+            ],
+            ['position' => 1, 'title' => 'Certificate', 'mediaId' => $this->ids->get('certificate')],
+            ['position' => 2, 'title' => 'Certificate copy', 'mediaId' => $this->ids->get('certificate-copy')],
+        ];
+
+        $saw = (new ProductBuilder($this->ids, 'saw'))->price(10)->visibility($this->ids->get('sales-channel'))->build();
+        $saw['documents'] = [[
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['title' => 'Datasheet', 'mediaId' => $this->ids->get('datasheet')],
+                $this->getDeDeLanguageId() => ['title' => 'Datenblatt', 'mediaId' => $this->ids->get('datenblatt')],
+            ],
+        ]];
+
+        $hidden = (new ProductBuilder($this->ids, 'hidden'))->price(10)->build();
+
+        static::getContainer()->get('product.repository')->create([$drill, $saw, $hidden], $context);
+
+        static::getContainer()->get('media.repository')->update([
+            ['id' => $this->ids->get('certificate'), 'private' => true],
+            ['id' => $this->ids->get('datenblatt'), 'private' => true],
+            ['id' => $this->ids->get('certificate-copy'), 'path' => null],
+        ], $context);
+    }
+}

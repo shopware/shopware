@@ -18,11 +18,13 @@ readonly class ProductDocumentConfig
     /**
      * @param list<string> $allowedExtensions
      * @param int $maxFileSize in bytes
+     * @param list<string> $publicMediaExtensions
      */
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
         private array $allowedExtensions,
         public int $maxFileSize,
+        private array $publicMediaExtensions,
     ) {
     }
 
@@ -34,15 +36,12 @@ readonly class ProductDocumentConfig
         $event = new ProductDocumentAllowedExtensionsEvent($this->allowedExtensions, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $extensions = [];
-        foreach ($event->getAllowedExtensions() as $extension) {
-            $extension = mb_strtolower(ltrim(trim((string) $extension), '.'));
-            if ($extension !== '') {
-                $extensions[$extension] = true;
-            }
-        }
+        $publicMediaExtensions = array_flip(self::normalize($this->publicMediaExtensions));
 
-        return array_map(strval(...), array_keys($extensions));
+        return array_values(array_filter(
+            self::normalize($event->getAllowedExtensions()),
+            static fn (string $extension): bool => isset($publicMediaExtensions[$extension]),
+        ));
     }
 
     /**
@@ -63,5 +62,23 @@ readonly class ProductDocumentConfig
     public function getMaxUploadFileSize(): int
     {
         return MemorySizeCalculator::getMaxUploadSize($this->maxFileSize);
+    }
+
+    /**
+     * @param array<array-key, mixed> $extensions
+     *
+     * @return list<string>
+     */
+    private static function normalize(array $extensions): array
+    {
+        $normalized = [];
+        foreach ($extensions as $extension) {
+            $extension = mb_strtolower(ltrim(trim((string) $extension), '.'));
+            if ($extension !== '') {
+                $normalized[$extension] = true;
+            }
+        }
+
+        return array_map(strval(...), array_keys($normalized));
     }
 }

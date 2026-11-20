@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
+use Mcp\Schema\ServerCapabilities;
+use Mcp\Server\Subscription\Psr16NotificationBus;
+use Mcp\Server\Subscription\PublishingEventDispatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
@@ -9,6 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
@@ -61,7 +65,7 @@ class McpServerBuilderCompilerPassTest extends TestCase
         }
     }
 
-    public function testBothServersArePinnedToTheHandshakeEra(): void
+    public function testBothServersStayOnTheHandshakeEraByDefault(): void
     {
         $container = $this->createContainer();
 
@@ -69,6 +73,107 @@ class McpServerBuilderCompilerPassTest extends TestCase
 
         foreach (['admin', 'store_api'] as $server) {
             static::assertSame([[]], $this->calls($container, $server, 'withoutModernEra'));
+        }
+    }
+
+    public function testTheLegacyEraPinsTheHandshakeEra(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'legacy', 'store_api' => 'legacy']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([[]], $this->calls($container, $server, 'withoutModernEra'));
+            static::assertSame([], $this->calls($container, $server, 'setNotificationBus'));
+            static::assertSame([], $this->calls($container, $server, 'setSubscriptionLifetime'));
+        }
+        static::assertFalse($container->hasDefinition(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS));
+    }
+
+    public function testTheAutoEraServesBothErasAndGivesTheAdminServerANotificationBus(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'auto', 'store_api' => 'auto']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([], $this->calls($container, $server, 'withoutModernEra'));
+        }
+
+        $busCalls = $this->calls($container, 'admin', 'setNotificationBus');
+        static::assertCount(1, $busCalls);
+        static::assertInstanceOf(Reference::class, $busCalls[0][0]);
+        static::assertSame(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS, (string) $busCalls[0][0]);
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([[25.0]], $this->calls($container, $server, 'setSubscriptionLifetime'));
+        }
+        static::assertSame(Psr16NotificationBus::class, $container->getDefinition(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS)->getClass());
+
+        $dispatcher = $container->getDefinition('mcp.server.admin.registry')->getArgument(0);
+        static::assertInstanceOf(Definition::class, $dispatcher);
+        static::assertSame(PublishingEventDispatcher::class, $dispatcher->getClass());
+
+        static::assertSame([], $this->calls($container, 'store_api', 'setNotificationBus'));
+        static::assertInstanceOf(Reference::class, $container->getDefinition('mcp.server.store_api.registry')->getArgument(0));
+    }
+
+    public function testTheEraIsConfiguredPerServer(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'legacy', 'store_api' => 'auto']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        static::assertSame([[]], $this->calls($container, 'admin', 'withoutModernEra'));
+        static::assertSame([], $this->calls($container, 'store_api', 'withoutModernEra'));
+        static::assertSame(['admin' => 'legacy', 'store_api' => 'auto'], McpServerBuilderCompilerPass::protocolEras($container));
+    }
+
+    public function testNoServerAnnouncesResourceSubscriptions(): void
+    {
+        foreach (['legacy', 'auto'] as $era) {
+            $container = $this->createContainer();
+            $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => $era, 'store_api' => $era]);
+
+            (new McpServerBuilderCompilerPass())->process($container);
+
+            foreach (['admin', 'store_api'] as $server) {
+                static::assertFalse($this->capabilities($container, $server)->resourcesSubscribe, $server . ' on ' . $era);
+            }
+        }
+    }
+
+    public function testOnlyTheAdminServerAnnouncesListChangesOnTheAutoEra(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'auto', 'store_api' => 'auto']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        $admin = $this->capabilities($container, 'admin');
+        static::assertTrue($admin->toolsListChanged);
+        static::assertTrue($admin->resourcesListChanged);
+        static::assertTrue($admin->promptsListChanged);
+
+        $store = $this->capabilities($container, 'store_api');
+        static::assertFalse($store->toolsListChanged);
+        static::assertFalse($store->resourcesListChanged);
+        static::assertFalse($store->prompts);
+    }
+
+    public function testNoServerAnnouncesListChangesOnTheLegacyEra(): void
+    {
+        $container = $this->createContainer();
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        foreach (['admin', 'store_api'] as $server) {
+            $capabilities = $this->capabilities($container, $server);
+            static::assertFalse($capabilities->toolsListChanged);
+            static::assertFalse($capabilities->resourcesListChanged);
+            static::assertFalse($capabilities->promptsListChanged);
         }
     }
 
@@ -88,6 +193,7 @@ class McpServerBuilderCompilerPassTest extends TestCase
             'addLoaders',
             'setLogger',
             'withoutModernEra',
+            'setCapabilities',
         ], $methods);
         static::assertSame([['Shopware', '1.0.0']], $this->calls($container, 'admin', 'setServerInfo'));
     }
@@ -120,6 +226,7 @@ class McpServerBuilderCompilerPassTest extends TestCase
             $definition->addMethodCall('setLogger', []);
 
             $container->setDefinition(\sprintf('mcp.server.%s.builder', $server), $definition);
+            $container->setDefinition(\sprintf('mcp.server.%s.registry', $server), new Definition(null, [new Reference('event_dispatcher'), new Reference('logger')]));
         }
 
         return $container;
@@ -139,6 +246,23 @@ class McpServerBuilderCompilerPassTest extends TestCase
         }
 
         return $arguments;
+    }
+
+    private function capabilities(ContainerBuilder $container, string $server): ServerCapabilities
+    {
+        $calls = $this->calls($container, $server, 'setCapabilities');
+
+        static::assertCount(1, $calls);
+        static::assertInstanceOf(Definition::class, $calls[0][0]);
+        static::assertSame(ServerCapabilities::class, $calls[0][0]->getClass());
+
+        $arguments = [];
+        foreach ($calls[0][0]->getArguments() as $name => $value) {
+            static::assertIsString($name);
+            $arguments[ltrim($name, '$')] = $value;
+        }
+
+        return new ServerCapabilities(...$arguments);
     }
 
     private function taggedIteratorTag(ContainerBuilder $container, string $server, string $method): string

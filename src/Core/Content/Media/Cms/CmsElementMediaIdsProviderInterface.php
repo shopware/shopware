@@ -19,7 +19,7 @@ interface CmsElementMediaIdsProviderInterface
 
     /**
      * Returns the ids of the media the element shows from its static config.
-     * Mapped values like `category.media` are found through the entity they are mapped from.
+     * Mapped values, like `product.manufacturer.media`, are not part of the config and are not returned.
      *
      * @param array<string, array{source?: string, value?: mixed}> $config raw config of the element, its fields by name, like `['media' => ['source' => 'static', 'value' => '<media id>']]`, it is not validated
      *

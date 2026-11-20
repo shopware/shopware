@@ -73,13 +73,16 @@ class IteratorFactoryTest extends TestCase
         $connection = static::createStub(Connection::class);
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
-        $iterator = (new IteratorFactory($connection, $registry))->createIterator($registry->get(CategoryTranslationDefinition::class));
+        $iterator = (new IteratorFactory($connection, $registry))->createIterator($registry->get(CategoryTranslationDefinition::class), null, 50, Defaults::LIVE_VERSION);
+        $sql = $iterator->getQuery()->getSQL();
 
         static::assertSame(
             ['`category_translation`.`category_id`', 'LOWER(HEX(`category_translation`.`category_id`))'],
             $iterator->getQuery()->getSelectParts()
         );
-        static::assertStringStartsWith('SELECT DISTINCT', $iterator->getQuery()->getSQL(), 'a translation of several languages is iterated once');
+        static::assertStringStartsWith('SELECT DISTINCT', $sql, 'a translation of several languages is iterated once');
+        static::assertStringContainsString('WHERE `category_translation`.`category_version_id` = :versionId', $sql, 'the version of the entity the translation belongs to is filtered');
+        static::assertStringContainsString('ORDER BY `category_translation`.`category_id`', $sql, 'the offset pagination needs a stable order');
     }
 
     public function testFailsForTranslationsOfEntitiesWithoutTranslations(): void

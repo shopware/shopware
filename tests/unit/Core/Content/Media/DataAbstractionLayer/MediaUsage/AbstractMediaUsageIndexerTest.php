@@ -42,7 +42,7 @@ class AbstractMediaUsageIndexerTest extends TestCase
         });
     }
 
-    public function testIteratesTheIndexedEntityForAFullReindex(): void
+    public function testIteratesTheLiveVersionsOfTheIndexedEntityForAFullReindex(): void
     {
         $id = Uuid::randomHex();
         $iterator = static::createStub(IterableQuery::class);
@@ -51,7 +51,7 @@ class AbstractMediaUsageIndexerTest extends TestCase
         $iterator->method('fetchCount')->willReturn(1);
 
         $iteratorFactory = $this->createMock(IteratorFactory::class);
-        $iteratorFactory->expects($this->exactly(3))->method('createIterator')->with('media_usage_test')->willReturn($iterator);
+        $iteratorFactory->expects($this->exactly(3))->method('createIterator')->with('media_usage_test', static::anything(), 50, Defaults::LIVE_VERSION)->willReturn($iterator);
 
         $indexer = $this->createIndexer($iteratorFactory);
         $message = $indexer->iterate(null);

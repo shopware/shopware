@@ -9,6 +9,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -44,7 +46,22 @@ class IteratorFactory
         $query->setMaxResults($limit);
 
         if ($definition->isVersionAware() && $versionId !== null) {
-            $query->andWhere($escaped . '.version_id = :versionId');
+            $versionColumn = 'version_id';
+
+            if ($definition instanceof EntityTranslationDefinition) {
+                $parent = $definition->getParentDefinition()->getClass();
+                $referenceVersion = $definition->getPrimaryKeys()->filter(
+                    static fn (Field $field) => $field instanceof ReferenceVersionField && $field->getVersionReferenceClass() === $parent
+                )->first();
+
+                if (!$referenceVersion instanceof ReferenceVersionField) {
+                    throw DataAbstractionLayerException::versionFieldNotFound($definition->getEntityName());
+                }
+
+                $versionColumn = $referenceVersion->getStorageName();
+            }
+
+            $query->andWhere($escaped . '.' . EntityDefinitionQueryHelper::escape($versionColumn) . ' = :versionId');
             $query->setParameter('versionId', Uuid::fromHexToBytes($versionId));
         }
 
@@ -71,6 +88,7 @@ class IteratorFactory
 
             $id = $escaped . '.' . EntityDefinitionQueryHelper::escape($translationField->getReferenceField());
             $query->distinct();
+            $query->orderBy($id);
         }
 
         $query->select($id, 'LOWER(HEX(' . $id . '))');

@@ -56,7 +56,7 @@ abstract class AbstractMediaUsageIndexer extends EntityIndexer
      */
     protected function createIterator(?array $offset): IterableQuery
     {
-        return $this->iteratorFactory->createIterator($this->getEntityName(), $offset);
+        return $this->iteratorFactory->createIterator($this->getEntityName(), $offset, versionId: Defaults::LIVE_VERSION);
     }
 
     /**

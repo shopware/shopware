@@ -123,7 +123,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
         static::assertSame([], $this->getInsertedRows(columns: 4));
     }
 
-    public function testIteratesTheTranslationsWithOverridesOfLiveVersions(): void
+    public function testIteratesTheTranslationsWithOverrides(): void
     {
         $categoryId = Uuid::randomHex();
         $this->connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
@@ -139,8 +139,7 @@ class SlotConfigOverrideMediaUsageIndexerTest extends TestCase
 
         static::assertInstanceOf(EntityIndexingMessage::class, $message);
         static::assertSame([$categoryId], $message->getData());
-        static::assertStringContainsString('(slot_config IS NOT NULL) AND (`category_version_id` = :version)', $query->getSQL());
-        static::assertSame(Uuid::fromHexToBytes(Defaults::LIVE_VERSION), $query->getParameter('version'));
+        static::assertStringContainsString('WHERE slot_config IS NOT NULL', $query->getSQL());
     }
 
     public function testCanNotBeDecorated(): void

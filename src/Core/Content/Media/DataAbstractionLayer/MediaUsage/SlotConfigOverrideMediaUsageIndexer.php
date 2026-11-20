@@ -118,10 +118,7 @@ class SlotConfigOverrideMediaUsageIndexer extends AbstractMediaUsageIndexer
     protected function createIterator(?array $offset): IterableQuery
     {
         $iterator = parent::createIterator($offset);
-        $iterator->getQuery()
-            ->andWhere('slot_config IS NOT NULL')
-            ->andWhere(EntityDefinitionQueryHelper::escape($this->getOwnerEntityName() . '_version_id') . ' = :version')
-            ->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+        $iterator->getQuery()->andWhere('slot_config IS NOT NULL');
 
         return $iterator;
     }

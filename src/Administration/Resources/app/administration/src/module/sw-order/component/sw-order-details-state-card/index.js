@@ -163,6 +163,12 @@ export default {
         },
     },
 
+    watch: {
+        'entity.id'() {
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

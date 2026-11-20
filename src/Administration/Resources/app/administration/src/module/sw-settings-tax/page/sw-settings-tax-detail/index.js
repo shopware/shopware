@@ -117,7 +117,9 @@ export default {
 
     watch: {
         taxId() {
-            if (!this.taxId) {
+            if (this.taxId !== this.tax.id) {
+                // a pending default tax rate change belongs to the previous tax
+                this.config = {};
                 this.createdComponent();
             }
         },

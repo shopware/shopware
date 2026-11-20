@@ -79,7 +79,7 @@ export default {
 
     watch: {
         productFeatureSetId() {
-            if (!this.productFeatureSetId) {
+            if (this.productFeatureSetId !== this.productFeatureSet.id) {
                 this.createdComponent();
             }
         },

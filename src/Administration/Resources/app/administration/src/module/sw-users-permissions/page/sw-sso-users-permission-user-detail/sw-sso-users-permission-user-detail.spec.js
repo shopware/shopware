@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 import useTheme, { USER_THEME_CONFIG_KEY } from 'src/app/composables/use-theme';
 
 const createDefaultUser = function () {
@@ -115,7 +116,7 @@ Shopware.Service().register('timezoneService', () => {
     };
 });
 
-async function createWrapper(user) {
+async function createWrapper(user, route = null) {
     const userResult = user || createDefaultUser();
 
     responses.addResponse({
@@ -228,7 +229,7 @@ async function createWrapper(user) {
                 },
 
                 mocks: {
-                    $route: {
+                    $route: route ?? {
                         params: {
                             id: '1',
                         },
@@ -460,5 +461,36 @@ describe('module/sw-users-permissions/page/sw-sso-users-permission-user-detail',
         modalAccessKeyField = wrapper.find('.sw-settings-sso-user-create-access-key-modal');
 
         expect(modalAccessKeyField.isVisible()).toBeTruthy();
+    });
+
+    it('should load the new user when the route id changes', async () => {
+        const route = reactive({
+            params: { id: '1' },
+            meta: { $module: { icon: 'regular-content', description: 'Foo bar' } },
+        });
+        const wrapper = await createWrapper(undefined, route);
+
+        const lastSearchedUserId = () =>
+            JSON.parse(
+                global.repositoryFactoryMock.clientMock.history.post
+                    .filter((request) => request.url === '/search/user')
+                    .at(-1).data,
+            ).ids;
+        const firstNameValue = () => wrapper.find('#sw-field--user-firstName').element.value;
+
+        expect(lastSearchedUserId()).toBe('1');
+        expect(firstNameValue()).toBe('foo');
+
+        const otherUser = createDefaultUser();
+        otherUser.id = '3';
+        otherUser.attributes.id = '3';
+        otherUser.attributes.firstName = 'other';
+        responses.addResponse({ method: 'Post', url: '/search/user', response: { included: [], data: [otherUser] } });
+
+        route.params.id = '3';
+        await flushPromises();
+
+        expect(lastSearchedUserId()).toBe('3');
+        expect(firstNameValue()).toBe('other');
     });
 });

@@ -76,6 +76,15 @@ export default {
         },
     },
 
+    watch: {
+        '$route.params.id'() {
+            this.toBeDeletedCriteria = null;
+            this.sortingOptionTechnicalNameError = null;
+            this.sortingOptionLabelError = null;
+            this.createdComponent();
+        },
+    },
+
     created() {
         this.createdComponent();
     },

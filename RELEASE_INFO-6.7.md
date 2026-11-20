@@ -17,6 +17,11 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### Address-format snippets use Twig whitespace control
+
+The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.
+Whitespace between HTML tags within custom snippets is now preserved; use Twig whitespace control in those snippets when the tags must be adjacent.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

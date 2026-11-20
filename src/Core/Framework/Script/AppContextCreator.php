@@ -3,12 +3,10 @@
 namespace Shopware\Core\Framework\Script;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Core\Framework\Script\Execution\ScriptAppInformation;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -18,9 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AppContextCreator
 {
     /**
-     * @var array<string, AdminApiSource>
+     * @var array<string, list<string>>
      */
-    private array $appSources = [];
+    private array $appPrivileges = [];
 
     public function __construct(private readonly Connection $connection)
     {
@@ -28,36 +26,33 @@ class AppContextCreator
 
     public function getAppContext(Hook $hook, Script $script): Context
     {
+        return $this->createAppContextFactory($hook, $script)->create();
+    }
+
+    /**
+     * Facades must obtain a new context per operation, so a script cannot change one shared context and reuse it.
+     */
+    public function createAppContextFactory(Hook $hook, Script $script): AppContextFactory
+    {
         $scriptAppInformation = $script->getScriptAppInformation();
         if (!$scriptAppInformation) {
-            return $hook->getContext();
+            return AppContextFactory::forHookContext($hook->getContext());
         }
 
-        return new Context(
-            $this->getAppContextSource($scriptAppInformation),
-            $hook->getContext()->getRuleIds(),
-            $hook->getContext()->getCurrencyId(),
-            $hook->getContext()->getLanguageIdChain(),
-            $hook->getContext()->getVersionId(),
-            $hook->getContext()->getCurrencyFactor(),
-            $hook->getContext()->considerInheritance(),
-            $hook->getContext()->getTaxState(),
-            $hook->getContext()->getRounding()
+        return AppContextFactory::forApp(
+            $hook->getContext(),
+            $scriptAppInformation->getAppId(),
+            $scriptAppInformation->getIntegrationId(),
+            $this->getPrivileges($scriptAppInformation->getAppId())
         );
     }
 
-    private function getAppContextSource(ScriptAppInformation $scriptAppInformation): AdminApiSource
+    /**
+     * @return list<string>
+     */
+    private function getPrivileges(string $appId): array
     {
-        if (\array_key_exists($scriptAppInformation->getAppId(), $this->appSources)) {
-            return $this->appSources[$scriptAppInformation->getAppId()];
-        }
-
-        $privileges = $this->fetchPrivileges($scriptAppInformation->getAppId());
-        $source = new AdminApiSource(null, $scriptAppInformation->getIntegrationId());
-        $source->setIsAdmin(false);
-        $source->setPermissions($privileges);
-
-        return $this->appSources[$scriptAppInformation->getAppId()] = $source;
+        return $this->appPrivileges[$appId] ??= $this->fetchPrivileges($appId);
     }
 
     /**

@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\AssociationNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -183,10 +186,21 @@ class RequestCriteriaBuilder
                     continue;
                 }
 
-                $field = $definition->getFields()->get($propertyName);
+                $field = $definition->getFields()->get((string) $propertyName);
 
-                if (!$field instanceof AssociationField) {
+                if (!\is_string($propertyName) || !$field instanceof AssociationField) {
                     throw new AssociationNotFoundException((string) $propertyName);
+                }
+
+                try {
+                    EntityDefinitionQueryHelper::validateFieldIsApiAware($field, $propertyName, $context);
+                } catch (ApiProtectionException $exception) {
+                    // @deprecated tag:v6.8.0 - Always reject non-visible requested associations.
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw $exception;
+                    }
+
+                    continue;
                 }
 
                 $ref = $field->getReferenceDefinition();
@@ -205,7 +219,23 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['fields'])) {
-            $criteria->addFields($payload['fields']);
+            $fields = [];
+            foreach ($payload['fields'] as $accessor) {
+                try {
+                    EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
+                } catch (ApiProtectionException $exception) {
+                    // @deprecated tag:v6.8.0 - Always reject fields traversing non-visible associations.
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw $exception;
+                    }
+
+                    continue;
+                }
+
+                $fields[] = $accessor;
+            }
+
+            $criteria->addFields($fields);
         }
 
         $searchException->tryToThrow();

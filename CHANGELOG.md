@@ -1,6 +1,21 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.32
+*  [ - Harden the context handling of templates and app scripts](./changelog/release-6-6-10-32/2026-10-29-harden-template-and-app-script-context-handling.md)
+*  [ - Let Twig templates add extensions to the request context](./changelog/release-6-6-10-32/2026-11-09-let-twig-templates-add-extensions-to-the-request-context.md)
+*  [ - Remove incoming recovery associations](./changelog/release-6-6-10-32/2026-11-02-remove-incoming-recovery-associations.md)
+*  [ - Resolve Store API criteria field paths per path segment](./changelog/release-6-6-10-32/2026-10-16-resolve-store-api-criteria-field-paths-per-segment.md)
+*  [ - Restrict user, access key and admin integration writes](./changelog/release-6-6-10-32/2026-10-22-restrict-user-access-key-and-admin-integration-writes.md)
+*  [ - Validate Store API associations and includes against ApiAware](./changelog/release-6-6-10-32/2026-10-29-validate-store-api-associations-and-includes-against-api-aware.md)
+*  [ - Validate nested clone overwrites](./changelog/release-6-6-10-32/2026-10-22-validate-nested-clone-overwrites.md)
+*  [ - Validate media path and file name writes](./changelog/release-6-6-10-32/2026-10-27-validate-media-path-and-file-name-writes.md)
+*  [ - Sanitize repository context in extension API handlers](./changelog/release-6-6-10-32/2026-10-26-sanitize-repository-context-in-extension-api-handlers.md)
+*  [ - Reject comment and quote characters in DAL identifiers and JSON paths](./changelog/release-6-6-10-32/2026-10-23-reject-comment-and-quote-characters-in-dal-identifiers.md)
+*  [ - Stop resolving DTDs in extension XML files](./changelog/release-6-6-10-32/2026-10-26-stop-resolving-dtds-in-extension-xml-files.md)
+*  [ - Only read App files inside the App directory](./changelog/release-6-6-10-32/2026-11-03-only-read-app-files-inside-the-app-directory.md)
+*  [ - Restrict active media uploads and protect Storefront documents](./changelog/release-6-6-10-32/2026-10-22-harden-active-media-content.md)
+
 ## 6.6.10.31
 *  [#21364 - fix(core): pass null as DNS resolver of app system trusted URL resolver](https://github.com/shopware/shopware/issues/21364) ([@M-arcus](https://github.com/M-arcus))
 *  [#21433 - fix(storefront): let the review rating filter labels wrap (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21433)

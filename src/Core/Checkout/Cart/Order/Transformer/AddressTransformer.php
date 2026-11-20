@@ -31,6 +31,46 @@ class AddressTransformer
     {
         return array_filter([
             'id' => Uuid::randomHex(),
+            ...self::getFields($address),
+            'customFields' => $address->getCustomFields(),
+        ]);
+    }
+
+    /**
+     * Use this instead of `transform()` to overwrite an existing order address.
+     * Empty fields are `null` instead of left out, so the order address doesn't keep their old values.
+     * Empty custom fields are still left out, as extensions often write them on the order address and the DAL merges them on update.
+     *
+     * @return array<string, mixed>
+     */
+    public static function transformForUpdate(CustomerAddressEntity $address): array
+    {
+        $emptyFields = array_fill_keys(array_keys(self::getFields($address)), null);
+
+        return [...$emptyFields, ...self::transform($address)];
+    }
+
+    /**
+     * @return array{
+     *     company: string|null,
+     *     department: string|null,
+     *     salutationId: string|null,
+     *     title: string|null,
+     *     firstName: string,
+     *     lastName: string,
+     *     street: string,
+     *     zipcode: string|null,
+     *     city: string,
+     *     phoneNumber: string|null,
+     *     additionalAddressLine1: string|null,
+     *     additionalAddressLine2: string|null,
+     *     countryId: string,
+     *     countryStateId: string|null
+     * }
+     */
+    private static function getFields(CustomerAddressEntity $address): array
+    {
+        return [
             'company' => $address->getCompany(),
             'department' => $address->getDepartment(),
             'salutationId' => $address->getSalutationId(),
@@ -45,7 +85,6 @@ class AddressTransformer
             'additionalAddressLine2' => $address->getAdditionalAddressLine2(),
             'countryId' => $address->getCountryId(),
             'countryStateId' => $address->getCountryStateId(),
-            'customFields' => $address->getCustomFields(),
-        ]);
+        ];
     }
 }

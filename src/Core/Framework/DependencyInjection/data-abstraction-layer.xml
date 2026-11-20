@@ -347,6 +347,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition"/>
             <argument type="service" id="lock.factory"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclWriteValidator"/>
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPriceFieldSerializer">

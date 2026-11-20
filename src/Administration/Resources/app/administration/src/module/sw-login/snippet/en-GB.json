@@ -57,6 +57,9 @@
   "global": {
     "sw-admin-menu": {
       "textShopwareAdmin": "Shopware Administration"
+    },
+    "default": {
+      "error": "Error"
     }
   }
 }

@@ -536,6 +536,7 @@ Changing a media file used to invalidate only the product detail pages of produc
 It now also invalidates the listings and dynamic product groups containing those products,
 categories using the media as category image,
 layouts using it as section or block background or in an image, image slider, image gallery, video or manufacturer logo element,
+product pages of manufacturers using it as logo,
 and categories, products and landing pages using it in their layout overrides.
 Replaced images show up on these pages without clearing the HTTP cache.
 

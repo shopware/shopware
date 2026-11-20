@@ -558,7 +558,10 @@ class CacheInvalidationSubscriber
                 ...$this->getCmsPageIdsByBackground($mediaIds),
             ]),
             ...array_map(LandingPageRoute::buildName(...), $this->getLandingPageIdsBySlotConfigOverride($mediaIds)),
-            ...array_map(EntityCacheKeyGenerator::buildProductTag(...), $this->getProductIdsBySlotConfigOverride($mediaIds)),
+            ...array_map(EntityCacheKeyGenerator::buildProductTag(...), [
+                ...$this->getProductIdsBySlotConfigOverride($mediaIds),
+                ...$this->getProductIdsByManufacturerMedia($mediaIds),
+            ]),
         ]));
     }
 
@@ -641,6 +644,27 @@ class CacheInvalidationSubscriber
         $ids = $this->fetchIdsByMedia('SELECT LOWER(HEX(product_id)) FROM product_translation_media_usage WHERE media_id IN (:ids) AND product_version_id = :version', $mediaIds);
 
         return $ids === [] ? [] : $this->getParentIds($ids);
+    }
+
+    /**
+     * The manufacturer logo element of product pages shows the logo of the manufacturer, the detail page of a variant is tagged with its parent
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function getProductIdsByManufacturerMedia(array $mediaIds): array
+    {
+        $manufacturerIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM product_manufacturer WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
+        if ($manufacturerIds === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) FROM product WHERE product_manufacturer_id IN (:ids) AND product_manufacturer_version_id = :version AND version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($manufacturerIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
     }
 
     /**

@@ -14,7 +14,7 @@
  *
  * Keep this and `src/app/mixin/placeholder.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function usePlaceholder(): {
     placeholder: <EntityName extends keyof EntitySchema.Entities>(

@@ -18,7 +18,7 @@ import type { NotificationType } from '../store/notification.store';
  *
  * Keep this and `src/app/mixin/notification-translation.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useNotificationTranslation(): {
     getTranslatedTitle: (notification: NotificationType) => string;

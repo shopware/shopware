@@ -15,7 +15,7 @@ import type { NotificationType, NotificationVariant } from '../store/notificatio
  *
  * Keep this and `src/app/mixin/notification.mixin.ts` in sync — change both together.
  *
- * @private
+ * @public
  */
 export default function useNotification(): {
     createNotification: (notification: NotificationType) => string | null;

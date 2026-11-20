@@ -99,6 +99,31 @@ describe('app/plugins/shortcut.plugin - event guards', () => {
         document.body.removeChild(modal);
     });
 
+    it.each([
+        'sw-select__selection',
+        'mt-select__selection',
+    ])('should NOT call the onEsc method when Escape key is pressed on a focused "%s"', async (selectClass) => {
+        const onEscMock = jest.fn();
+
+        wrapper = await createWrapper({
+            template: `<div class="${selectClass}" tabindex="0"></div>`,
+            shortcuts: {
+                Escape: 'onEsc',
+            },
+            methods: {
+                onEsc() {
+                    onEscMock();
+                },
+            },
+        });
+
+        await wrapper.trigger('keydown', {
+            key: 'Escape',
+        });
+
+        expect(onEscMock).not.toHaveBeenCalled();
+    });
+
     it('should not trigger shortcuts from inside a meteor modal', async () => {
         const onToggleMock = jest.fn();
 

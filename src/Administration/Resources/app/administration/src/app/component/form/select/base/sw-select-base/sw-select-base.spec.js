@@ -6,11 +6,13 @@ import { mount } from '@vue/test-utils';
 
 import 'src/app/component/form/select/base/sw-single-select';
 
-const createWrapper = async (props = {}, attrs = {}) => {
+const createWrapper = async (props = {}, attrs = {}, { mocks = {}, ...options } = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-select-base', { sync: true }), {
         props,
         attrs,
+        ...options,
         global: {
+            mocks,
             stubs: {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
@@ -133,5 +135,242 @@ describe('components/sw-select-base', () => {
         } finally {
             document.elementsFromPoint = originalElementsFromPoint;
         }
+    });
+
+    describe('keyboard', () => {
+        let wrapper;
+
+        async function createFocusedSelection(mocks = {}) {
+            const container = document.createElement('div');
+            document.body.appendChild(container);
+            wrapper = await createWrapper(
+                {},
+                {},
+                {
+                    mocks,
+                    attachTo: container,
+                    slots: {
+                        'sw-select-selection': `
+                            <span class="selected-value" @click.stop>Red</span>
+                            <input class="search-input" tabindex="-1">
+                            <button class="inner-button">+3</button>
+                        `,
+                    },
+                },
+            );
+
+            const selection = wrapper.find('.sw-select__selection');
+            selection.element.focus();
+            await flushPromises();
+
+            return selection;
+        }
+
+        function dispatchKey(type, element, init) {
+            const event = new KeyboardEvent(type, { bubbles: true, cancelable: true, ...init });
+            element.dispatchEvent(event);
+
+            return event;
+        }
+
+        function dispatchKeydown(element, init) {
+            return dispatchKey('keydown', element, init);
+        }
+
+        afterEach(() => {
+            wrapper.unmount();
+            document.body.innerHTML = '';
+        });
+
+        it('should show the focus without expanding when the selection gets focus', async () => {
+            const selection = await createFocusedSelection();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(wrapper.find('.sw-select').classes()).toContain('has--focus');
+        });
+
+        it.each([
+            'ArrowDown',
+            'ArrowUp',
+            'Enter',
+            ' ',
+        ])('should expand on "%s" without passing the key on to the result list', async (key) => {
+            const selection = await createFocusedSelection();
+            const onDocumentKeydown = jest.fn();
+            document.addEventListener('keydown', onDocumentKeydown);
+
+            try {
+                dispatchKeydown(selection.element, { key });
+                await flushPromises();
+            } finally {
+                document.removeEventListener('keydown', onDocumentKeydown);
+            }
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(onDocumentKeydown).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['a plain character', { key: 'a' }],
+            ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }],
+            ['an Option character', { key: '@', altKey: true }],
+        ])('should expand on %s and type it into the search', async (_, init) => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.value = 'Previous selection';
+            searchInput.select();
+            const onInput = jest.fn();
+            searchInput.addEventListener('input', onInput);
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
+
+            dispatchKeydown(selection.element, init);
+            await flushPromises();
+            searchInput.removeEventListener('input', onInput);
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(searchInput.value).toBe(init.key);
+            expect(onInput).toHaveBeenCalledTimes(1);
+        });
+
+        it.each([
+            ['Backspace', {}],
+            ['Delete', {}],
+            ['Backspace', { ctrlKey: true }],
+            ['Backspace', { metaKey: true }],
+        ])('should expand on "%s" %o and hand it on to the search', async (key, modifiers) => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            const onSearchKeydown = jest.fn();
+            searchInput.addEventListener('keydown', onSearchKeydown);
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
+
+            const event = dispatchKeydown(selection.element, { key, ...modifiers });
+            await flushPromises();
+            searchInput.removeEventListener('keydown', onSearchKeydown);
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(event.defaultPrevented).toBe(true);
+            expect(onSearchKeydown).toHaveBeenCalledTimes(1);
+            expect(onSearchKeydown.mock.calls[0][0].key).toBe(key);
+        });
+
+        describe('where ALT is the system key', () => {
+            it.each([
+                ['an ALT shortcut', { key: 's', altKey: true }, 'false'],
+                ['an AltGr character', { key: '@', ctrlKey: true, altKey: true }, 'true'],
+            ])('should handle %s', async (_, init, expanded) => {
+                const selection = await createFocusedSelection({
+                    $device: { getSystemKey: () => 'ALT' },
+                });
+
+                dispatchKeydown(selection.element, init);
+                await flushPromises();
+
+                expect(selection.attributes('aria-expanded')).toBe(expanded);
+            });
+        });
+
+        it('should leave a read-only search untouched when typing opens the select', async () => {
+            const selection = await createFocusedSelection();
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.readOnly = true;
+            await wrapper.setProps({ onSelectExpanded: () => searchInput.focus() });
+
+            dispatchKeydown(selection.element, { key: 'a' });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+            expect(searchInput.value).toBe('');
+        });
+
+        it.each([
+            ['CTRL+S', { key: 's', ctrlKey: true }],
+            ['CMD+S', { key: 's', metaKey: true }],
+            ['Shift', { key: 'Shift' }],
+            ['a composing key', { key: 'a', isComposing: true }],
+        ])('should stay collapsed on %s', async (_, init) => {
+            const selection = await createFocusedSelection();
+
+            dispatchKeydown(selection.element, init);
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+        });
+
+        it.each([
+            ' ',
+            'Enter',
+            'ArrowDown',
+            'a',
+        ])('should leave a keydown of "%s" on a button inside the select to that button', async (key) => {
+            await createFocusedSelection();
+            const innerButton = wrapper.find('.inner-button');
+            innerButton.element.focus();
+
+            const event = dispatchKeydown(innerButton.element, { key });
+            await flushPromises();
+
+            expect(wrapper.find('.sw-select__selection').attributes('aria-expanded')).toBe('false');
+            expect(event.defaultPrevented).toBe(false);
+        });
+
+        it('should expand on a click on a selected value that stops its click from bubbling', async () => {
+            const selection = await createFocusedSelection();
+
+            wrapper.find('.selected-value').element.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('true');
+        });
+
+        it('should stay collapsed on a click on a button inside the select', async () => {
+            const selection = await createFocusedSelection();
+
+            wrapper.find('.inner-button').element.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+        });
+
+        it('should keep the focus on the selection when ESC collapses the select', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            dispatchKeydown(searchInput, { key: 'Escape' });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(document.activeElement).toBe(selection.element);
+        });
+
+        it('should leave SHIFT+TAB to the browser, starting from the selection', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const searchInput = wrapper.find('.search-input').element;
+            searchInput.focus();
+
+            const event = dispatchKeydown(searchInput, { key: 'Tab', shiftKey: true });
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(event.defaultPrevented).toBe(false);
+            expect(document.activeElement).toBe(selection.element);
+        });
+
+        it('should not take the focus back when the select collapses after the focus left it', async () => {
+            const selection = await createFocusedSelection();
+            dispatchKeydown(selection.element, { key: 'ArrowDown' });
+            const outside = document.createElement('button');
+            document.body.appendChild(outside);
+
+            outside.focus();
+            outside.click();
+            await flushPromises();
+
+            expect(selection.attributes('aria-expanded')).toBe('false');
+            expect(document.activeElement).toBe(outside);
+        });
     });
 });

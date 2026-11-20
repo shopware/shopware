@@ -25,6 +25,15 @@ describe('src/app/component/base/sw-label', () => {
         expect(wrapper.find('.sw-label__dismiss').exists()).toBe(true);
     });
 
+    it('should keep the hover-only dismiss button out of the tab order', async () => {
+        const wrapper = await createWrapper({
+            dismissable: true,
+            onDismiss: () => {},
+        });
+
+        expect(wrapper.find('.sw-label__dismiss').attributes('tabindex')).toBe('-1');
+    });
+
     it('should not be dismissable', async () => {
         const wrapper = await createWrapper({
             dismissable: false,

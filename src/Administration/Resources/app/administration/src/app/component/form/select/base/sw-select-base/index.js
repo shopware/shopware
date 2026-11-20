@@ -2,6 +2,26 @@ import template from './sw-select-base.html.twig';
 import './sw-select-base.scss';
 
 /**
+ * Keys that open a focused, closed select, as in the WAI-ARIA APG select-only combobox.
+ * Printable characters open it too, see `expandByKeyboard`.
+ */
+const OPENING_KEYS = [
+    'ArrowDown',
+    'ArrowUp',
+    'Enter',
+    ' ',
+];
+
+/**
+ * Keys that open a focused, closed select and reach the key handlers of its search,
+ * where multi selects remove their last value.
+ */
+const DELETING_KEYS = [
+    'Backspace',
+    'Delete',
+];
+
+/**
  * @sw-package framework
  *
  * @private
@@ -121,10 +141,116 @@ export default {
             this.$emit('select-expanded');
         },
 
+        /**
+         * Opens the select on a click anywhere in the field, except on buttons inside it.
+         * Listens in the capture phase, because selected values stop their clicks from bubbling.
+         *
+         * @example <div @click.capture="expandByClick">
+         */
+        expandByClick(event) {
+            const button = event.target instanceof Element ? event.target.closest('button') : null;
+
+            if (button && this.$refs.selectWrapper.contains(button)) {
+                return;
+            }
+
+            this.expand();
+        },
+
+        /**
+         * Opens the select from ArrowDown, ArrowUp, Enter or Space, from Backspace or Delete,
+         * and from a key that types a character.
+         * Only keys on the select itself count, so buttons inside it keep their own keys.
+         */
+        expandByKeyboard(event) {
+            if (this.expanded || event.target !== this.$refs.selectWrapper || event.isComposing) {
+                return;
+            }
+
+            if (OPENING_KEYS.includes(event.key) && !event.ctrlKey && !event.metaKey) {
+                // The result list mounts before this event reaches the document, where it would pick an item
+                event.preventDefault();
+                event.stopPropagation();
+                this.expand();
+                return;
+            }
+
+            if (DELETING_KEYS.includes(event.key)) {
+                event.preventDefault();
+                this.expand();
+                this.$nextTick(() => this.pressInSearch(event.key));
+                return;
+            }
+
+            if (this.typesCharacter(event)) {
+                // Firefox inserts a typed character only into the element focused during keydown,
+                // and the search input gets the focus later, after the select renders open
+                event.preventDefault();
+                this.expand();
+                this.$nextTick(() => this.typeIntoSearch(event.key));
+            }
+        },
+
+        /**
+         * Returns the search input of this select once a variant moved the focus into it, or null.
+         */
+        getFocusedSearch() {
+            const search = document.activeElement;
+
+            if (!(search instanceof HTMLInputElement) || !this.$refs.selectWrapper?.contains(search)) {
+                return null;
+            }
+
+            return search;
+        },
+
+        /**
+         * Types a character into the focused search input of this select, as if the user typed it.
+         * Runs after the select opened, once the variant moved the focus into its search.
+         */
+        typeIntoSearch(character) {
+            const search = this.getFocusedSearch();
+
+            if (!search || search.readOnly || search.disabled) {
+                return;
+            }
+
+            search.setRangeText(character, search.selectionStart ?? 0, search.selectionEnd ?? 0, 'end');
+            search.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+
+        /**
+         * Hands Backspace or Delete on to the key handlers of the focused search input of this select,
+         * so multi selects remove their last value. The search text stays as it is.
+         * Runs after the select opened, once the variant moved the focus into its search.
+         */
+        pressInSearch(key) {
+            this.getFocusedSearch()?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+        },
+
+        /**
+         * Tells a key that types a character apart from a shortcut.
+         * AltGr reports CTRL+ALT on Windows and still types.
+         * ALT alone types only on macOS (Option); elsewhere it is the system key of the Administration shortcuts.
+         */
+        typesCharacter(event) {
+            if (event.key.length !== 1 || event.metaKey) {
+                return false;
+            }
+
+            if (event.ctrlKey) {
+                return event.altKey;
+            }
+
+            return !event.altKey || this.$device.getSystemKey() !== 'ALT';
+        },
+
         collapse(event) {
             if (!this.expanded) {
                 return;
             }
+
+            const hadFocus = this.$refs.selectWrapper?.contains(document.activeElement) ?? false;
 
             document.removeEventListener('click', this.listenToClickOutside);
             this.expanded = false;
@@ -134,27 +260,10 @@ export default {
                 this.$emit('select-collapsed');
             }
 
-            // @see NEXT-16079 allow back tab-ing through form via SHIFT+TAB
-            if (event && event?.shiftKey) {
-                event.preventDefault();
-                this.focusPreviousFormElement();
+            // TAB and SHIFT+TAB then move on from the select itself, and ESC keeps the focus on it
+            if (hadFocus) {
+                this.$refs.selectWrapper.focus();
             }
-        },
-
-        focusPreviousFormElement() {
-            const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
-            const myFocusable = this.$el.querySelector(focusableSelector);
-            const keyboardFocusable = [...document.querySelectorAll(focusableSelector)].filter(
-                (el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined,
-            );
-
-            keyboardFocusable.forEach((element, index) => {
-                if (index > 0 && element === myFocusable) {
-                    const kbFocusable = keyboardFocusable[index - 1];
-                    kbFocusable.click();
-                    kbFocusable.focus();
-                }
-            });
         },
 
         listenToClickOutside(event) {
@@ -196,13 +305,6 @@ export default {
 
         emitClear() {
             this.$emit('clear');
-        },
-
-        focusParentSelect(event) {
-            if (event && event?.shiftKey) {
-                this.$refs.selectWrapper.click();
-                event.preventDefault();
-            }
         },
     },
 };

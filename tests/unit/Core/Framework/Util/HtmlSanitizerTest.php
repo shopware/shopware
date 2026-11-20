@@ -126,6 +126,36 @@ class HtmlSanitizerTest extends TestCase
         static::assertSame($expected, $sanitizer->sanitize($input, null, false, 'test.bootstrap'));
     }
 
+    #[TestDox('Adds noreferrer and noopener only to links that open a new browsing context')]
+    #[DataProvider('linkTargetRelProvider')]
+    public function testAddsNewBrowsingContextRelsOnlyToNewWindowLinks(string $input, ?string $field, string $expected): void
+    {
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $this->sets, fieldSets: $this->fieldSets);
+
+        static::assertSame($expected, $sanitizer->sanitize($input, null, false, $field));
+    }
+
+    /**
+     * @param list<string> $disabledOptions
+     */
+    #[TestDox('A set can turn off the noreferrer or noopener rel of new-window links')]
+    #[DataProvider('linkTargetRelOptionProvider')]
+    public function testHonorsDisabledLinkTargetRelOptionsOfASet(array $disabledOptions, string $expected): void
+    {
+        $sets = $this->sets;
+
+        foreach ($disabledOptions as $option) {
+            $sets['basic']['options'][$option] = false;
+        }
+
+        $sanitizer = new HtmlSanitizer(cacheEnabled: false, sets: $sets, fieldSets: $this->fieldSets);
+
+        static::assertSame(
+            $expected,
+            $sanitizer->sanitize('<a target="_blank" href="https://example.com">New</a> <a target="_self" href="/detail">Same</a>', null)
+        );
+    }
+
     #[TestDox('Decodes HTML entities (including double-encoded ones) back to their character form')]
     #[DataProvider('entityProvider')]
     public function testDecodesHtmlEntities(string $input, string $expected): void
@@ -345,6 +375,81 @@ class HtmlSanitizerTest extends TestCase
         yield 'allowed tag' => [
             '&lt;b&gt;Bold&lt;/b&gt;',
             '<b>Bold</b>',
+        ];
+    }
+
+    public static function linkTargetRelProvider(): \Generator
+    {
+        yield 'a link without target gets no rel' => [
+            '<a href="/detail">Link</a>',
+            null,
+            '<a href="/detail">Link</a>',
+        ];
+
+        yield 'a same-window link keeps the referrer' => [
+            '<a target="_self" href="/detail">Link</a>',
+            null,
+            '<a target="_self" href="/detail">Link</a>',
+        ];
+
+        yield 'a link to the parent frame keeps the referrer' => [
+            '<a target="_parent" href="/detail">Link</a>',
+            null,
+            '<a target="_parent" href="/detail">Link</a>',
+        ];
+
+        yield 'a link to the top frame keeps the referrer' => [
+            '<a target="_top" href="/detail">Link</a>',
+            null,
+            '<a target="_top" href="/detail">Link</a>',
+        ];
+
+        yield 'a new-tab link gets noreferrer and noopener' => [
+            '<a target="_blank" href="https://example.com">Link</a>',
+            null,
+            '<a target="_blank" href="https://example.com" rel="noreferrer noopener">Link</a>',
+        ];
+
+        yield 'an allowed rel on a new-tab link is extended' => [
+            '<a target="_blank" href="https://example.com" rel="nofollow">Link</a>',
+            null,
+            '<a target="_blank" href="https://example.com" rel="nofollow noreferrer noopener">Link</a>',
+        ];
+
+        yield 'rels stored by an earlier sanitizer run are removed from a same-window link' => [
+            '<a target="_self" href="/detail" rel="noreferrer noopener">Link</a>',
+            null,
+            '<a target="_self" href="/detail">Link</a>',
+        ];
+
+        yield 'a same-window link keeps the referrer when a set adds custom link attributes' => [
+            '<a target="_self" href="/detail" data-bs-toggle="modal">Link</a>',
+            'test.bootstrap',
+            '<a target="_self" href="/detail" data-bs-toggle="modal">Link</a>',
+        ];
+
+        yield 'a new-tab link gets noreferrer and noopener when a set adds custom link attributes' => [
+            '<a target="_blank" href="https://example.com" data-bs-toggle="modal">Link</a>',
+            'test.bootstrap',
+            '<a target="_blank" href="https://example.com" data-bs-toggle="modal" rel="noreferrer noopener">Link</a>',
+        ];
+    }
+
+    public static function linkTargetRelOptionProvider(): \Generator
+    {
+        yield 'without noreferrer a new-tab link only gets noopener' => [
+            ['HTML.TargetNoreferrer'],
+            '<a target="_blank" href="https://example.com" rel="noopener">New</a> <a target="_self" href="/detail">Same</a>',
+        ];
+
+        yield 'without noopener a new-tab link only gets noreferrer' => [
+            ['HTML.TargetNoopener'],
+            '<a target="_blank" href="https://example.com" rel="noreferrer">New</a> <a target="_self" href="/detail">Same</a>',
+        ];
+
+        yield 'without both a new-tab link gets no rel' => [
+            ['HTML.TargetNoreferrer', 'HTML.TargetNoopener'],
+            '<a target="_blank" href="https://example.com">New</a> <a target="_self" href="/detail">Same</a>',
         ];
     }
 

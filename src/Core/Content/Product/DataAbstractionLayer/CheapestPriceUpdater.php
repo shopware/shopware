@@ -70,6 +70,7 @@ class CheapestPriceUpdater
         }
 
         $variantIdsUpdated = [];
+        $parentIdsWithVariants = [];
 
         foreach ($all as $productId => $prices) {
             $container = new CheapestPriceContainer($prices);
@@ -79,6 +80,11 @@ class CheapestPriceUpdater
                 'id' => Uuid::fromHexToBytes($productId),
                 'version' => $versionId,
             ]);
+
+            // the container only holds a default price for a parent with variants
+            if ($container->getDefault() !== null) {
+                $parentIdsWithVariants[] = $productId;
+            }
 
             $variantIds = $container->getVariantIds();
 
@@ -105,6 +111,17 @@ class CheapestPriceUpdater
                     'version' => $versionId,
                 ]);
             }
+        }
+
+        // A parent is no candidate of its own cheapest price. The accessor it got before it had variants is never
+        // updated again, so it is removed, or the parent and the variants falling back to it match by outdated prices.
+        if ($parentIdsWithVariants !== []) {
+            RetryableQuery::retryable($this->connection, fn () => $this->connection->executeStatement(
+                'UPDATE product SET cheapest_price_accessor = NULL
+                 WHERE id IN (:ids) AND version_id = :version AND cheapest_price_accessor IS NOT NULL',
+                ['ids' => Uuid::fromHexToBytesList($parentIdsWithVariants), 'version' => $versionId],
+                ['ids' => ArrayParameterType::BINARY]
+            ));
         }
 
         if ($variantIdsUpdated !== []) {

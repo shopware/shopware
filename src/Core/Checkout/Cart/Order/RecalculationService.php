@@ -241,7 +241,7 @@ class RecalculationService
             throw CartException::addressNotFound($customerAddressId);
         }
 
-        $newOrderAddress = AddressTransformer::transform($customerAddress);
+        $newOrderAddress = AddressTransformer::transformForUpdate($customerAddress);
         $newOrderAddress['id'] = $orderAddressId;
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
     }

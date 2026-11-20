@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter;
 
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
+use Shopware\Core\Framework\Adapter\Twig\Exception\TwigMethodCallNotAllowedException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -33,6 +34,7 @@ class AdapterException extends HttpException
     public const INVALID_ASSET_URL = 'FRAMEWORK__INVALID_ASSET_URL';
     final public const INVALID_ARGUMENT = 'FRAMEWORK__INVALID_ARGUMENT_EXCEPTION';
     public const OPERATOR_NOT_SUPPORTED = 'FRAMEWORK__OPERATOR_NOT_SUPPORTED';
+    final public const TWIG_METHOD_CALL_NOT_ALLOWED = 'FRAMEWORK__TWIG_METHOD_CALL_NOT_ALLOWED';
     final public const CACHE_DIRECTORY_ERROR = 'FRAMEWORK__CACHE_DIRECTORY_ERROR';
 
     /**
@@ -202,6 +204,16 @@ class AdapterException extends HttpException
             self::CACHE_DIRECTORY_ERROR,
             'Unable to write in the "{{ directory }}" directory',
             ['directory' => $directory]
+        );
+    }
+
+    public static function twigMethodCallNotAllowed(string $class, string $method): TwigMethodCallNotAllowedException
+    {
+        return new TwigMethodCallNotAllowedException(
+            Response::HTTP_FORBIDDEN,
+            self::TWIG_METHOD_CALL_NOT_ALLOWED,
+            'Calling "{{ class }}::{{ method }}()" from a template is not allowed',
+            ['class' => $class, 'method' => $method]
         );
     }
 }

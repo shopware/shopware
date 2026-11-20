@@ -44,20 +44,9 @@ class VariantListingUpdater
 
         $listingConfiguration = $this->getListingConfiguration($ids, $context);
 
-        $displayParent = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.id), 256) WHERE product.id = :id AND product.version_id = :versionId')
-        );
-
-        $hideParent = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = NULL WHERE product.id = :id AND product.version_id = :versionId')
-        );
-
-        $singleVariant = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET display_group = SHA2(HEX(product.parent_id), 256) WHERE product.parent_id = :id AND product.version_id = :versionId')
-        );
+        $displayParentIds = [];
+        $hideParentIds = [];
+        $singleVariantIds = [];
 
         foreach ($listingConfiguration as $parentId => $config) {
             $childCount = (int) $config['child_count'];
@@ -69,15 +58,15 @@ class VariantListingUpdater
 
             if ($childCount <= 0) {
                 // display parent in listing
-                $displayParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                $displayParentIds[] = $parentId;
             } else {
                 // hide parent
-                $hideParent->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                $hideParentIds[] = $parentId;
             }
 
             if ($groups === []) {
                 // display single variant in listing
-                $singleVariant->execute(['id' => $parentId, 'versionId' => $versionBytes]);
+                $singleVariantIds[] = $parentId;
 
                 continue;
             }
@@ -116,6 +105,22 @@ class VariantListingUpdater
             RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
                 $this->connection->executeStatement($sql, $params);
             });
+        }
+
+        foreach ([
+            ['ids' => $displayParentIds, 'column' => 'id', 'value' => 'SHA2(HEX(product.id), 256)'],
+            ['ids' => $hideParentIds, 'column' => 'id', 'value' => 'NULL'],
+            ['ids' => $singleVariantIds, 'column' => 'parent_id', 'value' => 'SHA2(HEX(product.parent_id), 256)'],
+        ] as $update) {
+            foreach (array_chunk($update['ids'], 500) as $batch) {
+                RetryableQuery::retryable($this->connection, function () use ($update, $batch, $versionBytes): void {
+                    $this->connection->executeStatement(
+                        'UPDATE product SET display_group = ' . $update['value'] . ' WHERE ' . $update['column'] . ' IN (:ids) AND version_id = :versionId',
+                        ['ids' => $batch, 'versionId' => $versionBytes],
+                        ['ids' => ArrayParameterType::BINARY]
+                    );
+                });
+            }
         }
     }
 

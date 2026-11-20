@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
-use Shopware\Core\Framework\DataAbstractionLayer\Util\StatementHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -52,7 +51,7 @@ class ProductCategoryDenormalizer
                 $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
-            $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
+            $updates[] = ['id' => $productId, 'tree' => $json];
 
             if ($categoryIds === []) {
                 continue;
@@ -76,11 +75,28 @@ class ProductCategoryDenormalizer
             );
         });
 
-        RetryableTransaction::retryable($this->connection, function () use ($updates): void {
-            $query = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
-
+        RetryableTransaction::retryable($this->connection, function () use ($updates, $versionId): void {
+            $maxTreeBytes = 1;
             foreach ($updates as $update) {
-                StatementHelper::executeStatement($query, $update);
+                $maxTreeBytes = max($maxTreeBytes, \strlen($update['tree'] ?? ''));
+            }
+
+            // Keep large category trees from multiplying into oversized SQL packets.
+            $batchSize = max(1, min(500, intdiv(1_048_576, $maxTreeBytes)));
+            foreach (array_chunk($updates, $batchSize) as $batch) {
+                $cases = [];
+                $params = ['ids' => array_column($batch, 'id'), 'version' => $versionId];
+                foreach ($batch as $index => $update) {
+                    $cases[] = 'WHEN :id' . $index . ' THEN :tree' . $index;
+                    $params['id' . $index] = $update['id'];
+                    $params['tree' . $index] = $update['tree'];
+                }
+
+                $this->connection->executeStatement(
+                    'UPDATE product SET category_tree = CASE id ' . implode(' ', $cases) . ' END WHERE id IN (:ids) AND version_id = :version',
+                    $params,
+                    ['ids' => ArrayParameterType::BINARY]
+                );
             }
         });
 
@@ -96,7 +112,7 @@ class ProductCategoryDenormalizer
             return;
         }
 
-        $queue = new MultiInsertQueryQueue($this->connection, 250, true);
+        $queue = new MultiInsertQueryQueue($this->connection, 500, true);
         foreach ($inserts as $insert) {
             $queue->addInsert('product_category_tree', $insert);
         }

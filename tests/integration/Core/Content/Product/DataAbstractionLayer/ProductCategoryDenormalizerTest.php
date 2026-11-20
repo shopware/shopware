@@ -171,6 +171,7 @@ class ProductCategoryDenormalizerTest extends TestCase
     public static function categoryTreeSizes(): \Generator
     {
         yield 'small trees cross the row limit' => [0];
+        yield 'category inserts cross the row limit' => [1];
         yield 'large trees reduce the batch size' => [200];
     }
 

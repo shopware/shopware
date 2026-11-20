@@ -18,7 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -161,6 +163,114 @@ class ProductAdminSearchIndexerTest extends TestCase
         );
 
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsContainsProductsOfWrittenVisibilitiesAndMedia(): void
+    {
+        $visibleProductId = Uuid::randomHex();
+        $productWithMediaId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_visibility', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['productId' => $visibleProductId, 'salesChannelId' => Uuid::randomHex(), 'visibility' => 30],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_INSERT
+                    ),
+                ], Context::createDefaultContext()),
+                new EntityWrittenEvent('product_media', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['productId' => $productWithMediaId, 'mediaId' => Uuid::randomHex()],
+                        'product_media',
+                        EntityWriteResult::OPERATION_INSERT
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event, $visibleProductId, $productWithMediaId): void {
+            static::assertSame([$visibleProductId, $productWithMediaId], $this->searchIndexer->getUpdatedIds($event));
+        });
+    }
+
+    public function testGetUpdatedIdsContainsProductsWithChangedCover(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($productId, ['id' => $productId, 'coverId' => Uuid::randomHex()], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event, $productId): void {
+            static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+        });
+
+        Feature::withFeatureDisabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($event): void {
+            static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
+        });
+    }
+
+    public function testGetUpdatedIdsReadsTheProductOfDeletedOrMovedVisibilitiesAndMediaFromTheChangeSet(): void
+    {
+        $productWithDeletedVisibilityId = Uuid::randomHex();
+        $productWithMovedVisibilityId = Uuid::randomHex();
+        $productWithDeletedMediaId = Uuid::randomHex();
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_visibility', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex()],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_DELETE,
+                        changeSet: new ChangeSet(['product_id' => Uuid::fromHexToBytes($productWithDeletedVisibilityId)], [], true)
+                    ),
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex(), 'salesChannelId' => Uuid::randomHex()],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_UPDATE,
+                        changeSet: new ChangeSet(['product_id' => Uuid::fromHexToBytes($productWithMovedVisibilityId)], [], false)
+                    ),
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex(), 'visibility' => 10],
+                        'product_visibility',
+                        EntityWriteResult::OPERATION_UPDATE
+                    ),
+                ], Context::createDefaultContext()),
+                new EntityWrittenEvent('product_media', [
+                    new EntityWriteResult(
+                        Uuid::randomHex(),
+                        ['id' => Uuid::randomHex(), 'versionId' => Uuid::randomHex()],
+                        'product_media',
+                        EntityWriteResult::OPERATION_DELETE,
+                        changeSet: new ChangeSet(['product_id' => Uuid::fromHexToBytes($productWithDeletedMediaId)], [], true)
+                    ),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::withFeatureEnabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($event, $productWithDeletedVisibilityId, $productWithMovedVisibilityId, $productWithDeletedMediaId): void {
+            static::assertSame(
+                [$productWithDeletedVisibilityId, $productWithMovedVisibilityId, $productWithDeletedMediaId],
+                $this->searchIndexer->getUpdatedIds($event)
+            );
+        });
     }
 
     public function testGlobalCriteria(): void

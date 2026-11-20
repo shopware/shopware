@@ -149,6 +149,24 @@ function hasSameParents(was: BlockFacts, now: BlockFacts): boolean {
     return was.parents.length === now.parents.length && was.parents.every((parent) => now.parents.includes(parent));
 }
 
+/** A plugin can override a block, but not the template outside of every block. */
+function overridable(parents: (string | null)[]): string[] {
+    return parents.filter((parent): parent is string => parent !== null);
+}
+
+function movedOverrideEffects(from: (string | null)[], to: (string | null)[]): string {
+    const left = overridable(from);
+    const entered = overridable(to);
+
+    if (left.length === 0) {
+        return `plugin overrides of ${listed(entered)} drop it`;
+    }
+
+    const leftEffect = `plugin overrides of ${listed(left)} without {% parent %} now drop it`;
+
+    return entered.length === 0 ? leftEffect : `${leftEffect}, and overrides of ${listed(entered)} drop it too`;
+}
+
 /**
  * A block moved when it left a block that still exists, or entered one that existed before: overrides of that
  * block now render without it or drop it. A block that only got a new block around it, or lost one that is
@@ -164,9 +182,7 @@ const blockMovedParent = rule({
             .filter(({ was, now }) => onlyAround(was, now, base, head).length + onlyAround(now, was, base, head).length > 0)
             .map(({ was, now }) => ({ ...blockElement(now), from: was.parents, to: now.parents })),
     texts: ({ from, to }, { flags }) => ({
-        explanation:
-            `The block moved from ${listed(from)} to ${listed(to)}, so plugin overrides of ${listed(from)} ` +
-            `without {% parent %} now drop it, and overrides of ${listed(to)} drop it too.`,
+        explanation: `The block moved from ${listed(from)} to ${listed(to)}, so ${movedOverrideEffects(from, to)}.`,
         fix:
             `pattern "Block move". Keep the block under ${listed(from)} while ${flags.majorFlag} is off, move it only ` +
             `with the flag on, and mark it {# @bc-change BlockMoved version:${flags.majorVersion} parent:${listed(to)} #}.`,
@@ -176,7 +192,9 @@ const blockMovedParent = rule({
         subject: 'The block',
         markers: (change, facts) => blockMarkers(change, facts),
         matches: ({ to }, marker) =>
-            marker.tag === 'bc-change' && marker.kind === 'BlockMoved' && to.includes(marker.parameters.parent),
+            marker.tag === 'bc-change' &&
+            marker.kind === 'BlockMoved' &&
+            to.map(blockLabel).includes(marker.parameters.parent),
     },
 });
 

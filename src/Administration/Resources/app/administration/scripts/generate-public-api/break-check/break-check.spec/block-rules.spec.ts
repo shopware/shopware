@@ -164,6 +164,45 @@ describe('scripts/generate-public-api/break-check/break-check block rules', () =
             ).toEqual(['Break  block_moved_parent  sw-example-card/block:sw_example_card_title  current, major']);
         });
 
+        it('names no override of the root when a block moves out of every block', () => {
+            const findings = check(
+                BEFORE,
+                `
+                    {% block sw_example_card %}
+                    {% block sw_example_card_header %}{% endblock %}
+                    {% block sw_example_card_body %}{% endblock %}
+                    {% endblock %}
+                    {% block sw_example_card_title %}{% block sw_example_card_icon %}{% endblock %}{% endblock %}
+                `,
+            );
+
+            expect(summary(findings)).toEqual([
+                'Break  block_moved_parent  sw-example-card/block:sw_example_card_title  current, major',
+            ]);
+            expect(findings[0].explanation).toBe(
+                'The block moved from sw_example_card_header to (root), so plugin overrides of sw_example_card_header ' +
+                    'without {% parent %} now drop it.',
+            );
+            expect(findings[0].fix).toContain('{# @bc-change BlockMoved version:v6.8.0 parent:(root) #}');
+        });
+
+        it('names no override of the root when a block moves into a block', () => {
+            const findings = check(
+                `
+                    {% block sw_example_card_body %}{% endblock %}
+                    {% block sw_example_card_title %}{% endblock %}
+                `,
+                '{% block sw_example_card_body %}{% block sw_example_card_title %}{% endblock %}{% endblock %}',
+            );
+
+            expect(summary(findings)).toEqual([
+                'Break  block_moved_parent  sw-example-card/block:sw_example_card_title  current, major',
+            ]);
+            expect(findings[0].explanation).toBe(
+                'The block moved from (root) to sw_example_card_body, so plugin overrides of sw_example_card_body drop it.',
+            );
+        });
+
         it('reports only the new block when a block gets a new block around it', () => {
             expect(
                 summary(

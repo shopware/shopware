@@ -25,11 +25,13 @@ test(
 
         await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
 
-        const galleryImage = page.locator('.gallery-slider-item .js-magnifier-image').first();
+        const gallery = page.locator('.gallery-slider-row');
+        const galleryImage = gallery.locator('.tns-slide-active .js-magnifier-image').first();
         const zoomModal = page.locator('.js-zoom-modal');
 
+        await ShopCustomer.expects(gallery).not.toHaveClass(/is-loading/);
+        await galleryImage.scrollIntoViewIfNeeded();
         await galleryImage.dblclick();
-        await galleryImage.click();
 
         await ShopCustomer.expects(zoomModal).toBeVisible();
 

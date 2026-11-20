@@ -1,11 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { test } from '@fixtures/AcceptanceTest';
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
-const TEMPLATE_DIRECTORY = join(
-    __dirname,
-    '../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/google-product-search-de',
+const TEMPLATE_DIRECTORY = fileURLToPath(
+    new URL(
+        '../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/google-product-search-de',
+        import.meta.url,
+    ),
 );
 
 test(
@@ -25,10 +28,10 @@ test(
             shippingMethodId: string;
         };
 
-        const snippetSetResponse = await TestDataService.AdminApiClient.post('search/snippet-set', {
-            data: { limit: 1, filter: [{ type: 'equals', field: 'iso', value: 'en-GB' }] },
+        const domainResponse = await TestDataService.AdminApiClient.post('search/sales-channel-domain', {
+            data: { limit: 1, filter: [{ type: 'equals', field: 'salesChannelId', value: sc.id }] },
         });
-        const snippetSetId = ((await snippetSetResponse.json()) as { data: { id: string }[] }).data[0].id;
+        const domainId = ((await domainResponse.json()) as { data: { id: string }[] }).data[0].id;
 
         const streamResponse = await TestDataService.AdminApiClient.post('product-stream?_response=detail', {
             data: {
@@ -52,7 +55,6 @@ test(
         TestDataService.addCreatedRecord('product-stream', productStreamId);
 
         const salesChannelId = TestDataService.IdProvider.getIdPair().uuid;
-        const domainId = TestDataService.IdProvider.getIdPair().uuid;
         const salesChannelResponse = await TestDataService.AdminApiClient.post('sales-channel?_response=detail', {
             data: {
                 id: salesChannelId,
@@ -71,15 +73,6 @@ test(
                 countries: [{ id: TestDataService.defaultCountryId }],
                 paymentMethods: [{ id: sc.paymentMethodId }],
                 shippingMethods: [{ id: sc.shippingMethodId }],
-                domains: [
-                    {
-                        id: domainId,
-                        languageId: TestDataService.defaultLanguageId,
-                        currencyId: TestDataService.defaultCurrencyId,
-                        snippetSetId,
-                        url: `http://google-feed-${Date.now()}.localhost`,
-                    },
-                ],
             },
         });
         if (!salesChannelResponse.ok()) {
@@ -118,10 +111,20 @@ test(
         });
 
         await test.step('Generate the preview and check the exported price', async () => {
+            const previewResponsePromise = page.waitForResponse(
+                (response) =>
+                    response.url().includes('/api/_action/product-export/preview') && response.request().method() === 'POST',
+            );
             await page.getByRole('button', { name: 'Generate preview' }).click();
 
-            const preview = page.locator('.sw-sales-channel-detail-product-comparison-preview');
-            await ShopAdmin.expects(preview).toContainText('<g:price>100.00 EUR</g:price>');
+            const previewResponse = await previewResponsePromise;
+            ShopAdmin.expects(previewResponse.ok()).toBeTruthy();
+            const preview = (await previewResponse.json()) as { content: string; errors: unknown[] };
+            ShopAdmin.expects(preview.errors).toEqual([]);
+            ShopAdmin.expects(preview.content).toContain('<g:price>100.00 EUR</g:price>');
+            ShopAdmin.expects(preview.content).not.toContain('<g:price>70.00 EUR</g:price>');
+
+            await ShopAdmin.expects(page.locator('.sw-modal .sw-code-editor')).toBeVisible();
         });
     },
 );

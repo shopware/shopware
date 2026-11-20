@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -57,6 +58,24 @@ class ProductIndexerTest extends TestCase
 
         static::assertCount(1, $events);
         static::assertTrue($events[0]->isFullIndexing);
+    }
+
+    public function testIterateMarksItsMessagesAsAFullIndexingRun(): void
+    {
+        $ids = [Uuid::randomHex(), Uuid::randomHex()];
+
+        $iterator = static::createStub(IterableQuery::class);
+        $iterator->method('fetch')->willReturn($ids);
+        $iterator->method('getOffset')->willReturn(['offset' => 2]);
+
+        $iteratorFactory = static::createStub(IteratorFactory::class);
+        $iteratorFactory->method('createIterator')->willReturn($iterator);
+
+        $message = $this->createIndexer(static::createStub(Connection::class), static::createStub(AbstractStockStorage::class), iteratorFactory: $iteratorFactory)->iterate(null);
+
+        static::assertInstanceOf(ProductIndexingMessage::class, $message);
+        static::assertSame($ids, $message->getData());
+        static::assertTrue($message->isFullIndexing);
     }
 
     public function testUpdateSkipChildCountUpdater(): void
@@ -139,10 +158,10 @@ class ProductIndexerTest extends TestCase
         $this->createIndexer($connection, $stockStorage)->update($this->writtenEvent($context, $parentId, ['stock' => 0]));
     }
 
-    private function createIndexer(Connection $connection, AbstractStockStorage $stockStorage, ?EventDispatcher $eventDispatcher = null): ProductIndexer
+    private function createIndexer(Connection $connection, AbstractStockStorage $stockStorage, ?EventDispatcher $eventDispatcher = null, ?IteratorFactory $iteratorFactory = null): ProductIndexer
     {
         return new ProductIndexer(
-            static::createStub(IteratorFactory::class),
+            $iteratorFactory ?? static::createStub(IteratorFactory::class),
             static::createStub(EntityRepository::class),
             $connection,
             static::createStub(VariantListingUpdater::class),

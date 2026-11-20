@@ -855,6 +855,9 @@ class DocumentGeneratorTest extends TestCase
         $a11yMediaId = $invoiceStruct->getA11yMediaId();
         static::assertNotNull($a11yMediaId);
 
+        $storedDocument = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($storedDocument);
+
         $this->documentRepository->update([['id' => $invoiceStruct->getId(), 'documentMediaFileId' => null]], $this->context);
         static::getContainer()->get('media.repository')->delete([['id' => $mediaId]], $this->context);
 
@@ -868,6 +871,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($document->getDocumentMediaFileId());
         static::assertSame($a11yMediaId, $document->getDocumentA11yMediaFileId());
         static::assertSame($invoiceStruct->getDeepLinkCode(), $document->getDeepLinkCode());
+        static::assertSame($storedDocument->getOrderVersionId(), $document->getOrderVersionId());
+        static::assertSame($storedDocument->getConfig(), $document->getConfig());
     }
 
     #[DataProvider('readDocumentDataProvider')]

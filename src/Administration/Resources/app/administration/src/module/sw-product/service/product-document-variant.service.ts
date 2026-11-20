@@ -8,7 +8,10 @@ import type Repository from 'src/core/data/repository.data';
 export type DocumentChanges = { title?: string | null; mediaId?: EntityKey<'media'> | null };
 
 /** @private */
-export type DocumentVariantOperation = { mediaId: string; title: string | null; changes?: DocumentChanges };
+export type DocumentVariantOperation = { mediaId: string; title: string | null } & (
+    | { type: 'update'; changes: DocumentChanges }
+    | { type: 'remove' }
+);
 
 type SyncService = {
     sync: (payload: object, additionalParams?: object, additionalHeaders?: Record<string, string>) => Promise<unknown>;
@@ -53,16 +56,15 @@ export default class ProductDocumentVariantService {
             return variantIds;
         }
 
-        const removesDocuments = languageId === Context.api.systemLanguageId;
         const deletedIds: string[] = [];
         const updates: object[] = [];
         matches.forEach(({ operation, documents: matched }) => {
-            if (!operation.changes && removesDocuments) {
+            if (operation.type === 'remove') {
                 deletedIds.push(...matched.map(({ id }) => id));
                 return;
             }
 
-            const changes = Utils.object.pick(operation.changes ?? { title: null, mediaId: null }, ['title', 'mediaId']);
+            const changes = Utils.object.pick(operation.changes, ['title', 'mediaId']);
             updates.push(...matched.map(({ id, versionId }) => ({ id, versionId, ...changes })));
         });
 

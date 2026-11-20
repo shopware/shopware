@@ -85,8 +85,8 @@ describe('sw-product-document-form bulk removal', () => {
         expect(mockVariantSync).not.toHaveBeenCalled();
         expect(getDocuments()).toHaveLength(0);
         expect(store.documentVariantOperations).toEqual({
-            [documents[0].id]: { mediaId: media[0].id, title: 'first' },
-            [documents[1].id]: { mediaId: media[1].id, title: 'second' },
+            [documents[0].id]: { type: 'remove', mediaId: media[0].id, title: 'first' },
+            [documents[1].id]: { type: 'remove', mediaId: media[1].id, title: 'second' },
         });
         expect(wrapper.find('.sw-product-document-form__remove-content').exists()).toBe(false);
         expect(mockSnackbar).toHaveBeenCalledTimes(1);

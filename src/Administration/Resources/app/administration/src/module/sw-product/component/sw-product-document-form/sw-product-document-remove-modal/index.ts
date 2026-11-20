@@ -102,12 +102,14 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             const queuedOperations = Store.get('swProductDetail').documentVariantOperations;
-            const changes = this.isSystemDefaultLanguage ? {} : { changes: { title: null, mediaId: null } };
+            const removal = this.isSystemDefaultLanguage
+                ? { type: 'remove' as const }
+                : { type: 'update' as const, changes: { title: null, mediaId: null } };
 
             return Object.fromEntries(
                 this.documents.flatMap((document) => {
                     const { mediaId, title } = queuedOperations[document.id] ?? document.translated ?? {};
-                    return mediaId ? [[document.id, { mediaId, title: title || null, ...changes }]] : [];
+                    return mediaId ? [[document.id, { ...removal, mediaId, title: title || null }]] : [];
                 }),
             );
         },

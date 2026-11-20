@@ -417,20 +417,21 @@ describe('sw-product-document-edit-modal', () => {
             await apply(modal);
 
             const changes = { title: 'Handbook', mediaId: replacement.id };
-            const operation = { mediaId: savedMedia.id, title: 'Manual', changes };
+            const operation = { type: 'update', mediaId: savedMedia.id, title: 'Manual', changes };
             expect(variantSync.mock.calls).toEqual([[product.id, [operation], true]]);
             expect(appliedEdits(modal)?.[1]).toEqual({ changes, media: replacement });
             expect(variantResults(modal)?.[1]).toEqual({ operation, message: applySuccess(2) });
         });
 
         it('merges the edit into the operation already queued for the document', async () => {
-            const queued = { mediaId: 'old-media', title: 'Old', changes: { title: 'Manual', mediaId: savedMedia.id } };
+            const saved = { type: 'update' as const, mediaId: 'old-media', title: 'Old' };
+            const queued = { ...saved, changes: { title: 'Manual', mediaId: savedMedia.id } };
             Shopware.Store.get('swProductDetail').documentVariantOperations = { [document.id]: queued };
             const modal = await createWrapper({ document, hasVariants: true });
             await getTitleInput(modal).setValue('Handbook');
             await apply(modal);
 
-            const operation = { mediaId: 'old-media', title: 'Old', changes: { title: 'Handbook', mediaId: savedMedia.id } };
+            const operation = { ...saved, changes: { title: 'Handbook', mediaId: savedMedia.id } };
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
             expect(appliedEdits(modal)).toEqual([{ changes: { title: 'Handbook' }, media: null }]);
             expect(variantResults(modal)).toEqual([{ operation, message: applySuccess(0) }]);
@@ -482,9 +483,7 @@ describe('sw-product-document-edit-modal', () => {
             await getTitleInput(modal).setValue('Handbook');
             await apply(modal);
 
-            expect(mockNotifyError).toHaveBeenCalledWith({
-                message: 'sw-product.documentForm.errorLoadVariants',
-            });
+            expect(mockNotifyError).toHaveBeenCalledWith({ message: 'sw-product.documentForm.errorLoadVariants' });
             expect(modal.emitted('apply')).toBeUndefined();
             expect(getButton(modal, 'global.default.cancel').attributes('disabled')).toBeUndefined();
             expect(getButton(modal, 'global.default.apply').attributes('disabled')).toBeUndefined();

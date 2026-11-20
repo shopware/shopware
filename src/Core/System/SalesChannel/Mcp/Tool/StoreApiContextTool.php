@@ -7,6 +7,7 @@ use Mcp\Schema\ToolAnnotations;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Context\StoreApiMcpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 
 /**
@@ -21,7 +22,7 @@ use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
     annotations: new ToolAnnotations(readOnlyHint: true, openWorldHint: false),
     description: 'Read the current Store API sales-channel context for this MCP session, including sales channel, language, currency, context token, and whether a customer is authenticated.'
 )]
-#[McpToolGroup('store-api')]
+#[McpToolGroup('store-api', description: 'Read the shopper context of this session: sales channel, language, currency and whether a customer is logged in.')]
 class StoreApiContextTool extends McpToolResponse
 {
     public function __construct(
@@ -29,17 +30,17 @@ class StoreApiContextTool extends McpToolResponse
     ) {
     }
 
-    public function __invoke(): string
+    public function __invoke(): McpToolResult
     {
         $context = $this->contextProvider->getSalesChannelContext();
 
         if ($context === null) {
-            return $this->error('No Store API sales-channel context is available for this MCP request.');
+            return $this->errorResult('No Store API sales-channel context is available for this MCP request.');
         }
 
         $customer = $context->getCustomer();
 
-        return $this->success([
+        return $this->successResult([
             'salesChannelId' => $context->getSalesChannelId(),
             'token' => $context->getToken(),
             'languageId' => $context->getLanguageId(),

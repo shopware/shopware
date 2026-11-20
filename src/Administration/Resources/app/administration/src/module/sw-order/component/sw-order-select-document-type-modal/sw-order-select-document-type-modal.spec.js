@@ -5,6 +5,7 @@ import 'src/app/component/form/field-base/sw-base-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { DOCUMENT_TYPES } from '../../order.types';
 import { REQUIRES_INVOICE } from './index';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -113,6 +114,10 @@ async function createWrapper(props = defaultProps) {
 }
 
 describe('src/module/sw-order/component/sw-order-select-document-type-modal', () => {
+    beforeEach(() => {
+        allowDeprecation('The component "sw-order-select-document-type-modal" is deprecated');
+    });
+
     it('should enable credit note if there is at least one invoice exists and order has credit item', async () => {
         const wrapper = await createWrapper({
             order: {

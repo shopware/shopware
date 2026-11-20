@@ -190,17 +190,12 @@ export default function useListing(options: UseListingOptions): UseListingReturn
     }
 
     function resetListing(): void {
+        page.value = 1;
+        term.value = undefined;
+
         updateRoute({
-            // @ts-expect-error - mirrors the mixin: `name` and `query` are not updateRoute parameters
-            name: route.name,
-            query: {
-                limit: limit.value,
-                page: page.value,
-                term: term.value,
-                sortBy: sortBy.value,
-                sortDirection: sortDirection.value,
-                naturalSorting: naturalSorting.value,
-            },
+            page: page.value,
+            term: term.value,
         });
     }
 

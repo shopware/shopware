@@ -131,6 +131,7 @@ function comparison(name: string, output: CaseOutput, expectedFailures = NO_FAIL
 
 const VIEWS = [
     'block-tree',
+    'block-contract',
     'block-structure',
     'block-findings',
     'complete',
@@ -197,9 +198,23 @@ describe('fixtureTests', () => {
             ['block-tree', 'complete'],
         ],
         [
+            'the origin of a block in the report',
+            withFile('app/component/base/sw-example-card.api.md', '  sw_example_card\n', '  sw_example_card  [inherited]\n'),
+            ['block-tree', 'complete'],
+        ],
+        [
             'the parent in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "Block<'sw_example_card', ", 'Block<null, '),
-            ['block-tree', 'complete'],
+            ['block-contract', 'complete'],
+        ],
+        [
+            'the origin of a block in the contract',
+            withFile(
+                'app/component/base/sw-example-card.d.ts',
+                'sw_example_card: Block<null>;',
+                "sw_example_card: Block<null, 'inherited'>;",
+            ),
+            ['block-contract', 'complete'],
         ],
         [
             'the index',
@@ -249,7 +264,16 @@ describe('fixtureTests', () => {
             },
             ['block-findings', 'complete'],
         ],
-        ['a missing snapshot', { ...EXPECTED, before: {} }, ['block-tree', 'block-structure', 'complete']],
+        [
+            'a missing snapshot',
+            { ...EXPECTED, before: {} },
+            [
+                'block-tree',
+                'block-contract',
+                'block-structure',
+                'complete',
+            ],
+        ],
         [
             'the props in the report',
             withFile('app/component/base/sw-example-card.api.md', 'title?: string', 'title: string'),
@@ -316,6 +340,10 @@ describe('fixtureTests', () => {
         [
             'index key blocks for the unit kind block-tree',
             inBothSnapshots(withFile('index.json', '"blocks"', '"slots"')),
+        ],
+        [
+            'contract member blocks for the unit kind block-contract',
+            inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', 'blocks: {', 'slots: {')),
         ],
         [
             'report section block-context for the unit kind block-structure',

@@ -155,6 +155,11 @@ export default Component.wrapComponentConfig({
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                "sw-order-customer-grid.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.",
+            );
+
             return Shopware.Filter.getByName('asset');
         },
 

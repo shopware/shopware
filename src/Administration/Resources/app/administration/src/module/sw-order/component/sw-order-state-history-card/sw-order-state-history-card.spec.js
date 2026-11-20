@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -51,6 +52,10 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
+    beforeEach(() => {
+        allowDeprecation('The component "sw-order-state-history-card" is deprecated');
+    });
+
     let wrapper;
 
     // @deprecated tag:v6.8.0 - The test will be removed with sw-order-state-history-card.

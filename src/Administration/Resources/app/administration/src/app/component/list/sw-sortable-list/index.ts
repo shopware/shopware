@@ -56,7 +56,6 @@ const defaultScrollOnDragConf = {
  *          </template>
  * </sw-sortable-list>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 

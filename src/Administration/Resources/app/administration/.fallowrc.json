@@ -10,6 +10,7 @@
     "dynamicallyLoaded": [
         "build/plugins.vite.ts",
         "build/vue-setup-transform/index.js",
+        "scripts/extensionTooling/jest-results-processor.js",
         "src/app/assets/scss/mixins.scss",
         "src/app/assets/scss/variables.scss",
         "src/core/factory/state-deprecated.factory.js",

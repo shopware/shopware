@@ -126,6 +126,11 @@ class CacheHeadersService
             return true;
         }
 
+        if ($salesChannelContext->getProspectiveCustomer() !== null) {
+            // rules match the address of a visitor without a customer like the address of a logged in customer
+            return true;
+        }
+
         if ($cart->getLineItems()->count() > 0) {
             // cache hash is required for filled carts
             return true;

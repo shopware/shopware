@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -154,6 +155,9 @@ class CustomerEntity extends Entity implements \Stringable
 
     protected ?PromotionCollection $promotions = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryCustomer association was removed.
+     */
     protected ?CustomerRecoveryEntity $recoveryCustomer = null;
 
     protected ?ProductReviewCollection $productReviews = null;
@@ -736,13 +740,23 @@ class CustomerEntity extends Entity implements \Stringable
         $this->productReviews = $productReviews;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryCustomer association was removed.
+     */
     public function getRecoveryCustomer(): ?CustomerRecoveryEntity
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The recoveryCustomer association was removed.');
+
         return $this->recoveryCustomer;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryCustomer association was removed.
+     */
     public function setRecoveryCustomer(?CustomerRecoveryEntity $recoveryCustomer): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The recoveryCustomer association was removed.');
+
         $this->recoveryCustomer = $recoveryCustomer;
     }
 

@@ -12,13 +12,22 @@ use Symfony\Component\Process\Process;
 #[Package('framework')]
 class MajorMatrixTest extends TestCase
 {
+    public function testDefaultAndNightlyPhpVersions(): void
+    {
+        static::assertSame(['8.2'], $this->generateMatrix('generate-phpunit-matrix.php')['php']);
+        static::assertSame(['8.2', '8.6'], $this->generateMatrix('generate-phpunit-matrix.php', 'nightly')['php']);
+        static::assertSame(['8.2'], $this->generateMatrix('generate-acceptance-matrix.php')['php-version']);
+        static::assertSame(['8.2', '8.6'], $this->generateMatrix('generate-acceptance-matrix.php', 'nightly')['php-version']);
+        static::assertSame(['8.2', '8.4', '8.5', '8.6'], $this->generateMatrix('generate-acceptance-matrix.php', 'release')['php-version']);
+    }
+
     public function testPhpunitMajorMatrixHasNoVersionDimension(): void
     {
         $matrix = $this->generateMatrix('generate-phpunit-matrix.php', '', 'true');
 
         static::assertArrayNotHasKey('major', $matrix);
         static::assertNotCount(0, $matrix['test']);
-        static::assertSame(['8.6'], $matrix['php']);
+        static::assertSame(['8.2'], $matrix['php']);
     }
 
     public function testAcceptanceMatrixHasOneMajorVariant(): void

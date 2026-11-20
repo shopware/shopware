@@ -10,7 +10,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -40,7 +42,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         private readonly LayoutGate $gate,
         private readonly ViolationConstraintMapper $violationMapper,
         private readonly RootSourceRegistry $rootSourceRegistry,
-        private readonly LayoutRootSourceReader $rootSourceReader,
+        private readonly WriteOutcome $writeOutcome,
         private readonly StoredMappingValidator $mappingValidator,
     ) {
     }
@@ -67,16 +69,53 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
             return;
         }
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME) {
-                continue;
-            }
+        $layoutCommands = $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME);
+        $rootSources = $this->rootSourcesOf($layoutCommands);
 
-            $this->validateCommand($event, $command, $context, $memo);
+        foreach ($layoutCommands as $command) {
+            $this->validateCommand($event, $command, $context, $memo, $rootSources);
         }
     }
 
-    private function validateCommand(PreWriteValidationEvent $event, WriteCommand $command, Context $context, ?LayoutWriteContext $memo): void
+    /**
+     * The root source of every layout this batch touches, keyed by hex id: the inserted value, else the stored one.
+     * Looked up once per event, and only when a command edits a layout without setting its root source.
+     *
+     * @param list<WriteCommand> $layoutCommands
+     *
+     * @return array<string, string>
+     */
+    private function rootSourcesOf(array $layoutCommands): array
+    {
+        $needsStoredSource = false;
+        foreach ($layoutCommands as $command) {
+            if ($command->hasField(ContentLayoutDefinition::LAYOUT_FIELD) && !$command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD)) {
+                $needsStoredSource = true;
+
+                break;
+            }
+        }
+
+        if (!$needsStoredSource) {
+            return [];
+        }
+
+        $rootSources = [];
+        foreach ($this->writeOutcome->touchedRows($layoutCommands, [ContentLayoutDefinition::ROOT_SOURCE_FIELD]) as $row) {
+            $rootSource = $row->getPayloadValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD) ?? $row->getStoredValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
+
+            if (\is_string($rootSource)) {
+                $rootSources[Uuid::fromBytesToHex($row->primaryKey['id'])] = $rootSource;
+            }
+        }
+
+        return $rootSources;
+    }
+
+    /**
+     * @param array<string, string> $rootSources
+     */
+    private function validateCommand(PreWriteValidationEvent $event, WriteCommand $command, Context $context, ?LayoutWriteContext $memo, array $rootSources): void
     {
         $touchesLayout = $command->hasField(ContentLayoutDefinition::LAYOUT_FIELD);
         $setsRootSource = $command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
@@ -111,7 +150,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         }
 
         // Step 3: resolvability against the declared root source (the create payload value, else the committed row
-        // read through LayoutRootSourceReader). On the create path membership was already gated in step 2; on a
+        // read through WriteOutcome). On the create path membership was already gated in step 2; on a
         // layout-only edit the committed source is gated here before resolve() — a source de-registered after the
         // layout was written surfaces as the unknownRootSource 400 instead of the resolve() 500. After this,
         // resolve() is never handed an unregistered id on either path.
@@ -125,7 +164,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         if ($tree !== null) {
             $rootSource = $setsRootSource
                 ? $payload[ContentLayoutDefinition::ROOT_SOURCE_FIELD]
-                : $this->rootSourceReader->read($command->getDecodedPrimaryKey()['id'] ?? null, $event->getCommands(), $context);
+                : $rootSources[$command->getDecodedPrimaryKey()['id'] ?? ''] ?? null;
 
             if (\is_string($rootSource)) {
                 if (!$setsRootSource && !\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {

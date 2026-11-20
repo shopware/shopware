@@ -23,7 +23,6 @@ use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystem
 use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
-use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
@@ -32,7 +31,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -78,23 +79,53 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[TestDox('re-validates a layout-only edit against the committed root source read by the reader after gating its membership')]
-    public function testLayoutOnlyEditResolvesAgainstCommittedRootSource(): void
+    #[TestDox('resolves a layout-only edit against the stored root source of the write outcome')]
+    public function testLayoutOnlyEditResolvesAgainstStoredRootSource(): void
     {
-        $gate = static::createStub(LayoutGate::class);
+        $gate = $this->createMock(LayoutGate::class);
         $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
-        $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->once())->method('resolvability')
+            ->with(static::anything(), static::anything(), 'category')
+            ->willReturn(new DiagnosticsReport([]));
 
         $registry = static::createStub(RootSourceRegistry::class);
         $registry->method('knownRootSources')->willReturn(['category', 'none']);
         $registry->method('resolve')->willReturn([]);
 
-        $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn('category');
+        $command = $this->layoutUpdate(['layout' => []]);
+        $validator = $this->validator($gate, $registry, $this->outcomeWith($command, 'category'));
 
-        $validator = $this->validator($gate, $registry, $reader);
+        $event = $this->event([$command]);
+        $validator->preValidate($event);
 
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('skips resolvability for a layout-only edit whose root source the write outcome cannot resolve')]
+    public function testLayoutOnlyEditWithoutAnyRootSourceSkipsResolvability(): void
+    {
+        $gate = $this->createMock(LayoutGate::class);
+        $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
+        $gate->expects($this->never())->method('resolvability');
+
+        $command = $this->layoutUpdate(['layout' => []]);
+        $validator = $this->validator($gate, null, $this->outcomeWith($command, null));
+
+        $event = $this->event([$command]);
+        $validator->preValidate($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
+    }
+
+    #[TestDox('asks the write outcome nothing when every layout command sets its own root source')]
+    public function testWriteOutcomeIsNotConsultedForCreations(): void
+    {
+        $writeOutcome = $this->createMock(WriteOutcome::class);
+        $writeOutcome->expects($this->never())->method('touchedRows');
+
+        $validator = $this->validator(null, null, $writeOutcome);
+
+        $event = $this->event([$this->layoutCreate(['layout' => [], 'root_source' => 'none'])]);
         $validator->preValidate($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
@@ -297,12 +328,10 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $registry->method('knownRootSources')->willReturn(['product', 'none']);
         $registry->expects($this->never())->method('resolve');
 
-        $reader = static::createStub(LayoutRootSourceReader::class);
-        $reader->method('read')->willReturn('category');
+        $command = $this->layoutUpdate(['layout' => []]);
+        $validator = $this->validator($gate, $registry, $this->outcomeWith($command, 'category'));
 
-        $validator = $this->validator($gate, $registry, $reader);
-
-        $event = $this->event([$this->layoutUpdate(['layout' => []])]);
+        $event = $this->event([$command]);
         $validator->preValidate($event);
 
         $violation = $this->onlyViolation($event);
@@ -312,15 +341,35 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function validator(
         ?LayoutGate $gate = null,
         ?RootSourceRegistry $registry = null,
-        ?LayoutRootSourceReader $reader = null,
+        ?WriteOutcome $writeOutcome = null,
     ): ContentLayoutWriteValidator {
         return new ContentLayoutWriteValidator(
             $gate ?? $this->cleanGate(),
             new ViolationConstraintMapper(),
             $registry ?? $this->registryKnowing(['product', 'category', 'none']),
-            $reader ?? static::createStub(LayoutRootSourceReader::class),
+            $writeOutcome ?? static::createStub(WriteOutcome::class),
             $this->cleanMappingValidator(),
         );
+    }
+
+    /**
+     * A write outcome reporting the given stored root source for the command's layout.
+     */
+    private function outcomeWith(WriteCommand $command, ?string $storedRootSource): WriteOutcome
+    {
+        $row = new OutcomeRow(
+            $command->getPrimaryKey(),
+            $command->getPath(),
+            false,
+            false,
+            [],
+            [ContentLayoutDefinition::ROOT_SOURCE_FIELD => $storedRootSource],
+        );
+
+        $writeOutcome = static::createStub(WriteOutcome::class);
+        $writeOutcome->method('touchedRows')->willReturn([$row]);
+
+        return $writeOutcome;
     }
 
     /**

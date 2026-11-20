@@ -241,6 +241,23 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
     }
 
+    #[TestDox('rejects a layout edited in the batch that creates it when the edit is unresolvable for the inserted root source')]
+    public function testRejectsEditBreakingResolvabilityInTheCreatingBatch(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        try {
+            $this->repository()->upsert([
+                $this->layout('category', TestElementTypeLoader::RESOLVABLE, $layoutId),
+                ['id' => $layoutId, 'layout' => $this->tree(TestElementTypeLoader::UNRESOLVABLE)],
+            ], $context);
+            static::fail('Expected the gate to validate the in-batch edit against the inserted root source.');
+        } catch (WriteException $exception) {
+            static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+        }
+    }
+
     /**
      * The anchor rule at the strict write. `unresolved_required` is a binding-scope error, so the resolvability
      * predicate rejects the row before it is stored. The authored map carries an entry under a key that is not

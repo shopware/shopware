@@ -144,6 +144,7 @@ use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
 use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceWriteValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\System\Language\LanguageLoader;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -859,7 +860,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LayoutGate::class),
             service(ViolationConstraintMapper::class),
             service(RootSourceRegistry::class),
-            service(LayoutRootSourceReader::class),
+            service(WriteOutcome::class),
             service(StoredMappingValidator::class),
         ])
         ->tag('kernel.event_subscriber');

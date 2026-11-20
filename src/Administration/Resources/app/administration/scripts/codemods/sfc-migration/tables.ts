@@ -69,8 +69,6 @@ const OPTION_TIERS: Record<string, ReportKind> = sourceKeyed<ReportKind>({
     i18n: 'todo',
     beforeCreate: 'todo',
     beforeRouteEnter: 'todo',
-    beforeRouteLeave: 'todo',
-    beforeRouteUpdate: 'todo',
 });
 
 // `this.$super` / `this.$parent` are structural — the component is skipped entirely.

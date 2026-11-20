@@ -28,6 +28,30 @@ const handleMtProgressBar = (context, node) => {
             attr.key?.argument?.name === 'update:value';
     });
 
+    // Check if the mt-progress-bar sets "max-value", which has no default in mt-progress-bar
+    const maxValueAttribute = node.startTag.attributes.find((attr) => {
+        const name = attr.directive ? attr.key?.name?.name === 'bind' && attr.key?.argument?.name : attr.key?.name;
+
+        return ['max-value', 'maxValue', 'maxvalue'].includes(name);
+    });
+
+    if (!maxValueAttribute) {
+        context.report({
+            node,
+            message: `[${mtComponentName}] The "max-value" prop has no default anymore. Set it to 100 to keep the previous behavior.`,
+            *fix(fixer)  {
+                if (context.options.includes('disableFix')) return;
+
+                const attributes = node.startTag.attributes;
+                const insertAfter = attributes.length > 0
+                    ? attributes[attributes.length - 1].range[1]
+                    : node.startTag.range[0] + `<${node.rawName}`.length;
+
+                yield fixer.insertTextAfterRange([insertAfter, insertAfter], ' :max-value="100"');
+            }
+        });
+    }
+
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
@@ -85,7 +109,16 @@ const mtProgressBarValidTests = [
             <template>
                 <sw-progress-bar />
             </template>`
-    }
+    },
+    {
+        name: '"mt-progress-bar" with "max-value" is allowed',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-progress-bar :model-value="done" max-value="10" />
+                <mt-progress-bar :model-value="done" :maxValue="total" />
+            </template>`
+    },
 ];
 
 const mtProgressBarInvalidTests = [
@@ -94,11 +127,11 @@ const mtProgressBarInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-progress-bar value="Hello World" />
+                <mt-progress-bar value="Hello World" :max-value="100" />
             </template>`,
         output: `
             <template>
-                <mt-progress-bar model-value="Hello World" />
+                <mt-progress-bar model-value="Hello World" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.',
@@ -110,7 +143,7 @@ const mtProgressBarInvalidTests = [
         options: ['disableFix'],
         code: `
             <template>
-                <mt-progress-bar value="Hello World" />
+                <mt-progress-bar value="Hello World" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.',
@@ -121,11 +154,11 @@ const mtProgressBarInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-progress-bar :value="myValue" />
+                <mt-progress-bar :value="myValue" :max-value="100" />
             </template>`,
         output: `
             <template>
-                <mt-progress-bar :model-value="myValue" />
+                <mt-progress-bar :model-value="myValue" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.',
@@ -137,7 +170,7 @@ const mtProgressBarInvalidTests = [
         options: ['disableFix'],
         code: `
             <template>
-                <mt-progress-bar :value="myValue" />
+                <mt-progress-bar :value="myValue" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.',
@@ -148,11 +181,11 @@ const mtProgressBarInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-progress-bar v-model:value="myValue" />
+                <mt-progress-bar v-model:value="myValue" :max-value="100" />
             </template>`,
         output: `
             <template>
-                <mt-progress-bar v-model="myValue" />
+                <mt-progress-bar v-model="myValue" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.',
@@ -164,7 +197,7 @@ const mtProgressBarInvalidTests = [
         options: ['disableFix'],
         code: `
             <template>
-                <mt-progress-bar v-model:value="myValue" />
+                <mt-progress-bar v-model:value="myValue" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.',
@@ -175,11 +208,11 @@ const mtProgressBarInvalidTests = [
         filename: 'test.html.twig',
         code: `
             <template>
-                <mt-progress-bar @update:value="updateValue" />
+                <mt-progress-bar @update:value="updateValue" :max-value="100" />
             </template>`,
         output: `
             <template>
-                <mt-progress-bar @update:model-value="updateValue" />
+                <mt-progress-bar @update:model-value="updateValue" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "update:value" event is deprecated. Use "update:mode-value" instead.',
@@ -191,11 +224,42 @@ const mtProgressBarInvalidTests = [
         options: ['disableFix'],
         code: `
             <template>
-                <mt-progress-bar @update:value="updateValue" />
+                <mt-progress-bar @update:value="updateValue" :max-value="100" />
             </template>`,
         errors: [{
             message: '[mt-progress-bar] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
+    },
+    {
+        name: '"mt-progress-bar" without "max-value" gets the previous default of 100',
+        filename: 'test.html.twig',
+        code: `
+            <template>
+                <mt-progress-bar :value="done" />
+                <mt-progress-bar></mt-progress-bar>
+            </template>`,
+        output: `
+            <template>
+                <mt-progress-bar :model-value="done" :max-value="100" />
+                <mt-progress-bar :max-value="100"></mt-progress-bar>
+            </template>`,
+        errors: [
+            { message: '[mt-progress-bar] The "max-value" prop has no default anymore. Set it to 100 to keep the previous behavior.' },
+            { message: '[mt-progress-bar] The "value" prop is deprecated. Use "model-value" instead.' },
+            { message: '[mt-progress-bar] The "max-value" prop has no default anymore. Set it to 100 to keep the previous behavior.' },
+        ],
+    },
+    {
+        name: '"mt-progress-bar" without "max-value" gets the previous default of 100 [disableFix]',
+        filename: 'test.html.twig',
+        options: ['disableFix'],
+        code: `
+            <template>
+                <mt-progress-bar :model-value="done" />
+            </template>`,
+        errors: [
+            { message: '[mt-progress-bar] The "max-value" prop has no default anymore. Set it to 100 to keep the previous behavior.' },
+        ],
     },
 ];
 

@@ -8,6 +8,9 @@
 
 export type CodemodScope = 'script' | 'template' | 'both';
 
+/** `fix` rewrites code and may mark what it cannot rewrite; the other action only marks spots with comments. */
+type CodemodAction = 'fix' | 'todo';
+
 interface BaseCodemod {
     /** Stable id used in `--with` and in reports. */
     id: string;
@@ -16,6 +19,10 @@ interface BaseCodemod {
     target: string;
     /** Opt-in codemods only run when named via `--with`. */
     optIn: boolean;
+    /** Defaults to `fix`. */
+    action?: CodemodAction;
+    /** Heading `--list` groups the codemods of a major under. */
+    group?: string;
 }
 
 export interface EslintCodemod extends BaseCodemod {
@@ -107,10 +114,94 @@ export const CODEMODS: Codemod[] = [
         scope: 'template',
     },
     {
+        id: 'mt-components-6.8',
+        title: 'sw-loader & co. → mt-*',
+        target: '6.8',
+        optIn: false,
+        group: 'Components',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-deprecated-components-6-8',
+        options: { fix: true, activatedComponents: ['sw-loader', 'sw-skeleton-bar', 'sw-progress-bar'] },
+        scope: 'template',
+    },
+    {
+        id: 'mt-tabs',
+        title: 'sw-tabs → mt-tabs',
+        target: '6.8',
+        optIn: false,
+        group: 'Components',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/migrate-sw-tabs',
+        scope: 'template',
+    },
+    {
+        id: 'sw-text-editor',
+        title: 'sw-text-editor → mt-text-editor',
+        target: '6.8',
+        optIn: false,
+        action: 'todo',
+        group: 'Components',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-sw-text-editor',
+        scope: 'both',
+    },
+    {
+        id: 'removed-form-components',
+        title: 'Removed form components',
+        target: '6.8',
+        optIn: false,
+        group: 'Components',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-removed-form-components',
+        scope: 'both',
+    },
+    {
+        id: 'order-state-select-props',
+        title: 'sw-order-state-select-v2 props',
+        target: '6.8',
+        optIn: false,
+        group: 'Components',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-order-state-select-v2-styles',
+        scope: 'template',
+    },
+    {
+        id: 'sw-popover',
+        title: 'sw-popover resize-width',
+        target: '6.8',
+        optIn: false,
+        group: 'Components',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-sw-popover-resize-width',
+        scope: 'template',
+    },
+    {
+        id: 'twig-block-renames',
+        title: 'Renamed Twig blocks',
+        target: '6.8',
+        optIn: false,
+        group: 'Twig blocks',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-renamed-twig-blocks',
+        scope: 'template',
+    },
+    {
+        id: 'twig-block-removals',
+        title: 'Removed Twig blocks',
+        target: '6.8',
+        optIn: false,
+        action: 'todo',
+        group: 'Twig blocks',
+        kind: 'eslint',
+        rule: 'sw-deprecation-rules/no-removed-twig-blocks',
+        scope: 'template',
+    },
+    {
         id: 'vite-8-glob',
         title: 'Vite 8 glob patterns',
         target: '6.8',
         optIn: false,
+        group: 'Global APIs',
         kind: 'eslint',
         rule: 'sw-deprecation-rules/no-import-meta-glob-extglob',
         scope: 'script',
@@ -120,6 +211,7 @@ export const CODEMODS: Codemod[] = [
         title: '$tc → $t',
         target: '6.8',
         optIn: false,
+        group: 'Global APIs',
         kind: 'eslint',
         rule: 'sw-core-rules/no-tc-translation',
         scope: 'both',

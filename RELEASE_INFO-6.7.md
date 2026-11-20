@@ -1379,6 +1379,11 @@ Carts and orders with one shipment render as before.
 The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
 The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
 
+### Guest customers can create an account from the account menu
+
+The header account menu now shows a "Create account" button for guest customers in the new block `layout_header_actions_account_widget_dropdown_guest_convert` in `storefront/layout/header/account-menu.html.twig`.
+It leads to the guest conversion page (`frontend.account.convert.page`), which was previously only linked from the checkout finish page.
+
 ### New shipping method blocks added
 
 The following new blocks have been added to the shipping method template in `storefront/component/shipping/shipping-method.html.twig` to match the payment method template structure:

@@ -2,6 +2,8 @@
 
 namespace Shopware\Elasticsearch\Framework\Indexing;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -21,7 +23,7 @@ class IndexerOffset
 
     /**
      * @param iterable<string> $mappingDefinitions
-     * @param array{offset: int|null}|null $lastId
+     * @param array{offset: int|string|null}|null $lastId
      */
     public function __construct(
         iterable $mappingDefinitions,
@@ -70,8 +72,9 @@ class IndexerOffset
     }
 
     /**
-     * @return array{offset: int|null}|null
+     * @return array{offset: int|string|null}|null
      */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: 'array{offset: int|string|null}|null')]
     public function getLastId(): ?array
     {
         return $this->lastId;
@@ -83,8 +86,9 @@ class IndexerOffset
     }
 
     /**
-     * @param array{offset: int|null}|null $lastId
+     * @param array{offset: int|string|null}|null $lastId
      */
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'lastId', newType: 'array{offset: int|string|null}|null')]
     public function setLastId(?array $lastId): void
     {
         $this->lastId = $lastId;

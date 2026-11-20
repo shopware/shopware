@@ -21,7 +21,7 @@ interface IterableQuery
     public function getQuery(): QueryBuilder;
 
     /**
-     * @return array{offset: int|null}
+     * @return array{offset: int|string|null}
      */
     public function getOffset(): array;
 }

@@ -159,9 +159,29 @@
               "presignedUploadSupported": {
                 "type": "boolean",
                 "description": "Whether presigned S3 upload is available. True when presigned upload is enabled and an S3 filesystem is configured."
+              },
+              "appEnv": {
+                "type": "string",
+                "description": "The environment the shop runs in (`APP_ENV`)."
               }
             },
             "required": ["firstMigrationDate"],
+            "additionalProperties": false
+          },
+          "services": {
+            "type": "object",
+            "description": "Whether this installation installs Shopware Services.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether Shopware Services are installed, as decided by `ENABLE_SERVICES`."
+              },
+              "setting": {
+                "type": "string",
+                "description": "The configured value of `ENABLE_SERVICES`. `auto` installs services only when `APP_ENV` is `prod`."
+              }
+            },
+            "required": ["enabled", "setting"],
             "additionalProperties": false
           },
           "inAppPurchases": {

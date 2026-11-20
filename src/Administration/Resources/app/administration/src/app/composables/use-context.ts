@@ -40,6 +40,11 @@ export interface ContextState {
                 firstMigrationDate?: string | null;
                 hideUpdateModule?: boolean;
                 minSearchTermLength: number;
+                appEnv?: string;
+            };
+            services?: {
+                enabled: boolean;
+                setting: string;
             };
             version: null | string;
             versionRevision: null | string;

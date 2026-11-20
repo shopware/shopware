@@ -28,13 +28,81 @@
         />
 
         <div class="sw-settings-services-index__content">
+            <mt-banner
+                v-if="!servicesEnabled"
+                class="sw-settings-services-index__services-turned-off-banner"
+                variant="attention"
+            >
+                <p><b>{{ $t('sw-settings-services.index.turned-off.title') }}</b></p>
+
+                <i18n-t
+                    v-if="servicesAutoEnabled"
+                    keypath="sw-settings-services.index.turned-off.reason-auto"
+                    tag="p"
+                >
+                    <template #enableServices>
+                        <code>ENABLE_SERVICES=auto</code>
+                    </template>
+
+                    <template #requiredAppEnv>
+                        <code>APP_ENV=prod</code>
+                    </template>
+
+                    <template #appEnv>
+                        <code>APP_ENV={{ appEnv }}</code>
+                    </template>
+                </i18n-t>
+
+                <i18n-t
+                    v-else
+                    keypath="sw-settings-services.index.turned-off.reason-disabled"
+                    tag="p"
+                >
+                    <template #enableServices>
+                        <code>ENABLE_SERVICES={{ servicesSetting }}</code>
+                    </template>
+                </i18n-t>
+
+                <p>{{ $t('sw-settings-services.index.turned-off.options-intro') }}</p>
+
+                <ul class="sw-settings-services-index__debug-options">
+                    <i18n-t
+                        keypath="sw-settings-services.index.turned-off.option-enable"
+                        tag="li"
+                    >
+                        <template #enableServices>
+                            <code>ENABLE_SERVICES=true</code>
+                        </template>
+                    </i18n-t>
+
+                    <i18n-t
+                        v-if="servicesAutoEnabled"
+                        keypath="sw-settings-services.index.turned-off.option-prod"
+                        tag="li"
+                    >
+                        <template #requiredAppEnv>
+                            <code>APP_ENV=prod</code>
+                        </template>
+                    </i18n-t>
+                </ul>
+
+                <i18n-t
+                    keypath="sw-settings-services.index.turned-off.install-hint"
+                    tag="p"
+                >
+                    <template #command>
+                        <code>bin/console services:install</code>
+                    </template>
+                </i18n-t>
+            </mt-banner>
+
             <sw-settings-services-grant-permissions-card
                 v-if="!consentGiven && !config.disabled && services.length > 0"
                 :docs-link="currentRevision.links['docs-url']"
             />
 
             <div class="sw-settings-services__listing-section">
-                <h3>
+                <h3 v-if="servicesEnabled || services.length > 0">
                     {{ $t('sw-settings-services.index.available-services') }}
                 </h3>
 
@@ -48,7 +116,7 @@
                 </mt-banner>
 
                 <mt-banner
-                    v-if="config.disabled"
+                    v-if="servicesEnabled && config.disabled"
                     class="sw-settings-services-index__services-deactivated-banner"
                     variant="attention"
                 >
@@ -65,23 +133,51 @@
                     </mt-button>
                 </mt-banner>
 
+                <mt-banner
+                    v-if="installationStalled && installing"
+                    class="sw-settings-services-index__installation-stalled-banner"
+                    variant="info"
+                >
+                    <p><b>{{ $t('sw-settings-services.index.installation-stalled.title') }}</b></p>
+
+                    <p>{{ $t('sw-settings-services.index.installation-stalled.description') }}</p>
+
+                    <mt-button
+                        variant="secondary"
+                        size="small"
+                        @click="checkInstallationProgress"
+                    >
+                        {{ $t('sw-settings-services.index.installation-stalled.button-check-again') }}
+                    </mt-button>
+                </mt-banner>
+
                 <div
-                    v-if="!config.disabled && services.length === 0"
+                    v-if="installing"
                     class="sw-settings-services-index__installing-card"
                 >
                     <div class="sw-settings-services-index__installing-card-loader">
-                        <mt-loader size="var(--scale-size-32)" />
+                        <mt-loader
+                            size="32px"
+                            :backdrop="false"
+                        />
                     </div>
 
                     <p class="sw-settings-services-index__installing-card-title">
                         {{ $t('sw-settings-services.index.installing-services-title') }}
                     </p>
 
+                    <p
+                        v-if="availableServices.length > 0"
+                        class="sw-settings-services-index__installing-card-progress"
+                    >
+                        {{ $t('sw-settings-services.index.installing-services-progress', { installed: installedServicesCount, total: availableServices.length }) }}
+                    </p>
+
                     <p>{{ $t('sw-settings-services.index.installing-services-description') }}</p>
                 </div>
 
                 <ul
-                    v-else-if="services.length > 0"
+                    v-if="services.length > 0"
                     class="sw-settings-services__available-services"
                 >
                     <sw-settings-services-service-card

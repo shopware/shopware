@@ -9,6 +9,11 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Content\Product\Util\VariantCombinationLoaderTest
+ */
 #[Package('inventory')]
 class VariantCombinationLoader
 {
@@ -20,31 +25,42 @@ class VariantCombinationLoader
     }
 
     /**
-     * @return array<array<string>>
+     * @return array<string, array{options: list<string>, productNumber: string, type: string, productStates?: string|null}>
      */
     public function load(string $productId, Context $context): array
     {
         $query = $this->connection->createQueryBuilder();
-        $query->select('LOWER(HEX(product.id))', 'product.option_ids as options', 'product.product_number as productNumber', 'product.type as type');
+        $query->select(
+            'LOWER(HEX(product.id)) AS id',
+            'GROUP_CONCAT(LOWER(HEX(product_option.property_group_option_id))) AS options',
+            'product.product_number AS productNumber',
+            'product.type AS type',
+        );
 
         if (!Feature::isActive('v6.8.0.0')) {
-            $query->addSelect('product.states as productStates');
+            $query->addSelect('product.states AS productStates');
         }
 
         $query->from('product');
+        $query->innerJoin(
+            'product',
+            'product_option',
+            'product_option',
+            'product_option.product_id = product.id AND product_option.product_version_id = product.version_id'
+        );
         $query->where('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
+        $query->groupBy('product.id');
         $query->setParameter('id', Uuid::fromHexToBytes($productId));
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
-        $query->andWhere('product.option_ids IS NOT NULL');
 
-        $combinations = $query->executeQuery()->fetchAllAssociative();
-        $combinations = FetchModeHelper::groupUnique($combinations);
-        /** @var array<string, array{options: string, productNumber: string, type: string, productStates?: string}> $combinations */
-        foreach ($combinations as &$combination) {
-            $combination['options'] = json_decode((string) $combination['options'], true, 512, \JSON_THROW_ON_ERROR);
-        }
+        /** @var array<string, array{options: string, productNumber: string, type: string, productStates?: string|null}> $combinations */
+        $combinations = FetchModeHelper::groupUnique($query->executeQuery()->fetchAllAssociative());
 
-        return $combinations;
+        return array_map(static function (array $combination): array {
+            $combination['options'] = explode(',', $combination['options']);
+
+            return $combination;
+        }, $combinations);
     }
 }

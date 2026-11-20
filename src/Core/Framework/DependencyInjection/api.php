@@ -11,7 +11,6 @@ use Psr\Container\ContainerInterface;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
-use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -343,7 +342,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
             service(VersionHistory::class),
-            service(ProductDocumentConfig::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

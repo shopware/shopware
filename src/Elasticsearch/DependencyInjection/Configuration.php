@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('hosts')->end()
                 ->scalarNode('index_prefix')->end()
                 ->scalarNode('throw_exception')->end()
+                ->integerNode('index_cleanup_minimum_age')->defaultValue(604800)->end()
                 ->arrayNode('ssl')
                     ->children()
                         ->scalarNode('cert_path')->end()

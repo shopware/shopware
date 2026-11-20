@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -488,7 +489,20 @@ class CacheInvalidationSubscriberTest extends TestCase
         $subscriber->invalidateNavigationRoute($event);
     }
 
-    public function testInvalidateConfigKeyClearsObjectCache(): void
+    public function testInvalidateConfigKeyClearsObjectCacheOfTheChangedSalesChannelOnly(): void
+    {
+        $subscriber = $this->createSubscriber();
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $this->cacheInvalidator->expects($this->once())
+            ->method('invalidate')
+            ->with([CachedSystemConfigLoader::buildSalesChannelTag('sc-id')], true);
+
+        $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], 'sc-id', true));
+    }
+
+    #[DataProvider('providerGlobalSalesChannelIds')]
+    public function testInvalidateConfigKeyClearsObjectCacheOfAllSalesChannelsForAGlobalChange(?string $salesChannelId): void
     {
         $subscriber = $this->createSubscriber();
         $this->connection->expects($this->never())->method('fetchAllAssociative');
@@ -497,7 +511,17 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->method('invalidate')
             ->with([CachedSystemConfigLoader::CACHE_TAG], true);
 
-        $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], 'sc-id', true));
+        $subscriber->invalidateConfigKey(new SystemConfigChangedHook([], [], $salesChannelId, true));
+    }
+
+    /**
+     * @return iterable<string, array{?string}>
+     */
+    public static function providerGlobalSalesChannelIds(): iterable
+    {
+        yield 'no sales channel id means the global config, inherited by all sales channels' => [null];
+
+        yield 'an empty sales channel id is stored as global config as well' => [''];
     }
 
     public function testInvalidateConfigKeyInvalidatesHttpCacheWhenNotSilent(): void
@@ -512,7 +536,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             ->method('invalidate')
             ->willReturnCallback(static function (array $tags, bool $immediate = false) use ($expects, $salesChannelId): void {
                 match ($expects->numberOfInvocations()) {
-                    1 => static::assertSame([CachedSystemConfigLoader::CACHE_TAG], $tags),
+                    1 => static::assertSame([CachedSystemConfigLoader::buildSalesChannelTag($salesChannelId)], $tags),
                     2 => static::assertSame(['system.config-' . $salesChannelId], $tags),
                     default => static::fail('Unexpected invocation'),
                 };

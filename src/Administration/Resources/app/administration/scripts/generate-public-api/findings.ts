@@ -4,6 +4,7 @@
  * The findings of the break check and the summary it prints for them.
  * The summary format is described in `technical-docs/11-code-quality/03-public-api-snapshot.md`.
  */
+import type { FlagState } from './flag-states';
 
 // In this order the summary prints the groups.
 const FINDING_GROUPS = [
@@ -14,9 +15,6 @@ const FINDING_GROUPS = [
 
 /** @private */
 export type FindingGroup = (typeof FINDING_GROUPS)[number];
-
-/** @private */
-export type FlagState = 'current' | 'major';
 
 /**
  * @private

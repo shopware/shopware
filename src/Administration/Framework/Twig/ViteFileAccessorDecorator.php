@@ -7,7 +7,9 @@ use League\Flysystem\FilesystemOperator;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use Shopware\Core\Framework\Bundle as ShopwareBundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Asset\PackageInterface as AssetPackage;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -36,6 +38,7 @@ class ViteFileAccessorDecorator extends FileAccessor
         private readonly KernelInterface $kernel,
         private readonly Filesystem $filesystem,
         private readonly FilesystemOperator $assetFilesystem,
+        private readonly TagAwareAdapterInterface $cache,
     ) {
         $this->assetPath = $this->package->getUrl('');
 
@@ -109,15 +112,25 @@ class ViteFileAccessorDecorator extends FileAccessor
             self::FILES[$fileType]
         );
 
-        try {
-            if (!$this->assetFilesystem->fileExists($remotePath)) {
-                return null;
-            }
+        $cacheItem = $this->cache->getItem('viteManifest-' . Hasher::hash($this->assetPath . $remotePath));
+        if ($cacheItem->isHit()) {
+            return $cacheItem->get();
+        }
 
-            return $this->assetFilesystem->read($remotePath);
+        try {
+            $content = $this->assetFilesystem->fileExists($remotePath)
+                ? $this->assetFilesystem->read($remotePath)
+                : null;
         } catch (FilesystemException) {
+            // do not cache failures, a short outage must not stick
             return null;
         }
+
+        $cacheItem->set($content);
+        $cacheItem->tag('asset-metaData');
+        $this->cache->saveDeferred($cacheItem);
+
+        return $content;
     }
 
     private function getBundleForConfig(string $configName): BundleInterface

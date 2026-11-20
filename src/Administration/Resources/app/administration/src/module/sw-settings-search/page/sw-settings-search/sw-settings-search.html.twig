@@ -4,14 +4,7 @@
     <template #smart-bar-header>
         <h2>
             {% block sw_settings_search_smart_bar_header_title_text %}
-            <span>{{ $t('sw-settings.index.title') }}</span>
-
-            <mt-icon
-                name="regular-chevron-right-xs"
-                size="var(--scale-size-12)"
-            />
-
-            <span>{{ $t('sw-settings-search.general.mainMenuItemGeneral') }}</span>
+            {{ $t('sw-settings-search.general.mainMenuItemGeneral') }}
             {% endblock %}
         </h2>
     </template>

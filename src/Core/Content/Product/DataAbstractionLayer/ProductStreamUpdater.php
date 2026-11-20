@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
@@ -22,7 +24,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdat
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -34,6 +39,15 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
     public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
+    private const ELASTICSEARCH_PAGE_SIZE = 1000;
+
+    private const PAGE_SIZE = 20000;
+
+    /**
+     * @see \Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher::RESULT_STATE
+     */
+    private const ELASTICSEARCH_RESULT_STATE = 'loaded-by-elastic';
 
     /**
      * @internal
@@ -97,57 +111,14 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
         $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
+        $context = $message->getContext();
 
-        /** @var list<string> $oldMatches */
-        $oldMatches = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
-            ['id' => $binaryStreamId],
-        );
-
-        if ($criteria === null) {
-            // nothing left to match against, so every mapping the stream still holds has to go
-            $newMatches = [];
-        } else {
-            try {
-                $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
-            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
-                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
-                // invalid filter, remove all mappings
-                $newMatches = [];
-            }
-        }
-
-        $toBeAdded = array_values(array_diff($newMatches, $oldMatches));
-        $toBeDeleted = array_values(array_diff($oldMatches, $newMatches));
-
-        if ($toBeAdded !== []) {
-            RetryableTransaction::retryable($this->connection, function () use ($toBeAdded, $binaryStreamId): void {
-                $this->insertMappings($toBeAdded, $binaryStreamId);
-            });
-        }
-
-        if ($toBeDeleted !== []) {
-            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
-                $this->connection->executeStatement(
-                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
-                    [
-                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
-                        'streamId' => $binaryStreamId,
-                    ],
-                    ['ids' => ArrayParameterType::BINARY],
-                );
-            });
-        }
-
-        $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
-
-        foreach (array_chunk($ids, 250) as $chunkedIds) {
-            $this->manyToManyIdFieldUpdater->update(
-                ProductDefinition::ENTITY_NAME,
-                $chunkedIds,
-                $message->getContext(),
-                'streamIds'
-            );
+        try {
+            $this->syncMappings($binaryStreamId, $criteria, $criteria === null ? [] : $this->getLanguageContexts($context), $context);
+        } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+            // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
+            // invalid filter, remove all mappings
+            $this->syncMappings($binaryStreamId, null, [], $context);
         }
     }
 
@@ -291,6 +262,178 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
                 ],
                 ['ids' => ArrayParameterType::BINARY],
             );
+        }
+    }
+
+    /**
+     * @param list<Context> $languageContexts
+     */
+    private function syncMappings(string $binaryStreamId, ?Criteria $criteria, array $languageContexts, Context $context): void
+    {
+        $pageSize = $criteria === null ? self::PAGE_SIZE : self::ELASTICSEARCH_PAGE_SIZE;
+        $after = 0;
+
+        $matchPages = array_fill(0, \count($languageContexts), []);
+        $hasMoreMatches = array_fill(0, \count($languageContexts), true);
+        /** @var array<int, string> $mappingPage */
+        $mappingPage = [];
+        $hasMoreMappings = true;
+
+        do {
+            foreach ($languageContexts as $index => $languageContext) {
+                if ($criteria === null || $matchPages[$index] !== [] || !$hasMoreMatches[$index]) {
+                    continue;
+                }
+
+                $limit = $pageSize;
+                $result = $this->searchMatchPage($criteria, $languageContext, $after, $limit);
+                if (!$result->hasState(self::ELASTICSEARCH_RESULT_STATE)) {
+                    $pageSize = self::PAGE_SIZE;
+                }
+
+                $matchPages[$index] = $this->indexByAutoIncrement($result);
+                $hasMoreMatches[$index] = \count($matchPages[$index]) === $limit;
+            }
+
+            if ($mappingPage === [] && $hasMoreMappings) {
+                [$mappingPage, $hasMoreMappings] = $this->fetchMappingPage($binaryStreamId, $after, $pageSize);
+            }
+
+            $until = \PHP_INT_MAX;
+            foreach ($matchPages as $index => $page) {
+                if ($hasMoreMatches[$index]) {
+                    $until = min($until, (int) array_key_last($page));
+                }
+            }
+            if ($hasMoreMappings) {
+                $until = min($until, (int) array_key_last($mappingPage));
+            }
+
+            $matched = [];
+            foreach ($matchPages as $index => $page) {
+                [$window, $matchPages[$index]] = $this->splitPage($page, $until);
+                $matched += array_fill_keys($window, true);
+            }
+
+            [$window, $mappingPage] = $this->splitPage($mappingPage, $until);
+            $mapped = array_fill_keys($window, true);
+
+            $this->writeWindow(
+                $binaryStreamId,
+                array_keys(array_diff_key($matched, $mapped)),
+                array_keys(array_diff_key($mapped, $matched)),
+                $context,
+            );
+
+            $after = $until;
+        } while ($until !== \PHP_INT_MAX);
+    }
+
+    private function searchMatchPage(Criteria $criteria, Context $languageContext, int $after, int $limit): IdSearchResult
+    {
+        $pageCriteria = (clone $criteria)
+            ->setLimit($limit)
+            ->addSorting(new FieldSorting('autoIncrement'))
+            ->addFilter(new RangeFilter('autoIncrement', [RangeFilter::GT => $after]));
+
+        return $languageContext->enableInheritance(
+            fn (Context $context): IdSearchResult => $this->repository->searchIds($pageCriteria, $context)
+        );
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function indexByAutoIncrement(IdSearchResult $result): array
+    {
+        $page = [];
+        foreach ($result->getData() as $id => $row) {
+            $autoIncrement = $row['autoIncrement'] ?? null;
+            if (!\is_int($autoIncrement) && !\is_float($autoIncrement)) {
+                throw ProductException::streamMatchWithoutAutoIncrement($id);
+            }
+
+            $page[(int) $autoIncrement] = $id;
+        }
+
+        return $page;
+    }
+
+    /**
+     * @return array{array<int, string>, bool}
+     */
+    private function fetchMappingPage(string $binaryStreamId, int $after, int $limit): array
+    {
+        /** @var list<array{int|string, string}> $rows */
+        $rows = $this->connection->fetchAllNumeric(
+            'SELECT product.auto_increment, LOWER(HEX(product.id))
+             FROM product_stream_mapping
+             INNER JOIN product ON product.id = product_stream_mapping.product_id AND product.version_id = :version
+             WHERE product_stream_mapping.product_stream_id = :streamId AND product.auto_increment > :after
+             ORDER BY product.auto_increment
+             LIMIT :limit',
+            [
+                'streamId' => $binaryStreamId,
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'after' => $after,
+                'limit' => $limit,
+            ],
+            ['after' => ParameterType::INTEGER, 'limit' => ParameterType::INTEGER],
+        );
+
+        $page = [];
+        foreach ($rows as [$autoIncrement, $id]) {
+            $page[(int) $autoIncrement] = $id;
+        }
+
+        return [$page, \count($rows) === $limit];
+    }
+
+    /**
+     * @param array<int, string> $page
+     *
+     * @return array{list<string>, array<int, string>}
+     */
+    private function splitPage(array $page, int $until): array
+    {
+        $split = 0;
+        foreach (array_keys($page) as $autoIncrement) {
+            if ($autoIncrement > $until) {
+                break;
+            }
+            ++$split;
+        }
+
+        return [\array_slice($page, 0, $split), \array_slice($page, $split, null, true)];
+    }
+
+    /**
+     * @param list<string> $toBeAdded
+     * @param list<string> $toBeDeleted
+     */
+    private function writeWindow(string $binaryStreamId, array $toBeAdded, array $toBeDeleted, Context $context): void
+    {
+        if ($toBeAdded === [] && $toBeDeleted === []) {
+            return;
+        }
+
+        RetryableTransaction::retryable($this->connection, function () use ($toBeAdded, $toBeDeleted, $binaryStreamId): void {
+            foreach (array_chunk($toBeDeleted, 250) as $chunk) {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($chunk),
+                        'streamId' => $binaryStreamId,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            }
+
+            $this->insertMappings($toBeAdded, $binaryStreamId);
+        });
+
+        foreach (array_chunk([...$toBeAdded, ...$toBeDeleted], 250) as $chunk) {
+            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $chunk, $context, 'streamIds');
         }
     }
 

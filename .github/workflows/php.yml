@@ -306,7 +306,7 @@ jobs:
           redocly lint --skip-rule operation-4xx-response --skip-rule no-server-example.com --skip-rule no-unused-components ./api-types/adminApiSchema.json
 
   phpunit:
-    name: "PHPUnit for ${{ matrix.suite }}"
+    name: "PHPUnit for ${{ matrix.suite }} (PHP ${{ matrix.php-version }})"
     needs:
       - markdown-only-changes
     if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
@@ -317,6 +317,8 @@ jobs:
         suite:
           - unit
           - migration
+        php-version: ["8.2"]
+        include: ${{ fromJSON(inputs.nightly == 'true' && '[{"suite":"unit","php-version":"8.6"}]' || '[]') }}
     env:
       # the shared test environment (APP_ENV, DATABASE_URL, APP_SECRET, ...) is exported by
       # ./.github/actions/phpunit-prepare; only the matrix-specific part lives here
@@ -351,8 +353,13 @@ jobs:
       - name: Setup and install Shopware
         uses: ./.github/actions/phpunit-prepare
         with:
-          keep-composer-tools: "true"
+          php-version: ${{ matrix.php-version }}
+          # Roave does not support PHP 8.6; only Danger is needed by the unit tests.
+          keep-composer-tools: ${{ matrix.php-version != '8.6' }}
           migration-coverage: ${{ matrix.suite == 'migration' }}
+      - name: Restore Danger Composer manifest
+        if: matrix.php-version == '8.6'
+        run: git restore vendor-bin/danger-php
       - name: Install Danger # the unit tests for the Danger rules type against the danger-php package
         if: ${{ matrix.suite == 'unit' }}
         run: composer install -d vendor-bin/danger-php --no-interaction
@@ -376,7 +383,7 @@ jobs:
         if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: junit-phpunit-${{ matrix.suite }}
+          name: junit-phpunit-${{ matrix.suite }}-${{ matrix.php-version }}
           path: junit.xml
           # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
           if-no-files-found: ignore

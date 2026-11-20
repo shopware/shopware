@@ -25,6 +25,7 @@ type SwSettingsPageData = {
     installationPollingSince: number | null;
     installationPollTimeout: number | undefined;
     installationStalled: boolean;
+    waitingForActivatedServices: boolean;
 };
 
 const INSTALLATION_POLL_INTERVAL = 10_000;
@@ -64,6 +65,7 @@ export default Shopware.Component.wrapComponentConfig({
             installationPollingSince: null,
             installationPollTimeout: undefined,
             installationStalled: false,
+            waitingForActivatedServices: false,
         };
     },
 
@@ -104,7 +106,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            return this.services.length === 0 || this.pendingServices.length > 0;
+            if (this.services.length === 0) {
+                return true;
+            }
+
+            return this.waitingForActivatedServices && this.pendingServices.length > 0;
         },
     },
 
@@ -116,7 +122,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         Promise.all([
             this.reloadServices(),
-            this.loadAvailableServices(),
             shopwareServicesService.getServicesContext().then((servicesConsent) => {
                 shopwareServicesStore.config = servicesConsent;
             }),
@@ -129,6 +134,7 @@ export default Shopware.Component.wrapComponentConfig({
             .then(() => {
                 this.suspended = false;
                 this.startInstallationPolling();
+                void this.loadAvailableServices();
             })
             .catch((exception) => {
                 const errorMessage = extractError(exception);
@@ -159,6 +165,7 @@ export default Shopware.Component.wrapComponentConfig({
                     message: this.$t('sw-settings-services.index.services-scheduled'),
                 });
 
+                this.waitingForActivatedServices = true;
                 await this.checkInstallationProgress();
             } catch (exceptionResponse) {
                 Shopware.Store.get('notification').createNotification({
@@ -220,6 +227,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (Date.now() - this.installationPollingSince >= INSTALLATION_POLL_DURATION) {
                 this.stopInstallationPolling();
+                this.waitingForActivatedServices = false;
                 this.installationStalled = true;
 
                 return;
@@ -235,7 +243,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.availableServices = await Shopware.Service('shopwareServicesService').getAvailableServices();
+            try {
+                this.availableServices = await Shopware.Service('shopwareServicesService').getAvailableServices();
+            } catch {
+                this.availableServices = [];
+            }
         },
 
         async refreshInstallationProgress() {

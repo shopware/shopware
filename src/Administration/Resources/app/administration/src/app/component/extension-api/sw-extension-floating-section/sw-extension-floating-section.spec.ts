@@ -3,21 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 
-const floatingUiStub = {
-    name: 'MtFloatingUi',
-    // Typed like the real props, so a bare `detached` attribute is cast to `true`
-    props: {
-        isOpened: Boolean,
-        anchorElement: { type: null },
-        floatingUiOptions: Object,
-        autoUpdateOptions: Object,
-        offset: Number,
-        detached: Boolean,
-    },
-    // Stands in for the teleported panel, onto which the component sets its attributes
-    template: '<div class="mt-floating-ui-stub"><div class="mt-floating-ui__content"><slot /></div></div>',
-};
-
 let resizeObservers: { callback: ResizeObserverCallback; observed: Element[]; disconnected: boolean }[] = [];
 
 const originalResizeObserver = global.ResizeObserver;
@@ -60,7 +45,6 @@ async function createWrapper() {
     return mount(await wrapTestComponent('sw-extension-floating-section', { sync: true }), {
         global: {
             stubs: {
-                'mt-floating-ui': floatingUiStub,
                 'sw-extension-component-section': true,
             },
         },
@@ -77,52 +61,53 @@ describe('src/app/component/extension-api/sw-extension-floating-section', () => 
         global.ResizeObserver = originalResizeObserver;
     });
 
-    it('should stay closed while no extension added a section', async () => {
+    it('should stay hidden while no extension added a section', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.getComponent(floatingUiStub).props('isOpened')).toBe(false);
+        expect(wrapper.isVisible()).toBe(false);
     });
 
-    it('should open once an extension adds a section to its position', async () => {
+    it('should show once an extension adds a section to its position', async () => {
         const wrapper = await createWrapper();
 
         addFloatingSection();
         await flushPromises();
 
-        expect(wrapper.getComponent(floatingUiStub).props('isOpened')).toBe(true);
+        expect(wrapper.isVisible()).toBe(true);
     });
 
-    it('should name the open panel as a region for screen readers', async () => {
+    it('should name the panel as a landmark for screen readers', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('aside').exists()).toBe(true);
+        expect(wrapper.attributes('aria-label')).toBe('global.sw-extension-floating-section.label');
+    });
+
+    it('should be inert until its content is measured', async () => {
         const wrapper = await createWrapper();
 
         addFloatingSection();
         await flushPromises();
 
-        const panel = wrapper.find('.mt-floating-ui__content');
-        expect(panel.attributes('role')).toBe('region');
-        expect(panel.attributes('aria-label')).toBe('global.sw-extension-floating-section.label');
-        expect(panel.attributes('inert')).toBeUndefined();
+        expect(wrapper.attributes('inert')).toBeDefined();
     });
 
-    it('should make the panel inert while the extensions show nothing, and active again once they do', async () => {
+    it('should be inert while the extensions show nothing, and active again once they do', async () => {
         const wrapper = await createWrapper();
 
         addFloatingSection();
         await flushPromises();
-        const panel = wrapper.find('.mt-floating-ui__content');
-
-        await reportContentHeight(0);
-        expect(panel.attributes('inert')).toBe('');
 
         await reportContentHeight(320);
-        expect(panel.attributes('inert')).toBeUndefined();
+        expect(wrapper.attributes('inert')).toBeUndefined();
+
+        await reportContentHeight(0);
+        expect(wrapper.attributes('inert')).toBeDefined();
     });
 
     it('should stop measuring when it is removed', async () => {
         const wrapper = await createWrapper();
 
-        addFloatingSection();
-        await flushPromises();
         wrapper.unmount();
 
         expect(resizeObservers.at(-1)?.disconnected).toBe(true);
@@ -139,19 +124,7 @@ describe('src/app/component/extension-api/sw-extension-floating-section', () => 
         });
         await flushPromises();
 
-        expect(wrapper.getComponent(floatingUiStub).props('isOpened')).toBe(false);
-    });
-
-    it('should float detached above the corner it marks', async () => {
-        const wrapper = await createWrapper();
-        const floatingUi = wrapper.getComponent(floatingUiStub);
-
-        expect(floatingUi.props('anchorElement')).toBe(wrapper.element);
-        expect(floatingUi.props('floatingUiOptions')).toEqual({ placement: 'top-start' });
-        // Follows the anchor when the layout moves it, for example when the menu collapses
-        expect(floatingUi.props('autoUpdateOptions')).toEqual({ layoutShift: true });
-        expect(floatingUi.props('offset')).toBe(0);
-        expect(floatingUi.props('detached')).toBe(true);
+        expect(wrapper.isVisible()).toBe(false);
     });
 
     it('should render the component sections of its position', async () => {

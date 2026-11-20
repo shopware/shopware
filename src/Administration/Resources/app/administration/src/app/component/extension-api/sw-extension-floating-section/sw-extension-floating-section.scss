@@ -1,23 +1,16 @@
 @import "~scss/variables";
 
-// A point in the bottom left corner of the parent, which needs `position: relative`. It is one pixel and not
-// zero, because the floating UI cannot track the movement of an element without a size.
+// Sits in the bottom left corner of the parent, which needs `position: relative`
 .sw-extension-floating-section {
     position: absolute;
     left: var(--scale-size-24);
-    bottom: calc(var(--scale-size-24) - 1px);
-    width: 1px;
-    height: 1px;
-    pointer-events: none;
-}
+    bottom: var(--scale-size-24);
 
-.mt-floating-ui__content.sw-extension-floating-section__panel {
-    // Same layer as modals and the sidebar, instead of the floating UI default 1070. Equal layers paint in DOM
-    // order: the panel is added to <body> after the sidebar, so it stays above the sidebar and its backdrop,
-    // and before any modal opens, so modals cover it.
+    // Same layer as modals and the sidebar. Equal layers paint in DOM order: the sidebar and modals come later
+    // in the DOM and cover the panel, while the panel stays above the backdrop of the sidebar.
     z-index: $z-index-modal;
-    width: min(31.25rem, calc(100vw - var(--scale-size-48)));
-    max-height: calc(100dvh - var(--scale-size-64));
+    width: min(31.25rem, calc(100% - var(--scale-size-48)));
+    max-height: calc(100% - var(--scale-size-48));
     border-radius: var(--border-radius-card);
     box-shadow: 0 6px 12px -8px var(--color-elevation-shadow-default);
     overflow: auto;
@@ -31,4 +24,9 @@
     iframe[height="100%"] {
         height: 0;
     }
+}
+
+// The open off-canvas menu covers the panel, which would otherwise hide the lower end of the menu
+.sw-desktop:has(.sw-admin-menu.is--off-canvas-shown) .sw-extension-floating-section {
+    z-index: $z-index-off-canvas - 2;
 }

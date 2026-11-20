@@ -819,6 +819,57 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotNull($media);
     }
 
+    public function testReadDocumentInAFormatItIsNotGeneratedInKeepsItsFile(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['fileTypes' => [PdfRenderer::FILE_EXTENSION]]);
+
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($invoiceStruct);
+        static::assertNotNull($invoiceStruct->getMediaId());
+        static::assertNull($invoiceStruct->getA11yMediaId());
+
+        $htmlDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), HtmlRenderer::FILE_EXTENSION);
+
+        static::assertNull($htmlDocument);
+
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+        static::assertSame($invoiceStruct->getMediaId(), $document->getDocumentMediaFileId());
+        static::assertNull($document->getDocumentA11yMediaFileId());
+        static::assertSame($invoiceStruct->getDeepLinkCode(), $document->getDeepLinkCode());
+
+        $pdfDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), PdfRenderer::FILE_EXTENSION);
+
+        static::assertInstanceOf(RenderedDocument::class, $pdfDocument);
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $pdfDocument->getContentType());
+    }
+
+    public function testReadDocumentGeneratesOnlyTheMissingFile(): void
+    {
+        $operation = new DocumentGenerateOperation($this->orderId, PdfRenderer::FILE_EXTENSION, ['fileTypes' => [PdfRenderer::FILE_EXTENSION, HtmlRenderer::FILE_EXTENSION]]);
+
+        $invoiceStruct = $this->documentGenerator->generate(InvoiceRenderer::TYPE, [$this->orderId => $operation], $this->context)->getSuccess()->first();
+        static::assertNotNull($invoiceStruct);
+        $mediaId = $invoiceStruct->getMediaId();
+        static::assertNotNull($mediaId);
+        $a11yMediaId = $invoiceStruct->getA11yMediaId();
+        static::assertNotNull($a11yMediaId);
+
+        $this->documentRepository->update([['id' => $invoiceStruct->getId(), 'documentMediaFileId' => null]], $this->context);
+        static::getContainer()->get('media.repository')->delete([['id' => $mediaId]], $this->context);
+
+        $pdfDocument = $this->documentGenerator->readDocument($invoiceStruct->getId(), $this->context, $invoiceStruct->getDeepLinkCode(), PdfRenderer::FILE_EXTENSION);
+
+        static::assertInstanceOf(RenderedDocument::class, $pdfDocument);
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $pdfDocument->getContentType());
+
+        $document = $this->documentRepository->search(new Criteria([$invoiceStruct->getId()]), $this->context)->getEntities()->first();
+        static::assertNotNull($document);
+        static::assertNotNull($document->getDocumentMediaFileId());
+        static::assertSame($a11yMediaId, $document->getDocumentA11yMediaFileId());
+        static::assertSame($invoiceStruct->getDeepLinkCode(), $document->getDeepLinkCode());
+    }
+
     #[DataProvider('readDocumentDataProvider')]
     public function testReadDocument(bool $withMedia, bool $static): void
     {

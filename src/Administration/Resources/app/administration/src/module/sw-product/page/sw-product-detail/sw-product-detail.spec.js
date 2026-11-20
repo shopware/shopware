@@ -1080,36 +1080,23 @@ describe('module/sw-product/page/sw-product-detail', () => {
         expect(notificationSpy).not.toHaveBeenCalledWith(expect.objectContaining({ variant: 'success' }));
     });
 
-    it('keeps the active language when an earlier page lookup finishes last', async () => {
+    it('leaves loading the content language to the language service when the language changes', async () => {
         wrapper.unmount();
-        let resolveGerman;
-        wrapper = await createWrapper(undefined, (id) => {
-            if (id === 'german') {
-                return new Promise((resolve) => {
-                    resolveGerman = resolve;
-                });
-            }
-            return Promise.resolve({ id, variation: [] });
-        });
+        const getFunction = jest.fn((id) => Promise.resolve({ id, variation: [] }));
+        wrapper = await createWrapper(undefined, getFunction);
         await flushPromises();
         const api = Shopware.Store.get('context').api;
         const originalLanguageId = api.languageId;
-        const originalLanguage = api.language;
+        getFunction.mockClear();
 
         try {
             wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'german');
             await flushPromises();
-            wrapper.getComponent('sw-language-switch-stub').vm.$emit('on-change', 'french');
-            await flushPromises();
-            expect(api.language.id).toBe('french');
 
-            resolveGerman({ id: 'german', locale: { code: 'de-DE' } });
-            await flushPromises();
-            expect(api.languageId).toBe('french');
-            expect(api.language.id).toBe('french');
+            expect(api.languageId).toBe('german');
+            expect(getFunction.mock.calls.map(([id]) => id)).not.toContain('german');
         } finally {
             api.languageId = originalLanguageId;
-            api.language = originalLanguage;
         }
     });
 

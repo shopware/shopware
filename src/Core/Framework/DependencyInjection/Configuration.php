@@ -1954,8 +1954,52 @@ class Configuration implements ConfigurationInterface
                     ->integerPrototype()->end()
                     ->defaultValue([])
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $value): bool => self::canProbePasswordHasher($value))
+                ->then(
+                    /**
+                     * @param array{algorithm: string, options: array<string, int>} $value
+                     *
+                     * @return array{algorithm: string, options: array<string, int>}
+                     */
+                    static function (array $value): array {
+                        // Let PHP decide which options are valid, so an invalid configuration fails while the container is built instead of on register or login.
+                        try {
+                            (new NativePasswordHasher($value['algorithm'], $value['options']))->hash('probe');
+                        } catch (\ValueError $e) {
+                            throw DependencyInjectionException::invalidPasswordHasherOptions($value['algorithm'], $e);
+                        }
+
+                        return $value;
+                    }
+                )
             ->end();
 
         return $rootNode;
+    }
+
+    /**
+     * Options from environment variables are only known at runtime, so they cannot be probed while the container is built.
+     *
+     * @param array<mixed> $value
+     */
+    private static function canProbePasswordHasher(array $value): bool
+    {
+        if (!\in_array($value['algorithm'] ?? null, NativePasswordHasher::ALGORITHMS, true)) {
+            return false;
+        }
+
+        if (!\is_array($value['options'] ?? null) || $value['options'] === []) {
+            return false;
+        }
+
+        foreach ($value['options'] as $option) {
+            if (!\is_int($option)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

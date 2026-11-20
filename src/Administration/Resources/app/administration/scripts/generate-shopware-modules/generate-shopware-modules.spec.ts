@@ -52,6 +52,16 @@ describe('scripts/generate-shopware-modules', () => {
             expect(registry['shopware:utils'].subpaths.createId).toEqual([]);
         });
 
+        it('reads the composable namespaces from the files the composables index imports', () => {
+            expect(registry['shopware:composables'].subpaths.router).toEqual([
+                'useRoute',
+                'useRouter',
+                'onBeforeRouteLeave',
+                'onBeforeRouteUpdate',
+            ]);
+            expect(registry['shopware:composables'].subpaths.useListing).toEqual([]);
+        });
+
         it('publishes only the mixins the central registry owns', () => {
             expect(Object.keys(registry['shopware:mixins'].subpaths)).toContain('sw-form-field');
             expect(Object.keys(registry['shopware:mixins'].subpaths)).not.toContain('cms-element');

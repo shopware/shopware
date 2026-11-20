@@ -150,6 +150,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, product.states will be replaced by productType
          */
         productStateOptions() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-stream-value.productStateOptions is deprecated. Will be removed, product.states will be replaced by productType.',
+            );
+
             return [
                 {
                     label: this.$t('sw-product-stream.filter.values.productStates.physical'),
@@ -384,17 +389,23 @@ export default {
         },
 
         customFieldCriteria() {
-            if (this.isProductEntity) {
-                return this.productCriteria;
-            }
-
-            const criteria = new Criteria(1, 25);
+            const criteria = this.isProductEntity ? Criteria.fromCriteria(this.productCriteria) : new Criteria(1, 25);
 
             if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
-                criteria.addQuery(Criteria.contains('name', this.searchTerm), 500);
+                this.customFieldLabelProperties.forEach((labelProperty) => {
+                    criteria.addQuery(Criteria.contains(labelProperty, this.searchTerm), 500);
+                });
             }
 
             return criteria;
+        },
+
+        customFieldLabelProperty() {
+            return this.fieldDefinition?.config?.labelProperty ?? 'name';
+        },
+
+        customFieldLabelProperties() {
+            return [].concat(this.customFieldLabelProperty);
         },
 
         visibilitiesLabelCallback() {
@@ -417,6 +428,12 @@ export default {
     },
 
     methods: {
+        getProductLabel(item) {
+            const name = item.translated?.name || item.name;
+
+            return item.productNumber ? `${item.productNumber} - ${name}` : name;
+        },
+
         onChangeType(type, parameters) {
             this.$emit('type-change', { type, parameters });
         },
@@ -548,6 +565,16 @@ export default {
             const customField = this.productCustomFields[strippedFieldName];
 
             return customField.config.entity;
+        },
+
+        getCustomFieldLabel(item) {
+            const labels = [];
+
+            this.customFieldLabelProperties.forEach((labelProperty) => {
+                labels.push(item.translated?.[labelProperty] || item[labelProperty]);
+            });
+
+            return labels.join(' ');
         },
     },
 };

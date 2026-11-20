@@ -106,6 +106,18 @@ class GuestAuthenticatorTest extends TestCase
                 'email' => 'test@example.com',
                 'zipcode' => 'abc',
             ]), CustomerException::wrongGuestCredentials()],
+            'int zipcode in request' => [new Request([], [
+                'email' => 'test@example.com',
+                'zipcode' => 12345,
+            ]), CustomerException::wrongGuestCredentials()],
+            'array zipcode in query' => [new Request([
+                'email' => 'test@example.com',
+                'zipcode' => ['12345'],
+            ]), CustomerException::wrongGuestCredentials()],
+            'bool email in request' => [new Request([], [
+                'email' => true,
+                'zipcode' => '12345',
+            ]), CustomerException::wrongGuestCredentials()],
             'missing zipcode in query' => [new Request([
                 'email' => 'test@example.com',
             ]), CustomerException::guestNotAuthenticated()],

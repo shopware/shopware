@@ -62,9 +62,12 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
+                $salesChannelId = $payload['sales_channel_id'] ?? null;
+
                 $insertedRoutes[] = [
                     'routeName' => (string) ($payload['route_name'] ?? ''),
                     'entityName' => (string) ($payload['entity_name'] ?? ''),
+                    'salesChannelId' => \is_string($salesChannelId) ? Uuid::fromBytesToHex($salesChannelId) : null,
                 ];
 
                 continue;
@@ -86,7 +89,7 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param list<array{routeName: string, entityName: string}> $insertedRoutes
+     * @param list<array{routeName: string, entityName: string, salesChannelId: string|null}> $insertedRoutes
      * @param list<UpdateCommand> $updateCommands
      */
     private function dispatchIndexingMessages(array $insertedRoutes, array $updateCommands): void
@@ -116,14 +119,20 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $key = $route['routeName'] . '/' . $route['entityName'];
+            $key = $route['routeName'] . '/' . $route['entityName'] . '/' . ($route['salesChannelId'] ?? 'default');
             if (isset($dispatched[$key])) {
                 continue;
             }
             $dispatched[$key] = true;
 
+            // only the sales channels using the changed template need new SEO URLs
             $this->messageBus->dispatch(
-                new SeoUrlTemplateIndexingMessage($route['routeName'], $route['entityName'])
+                new SeoUrlTemplateIndexingMessage(
+                    $route['routeName'],
+                    $route['entityName'],
+                    onlyChangedTemplate: true,
+                    templateSalesChannelId: $route['salesChannelId'],
+                )
             );
         }
     }
@@ -131,7 +140,7 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
     /**
      * @param list<string> $templateIds
      *
-     * @return list<array{routeName: string, entityName: string}>
+     * @return list<array{routeName: string, entityName: string, salesChannelId: string|null}>
      */
     private function loadRoutesForTemplates(array $templateIds): array
     {
@@ -140,9 +149,9 @@ class SeoUrlTemplateChangeSubscriber implements EventSubscriberInterface
             $templateIds
         ));
 
-        /** @var list<array{routeName: string, entityName: string}> $rows */
+        /** @var list<array{routeName: string, entityName: string, salesChannelId: string|null}> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT DISTINCT route_name AS routeName, entity_name AS entityName
+            'SELECT DISTINCT route_name AS routeName, entity_name AS entityName, LOWER(HEX(sales_channel_id)) AS salesChannelId
              FROM seo_url_template
              WHERE id IN (:ids)',
             ['ids' => $bytes],

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateType\MailTemplateTypeCollection;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
@@ -185,6 +186,12 @@ class SendMailAction extends FlowAction implements DelayableAction
                 $templateData
             );
         } catch (\Exception $e) {
+            if (MailLogData::isSensitive($data->all(), $templateData)) {
+                $this->logger->error('Could not send mail.', MailLogData::create($data->all(), $e));
+
+                return;
+            }
+
             $this->logger->error(
                 "Could not send mail:\n"
                 . $e->getMessage() . "\n"
@@ -211,7 +218,7 @@ class SendMailAction extends FlowAction implements DelayableAction
             return;
         }
 
-        if (!$this->updateMailTemplate) {
+        if (!$this->updateMailTemplate || MailLogData::isSensitive([], $templateData)) {
             return;
         }
 

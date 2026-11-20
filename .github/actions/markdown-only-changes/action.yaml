@@ -18,21 +18,26 @@ runs:
       id: filter
       if: github.event_name == 'pull_request' && github.event.pull_request.changed_files > 0 && github.event.pull_request.changed_files < 3000
       continue-on-error: true
-      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      uses: dorny/paths-filter@0e4a8c6effa4802afeda77dc8d303f8176d7dfad # v3.0.4
       with:
         # paths-filter can only answer "does any changed file match?", so ask
         # the complement: did the PR touch anything that is not markdown?
         # (`every` = a file only counts when it matches both negated patterns)
+        # The `.api.md` reports of the Administration public API snapshot are
+        # generated and checked by Jest, so they do not count as docs.
         predicate-quantifier: 'every'
         filters: |
           non_markdown:
             - '!**/*.md'
             - '!**/*.MD'
+          generated_reports:
+            - '**/*.api.md'
 
-    # docs_only = files changed and none of them were non-markdown. A skipped
-    # or failed filter step leaves the output empty, and '' == 'false' is
-    # false — do not simplify, this is the fail-open path.
+    # docs_only = files changed, none of them were non-markdown and none were
+    # generated reports. A skipped or failed filter step leaves the outputs
+    # empty, and '' == 'false' is false — do not simplify, this is the
+    # fail-open path.
     - name: Report markdown-only result
       id: check
       shell: bash
-      run: echo "docs_only=${{ steps.filter.outputs.non_markdown == 'false' }}" >> "$GITHUB_OUTPUT"
+      run: echo "docs_only=${{ steps.filter.outputs.non_markdown == 'false' && steps.filter.outputs.generated_reports == 'false' }}" >> "$GITHUB_OUTPUT"

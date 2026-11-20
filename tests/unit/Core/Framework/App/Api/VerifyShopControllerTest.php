@@ -71,14 +71,16 @@ class VerifyShopControllerTest extends TestCase
         ];
     }
 
-    public function testVerificationFailReturnsBadRequest(): void
+    public function testFailedVerificationReturnsBadRequestAndKeepsTheRateLimitCount(): void
     {
         $appUrlVerifier = static::createMock(AppUrlVerifier::class);
         $appUrlVerifier->expects($this->once())
             ->method('completeVerification')
             ->with('some-run-id', 'some-token')
             ->willReturn(false);
-        $controller = new VerifyShopController($this->rateLimiter, $appUrlVerifier);
+        $rateLimiter = static::createMock(RateLimiter::class);
+        $rateLimiter->expects($this->never())->method('reset');
+        $controller = new VerifyShopController($rateLimiter, $appUrlVerifier);
 
         $request = new Request(
             query: ['runId' => 'some-run-id', 'token' => 'some-token'],
@@ -90,14 +92,18 @@ class VerifyShopControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
-    public function testVerificationPassReturnsNoContent(): void
+    public function testSuccessfulVerificationReturnsNoContentAndResetsTheRateLimit(): void
     {
         $appUrlVerifier = static::createMock(AppUrlVerifier::class);
         $appUrlVerifier->expects($this->once())
             ->method('completeVerification')
             ->with('some-run-id', 'some-token')
             ->willReturn(true);
-        $controller = new VerifyShopController($this->rateLimiter, $appUrlVerifier);
+        $rateLimiter = static::createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())
+            ->method('reset')
+            ->with(RateLimiter::APP_SHOP_VERIFY, '127.0.0.1');
+        $controller = new VerifyShopController($rateLimiter, $appUrlVerifier);
 
         $request = new Request(
             query: ['runId' => 'some-run-id', 'token' => 'some-token'],

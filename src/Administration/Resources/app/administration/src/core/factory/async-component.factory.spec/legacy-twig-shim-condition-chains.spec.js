@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 
+import { nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 import {
     ComponentFactory,
@@ -214,7 +215,7 @@ describe('core/factory/async-component.factory.ts - legacy Twig shim condition c
         void wrapper.html();
         void (await import('src/app/component/structure/sw-block-override/shim/legacy-condition-context')).default()
             .legacyConditionContext;
-        await wrapper.vm.$nextTick();
+        await nextTick();
         expect(wrapper.find('.native-fallback-condition').exists()).toBe(true);
     });
 

@@ -9,12 +9,13 @@ use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @codeCoverageIgnore
  *
- * @deprecated tag:v6.9.0 reason:remove-entity - Will be removed. Use `document.type_name` instead.
+ * @deprecated tag:v6.9.0 - Will be removed. Use `document.type_name` instead.
  */
 #[Package('after-sales')]
 class DocumentTypeEntity extends Entity
@@ -33,6 +34,11 @@ class DocumentTypeEntity extends Entity
     protected ?DocumentBaseConfigCollection $documentBaseConfigs = null;
 
     protected ?DocumentBaseConfigSalesChannelCollection $documentBaseConfigSalesChannels = null;
+
+    public function __construct()
+    {
+        Feature::throwIfActive('v6.9.0.0', Feature::deprecatedClassMessage(self::class, 'v6.9.0.0'));
+    }
 
     public function getName(): string
     {

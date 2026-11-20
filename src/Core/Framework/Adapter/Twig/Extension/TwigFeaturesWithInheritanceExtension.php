@@ -102,7 +102,6 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         array $variables = [],
         bool $withContext = true,
         bool $ignoreMissing = false,
-        bool $sandboxed = false
     ): string|Markup {
         // sw-fix-start
         if (\is_array($template)) {
@@ -116,6 +115,6 @@ class TwigFeaturesWithInheritanceExtension extends AbstractExtension
         }
         // sw-fix-end
 
-        return CoreExtension::include($env, $context, $template, $variables, $withContext, $ignoreMissing, $sandboxed);
+        return CoreExtension::include($env, $context, $template, $variables, $withContext, $ignoreMissing);
     }
 }

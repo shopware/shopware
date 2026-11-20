@@ -26,6 +26,7 @@ import type ModuleFactory from 'src/core/factory/module.factory';
 import type DirectiveFactory from 'src/core/factory/directive.factory';
 import type EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
 import type FilterFactoryData from 'src/core/data/filter-factory.data';
+import type UnitUneceCodeApiService from 'src/core/service/api/unit-unece-code.api.service';
 import type UserApiService from 'src/core/service/api/user.api.service';
 import type UserConfigService from 'src/core/service/api/user-config.api.service';
 import type OAuthAuthorizeApiService from 'src/core/service/api/oauth-authorize.api.service';
@@ -58,6 +59,7 @@ import type AclService from './app/service/acl.service';
 import type EntityValidationService from './app/service/entity-validation.service';
 import type CustomEntityDefinitionService from './app/service/custom-entity-definition.service';
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
+import type ProductStorefrontUrlApiService from './module/sw-product/service/product-storefront-url.api.service';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
@@ -130,6 +132,7 @@ import type { SidebarStore } from './app/store/sidebar.store';
 import type { MenuItemStore } from './app/store/menu-item.store';
 import type { NotificationStore } from './app/store/notification.store';
 import type { TabsStore } from './app/store/tabs.store';
+import type { WhatsNewStore } from './app/store/whats-new.store';
 import type { SessionStore } from './app/store/session.store';
 import type { SwCategoryDetailStore } from './module/sw-category/page/sw-category-detail/store';
 import type { SwSeoUrlStore } from './module/sw-settings-seo/component/sw-seo-url/store';
@@ -303,6 +306,7 @@ declare global {
         storeService: StoreApiService;
         systemConfigApiService: SystemConfigApiService;
         timezoneService: $TSFixMe;
+        unitUneceCodeService: UnitUneceCodeApiService;
         updateService: UpdateApiService;
         userActivityService: UserActivityService;
         userRecoveryService: UserRecoveryApiService;
@@ -313,6 +317,7 @@ declare global {
         ssoInvitationService: SsoInvitationService;
         shopIdChangeService: ShopIdChangeService;
         productTypeService: ProductTypeApiService;
+        productStorefrontUrlApiService: ProductStorefrontUrlApiService;
         consentApiService: ConsentApiService;
         validationApiService: ValidationApiService;
     }
@@ -435,6 +440,7 @@ declare global {
         menuItem: MenuItemStore;
         notification: NotificationStore;
         tabs: TabsStore;
+        whatsNew: WhatsNewStore;
         session: SessionStore;
         swCategoryDetail: SwCategoryDetailStore;
         swSeoUrl: SwSeoUrlStore;
@@ -630,16 +636,9 @@ declare module 'axios' {
     interface AxiosRequestConfig {
         // adds the shopware API version to the RequestConfig
         version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
-        useAxiosV1?: boolean;
-    }
-}
-
-declare module 'axios-v1' {
-    interface AxiosRequestConfig {
-        // adds the shopware API version to the RequestConfig
-        version?: number;
-        // Opt-in flag to use axios v1 instead of v0 for this request
+        /**
+         * @deprecated tag:v6.8.0 - See `HttpRequestConfig.useAxiosV1`.
+         */
         useAxiosV1?: boolean;
     }
 }

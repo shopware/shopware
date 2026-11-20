@@ -43,11 +43,11 @@ export default {
 
     computed: {
         tagCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, null);
             const { config } = this.sequence;
             const tagIds = Object.keys(config.tagIds);
             if (tagIds.length) {
-                criteria.addFilter(Criteria.equalsAny('id', tagIds));
+                criteria.setIds(tagIds);
             }
 
             return criteria;

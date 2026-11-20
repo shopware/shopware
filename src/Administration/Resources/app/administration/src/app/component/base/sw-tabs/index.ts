@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated tabs' new-item-active reaches the parent only through $attrs */
 import { Fragment, Text, type VNode } from 'vue';
 import type { RouteLocationRaw, Router } from 'vue-router';
 import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
@@ -95,12 +96,11 @@ export default Shopware.Component.wrapComponentConfig({
                 return true;
             }
 
-            if (Shopware.Feature.isActive('V6_8_0_0')) {
-                Shopware.Utils.debug.warn(
-                    'sw-tabs',
-                    'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
-                );
-            }
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'The "sw-tabs" wrapper is deprecated and will be removed in v6.9.0.0. Please use "mt-tabs" instead.',
+                { _blame: 'author' },
+            );
 
             return false;
         },

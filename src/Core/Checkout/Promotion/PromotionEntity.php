@@ -15,6 +15,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
@@ -85,6 +86,8 @@ class PromotionEntity extends Entity
     protected int $orderCount;
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     *
      * @var array<string, int>|null
      */
     protected ?array $ordersPerCustomerCount = null;
@@ -372,18 +375,32 @@ class PromotionEntity extends Entity
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, count the orders of the customer that carry the promotion instead
+     *
      * @return array<string, int>|null
      */
     public function getOrdersPerCustomerCount(): ?array
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         return $this->ordersPerCustomerCount;
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     *
      * @param array<string, int> $ordersPerCustomerCount
      */
     public function setOrdersPerCustomerCount(array $ordersPerCustomerCount): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $this->ordersPerCustomerCount = $ordersPerCustomerCount;
     }
 
@@ -586,14 +603,22 @@ class PromotionEntity extends Entity
             || $this->getOrderCount() < $this->getMaxRedemptionsGlobal();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, count the orders of the customer that carry the promotion instead
+     */
     public function isOrderCountPerCustomerCountValid(string $customerId): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         $customerId = mb_strtolower($customerId);
 
         return $this->getMaxRedemptionsPerCustomer() === null
             || $this->getMaxRedemptionsPerCustomer() <= 0
-            || $this->getOrdersPerCustomerCount() === null
-            || !\array_key_exists($customerId, $this->getOrdersPerCustomerCount())
-            || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();
+            || $this->ordersPerCustomerCount === null
+            || !\array_key_exists($customerId, $this->ordersPerCustomerCount)
+            || $this->ordersPerCustomerCount[$customerId] < $this->getMaxRedemptionsPerCustomer();
     }
 }

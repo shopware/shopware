@@ -1,14 +1,11 @@
 ---
 name: nightly-triage
 description: >
-  Triage a failing Shopware nightly / multi-job PHPUnit CI run (e.g. integration-major).
-  Extract every failing test from the run's job logs, resolve each to its owning domain
-  via #[Package] markers, cluster failures by error signature into root causes, verify
-  opaque clusters with a local Docker reproduction, then file one GitHub issue per
-  domain — flat issues, no parent tracking issue — routing collateral failures to the
-  root-cause owner. Use when the user links a failing Actions run or job, asks to "identify all
-  failing tests" from a nightly, asks to triage integration-major / a red nightly,
-  or wants CI failures grouped into per-team issues.
+  Triage a failed Shopware nightly or multi-job PHPUnit CI run (e.g. integration-major):
+  extract failing tests from job logs, map each to its domain via #[Package] markers,
+  cluster by error signature into root causes, reproduce opaque ones in Docker, file one
+  flat GitHub issue per domain, routing collateral failures to the root-cause owner. Also
+  for a run with a single failing test.
 disable-model-invocation: true
 license: MIT
 allowed-tools: Bash(gh run view:*) Bash(gh run list:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(rg:*) Bash(grep:*) Bash(git log:*) Bash(git show:*) Bash(python3:*) Bash(docker compose exec:*) Read Glob Grep
@@ -16,7 +13,7 @@ allowed-tools: Bash(gh run view:*) Bash(gh run list:*) Bash(gh issue view:*) Bas
 
 # Nightly CI-Failure Triage
 
-Turn a red multi-job PHPUnit CI run into a small set of root-cause-grouped,
+Turn a failed multi-job PHPUnit CI run into a small set of root-cause-grouped,
 correctly-routed GitHub issues. Built from the 2026-07-03 `integration-major`
 sweep (412 failing tests → 6 domain issues, ~9 root causes). Issues are flat:
 one per domain, deliberately no parent tracking issue — the parent/sub-issue

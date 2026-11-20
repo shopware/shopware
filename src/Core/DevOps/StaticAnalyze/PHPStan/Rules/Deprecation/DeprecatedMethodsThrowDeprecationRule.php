@@ -11,6 +11,9 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPStan\Symfony\ServiceMap;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -21,15 +24,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DeprecatedMethodsThrowDeprecationRule implements Rule
 {
-    /**
-     * There are some exceptions to this rule, where deprecated methods should not throw a deprecation notice.
-     * This is mainly the reason if the deprecated code is still called from inside the core due to BC reasons.
-     */
-    private const RULE_EXCEPTIONS = [
-        // Entities still need to be present in the DI container, therefore they do not trigger deprecations.
-        'reason:remove-entity',
-    ];
-
     /**
      * Defaults to an empty list so PHPStan can construct this rule from a `rules:` entry.
      *
@@ -70,13 +64,14 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         $classDeprecation = $class->getDeprecatedDescription();
         $methodDeprecation = $method->getDeprecatedDescription() ?? '';
 
-        if ($classDeprecation && !$this->isServiceConstructor($node, $class)) {
+        // Deprecated DAL data objects are guarded at construction, not on every accessor call.
+        if ($classDeprecation && !$class->is(Entity::class) && !$class->is(EntityCollection::class) && !$this->isFrameworkConstructor($node, $class)) {
             $errors = $this->checkDeprecationPatterns($node, $scope, $class, $classDeprecation, true, $methodContent);
             if ($errors !== null && $errors !== []) {
                 return $errors;
             }
 
-            if ($errors === null && !$this->handlesDeprecationCorrectly($classDeprecation, $methodContent)) {
+            if ($errors === null && !\str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(')) {
                 return [
                     RuleErrorBuilder::message(\sprintf(
                         'Class "%s" is marked as deprecated, but method "%s" does not call "Feature::triggerDeprecationOrThrow". All public methods of deprecated classes need to trigger a deprecation warning.',
@@ -99,7 +94,7 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
                 return $errors;
             }
 
-            if (!$this->handlesDeprecationCorrectly($methodDeprecation, $methodContent)) {
+            if (!\str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(')) {
                 return [
                     RuleErrorBuilder::message(\sprintf(
                         'Method "%s" of class "%s" is marked as deprecated, but does not call "Feature::triggerDeprecationOrThrow". All deprecated methods need to trigger a deprecation warning.',
@@ -141,20 +136,6 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     }
 
     /**
-     * @param \Closure(): string $methodContent
-     */
-    private function handlesDeprecationCorrectly(string $deprecation, \Closure $methodContent): bool
-    {
-        foreach (self::RULE_EXCEPTIONS as $exception) {
-            if (\str_contains($deprecation, $exception)) {
-                return true;
-            }
-        }
-
-        return \str_contains($methodContent(), 'Feature::triggerDeprecationOrThrow(');
-    }
-
-    /**
      * @return list<IdentifierRuleError>|null
      */
     private function checkDeprecationPatterns(ClassMethod $node, Scope $scope, ClassReflection $class, string $deprecation, bool $isClassDeprecation, \Closure $methodContent): ?array
@@ -189,9 +170,10 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
         return false;
     }
 
-    private function isServiceConstructor(ClassMethod $node, ClassReflection $class): bool
+    private function isFrameworkConstructor(ClassMethod $node, ClassReflection $class): bool
     {
+        // DAL constructors use the separate class-level rule, which also detects inherited/missing guards.
         return $node->name->toString() === '__construct'
-            && $this->serviceMap->getService($class->getName()) !== null;
+            && ($class->is(EntityDefinition::class) || $class->is(EntityCollection::class) || $this->serviceMap->getService($class->getName()) !== null);
     }
 }

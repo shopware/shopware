@@ -81,6 +81,7 @@ interface SettingsItem {
     id?: string;
     name?: string;
     label?: string;
+    since?: string;
 }
 
 /**
@@ -104,6 +105,9 @@ export interface ModuleManifest {
     };
     entity?: string;
     entityDisplayProperty?: string;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Snippets are loaded from the `snippet` folders by the initial snippets request.
+     */
     snippets?: {
         [lang: string]: unknown;
     };
@@ -187,6 +191,14 @@ function registerModule(moduleId: string, module: ModuleManifest): false | Modul
             'Abort registration.',
         );
         return false;
+    }
+
+    if (hasOwnProperty(module, 'snippets')) {
+        // @deprecated tag:v6.8.0 - The "snippets" module option will be removed, snippets load from the "snippet" folders.
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            `Module "${moduleId}": the "snippets" property is deprecated and will be removed in v6.8.0. Snippets are loaded from the "snippet" folders automatically.`,
+        );
     }
 
     if (!hasOwnProperty(module, 'display')) {
@@ -468,8 +480,15 @@ function getModuleByEntityName(entityName: string): ModuleDefinition | undefined
 
 /**
  * Returns a list of all module specific snippets
+ *
+ * @deprecated tag:v6.8.0 - Will be removed together with the module manifest `snippets` property.
  */
 function getModuleSnippets(): { [lang: string]: Snippets | undefined } {
+    Shopware.Feature.triggerDeprecationOrThrow(
+        'V6_8_0_0',
+        'ModuleFactory.getModuleSnippets() is deprecated and will be removed together with the module manifest "snippets" property.',
+    );
+
     return Array.from(modules.values()).reduce<{
         [lang: string]: Snippets | undefined;
     }>((accumulator, module) => {

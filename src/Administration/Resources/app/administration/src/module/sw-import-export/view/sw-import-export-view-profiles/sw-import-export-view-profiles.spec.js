@@ -42,7 +42,7 @@ const importExportProfileFixture = new EntityCollection(
 );
 
 const repositoryMock = {
-    search: () => Promise.resolve(importExportProfileFixture),
+    search: jest.fn(() => Promise.resolve(importExportProfileFixture)),
     create: jest.fn(() => new Entity(uuid.get('new-profile'), 'import_export_profile', {})),
     get: (id) => Promise.resolve(importExportProfileFixture.get(id)),
     delete: (id) => Promise.resolve(importExportProfileFixture.remove(id)),
@@ -117,6 +117,24 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         expect(wrapper.vm.selectedProfile.getEntityName()).toBe('import_export_profile');
     });
 
+    it('should open the new profile wizard when creating a new profile in a non-system language', async () => {
+        const originalLanguageId = Shopware.Context.api.languageId;
+        Shopware.Context.api.languageId = '9886595ca65447d6a812fe9de1096079';
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const createProfileButton = wrapper.find('.sw-import-export-view-profiles__create-action');
+        expect(createProfileButton.attributes('disabled')).toBeUndefined();
+
+        await createProfileButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-import-export-new-profile-wizard').exists()).toBe(true);
+
+        Shopware.Context.api.languageId = originalLanguageId;
+    });
+
     it('should open the edit modal when editing a profile', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -152,5 +170,15 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
         await flushPromises();
 
         expect(wrapper.vm.profiles).toHaveLength(1);
+    });
+
+    it('should search profiles without their logs', async () => {
+        repositoryMock.search.mockClear();
+        await createWrapper();
+        await flushPromises();
+
+        expect(repositoryMock.search).toHaveBeenCalledTimes(1);
+        const criteria = repositoryMock.search.mock.calls[0][0];
+        expect(criteria.hasAssociation('importExportLogs')).toBe(false);
     });
 });

@@ -17,12 +17,6 @@ async function createWrapper(props: { title: string; expandOnLoading?: boolean }
 }
 
 describe('src/app/component/media/sw-model-editor-collapse', () => {
-    it('should mount successfully', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.exists()).toBe(true);
-    });
-
     it('should render the title', async () => {
         const wrapper = await createWrapper({ title: 'My Section' });
 

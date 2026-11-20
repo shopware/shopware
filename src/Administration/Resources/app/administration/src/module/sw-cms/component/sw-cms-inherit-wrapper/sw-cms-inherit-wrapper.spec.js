@@ -4,7 +4,9 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 import '../../mixin/sw-cms-state.mixin';
+import '../../mixin/sw-cms-element.mixin';
 
 const { Entity } = Shopware.Data;
 
@@ -800,6 +802,68 @@ describe('src/module/sw-cms/component/sw-cms-inherit-wrapper', () => {
             await wrapper.find('.close-btn').trigger('click');
 
             expect(wrapper.vm.showModal).toBe(false);
+        });
+    });
+
+    describe('form synchronization', () => {
+        let wrapper;
+
+        afterEach(() => {
+            wrapper?.unmount();
+        });
+
+        it.each([true, false])('restores inheritance when the layout field exists: %s', async (hasBaseConfig) => {
+            const config = reactive({
+                testField: { value: 'overridden', source: 'static' },
+            });
+            const element = reactive(
+                new Entity('test-slot-id', 'cms_slot', {
+                    type: 'text',
+                    config,
+                    translated: {
+                        config: hasBaseConfig ? { testField: { value: 'base value', source: 'static' } } : {},
+                    },
+                }),
+            );
+            const categoryStore = Shopware.Store.get('swCategoryDetail');
+            categoryStore.category = new Entity('category-id', 'category', {
+                slotConfig: {
+                    [element.id]: {
+                        testField: { value: 'overridden', source: 'static' },
+                    },
+                },
+            });
+
+            wrapper = await createWrapper(
+                { element },
+                {
+                    slots: {
+                        default: {
+                            components: {
+                                'sw-cms-form-sync': await wrapTestComponent('sw-cms-form-sync', { sync: true }),
+                            },
+                            data() {
+                                return { element };
+                            },
+                            template: '<sw-cms-form-sync :element="element" />',
+                        },
+                    },
+                },
+            );
+
+            expect(wrapper.classes()).not.toContain('is--inherited');
+            await wrapper.find('.sw-inheritance-switch').trigger('click');
+            await wrapper.find('.confirm-btn').trigger('click');
+            await flushPromises();
+
+            expect(categoryStore.category.slotConfig).toBeNull();
+            expect(config.testField).toEqual({
+                value: hasBaseConfig ? 'base value' : null,
+                source: 'static',
+            });
+            expect(wrapper.classes()).toContain('is--inherited');
+            expect(wrapper.find('.sw-inheritance-switch').text()).toBe('Remove');
+            expect(wrapper.emitted('inheritance:restore')).toHaveLength(1);
         });
     });
 

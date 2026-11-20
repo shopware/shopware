@@ -65,6 +65,7 @@ export default {
             usageOfFiles: {},
             idToIndex: {},
             productDownloadFolderId: null,
+            allowDigitalVariantsWithoutDownloads: false,
             isAddOnly: false,
             originalConfiguratorSettings: [],
         };
@@ -99,6 +100,14 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
+        uploadCardDescription() {
+            const snippetKey = this.allowDigitalVariantsWithoutDownloads
+                ? 'sw-product.variations.configuratorModal.uploadCardExternalManagementDescription'
+                : 'sw-product.variations.configuratorModal.uploadCardDescription';
+
+            return this.$t(snippetKey);
+        },
+
         productRepository() {
             return this.repositoryFactory.create('product');
         },
@@ -113,6 +122,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, no longer needed
         progressInPercentage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-modal-variant-generation.progressInPercentage is deprecated. Will be removed, no longer needed.',
+            );
+
             return this.actualProgress / (this.maxProgress * 100);
         },
 
@@ -145,6 +159,10 @@ export default {
         },
 
         isGenerateButtonDisabled() {
+            if (this.allowDigitalVariantsWithoutDownloads) {
+                return false;
+            }
+
             return this.variantGenerationQueue.createQueue.some((item) => {
                 return item.downloads.length === 0 && item.type === 'digital';
             });

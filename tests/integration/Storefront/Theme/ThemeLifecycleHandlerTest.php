@@ -242,18 +242,21 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeLifecycleHandler->handleThemeInstallOrUpdate($uninstalledConfig, $configs, Context::createDefaultContext());
         $this->assignThemeToDefaultSalesChannel('SimpleTheme');
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SimpleTheme'));
+        $themeId = static::getContainer()->get('theme.repository')->searchIds($criteria, Context::createDefaultContext())->firstId();
+        static::assertIsString($themeId);
         $scCollection = new ThemeSalesChannelCollection();
-        $scCollection->add(new ThemeSalesChannel(Uuid::randomHex(), Uuid::randomHex()));
+        $scCollection->add(new ThemeSalesChannel($themeId, TestDefaults::SALES_CHANNEL));
         $this->themeServiceMock->expects($this->once())
             ->method('getThemeDependencyMapping')
             ->willReturn($scCollection);
 
-        $placeholderSalesChannelId = 'sc-id';
         $this->expectExceptionObject(ThemeException::themeAssignmentException(
             'Simple theme',
-            ['Simple theme' => [$placeholderSalesChannelId]],
+            ['Simple theme' => [TestDefaults::SALES_CHANNEL]],
             [],
-            [$placeholderSalesChannelId => 'Headless'],
+            [TestDefaults::SALES_CHANNEL => 'Headless'],
         ));
 
         $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());

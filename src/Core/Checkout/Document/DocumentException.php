@@ -58,6 +58,8 @@ class DocumentException extends HttpException
 
     public const DOCUMENT_AUTH_THROTTLED = 'DOCUMENT__AUTH_THROTTLED';
 
+    public const ORDER_DELIVERY_NOT_FOUND = 'DOCUMENT__ORDER_DELIVERY_NOT_FOUND';
+
     public static function invalidDocumentGeneratorType(string $type): self
     {
         return new self(
@@ -116,14 +118,32 @@ class DocumentException extends HttpException
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use documentNumberAlreadyExistsExceptionForType() instead.
+     */
     public static function documentNumberAlreadyExistsException(string $number = ''): self
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'documentNumberAlreadyExistsExceptionForType()'));
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DOCUMENT_NUMBER_ALREADY_EXISTS,
             \sprintf('Document number %s has already been allocated.', $number),
             [
-                '$number' => $number,
+                'number' => $number,
+            ],
+        );
+    }
+
+    public static function documentNumberAlreadyExistsExceptionForType(string $number, string $documentType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DOCUMENT_NUMBER_ALREADY_EXISTS,
+            \sprintf('Document number %s has already been allocated for document type "%s".', $number, $documentType),
+            [
+                'number' => $number,
+                'documentType' => $documentType,
             ],
         );
     }
@@ -307,6 +327,19 @@ class DocumentException extends HttpException
             'Could not generate document of type "{{ documentType }}" for order "{{ orderId }}" because the referenced invoice could not be found.',
             [
                 'documentType' => $documentType,
+                'orderId' => $orderId,
+            ]
+        );
+    }
+
+    public static function orderDeliveryNotFound(string $orderDeliveryId, string $orderId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_DELIVERY_NOT_FOUND,
+            'The delivery with id "{{ orderDeliveryId }}" does not belong to the order with id "{{ orderId }}".',
+            [
+                'orderDeliveryId' => $orderDeliveryId,
                 'orderId' => $orderId,
             ]
         );

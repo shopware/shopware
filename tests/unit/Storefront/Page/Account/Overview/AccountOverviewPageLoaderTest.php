@@ -19,7 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedEvent;
@@ -114,6 +116,20 @@ class AccountOverviewPageLoaderTest extends TestCase
         static::assertInstanceOf(AccountOverviewPageLoadedEvent::class, $events[1]);
     }
 
+    public function testLoadsShippingAddressAndStateOfEveryDelivery(): void
+    {
+        $this->assertDeliveryAssociationsLoaded();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove together with the `v6.8.0.0` feature flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLoadsShippingAddressAndStateOfEveryDeliveryWithoutMajorFlag(): void
+    {
+        $this->assertDeliveryAssociationsLoaded();
+    }
+
     public function testSetStandardMetaData(): void
     {
         $pageLoader = new TestAccountOverviewPageLoader(
@@ -122,7 +138,8 @@ class AccountOverviewPageLoaderTest extends TestCase
             $this->orderRoute,
             static::createStub(CustomerRoute::class),
             static::createStub(NewsletterAccountPageletLoader::class),
-            $this->translator
+            $this->translator,
+            static::createStub(OrderProductAvailabilityResolver::class)
         );
 
         $page = new AccountOverviewPage();
@@ -132,6 +149,51 @@ class AccountOverviewPageLoaderTest extends TestCase
         $pageLoader->setMetaInformationAccess($page);
 
         static::assertInstanceOf(MetaInformation::class, $page->getMetaInformation());
+    }
+
+    private function assertDeliveryAssociationsLoaded(): void
+    {
+        $criteria = null;
+
+        $orderRoute = $this->createMock(OrderRoute::class);
+        $orderRoute
+            ->expects($this->once())
+            ->method('load')
+            ->with(
+                static::isInstanceOf(Request::class),
+                static::anything(),
+                static::callback(static function (Criteria $loadedCriteria) use (&$criteria): bool {
+                    $criteria = $loadedCriteria;
+
+                    return true;
+                }),
+            )
+            ->willReturn(new OrderRouteResponse(
+                new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    0,
+                    new OrderCollection(),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            ));
+
+        $genericPageLoader = static::createStub(GenericPageLoader::class);
+        $genericPageLoader->method('load')->willReturn(new Page());
+
+        $this->createPageLoader(genericPageLoader: $genericPageLoader, orderRoute: $orderRoute)
+            ->load(new Request(), static::createStub(SalesChannelContext::class), new CustomerEntity());
+
+        static::assertInstanceOf(Criteria::class, $criteria);
+
+        foreach (['deliveries.shippingOrderAddress.country', 'deliveries.shippingOrderAddress.countryState', 'deliveries.shippingOrderAddress.salutation', 'deliveries.stateMachineState'] as $path) {
+            $association = $criteria;
+            foreach (explode('.', $path) as $part) {
+                static::assertTrue($association->hasAssociation($part), \sprintf('The criteria does not load "%s"', $path));
+                $association = $association->getAssociations()[$part];
+            }
+        }
     }
 
     private function createPageLoader(
@@ -145,7 +207,8 @@ class AccountOverviewPageLoaderTest extends TestCase
             $orderRoute ?? $this->orderRoute,
             static::createStub(CustomerRoute::class),
             static::createStub(NewsletterAccountPageletLoader::class),
-            $translator ?? $this->translator
+            $translator ?? $this->translator,
+            static::createStub(OrderProductAvailabilityResolver::class)
         );
     }
 }

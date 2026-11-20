@@ -81,6 +81,32 @@ class RefreshHttpCacheMessageHandlerTest extends TestCase
         ($this->handler)($message);
     }
 
+    public function testResponseIsStoredForTheRequestTheKernelDidNotChange(): void
+    {
+        $message = new RefreshHttpCacheMessage('lock-key', ['_criteria' => 'compressed']);
+        $response = new Response();
+
+        $this->kernel->expects($this->once())
+            ->method('handle')
+            ->willReturnCallback(static function (Request $request) use ($response): Response {
+                // like the listener that copies the compressed criteria into the query parameters
+                $request->query->set('limit', '2');
+
+                return $response;
+            });
+
+        $this->store->expects($this->once())
+            ->method('write')
+            ->with(
+                static::callback(static fn (Request $request): bool => $request->query->all() === ['_criteria' => 'compressed']),
+                static::identicalTo($response)
+            );
+
+        $this->cache->expects($this->once())->method('delete')->with('lock-key');
+
+        ($this->handler)($message);
+    }
+
     public function testInvokeSetsTrustedProxies(): void
     {
         $originalTrustedIps = Request::getTrustedProxies();

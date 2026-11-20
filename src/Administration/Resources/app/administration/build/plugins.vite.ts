@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 /**
  * This file is the entry point for the Vite build process for plugins.
  * Depending on the environment variable VITE_MODE, it will either start a dev server
@@ -10,283 +9,73 @@
  * @sw-package framework
  */
 
-import { createServer, build, defineConfig, createLogger } from 'vite';
 import path from 'path';
-import fs from 'fs';
 import colors from 'picocolors';
-import vue from '@vitejs/plugin-vue';
-import svgLoader from 'vite-svg-loader';
-import symfonyPlugin from 'vite-plugin-symfony';
-import debug from 'debug';
-
-// Shopware imports
-import TwigPlugin from './vite-plugins/twigjs-plugin';
-import AssetPlugin from './vite-plugins/asset-plugin';
-import AssetPathPlugin from './vite-plugins/asset-path-plugin';
-import ExternalsPlugin from './vite-plugins/externals-plugin';
-import AssetCssPostprocessPlugin from './vite-plugins/asset-css-postprocess-plugin';
-import OverrideComponentRegisterPlugin from './vite-plugins/override-component-register';
-import ShopwareSetupPlugin from './vite-plugins/shopware-setup';
-import VirtualShopwareModulesPlugin from './vite-plugins/virtual-shopware-modules';
-import { loadExtensions, getViteServerPorts, isInsideDockerContainer } from './vite-plugins/utils';
-import type { ExtensionDefinition } from './vite-plugins/utils';
-import injectHtml from './vite-plugins/inject-html';
+import {
+    loadExtensions,
+    getExtensionBasePath,
+    getViteServerPorts,
+    runForEachExtension,
+    writePluginDevJson,
+} from './vite-plugins/utils';
+import { getExtensionBuildConfig, getExtensionDevConfig } from './vite-plugins/extension-config';
+import { isBundledDevActive, loadViteToolchain } from './vite-plugins/vite-toolchain';
 
 const VITE_MODE = process.env.VITE_MODE || 'development';
 const isDev = VITE_MODE === 'development';
-const adminSrcPath = process.env.ADMIN_ROOT
-    ? path.join(process.env.ADMIN_ROOT, 'Resources', 'app', 'administration', 'src')
-    : path.join(path.dirname(__dirname), 'src');
-const host = process.env.VITE_HOST || 'localhost';
 
 const extensionEntries = loadExtensions();
 
-// Common configuration shared between dev and build
-const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
-    const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
-    const configInfoDebug = debug('vite:config');
-    const useSourceMap =
-        (!isProd && process.env.SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION !== '1') ||
-        (isProd && process.env.GENERATE_SOURCEMAPS === 'true');
-
-    const logger = createLogger();
-
-    logger.info = (msg) => {
-        if (msg.includes('vite:config')) {
-            configInfoDebug(msg);
-            return;
-        }
-
-        extensionInfoDebug(msg);
-    };
-
-    return defineConfig({
-        root: extension.path,
-
-        logLevel: isProd ? 'warn' : 'info',
-
-        customLogger: logger,
-
-        cacheDir: path.resolve(extension.path, '..', '.tmp/vite'),
-
-        plugins: [
-            TwigPlugin(),
-            AssetPlugin(!isDev, path.resolve(extension.basePath, 'Resources/app/administration')),
-            AssetPathPlugin(extension.technicalFolderName),
-            AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
-            svgLoader(),
-            OverrideComponentRegisterPlugin({
-                root: extension.path,
-                pluginEntryFile: extension.filePath,
-            }),
-            ShopwareSetupPlugin({
-                administrationRoot: path.dirname(__dirname),
-            }),
-            VirtualShopwareModulesPlugin({
-                administrationRoot: path.dirname(__dirname),
-                consumer: 'extension',
-            }),
-            vue({
-                template: {
-                    compilerOptions: {
-                        compatConfig: {
-                            MODE: 2,
-                        },
-                    },
-                },
-            }),
-            ExternalsPlugin(),
-
-            // Prod plugins
-            ...(isDev ? [] : [symfonyPlugin()]),
-        ],
-
-        resolve: {
-            alias: [
-                {
-                    find: /^src\//,
-                    replacement: '/src/',
-                },
-                {
-                    find: /^~scss\/(.*)/,
-                    replacement: `${adminSrcPath}/app/assets/scss/$1.scss`,
-                },
-                {
-                    find: /^~(.*)$/,
-                    replacement: '$1',
-                },
-            ],
-            preserveSymlinks: true,
-        },
-
-        ...(isDev
-            ? {}
-            : {
-                  base: `/bundles/${extension.technicalFolderName}/administration/`,
-                  optimizeDeps: {
-                      include: [
-                          'vue-router',
-                          'vuex',
-                          'vue-i18n',
-                          'flatpickr',
-                          'flatpickr/**/*',
-                          'date-fns-tz',
-                      ],
-                      holdUntilCrawlEnd: true,
-                      esbuildOptions: {
-                          define: {
-                              global: 'globalThis',
-                          },
-                      },
-                  },
-              }),
-
-        build: {
-            outDir: path.resolve(extension.basePath, 'Resources/public/administration'),
-            emptyOutDir: true,
-            manifest: true,
-            sourcemap: useSourceMap,
-            rollupOptions: {
-                input: {
-                    [extension.technicalName]: extension.filePath,
-                },
-                output: {
-                    entryFileNames: 'assets/[name]-[hash].js',
-                },
-            },
-        },
-    });
-};
-
 // Main function to handle both dev and build modes
 const main = async () => {
-    let hasFailedBuilds = false;
+    const toolchain = await loadViteToolchain();
 
     if (isDev) {
         const extensionPorts = getViteServerPorts();
+        const useBundledDev = isBundledDevActive(isDev);
 
-        // Create sw-plugin-dev.json for development mode
-        const swPluginDevJsonData = {
-            metadata: 'shopware',
-        } as {
-            metadata: string;
-        } & Record<
-            string,
-            {
-                js?: string;
-                hmrSrc?: string;
-                html?: string;
-            }
-        >;
+        if (useBundledDev) {
+            console.log(colors.yellow('# Experimental bundled dev mode activated for plugins'));
+        }
 
-        extensionEntries.forEach((extension, index) => {
-            const fileName = extension.filePath.split('/').pop();
+        writePluginDevJson(path.dirname(__dirname), extensionEntries, useBundledDev);
 
-            if (!swPluginDevJsonData[extension.technicalName]) {
-                swPluginDevJsonData[extension.technicalName] = {};
-            }
+        await runForEachExtension(extensionEntries, 'start', async (extension) => {
+            const server = await toolchain.vite.createServer({
+                ...getExtensionDevConfig(toolchain, extension, useBundledDev),
+                server: {
+                    host: '127.0.0.1',
+                    port: extensionPorts[getExtensionBasePath(extension)],
+                    strictPort: true,
+                    cors: true,
+                },
+            });
 
-            if (extension.isApp) {
-                swPluginDevJsonData[extension.technicalName].html = `/_internal_ext/${extension.technicalName}/index.html`;
-            }
-
-            if (extension.isPlugin) {
-                swPluginDevJsonData[extension.technicalName].js = `/_internal_ext/${extension.technicalName}/${fileName}`;
-                swPluginDevJsonData[extension.technicalName].hmrSrc =
-                    `/_internal_ext/${extension.technicalName}/@vite/client`;
-            }
-        });
-
-        // Write outside of public/administration on purpose: a parallel production
-        // build empties that directory (emptyOutDir), which would delete this file
-        // out from under the running watcher.
-        fs.writeFileSync(path.resolve(__dirname, '../../../sw-plugin-dev.json'), JSON.stringify(swPluginDevJsonData));
-
-        // Start dev servers
-        for (let i = 0; i < extensionEntries.length; i++) {
-            const extension = extensionEntries[i];
-            const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
-
-            let server;
-
-            if (extension.isApp) {
-                // For apps
-                server = await createServer({
-                    root: extension.path,
-                    base: `/_internal_ext/${extension.technicalName}/`,
-                    server: {
-                        host: '127.0.0.1',
-                        port: extensionPorts[extension.technicalName],
-                        cors: true,
-                    },
-                });
-
-                console.log(colors.green(`# App "${extension.name}": Injected successfully`));
-            } else {
-                // For plugins
-                server = await createServer({
-                    ...getBaseConfig(extension, false),
-                    base: `/_internal_ext/${extension.technicalName}/`,
-                    server: {
-                        host: '127.0.0.1',
-                        port: extensionPorts[extension.technicalName],
-                        cors: true,
-                    },
-                });
-
-                console.log(colors.green(`# Plugin "${extension.name}": Injected successfully`));
-            }
+            console.log(colors.green(`# ${extension.isApp ? 'App' : 'Plugin'} "${extension.name}": Injected successfully`));
 
             await server.listen();
             server.printUrls();
-        }
-    } else {
-        // Build mode
-        for (const extension of extensionEntries) {
-            try {
-                if (extension.isApp) {
-                    console.log(colors.green(`# Building app "${extension.name}"`));
-                    // For apps
-                    await build({
-                        root: extension.path,
-                        base: '',
-                        build: {
-                            outDir: path.resolve(extension.basePath, 'Resources/public/meteor-app'),
-                        },
-                        plugins: [
-                            injectHtml([
-                                {
-                                    tag: 'base',
-                                    attrs: {
-                                        href: '__$ASSET_BASE_PATH$__',
-                                    },
-                                    injectTo: 'head-prepend',
-                                },
-                            ]),
-                        ],
-                    });
-                } else {
-                    console.log(colors.green(`# Building plugin "${extension.name}"`));
-                    // For plugins
-                    await build(getBaseConfig(extension, true));
-                }
-            } catch (error) {
-                hasFailedBuilds = true;
-                console.error(
-                    colors.red(
-                        // @ts-expect-error
-                        `# Failed to build ${extension.isPlugin ? 'plugin' : 'app'} "${extension.name}": ${error?.message}`,
-                    ),
-                );
-            }
-        }
+        });
+
+        return;
     }
 
-    // Exit with code 1 if any builds failed
+    const hasFailedBuilds = await runForEachExtension(extensionEntries, 'build', async (extension) => {
+        console.log(colors.green(`# Building ${extension.isApp ? 'app' : 'plugin'} "${extension.name}"`));
+        await toolchain.vite.build(getExtensionBuildConfig(toolchain, extension));
+    });
+
     if (hasFailedBuilds) {
         console.error(colors.red('One or more builds failed. Check the logs above for details.'));
         process.exit(1);
     }
 };
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+
+    // In dev mode a non-zero exit would also stop the watcher of the Administration
+    if (!isDev) {
+        process.exit(1);
+    }
+});

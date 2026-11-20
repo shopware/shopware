@@ -212,7 +212,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             id: '123',
             mainCategories: productNotInheritedCategoryDataMock.product.mainCategories,
         };
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.product.mainCategories).toHaveLength(1);
 
@@ -220,7 +220,6 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
@@ -294,13 +293,12 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('Storefront');
@@ -345,13 +343,11 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const selectHeadless = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(selectHeadless.text()).toBe('Headless');
         await selectHeadless.trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
@@ -425,13 +421,11 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         let selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toBe('sw-sales-channel-switch.labelDefaultOption');
         await salesChannelSwitch.find('.sw-select__selection').trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         selectionText = salesChannelSwitch.find('.sw-entity-single-select__selection-text');
@@ -468,7 +462,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             ]),
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.currentSalesChannelId = 'salesChannelId1';
 
         expect(productDetailStore.product.mainCategories).toHaveLength(1);
@@ -477,7 +471,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
             salesChannelId: 'salesChannelId1',
             categoryId: 'categoryId2',
         };
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(productDetailStore.product.mainCategories).toHaveLength(1);
         expect(productDetailStore.product.mainCategories[0].categoryId).toBe('categoryId2');

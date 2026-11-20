@@ -59,12 +59,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
+        $visibilityField = ['type' => 'integer'];
         $visibilities = [];
 
         foreach ($allSalesChannels as $salesChannelId) {
-            $visibilities['visibility_' . $salesChannelId] = [
-                'type' => 'integer',
-            ];
+            $visibilities['visibility_' . $salesChannelId] = $visibilityField;
         }
 
         $debug = $this->environment === 'dev' || $this->environment === 'test';
@@ -98,7 +97,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'group' => ElasticsearchFieldBuilder::nested(),
             ]),
             'parentId' => self::KEYWORD_FIELD,
-            'price' => $this->buildPriceMapping(),
+            'price' => ['type' => 'object', 'dynamic' => true],
             'active' => self::BOOLEAN_FIELD,
             'available' => self::BOOLEAN_FIELD,
             'isCloseout' => self::BOOLEAN_FIELD,
@@ -167,6 +166,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'price_fields' => [
                         'path_match' => 'price.*.*',
                         'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    // a sales channel created after the last full index has no explicit field yet, it must not become a double
+                    'visibility' => [
+                        'path_match' => 'visibility_*',
+                        'match_mapping_type' => 'long',
+                        'mapping' => $visibilityField,
                     ],
                 ],
                 [
@@ -611,40 +618,6 @@ SQL;
         }
 
         return $mapped;
-    }
-
-    /**
-     * A price is indexed per currency, as `price.c_<currencyId>.<taxState>`. Mapping the currencies explicitly
-     * rather than leaving them to the dynamic detection keeps a price a `double`: a price that is indexed
-     * before the mapping of an existing index was updated would be detected as a 32 bit float, which cannot
-     * hold every price to the cent, and Elasticsearch keeps a field at the type it was detected as. The
-     * dynamic template of the mapping still covers a currency that is created after the index was built.
-     *
-     * @return array<string, mixed>
-     */
-    private function buildPriceMapping(): array
-    {
-        $properties = [];
-
-        /** @var list<string> $currencyIds */
-        $currencyIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM `currency`');
-
-        foreach ($currencyIds as $currencyId) {
-            $properties['c_' . $currencyId] = [
-                'properties' => [
-                    'gross' => self::FLOAT_FIELD,
-                    'net' => self::FLOAT_FIELD,
-                ],
-            ];
-        }
-
-        $mapping = ['type' => 'object', 'dynamic' => true];
-
-        if ($properties !== []) {
-            $mapping['properties'] = $properties;
-        }
-
-        return $mapping;
     }
 
     /**

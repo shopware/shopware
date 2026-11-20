@@ -2,7 +2,7 @@
 
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
 We use this functionality to merge breaks into the trunk early, without them already being switched active.
-To learn more about breaking changes and backward compatibility take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
+To learn more about breaking changes and backward compatibility, read [Backward compatibility](backward-compatibility.md).
 
 Related ADRs: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md) and [Major feature flag inheritance](../../adr/2026-09-25-major-feature-flag-inheritance.md).
 
@@ -33,23 +33,24 @@ Omit `major` unless the flag is a sub-feature; in that case, set it to the paren
 ## Major CI
 
 `FEATURE_ALL=1` does not describe a release state: it also activates unrelated experimental features.
-Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in`integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
+Major CI sets the upcoming version flag directly (for example `V6_8_0_0=1`) in `integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
 Update these three workflow settings when the target major changes.
 The migration suite also sets its Composer root version to that major.
 Migration namespace selection follows the installed Composer version;
 the feature flag only controls flagged behavior.
 
-The unit suite is the exception: its bootstrap activates every registered flag regardless of`FEATURE_ALL`,
+The unit suite is the exception: its bootstrap activates every registered flag regardless of `FEATURE_ALL`,
 so a unit test always sees the newest major and has to pin itself explicitly — see [Using flags in tests](#using-flags-in-tests).
 
 ## Using flags in PHP
 
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
-Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`.
+Version-shaped feature flag IDs use four parts, for example `v6.8.0.0`.
 Pass that full ID to `Feature` methods.
-The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID;
+The three-part release label, for example in `@deprecated tag:v6.8.0`, is not a feature flag ID;
 PHPStan rejects it in feature checks.
+The `version` of a `BCChange` attribute uses the same three-part label, for example `#[ClassMoved(version: 'v6.8.0', ...)]`.
 
 ### Using flags for services
 
@@ -263,13 +264,13 @@ class ProductTest
 }
 ```
 
-While two majors are in flight, pin a test to the older one by disabling the newer major:
-`#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
+While two majors are in flight, pin a test to the older one by disabling the newer major.
+For example, with 6.8 and 6.9 in flight, `#[DisabledFeatures(['v6.9.0.0'])]` asserts the 6.8 state, `#[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]` the state before either major.
 
 In integration tests, the suite may run multiple times with different feature-flag states.
 Keep using `Feature::skipTestIfActive()` or `Feature::skipTestIfInActive()` when a scenario only makes sense for one state of a flag.
 This can also be used in the `setUp()` method.
-That is also how an integration test pins itself to a single major — `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
+That is also how an integration test pins itself to a single major; for example, `Feature::skipTestIfActive('v6.9.0.0', $this)` keeps it out of the 6.9 lane.
 
 ```php
 use Shopware\Core\Framework\Feature;
@@ -321,7 +322,7 @@ When you want to toggle different parts of the template you can use the flag in 
 
 ### Using flags in config.xml
 
-When you want to toggle config input fields in config.xml like [basicInformatation.xml](https://github.com/shopware/shopware/blob/trunk/src/Core/System/Resources/config/basicInformation.xml), you can add a `flag` element like this:
+When you want to toggle config input fields in config.xml like [basicInformation.xml](https://github.com/shopware/shopware/blob/trunk/src/Core/System/Resources/config/basicInformation.xml), you can add a `flag` element like this:
 
 ```xml
 <input-field type="bool" flag="v6.5.0.0">
@@ -348,6 +349,74 @@ data() {
  };
 ```
 
+### Runtime deprecations in storefront JavaScript
+
+Mark deprecated APIs with `@deprecated tag:v6.8.0` and name the replacement, or state that there is no replacement.
+Call `window.Feature.triggerDeprecationOrThrow('v6.8.0.0', message)` where the deprecated behavior is used, before executing that behavior.
+Before the removal flag is active, the helper preserves the old behavior and warns only when `window.debug` is enabled.
+With the removal flag active, it throws regardless of debug mode.
+Use the registered four-part flag name, even when the annotation uses the three-part release version.
+
+If the entire method is deprecated, call `triggerDeprecationOrThrow` before its existing logic.
+Include the removal version and replacement in the message:
+
+```js
+/** @deprecated tag:v6.8.0 - Use replacementMethod() instead. */
+oldMethod() {
+    window.Feature.triggerDeprecationOrThrow(
+        'v6.8.0.0',
+        'oldMethod() will be removed in v6.8.0.0. Use replacementMethod() instead.',
+    );
+
+    // Existing method logic.
+}
+```
+
+If only one behavior inside a method is deprecated, put the guard inside that branch, before the deprecated behavior.
+Shared setup may run before the guard; it does not have to be the first statement in the method.
+Supported branches must remain usable with the removal flag enabled.
+The condition below is an example; use the condition that selects your deprecated behavior:
+
+```js
+/** @deprecated tag:v6.8.0 - Legacy submission will be removed. */
+submit(options) {
+    // Shared setup for both paths.
+
+    if (options.legacy) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Legacy submission will be removed in v6.8.0.0. Use the default submission behavior instead.',
+        );
+
+        // Existing legacy submission logic.
+        return;
+    }
+
+    // Supported submission logic.
+}
+```
+
+Guard methods and static helpers in their own body, deprecated plugin classes in `init()`, and deprecated property writes in the setter.
+Do not trigger deprecations during module evaluation: importing the module does not mean the deprecated API was used.
+For removed plugin options, use `this._deprecateOption(key, majorFlag, hint)`.
+A change to an option's default does not make every access to that option deprecated; select the default through the feature flag instead.
+Keep supported callers on the replacement path when the major flag is active, and verify both normal and major modes in tests.
+
+The Storefront ESLint rule `sw-core-rules/require-deprecation-guard` checks directly annotated functions, methods, getters and setters, and the own `init()` method of a class with a class-level deprecation.
+It requires a matching guard somewhere in that callable's body, including conditional branches and statements after other work.
+It does not prove execution order, reachability or which condition needs the guard.
+A guard in a nested function or callback does not guard the enclosing callable.
+Both `window.Feature` and a default import from `helper/feature.helper` are recognized.
+
+For a parameter-only deprecation, put the annotation on its `@param` line, for example `@param {boolean} legacy @deprecated tag:v6.8.0 - The parameter is ignored.`.
+A standalone `@deprecated tag:...` line marks the entire callable as deprecated.
+
+This initial rule skips explicitly `@private` callables, fields, options, and class-level deprecations without an own `init()`.
+Those skipped cases still need review to choose the appropriate runtime strategy.
+For another static-only exception, use a narrow ESLint disable with an explanation rather than a dummy guard.
+There is no automatic fix because the replacement message and conditional behavior require judgment.
+The rule's regression tests run with the usual Storefront Jest suite (`npm run unit`).
+
 ### Using flags in storefront templates
 
 ```
@@ -364,7 +433,7 @@ Among other things, by adding your own flags, but also the use of the major feat
 
 ### Major feature flag
 
-As mentioned before, we use the major feature flags (`v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time.
+As mentioned before, we use the major feature flags (for example `v6.5.0.0`, `v6.6.0.0`) to signal breaks within the code ahead of time.
 This is an incredible help in the preparation of the next major release, as otherwise all breaks would have to be made within a short period of time.
 
 This procedure can also be applied to plugins, which also use this flag and internally query it to either prepare the plugin for the next major or to support multiple Shopware major versions with one plugin version.

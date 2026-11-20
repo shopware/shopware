@@ -127,7 +127,7 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $this->createProduct($productId);
 
-        $this->createReview(Uuid::randomHex(), 0.0, $productId, true);
+        $this->createReviewWithoutRating($productId);
         $this->createReview(Uuid::randomHex(), 4.0, $productId, true);
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
@@ -143,7 +143,7 @@ class ProductRatingAverageIndexerTest extends TestCase
 
         $this->createProduct($productId);
 
-        $this->createReview(Uuid::randomHex(), 0.0, $productId, true);
+        $this->createReviewWithoutRating($productId);
 
         $products = $this->productRepository->search(new Criteria([$productId]), $this->salesChannel->getContext());
 
@@ -401,6 +401,22 @@ SQL;
         ];
 
         $this->reviewRepository->upsert([$data], $this->salesChannel->getContext());
+    }
+
+    /**
+     * creates a review in database that has no rating
+     */
+    private function createReviewWithoutRating(string $productId): void
+    {
+        $id = Uuid::randomHex();
+        $this->createReview($id, 1.0, $productId, true);
+
+        $this->connection->executeStatement(
+            'UPDATE product_review SET points = 0 WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($id)]
+        );
+
+        $this->productIndexer->handle(new EntityIndexingMessage([$productId]));
     }
 
     /**

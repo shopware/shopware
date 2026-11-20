@@ -18,6 +18,8 @@ use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 #[Package('framework')]
 interface Hookable
 {
+    public const NO_APP_ID = '01a02437bd6e72158b8efe5518ec349d';
+
     public const HOOKABLE_EVENTS = [
         MediaUploadedEvent::class => MediaUploadedEvent::EVENT_NAME,
         AppActivatedEvent::class => AppActivatedEvent::NAME,

@@ -17,7 +17,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed together with the deprecated load(), use DOMAIN_COLLECTION_CACHE_KEY instead
+     * @deprecated tag:v6.8.0 - Will be removed together with the deprecated load(), use DOMAIN_COLLECTION_CACHE_KEY instead
      */
     final public const CACHE_KEY = 'routing-domains';
 
@@ -45,7 +45,7 @@ class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use loadDomains() instead
+     * @deprecated tag:v6.8.0 - Will be removed, use loadDomains() instead
      *
      * @return array<string, Domain>
      */

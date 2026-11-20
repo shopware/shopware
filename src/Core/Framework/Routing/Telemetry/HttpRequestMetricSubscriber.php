@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
 use Shopware\Core\Framework\Telemetry\Telemetry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -54,9 +55,27 @@ final class HttpRequestMetricSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            KernelEvents::REQUEST => 'onKernelRequest',
             KernelEvents::RESPONSE => 'onKernelResponse',
-            KernelEvents::TERMINATE => 'onKernelTerminate',
+            // Terminate listener has to run after response is sent but before any post-response work
+            // (buffered flows, telemetry flush), so the response duration metric means client-facing latency,
+            // not whole time the worker is busy.
+            KernelEvents::TERMINATE => ['onKernelTerminate', 1024],
         ];
+    }
+
+    public function onKernelRequest(RequestEvent $event): void
+    {
+        // Skip ESI fragments like onKernelResponse does: fragments are forwarded as main requests, but
+        // should not rewrite "real" main request.
+        if (!$event->isMainRequest() || $event->getRequest()->attributes->has('_sw_esi')) {
+            return;
+        }
+
+        // Hardening for long-running runtimes: if the previous request's terminate never ran, a later
+        // terminate whose own response stored nothing (e.g. an ESI fragment / cache-hit request) would
+        // emit metrics from the stale request — its route labels and its start time as the duration base.
+        $this->routedRequest = null;
     }
 
     public function onKernelResponse(ResponseEvent $event): void

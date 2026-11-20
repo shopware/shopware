@@ -116,6 +116,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed.
          */
         isSystemDefaultLanguage() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-inherit-wrapper.isSystemDefaultLanguage is deprecated and will be removed.',
+            );
+
             return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
 
@@ -144,9 +149,15 @@ export default Shopware.Component.wrapComponentConfig({
         async onInheritanceRestore() {
             this.showModal = false;
 
+            // Remove the local override so inheritedFieldConfig resolves the parent-language value.
+            unset(this.childConfig, this.field);
+
+            const inheritedField = this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK);
+            set(this.runtimeConfig, this.field, cloneDeep(inheritedField));
+
             /**
-             * Run watchers before removing the slotConfig to ensure sw-cms-form-sync won't
-             * override the reset.
+             * Flush the runtime config watchers before removing any override recreated by
+             * sw-cms-form-sync, including fields missing from the saved layout config.
              */
             await this.$nextTick();
 
@@ -159,9 +170,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (isEmpty(this.contentEntity!.slotConfig)) {
                 set(this.contentEntity!, 'slotConfig', null);
             }
-
-            const inheritedField = this.inheritedFieldConfig ?? get(this.baseConfig, this.field, BASE_FIELD_FALLBACK);
-            set(this.runtimeConfig, this.field, cloneDeep(inheritedField));
 
             this.$emit(EVENTS.RESTORE);
         },

@@ -286,6 +286,7 @@ class DeliveryCalculatorTest extends TestCase
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->deliveryTimeEntity);
         $shippingMethod->setName(Uuid::randomHex());
         $price = new ShippingMethodPriceEntity();
@@ -498,7 +499,8 @@ class DeliveryCalculatorTest extends TestCase
         $context = $this->createMock(SalesChannelContext::class);
         $baseContext = Context::createDefaultContext();
 
-        $context->expects($this->atLeastOnce())->method('getContext')->willReturn($baseContext);
+        // a delivery with only free shipping items short-circuits to zero without resolving a currency price
+        $context->method('getContext')->willReturn($baseContext);
         $context->expects($this->atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $lineItem = new LineItem(Uuid::randomHex(), 'product');
         $lineItem->setDeliveryInformation(

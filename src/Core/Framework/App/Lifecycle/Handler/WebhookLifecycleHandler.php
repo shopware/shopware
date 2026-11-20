@@ -6,9 +6,11 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Flow\Action\Action;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
+use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhook;
 use Shopware\Core\Framework\Log\Package;
@@ -21,7 +23,7 @@ use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
  * @internal only for use by the app-system
  *
  * @phpstan-type WebhookFromXml array{name: string, eventName: string, url: string, appId: string, active?: bool, onlyLiveVersion?: bool, errorCount?: int}
- * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int}
+ * @phpstan-type WebhookRecord array{name: string, event_name: string, url: string, only_live_version: int, app_id: string, active: int, error_count: int, owner_type: string}
  */
 #[Package('framework')]
 class WebhookLifecycleHandler extends AbstractLifecycleHandler
@@ -42,6 +44,25 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
     public function update(AppPersistContext $context): void
     {
         $this->persist($context);
+    }
+
+    public function uninstall(AppRemovalContext $context): void
+    {
+        $this->deleteApiWebhooks($context->app->getIntegrationId());
+    }
+
+    public function delete(AppRemovalContext $context): void
+    {
+        $this->deleteApiWebhooks($context->app->getIntegrationId());
+    }
+
+    /**
+     * Webhooks an app created through the Admin API are owned by its integration, not linked by app id.
+     */
+    private function deleteApiWebhooks(string $integrationId): void
+    {
+        $this->connection->delete('webhook', ['owner_integration_id' => Uuid::fromHexToBytes($integrationId)]);
+        $this->cacheClearer->clearWebhookCache();
     }
 
     private function persist(AppPersistContext $context): void
@@ -133,6 +154,7 @@ class WebhookLifecycleHandler extends AbstractLifecycleHandler
             'error_count' => \array_key_exists('errorCount', $webhook) ? $webhook['errorCount'] : 0,
             'active' => 1,
             'app_id' => Uuid::fromHexToBytes($appId),
+            'owner_type' => IdentityType::App->value,
         ];
     }
 

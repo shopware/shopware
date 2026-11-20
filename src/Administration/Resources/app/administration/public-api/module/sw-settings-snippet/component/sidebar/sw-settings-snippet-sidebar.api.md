@@ -10,6 +10,34 @@ component sw-settings-snippet-sidebar  public  js
   source src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar/index.js
   template src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-sidebar/sw-settings-snippet-sidebar.html.twig
 
+props
+  authorFilters: any[]
+  filterItems: any[]
+  filterSettings?: object  default=literal
+
+emits
+  change(...args: any[])
+  sidebar-reset-all(...args: any[])
+  sw-sidebar-close(...args: any[])
+  sw-sidebar-collaps-refresh-grid(...args: any[])
+  sw-sidebar-open(...args: any[])
+
+data
+  filterSidebarItem: any
+
+computed
+  activeFilterNumber: any
+  isExpandedAuthorFilters: any
+  isExpandedMoreFilters: any
+
+methods
+  closeContent(): any
+  onChange(field: any): any
+  onRefresh(): any
+  openFilterSidebar(): any
+  registerFilterSidebarItem(sidebarItem: any): any
+  resetAll(): any
+
 blocks
   sw_settings_snippet_grid_sidebar
     sw_settings_snippet_grid_sidebar_filter
@@ -19,4 +47,8 @@ blocks
       sw_settings_snippet_grid_sidebar_filter_more
       sw_settings_snippet_grid_sidebar_filter_only_empty
     sw_settings_snippet_grid_sidebar_refresh
+
+classes
+  sw-snippet-settings__sidebar
+  sw-snippet-settings__sidebar-reset-all
 ```

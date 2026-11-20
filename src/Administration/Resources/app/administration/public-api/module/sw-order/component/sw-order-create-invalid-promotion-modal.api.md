@@ -10,10 +10,25 @@ component sw-order-create-invalid-promotion-modal  public  js
   source src/module/sw-order/component/sw-order-create-invalid-promotion-modal/index.js
   template src/module/sw-order/component/sw-order-create-invalid-promotion-modal/sw-order-create-invalid-promotion-modal.html.twig
 
+emits
+  close(...args: any[])
+  confirm(...args: any[])
+
+computed
+  invalidPromotionCodes: any
+
+methods
+  onClose(): any
+  onConfirm(): any
+
 blocks
   sw_order_create_invalid_promotion_modal
     sw_order_create_invalid_promotion_modal_actions
       sw_order_create_invalid_promotion_modal_actions_confirm
     sw_order_create_invalid_promotion_modal_description
     sw_order_create_invalid_promotion_modal_lists
+
+classes
+  sw-order-create-invalid-promotion-modal
+  sw-order-create-invalid-promotion-modal__description
 ```

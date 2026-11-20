@@ -11,7 +11,13 @@ component sw-cms-block-image  private  js  [private]
   template src/module/sw-cms/blocks/image/image/component/sw-cms-block-image.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  image  {}  block=sw_cms_block_image  [private]
+
 blocks
   sw_cms_block_image  [private]
     sw_cms_block_image_slot_image  [private]
+
+classes
+  sw-cms-block-image  [private]
 ```

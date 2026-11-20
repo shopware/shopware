@@ -14,4 +14,7 @@ component sw-cms-el-config-sidebar-filter  private  js  [private]
 blocks
   sw_cms_element_sidebar_filter_config  [private]
     sw_cms_element_sidebar_filter_config_info  [private]
+
+classes
+  sw-cms-el-config-sidebar-filter  [private]
 ```

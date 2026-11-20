@@ -11,6 +11,41 @@ component sw-first-run-wizard-finish  private  js  [private]
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-finish/sw-first-run-wizard-finish.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  firstRunWizardService  [private]
+
+emits
+  buttons-update(...args: any[])  [private]
+  frw-finish(...args: any[])  [private]
+  frw-set-title(...args: any[])  [private]
+
+data
+  licenceDomains: any  [private]
+  licensed: any  [private]
+  restarting: any  [private]
+
+computed
+  buttonConfig: any  [private]
+  edition: any  [private]
+  successMessage: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onFinish(): any  [private]
+  setTitle(): any  [private]
+  updateButtons(): any  [private]
+
 blocks
   sw_first_run_wizard_finish  [private]
+
+classes
+  headline  [private]
+  headline-useful-links  [private]
+  list-useful-links  [private]
+  message  [private]
+  restart-progress  [private]
+  sw-first-run-wizard-finish  [private]
+  sw-first-run-wizard-finish__bubble  [private]
+  sw-first-run-wizard-finish__icon  [private]
+  sw-loader-info-text  [private]
 ```

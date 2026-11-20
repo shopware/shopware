@@ -11,6 +11,22 @@ component sw-cms-visibility-config  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-visibility-config/sw-cms-visibility-config.html.twig  [private]
   visibility-source export  [private]
 
+props
+  visibility: CmsVisibility  [private]
+
+emits
+  visibility-change(...args: any[])  [private]
+
+methods
+  onVisibilityChange(viewport: string, isVisible: boolean): any  [private]
+
 blocks
   sw_cms_visibility_config  [private]
+
+classes
+  sw-cms-visibility-config  [private]
+  sw-cms-visibility-config__checkbox  [private]
+  sw-cms-visibility-config__checkbox-group  [private]
+  sw-cms-visibility-config__checkbox-group-label  [private]
+  sw-cms-visibility-config__checkbox-input  [private]
 ```

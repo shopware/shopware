@@ -11,6 +11,27 @@ component sw-purchase-price-field  private  js  [private]
   template src/app/component/form/sw-purchase-price-field/sw-purchase-price-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  compact?: boolean  default=literal  [private]
+  currency: object  [private]
+  disabled?: any  default=literal  [private]
+  error?: object  default=literal  [private]
+  label?: any  default=literal  [private]
+  price: any[]  [private]
+  taxRate: object  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  purchasePrice: any  [private]
+
+methods
+  purchasePriceChanged(value: any): any  [private]
+
 blocks
   sw_purchase_price_field  [private]
+
+classes
+  sw-purchase-price-field  [private]
 ```

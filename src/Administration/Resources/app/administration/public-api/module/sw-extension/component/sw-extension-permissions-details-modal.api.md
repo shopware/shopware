@@ -11,6 +11,24 @@ component sw-extension-permissions-details-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  modalTitle: string  [private]
+  permissions: object  [private]
+  selectedEntity?: string  default=literal  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+computed
+  ankerId: any  [private]
+  operations: any  [private]
+
+methods
+  categoryLabel(category: any): any  [private]
+  close(): any  [private]
+  entityLabel(category: any, entity: any): any  [private]
+  scrollSelectedEntityIntoView(): any  [private]
+
 blocks
   sw_extension_permissions_details_modal  [private]
     sw_extension_permissions_details_modal_content  [private]
@@ -25,4 +43,14 @@ blocks
           sw_extension_permissions_details_modal_table_head_row  [private]
     sw_extension_permissions_details_modal_footer  [private]
       sw_extension_permissions_details_modal_footer_inner  [private]
+
+classes
+  sw-extension-permissions-details-modal  [private]
+  sw-extension-permissions-details-modal__category  [private]
+  sw-extension-permissions-details-modal__entity-label  [private]
+  sw-extension-permissions-details-modal__grid-columns  [private]
+  sw-extension-permissions-details-modal__operation  [private]
+  sw-extension-permissions-details-modal__operation-header  [private]
+  sw-extension-permissions-details-modal__operations  [private]
+  sw-extension-permissions-details-modal__table  [private]
 ```

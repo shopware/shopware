@@ -10,6 +10,32 @@ component sw-category-layout-card  public  js
   source src/module/sw-category/component/sw-category-layout-card/index.js
   template src/module/sw-category/component/sw-category-layout-card/sw-category-layout-card.html.twig
 
+inject
+  acl
+  cmsPageTypeService
+
+props
+  category: object
+  cmsPage?: object  default=literal
+  headline?: string  default=literal
+  isLoading?: boolean  default=literal
+  pageTypes?: any[]  default=factory
+
+data
+  showLayoutSelectionModal: any
+
+computed
+  pageName: any
+  pageTypeTitle: any
+
+methods
+  closeLayoutModal(): any
+  onLayoutReset(): any
+  onLayoutSelect(selectedLayout: any): any
+  openInPagebuilder(): any
+  openLayoutModal(): any
+  resetSlotConfig(): any
+
 blocks
   sw_category_layout_card
     sw_category_detail_layout_desc  [after v-if]
@@ -22,4 +48,19 @@ blocks
         sw_category_detail_layout_desc_info_subheadline
     sw_category_detail_layout_modal
     sw_category_detail_layout_preview
+
+classes
+  is--empty
+  sw-category-detail-layout__change-layout-action
+  sw-category-detail-layout__layout-reset
+  sw-category-detail-layout__open-in-pagebuilder
+  sw-category-layout-card
+  sw-category-layout-card__base-layout
+  sw-category-layout-card__desc
+  sw-category-layout-card__desc-actions
+  sw-category-layout-card__desc-actions-menu
+  sw-category-layout-card__desc-headline
+  sw-category-layout-card__desc-info
+  sw-category-layout-card__desc-subheadline
+  sw-category-layout-card__preview
 ```

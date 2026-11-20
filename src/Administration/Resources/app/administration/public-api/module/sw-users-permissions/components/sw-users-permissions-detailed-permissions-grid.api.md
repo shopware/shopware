@@ -10,6 +10,25 @@ component sw-users-permissions-detailed-permissions-grid  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-detailed-permissions-grid/sw-users-permissions-detailed-permissions-grid.html.twig
 
+inject
+  privileges
+
+props
+  detailedPrivileges: any[]
+  disabled?: boolean  default=literal
+  isLoading?: boolean  default=literal
+  role?: object  default=literal
+
+computed
+  allEntities: any
+  allGeneralSelectedPrivileges: any
+  permissionTypes: any
+
+methods
+  changePermissionForEntity(entity: any, role: any): any
+  isEntityDisabled(entity: any, role: any): any
+  isEntitySelected(entity: any, role: any): any
+
 blocks
   sw_users_permissions_detailed_permissions_grid
     sw_users_permissions_detailed_permissions_grid_header
@@ -20,4 +39,12 @@ blocks
       sw_users_permissions_detailed_permissions_grid_permissions_roles  [scope: entity]
         sw_users_permissions_detailed_permissions_grid_permissions_roles_field  [scope: entity, permissionType]
       sw_users_permissions_detailed_permissions_grid_permissions_title  [scope: entity]
+
+classes
+  sw-users-permissions-detailed-permissions-grid
+  sw-users-permissions-detailed-permissions-grid__checkbox-wrapper
+  sw-users-permissions-detailed-permissions-grid__entry
+  sw-users-permissions-detailed-permissions-grid__entry-header
+  sw-users-permissions-detailed-permissions-grid__grid
+  sw-users-permissions-detailed-permissions-grid__title
 ```

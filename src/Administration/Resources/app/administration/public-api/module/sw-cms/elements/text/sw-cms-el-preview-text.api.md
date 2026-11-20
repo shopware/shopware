@@ -13,4 +13,7 @@ component sw-cms-el-preview-text  private  js  [private]
 
 blocks
   sw_cms_element_text_preview  [private]
+
+classes
+  sw-cms-el-preview-text  [private]
 ```

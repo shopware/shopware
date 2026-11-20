@@ -11,6 +11,19 @@ component sw-dashboard-index  private  js  [private]
   template src/module/sw-dashboard/page/sw-dashboard-index/sw-dashboard-index.html.twig  [private]
   visibility-source export  [private]
 
+data
+  cachedHeadlineGreetingKey: any  [private]
+
+computed
+  greetingName: any  [private]
+  welcomeMessage: any  [private]
+  welcomeSubline: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getGreetingTimeKey(type?: any): any  [private]
+  getGreetings(type?: any): any  [private]
+
 blocks
   sw_dashboard_index  [private]
     sw_dashboard_index_content  [private]
@@ -30,4 +43,22 @@ blocks
           sw_dashboard_index_content_intro  [private]
             sw_dashboard_index_content_intro_content_headline  [private]
             sw_dashboard_index_content_intro_welcome_message  [private]
+
+classes
+  sw-dashboard-index  [private]
+  sw-dashboard-index__card  [private]
+  sw-dashboard-index__card--bg-checklist  [private]
+  sw-dashboard-index__card--dimmed  [private]
+  sw-dashboard-index__card-button  [private]
+  sw-dashboard-index__card-grid  [private]
+  sw-dashboard-index__card-list  [private]
+  sw-dashboard-index__card-list-item  [private]
+  sw-dashboard-index__card-text  [private]
+  sw-dashboard-index__card-title  [private]
+  sw-dashboard-index__content  [private]
+  sw-dashboard-index__welcome-message  [private]
+  sw-dashboard-index__welcome-text  [private]
+  sw-dashboard-index__welcome-title  [private]
+  sw-dashboard__after-content  [private]
+  sw-dashboard__before-content  [private]
 ```

@@ -10,6 +10,23 @@ component sw-promotion-v2-settings-trigger  public  js
   source src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/index.js
   template src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings-trigger/sw-promotion-v2-settings-trigger.html.twig
 
+inject
+  acl
+
+props
+  discount: object
+
+data
+  triggerType: any
+  useTrigger: any
+
+computed
+  ruleCriteria: any  [deprecated tag:v6.8.0]
+  triggerOptions: any
+
+methods
+  getTriggerSelection(): any
+
 blocks
   sw_promotion_v2_settings_trigger
     sw_promotion_v2_settings_trigger_container
@@ -17,4 +34,11 @@ blocks
       sw_promotion_v2_settings_trigger_select_trigger_type
     sw_promotion_v2_settings_trigger_description
     sw_promotion_v2_settings_trigger_radio_switch
+
+classes
+  sw-promotion-v2-settings-trigger-settings
+  sw-promotion-v2-settings-trigger-settings__description
+  sw-promotion-v2-settings-trigger-settings__rule-selection
+  sw-promotion-v2-settings-trigger-settings__trigger-type
+  sw-promotion-v2-settings-trigger-settings__use-trigger
 ```

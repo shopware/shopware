@@ -10,6 +10,26 @@ component sw-product-layout-assignment  public  js
   source src/module/sw-product/component/sw-product-layout-assignment/index.js
   template src/module/sw-product/component/sw-product-layout-assignment/sw-product-layout-assignment.html.twig
 
+inject
+  acl
+
+props
+  cmsPage?: object  default=literal
+  product?: object  default=literal
+
+emits
+  button-delete-click(...args: any[])
+  button-edit-click(...args: any[])
+  modal-layout-open(...args: any[])
+
+computed
+  pageName: any
+
+methods
+  onLayoutReset(): any
+  openInPageBuilder(): any
+  openLayoutModal(): any
+
 blocks
   sw_product_layout_assignment
     sw_product_layout_assignment_description
@@ -22,4 +42,15 @@ blocks
         sw_product_layout_assignment_heading_title
     sw_product_layout_assignment_firgure
       sw_product_layout_assignment_firgure_content
+
+classes
+  is--disabled
+  sw-product-layout-assignment
+  sw-product-layout-assignment__button
+  sw-product-layout-assignment__buttons
+  sw-product-layout-assignment__figure
+  sw-product-layout-assignment__heading
+  sw-product-layout-assignment__info
+  sw-product-layout-assignment__subtitle
+  sw-product-layout-assignment__title
 ```

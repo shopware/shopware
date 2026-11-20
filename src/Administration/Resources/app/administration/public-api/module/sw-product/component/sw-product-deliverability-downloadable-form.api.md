@@ -11,6 +11,38 @@ component sw-product-deliverability-downloadable-form  private  js  [private]
   template src/module/sw-product/component/sw-product-deliverability-downloadable-form/sw-product-deliverability-downloadable-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder  [private]
+
+props
+  disabled?: boolean  default=literal  [private]
+
+data
+  enteredOrderQuantity: any  [private]
+  enteredStock: any  [private]
+  showOrderQuantitySetting: any  [private]
+
+computed
+  isLimitedToOneUnit: any  [private]
+  parentProduct: any  [private]
+  product: any  [private]
+  productDeliveryTimeIdError: any  [private]
+  productIsCloseoutError: any  [private]
+  productMaxPurchaseError: any  [private]
+  productMinPurchaseError: any  [private]
+  productPurchaseStepsError: any  [private]
+  productStockError: any  [private]
+  showModeSetting: any  [private]
+  showStockSetting: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getInheritedValue(field: any): any  [private]
+  getOrderQuantity(): any  [private]
+  onOrderQuantitySwitchInput(enabled: any): any  [private]
+  onSwitchInput(enabled: any): any  [private]
+  setOrderQuantity(arg0: any): any  [private]
+
 blocks
   sw_product_deliverability_downloadable_form  [private]
     sw_product_deliverability_downloadable_form_available_stock_field  [private]
@@ -21,4 +53,13 @@ blocks
     sw_product_deliverability_downloadable_form_order_quantity_switch  [private]
     sw_product_deliverability_downloadable_form_purchase_steps_field  [private]
     sw_product_deliverability_downloadable_form_stock_field  [private]
+
+classes
+  product-deliverability-downloadable-form  [private]
+  product-deliverability-downloadable-form__delivery-time  [private]
+  product-deliverability-downloadable-form__manage-stock-switch  [private]
+  product-deliverability-downloadable-form__max-purchase  [private]
+  product-deliverability-downloadable-form__min-purchase  [private]
+  product-deliverability-downloadable-form__order-quantity-switch  [private]
+  product-deliverability-downloadable-form__purchase-steps  [private]
 ```

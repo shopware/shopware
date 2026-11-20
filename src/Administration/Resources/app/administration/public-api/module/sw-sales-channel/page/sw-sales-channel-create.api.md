@@ -11,6 +11,21 @@ component sw-sales-channel-create  public  js
   source src/module/sw-sales-channel/page/sw-sales-channel-create/index.js
   template src/module/sw-sales-channel/page/sw-sales-channel-create/sw-sales-channel-create.html.twig
 
+inject
+  systemConfigApiService
+
+computed
+  allowSaving: any
+
+methods
+  createEmptyMeasurementUnits(): any
+  createdComponent(): any
+  ensureDefaultLanguageInCollection(languageId: any): any
+  getMeasurementUnits(): any
+  onSave(): any
+  saveFinish(): any
+  setMeasurementUnits(): Promise<any>
+
 blocks
   sw_sales_channel_detail  [inherited]
     sw_sales_channel_detail_actions  [inherited]
@@ -24,4 +39,9 @@ blocks
       sw_sales_channel_detail_header_headline  [inherited]
     sw_sales_channel_detail_language_switch  [replaced]
     sw_sales_channel_detail_sidebar  [inherited]
+
+classes
+  sw-sales-channel-detail
+  sw-sales-channel-detail__agentic-commerce-deprecation-banner
+  sw-sales-channel-detail__save-action
 ```

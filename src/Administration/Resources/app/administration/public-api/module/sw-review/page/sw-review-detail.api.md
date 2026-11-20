@@ -10,6 +10,43 @@ component sw-review-detail  public  js
   source src/module/sw-review/page/sw-review-detail/index.js
   template src/module/sw-review/page/sw-review-detail/sw-review-detail.html.twig
 
+mixins
+  placeholder, notification, salutation
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+slots
+  default  {}  block=sw_customer_card_row_secondary
+
+data
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  review: any
+  reviewId: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  emailIdnFilter: any
+  identifier: any
+  languageCriteria: any
+  repository: any
+  showCustomFields: any
+  stars: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createdComponent(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  onCancel(): any
+  onSave(): any
+  onSaveFinish(): any
+
 blocks
   sw_review_detail
     sw_review_detail_actions
@@ -45,4 +82,24 @@ blocks
         sw_review_detail_description_list_status
       sw_review_detail_custom_field_sets  [after v-if]
     sw_review_detail_header
+
+classes
+  star-count-description
+  star-count-display
+  status-switch
+  sw-review-base-info
+  sw-review-base-info-columns
+  sw-review-base-info__label
+  sw-review-detail
+  sw-review-detail-description-list__container
+  sw-review-detail__base-info-section
+  sw-review-detail__metadata
+  sw-review-detail__metadata-review-content
+  sw-review-detail__metadata-review-headline
+  sw-review-detail__metadata-review-stars
+  sw-review-detail__metadata-review-title
+  sw-review-detail__save-action
+  sw-review-properties
+  sw-review__comment-field
+  sw-review__language-select
 ```

@@ -11,6 +11,61 @@ component sw-oauth-authorize-index  private  ts  [private]
   template src/module/sw-oauth-authorize/page/index/sw-oauth-authorize-index.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  oauthAuthorizeApiService  [private]
+  systemConfigApiService  [private]
+
+data
+  errorMessage: any  [private]
+  info: any  [private]
+  isLoading: any  [private]
+  isSubmitting: any  [private]
+  shopName: any  [private]
+
+computed
+  assetFilter: any  [private]
+  authorizationParams: OAuthAuthorizationParams  [private]
+  clientName: string  [private]
+  hasRequiredParams: boolean  [private]
+  redirectHost: string  [private]
+  resource: string  [private]
+  username: string  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  getErrorMessage(error: unknown): string  [private]
+  loadInfo(): Promise<any>  [private]
+  loadShopName(): Promise<any>  [private]
+  navigateTo(url: string): any  [private]
+  onApprove(): any  [private]
+  onDeny(): any  [private]
+  submitDecision(approved: boolean): Promise<any>  [private]
+
 blocks
   sw_oauth_authorize  [private]
+
+classes
+  sw-oauth-authorize  [private]
+  sw-oauth-authorize__approve  [private]
+  sw-oauth-authorize__button-container  [private]
+  sw-oauth-authorize__card  [private]
+  sw-oauth-authorize__client-name  [private]
+  sw-oauth-authorize__container  [private]
+  sw-oauth-authorize__deny  [private]
+  sw-oauth-authorize__description  [private]
+  sw-oauth-authorize__error  [private]
+  sw-oauth-authorize__loading-indicator  [private]
+  sw-oauth-authorize__logged-in-as  [private]
+  sw-oauth-authorize__logo  [private]
+  sw-oauth-authorize__permissions  [private]
+  sw-oauth-authorize__permissions-title  [private]
+  sw-oauth-authorize__redirect-hint  [private]
+  sw-oauth-authorize__redirect-host  [private]
+  sw-oauth-authorize__resource  [private]
+  sw-oauth-authorize__shop-name  [private]
+  sw-oauth-authorize__status  [private]
+  sw-oauth-authorize__status-icon  [private]
+  sw-oauth-authorize__title  [private]
+  sw-oauth-authorize__trust-hint  [private]
+  sw-oauth-authorize__username  [private]
 ```

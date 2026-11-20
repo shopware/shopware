@@ -11,7 +11,44 @@ component sw-sales-channel-config  private  js  [private]
   template src/app/component/structure/sw-sales-channel-config/sw-sales-channel-config.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  repositoryFactory  [private]
+  systemConfigApiService  [private]
+
+props
+  criteria?: object  default=factory  [private]
+  domain?: string  default=literal  [private]
+  value?: object  [private]
+
+emits
+  salesChannelChanged(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  content  { ...{ actualConfigData, allConfigs, selectedSalesChannelId } }  block=sw_sales_channel_config  [private]
+  select  { ...{ onInput, selectedSalesChannelId, salesChannel } }  block=sw_sales_channel_config_switch  [private]
+
+data
+  allConfigs: any  [private]
+  salesChannel: any  [private]
+  selectedSalesChannelId: any  [private]
+
+computed
+  actualConfigData: any  [private]
+  salesChannelRepository: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onInput(salesChannelId: any): any  [private]
+  readAll(): any  [private]
+  save(): any  [private]
+
 blocks
   sw_sales_channel_config  [private]
     sw_sales_channel_config_switch  [private]
+
+classes
+  sw-sales-channel-config  [private]
+  sw-sales-channel-config__global-sales-channel-switch  [private]
 ```

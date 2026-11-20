@@ -11,10 +11,39 @@ component sw-flow-change-customer-status-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-change-customer-status-modal/sw-flow-change-customer-status-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  active: any  [private]
+  fieldError: any  [private]
+
+computed
+  customerStatus: any  [private]
+  options: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  onAddAction(): any  [private]
+  onClose(): any  [private]
+
 blocks
   sw_flow_change_customer_status_modal  [private]
     sw_flow_change_customer_status_modal_footer  [private]
       sw_flow_change_customer_status_modal_footer_cancel_button  [private]
       sw_flow_change_customer_status_modal_footer_save_button  [private]
     sw_flow_change_customer_status_modal_select  [private]
+
+classes
+  sw-flow-change-customer-status-modal  [private]
+  sw-flow-change-customer-status-modal__cancel-button  [private]
+  sw-flow-change-customer-status-modal__save-button  [private]
+  sw-flow-change-customer-status-modal__type-select  [private]
 ```

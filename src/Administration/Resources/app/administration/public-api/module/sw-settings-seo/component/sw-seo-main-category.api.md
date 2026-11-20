@@ -10,7 +10,39 @@ component sw-seo-main-category  public  js
   source src/module/sw-settings-seo/component/sw-seo-main-category/index.js
   template src/module/sw-settings-seo/component/sw-seo-main-category/sw-seo-main-category.html.twig
 
+inject
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=literal
+  categories: any[]
+  currentSalesChannelId?: string  default=literal
+  isLoading?: boolean  default=literal
+  mainCategories: any[]
+  overwriteLabel?: boolean  default=literal
+
+emits
+  main-category-add(...args: any[])
+  main-category-remove(...args: any[])
+
+data
+  mainCategoryForSalesChannel: any
+
+computed
+  categoryOptions: any
+  isHeadlessSalesChannel: any
+  mainCategoryRepository: any
+  selectedCategory: any
+
+methods
+  createdComponent(): any
+  onMainCategorySelected(categoryId: any): any
+  refreshMainCategoryForSalesChannel(): any
+
 blocks
   sw_seo_main_category
     sw_seo_main_category_select
+
+classes
+  sw-seo-main-category
 ```

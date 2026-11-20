@@ -11,6 +11,36 @@ component sw-generic-seo-general-card  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-generic-seo-general-card/sw-generic-seo-general-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  seoMetaDescription?: string | null  default=literal  [private]
+  seoMetaTitle?: string | null  default=literal  [private]
+  seoUrl?: string | null  default=literal  [private]
+
+emits
+  update:seo-meta-description(...args: any[])  [private]
+  update:seo-meta-title(...args: any[])  [private]
+  update:seo-url(...args: any[])  [private]
+
+methods
+  emitSeoMetaDescription(seoMetaDescription: string): any  [private]
+  emitSeoMetaTitle(seoMetaTitle: string): any  [private]
+  emitSeoUrl(seoUrl: string): any  [private]
+
 blocks
   sw_generic_seo_general_card  [private]
+
+classes
+  sw-generic-seo-general-card  [private]
+  sw-generic-seo-general-card__google-preview  [private]
+  sw-generic-seo-general-card__google-preview-container  [private]
+  sw-generic-seo-general-card__google-preview-description  [private]
+  sw-generic-seo-general-card__google-preview-header  [private]
+  sw-generic-seo-general-card__google-preview-link  [private]
+  sw-generic-seo-general-card__google-preview-title  [private]
+  sw-generic-seo-general-card__seo-meta-description-input  [private]
+  sw-generic-seo-general-card__seo-meta-title-input  [private]
+  sw-generic-seo-general-card__seo-url-input  [private]
 ```

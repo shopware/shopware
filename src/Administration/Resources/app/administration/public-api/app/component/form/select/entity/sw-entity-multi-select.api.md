@@ -11,6 +11,103 @@ component sw-entity-multi-select  private  js  [private]
   template src/app/component/form/select/entity/sw-entity-multi-select/sw-entity-multi-select.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  remove-api-error  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+props
+  advancedSelectionComponent?: string  default=factory  [private]
+  advancedSelectionParameters?: object  default=factory  [private]
+  alwaysShowPlaceholder?: boolean  default=literal  [private]
+  autocomplete?: string  default=literal  [private]
+  context?: object  default=factory  [private]
+  criteria?: object  default=factory  [private]
+  descriptionFormatter?: string  default=literal  [private]
+  descriptionFormatterArgs?: any[]  default=factory  [private]
+  descriptionPosition?: string  default=literal  [private]
+  descriptionProperty?: string  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  displayVariants?: boolean  default=literal  [private]
+  entityCollection: any[]  [private]
+  entityName?: string  default=literal  [private]
+  hideLabels?: boolean  default=literal  [private]
+  highlightSearchTerm?: boolean  default=literal  [private]
+  label?: string  default=literal  [private]
+  labelProperty?: string | any[]  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  resultLimit?: number  default=literal  [private]
+  selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
+  valueLimit?: number  default=literal  [private]
+
+emits
+  display-values-expand(...args: any[])  [private]
+  item-add(...args: any[])  [private]
+  item-remove(...args: any[])  [private]
+  search(...args: any[])  [private]
+  search-term-change(...args: any[])  [private]
+  update:entityCollection(...args: any[])  [private]
+
+slots
+  after-item-list  {}  block=sw_entity_multi_select_base_results_list_after  [private]
+  before-item-list  {}  block=sw_entity_multi_select_base_results_list_before_slot  [private]
+  hint  {}  block=sw_entity_multi_select  [private]
+  label  {}  block=sw_entity_multi_select  [private]
+  result-description-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_entity_multi_select_base_results_list_result_description  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey, displayLabelProperty, isSelectionDisabled, descriptionPosition } }  block=sw_entity_multi_select_base_results_list_result  [private]
+  result-label-preview  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_entity_multi_select_base_results_list_result_preview  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_entity_multi_select_base_results_list_result_label  [private]
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty, getKey } }  block=sw_entity_multi_select_base_selection_list_label_inner  [private]
+
+data
+  currentCollection: any  [private]
+  isAdvancedSelectionModalVisible: any  [private]
+  isLoading: any  [private]
+  limit: any  [private]
+  resultCollection: any  [private]
+  searchCriteria: any  [private]
+  searchTerm: any  [private]
+
+computed
+  descriptionFormatterFn: any  [private]
+  invisibleValueCount: any  [private]
+  isAdvancedSelectionActive: any  [private]
+  repository: any  [private]
+  totalValuesCount: any  [private]
+  visibleValues: any  [private]
+
+methods
+  addItem(item: any): any  [private]
+  clearSelection(): any  [private]
+  closeAdvancedSelectionModal(): any  [private]
+  createEmptyCollection(): any  [private]
+  createdComponent(): any  [private]
+  debouncedSearch(): any  [private]
+  displayDescriptionProperty(item: any): any  [private]
+  displayLabelProperty(item: any): any  [private]
+  displaySearch(result: any): any  [private]
+  emitChanges(newCollection: any): any  [private]
+  expandValueLimit(): any  [private]
+  getKey(object: any, keyPath: any, defaultValue: any): any  [private]
+  isSelected(item: any): any  [private]
+  isSelectionDisabled(selection: any): any  [private]
+  loadData(): any  [private]
+  onAdvancedSelectionSubmit(selectedItems: any): any  [private]
+  onSearchTermChange(term: any): any  [private]
+  onSelectCollapsed(): any  [private]
+  onSelectExpanded(): any  [private]
+  openAdvancedSelectionModal(): any  [private]
+  paginate(): any  [private]
+  refreshCurrentCollection(): any  [private]
+  remove(item: any): any  [private]
+  removeLastItem(): any  [private]
+  resetActiveItem(): any  [private]
+  resetCriteria(): any  [private]
+  resetResultCollection(): any  [private]
+  search(): any  [private]
+
 blocks
   sw_entity_multi_select  [private]
     sw_entity_multi_select_base  [private]
@@ -31,4 +128,14 @@ blocks
           sw_entity_multi_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, size] [private]
             sw_entity_multi_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
               sw_entity_multi_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty] [private]
+
+refs
+  selectBase  -> sw-select-base  [private]
+  selectionList  -> sw-select-selection-list  [private]
+  swSelectResultList  -> sw-select-result-list  [private]
+
+classes
+  sw-entity-multi-select  [private]
+  sw-multi-select-filtering__advanced-selection  [private]
+  sw-select-result  [private]
 ```

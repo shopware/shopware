@@ -10,6 +10,52 @@ component sw-property-option-list  public  js
   source src/module/sw-property/component/sw-property-option-list/index.js
   template src/module/sw-property/component/sw-property-option-list/sw-property-option-list.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  optionRepository: object
+  propertyGroup: object
+
+data
+  currentOption: any
+  deleteButtonDisabled: any
+  isLoading: any
+  naturalSorting: any
+  selection: any
+  showDeleteModal: any
+  showEmptyState: any
+  sortBy: any
+  sortDirection: any
+  term: any
+
+computed
+  allowInlineEdit: any
+  currentLanguage: any
+  dataSource: any  [deprecated tag:v6.8.0]
+  disableAddButton: any
+  isSystemLanguage: any
+  tooltipAdd: any
+  useNaturalNameSorting: any
+
+methods
+  checkEmptyState(): any
+  getGroupColumns(): any
+  onAddOption(): any
+  onCancelOption(): any
+  onDeleteOptions(): any
+  onGridSelectionChanged(selection: any, selectionCount: any): any
+  onOptionDelete(option: any): any
+  onOptionEdit(option: any): any
+  onSaveOption(): any
+  onSearch(): any
+  onSingleOptionDelete(option: any): any
+  refreshOptionList(): any
+  resetSelectionState(): any
+  saveGroupLocal(): any
+  saveGroupRemote(): any
+
 blocks
   sw_property_option_list
     sw_property_option_list_detail
@@ -24,4 +70,15 @@ blocks
         sw_property_option_list_toolbar_add
         sw_property_option_list_toolbar_delete
         sw_property_option_list_toolbar_search
+
+refs
+  grid  -> sw-one-to-many-grid
+
+classes
+  sw-property-option-list
+  sw-property-option-list__add-button
+  sw-property-option-list__delete-button
+  sw-property-option-list__edit-action
+  sw-property-option-list__toolbar
+  sw-settings-option-detail__link
 ```

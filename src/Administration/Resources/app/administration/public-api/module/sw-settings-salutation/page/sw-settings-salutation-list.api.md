@@ -10,6 +10,30 @@ component sw-settings-salutation-list  public  js
   source src/module/sw-settings-salutation/page/sw-settings-salutation-list/index.js
   template src/module/sw-settings-salutation/page/sw-settings-salutation-list/sw-settings-salutation-list.html.twig
 
+mixins
+  listing, placeholder
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  limit: any
+  salutations: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  columns: any
+  salutationRepository: any
+  tooltipAdd: any
+
+methods
+  createdComponent(): any
+  getColumns(): any
+  getList(): any
+
 blocks
   sw_settings_salutation_list
     sw_settings_salutation_list_actions
@@ -29,4 +53,10 @@ blocks
 
 crossings
   v-if  sw_settings_salutation_list_grid_columns_position_inline_edit -> sw_settings_salutation_list_grid_columns_position_display
+
+classes
+  sw-page__smart-bar-amount
+  sw-settings-salutation-list
+  sw-settings-salutation-list-grid
+  sw-settings-salutation-list__create
 ```

@@ -10,6 +10,40 @@ component sw-customer-imitate-customer-modal  public  js
   source src/module/sw-customer/component/sw-customer-imitate-customer-modal/index.js
   template src/module/sw-customer/component/sw-customer-imitate-customer-modal/sw-customer-imitate-customer-modal.html.twig
 
+mixins
+  notification
+
+inject
+  contextStoreService
+  repositoryFactory
+
+props
+  customer: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  imitateCustomerTokens: any
+  isLoading: any
+  salesChannelDomains: any
+
+computed
+  currentUser: any
+  hasSalesChannelDomains: any
+  modalDescription: any
+  modalTitle: any
+  salesChannelDomainCriteria: any
+  salesChannelDomainRepository: any
+
+methods
+  createdComponent(): Promise<any>
+  fetchImitateCustomerTokens(): any
+  fetchSalesChannelDomains(): any
+  onCancel(): any
+  onModalRootChange(isOpen: any): any
+  onSalesChannelDomainMenuItemClick(salesChannelId: any, salesChannelDomainUrl: any): any
+
 blocks
   sw_customer_imitate_customer_modal
     sw_customer_imitate_customer_modal_alert  [after v-if]
@@ -18,4 +52,15 @@ blocks
     sw_customer_imitate_customer_modal_description  [after v-if]
     sw_customer_imitate_customer_modal_footer
       sw_customer_imitate_customer_modal_footer_cancel
+
+classes
+  imitate-customer-modal-container
+  imitate-customer-modal-description
+  imitate-customer-modal-item
+  imitate-customer-modal-item-content
+  imitate-customer-modal-item-header
+  imitate-customer-modal-item-title
+  imitate-customer-modal-item-url
+  sw-customer-imitate-customer-modal
+  sw-customer-imitate-customer-modal__footer
 ```

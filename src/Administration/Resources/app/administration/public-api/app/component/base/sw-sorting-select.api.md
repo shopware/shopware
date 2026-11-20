@@ -11,6 +11,25 @@ component sw-sorting-select  private  js  [private]
   template src/app/component/base/sw-sorting-select/sw-sorting-select.html.twig  [private]
   visibility-source export  [private]
 
+props
+  additionalSortOptions?: any[]  default=factory  [private]
+  sortBy?: string  default=literal  [private]
+  sortDirection?: string  default=literal  [private]
+
+emits
+  sorting-changed(...args: any[])  [private]
+
+computed
+  sortOptions: any  [private]
+  sortingConditionConcatenation: any  [private]
+  sortingConditionOptions: any  [private]
+
+methods
+  onSortingChanged(value: any): any  [private]
+
 blocks
   sw_sorting_select  [private]
+
+classes
+  sw-cms-list__actions-sorting  [private]
 ```

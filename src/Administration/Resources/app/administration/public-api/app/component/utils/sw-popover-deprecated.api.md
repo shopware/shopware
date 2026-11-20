@@ -11,6 +11,23 @@ component sw-popover-deprecated  private  js  [private]
   template src/app/component/utils/sw-popover-deprecated/sw-popover.html.twig  [private]
   visibility-source export  [private]
 
+props
+  popoverClass?: string | any[] | object  default=literal  [private]
+  popoverConfigExtension?: object  default=literal  [private]
+  resizeWidth?: boolean  default=literal  [private]
+  zIndex?: any  default=literal  [private]
+
+slots
+  default  {}  block=sw_popover  [private]
+
+computed
+  componentStyle: any  [private]
+  popoverConfig: any  [private]
+
 blocks
   sw_popover  [private]
+
+classes
+  sw-popover  [private]
+  sw-popover__wrapper  [private]
 ```

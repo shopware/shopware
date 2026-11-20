@@ -10,6 +10,160 @@ component sw-sales-channel-detail-base  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-base/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-base/sw-sales-channel-detail-base.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  knownIpsService
+  productExportService
+  repositoryFactory
+  salesChannelService
+  swSalesChannelDetailGetAgenticCommerceExportConfig  [deprecated tag:v6.8.0]
+
+props
+  agenticCommerceExportConfig?: any[]  default=factory
+  customFieldSets: any[]
+  isLoading?: boolean  default=literal
+  productComparisonAccessUrl?: string  default=literal
+  productExport: object
+  salesChannel: any
+  showTemplateModal?: boolean  default=literal
+  storefrontSalesChannelCriteria?: any
+  templateName?: string  default=literal
+  templateOptions?: any[]  default=factory
+
+emits
+  access-key-changed(...args: any[])
+  domain-changed(...args: any[])
+  invalid-file-name(...args: any[])
+  template-modal-close(...args: any[])
+  template-modal-confirm(...args: any[])
+  template-selected(...args: any[])
+  valid-file-name(...args: any[])
+
+data
+  defaultLengthUnitId: any
+  defaultMeasurementSystemId: any
+  defaultSnippetSetId: any
+  defaultWeightUnitId: any
+  deleteDomain: any
+  disableGenerateByCronjob: any
+  footerCategoriesCollection: any
+  invalidFileName: any
+  isFileNameChecking: any
+  isLoadingDomains: any
+  knownIps: any
+  mainCategoriesCollection: any
+  selectedStorefrontSalesChannel: any
+  serviceCategoriesCollection: any
+  showDeleteModal: any
+  storefrontDomains: any
+
+computed
+  businessTimeZoneOptions: any
+  categoryRepository: any
+  cliCommand: any
+  countryCriteria: any
+  currencyCriteria: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  disabledCountries: any
+  disabledCountryVariant: any
+  disabledPaymentMethodVariant: any
+  disabledPaymentMethods: any
+  disabledShippingMethodVariant: any
+  disabledShippingMethods: any
+  domainRepository: any
+  footerCategories: any
+  footerCategoryCriteria: any
+  footerCategoryPlaceholder: any
+  getEncodingOptions: any
+  getFileFormatOptions: any
+  getIntervalOptions: any
+  globalDomainRepository: any
+  helpTextTaxCalculation: any
+  invalidFileNameError: any
+  isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  isDomainAware: any
+  isGoogleProductSearchTemplate: any
+  isHeadlessSalesChannel: any
+  isProductComparison: any
+  isProductExportChannel: any
+  isStorefront: any
+  languageCriteria: any
+  mainCategories: any
+  mainCategoryCriteria: any
+  mainNavigationCriteria: any
+  maintenanceIpAllowlist: any
+  navigationCategoryPlaceholder: any
+  paymentMethodCriteria: any
+  primaryUnservedLanguage: any
+  productExportCurrencyIdError: any
+  productExportEncodingError: any
+  productExportFeedLabelError: any
+  productExportFileFormatError: any
+  productExportFileNameError: any
+  productExportProductStreamIdError: any
+  productExportRepository: any
+  productExportSalesChannelDomainIdError: any
+  productExportStorefrontSalesChannelIdError: any
+  productStreamCriteria: any
+  resolvedAgenticCommerceExportConfig: any  [deprecated tag:v6.8.0]
+  salesChannelCustomerGroupIdError: any
+  salesChannelFavoritesService: any
+  salesChannelNameError: any
+  salesChannelNavigationCategoryIdError: any
+  salesChannelRepository: any
+  secretAccessKeyFieldType: any
+  serviceCategories: any
+  serviceCategoryCriteria: any
+  serviceCategoryPlaceholder: any
+  shippingMethodCriteria: any
+  storefrontDomainsLoaded: any
+  storefrontSalesChannelCurrencyCriteria: any
+  storefrontSalesChannelDomainCriteria: any
+  taxCalculationTypeOptions: any
+  templateSelectOptions: any
+  unservedLanguageVariant: any
+  unservedLanguages: any
+
+methods
+  addLanguageToSalesChannel(language: any): any
+  buildDisabledPaymentAlert(snippet: any, collection: any, property?: any): any
+  buildDisabledShippingAlert(snippet: any, collection: any, property?: any): any
+  buildUnservedLanguagesAlert(snippet: any, collection: any, property?: any): any
+  changeInterval(value: any): any
+  copyToClipboard(): Promise<any>
+  createCategoriesCollection(criteria: any, collectionName: any): Promise<any>
+  createCategoryCollections(): any
+  deleteSalesChannel(salesChannelId: any): any
+  extractFkInfo(detail?: any): any
+  getAgenticCommerceExportCardPositionIdentifier(configEntry: any): any  [deprecated tag:v6.8.0]
+  getAgenticCommerceExportCardTitle(configEntry: any): any  [deprecated tag:v6.8.0]
+  getAgenticCommerceExportElementBind(element: any): any  [deprecated tag:v6.8.0]
+  isFavorite(): any
+  loadStorefrontDomains(storefrontSalesChannelId: any): any
+  onAgenticCommerceExportFieldUpdate(configEntry: any, fieldName: any, value: any): any  [deprecated tag:v6.8.0]
+  onChangeFileName(): any
+  onChangeFileNameDebounce(): any
+  onClickCreateDomainForUnservedLanguage(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(): any
+  onFeedLabelInput(value: any): any
+  onFooterSelectionAdd(item: any): any
+  onFooterSelectionRemove(): any
+  onGenerateKeys(): any
+  onGenerateProductExportKey(displaySaveNotification?: any): any
+  onMainSelectionAdd(item: any): any
+  onMainSelectionRemove(): any
+  onServiceSelectionAdd(item: any): any
+  onServiceSelectionRemove(): any
+  onStorefrontDomainSelectionChange(storefrontSalesChannelDomainId: any): any
+  onStorefrontSelectionChange(storefrontSalesChannelId: any): any
+  onToggleActive(): any
+  onTrackingConfigChange(config: any): any
+  validateMaintenanceIpCidr(term: any): any
+
 blocks
   sw_sales_channel_detail_base
     sw_sales_channel_detail_agentic_commerce_tracking  [after v-if]
@@ -76,4 +230,43 @@ blocks
       sw_sales_channel_detail_base_general_input_currencies  [after v-if]
       sw_sales_channel_detail_base_general_input_payments_methods  [after v-if]
       sw_sales_channel_detail_base_general_input_shipping_methods  [after v-if]
+
+refs
+  modal  -> sw-modal
+  salesChannelDomains  -> sw-sales-channel-detail-domains
+
+classes
+  sw-card__quick-link
+  sw-field--salesChannel-name
+  sw-order-user-card__tag-select
+  sw-sales-channel-detail-base
+  sw-sales-channel-detail-base__button-copy-key
+  sw-sales-channel-detail-base__button-delete
+  sw-sales-channel-detail-base__button-generate-keys
+  sw-sales-channel-detail-base__delete-modal
+  sw-sales-channel-detail-base__delete-modal-confirm-text
+  sw-sales-channel-detail-base__delete-modal-name
+  sw-sales-channel-detail-base__delete-sales-channel
+  sw-sales-channel-detail-base__description-text
+  sw-sales-channel-detail-base__feed-label
+  sw-sales-channel-detail-base__headline
+  sw-sales-channel-detail-base__headline-text
+  sw-sales-channel-detail-base__product-comparison-container
+  sw-sales-channel-detail-base__product-comparison-helptext
+  sw-sales-channel-detail-base__settings-link
+  sw-sales-channel-detail-base__unserved-language-banner
+  sw-sales-channel-detail-base__unserved-language-domain-action
+  sw-sales-channel-detail-base__unserved-language-message
+  sw-sales-channel-detail-base_general__last-generation-text
+  sw-sales-channel-detail__action-button
+  sw-sales-channel-detail__action-buttons
+  sw-sales-channel-detail__product-comparison-domain
+  sw-sales-channel-detail__product-comparison-product-stream
+  sw-sales-channel-detail__product-comparison-storefront
+  sw-sales-channel-detail__select-business-time-zone
+  sw-sales-channel-detail__select-customer-group
+  sw-sales-channel-detail__select-footer-category-id
+  sw-sales-channel-detail__select-navigation-category-id
+  sw-sales-channel-detail__select-service-category-id
+  sw-sales-channel-detail__tax-calculation
 ```

@@ -11,6 +11,17 @@ component sw-cms-preview-image-text-gallery  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-gallery/preview/sw-cms-preview-image-text-gallery.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_text_gallery_preview  [private]
+
+classes
+  sw-cms-preview-image-text-gallery  [private]
+  sw-cms-preview-image-text-gallery__center  [private]
+  sw-cms-preview-image-text-gallery__image  [private]
+  sw-cms-preview-image-text-gallery__left  [private]
+  sw-cms-preview-image-text-gallery__right  [private]
+  sw-cms-preview-image-text-gallery__text  [private]
 ```

@@ -10,6 +10,62 @@ component sw-seo-url-template-card  public  js
   source src/module/sw-settings-seo/component/sw-seo-url-template-card/index.js
   template src/module/sw-settings-seo/component/sw-seo-url-template-card/sw-seo-url-template-card.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+  seoUrlTemplateService
+
+emits
+  sales-channel-changed(...args: any[])
+
+data
+  debouncedPreviews: any
+  defaultSeoUrlTemplates: any
+  errorMessages: any
+  isLoading: any
+  noEntityError: any
+  previewLoadingStates: any
+  previews: any
+  salesChannelId: any
+  salesChannels: any
+  selectedProperty: any
+  seoUrlPreviewCriteria: any
+  seoUrlTemplateRepository: any
+  seoUrlTemplates: any
+  variableStores: any
+
+computed
+  currentSalesChannel: any
+  headlessSalesChannelHasExternalDomain: any
+  salesChannelIsHeadless: any
+  salesChannelRepository: any
+  salesChannelSupportsSeoUrlTemplates: any
+  seoUrlTemplatesTemplateError: any
+
+methods
+  createSaveErrorNotification(): any
+  createSaveSuccessNotification(): any
+  createSeoUrlTemplatesFromDefaultRoutes(salesChannelId: any): any
+  createVariableOptions(id: any, data: any): any
+  createdComponent(): any
+  debouncedPreviewSeoUrlTemplate(entity: any): any
+  fetchSalesChannel(salesChannelId: any): any
+  fetchSalesChannels(): any
+  fetchSeoUrlPreview(entity: any): any
+  fetchSeoUrlTemplates(salesChannelId?: any): any
+  getLabel(seoUrlTemplate: any): any
+  getPlaceholder(seoUrlTemplate: any): any
+  getTemplatesForSalesChannel(salesChannelId: any): any
+  getVariableOptions(id: any): any
+  onClickSave(): any
+  onInput(entity: any): any
+  onSalesChannelChanged(salesChannelId: any): Promise<any>
+  onSelectInput(propertyName: any, entity: any): any
+  removeSeoUrlTemplatesOfRoute(routeName: any): any
+  setErrorMessagesForEntity(entity: any, value?: any): any
+
 blocks
   sw_seo_url_template_card
     sw_seo_url_template_card_entries  [after v-if]
@@ -21,4 +77,12 @@ blocks
         sw_seo_url_template_card_entries_preview_label  [scope: index, seoUrlTemplate]
       sw_seo_url_template_card_entries_variables  [scope: index, seoUrlTemplate]
     sw_seo_url_template_card_info_box
+
+classes
+  sw-seo-url-template-card
+  sw-seo-url-template-card__external-storefront-link
+  sw-seo-url-template-card__preview
+  sw-seo-url-template-card__preview-item
+  sw-seo-url-template-card__preview-label
+  sw-seo-url-template-card__seo-url
 ```

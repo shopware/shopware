@@ -10,7 +10,27 @@ component sw-cms-section-actions  public  ts
   source src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions/index.ts
   template src/module/sw-cms/component/sw-cms-section/sw-cms-section-actions/sw-cms-section-actions.html.twig
 
+inject
+  feature
+  swCmsSectionEmitPageConfigOpen
+
+props
+  disabled?: boolean  default=literal
+  section: Entity<'cms_section'>
+
+computed
+  cmsPageStateStore: any
+  componentClasses: any
+
+methods
+  selectSection(): any
+
 blocks
   sw_cms_section_actions
     sw_cms_section_action_select
+
+classes
+  sw-cms-section-select
+  sw-cms-section__action
+  sw-cms-section__actions
 ```

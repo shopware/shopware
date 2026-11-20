@@ -10,6 +10,43 @@ component sw-category-entry-point-modal  public  js
   source src/module/sw-category/component/sw-category-entry-point-modal/index.js
   template src/module/sw-category/component/sw-category-entry-point-modal/sw-category-entry-point-modal.html.twig
 
+inject
+  acl
+  cmsPageTypeService
+
+props
+  salesChannelCollection: any[]
+
+emits
+  modal-close(...args: any[])
+
+data
+  isDisplayingLeavePageWarning: any
+  nextRoute: any
+  pageTypes: any
+  salesChannelOptions: any
+  selectedSalesChannelId: any
+  showLayoutSelectionModal: any
+  temporaryCollection: any
+
+computed
+  selectedSalesChannel: any
+
+methods
+  applyChanges(): any
+  closeLayoutModal(): any
+  closeModal(): any
+  createdComponent(): any
+  getCmsPageTypeName(name: any): any
+  hasNotAppliedChanges(): any
+  isAttributeEqual(copy: any, original: any): any
+  onLayoutReset(): any
+  onLayoutSelect(layoutId: any, layout: any): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(destination: any): any
+  openInPagebuilder(): any
+  openLayoutModal(): any
+
 blocks
   sw_category_entry_point_modal
     sw_category_entry_point_modal_discard_changes_modal
@@ -36,4 +73,29 @@ blocks
       sw_category_entry_point_modal_selected_sales_channel_seo_meta_title
       sw_category_entry_point_modal_selected_sales_channel_seo_settings_headline
       sw_category_entry_point_modal_selected_sales_channel_show_in_main_navigation
+
+classes
+  is--empty
+  sw-category-detail-layout__change-layout-action
+  sw-category-detail-layout__layout-reset
+  sw-category-detail-layout__open-in-pagebuilder
+  sw-category-entry-point-modal
+  sw-category-entry-point-modal__apply-button
+  sw-category-entry-point-modal__base-layout
+  sw-category-entry-point-modal__cancel-button
+  sw-category-entry-point-modal__desc
+  sw-category-entry-point-modal__desc-actions
+  sw-category-entry-point-modal__desc-headline
+  sw-category-entry-point-modal__desc-info
+  sw-category-entry-point-modal__desc-subheadline
+  sw-category-entry-point-modal__layout-headline
+  sw-category-entry-point-modal__layout-item
+  sw-category-entry-point-modal__meta-description
+  sw-category-entry-point-modal__meta-title
+  sw-category-entry-point-modal__name-in-main-navigation
+  sw-category-entry-point-modal__preview
+  sw-category-entry-point-modal__sales-channel-selection
+  sw-category-entry-point-modal__seo-headline
+  sw-category-entry-point-modal__seo-keywords
+  sw-category-entry-point-modal__show-in-main-navigation
 ```

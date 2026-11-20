@@ -10,6 +10,80 @@ component sw-media-quickinfo  public  js
   source src/module/sw-media/component/sidebar/sw-media-quickinfo/index.js
   template src/module/sw-media/component/sidebar/sw-media-quickinfo/sw-media-quickinfo.html.twig
 
+mixins
+  notification, media-sidebar-modal-mixin, video-cover, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  mediaService
+  repositoryFactory
+  systemConfigApiService
+
+props
+  editable?: boolean  default=literal
+  item: object
+
+emits
+  media-item-rename-success(...args: any[])
+  media-item-replaced(...args: any[])
+  update:item(...args: any[])
+
+data
+  arPlacement: any
+  arPlacementOptions: any
+  arReady: any
+  customFieldSets: any
+  defaultArPlacement: any
+  defaultArReady: any
+  fileNameError: any
+  isLoading: any
+  isSaveSuccessful: any
+  showCoverSelectionModal: any
+  showModalReplace: any
+  showModelEditorModal: any
+
+computed
+  canManageVideoCover: any
+  createdAt: any
+  deleterTooltip: any
+  editorTooltip: any
+  extensionSdkButtons: any
+  fileName: any
+  fileNameClasses: any
+  fileSize: any
+  isMediaObject: any
+  isPlayable: any
+  isSpatial: any
+  mediaRepository: any
+  showUnsupportedFormatWarning: any
+
+methods
+  buildAugmentedRealityTooltip(snippet: any): any
+  changeARPlacement(newPlacement: any): any
+  closeModalReplace(): any
+  closeModelEditorModal(): any
+  copyLinkToClipboard(): Promise<any>
+  createdComponent(): any
+  downloadMedia(): any
+  emitRefreshMediaLibrary(): any
+  fetchSpatialItemConfig(): any
+  handleErrorMessage(error: any): any
+  loadCustomFieldSets(): any
+  onChangeFileName(value: any): Promise<any>
+  onRemoveFileNameError(): any
+  onSave(): Promise<any>
+  onSaveCustomFields(item: any): Promise<any>  [deprecated tag:v6.8.0]
+  onSubmitAltText(value: any): any
+  onSubmitTitle(value: any): any
+  openModalReplace(): any
+  openModelEditorModal(): any
+  quickActionClasses(disabled: any): any
+  runAppAction(action: any): any
+  saveFinish(): any
+  toggleAR(newValue: any): any
+  triggerDownload(url: any, fileName?: any): any
+
 blocks
   sw_media_quickinfo
     sw_media_quickinfo_broken_file
@@ -42,4 +116,44 @@ blocks
     sw_media_quickinfo_spatial_configuration  [after v-if]
     sw_media_quickinfo_tags  [after v-if]
     sw_media_quickinfo_usage
+
+refs
+  inlineEditFieldAlt  -> sw-confirm-field
+  inlineEditFieldName  -> sw-confirm-field
+  inlineEditFieldTitle  -> sw-confirm-field
+  modelEditorRef  -> sw-model-editor
+
+classes
+  ar-ready-toggle
+  is--danger
+  quickaction--copy-link
+  quickaction--custom
+  quickaction--delete
+  quickaction--download
+  quickaction--move
+  quickaction--remove-cover
+  quickaction--replace
+  quickaction--set-cover
+  sw-media-quickinfo
+  sw-media-quickinfo-metadata-alt-field
+  sw-media-quickinfo-metadata-createdAt
+  sw-media-quickinfo-metadata-extension
+  sw-media-quickinfo-metadata-file-type
+  sw-media-quickinfo-metadata-height
+  sw-media-quickinfo-metadata-mimeType
+  sw-media-quickinfo-metadata-name
+  sw-media-quickinfo-metadata-size
+  sw-media-quickinfo-metadata-width
+  sw-media-quickinfo__alert-file-missing
+  sw-media-quickinfo__media-preview
+  sw-media-quickinfo__unsupported-format-banner
+  sw-media-sidebar__metadata-list
+  sw-media-sidebar__quickaction
+  sw-media-sidebar__quickactions-icon
+  sw-media-sidebar__quickactions-list
+  sw-media-sidebar__quickactions-switch
+  sw-model-editor-modal
+  sw-model-editor-modal-wrapper
+  sw-model-viewer-button
+  sw-model-viewer-wrapper
 ```

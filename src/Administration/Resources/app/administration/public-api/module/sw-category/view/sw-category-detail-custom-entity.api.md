@@ -11,6 +11,34 @@ component sw-category-detail-custom-entity  private  ts  [private]
   template src/module/sw-category/view/sw-category-detail-custom-entity/sw-category-detail-custom-entity.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  isLoading?: boolean  default=literal  [private]
+
+data
+  categoryCustomEntityProperty: any  [private]
+
+computed
+  assetFilter: any  [private]
+  category: Entity<'category'> | null  [private]
+  customEntityAssignments: EntityCollection<'custom_entity'> | undefined  [private]
+  customEntityColumns: { dataIndex: string; property: string; label: string; }[]  [private]
+  customEntityCriteria: Criteria  [private]
+  sortingCriteria: Criteria  [private]
+
+methods
+  fetchCustomEntityName(): Promise<void>  [private]
+  onAssignmentChange(customEntityAssignments: EntityCollection<'custom_entity'>): void  [private]
+  onEntityChange(id: EntityKey<'custom_entity'>, entity?: Entity<'custom_entity'>): any  [private]
+
 blocks
   sw_category_detail_custom_entity  [private]
+
+classes
+  sw-category-detail-custom-entity  [private]
+  sw-category-detail-custom-entity__assignment  [private]
+  sw-category-detail-custom-entity__selection-container  [private]
 ```

@@ -10,7 +10,32 @@ component sw-settings-snippet-filter-switch  public  js
   source src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch/index.js
   template src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch/sw-settings-snippet-filter-switch.html.twig
 
+props
+  borderBottom?: boolean  default=literal
+  borderTop?: boolean  default=literal
+  group?: string  default=literal
+  label?: string  default=literal
+  name: string
+  type?: string  default=literal
+  value?: boolean  default=literal
+
+emits
+  update:value(...args: any[])
+
+slots
+  field  {}  block=sw_settings_snippet_filter_switch_field
+  template  {}  block=sw_settings_snippet_filter_switch
+
+computed
+  fieldClasses: any
+
+methods
+  onChange(value: any): any
+
 blocks
   sw_settings_snippet_filter_switch
     sw_settings_snippet_filter_switch_field
+
+classes
+  sw-settings-snippet-filter-switch
 ```

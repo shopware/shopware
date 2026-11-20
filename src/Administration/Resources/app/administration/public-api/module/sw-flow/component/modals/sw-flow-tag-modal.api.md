@@ -11,6 +11,50 @@ component sw-flow-tag-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-tag-modal/sw-flow-tag-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  acl  [private]
+  flowBuilderService  [private]
+  repositoryFactory  [private]
+
+props
+  action?: string  default=literal  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  entity: any  [private]
+  entityError: any  [private]
+  entityOptions: any  [private]
+  isLoading: any  [private]
+  tagCollection: any  [private]
+  tagError: any  [private]
+
+computed
+  isNewTag: any  [private]
+  tagCriteria: any  [private]
+  tagRepository: any  [private]
+  tagTitle: any  [private]
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+
+methods
+  createTagCollection(): any  [private]
+  createdComponent(): any  [private]
+  fieldError(field: any): any  [private]
+  getConfig(): any  [private]
+  getEntityOptions(): any  [private]
+  getTagCollection(): any  [private]
+  onAddTag(data: any): any  [private]
+  onClose(): any  [private]
+  onRemoveTag(data: any): any  [private]
+  onSaveTag(): any  [private]
+
 blocks
   sw_flow_tag_modal  [private]
     sw_flow_tag_modal_content  [private]
@@ -19,4 +63,12 @@ blocks
       sw_flow_tag_modal_to_field  [private]
     sw_flow_tag_modal_footer_cancel_button  [private]
     sw_flow_tag_modal_footer_save_button  [private]
+
+classes
+  sw-flow-tag-modal  [private]
+  sw-flow-tag-modal__cancel-button  [private]
+  sw-flow-tag-modal__content  [private]
+  sw-flow-tag-modal__save-button  [private]
+  sw-flow-tag-modal__tags-field  [private]
+  sw-flow-tag-modal__to-field  [private]
 ```

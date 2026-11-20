@@ -10,6 +10,41 @@ component sw-product-category-form  public  js
   source src/module/sw-product/component/sw-product-category-form/index.js
   template src/module/sw-product/component/sw-product-category-form/sw-product-category-form.html.twig
 
+mixins
+  notification
+
+inject
+  feature
+  repositoryFactory
+  systemConfigApiService
+
+props
+  allowEdit?: boolean  default=literal
+
+data
+  defaultVisibility: any
+  displayVisibilityDetail: any
+  multiSelectVisible: any
+  salesChannel: any
+
+computed
+  hasSelectedVisibilities: any
+  isChild: any
+  loading: any
+  parentProduct: any
+  product: any
+  productActiveError: any
+  productTagsError: any
+  productVisibilityRepository: any
+  salesChannelRepository: any
+  showModeSetting: any
+
+methods
+  closeAdvancedVisibility(): any
+  createdComponent(): any
+  displayAdvancedVisibility(): any
+  visibilitiesRemoveInheritanceFunction(newValue: any): any
+
 blocks
   sw_product_category_form
     sw_product_category_form_category_field  [after v-if]
@@ -22,4 +57,28 @@ blocks
     sw_product_category_form_visibility_field_link
       sw_product_category_form_active_field
     sw_product_category_form_visibility_title
+
+refs
+  productVisibilitiesInheritance  -> sw-inherit-wrapper
+  productVisibility  -> sw-product-visibility-select
+
+classes
+  advanced-visibility
+  no-margin
+  sw-card__quick-link
+  sw-field--product-active
+  sw-product-category-form
+  sw-product-category-form__categories-body
+  sw-product-category-form__description
+  sw-product-category-form__search-keyword-field
+  sw-product-category-form__tag-field
+  sw-product-category-form__tag-field-wrapper
+  sw-product-category-form__visibility-body
+  sw-product-category-form__visibility-link
+  sw-product-category-form__visibility-title
+  sw-product-category-form__visibility_field
+  sw-product-category-form__visibility_modal
+  sw-product-detail__select-category
+  sw-product-detail__select-visibility
+  sw-product-feature-set-form__description
 ```

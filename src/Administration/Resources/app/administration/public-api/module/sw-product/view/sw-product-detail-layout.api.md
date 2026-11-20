@@ -10,6 +10,39 @@ component sw-product-detail-layout  public  js
   source src/module/sw-product/view/sw-product-detail-layout/index.js
   template src/module/sw-product/view/sw-product-detail-layout/sw-product-detail-layout.html.twig
 
+inject
+  acl
+  cmsService
+  feature
+  repositoryFactory
+
+data
+  isConfigLoading: any
+  showLayoutModal: any
+
+computed
+  cmsPageCriteria: any
+  cmsPageId: any
+  cmsPageRepository: any
+  cmsPageState: any
+  currentPage: any
+  isLoading: any
+  languageId: any
+  product: any
+  showCmsForm: any
+
+methods
+  createdComponent(): any
+  elementUpdate(element: any): any
+  handleGetCmsPage(): any
+  onCloseLayoutModal(): any
+  onOpenInPageBuilder(): any
+  onOpenLayoutModal(): any
+  onResetLayout(): any
+  onSelectLayout(cmsPageId: any): any
+  resetSlotConfig(): any
+  updateCmsPageDataMapping(): any
+
 blocks
   sw_product_detail_layout
     sw_product_detail_layout_assignment
@@ -18,4 +51,10 @@ blocks
     sw_product_detail_layout_cms_config
       sw_product_detail_layout_cms_config_form
       sw_product_detail_layout_cms_content_info
+
+classes
+  sw-product-detail-layout
+  sw-product-detail-layout__assignment
+  sw-product-detail-layout__content-info
+  sw-product-detail-layout__no-config
 ```

@@ -11,6 +11,65 @@ component sw-flow-set-entity-custom-field-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-set-entity-custom-field-modal/sw-flow-set-entity-custom-field-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet, notification  [private]
+
+inject
+  flowBuilderService  [private]
+  repositoryFactory  [private]
+
+props
+  action?: string  default=literal  [private]
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  config: any  [private]
+  customField: object  [private]
+    config: object  [private]
+      label: any  [private]
+  customFieldError: any  [private]
+  customFieldId: any  [private]
+  customFieldSetError: any  [private]
+  customFieldSetId: any  [private]
+  customFieldValue: any  [private]
+  entity: any  [private]
+  entityError: any  [private]
+  entityOptions: any  [private]
+  fieldOptionSelected: any  [private]
+  fieldOptions: any  [private]
+  renderedFieldConfig: any  [private]
+
+computed
+  customFieldCriteria: any  [private]
+  customFieldRepository: any  [private]
+  customFieldSetCriteria: any  [private]
+  customFieldSets: any  [private]
+  customFields: any  [private]
+  defaultFieldOptions: any  [private]
+  labelProperty: any  [private]
+  multipleFieldOptions: any  [private]
+  showFieldValue: any  [private]
+  triggerActions: any  [private]
+  triggerEvent: any  [private]
+
+methods
+  convertToEntityTechnicalName(camelCaseText: any): any  [private]
+  createdComponent(): any  [private]
+  fieldError(field: any): any  [private]
+  getCustomFieldRendered(): any  [private]
+  getEntityOptions(): any  [private]
+  getFieldOptions(fieldConfig: any): any  [private]
+  onAddAction(): any  [private]
+  onClose(): any  [private]
+  onCustomFieldChange(id: any, customField: any): any  [private]
+  onCustomFieldSetChange(id: any, customFieldSet: any): any  [private]
+  onEntityChange(): any  [private]
+  validateOptionSelectFieldLabel(config: any): any  [private]
+
 blocks
   sw_flow_set_entity_custom_field_modal  [private]
     sw_flow_set_entity_custom_field_modal_content  [private]
@@ -23,4 +82,15 @@ blocks
     sw_flow_set_entity_custom_field_modal_footer  [private]
       sw_flow_set_entity_custom_field_modal_footer_cancel_button  [private]
       sw_flow_set_entity_custom_field_modal_footer_save_button  [private]
+
+classes
+  sw-flow-set-entity-custom-field-modal  [private]
+  sw-flow-set-entity-custom-field-modal__cancel-button  [private]
+  sw-flow-set-entity-custom-field-modal__content  [private]
+  sw-flow-set-entity-custom-field-modal__custom-field  [private]
+  sw-flow-set-entity-custom-field-modal__custom-field-set  [private]
+  sw-flow-set-entity-custom-field-modal__custom-field-value  [private]
+  sw-flow-set-entity-custom-field-modal__custom-field-value-options  [private]
+  sw-flow-set-entity-custom-field-modal__entity-field  [private]
+  sw-flow-set-entity-custom-field-modal__save-button  [private]
 ```

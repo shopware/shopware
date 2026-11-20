@@ -11,6 +11,41 @@ component sw-settings-rule-detail-base  private  js  [private]
   template src/module/sw-settings-rule/view/sw-settings-rule-detail-base/sw-settings-rule-detail-base.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  customFieldDataProviderService  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  conditionRepository: object  [private]
+  conditions?: any[]  default=literal  [private]
+  isLoading: boolean  [private]
+  rule: object  [private]
+  ruleNameError?: object  default=literal  [private]
+  rulePriorityError?: object  default=literal  [private]
+
+emits
+  conditions-changed(...args: any[])  [private]
+  tree-finished-loading(...args: any[])  [private]
+
+data
+  currentConditions: any  [private]
+  customFieldSets: any  [private]
+
+computed
+  availableModuleTypes: any  [private]
+  deprecatedConditionsInUse: any  [private]
+  flowOnlyConditionLabels: any  [private]
+  moduleTypes: any  [private]
+  productStreamIndexingEnabled: any  [private]
+  showCustomFields: any  [private]
+  showProductStreamIndexingWarning: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  hasProductStreamConditions(conditions: any): any  [private]
+  loadCustomFieldSets(): any  [private]
+
 blocks
   sw_settings_rule_detail_base  [private]
     sw_settings_rule_detail_base_conditions_card  [private]
@@ -21,4 +56,13 @@ blocks
       sw_settings_rule_detail_base_content_card_field_tags  [after v-if] [private]
       sw_settings_rule_detail_base_content_card_field_type  [private]
     sw_settings_rule_detail_custom_field_sets  [private]
+
+classes
+  sw-settings-rule-detail-base  [private]
+  sw-settings-rule-detail-base__flow-only-warning  [private]
+  sw-settings-rule-detail-base__product-stream-warning  [private]
+  sw-settings-rule-detail-base__product-type-warning  [private]
+  sw-settings-rule-detail__condition_container  [private]
+  sw-settings-rule-detail__tags-field  [private]
+  sw-settings-rule-detail__type-field  [private]
 ```

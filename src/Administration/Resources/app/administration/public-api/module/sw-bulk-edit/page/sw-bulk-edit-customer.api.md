@@ -10,6 +10,46 @@ component sw-bulk-edit-customer  public  js
   source src/module/sw-bulk-edit/page/sw-bulk-edit-customer/index.js
   template src/module/sw-bulk-edit/page/sw-bulk-edit-customer/sw-bulk-edit-customer.html.twig
 
+mixins
+  notification
+
+inject
+  bulkEditApiFactory
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  bulkEditData: any
+  customFieldSets: any
+  customer: any
+  isLoadedData: any
+  isLoading: any
+  isSaveSuccessful: any
+  processStatus: any
+
+computed
+  accountFormFields: any
+  actionsRequestGroup: any
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  customerRepository: any
+  hasChanges: any
+  selectedIds: any
+  tagsFormFields: any
+
+methods
+  closeModal(): any
+  createdComponent(): any
+  defineBulkEditData(name: any, value?: any, type?: any, isChanged?: any): any
+  loadBulkEditData(): any
+  loadCustomFieldSets(): any
+  onChangeLanguage(languageId: any): any
+  onCustomFieldsChange(value: any): any
+  onProcessData(): any
+  onSave(): Promise<any>
+  openModal(): any
+  setRouteMetaModule(): any
+
 blocks
   sw_bulk_edit_customer
     sw_bulk_edit_customer_content
@@ -25,4 +65,12 @@ blocks
       sw_bulk_edit_customer_actions_save
     sw_bulk_edit_customer_search_bar
     sw_bulk_edit_customer_smart_bar_header
+
+classes
+  sw-bulk-edit-customer
+  sw-bulk-edit-customer-base__account
+  sw-bulk-edit-customer-base__custom_fields
+  sw-bulk-edit-customer-base__tags
+  sw-bulk-edit-customer__save-action
+  sw-bulk-edit__custom-fields
 ```

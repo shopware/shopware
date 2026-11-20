@@ -11,6 +11,21 @@ component sw-product-image  private  js  [private]
   template src/app/component/base/sw-product-image/sw-product-image.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isArReady?: boolean  default=literal  [private]
+  isCover?: boolean  default=literal  [private]
+  isPlaceholder?: boolean  default=literal  [private]
+  isSpatial?: boolean  default=literal  [private]
+  mediaId: string  [private]
+  showCoverLabel?: boolean  default=literal  [private]
+
+emits
+  sw-product-image-cover(...args: any[])  [private]
+  sw-product-image-delete(...args: any[])  [private]
+
+computed
+  productImageClasses: any  [private]
+
 blocks
   sw_product_image  [private]
     sw_product_image_context  [private]
@@ -20,4 +35,17 @@ blocks
     sw_product_image_placeholder  [private]
     sw_product_image_preview  [private]
       sw_product_image_preview_spatial_labels  [after v-if] [private]
+
+classes
+  is--invalid-drag  [private]
+  sw-label__ar-ready  [private]
+  sw-label__spatial  [private]
+  sw-product-image  [private]
+  sw-product-image__button-cover  [private]
+  sw-product-image__button-delete  [private]
+  sw-product-image__context-button  [private]
+  sw-product-image__cover-label  [private]
+  sw-product-image__image  [private]
+  sw-product-image__placeholder-icon  [private]
+  sw-product-image__spatial-label  [private]
 ```

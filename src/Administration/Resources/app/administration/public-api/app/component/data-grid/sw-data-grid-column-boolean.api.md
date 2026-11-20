@@ -11,6 +11,22 @@ component sw-data-grid-column-boolean  private  js  [private]
   template src/app/component/data-grid/sw-data-grid-column-boolean/sw-data-grid-column-boolean.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=literal  [private]
+  isInlineEdit?: boolean  default=literal  [private]
+  value: any  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  currentValue: any  [private]
+
 blocks
   sw_data_grid_column_boolean  [private]
+
+classes
+  is--active  [private]
+  is--inactive  [private]
+  sw-data-grid-column-boolean  [private]
 ```

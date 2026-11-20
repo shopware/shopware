@@ -10,6 +10,43 @@ component sw-first-run-wizard-paypal-info  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-paypal-info/sw-first-run-wizard-paypal-info.html.twig
 
+inject
+  extensionStoreActionService
+
+emits
+  buttons-update(...args: any[])
+  frw-set-title(...args: any[])
+
+data
+  installPromise: any
+  isInstallingPlugin: any
+  pluginError: any
+  pluginInstallationFailed: any
+  pluginName: any
+
+computed
+  assetFilter: any
+
+methods
+  _reloadPage(): any
+  activatePayPalAndRedirect(): any
+  createdComponent(): any
+  installPayPal(): any
+  setTitle(): any
+  updateButtons(): any
+
 blocks
   sw_first_run_wizard_paypal_info
+
+classes
+  disclaimer
+  headline
+  paymethod
+  paymethods
+  sw-first-run-wizard-paypal
+  sw-first-run-wizard-paypal-info
+  sw-first-run-wizard-paypal-info__icon
+  sw-first-run-wizard-paypal-install
+  sw-first-run-wizard-paypal__error
+  sw-loader-info-text
 ```

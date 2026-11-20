@@ -10,6 +10,35 @@ component sw-media-quickinfo-multiple  public  js
   source src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/index.js
   template src/module/sw-media/component/sidebar/sw-media-quickinfo-multiple/sw-media-quickinfo-multiple.html.twig
 
+mixins
+  media-sidebar-modal-mixin
+
+props
+  editable?: boolean  default=literal
+  items: any[]
+
+emits
+  media-item-selection-clear(...args: any[])
+  media-item-selection-remove(...args: any[])
+
+computed
+  extensionSdkButtons: any
+  getFileSize: any
+  getFileSizeLabel: any
+  hasFolder: any
+  hasMedia: any
+  isPrivate: any
+  itemsIsAvailable: any
+  mediaItems: any
+
+methods
+  matchesFileTypes(action: any, item: any): any
+  onClearSelection(): any
+  onRemoveItemFromSelection(event: any): any
+  quickActionClasses(disabled: any): any
+  quickActionClassesDelete(disabled: any): any
+  runAppAction(action: any): any
+
 blocks
   sw_media_quickinfo_multiple
     sw_media_quickinfo_multiple_file_names  [after v-if]
@@ -23,4 +52,17 @@ blocks
     sw_media_sidebar_folder_dissolve_modal  [after v-if]
     sw_media_sidebar_folder_move_modal  [after v-if]
     sw_media_sidebar_modal_delete
+
+classes
+  is--danger
+  quickaction--custom
+  quickaction--dissolve
+  quickaction--move
+  sw-media-quickinfo-multiple
+  sw-media-quickinfo-multiple__second-headline
+  sw-media-quickinfo-multiple__summary
+  sw-media-quickinfo-multiple__unselect-all
+  sw-media-sidebar__quickaction
+  sw-media-sidebar__quickactions-icon
+  sw-media-sidebar__quickactions-list
 ```

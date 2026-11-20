@@ -11,6 +11,46 @@ component sw-select-field-deprecated  private  js  [private]
   template src/app/component/form/sw-select-field-deprecated/sw-select-field-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-form-field, remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  aside?: boolean  default=literal  [private]
+  options?: any[]  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  value?: string  default=literal  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_block_field  [private]
+  hint  {}  block=sw_block_field  [private]
+  label  {}  block=sw_block_field  [private]
+
+data
+  currentValue: any  [private]
+
+computed
+  fallbackLocale: any  [private]
+  hasOptions: any  [private]
+  locale: any  [private]
+  swFieldSelectClasses: any  [private]
+
+methods
+  getOptionName(name: any): any  [private]
+  onChange(event: any): any  [private]
+
 blocks
   sw_block_field  [private]
+
+classes
+  is--placeholder  [private]
+  sw-field--select  [private]
+  sw-field--select__loader  [private]
+  sw-field--select__options  [private]
+  sw-field--select__placeholder-option  [private]
 ```

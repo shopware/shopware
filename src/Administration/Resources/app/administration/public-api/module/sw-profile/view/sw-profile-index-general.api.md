@@ -10,6 +10,51 @@ component sw-profile-index-general  public  js
   source src/module/sw-profile/view/sw-profile-index-general/index.js
   template src/module/sw-profile/view/sw-profile-index-general/sw-profile-index-general.html.twig
 
+inject
+  acl
+  ssoSettingsService
+
+props
+  avatarMediaItem?: object  default=literal
+  isDisabled: boolean
+  isUserLoading: boolean
+  languageId?: string  default=literal
+  languages: any[]
+  newPassword?: string  default=literal
+  newPasswordConfirm?: string  default=literal
+  timezoneOptions: any[]
+  user: object
+  userModuleIconColors?: boolean  default=literal
+  userRepository: object
+  userTheme?: string  default=literal
+
+emits
+  media-open(...args: any[])
+  media-remove(...args: any[])
+  media-upload(...args: any[])
+  new-password-change(...args: any[])
+  new-password-confirm-change(...args: any[])
+  user-module-icon-colors-change(...args: any[])
+  user-theme-change(...args: any[])
+
+data
+  showPasswordChangeCard: any
+
+computed
+  computedNewPassword: any
+  computedNewPasswordConfirm: any
+  computedUserModuleIconColors: any
+  computedUserTheme: any
+  localeOptions: any
+  moduleIconColorsOptions: any
+  userPasswordError: any
+
+methods
+  onDropMedia(media: any): any
+  onOpenMedia(): any
+  onRemoveMedia(): any
+  onUploadMedia(media: any): any
+
 blocks
   sw_profile_index_general
     sw_profile_index_general_information
@@ -27,4 +72,25 @@ blocks
       sw_profile_index_general_information_module_icon_colors
       sw_profile_index_general_information_theme
       sw_profile_index_general_information_timezone
+
+classes
+  sw-profile--module-icon-colors
+  sw-profile--theme
+  sw-profile--timezone
+  sw-profile-index-general
+  sw-profile-index-general__grid
+  sw-profile-index-general__grid-email
+  sw-profile-index-general__grid-firstName
+  sw-profile-index-general__grid-language
+  sw-profile-index-general__grid-lastName
+  sw-profile-index-general__grid-module-icon-colors
+  sw-profile-index-general__grid-new-password
+  sw-profile-index-general__grid-new-password-confirm
+  sw-profile-index-general__grid-profile-picture
+  sw-profile-index-general__grid-theme
+  sw-profile-index-general__grid-timezone
+  sw-profile-index-general__grid-username
+  sw-profile-index-general__information-grid
+  sw-profile-index-general__password-grid
+  sw-profile-index-general__user-interface-grid
 ```

@@ -10,10 +10,21 @@ component sw-settings-listing-option-general-info  public  js
   source src/module/sw-settings-listing/component/sw-settings-listing-option-general-info/index.js
   template src/module/sw-settings-listing/component/sw-settings-listing-option-general-info/sw-settings-listing-option-general-info.html.twig
 
+props
+  isDefaultSorting: boolean
+  labelError?: object  default=literal
+  sortingOption: object
+  technicalNameError?: object  default=literal
+
 blocks
   sw_settings_listing_option_general_info
     sw_settings_listing_option_general_info_container
       sw_settings_listing_option_general_info_active
       sw_settings_listing_option_general_info_name
       sw_settings_listing_option_general_info_technical_name
+
+classes
+  sw-settings-listing-option-general-info__field-active
+  sw-settings-listing-option-general-info__field-name
+  sw-settings-listing-option-general-info__field-technical-name
 ```

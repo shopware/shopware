@@ -10,4 +10,25 @@ component sw-extension-bulk-deactivation-modal  private  js  [private]
   source src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/index.js  [private]
   template src/module/sw-extension/component/sw-extension-bulk-deactivation-modal/sw-extension-bulk-deactivation-modal.html.twig  [private]
   visibility-source export  [private]
+
+props
+  extensions: any[]  [private]
+  isLoading?: boolean  default=literal  [private]
+
+emits
+  confirm(...args: any[])  [private]
+  modal-close(...args: any[])  [private]
+
+computed
+  count: any  [private]
+  title: any  [private]
+
+methods
+  emitClose(): any  [private]
+  emitConfirm(): any  [private]
+
+classes
+  sw-extension-bulk-deactivation-modal  [private]
+  sw-extension-bulk-deactivation-modal__bold-paragraph  [private]
+  sw-extension-bulk-deactivation-modal__list  [private]
 ```

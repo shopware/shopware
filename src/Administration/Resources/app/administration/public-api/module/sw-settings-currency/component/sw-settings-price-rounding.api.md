@@ -10,6 +10,22 @@ component sw-settings-price-rounding  public  js
   source src/module/sw-settings-currency/component/sw-settings-price-rounding/index.js
   template src/module/sw-settings-currency/component/sw-settings-price-rounding/sw-settings-price-rounding.html.twig
 
+props
+  itemRounding?: object  default=factory
+  totalRounding?: object  default=factory
+
+data
+  intervalOptions: any
+
+computed
+  itemIntervalDisabled: any
+  showHeaderInfo: any
+  showHeaderWarning: any
+  totalIntervalDisabled: any
+
+methods
+  onChangeDecimals(decimals: any, type: any): any
+
 blocks
   sw_settings_price_rounding
     sw_settings_price_rounding_container_grand  [after v-if]
@@ -27,4 +43,16 @@ blocks
     sw_settings_price_rounding_spacer
     sw_settings_price_rounding_subline_grand
     sw_settings_price_rounding_subline_items
+
+classes
+  sw-settings-price-rounding
+  sw-settings-price-rounding__grand-interval-select
+  sw-settings-price-rounding__header-info
+  sw-settings-price-rounding__header-warning
+  sw-settings-price-rounding__headline
+  sw-settings-price-rounding__info-text
+  sw-settings-price-rounding__item-interval-select
+  sw-settings-price-rounding__round-for-net-checkbox
+  sw-settings-price-rounding__rounding-container
+  sw-settings-price-rounding__spacer
 ```

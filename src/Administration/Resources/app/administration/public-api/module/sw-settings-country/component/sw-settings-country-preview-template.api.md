@@ -11,6 +11,19 @@ component sw-settings-country-preview-template  private  ts  [private]
   template src/module/sw-settings-country/component/sw-settings-country-preview-template/sw-settings-country-preview-template.html.twig  [private]
   visibility-source export  [private]
 
+props
+  formattingAddress: string  [private]
+  isLoading?: boolean  default=literal  [private]
+
+computed
+  displayFormattingAddress: string  [private]
+
 blocks
   sw_settings_country_preview_template  [private]
+
+classes
+  is--loading  [private]
+  sw-settings-country-preview-template  [private]
+  sw-settings-country-preview-template__content  [private]
+  sw-settings-country-preview-template__loader  [private]
 ```

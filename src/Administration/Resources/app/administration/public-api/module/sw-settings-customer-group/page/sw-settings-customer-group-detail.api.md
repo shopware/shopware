@@ -10,6 +10,56 @@ component sw-settings-customer-group-detail  public  js
   source src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail/index.js
   template src/module/sw-settings-customer-group/page/sw-settings-customer-group-detail/sw-settings-customer-group-detail.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+
+props
+  customerGroupId?: string  default=literal
+
+data
+  customFieldSets: any
+  customerGroup: any
+  isLoading: any
+  isSaveSuccessful: any
+  openSeoModal: any
+  registrationTitleError: any
+  seoUrls: any
+
+computed
+  allowSave: any
+  customerGroupCriteria: any
+  customerGroupNameError: any
+  customerGroupRepository: any
+  entityDescription: any
+  hasRegistration: any
+  identifier: any
+  priceBasisOptions: any
+  registrationSalesChannelCriteria: any
+  seoUrlCriteria: any  [deprecated tag:v6.8.0]
+  seoUrlRepository: any  [deprecated tag:v6.8.0]
+  showCustomFields: any
+  taxDisplayOptions: any
+  technicalUrl: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createdComponent(): any
+  getSeoUrl(seoUrl: any): any  [deprecated tag:v6.8.0]
+  loadCustomFieldSets(): any
+  loadCustomerGroup(): Promise<any>
+  loadSeoUrls(): Promise<any>  [deprecated tag:v6.8.0]
+  onCancel(): any
+  onChangeLanguage(): any
+  onSave(): Promise<any>
+  validateSaveRequest(): any
+
 blocks
   sw_settings_customer_group_detail
     sw_settings_customer_group_detail_actions
@@ -17,7 +67,7 @@ blocks
       sw_settings_customer_group_detail_actions_save
     sw_settings_customer_group_detail_cardview
       sw_settings_customer_group_detail_content_card
-        sw_settings_customer_group_detail_content_card_display_gross
+        sw_settings_customer_group_detail_content_card_display_gross  [deprecated tag:v6.8.0]
         sw_settings_customer_group_detail_content_card_name
         sw_settings_customer_group_detail_content_card_price_basis
         sw_settings_customer_group_detail_content_card_registration_form
@@ -39,4 +89,17 @@ blocks
     sw_settings_customer_group_detail_smart_bar_header
       sw_settings_customer_group_detail_smart_bar_header_title
         sw_settings_customer_group_detail_smart_bar_header_title_text
+
+classes
+  sw-settings-customer-group-detail
+  sw-settings-customer-group-detail-content-registration-card__info-text
+  sw-settings-customer-group-detail__cancel
+  sw-settings-customer-group-detail__name
+  sw-settings-customer-group-detail__price-basis
+  sw-settings-customer-group-detail__registration-form-switch
+  sw-settings-customer-group-detail__registration-form-title
+  sw-settings-customer-group-detail__registration-only-companies-can-register
+  sw-settings-customer-group-detail__sales-channel
+  sw-settings-customer-group-detail__save
+  sw-settings-customer-group-detail__tax-display
 ```

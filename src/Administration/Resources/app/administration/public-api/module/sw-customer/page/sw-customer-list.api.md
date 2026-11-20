@@ -10,6 +10,58 @@ component sw-customer-list  public  js
   source src/module/sw-customer/page/sw-customer-list/index.js
   template src/module/sw-customer/page/sw-customer-list/sw-customer-list.html.twig
 
+mixins
+  notification, salutation, listing
+
+inject
+  acl
+  filterFactory
+  repositoryFactory
+
+data
+  activeFilterNumber: any
+  availableAffiliateCodes: any  [deprecated tag:v6.8.0]
+  availableCampaignCodes: any  [deprecated tag:v6.8.0]
+  customers: any
+  defaultFilters: any
+  filterCriteria: any
+  filterLoading: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  naturalSorting: any
+  searchConfigEntity: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  storeKey: any
+
+computed
+  adminEsEnable: any
+  assetFilter: any
+  customerColumns: any
+  customerRepository: any
+  defaultCriteria: any
+  emailIdnFilter: any
+  filterSelectCriteria: any  [deprecated tag:v6.8.0]
+  hasActiveSearchOrFilter: any
+  listFilterOptions: any
+  listFilters: any
+
+methods
+  createdComponent(): any  [deprecated tag:v6.8.0]
+  getCustomerColumns(): any
+  getList(): Promise<any>
+  loadFilterValues(): any  [deprecated tag:v6.8.0]
+  onBulkEditItems(): Promise<any>
+  onBulkEditModalClose(): any
+  onBulkEditModalOpen(): any
+  onChangeLanguage(): Promise<any>
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): any
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, customer: any): any
+  updateCriteria(criteria: any): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_customer_list
     sw_customer_list_content
@@ -59,4 +111,29 @@ crossings
   v-if  sw_customer_list_empty_state -> sw_customer_list_grid
   v-if  sw_customer_list_grid_columns_active_inline_edit -> sw_customer_list_grid_columns_active_content
   v-if  sw_customer_list_grid_inline_edit_name -> sw_customer_list_grid_columns_name_link
+
+refs
+  bulkEditModal  -> sw-bulk-edit-modal
+  swCustomerGrid  -> sw-entity-listing
+
+classes
+  is--active
+  is--inactive
+  sw-customer-bulk-edit-modal
+  sw-customer-list
+  sw-customer-list-grid
+  sw-customer-list__avatar
+  sw-customer-list__button-create
+  sw-customer-list__confirm-delete-text
+  sw-customer-list__content
+  sw-customer-list__created-by-admin-label
+  sw-customer-list__delete-action
+  sw-customer-list__edit-action
+  sw-customer-list__inline-edit-first-name
+  sw-customer-list__inline-edit-last-name
+  sw-customer-list__metadata-customer-guest-label
+  sw-customer-list__requested-group-label
+  sw-customer-list__sidebar
+  sw-customer-list__view-action
+  sw-page__smart-bar-amount
 ```

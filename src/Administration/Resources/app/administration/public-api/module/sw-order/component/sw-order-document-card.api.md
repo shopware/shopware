@@ -10,6 +10,114 @@ component sw-order-document-card  public  js
   source src/module/sw-order/component/sw-order-document-card/index.js
   template src/module/sw-order/component/sw-order-document-card/sw-order-document-card.html.twig
 
+mixins
+  listing, placeholder, notification
+
+inject
+  acl
+  documentService  [deprecated tag:v6.9.0]
+  documentV2ApiService
+  documentV2Service
+  numberRangeService
+  repositoryFactory
+
+props
+  attachView?: boolean  default=literal
+  isLoading?: boolean  default=literal
+  order: object
+
+emits
+  document-save(...args: any[])
+  update-loading(...args: any[])
+
+data
+  attachment: any
+  cardLoading: any
+  currentDocumentType: any
+  documentComment: any
+  documentDeleteId: any
+  documentNumber: any
+  documentTypes: any
+  documents: any
+  documentsLoaded: any
+  documentsLoading: any
+  isLoadingDocument: any
+  isLoadingPreview: any
+  sendDocument: any
+  showModal: any  [deprecated tag:v6.9.0]
+  showSelectDocumentTypeModal: any
+  showSendDocumentModal: any
+  showUploadDocumentModal: any
+  supportedDocumentTypes: any
+  term: any
+
+computed
+  assetFilter: any
+  creditItems: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  documentCardStyles: any
+  documentCriteria: any
+  documentModal: any  [deprecated tag:v6.9.0]
+  documentRepository: any
+  documentTypeCriteria: any
+  documentTypeRepository: any
+  documentsEmpty: any
+  emptyStateTitle: any
+  getDocumentColumns: any
+  isDataLoading: any
+  isEditing: any
+  isXmlDocument: any
+  orderHasDocuments: any
+  showCardFilter: any
+  showCreateDocumentButton: any
+  tooltipCreateDocumentButton: any
+
+methods
+  availableFormatsFilter(item: any): any
+  convertStoreEventToVueEvent(arg0: any): any  [deprecated tag:v6.9.0]
+  createDocument(orderId: any, documentTypeName: any, params: any, referencedDocumentId: any, file: any): any  [deprecated tag:v6.9.0]
+  createdComponent(): any
+  documentTypeAvailable(documentType: any): any  [deprecated tag:v6.8.0]
+  documentTypeLabel(document: any): any
+  downloadDocument(documentId: any, documentDeepLink: any, fileType: any): any
+  downloadDocumentArchive(documentId: any): any
+  finishDocumentCreation(): any
+  getDocumentActionFormats(document: any): any
+  getDocumentFileFormats(document: any): any
+  getList(): any
+  hasMultipleDocumentActionFormats(document: any): any
+  invoiceExists(): any  [deprecated tag:v6.8.0]
+  markDocumentAsSent(documentId: any): any
+  markDocumentAsUnsent(documentId: any): any
+  onCancelCreation(): any  [deprecated tag:v6.9.0]
+  onCloseCreateDocumentModal(): any
+  onCloseDeleteDocumentModal(): any
+  onCloseSelectDocumentTypeModal(persist: any): any
+  onCloseSendDocumentModal(): any
+  onCloseUploadDocumentModal(): any
+  onCreateDocument(params: any, additionalAction: any, referencedDocumentId?: any, file?: any): Promise<any>
+  onDeleteDocument(id: any): any
+  onDocumentSent(): any
+  onDownload(id: any, deepLink: any, fileType: any): any
+  onDownloadAll(document: any): any
+  onLoadingDocument(): any
+  onLoadingPreview(): any
+  onMarkDocumentAsSent(id: any): any
+  onMarkDocumentAsUnsent(id: any): any
+  onOpenDocument(id: any, deepLink: any, fileType: any): any
+  onPrepareDocument(): any  [deprecated tag:v6.9.0]
+  onPreview(params: any, fileType: any): any
+  onSearchTermChange(searchTerm: any): any
+  onSendDocument(id: any): any
+  onShowDeleteDocumentModal(id: any): any
+  onShowSelectDocumentTypeModal(): any
+  onShowUploadDocumentModal(): any
+  onUploadDocument(params: any, additionalAction: any, file?: any): Promise<any>
+  openDocument(documentId: any, documentDeepLink: any, fileType: any): any  [deprecated tag:v6.9.0]
+  resolveDownloadFileType(document: any): any
+  resolveOpenFileType(document: any): any
+  sendDocumentAction(documentId: any): Promise<any>
+
 blocks
   sw_order_document_card
     sw_order_document_card_empty_state  [after v-if]
@@ -39,9 +147,31 @@ blocks
       sw_order_document_card_grid_column_type
     sw_order_document_card_grid_column_document_send_modal  [after v-if]
     sw_order_document_card_grid_column_document_type_modal  [after v-if]
-    sw_order_document_card_grid_column_modal
+    sw_order_document_card_grid_column_modal  [deprecated tag:v6.9.0]
     sw_order_document_card_header
       sw_order_document_card_header_filter
         sw_order_document_card_header_create_document_context_button
           sw_order_document_card_header_create_document_button_label
+
+refs
+  entityListing  -> sw-entity-listing
+
+classes
+  sw-listing__confirm-delete-text  [from v6.8.0]
+  sw-order-detail-base__document-grid
+  sw-order-document-card__actions-button  [from v6.8.0]
+  sw-order-document-card__context-button-delete
+  sw-order-document-card__context-button-download-all-formats  [from v6.8.0]
+  sw-order-document-card__context-button-download-format  [from v6.8.0]
+  sw-order-document-card__context-button-download-pdf
+  sw-order-document-card__context-button-mark-sent
+  sw-order-document-card__context-button-mark-unsent
+  sw-order-document-card__context-button-open-format  [from v6.8.0]
+  sw-order-document-card__context-button-open-pdf
+  sw-order-document-card__context-button-send
+  sw-order-document-card__empty-state
+  sw-order-document-card__grid
+  sw-order-document-grid-button
+  sw-order-document-grid-button-arrow  [from v6.8.0]
+  sw-order-document-grid-button-upload  [from v6.8.0]
 ```

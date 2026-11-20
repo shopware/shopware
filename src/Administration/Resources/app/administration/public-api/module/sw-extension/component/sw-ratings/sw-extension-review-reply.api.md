@@ -11,10 +11,24 @@ component sw-extension-review-reply  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-review-reply/sw-extension-review-reply.html.twig  [private]
   visibility-source export  [private]
 
+props
+  producerName: string  [private]
+  reply: object  [private]
+
+computed
+  creationDate: any  [private]
+
 blocks
   sw_extension_review_reply  [private]
     sw_extension_review_reply_head  [private]
       sw_extension_review_reply_head_producer_name  [private]
       sw_extension_review_reply_head_reply_date  [private]
     sw_extension_review_reply_text  [private]
+
+classes
+  sw-extension-review-reply  [private]
+  sw-extension-review-reply__date  [private]
+  sw-extension-review-reply__head  [private]
+  sw-extension-review-reply__producer-name  [private]
+  sw-extension-review-reply__text  [private]
 ```

@@ -10,6 +10,37 @@ component sw-profile-index-search-preferences  public  js
   source src/module/sw-profile/view/sw-profile-index-search-preferences/index.js
   template src/module/sw-profile/view/sw-profile-index-search-preferences/sw-profile-index-search-preferences.html.twig
 
+mixins
+  notification
+
+inject
+  searchPreferencesService
+  searchRankingService
+
+data
+  isLoading: any
+
+computed
+  adminEsEnable: any
+  defaultSearchPreferences: any
+  minSearchTermLength: any
+  searchPreferences: any
+  userSearchPreferences: any
+
+methods
+  addEventListeners(): any
+  beforeDestroyComponent(): any
+  createdComponent(): Promise<any>
+  getDataSource(): Promise<any>
+  getMinSearchTermLength(): Promise<any>
+  getModuleTitle(entityName: any): any
+  onChangeSearchPreference(searchPreference: any): any
+  onReset(): any
+  onSelect(event: any): any
+  removeEventListeners(): any
+  resetSearchPreference(toReset: any, searchPreference: any): any
+  updateDataSource(): any
+
 blocks
   sw_profile_index_search_preferences
     sw_profile_index_search_preferences_search_behavior  [after v-if]
@@ -20,4 +51,17 @@ blocks
           sw_profile_index_search_preferences_searchable_elements_button_deselect
           sw_profile_index_search_preferences_searchable_elements_button_reset
           sw_profile_index_search_preferences_searchable_elements_button_select
+
+classes
+  sw-card-elasticsearch-enabled
+  sw-card-elasticsearch-enabled__alert
+  sw-profile-index-search-preferences
+  sw-profile-index-search-preferences-search-behavior
+  sw-profile-index-search-preferences-searchable-elements
+  sw-profile-index-search-preferences-searchable-elements__button-deselect-all
+  sw-profile-index-search-preferences-searchable-elements__button-reset-to-default
+  sw-profile-index-search-preferences-searchable-elements__button-select-all
+  sw-profile-index-search-preferences-searchable-elements__entity
+  sw-profile-index-search-preferences-searchable-elements__entity-container
+  sw-profile-index-search-preferences-searchable-elements__entity-field
 ```

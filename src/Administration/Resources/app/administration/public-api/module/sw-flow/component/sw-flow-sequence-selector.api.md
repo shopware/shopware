@@ -11,6 +11,22 @@ component sw-flow-sequence-selector  private  js  [private]
   template src/module/sw-flow/component/sw-flow-sequence-selector/sw-flow-sequence-selector.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=literal  [private]
+  sequence: object  [private]
+
+slots
+  helpText  {}  block=sw_flow_sequence_selector_help_text  [private]
+  title  {}  block=sw_flow_sequence_selector_title  [private]
+
+computed
+  helpText: any  [private]
+  title: any  [private]
+
+methods
+  addIfCondition(): any  [private]
+  addThenAction(): any  [private]
+
 blocks
   sw_flow_sequence_selector  [private]
     sw_flow_sequence_selector_actions  [private]
@@ -21,4 +37,12 @@ blocks
         sw_flow_sequence_selector_then_action_icon_file  [private]
     sw_flow_sequence_selector_help_text  [private]
     sw_flow_sequence_selector_title  [private]
+
+classes
+  sw-flow-sequence-selector  [private]
+  sw-flow-sequence-selector__actions  [private]
+  sw-flow-sequence-selector__add-action  [private]
+  sw-flow-sequence-selector__add-condition  [private]
+  sw-flow-sequence-selector__help-text  [private]
+  sw-flow-sequence-selector__title  [private]
 ```

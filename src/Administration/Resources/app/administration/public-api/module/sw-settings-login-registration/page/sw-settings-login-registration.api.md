@@ -10,6 +10,24 @@ component sw-settings-login-registration  public  js
   source src/module/sw-settings-login-registration/page/sw-settings-login-registration/index.js
   template src/module/sw-settings-login-registration/page/sw-settings-login-registration/sw-settings-login-registration.html.twig
 
+mixins
+  notification
+
+data
+  coreLoginRegistrationLoading: any
+  coreSystemWideLoginRegistrationLoading: any
+  isLoading: any
+  isSaveSuccessful: any
+
+computed
+  systemConfigLoading: any
+
+methods
+  onLoginRegistrationLoadingChanged(loading: any): any
+  onSave(): any
+  onSystemWideLoadingChanged(loading: any): any
+  saveFinish(): any
+
 blocks
   sw_settings_login_registration_index
     sw_settings_login_registration_content
@@ -22,4 +40,13 @@ blocks
       sw_settings_login_registration_smart_bar_header_title
         sw_settings_login_registration_smart_bar_header_amount
         sw_settings_login_registration_smart_bar_header_title_text
+
+refs
+  systemConfig  -> sw-system-config
+  systemConfigSystemWide  -> sw-system-config
+
+classes
+  sw-page__smart-bar-amount
+  sw-settings-login-registration
+  sw-settings-login-registration__save-action
 ```

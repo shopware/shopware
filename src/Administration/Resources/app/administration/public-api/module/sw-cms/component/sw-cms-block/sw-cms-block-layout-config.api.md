@@ -11,6 +11,9 @@ component sw-cms-block-layout-config  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-block/sw-cms-block-layout-config/sw-cms-block-layout-config.html.twig  [private]
   visibility-source export  [private]
 
+props
+  block: Entity<'cms_block'>  [private]
+
 blocks
   sw_cms_block_layout_config  [private]
     sw_cms_block_layout_config_bottom_margin_field  [private]
@@ -18,4 +21,12 @@ blocks
     sw_cms_block_layout_config_left_margin_field  [private]
     sw_cms_block_layout_config_right_margin_field  [private]
     sw_cms_block_layout_config_top_margin_field  [private]
+
+classes
+  sw-cms-block-layout-config  [private]
+  sw-cms-block-layout-config__css-class  [private]
+  sw-cms-block-layout-config__margin-bottom  [private]
+  sw-cms-block-layout-config__margin-left  [private]
+  sw-cms-block-layout-config__margin-right  [private]
+  sw-cms-block-layout-config__margin-top  [private]
 ```

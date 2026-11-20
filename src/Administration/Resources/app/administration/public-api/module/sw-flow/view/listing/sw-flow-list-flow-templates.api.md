@@ -11,6 +11,43 @@ component sw-flow-list-flow-templates  private  ts  [private]
   template src/module/sw-flow/view/listing/sw-flow-list-flow-templates/sw-flow-list-flow-templates.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  searchTerm?: string  default=literal  [private]
+
+data
+  flowTemplates: any  [private]
+  isLoading: any  [private]
+  sortBy: any  [private]
+  sortDirection: any  [private]
+  total: any  [private]
+
+computed
+  assetFilter: any  [private]
+  flowTemplateColumns: GridColumn[]  [private]
+  flowTemplateCriteria: CriteriaType  [private]
+  flowTemplateRepository: Repository<'flow_template'>  [private]
+
+methods
+  createComponent(): void  [private]
+  getList(): void  [private]
+  onEditFlow(item: Entity<'flow_template'>): void  [private]
+
 blocks
   sw_flow_list_flow_templates  [private]
+
+classes
+  sw-flow-list-flow-templates-card  [private]
+  sw-flow-list-my-flows__content__create-flow-link  [private]
+  sw-flow-list-my-flows__content__update-flow-template-link  [private]
+  sw-flow-list-my-templates  [private]
+  sw-flow-list-my-templates__content  [private]
+  sw-flow-list-my-templates__grid  [private]
+  sw-flow-list-my_templates__empty-state  [private]
 ```

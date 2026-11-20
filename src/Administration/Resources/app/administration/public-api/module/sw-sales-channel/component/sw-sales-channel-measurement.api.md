@@ -9,4 +9,50 @@ component sw-sales-channel-measurement  public  js
   registered src/module/sw-sales-channel/index.js
   source src/module/sw-sales-channel/component/sw-sales-channel-measurement/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-measurement/sw-sales-channel-measurement.html.twig
+
+inject
+  acl
+  repositoryFactory
+
+props
+  labelLengthUnit?: string
+  labelUnitSystem?: string
+  labelWeightUnit?: string
+  salesChannel: object
+
+emits
+  measurement-system-change(...args: any[])
+
+data
+  defaultDisplayUnits: any
+  defaultMeasurementSystem: any
+  measurementSystem: any
+  measurementSystems: any
+
+computed
+  defaultLengthUnit: any
+  defaultWeightUnit: any
+  dimensionUnitLabel: any
+  lengthUnitOptions: any
+  measurementLengthUnitError: any
+  measurementSystemCriteria: any
+  measurementSystemOptions: any
+  measurementSystemRepository: any
+  measurementUnitSystemError: any
+  measurementUnits: any
+  measurementWeightUnitError: any
+  unitSystemLabel: any
+  weightUnitLabel: any
+  weightUnitOptions: any
+
+methods
+  createdComponent(): Promise<any>
+  formatUnitLabel(item: any): any
+  getDefaultMeasurementSystems(): any
+  getUnitOptionsByType(type: any): any
+  onMeasurementSystemChange(technicalName: any): Promise<any>
+
+classes
+  mt-select-result-list-popover-wrapper__length-unit-short-name
+  mt-select-result-list-popover-wrapper__mass-unit-short-name
 ```

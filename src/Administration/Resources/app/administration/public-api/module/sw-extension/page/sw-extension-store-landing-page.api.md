@@ -11,6 +11,34 @@ component sw-extension-store-landing-page  private  js  [private]
   template src/module/sw-extension/page/sw-extension-store-landing-page/sw-extension-store-landing-page.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  extensionHelperService  [private]
+
+props
+  insideModal?: boolean  default=literal  [private]
+
+data
+  activationStatus: any  [private]
+  error: any  [private]
+  isLoading: any  [private]
+
+computed
+  activationHeadline: any  [private]
+  assetFilter: any  [deprecated tag:v6.9.0] [private]
+  extensionName: any  [private]
+
+methods
+  _reloadPage(): any  [private]
+  activateStore(): any  [private]
+
 blocks
   sw_extension_store_landing_page  [private]
+
+classes
+  sw-extension-store-landing-page  [private]
+  sw-extension-store-landing-page__activate_button  [private]
+  sw-extension-store-landing-page__wrapper  [private]
+  sw-extension-store-landing-page__wrapper-activated  [private]
+  sw-extension-store-landing-page__wrapper-content  [private]
+  sw-extension-store-landing-page__wrapper-loading  [private]
 ```

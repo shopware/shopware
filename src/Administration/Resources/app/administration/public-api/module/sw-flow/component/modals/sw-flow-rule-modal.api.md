@@ -11,6 +11,61 @@ component sw-flow-rule-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-rule-modal/sw-flow-rule-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  placeholder, notification  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+  ruleConditionsConfigApiService  [private]
+
+props
+  ruleId?: string  default=literal  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  conditionTree: any  [private]
+  conditions: any  [private]
+  deletedIds: any  [private]
+  isLoading: any  [private]
+  isSaveLoading: any  [private]
+  isSaveSuccessful: any  [private]
+  rule: any  [private]
+
+computed
+  appScriptConditionRepository: any  [private]
+  availableModuleTypes: any  [private]
+  conditionRepository: any  [private]
+  deprecatedConditionsInUse: any  [private]
+  flow: any  [private]
+  modalTitle: any  [private]
+  moduleTypes: any  [private]
+  ruleNameError: any  [private]
+  rulePriorityError: any  [private]
+  ruleRepository: any  [private]
+  scopesOfRuleAwarenessKey: any  [private]
+  tabs: any  [private]
+
+methods
+  createConditionCriteria(page: any): any  [private]
+  createRule(): any  [private]
+  createdComponent(): any  [private]
+  getRuleDetail(): any  [private]
+  loadConditionData(): any  [private]
+  loadConditions(conditions?: any): any  [private]
+  loadRule(ruleId: any): any  [private]
+  onClose(): any  [private]
+  onConditionsChanged(arg0: any): any  [private]
+  onSaveRule(): any  [private]
+  saveRule(): any  [private]
+  showErrorNotification(): any  [private]
+  syncConditions(): any  [private]
+
 blocks
   sw_flow_rule_modal  [private]
     sw_flow_rule_modal_footer_cancel_button  [private]
@@ -36,4 +91,18 @@ blocks
         sw_flow_rule_modal_mt_tab_rule_content  [after v-if] [from v6.8.0] [private]
           sw_flow_rule_modal_mt_conditions_card  [after v-if] [from v6.8.0] [private]
       sw_flow_rule_modal_mt_tabs  [from v6.8.0] [private]
+
+classes
+  sw-flow-rule-modal  [private]
+  sw-flow-rule-modal__cancel-button  [private]
+  sw-flow-rule-modal__content  [private]
+  sw-flow-rule-modal__description  [private]
+  sw-flow-rule-modal__name  [private]
+  sw-flow-rule-modal__priority  [private]
+  sw-flow-rule-modal__product-type-warning  [private]
+  sw-flow-rule-modal__rule  [private]
+  sw-flow-rule-modal__save-button  [private]
+  sw-flow-rule-modal__tab-detail  [until v6.8.0] [private]
+  sw-flow-rule-modal__tab-rule  [until v6.8.0] [private]
+  sw-flow-rule-modal__type  [private]
 ```

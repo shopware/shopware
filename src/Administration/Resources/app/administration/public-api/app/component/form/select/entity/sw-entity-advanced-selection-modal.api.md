@@ -11,6 +11,68 @@ component sw-entity-advanced-selection-modal  private  js  [private]
   template src/app/component/form/select/entity/sw-entity-advanced-selection-modal/sw-entity-advanced-selection-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing  [private]
+
+inject
+  acl  [private]
+  filterFactory  [private]
+  filterService  [private]
+  repositoryFactory  [private]
+
+props
+  criteriaAggregations?: any[]  default=factory  [private]
+  criteriaFilters?: any[]  default=factory  [private]
+  disablePreviews?: boolean  default=literal  [private]
+  emptyIcon?: string  default=literal  [private]
+  emptyImagePath?: string  [deprecated tag:v6.8.0] [private]
+  entityAssociations?: any[]  default=factory  [private]
+  entityColumns: any[]  [private]
+  entityContext?: object  default=factory  [private]
+  entityDisplayText: string  [private]
+  entityFilters: object  [private]
+  entityName: string  [private]
+  initialSearchTerm?: string  default=factory  [private]
+  initialSelection?: any[]  default=factory  [private]
+  isRecordSelectableCallback?: (...args: any[]) => any  default=literal  [private]
+  isSingleSelect?: boolean  default=literal  [private]
+  storeKey: string  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  selection-submit(...args: any[])  [private]
+
+data
+  aggregations: any  [private]
+  currentSelection: any  [private]
+  disableRouteParams: any  [private]
+  entities: any  [private]
+  filterCriteria: any  [private]
+  filterWindowOpen: any  [private]
+  isLoading: any  [private]
+
+computed
+  activeFilterNumber: any  [private]
+  allEntityAssociations: any  [private]
+  assetFilter: any  [private]
+  assignmentProperties: any  [private]
+  defaultFilters: any  [private]
+  entityCriteria: any  [private]
+  entityDefinition: any  [private]
+  entityRepository: any  [private]
+  listFilters: any  [private]
+  modalTitle: any  [private]
+  previewColumns: any  [private]
+
+methods
+  clearFilters(): any  [private]
+  createdComponent(): any  [private]
+  debouncedGetList(): any  [private]
+  getList(): Promise<any>  [private]
+  onApply(): any  [private]
+  onSelectionChange(selection: any): any  [private]
+  updateCriteria(criteria: any): any  [private]
+
 blocks
   sw_entity_advanced_selection_modal  [private]
     sw_entity_advanced_selection_modal_button_apply  [private]
@@ -28,4 +90,26 @@ blocks
 
 crossings
   v-if  sw_entity_advanced_selection_modal_list_grid -> sw_entity_advanced_selection_modal_list_empty_state  [private]
+
+refs
+  filterPanel  -> sw-filter-panel  [private]
+
+classes
+  sw-entity-advanced-selection-modal  [private]
+  sw-entity-advanced-selection-modal__button-apply  [private]
+  sw-entity-advanced-selection-modal__button-cancel  [private]
+  sw-entity-advanced-selection-modal__card-filter  [private]
+  sw-entity-advanced-selection-modal__content  [private]
+  sw-entity-advanced-selection-modal__empty-state  [private]
+  sw-entity-advanced-selection-modal__filter-badge  [private]
+  sw-entity-advanced-selection-modal__filter-footer  [private]
+  sw-entity-advanced-selection-modal__filter-headline  [private]
+  sw-entity-advanced-selection-modal__filter-list-button  [private]
+  sw-entity-advanced-selection-modal__filter-panel  [private]
+  sw-entity-advanced-selection-modal__filter-reset  [private]
+  sw-entity-advanced-selection-modal__grid  [private]
+
+notes
+  dynamic-slot `column-${column.property}`  [private]
+  dynamic-slot `preview-${column.property}`  [private]
 ```

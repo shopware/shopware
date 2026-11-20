@@ -10,6 +10,52 @@ component sw-settings-tax-list  public  js
   source src/module/sw-settings-tax/page/sw-settings-tax-list/index.js
   template src/module/sw-settings-tax/page/sw-settings-tax-list/sw-settings-tax-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+  systemConfigApiService
+
+data
+  defaultTaxRateId: any
+  isLoading: any
+  naturalSorting: any
+  selectedDefaultTaxRateId: any
+  showDeleteModal: any
+  showSortingModal: any
+  sortBy: any
+  sortDirection: any
+  tax: any
+  taxProviders: any
+
+computed
+  noTaxProvidersFound: any
+  showChangePriority: any
+  taxProviderCriteria: any
+  taxProviderRepository: any
+  taxRepository: any
+
+methods
+  editLink(taxProviderId: any): any
+  getDefaultTaxRate(): any
+  getLabel(tax: any): any
+  getList(): any
+  getTaxColumns(): any
+  invalidateTaxCaches(): any
+  isSelectedDefaultRate(tax: any): any
+  isShopwareDefaultTax(tax: any): any
+  loadTaxProviders(): any
+  onChangeLanguage(languageId: any): any
+  onChangeTaxProviderActive(taxProvider: any): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): any
+  onDelete(id: any): any
+  onInlineEditCancel(promise: any): Promise<any>
+  onInlineEditSave(promise: any, tax: any): Promise<any>
+  setSelectedDefaultRate(checkBoxValue: any, id: any): any
+
 blocks
   sw_settings_list
     sw_settings_tax_index
@@ -37,4 +83,27 @@ blocks
         sw_settings_tax_list_smart_bar_header_title
           sw_settings_tax_list_smart_bar_header_amount
           sw_settings_tax_list_smart_bar_header_title_text
+
+refs
+  swSettingsTaxGrid  -> sw-entity-listing
+
+classes
+  is--active
+  sw-data-grid__cell-value
+  sw-page__smart-bar-amount
+  sw-settings-tax-list
+  sw-settings-tax-list-grid
+  sw-settings-tax-list__button-create
+  sw-settings-tax-list__confirm-delete-text
+  sw-settings-tax-provider-list-button__change-priority
+  sw-settings-tax-provider-list-content
+  sw-settings-tax-provider-list-content__bg
+  sw-tax-card
+  sw-tax-list__delete-action
+  sw-tax-list__edit-action
+  sw-tax-provider-item
+  sw-tax-provider-items
+  sw-tax-provider__link
+  sw-tax-provider__name
+  sw-tax-provider__show-detail-link
 ```

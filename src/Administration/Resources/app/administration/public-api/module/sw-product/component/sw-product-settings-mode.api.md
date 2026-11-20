@@ -10,6 +10,22 @@ component sw-product-settings-mode  public  js  [until v6.8.0]
   source src/module/sw-product/component/sw-product-settings-mode/index.js
   template src/module/sw-product/component/sw-product-settings-mode/sw-product-settings-mode.html.twig
 
+props
+  isLoading?: boolean  default=literal  [until v6.8.0]
+  modeSettings: object  [until v6.8.0]
+
+emits
+  settings-change(...args: any[])  [until v6.8.0]
+  settings-item-change(...args: any[])  [until v6.8.0]
+
+computed
+  advancedMode: any  [until v6.8.0]
+  settings: any  [until v6.8.0]
+
+methods
+  onChangeSetting(): any  [until v6.8.0]
+  onChangeSettingItem(): any  [until v6.8.0]
+
 blocks
   sw_product_settings_mode  [until v6.8.0]
     sw_product_settings_mode_content  [until v6.8.0]
@@ -22,4 +38,12 @@ blocks
         sw_product_settings_mode_advanced_switch  [until v6.8.0]
     sw_product_settings_mode_trigger  [until v6.8.0]
       sw_product_settings_mode_trigger_icon  [until v6.8.0]
+
+classes
+  sw-product-settings-mode  [until v6.8.0]
+  sw-product-settings-mode__advanced-mode  [until v6.8.0]
+  sw-product-settings-mode__container  [until v6.8.0]
+  sw-product-settings-mode__item  [until v6.8.0]
+  sw-product-settings-mode__list  [until v6.8.0]
+  sw-product-settings-mode__trigger  [until v6.8.0]
 ```

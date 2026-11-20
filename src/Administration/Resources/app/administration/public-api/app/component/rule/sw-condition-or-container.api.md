@@ -11,8 +11,29 @@ component sw-condition-or-container  private  js  [private]
   template src/app/component/rule/sw-condition-or-container/sw-condition-or-container.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  ruleContainer  [private]
+
+inject
+  acl  [private]
+
+methods
+  createdComponent(): any  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [private]
+  onAddAndContainer(): any  [private]
+  onAddPlaceholder(): any  [private]
+  onDeleteAll(): any  [private]
+
 blocks
   sw_condition_and_container  [private]
     sw_condition_or_container_actions  [private]
     sw_condition_or_container_children  [private]
+
+classes
+  condition-content__spacer--or  [private]
+  sw-condition-or-container  [private]
+  sw-condition-or-container__actions  [private]
+  sw-condition-or-container__actions--delete  [private]
+  sw-condition-or-container__actions--or  [private]
+  sw-condition-or-container__actions--sub  [private]
 ```

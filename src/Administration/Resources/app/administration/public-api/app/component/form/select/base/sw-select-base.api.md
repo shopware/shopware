@@ -11,6 +11,56 @@ component sw-select-base  private  js  [private]
   template src/app/component/form/select/base/sw-select-base/sw-select-base.html.twig  [private]
   visibility-source export  [private]
 
+props
+  disabled?: boolean  default=literal  [private]
+  isLoading?: boolean  default=literal  [private]
+  showClearableButton?: boolean  default=literal  [private]
+  size?: string  default=literal  [private]
+
+emits
+  clear(...args: any[])  [private]
+  select-collapsed(...args: any[])  [private]
+  select-expanded(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_select_base  [private]
+  label  {}  block=sw_select_base  [private]
+  results-list  { ...{ collapse } }  block=sw_select_base  [private]
+  sw-select-selection  { ...{ identification, error, disabled, size, expand, collapse } }  block=sw_select_base  [private]
+
+data
+  expanded: any  [private]
+
+computed
+  isClearable: any  [private]
+  swFieldClasses: any  [private]
+
+methods
+  collapse(event: any): any  [private]
+  computePath(event: any): any  [deprecated tag:v6.8.0] [private]
+  emitClear(): any  [private]
+  expand(): any  [private]
+  focusParentSelect(event: any): any  [private]
+  focusPreviousFormElement(): any  [private]
+  handleKeydown(event: any): any  [private]
+  listenToClickOutside(event: any): any  [private]
+  onBeforeUnmount(): any  [private]
+  onMounted(): any  [private]
+  toggleExpand(): any  [private]
+
 blocks
   sw_select_base  [private]
+
+refs
+  selectWrapper  -> div  [private]
+
+classes
+  sw-select  [private]
+  sw-select__select-indicator  [private]
+  sw-select__select-indicator-clear  [private]
+  sw-select__select-indicator-expand  [private]
+  sw-select__select-indicator-expand--rotated  [private]
+  sw-select__select-indicator-hitbox  [private]
+  sw-select__selection  [private]
+  sw-select__selection-indicators  [private]
 ```

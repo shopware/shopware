@@ -12,6 +12,18 @@ component sw-compact-colorpicker  private  js  [private]
   template src/app/component/form/sw-compact-colorpicker/sw-compact-colorpicker.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  colorValue: any  [private]
+
+methods
+  emitColor(): any  [private]
+
 blocks
   sw_colorpicker  [inherited] [private]
     sw_colorpicker_contextual_field  [replaced] [private]
@@ -29,4 +41,39 @@ blocks
           sw_compact_colorpicker_inputs_hex  [private]
           sw_compact_colorpicker_inputs_red  [private]
         sw_compact_colorpicker_preview  [private]
+
+refs
+  colorPicker  -> div  [private]
+
+classes
+  is--hex  [private]
+  is--invalid  [private]
+  is--small  [private]
+  sw-colorpicker  [private]
+  sw-colorpicker__alpha-slider  [private]
+  sw-colorpicker__colorpicker  [private]
+  sw-colorpicker__colorpicker--compact  [private]
+  sw-colorpicker__colorpicker-input  [private]
+  sw-colorpicker__colorpicker-previewBackground  [private]
+  sw-colorpicker__colorpicker-previewColor  [private]
+  sw-colorpicker__colorpicker-selection  [private]
+  sw-colorpicker__colorpicker-selector  [private]
+  sw-colorpicker__colorpicker-slider-range  [private]
+  sw-colorpicker__colorpicker-wrapper  [private]
+  sw-colorpicker__field  [private]
+  sw-colorpicker__input-row  [private]
+  sw-colorpicker__previewBackground  [private]
+  sw-colorpicker__previewBackground--empty  [private]
+  sw-colorpicker__previewColor  [private]
+  sw-colorpicker__previewWrapper  [private]
+  sw-colorpicker__row  [private]
+  sw-colorpicker__row-column  [private]
+  sw-colorpicker__row-column-label  [private]
+  sw-colorpicker__set-color-button  [private]
+  sw-colorpicker__sliders  [private]
+  sw-colorpicker__trigger  [private]
+  sw-field  [private]
+  sw-field--colorpicker  [private]
+  sw-field--compact-colorpicker  [private]
+  sw-text-editor-toolbar-button__fore-color-menu  [private]
 ```

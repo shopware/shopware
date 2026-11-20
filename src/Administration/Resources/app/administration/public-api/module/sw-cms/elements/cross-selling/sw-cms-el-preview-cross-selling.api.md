@@ -11,7 +11,20 @@ component sw-cms-el-preview-cross-selling  private  js  [private]
   template src/module/sw-cms/elements/cross-selling/preview/sw-cms-el-preview-cross-selling.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_element_cross_selling_preview  [private]
     sw_cms_element_cross_selling_preview_box  [private]
+
+classes
+  sw-cms-el-preview-cross-selling  [private]
+  sw-cms-el-preview-cross-selling-box  [private]
+  sw-cms-el-preview-cross-selling-box__action  [private]
+  sw-cms-el-preview-cross-selling-box__image  [private]
+  sw-cms-el-preview-cross-selling-box__info  [private]
+  sw-cms-el-preview-cross-selling-box__skeleton-left  [private]
+  sw-cms-el-preview-cross-selling-box__skeleton-right  [private]
+  sw-cms-el-preview-cross-selling__slider  [private]
 ```

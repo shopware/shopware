@@ -11,6 +11,12 @@ component sw-cms-block-product-listing  private  js  [private]
   template src/module/sw-cms/blocks/commerce/product-listing/component/sw-cms-block-product-listing.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_product_listing  [private]
+
 blocks
   sw_cms_block_product_listing  [private]
+
+classes
+  sw-cms-block-product-listing  [private]
 ```

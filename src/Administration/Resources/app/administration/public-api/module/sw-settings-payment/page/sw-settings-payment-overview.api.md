@@ -10,6 +10,33 @@ component sw-settings-payment-overview  public  ts
   source src/module/sw-settings-payment/page/sw-settings-payment-overview/index.ts
   template src/module/sw-settings-payment/page/sw-settings-payment-overview/sw-settings-payment-overview.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+
+data
+  isLoading: any
+  paymentMethods: any
+  showSortingModal: any
+
+computed
+  customCards: PaymentOverviewCard[]
+  isEmpty: boolean
+  paymentMethodCards: PaymentMethodCard[]
+  paymentMethodCriteria: CriteriaType
+  paymentMethodRepository: Repository<'payment_method'>
+
+methods
+  createdComponent(): void
+  loadPaymentMethods(): void
+  onChangeLanguage(languageId: EntityKey<'language'>): void
+  showActivationErrorNotification(name: string, active: boolean): any
+  showActivationSuccessNotification(name: string, active: boolean): any
+  togglePaymentMethodActive(paymentMethod: Entity<'payment_method'>): void
+
 blocks
   sw_settings_payment_overview
     sw_settings_payment_overview_content
@@ -27,4 +54,11 @@ blocks
       sw_settings_payment_overview_smart_bar_actions_add
     sw_settings_payment_overview_smart_bar_header
       sw_settings_payment_overview_smart_bar_header_title
+
+classes
+  sw-settings-payment-overview
+  sw-settings-payment-overview__button-create
+  sw-settings-payment-overview__content
+  sw-settings-payment-overview__sorting_modal_card
+  sw-settings-payment-overview__title
 ```

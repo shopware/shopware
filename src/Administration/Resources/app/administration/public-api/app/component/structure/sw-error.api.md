@@ -11,6 +11,25 @@ component sw-error  private  js  [private]
   template src/app/component/structure/sw-error/sw-error.html.twig  [private]
   visibility-source export  [private]
 
+props
+  errorObject?: object  default=factory  [private]
+  linkText?: string  default=literal  [private]
+  routerLink?: object  default=factory  [private]
+
+slots
+  default  {}  block=sw_error  [private]
+
+computed
+  error: any  [private]
+  imagePath: any  [private]
+  message: any  [private]
+  showLink: any  [private]
+  showStack: any  [private]
+  statusCode: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_error  [private]
     sw_error_contend  [private]
@@ -19,4 +38,13 @@ blocks
       sw_error_stack  [private]
       sw_error_status_code  [private]
     sw_error_illustration  [private]
+
+classes
+  sw-error  [private]
+  sw-error__container  [private]
+  sw-error__content  [private]
+  sw-error__illustration  [private]
+  sw-error__message  [private]
+  sw-error__stack  [private]
+  sw-error__status-code  [private]
 ```

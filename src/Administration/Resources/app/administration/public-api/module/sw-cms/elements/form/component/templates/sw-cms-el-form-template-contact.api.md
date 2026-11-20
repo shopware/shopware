@@ -11,6 +11,22 @@ component sw-cms-el-form-template-contact  private  js  [private]
   template src/module/sw-cms/elements/form/component/templates/form-contact/sw-cms-el-form-contact.html.twig  [private]
   visibility-source registration  [private]
 
+props
+  formSettings?: any  [private]
+
+computed
+  salutationOptions: any  [private]
+
 blocks
   sw_cms_el_form_contact  [private]
+
+classes
+  sw-cms-el-form-contact  [private]
+  sw-cms-el-form-contact-form-group  [private]
+  sw-cms-el-form-contact__note  [private]
+  sw-cms-el-form-contact__privacy  [private]
+  sw-cms-el-form-headline  [private]
+  sw-cms-el-form__action  [private]
+  three-items  [private]
+  two-items  [private]
 ```

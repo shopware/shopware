@@ -11,6 +11,14 @@ component sw-cms-preview-image-text-cover  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-cover/preview/sw-cms-preview-image-text-cover.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_text_cover_preview  [private]
+
+classes
+  sw-cms-preview-image-text-cover  [private]
+  sw-cms-preview-image-text-cover__image  [private]
+  sw-cms-preview-image-text-cover__text  [private]
 ```

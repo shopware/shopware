@@ -12,6 +12,12 @@ component sw-extension-rating-modal  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-rating-modal/sw-extension-rating-modal.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  modal-close(...args: any[])  [private]
+
+methods
+  emitClose(): any  [private]
+
 blocks
   sw_extension_review_creation  [replaced] [private]
     sw_extension_rating_modal_slot_default  [private]
@@ -21,4 +27,8 @@ blocks
         sw_extension_rating_modal_slot_footer_buttons_cancel  [private]
         sw_extension_rating_modal_slot_footer_buttons_submit  [private]
       sw_extension_rating_modal_slot_footer_gtc_checkbox  [private]
+
+classes
+  sw-extension-rating-modal  [private]
+  sw-extension-rating-modal__buttons  [private]
 ```

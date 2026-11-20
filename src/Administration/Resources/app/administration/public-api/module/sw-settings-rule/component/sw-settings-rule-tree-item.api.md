@@ -12,6 +12,18 @@ component sw-settings-rule-tree-item  private  js  [private]
   template src/module/sw-settings-rule/component/sw-settings-rule-tree-item/sw-settings-rule-tree-item.html.twig  [private]
   visibility-source export  [private]
 
+props
+  association: string  [private]
+  hideActions?: boolean  default=literal  [private]
+
+slots
+  actions  { add-element, add-sub-element, delete-element, is-disabled, item, on-change-route, on-duplicate, open-tree-item, tool-tip }  block=sw_tree_item_element_actions  [private]
+  content  { ...{ item, openTreeItem, getName } }  block=sw_tree_item_element_content  [private]
+  grip  {}  block=sw_tree_item_element_grip  [private]
+
+methods
+  hasItemAssociation(item: any): any  [private]
+
 blocks
   sw_tree_item  [inherited] [private]
     sw_tree_item_children_transition  [inherited] [private]
@@ -41,4 +53,29 @@ crossings
   v-if  sw_tree_item_children_content -> sw_tree_item_children_transition  [private]
   v-if  sw_tree_item_element_leaf_icon -> sw_tree_item_element_toggle  [private]
   v-if  sw_tree_items_item_content_edit -> sw_tree_items_item_content_default  [private]
+
+refs
+  item  -> div  [private]
+
+classes
+  sw-context-menu__duplicate-action  [private]
+  sw-context-menu__group  [private]
+  sw-context-menu__group-button-delete  [private]
+  sw-tree-detail__edit-tree-item  [private]
+  sw-tree-item  [private]
+  sw-tree-item__actions  [private]
+  sw-tree-item__after-action  [private]
+  sw-tree-item__before-action  [private]
+  sw-tree-item__children  [private]
+  sw-tree-item__content  [private]
+  sw-tree-item__context_button  [private]
+  sw-tree-item__element  [private]
+  sw-tree-item__icon  [private]
+  sw-tree-item__label  [private]
+  sw-tree-item__leaf  [private]
+  sw-tree-item__selection  [private]
+  sw-tree-item__sub-action  [private]
+  sw-tree-item__toggle  [private]
+  sw-tree-item__without-position-action  [private]
+  tree-link  [private]
 ```

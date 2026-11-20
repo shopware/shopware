@@ -11,6 +11,46 @@ component sw-flow-generate-document-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-generate-document-modal/sw-flow-generate-document-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  documentV2Service  [private]
+  repositoryFactory  [private]
+
+props
+  sequence: object  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  process-finish(...args: any[])  [private]
+
+data
+  documentTypeSelected: any  [private]
+  documentTypesSelected: any  [private]
+  fieldError: any  [private]
+  fileFormatsFieldError: any  [private]
+  fileFormatsSelected: any  [private]
+  isLoadingSupportedDocumentTypes: any  [private]
+  supportedDocumentTypes: any  [private]
+
+computed
+  documentTypeCriteria: any  [private]
+  documentTypeOptions: any  [private]
+  documentTypeRepository: any  [private]
+  documentTypes: any  [private]
+  fileFormatOptions: any  [private]
+  isDocumentGenerationReworkActive: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  initializeLegacyState(): any  [private]
+  loadSupportedDocumentTypes(): Promise<any>  [private]
+  onAddAction(): any  [private]
+  onAddLegacyAction(): any  [private]
+  onClose(): any  [private]
+  onDocumentTypeSelectedChange(value: any): any  [private]
+
 blocks
   sw_flow_generate_document_modal  [private]
     sw_flow_generate_document_modal_document_type_multiple  [private]
@@ -19,4 +59,12 @@ blocks
     sw_flow_generate_document_modal_footer  [after v-if] [private]
       sw_flow_generate_document_modal_footer_cancel_button  [private]
       sw_flow_generate_document_modal_footer_save_button  [private]
+
+classes
+  sw-flow-generate-document-modal  [private]
+  sw-flow-generate-document-modal__cancel-button  [private]
+  sw-flow-generate-document-modal__file-formats-select  [private]
+  sw-flow-generate-document-modal__save-button  [private]
+  sw-flow-generate-document-modal__type-multi-select  [private]
+  sw-flow-generate-document-modal__type-select  [private]
 ```

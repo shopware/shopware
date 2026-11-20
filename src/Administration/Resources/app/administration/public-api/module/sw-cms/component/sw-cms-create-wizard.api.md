@@ -10,6 +10,44 @@ component sw-cms-create-wizard  public  ts
   source src/module/sw-cms/component/sw-cms-create-wizard/index.ts
   template src/module/sw-cms/component/sw-cms-create-wizard/sw-cms-create-wizard.html.twig
 
+inject
+  cmsPageTypeService
+  customEntityDefinitionService
+  feature
+
+props
+  page: Entity<'cms_page'>
+
+emits
+  on-section-select(...args: any[])
+  wizard-complete(...args: any[])
+
+data
+  step: any
+  steps: object
+    pageName: any
+    pageType: any
+    sectionType: any
+
+computed
+  assetFilter: any
+  cmsPageStore: any
+  currentPageType: any
+  customEntities: any
+  isCompletable: any
+  isCustomEntityType: any
+  pagePreviewMedia: any
+  pagePreviewStyle: any
+  pageTypeSelectionStyle: any
+  visiblePageTypes: any
+
+methods
+  getStepName(stepValue: number): any
+  goToStep(stepName: string): any
+  onCompletePageCreation(): any
+  onPageTypeSelect(type: string): any
+  onSectionSelect(section: Entity<'cms_section'>): any
+
 blocks
   sw_cms_create_wizard
     sw_cms_create_wizard_first_step
@@ -28,4 +66,26 @@ blocks
         sw_cms_create_wizard_page_name
       sw_cms_create_wizard_page_preview
       sw_cms_create_wizard_third_step_back
+
+classes
+  sw-cms-create-wizard
+  sw-cms-create-wizard__back
+  sw-cms-create-wizard__inner
+  sw-cms-create-wizard__name-select
+  sw-cms-create-wizard__page-completion
+  sw-cms-create-wizard__page-completion-buttons
+  sw-cms-create-wizard__page-completion-custom-entity
+  sw-cms-create-wizard__page-completion-name
+  sw-cms-create-wizard__page-preview
+  sw-cms-create-wizard__page-type
+  sw-cms-create-wizard__page-type-selection
+  sw-cms-create-wizard__preview_image
+  sw-cms-create-wizard__preview_info
+  sw-cms-create-wizard__section-selection
+  sw-cms-create-wizard__step-1
+  sw-cms-create-wizard__step-2
+  sw-cms-create-wizard__step-3
+  sw-cms-create-wizard__step1-helptext
+  sw-cms-create-wizard__step2-helptext
+  sw-cms-create-wizard__title
 ```

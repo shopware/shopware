@@ -11,6 +11,42 @@ component sw-import-export-importer  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-importer/sw-import-export-importer.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  feature  [private]
+  importExport  [private]
+  repositoryFactory  [private]
+
+props
+  sourceEntity?: string  default=literal  [private]
+
+emits
+  import-started(...args: any[])  [private]
+
+data
+  config: any  [private]
+  importFile: any  [private]
+  importModalProfile: any  [private]
+  isLoading: any  [private]
+  selectedProfile: any  [private]
+  selectedProfileId: any  [private]
+
+computed
+  disableImporting: any  [private]
+  logCriteria: any  [private]
+  logRepository: any  [private]
+  profileCriteria: any  [private]
+  showProductVariantsInfo: any  [private]
+
+methods
+  handleProgress(log: any): any  [private]
+  onProfileSelect(profileId: any, profile: any): any  [private]
+  onStartDryRunProcess(): any  [private]
+  onStartProcess(dryRun?: any): any  [private]
+  setImportModalProfile(profileName: any): any  [private]
+
 blocks
   sw_import_export_importer  [private]
     sw_import_export_importer_file_input  [private]
@@ -25,4 +61,14 @@ blocks
     sw_import_export_importer_select_profile_label  [private]
     sw_import_export_importer_upload_csv_label  [after v-if] [private]
     sw_import_export_importer_warning_block  [private]
+
+classes
+  sw-import-export-importer  [private]
+  sw-import-export-importer__link  [private]
+  sw-import-export-importer__profile-select  [private]
+  sw-import-export-importer__text  [private]
+  sw-import-export-importer__title  [private]
+  sw-import-export-importer__variants-switch-field  [private]
+  sw-import-export-importer__variants-warning  [private]
+  sw-import-export-importer__variants-warning-links  [private]
 ```

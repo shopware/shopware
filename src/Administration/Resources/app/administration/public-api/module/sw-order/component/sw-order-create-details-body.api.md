@@ -10,6 +10,25 @@ component sw-order-create-details-body  public  js
   source src/module/sw-order/component/sw-order-create-details-body/index.js
   template src/module/sw-order/component/sw-order-create-details-body/sw-order-create-details-body.html.twig
 
+props
+  customer?: object
+  isCustomerActive?: boolean  default=literal
+
+emits
+  on-edit-billing-address(...args: any[])
+  on-edit-shipping-address(...args: any[])
+
+computed
+  billingAddress: any
+  email: any
+  isAddressIdentical: any
+  phoneNumber: any
+  shippingAddress: any
+
+methods
+  onEditBillingAddress(): any
+  onEditShippingAddress(): any
+
 blocks
   sw_order_create_details_body
     sw_order_create_details_body_billing_address
@@ -18,4 +37,14 @@ blocks
     sw_order_create_details_body_shipping_address
       sw_order_create_details_body_shipping_address_content
       sw_order_create_details_body_shipping_address_identical
+
+classes
+  is-billing
+  is-shipping
+  sw-order-create-details-body
+  sw-order-create-details-body__address-identical
+  sw-order-create-details-body__address-identical-text
+  sw-order-create-details-body__item
+  sw-order-create-details-body__item-label
+  sw-order-create-details-body__item-label-button
 ```

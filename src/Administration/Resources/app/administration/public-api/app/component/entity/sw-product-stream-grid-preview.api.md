@@ -11,6 +11,52 @@ component sw-product-stream-grid-preview  private  js  [private]
   template src/app/component/entity/sw-product-stream-grid-preview/sw-product-stream-grid-preview.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  productStreamPreviewService  [private]
+  repositoryFactory  [private]
+
+props
+  columns?: any[]  default=factory  [private]
+  criteria?: object  default=factory  [private]
+  displayAsGroup?: boolean  default=literal  [private]
+  filters: any  [private]
+  showSelection?: boolean  default=literal  [private]
+
+emits
+  selection-change(...args: any[])  [private]
+
+slots
+  additional-columns  {}  block=sw_product_stream_grid_preview_grid  [private]
+  empty-state  {}  block=sw_product_stream_grid_preview_empty_state  [private]
+
+data
+  isLoading: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  products: any  [private]
+  searchTerm: any  [private]
+  systemCurrency: any  [private]
+  total: any  [private]
+
+computed
+  assetFilter: any  [private]
+  currencyFilter: any  [private]
+  defaultColumns: any  [private]
+  emptyStateMessage: any  [private]
+  productColumns: any  [private]
+  productRepository: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelRepository: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  getPriceForDefaultCurrency(product: any): any  [private]
+  loadProducts(): any  [private]
+  loadSystemDefaultCurrency(): any  [private]
+  onPageChange(arg0: any): any  [private]
+  onSearchTermChange(searchTerm: any): any  [private]
+  onSelectionChange(products: any): any  [private]
+
 blocks
   sw_product_stream_grid_preview_content  [private]
     sw_product_stream_grid_preview_empty_state  [after v-if] [private]
@@ -24,4 +70,10 @@ blocks
       sw_product_stream_grid_preview_grid_pagination  [private]
     sw_product_stream_grid_preview_search_field_label  [private]
       sw_product_stream_grid_preview_search_field  [private]
+
+classes
+  sw-product-stream-grid-preview  [private]
+  sw-product-stream-grid-preview__grid  [private]
+  sw-product-stream-grid-preview__search-field  [private]
+  sw-product-stream-grid-preview__toolbar  [private]
 ```

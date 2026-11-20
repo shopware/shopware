@@ -10,6 +10,55 @@ component sw-product-properties  public  js
   source src/module/sw-product/component/sw-product-properties/index.js
   template src/module/sw-product/component/sw-product-properties/sw-product-properties.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  disabled?: boolean  default=literal
+  emptyStateDescription?: string  default=literal
+  emptyStateTitle?: string  default=literal
+  isAssociation?: boolean  default=literal
+  showInheritanceSwitcher?: boolean  default=literal
+
+data
+  groupIds: any
+  isPropertiesLoading: any
+  newProperties: any
+  properties: any
+  propertiesAvailable: any
+  searchTerm: any
+  showAddPropertiesModal: any
+
+computed
+  assetFilter: any
+  isChild: any
+  isLoading: any
+  parentProduct: any
+  product: any
+  productHasProperties: any
+  productProperties: any
+  propertyColumns: any
+  propertyExistsCriteria: any
+  propertyGroupCriteria: any
+  propertyGroupRepository: any
+  propertyOptionRepository: any
+
+methods
+  checkIfPropertiesExists(): any
+  createdComponent(): any
+  getGroupIds(): any
+  getProperties(): any
+  onCancelAddPropertiesModal(): any
+  onChangeSearchTerm(searchTerm: any): any
+  onDeleteProperties(): any
+  onDeleteProperty(property: any): any
+  onDeletePropertyValue(propertyValue: any): any
+  onSaveAddPropertiesModal(newProperties: any, callbackUpdateCurrentValues: any): any
+  turnOffAddPropertiesModal(): any
+  turnOnAddPropertiesModal(): any
+  updateNewProperties(): any
+
 blocks
   sw_product_properties
     sw_product_properties_add_properties_modal  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance, updateCurrentValue]
@@ -31,4 +80,22 @@ blocks
         sw_product_properties_filled_state_header  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance, updateCurrentValue]
           sw_product_properties_filled_state_header_button  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance, updateCurrentValue]
           sw_product_properties_filled_state_header_form_control  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance, updateCurrentValue]
+
+refs
+  entityListing  -> sw-entity-listing
+
+classes
+  has--no-properties
+  has--no-search-result
+  is--disabled
+  mt-card__title
+  sw-inherit-wrapper__card-title
+  sw-inherit-wrapper__card-title--inherited
+  sw-inherit-wrapper__inheritance-icon
+  sw-product-properties
+  sw-product-properties-list__column-values
+  sw-product-properties__button-add-property
+  sw-product-properties__card
+  sw-product-properties__empty-state
+  sw-product-properties__list
 ```

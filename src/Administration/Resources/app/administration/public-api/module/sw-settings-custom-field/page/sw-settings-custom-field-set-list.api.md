@@ -10,6 +10,29 @@ component sw-settings-custom-field-set-list  public  js
   source src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/index.js
   template src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list/sw-settings-custom-field-set-list.html.twig
 
+mixins
+  sw-inline-snippet, sw-settings-list
+
+inject
+  acl
+  feature
+
+data
+  datetime: any
+  entityName: any
+  showModal: any
+  sortBy: any
+
+computed
+  listingCriteria: any
+  messageSaveSuccess: any
+  titleSaveSuccess: any
+
+methods
+  getLocaleCriterias(term: any): any
+  getTermCriteria(term: any): any
+  onConfirmDelete(id: any): any
+
 blocks
   sw_settings_custom_field_set_list
     sw_settings_custom_field_set_list_actions
@@ -29,4 +52,15 @@ blocks
         sw_settings_custom_fields_set_list_empty_message
     sw_settings_custom_field_set_list_header
     sw_settings_custom_field_set_list_search_bar
+
+classes
+  sw-custom-field-set-list__column-name
+  sw-custom-field-set-list__edit-action
+  sw-page__smart-bar-amount
+  sw-settings-custom-field-set-list
+  sw-settings-custom-field-set-list-grid
+  sw-settings-custom-field-set-list__button-create
+  sw-settings-custom-field-set-list__card
+  sw-settings-custom-field-set-list__delete-action
+  sw-settings-custom-field-set-list__help-text-global-set
 ```

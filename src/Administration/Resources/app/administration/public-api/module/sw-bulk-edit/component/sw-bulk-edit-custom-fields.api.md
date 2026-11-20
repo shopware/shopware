@@ -11,6 +11,20 @@ component sw-bulk-edit-custom-fields  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields/sw-bulk-edit-custom-fields.html.twig
 
+props
+  entity?: object  default=factory
+
+emits
+  change(...args: any[])
+
+data
+  selectedCustomFields: any
+
+methods
+  initializeCustomFields(): any
+  toggleItemCheck($event: any, item: any): any
+  updateCustomField(item: any): any
+
 blocks
   sw_custom_field_set_renderer  [inherited]
     sw_custom_field_set_renderer_card  [inherited]
@@ -28,4 +42,15 @@ blocks
 
 crossings
   v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media
+
+refs
+  tabComponent  -> sw-tabs  [until v6.8.0]
+
+classes
+  mt-tabs__custom-content  [from v6.8.0]
+  sw-bulk-edit-change-field__container
+  sw-bulk-edit-custom-fields__change
+  sw-custom-field-set-renderer
+  sw-custom-field-set-renderer-card-form-renderer
+  sw-custom-field-set-renderer__card-tabs
 ```

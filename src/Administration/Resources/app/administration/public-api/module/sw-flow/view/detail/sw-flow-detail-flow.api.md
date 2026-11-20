@@ -11,6 +11,42 @@ component sw-flow-detail-flow  private  js  [private]
   template src/module/sw-flow/view/detail/sw-flow-detail-flow/sw-flow-detail-flow.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  flowActionService  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  isLoading?: boolean  default=literal  [private]
+  isNewFlow?: boolean  default=literal  [private]
+  isTemplate?: boolean  default=literal  [private]
+  isUnknownTrigger?: boolean  default=literal  [private]
+
+data
+  flowContainerStyle: any  [private]
+
+computed
+  availableActions: any  [private]
+  flow: any  [private]
+  formatSequences: any  [private]
+  hasAvailableAction: any  [private]
+  rootSequences: any  [private]
+  sequenceRepository: any  [private]
+  sequences: any  [private]
+  showActionWarning: any  [private]
+  triggerActions: any  [private]
+
+methods
+  convertSequenceData(): any  [private]
+  convertToTreeData(sequences: any): any  [private]
+  createSequence(): any  [private]
+  createdComponent(): any  [private]
+  getSequenceId(sequence: any): any  [private]
+  getTriggerActions(): any  [private]
+  onAddRootSequence(): any  [private]
+  onEventChange(eventName: any): any  [private]
+
 blocks
   sw_flow_detail_flow  [private]
     sw_flow_detail_flow_content  [private]
@@ -28,4 +64,22 @@ blocks
         sw_flow_detail_flow_trigger_select  [private]
           sw_flow_detail_flow_single_select  [private]
     sw_flow_detail_flow_modal_extension  [private]
+
+classes
+  list-item  [private]
+  sw-flow-detail-flow  [private]
+  sw-flow-detail-flow-template  [private]
+  sw-flow-detail-flow__content  [private]
+  sw-flow-detail-flow__oval  [private]
+  sw-flow-detail-flow__position  [private]
+  sw-flow-detail-flow__position-connection  [private]
+  sw-flow-detail-flow__position-plus  [private]
+  sw-flow-detail-flow__sequence-diagram  [private]
+  sw-flow-detail-flow__sequences  [private]
+  sw-flow-detail-flow__trigger-card  [private]
+  sw-flow-detail-flow__trigger-explain  [private]
+  sw-flow-detail-flow__trigger-select  [private]
+  sw-flow-detail-flow__warning-box  [private]
+  sw-flow-detail-flow__warning-unknow-trigger  [private]
+  sw-flow-detail-flow__warning-unknow-trigger-list  [private]
 ```

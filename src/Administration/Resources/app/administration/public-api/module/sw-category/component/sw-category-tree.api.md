@@ -10,7 +10,80 @@ component sw-category-tree  public  js
   source src/module/sw-category/component/sw-category-tree/index.js
   template src/module/sw-category/component/sw-category-tree/sw-category-tree.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+  syncService
+
+props
+  allowCreate?: boolean  default=literal
+  allowDelete?: boolean  default=literal
+  allowEdit?: boolean  default=literal
+  categoryId?: string  default=literal
+  currentLanguageId: string
+
+emits
+  category-checked-elements-count(...args: any[])
+  unsaved-changes(...args: any[])
+
+data
+  isLoadingInitialData: any
+  linkContext: any
+  loadedCategories: any
+  loadedParentIds: any
+  sortable: any
+  translationContext: any
+
+computed
+  categories: any
+  categoriesToDelete: any
+  category: any
+  categoryRepository: any
+  cmsPageRepository: any
+  contextMenuTooltipText: any
+  criteria: any
+  criteriaWithChildren: any
+  disableContextMenu: any
+  productRepository: any
+
+methods
+  addCategories(categories: any): any
+  addCategory(category: any): any
+  changeCategory(category: any): any
+  checkedElementsCount(count: any): any
+  createNewCategory(name: any, parentId: any): any
+  createNewElement(contextItem: any, parentId: any, name?: any): any
+  createdComponent(): any
+  deleteCheckedItems(checkedItems: any): Promise<any>
+  entryPointWarningMessage(category: any): any
+  fixSortingForCategories(categories: any, isSorted?: any): any
+  getCategoryUrl(category: any): any
+  getChildrenFromParent(parentId: any): any
+  getDeletedIds(idToDelete: any): any
+  getNextCategory(category: any, key?: any): any
+  indexProducts(ids: any): any
+  isErrorNavigationEntryPoint(category: any): any
+  isHighlighted(arg0: any): any
+  loadActiveCategory(): any
+  loadRootCategories(): any
+  onDeleteCategory(arg0: any): any
+  onGetTreeItems(parentId: any): any
+  onUpdatePositions(arg0: any): any
+  openInitialTree(): any
+  removeFromStore(id: any): any
+  syncProducts(categoryId: any): any
+  syncSiblings(arg0: any): any
+
 blocks
   sw_category_tree
     sw_category_tree_items
+
+refs
+  categoryTree  -> sw-tree
+
+classes
+  sw-category-tree
+  sw-category-tree__inner
 ```

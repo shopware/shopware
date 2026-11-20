@@ -11,6 +11,20 @@ component sw-cms-el-buy-box  private  js  [private]
   template src/module/sw-cms/elements/buy-box/component/sw-cms-el-buy-box.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element, placeholder  [private]
+
+computed
+  alignStyle: any  [private]
+  currencyFilter: any  [private]
+  currentDemoEntity: any  [private]
+  isProductPageType: any  [private]
+  pageType: any  [private]
+  product: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_el_buy_box  [private]
     sw_cms_el_buy_box_product_info  [private]
@@ -28,4 +42,23 @@ blocks
         sw_cms_element_buybox_skeleton_quantity  [private]
       sw_cms_element_buybox_skeleton_info  [private]
       sw_cms_element_buybox_skeleton_product_number  [private]
+
+classes
+  sw-cms-el-buy-box  [private]
+  sw-cms-el-buy-box__actions  [private]
+  sw-cms-el-buy-box__buy-action  [private]
+  sw-cms-el-buy-box__content  [private]
+  sw-cms-el-buy-box__form  [private]
+  sw-cms-el-buy-box__icon  [private]
+  sw-cms-el-buy-box__placeholder  [private]
+  sw-cms-el-buy-box__price  [private]
+  sw-cms-el-buy-box__product-number  [private]
+  sw-cms-el-buy-box__product-number-title  [private]
+  sw-cms-el-buy-box__quantity  [private]
+  sw-cms-el-buy-box__shipping-info  [private]
+  sw-cms-el-buy-box__skeleton  [private]
+  sw-cms-el-buy-box__tax-info  [private]
+  sw-cms-el-buy-box__variant  [private]
+  sw-cms-el-buy-box__variant-title  [private]
+  sw-cms-el-buy-box__variants  [private]
 ```

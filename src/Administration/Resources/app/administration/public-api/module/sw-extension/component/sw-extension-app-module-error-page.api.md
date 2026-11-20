@@ -11,6 +11,12 @@ component sw-extension-app-module-error-page  private  ts  [private]
   template src/module/sw-extension/component/sw-extension-app-module-error-page/sw-extension-app-module-error-page.html.twig  [private]
   visibility-source export  [private]
 
+methods
+  goBack(): void  [private]
+
 blocks
   sw_extension_app_module_error_page  [private]
+
+classes
+  sw-extension-app-module-error-page  [private]
 ```

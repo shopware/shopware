@@ -11,9 +11,50 @@ component sw-tagged-field  private  js  [private]
   template src/app/component/form/sw-tagged-field/sw-tagged-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  addOnKey?: any[]  default=factory  [private]
+  disabled?: boolean  default=literal  [private]
+  placeholder?: string  default=factory  [private]
+  value?: any[]  default=factory  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_tagged_field  [private]
+  label  {}  block=sw_tagged_field  [private]
+
+data
+  hasFocus: any  [private]
+  newTagName: any  [private]
+
+computed
+  hasValues: any  [private]
+  taggedFieldClasses: any  [private]
+  taggedFieldInputClasses: any  [private]
+
+methods
+  dismissLastTag(): any  [private]
+  dismissTag(index: any): any  [private]
+  noTriggerKey(event: any): any  [private]
+  performAddTag(event: any): any  [private]
+  setFocus(hasFocus: any): any  [private]
+
 blocks
   sw_tagged_field  [private]
     sw_tagged_field_inner  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
       sw_tagged_field_item_input  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
         sw_tagged_field_input  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
+
+refs
+  taggedFieldInput  -> input  [private]
+
+classes
+  sw-tagged-field  [private]
+  sw-tagged-field__input  [private]
+  sw-tagged-field__input-list-entry  [private]
+  sw-tagged-field__tag-list  [private]
 ```

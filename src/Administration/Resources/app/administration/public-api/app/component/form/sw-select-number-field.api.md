@@ -11,6 +11,33 @@ component sw-select-number-field  private  js  [private]
   source src/app/component/form/sw-select-number-field/index.js  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  value?: number  default=literal  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_block_field  [private]
+  hint  {}  block=sw_block_field  [private]
+  label  {}  block=sw_block_field  [private]
+
+data
+  currentValue: any  [private]
+
+methods
+  onChange(event: any): any  [private]
+
 blocks
   sw_block_field  [inherited] [private]
+
+classes
+  is--placeholder  [private]
+  sw-field--select  [private]
+  sw-field--select__loader  [private]
+  sw-field--select__options  [private]
+  sw-field--select__placeholder-option  [private]
 ```

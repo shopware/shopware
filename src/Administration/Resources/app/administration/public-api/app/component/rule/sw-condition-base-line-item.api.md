@@ -11,6 +11,29 @@ component sw-condition-base-line-item  public  js
   source src/app/component/rule/sw-condition-base-line-item/index.js
   template src/app/component/rule/sw-condition-base-line-item/sw-condition-base-line-item.html.twig
 
+inject
+  childAssociationField
+  conditionScopes
+  createCondition
+  feature
+  insertNodeIntoTree
+  removeNodeFromTree
+  repositoryFactory
+  unwrapAllLineItemsCondition
+
+props
+  parentCondition?: object  default=literal
+
+computed
+  allowMatchesAll: any
+  matchesAll: any
+  matchesAllOptions: any
+  ruleConditionRepository: any
+
+methods
+  createEntity(condition: any): any
+  wrapCondition(): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -22,4 +45,14 @@ blocks
       sw_condition_value_before_content  [replaced]
       sw_condition_value_content  [inherited] [after v-if]
     sw_condition_base_error  [inherited]
+
+classes
+  sw-condition
+  sw-condition-base-line-item__matches-all
+  sw-condition__container
+  sw-condition__context-button
+  sw-condition__create-after-action
+  sw-condition__create-before-action
+  sw-condition__placeholder
+  sw-condition__value-content
 ```

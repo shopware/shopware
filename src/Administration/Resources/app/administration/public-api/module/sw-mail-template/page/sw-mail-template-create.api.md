@@ -11,6 +11,11 @@ component sw-mail-template-create  public  js
   source src/module/sw-mail-template/page/sw-mail-template-create/index.js
   template src/module/sw-mail-template/page/sw-mail-template-create/sw-mail-template-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_mail_template_detail  [inherited]
     sw_mail_template_detail_actions  [inherited]
@@ -24,8 +29,8 @@ blocks
       sw_mail_template_detail_content_language_info  [inherited]
       sw_mail_template_detail_mail_text_info  [inherited]
         sw_mail_template_detail_preview_modal  [inherited]
-          sw_mail_template_detail_preview_modal_footer  [inherited] [after v-if] [until v6.8.0]
-            sw_mail_template_detail_preview_modal_footer_cancel  [inherited] [until v6.8.0]
+          sw_mail_template_detail_preview_modal_footer  [inherited] [after v-if] [until v6.8.0] [deprecated tag:v6.8.0]
+            sw_mail_template_detail_preview_modal_footer_cancel  [inherited] [until v6.8.0] [deprecated tag:v6.8.0]
         sw_mail_template_mail_text_form_content_html_field  [inherited]
         sw_mail_template_mail_text_form_content_plain_field  [inherited]
       sw_mail_template_detail_options_info  [inherited]
@@ -49,4 +54,50 @@ blocks
               sw_mail_template_available_variables_tree_items_item  [inherited] [scope: disableContextMenu, draggedItem, onChangeRoute, sortable, treeItems]
                 sw_mail_template_available_variables_tree_items_item_actions  [inherited] [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
                 sw_mail_template_available_variables_tree_items_item_grip  [inherited] [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
+
+refs
+  htmlEditor  -> sw-code-editor
+  mediaSidebarItem  -> sw-sidebar-media-item
+  plainEditor  -> sw-code-editor
+
+classes
+  sw-mail-template-detail
+  sw-mail-template-detail-options__container
+  sw-mail-template-detail__available-variables-sidebar-container
+  sw-mail-template-detail__available-variables-sidebar-container-tree-container
+  sw-mail-template-detail__available-variables-sidebar-container__tree
+  sw-mail-template-detail__available-variables-sidebar-trigger-select
+  sw-mail-template-detail__copy_icon
+  sw-mail-template-detail__description-field
+  sw-mail-template-detail__empty-title
+  sw-mail-template-detail__html-editor
+  sw-mail-template-detail__media-sidebar
+  sw-mail-template-detail__options-info-wrapper
+  sw-mail-template-detail__plain-editor
+  sw-mail-template-detail__save-action
+  sw-mail-template-detail__send-test-mail
+  sw-mail-template-detail__sender-name-field
+  sw-mail-template-detail__show-available-variables
+  sw-mail-template-detail__show-preview-sidebar
+  sw-mail-template-detail__show-preview-sidebar-container
+  sw-mail-template-detail__subject-field
+  sw-mail-template-detail__test-mail-sidebar
+  sw-mail-template-detail__test-mail-sidebar-container
+  sw-mail-template-preview-modal  [until v6.8.0]
+  sw-mail-template-preview-modal__html  [until v6.8.0]
+  sw-mail-template-preview-modal__html-content  [until v6.8.0]
+  sw-mail-template-preview-modal__html-error  [until v6.8.0]
+  sw-mail-template-preview-modal__html-title  [until v6.8.0]
+  sw-mail-template-preview-modal__plain-text  [until v6.8.0]
+  sw-mail-template-preview-modal__plain-text-content  [until v6.8.0]
+  sw-mail-template-preview-modal__plain-text-error  [until v6.8.0]
+  sw-mail-template-preview-modal__plain-text-title  [until v6.8.0]
+  sw-mail-template-preview-modal__sender-name  [until v6.8.0]
+  sw-mail-template-preview-modal__sender-name-content  [until v6.8.0]
+  sw-mail-template-preview-modal__sender-name-error  [until v6.8.0]
+  sw-mail-template-preview-modal__sender-name-title  [until v6.8.0]
+  sw-mail-template-preview-modal__subject  [until v6.8.0]
+  sw-mail-template-preview-modal__subject-content  [until v6.8.0]
+  sw-mail-template-preview-modal__subject-error  [until v6.8.0]
+  sw-mail-template-preview-modal__subject-title  [until v6.8.0]
 ```

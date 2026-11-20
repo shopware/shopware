@@ -10,6 +10,25 @@ component sw-property-detail-base  public  js
   source src/module/sw-property/component/sw-property-detail-base/index.js
   template src/module/sw-property/component/sw-property-detail-base/sw-property-detail-base.html.twig
 
+mixins
+  placeholder
+
+props
+  allowEdit?: boolean  default=literal
+  isLoading?: boolean  default=literal
+  propertyGroup: object  default=factory
+
+data
+  displayTypes: any
+  sortingTypes: any
+
+computed
+  displayTypeOptions: any
+  propertyGroupDisplayTypeError: any
+  propertyGroupNameError: any
+  propertyGroupSortingTypeError: any
+  sortingTypeOptions: any
+
 blocks
   sw_property_detail_base
     sw_property_detail_base_description
@@ -21,4 +40,8 @@ blocks
       sw_property_detail_display_type
       sw_property_detail_position
       sw_property_detail_sorting_type
+
+classes
+  sw-property-detail__filterable
+  sw-property-detail__visible-on-detail
 ```

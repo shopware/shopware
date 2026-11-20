@@ -11,6 +11,24 @@ component sw-extension-deactivation-modal  private  js  [private]
   template src/module/sw-extension/component/sw-extension-deactivation-modal/sw-extension-deactivation-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  extensionName: string  [private]
+  hasDeletableFiles?: boolean  default=literal  [private]
+  isLicensed: boolean  [private]
+  isLoading: boolean  [private]
+
+emits
+  extension-deactivate(...args: any[])  [private]
+  modal-close(...args: any[])  [private]
+
+computed
+  removeHint: any  [private]
+  removeLabel: any  [private]
+
+methods
+  emitClose(): any  [private]
+  emitDeactivate(): any  [private]
+
 blocks
   sw_extension_deactivation_modal  [private]
     sw_extension_deactivation_modal_content  [private]
@@ -18,4 +36,10 @@ blocks
         sw_extension_deactivation_modal_footer_cancel  [private]
         sw_extension_deactivation_modal_footer_deactivate  [private]
       sw_installed_extension_card_deactivation_content_modal_body  [private]
+
+classes
+  sw-extension-deactivation-modal  [private]
+  sw-extension-deactivation-modal__bold-paragraph  [private]
+  sw-extension-deactivation-modal__description  [private]
+  sw-extension-deactivation-modal__hint-paragraph  [private]
 ```

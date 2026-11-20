@@ -11,10 +11,23 @@ component sw-flow-leave-page-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-leave-page-modal/sw-flow-leave-page-modal.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  page-leave-cancel(...args: any[])  [private]
+  page-leave-confirm(...args: any[])  [private]
+
+methods
+  onCancel(): any  [private]
+  onConfirm(): any  [private]
+
 blocks
   sw_flow_leave_page_modal  [private]
     sw_flow_leave_page_modal_actions  [private]
       sw_flow_leave_page_modal_action_cancel  [private]
       sw_flow_leave_page_modal_action_confirm  [private]
     sw_flow_leave_page_modal_content  [private]
+
+classes
+  sw-flow-leave-page-modal  [private]
+  sw-flow-leave-page-modal__leave-page  [private]
+  sw-flow-leave-page-modal__stay-on-page  [private]
 ```

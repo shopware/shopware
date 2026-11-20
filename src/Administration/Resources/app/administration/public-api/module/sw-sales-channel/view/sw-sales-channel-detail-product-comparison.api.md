@@ -10,6 +10,53 @@ component sw-sales-channel-detail-product-comparison  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison/sw-sales-channel-detail-product-comparison.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  entityMappingService
+  productExportService
+  repositoryFactory
+  salesChannelService
+
+props
+  isLoading?: boolean  default=literal
+  productExport: any
+  salesChannel: any
+
+data
+  defaultSnippetSetId: any
+  deleteDomain: any
+  isLoadingDomains: any
+  isLoadingPreview: any
+  isLoadingReset: any
+  isLoadingValidate: any
+  isPreviewSuccessful: any
+  isValidateSuccessful: any
+  previewContent: any
+  previewErrors: any
+  showDeleteModal: any
+
+computed
+  domainRepository: any
+  editorConfig: any
+  isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  mainNavigationCriteria: any
+  outerCompleterFunctionBody: any
+  outerCompleterFunctionFooter: any
+  outerCompleterFunctionHeader: any
+  productExportRepository: any
+  salesChannelRepository: any
+
+methods
+  onPreviewClose(): any
+  outerCompleterFunction(mapping: any): any
+  preview(): any
+  resetToDefault(): any
+  resetValid(): any
+  validateTemplate(): any
+
 blocks
   sw_sales_channel_detail_base
     sw_sales_channel_detail_product_comparison
@@ -24,4 +71,12 @@ blocks
         sw_sales_channel_detail_product_comparison_input_footer
       sw_sales_channel_detail_product_comparison_header
         sw_sales_channel_detail_product_comparison_input_header
+
+classes
+  sw-sales-channel-detail-product-comparison
+  sw-sales-channel-detail-product-comparison__button
+  sw-sales-channel-detail-product-comparison__button-group
+  sw-sales-channel-detail-product-comparison__preview-action
+  sw-sales-channel-detail-product-comparison__reset-action
+  sw-sales-channel-detail-product-comparison__test-action
 ```

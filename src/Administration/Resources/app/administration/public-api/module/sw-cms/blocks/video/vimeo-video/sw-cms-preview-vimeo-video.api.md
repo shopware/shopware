@@ -11,6 +11,14 @@ component sw-cms-preview-vimeo-video  private  js  [private]
   template src/module/sw-cms/blocks/video/vimeo-video/preview/sw-cms-preview-vimeo-video.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_vimeo_video_preview  [private]
+
+classes
+  sw-cms-preview-vimeo-video  [private]
+  sw-cms-preview-vimeo-video__icon  [private]
+  sw-cms-preview-vimeo-video__img  [private]
 ```

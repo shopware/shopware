@@ -10,6 +10,49 @@ component sw-settings-tag-detail-modal  public  js
   source src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/index.js
   template src/module/sw-settings-tag/component/sw-settings-tag-detail-modal/sw-settings-tag-detail-modal.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+  syncService
+
+props
+  counts?: object  default=factory
+  editedTag?: object  default=literal
+  entity?: string  default=literal
+  property?: string  default=literal
+
+emits
+  close(...args: any[])
+  finish(...args: any[])
+
+data
+  assignmentsToBeAdded: any
+  assignmentsToBeDeleted: any
+  initialTab: any
+  isLoading: any
+  tag: any
+
+computed
+  allowSave: any
+  computedCounts: any
+  tagDefinition: any
+  tagDetailModalTabs: any
+  tagNameError: any
+  tagRepository: any
+  title: any
+  tooltipSave: any
+
+methods
+  addAssignment(assignment: any, id: any, item: any): any
+  createdComponent(): any
+  onCancel(): any
+  onSave(): Promise<any>
+  removeAssignment(assignment: any, id: any, item: any): any
+
 blocks
   sw_settings_tag_detail_modal
     sw_settings_tag_detail_modal_footer
@@ -24,4 +67,11 @@ blocks
       sw_settings_tag_detail_modal_tabs_assignments_tab  [scope: active] [until v6.8.0]
       sw_settings_tag_detail_modal_tabs_general  [scope: active] [until v6.8.0]
       sw_settings_tag_detail_modal_tabs_general_tab  [scope: active] [until v6.8.0]
+
+classes
+  is--auto-height
+  sw-settings-tag-detail-modal
+  sw-settings-tag-detail-modal__tabs  [from v6.8.0]
+  sw-settings-tag-detail-modal__tabs-content  [from v6.8.0]
+  sw-settings-tag-detail-modal__tag-name
 ```

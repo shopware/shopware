@@ -10,6 +10,36 @@ component sw-sales-channel-modal-grid  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-modal-grid/sw-sales-channel-modal-grid.html.twig
 
+inject
+  repositoryFactory
+
+props
+  addChannelAction: object
+  productStreamsExist?: boolean  default=literal
+  productStreamsLoading?: boolean  default=literal
+
+emits
+  grid-channel-add(...args: any[])
+  grid-detail-open(...args: any[])
+
+data
+  isLoading: any
+  salesChannelTypes: any
+  total: any
+
+computed
+  salesChannelTypeRepository: any
+
+methods
+  createdComponent(): any
+  getTooltip(item: any): any
+  isAgenticCommerceSalesChannelType(salesChannelTypeId: any): any  [deprecated tag:v6.8.0]
+  isDisabled(item: any): any
+  isProductComparisonSalesChannelType(salesChannelTypeId: any): any
+  onAddChannel(id: any): any
+  onOpenDetail(id: any): any
+  showAgenticCommerceType(): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_sales_channel_modal_grid
     sw_sales_channel_grid_columns  [scope: item]
@@ -17,4 +47,14 @@ blocks
       sw_sales_channel_grid_columns_content  [scope: item]
       sw_sales_channel_grid_columns_icon  [scope: item]
     sw_sales_channel_modal_grid_loader  [after v-if]
+
+classes
+  sw-sales-channel-modal-grid
+  sw-sales-channel-modal-grid__actions
+  sw-sales-channel-modal-grid__icon
+  sw-sales-channel-modal-grid__icon-column
+  sw-sales-channel-modal-grid__item-content
+  sw-sales-channel-modal-grid__item-description
+  sw-sales-channel-modal-grid__item-name
+  sw-sales-channel-modal__add-channel-action
 ```

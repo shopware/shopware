@@ -11,6 +11,12 @@ component sw-cms-el-preview-image-slider  private  js  [private]
   template src/module/sw-cms/elements/image-slider/preview/sw-cms-el-preview-image-slider.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_element_image_slider_preview  [private]
+
+classes
+  sw-cms-el-preview-image-slider  [private]
 ```

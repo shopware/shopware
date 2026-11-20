@@ -11,6 +11,56 @@ component sw-generic-cms-page-assignment  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-generic-cms-page-assignment/sw-generic-cms-page-assignment.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  cmsPageTypeService  [private]
+  repositoryFactory  [private]
+
+props
+  allowedPageTypes?: string[]  default=factory  [private]
+  cmsPageId?: EntityKey<'cms_page'> | null  default=literal  [private]
+  slotOverrides?: CmsSlotOverrides  default=literal  [private]
+
+emits
+  create-layout(...args: any[])  [private]
+  update:cms-page-id(...args: any[])  [private]
+  update:slot-overrides(...args: any[])  [private]
+
+data
+  cmsPage: any  [private]
+  isLoading: any  [private]
+  showLayoutSelection: any  [private]
+
+computed
+  changesetGenerator: ChangesetGenerator  [private]
+  cmsPageCriteria: Criteria  [private]
+  cmsPageRepository: Repository<'cms_page'>  [private]
+  pageTypeTitle: string  [private]
+
+methods
+  applySlotOverrides(cmsPage: Entity<'cms_page'>): Entity<'cms_page'>  [private]
+  closeLayoutModal(): void  [private]
+  createNewLayout(): void  [private]
+  deleteSpecificKeys(sections: Entity<'cms_section'>[]): void  [private]
+  emitCmsPageOverrides(): void  [private]
+  getCmsPage(): Promise<void>  [private]
+  onLayoutSelect(selectedLayoutId: EntityKey<'cms_page'> | null): void  [private]
+  openInCmsEditor(): void  [private]
+  openLayoutModal(): void  [private]
+
 blocks
   sw_generic_cms_page_assignment  [private]
+
+classes
+  is--empty  [private]
+  sw-generic-cms-page-assignment  [private]
+  sw-generic-cms-page-assignment__base-layout  [private]
+  sw-generic-cms-page-assignment__change-layout-action  [private]
+  sw-generic-cms-page-assignment__create-layout  [private]
+  sw-generic-cms-page-assignment__layout-reset  [private]
+  sw-generic-cms-page-assignment__open-in-pagebuilder  [private]
+  sw-generic-cms-page-assignment__page-selection  [private]
+  sw-generic-cms-page-assignment__page-selection-actions  [private]
+  sw-generic-cms-page-assignment__page-selection-headline  [private]
+  sw-generic-cms-page-assignment__page-selection-info  [private]
+  sw-generic-cms-page-assignment__page-selection-subheadline  [private]
 ```

@@ -10,6 +10,27 @@ component sw-import-export-activity-result-modal  public  js
   source src/module/sw-import-export/component/sw-import-export-activity-result-modal/index.js
   template src/module/sw-import-export/component/sw-import-export-activity-result-modal/sw-import-export-activity-result-modal.html.twig
 
+inject
+  importExport
+
+props
+  logEntity?: object  default=factory
+
+emits
+  result-close(...args: any[])
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  logTypeText: any
+  mainEntity: any
+  mainEntityResult: any
+  result: any
+
+methods
+  calculateFileSize(size: any): any
+  getStateLabel(state: any): any
+  openDownload(id: any): Promise<any>
+
 blocks
   sw_import_export_activity_result_modal
     sw_import_export_activity_result_modal_activity
@@ -44,4 +65,36 @@ blocks
           sw_import_export_activity_result_modal_info_mainEntity_list_update
           sw_import_export_activity_result_modal_info_mainEntity_list_update_error
           sw_import_export_activity_result_modal_info_mainEntity_list_update_skip
+
+classes
+  sw-import-export-activity-result-modal
+  sw-import-export-activity-result-modal__activity
+  sw-import-export-activity-result-modal__activity-description
+  sw-import-export-activity-result-modal__activity-header
+  sw-import-export-activity-result-modal__activity-headline
+  sw-import-export-activity-result-modal__color-badge
+  sw-import-export-activity-result-modal__download-button
+  sw-import-export-activity-result-modal__download-failed
+  sw-import-export-activity-result-modal__download-section
+  sw-import-export-activity-result-modal__info
+  sw-import-export-activity-result-modal__list-item
+  sw-import-export-activity-result-modal__log-info
+  sw-import-export-activity-result-modal__log-info-content
+  sw-import-export-activity-result-modal__log-info-date
+  sw-import-export-activity-result-modal__log-info-file-name
+  sw-import-export-activity-result-modal__log-info-file-size
+  sw-import-export-activity-result-modal__log-info-imported
+  sw-import-export-activity-result-modal__log-info-profile
+  sw-import-export-activity-result-modal__log-info-state
+  sw-import-export-activity-result-modal__log-info-type
+  sw-import-export-activity-result-modal__log-info-user
+  sw-import-export-activity-result-modal__main-activity
+  sw-import-export-activity-result-modal__main-activity-content
+  sw-import-export-activity-result-modal__main-activity-insert
+  sw-import-export-activity-result-modal__main-activity-insert-error
+  sw-import-export-activity-result-modal__main-activity-insert-skip
+  sw-import-export-activity-result-modal__main-activity-other-error
+  sw-import-export-activity-result-modal__main-activity-update
+  sw-import-export-activity-result-modal__main-activity-update-error
+  sw-import-export-activity-result-modal__main-activity-update-skip
 ```

@@ -10,4 +10,22 @@ component sw-request-consent-modal  private  ts  [private]
   source src/app/component/structure/sw-request-consent-modal/index.ts  [private]
   template src/app/component/structure/sw-request-consent-modal/sw-request-consent-modal.html.twig  [private]
   visibility-source export  [private]
+
+data
+  isLoading: any  [private]
+
+computed
+  hasConsentRequest: any  [private]
+  sanitizedMessage: any  [private]
+  state: any  [private]
+
+methods
+  accept(): Promise<any>  [private]
+  decline(): Promise<any>  [private]
+
+classes
+  sw-request-consent-modal  [private]
+  sw-request-consent-modal__content  [private]
+  sw-request-consent-modal__footer  [private]
+  sw-request-consent-modal__requestMessage  [private]
 ```

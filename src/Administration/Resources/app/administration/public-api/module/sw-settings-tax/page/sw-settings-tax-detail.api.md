@@ -10,6 +10,55 @@ component sw-settings-tax-detail  public  js
   source src/module/sw-settings-tax/page/sw-settings-tax-detail/index.js
   template src/module/sw-settings-tax/page/sw-settings-tax-detail/sw-settings-tax-detail.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+  systemConfigApiService
+
+props
+  taxId?: string  default=literal
+
+data
+  changeDefaultTaxRate: any
+  config: any
+  customFieldSets: any
+  defaultTaxRateId: any
+  formerDefaultTaxName: any
+  isDefault: any
+  isLoading: any
+  isSaveSuccessful: any
+  tax: any
+
+computed
+  allowSave: any
+  identifier: any
+  isDefaultTaxRate: any
+  isNewTax: any
+  isShopwareDefaultTax: any
+  label: any
+  showCustomFields: any
+  taxNameError: any
+  taxRepository: any
+  taxTaxRateError: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  changeName(name: any): any
+  createdComponent(): any
+  invalidateTaxCaches(): any
+  loadCustomFieldSets(): any
+  onCancel(): any
+  onChangeDefaultTaxRate(): any
+  onChangeLanguage(languageId: any): any
+  onSave(): any
+  reloadDefaultTaxRate(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_settings_tax_detail
     sw_settings_tax_detail_actions
@@ -23,4 +72,11 @@ blocks
       sw_settings_tax_detail_custom_field_sets  [after v-if]
       sw_settings_tax_detail_rule_card
     sw_settings_tax_detail_header
+
+classes
+  sw-settings-tax-detail
+  sw-settings-tax-detail__default-tax-rate
+  sw-settings-tax-detail__save-action
+  sw-settings-tax-detail__switches
+  sw-settings-tax-detail__tax-rule-grid
 ```

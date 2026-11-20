@@ -10,6 +10,76 @@ component sw-settings-number-range-detail  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-detail/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-detail/sw-settings-number-range-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  documentV2ApiService
+  numberRangeService
+  repositoryFactory
+
+data
+  advanced: any
+  collidingNumberRangeNames: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  numberRange: any
+  numberRangeId: any
+  prefix: any
+  preview: any
+  selectedSalesChannelsCollection: any
+  simplePossible: any
+  state: any
+  suffix: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  hasPatternCollision: any
+  identifier: any
+  numberRangeCriteria: any
+  numberRangeNameError: any
+  numberRangeRepository: any
+  numberRangeSalesChannelsRepository: any
+  numberRangeTypeCriteria: any
+  numberRangeTypeCriteriaGlobal: any
+  numberRangeTypeIdError: any
+  numberRangeTypeRepository: any
+  previewInput: any
+  salesChannelCriteria: any
+  salesChannelRepository: any
+  selectedNumberRangeSalesChannels: any  [deprecated tag:v6.8.0]
+  showCustomFields: any
+  showNumberRangeStateFields: any
+  stateInput: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  addSalesChannel(salesChannel: any): any
+  buildSelectedSalesChannelsCollection(): any
+  checkPatternCollision(): any
+  createdComponent(): Promise<any>
+  getPreview(): any
+  getState(): any
+  invalidateNumberRangeCaches(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): Promise<any>
+  loadSalesChannels(): any  [deprecated tag:v6.8.0]
+  noSalesChannelSelected(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onChangePattern(): any
+  onChangeType(): any
+  onSave(): any
+  removeSalesChannel(salesChannel: any): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  splitPattern(): any
+
 blocks
   sw_settings_number_range_detail
     sw_settings_number_range_detail_actions
@@ -37,4 +107,13 @@ blocks
       sw_settings_number_range_detail_language_info
     sw_settings_number_range_detail_header
     sw_settings_number_range_detail_language_switch
+
+classes
+  sw-number-range-detail__select-type
+  sw-number_range-quickinfo__alert-global-type
+  sw-settings-number-range-detail
+  sw-settings-number-range-detail-assignment
+  sw-settings-number-range-detail__field_default
+  sw-settings-number-range-detail__pattern-collision-warning
+  sw-settings-number-range-detail__save-action
 ```

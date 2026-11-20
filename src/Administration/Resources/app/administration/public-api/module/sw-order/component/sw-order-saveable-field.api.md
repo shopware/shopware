@@ -10,6 +10,33 @@ component sw-order-saveable-field  public  js
   source src/module/sw-order/component/sw-order-saveable-field/index.js
   template src/module/sw-order/component/sw-order-saveable-field/sw-order-saveable-field.html.twig
 
+props
+  editable?: boolean  default=literal
+  placeholder?: any  default=literal
+  type: string  default=literal
+  value: any  default=literal
+
+emits
+  update:value(...args: any[])
+  value-change(...args: any[])
+
+slots
+  default  {}  block=sw_order_saveable_field_content
+
+data
+  isEditing: any
+  isLoading: any
+
+computed
+  component: any
+  computedAttrs: any
+  valuePropName: any
+
+methods
+  onCancelButtonClicked(): any
+  onClick(): any
+  onSaveButtonClicked(): any
+
 blocks
   sw_order_saveable_field
     sw_order_saveable_field_actions
@@ -18,4 +45,10 @@ blocks
     sw_order_saveable_field_content
     sw_order_saveable_field_input
       sw_order_saveable_field_input_field
+
+refs
+  edit-field  -> component
+
+classes
+  sw-order-saveable-field
 ```

@@ -10,6 +10,100 @@ component sw-category-detail  public  js
   source src/module/sw-category/page/sw-category-detail/index.js
   template src/module/sw-category/page/sw-category-detail/sw-category-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  cmsService
+  customFieldDataProviderService
+  repositoryFactory
+  seoUrlService
+  systemConfigApiService
+
+props
+  categoryId?: string  default=literal
+  landingPageId?: string  default=literal
+
+data
+  categoryCheckedItem: any
+  currentLanguageId: any
+  entryPointOverwriteConfirmed: any
+  entryPointOverwriteSalesChannels: any
+  forceDiscardChanges: any
+  isCustomFieldLoading: any
+  isDisplayingLeavePageWarning: any
+  isLoading: any
+  isMobileViewport: any
+  isSaveSuccessful: any
+  landingPageCheckedItem: any
+  nextRoute: any
+  splitBreakpoint: any
+  term: any
+
+computed
+  assetFilter: any
+  category: any
+  categoryCriteria: any
+  categoryRepository: any
+  changesetGenerator: any
+  cmsPage: any
+  cmsPageId: any
+  cmsPageRepository: any
+  cmsPageState: any
+  customFieldSetCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetLandingPageCriteria: any  [deprecated tag:v6.8.0]
+  customFieldSetRepository: any  [deprecated tag:v6.8.0]
+  identifier: any
+  landingPage: any
+  landingPageCriteria: any
+  landingPageRepository: any
+  landingPageTooltipSave: any
+  mediaRepository: any
+  pageClasses: any
+  showEmptyState: any
+  showEntryPointOverwriteModal: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  addLandingPageSalesChannelError(): any
+  cancelEdit(): any
+  cancelEntryPointOverwrite(): any
+  categoryCheckedElementsCount(count: any): any
+  checkForEntryPointOverwrite(): any
+  checkViewport(): any
+  confirmEntryPointOverwrite(): any
+  createdComponent(): any
+  deleteSpecifcKeys(sections: any): any  [deprecated tag:v6.8.0]
+  extractSlotOverrides(origin: any, changes: any): any  [deprecated tag:v6.8.0]
+  getAssignedCmsPage(): any
+  getAssignedCmsPageForLandingPage(): any
+  getCmsPageOverrides(): any  [deprecated tag:v6.8.0]
+  landingPageCheckedElementsCount(count: any): any
+  loadCustomFieldSet(): any
+  loadLandingPageCustomFieldSet(): any
+  onCategoryDelete(): any
+  onChangeLanguage(newLanguageId: any): any
+  onLandingPageDelete(): any
+  onLeaveModalClose(): any
+  onLeaveModalConfirm(destination: any): any
+  onSave(): Promise<any>
+  onSaveCategories(): any
+  onSaveLandingPage(): any
+  onSearch(value: any): any
+  openChangeModal(destination: any): any
+  registerListener(): any
+  resetCategory(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  setCategory(): any
+  setLandingPage(): Promise<any>
+  updateCmsPageDataMapping(): any
+  updateCmsPageDataMappingForLandingPage(): any
+  updateSeoUrls(): any
+
 blocks
   sw_category
     sw_category_content
@@ -34,4 +128,22 @@ blocks
     sw_category_smart_bar_save
       sw_category_smart_bar_save_category
       sw_category_smart_bar_save_landing_page  [after v-if]
+
+refs
+  categoryTree  -> sw-category-tree
+  categoryView  -> sw-category-view
+  landingPageTree  -> sw-landing-page-tree
+  landingPageView  -> sw-landing-page-view
+  searchBar  -> sw-search-bar
+
+classes
+  sw-category
+  sw-category-detail__category-collapse
+  sw-category-detail__collapse-headline
+  sw-category-detail__collapse-selected-count
+  sw-category-detail__landing-page-collapse
+  sw-category-detail__save-action
+  sw-category-detail__save-landing-page-action
+  sw-category__content
+  sw-tree-actions__delete_categories
 ```

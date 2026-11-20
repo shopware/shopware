@@ -11,7 +11,19 @@ component sw-description-list  private  js  [private]
   template src/app/component/base/sw-description-list/sw-description-list.html.twig  [private]
   visibility-source export  [private]
 
+props
+  grid?: string  default=literal  [private]
+
+slots
+  default  {}  block=sw_description_list  [private]
+
+computed
+  descriptionListStyles: any  [private]
+
 blocks
   sw_description_list  [private]
     sw_description_list_slot_default  [private]
+
+classes
+  sw-description-list  [private]
 ```

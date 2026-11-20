@@ -10,6 +10,55 @@ component sw-settings-country-general  public  js
   source src/module/sw-settings-country/component/sw-settings-country-general/index.js
   template src/module/sw-settings-country/component/sw-settings-country-general/sw-settings-country-general.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  repositoryFactory
+
+props
+  country: object
+  isLoading: boolean
+  userConfig: object
+  userConfigValues: object
+
+emits
+  modal-save(...args: any[])
+
+data
+  baseCurrencyId: any
+  countryId: any
+  currencies: any
+  currencyDependsValue: any
+  menuOptions: any
+  showCurrencyModal: any
+  taxFreeType: any
+
+computed
+  countryNameError: any
+  countryRepository: any
+  currencyRepository: any
+  isVatIdFormatCheckWithoutEffect: any
+
+methods
+  addCheckedHamburgerMenu(): any
+  addDisabledBaseCurrencyCheckBox(): any
+  calculateInheritedPrice(currencyId: any): any
+  changeBaseItem(item: any): any
+  clearMenuOptions(): any
+  createDataModal(): any
+  createdComponent(): any
+  getCurrencyById(currencyId: any): any
+  getPriceByCurrency(basePrice: any, currencyId: any): any
+  loadCurrencies(): any
+  onToggleCurrencyModal(taxFreeType: any): any
+  openCompanyTaxModal(): any
+  openCustomerTaxModal(): any
+  pushDataFromUserConfig(): any
+  saveCountryCurrencyDependent(): any
+  sortCurrencyCheckBox(): any
+
 blocks
   sw_settings_country_general
     sw_settings_country_general_card
@@ -32,4 +81,21 @@ blocks
       sw_settings_country_general_content_show_company_tax_free_currency_dependent_values
       sw_settings_country_general_content_show_currency_dependent_modal  [after v-if]
       sw_settings_country_general_content_show_tax_free_currency_dependent_values
+
+classes
+  customer-tax-amount
+  sw-settings-country-general-company-tax
+  sw-settings-country-general-customer-tax
+  sw-settings-country-general__company-select-currency
+  sw-settings-country-general__currency-dependent-modal
+  sw-settings-country-general__customer-select-currency
+  sw-settings-country-general__field-check-vatid-format
+  sw-settings-country-general__input-amount
+  sw-settings-country-general__is-eu
+  sw-settings-country-general__option-items
+  sw-settings-country-general__options-container
+  sw-settings-country-general__select
+  sw-settings-country-general__vat-id-required
+  switch-field-company-tax-free
+  switch-field-customer-tax-free
 ```

@@ -11,6 +11,43 @@ component sw-sales-channel-menu  private  js  [private]
   template src/module/sw-sales-channel/component/structure/sw-sales-channel-menu/sw-sales-channel-menu.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  domainLinkService  [private]
+  repositoryFactory  [private]
+
+data
+  contextMenuOpen: any  [private]
+  isLoading: any  [private]
+  isMobileViewport: any  [private]
+  salesChannels: any  [private]
+  salesChannelsLoaded: any  [private]
+  showModal: any  [private]
+
+computed
+  adminMenuStore: any  [private]
+  buildMenuTree: any  [private]
+  canCreateSalesChannels: any  [private]
+  isSidebarExpanded: any  [private]
+  moreItemsEntry: any  [private]
+  moreSalesChannelAvailable: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelFavorites: any  [private]
+  salesChannelFavoritesService: any  [private]
+  salesChannelModuleColor: any  [private]
+  salesChannelRepository: any  [private]
+  showAddChannelMenuItem: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  getDomainLink(salesChannel: any): any  [private]
+  loadEntityData(): any  [private]
+  openSalesChannelModal(): any  [private]
+  openStorefrontLink(storeFrontLink: any): any  [private]
+  registerListener(): any  [private]
+  syncMobileViewport(): any  [private]
+
 blocks
   sw_sales_channel_menu  [private]
     sw_sales_channel_menu_headline  [after v-if] [private]
@@ -25,4 +62,26 @@ blocks
         sw_sales_channel_menu_navigation_main_items  [private]
           sw_sales_channel_menu_navigation_item_additional_text  [scope: entry, index] [private]
         sw_sales_channel_menu_navigation_more_items  [private]
+
+classes
+  collapsible-text  [private]
+  hide-on-collapse  [private]
+  sw-admin-menu__headline  [private]
+  sw-admin-menu__headline-action  [private]
+  sw-admin-menu__headline-context-menu-add-sales-channel  [private]
+  sw-admin-menu__headline-context-menu-manage-sales-channels  [private]
+  sw-admin-menu__headline_text  [private]
+  sw-admin-menu__navigation  [private]
+  sw-admin-menu__navigation-item-row  [private]
+  sw-admin-menu__navigation-link  [private]
+  sw-admin-menu__navigation-link-icon  [private]
+  sw-admin-menu__navigation-link-label  [private]
+  sw-admin-menu__navigation-list  [private]
+  sw-admin-menu__navigation-list-item  [private]
+  sw-admin-menu__sales-channel-item  [private]
+  sw-admin-menu__sales-channel-more-items  [private]
+  sw-sales-channel-menu  [private]
+  sw-sales-channel-menu-domain-link  [private]
+  sw-sales-channel-menu-domain-link__icon  [private]
+  sw-sales-channel-menu__add-channel  [private]
 ```

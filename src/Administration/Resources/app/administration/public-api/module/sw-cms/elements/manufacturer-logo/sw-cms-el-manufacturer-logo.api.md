@@ -12,7 +12,22 @@ component sw-cms-el-manufacturer-logo  private  js  [private]
   template src/module/sw-cms/elements/manufacturer-logo/component/sw-cms-el-manufacturer-logo.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  isProductPage: any  [private]
+  logoStyles: any  [private]
+  styles: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_image  [inherited] [private]
     sw_cms_element_image_content  [replaced] [private]
+
+classes
+  sw-cms-el-image  [private]
+  sw-cms-el-image__content  [private]
 ```

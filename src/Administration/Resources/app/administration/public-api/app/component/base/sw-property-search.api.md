@@ -11,6 +11,65 @@ component sw-property-search  private  js  [private]
   template src/app/component/base/sw-property-search/sw-property-search.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  collapsible?: boolean  default=literal  [private]
+  isAddOnly?: boolean  default=literal  [private]
+  options: any[]  default=factory  [private]
+  overlay?: boolean  default=literal  [private]
+
+emits
+  option-select(...args: any[])  [private]
+
+slots
+  toolbar  { focus, input, search-term }  block=sw_property_search_field  [private]
+  toolbar-items  {}  block=sw_property_search_field  [private]
+  toolbar-search-field  {}  block=sw_property_search_field  [private]
+
+data
+  currentGroup: any  [private]
+  displaySearch: any  [private]
+  displayTree: any  [private]
+  groupOptions: any  [private]
+  groupPage: any  [private]
+  groupTotal: any  [private]
+  groups: any  [private]
+  optionPage: any  [private]
+  optionTotal: any  [private]
+  prevSearchTerm: any  [private]
+  preventSelection: any  [private]
+  searchTerm: any  [private]
+
+computed
+  assetFilter: any  [private]
+  propertyGroupCriteria: any  [private]
+  propertyGroupOptionCriteria: any  [private]
+  propertyGroupOptionRepository: any  [private]
+  propertyGroupRepository: any  [private]
+  swPropertySearchClasses: any  [private]
+
+methods
+  addOptionCount(): any  [private]
+  closeOnClickOutside(event: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  loadGroups(): any  [private]
+  loadOptions(): any  [private]
+  onFocusSearch(): any  [private]
+  onGroupPageChange(pagination: any): any  [private]
+  onOptionPageChange(pagination: any): any  [private]
+  onOptionSearchPageChange(pagination: any): any  [private]
+  onOptionSelect(selection: any, item: any, selected: any): any  [private]
+  onSearchOptions(input: any): any  [private]
+  refreshSelection(): any  [private]
+  selectGroup(group: any): any  [private]
+  selectOptions(grid: any): any  [private]
+  showSearch(): any  [private]
+  showTree(): any  [private]
+  sortOptions(options: any): any  [private]
+
 blocks
   sw_property_search  [private]
     sw_property_search_field  [private]
@@ -38,4 +97,25 @@ blocks
 
 crossings
   v-if  sw_property_search_option_search_grid -> sw_property_search_empty  [private]
+
+refs
+  groupGrid  -> sw-grid  [private]
+  optionGrid  -> sw-grid  [private]
+  optionSearchGrid  -> sw-grid  [private]
+  searchField  -> mt-text-field  [private]
+
+classes
+  group_grid__column-name  [private]
+  sw-property-search  [private]
+  sw-property-search__search-field  [private]
+  sw-property-search__search-field-container  [private]
+  sw-property-search__search-selection  [private]
+  sw-property-search__search-selection__option_grid  [private]
+  sw-property-search__toolbar  [private]
+  sw-property-search__tree-selection  [private]
+  sw-property-search__tree-selection-container  [private]
+  sw-property-search__tree-selection__column-items-selected  [private]
+  sw-property-search__tree-selection__group_grid  [private]
+  sw-property-search__tree-selection__option_grid  [private]
+  sw-property-search__tree-selection__option_grid--option-value  [private]
 ```

@@ -12,6 +12,31 @@ component sw-cms-product-assignment  private  js  [private]
   template src/module/sw-cms/component/sw-cms-product-assignment/sw-cms-product-assignment.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  change(...args: any[])  [private]
+  paginate(...args: any[])  [private]
+
+slots
+  after-item-list  {}  block=sw_cms_product_assignment_results_list_after_content  [private]
+  before-item-list  {}  block=sw_cms_product_assignment_results_list_before_content  [private]
+  empty-state  {}  block=sw_cms_product_assignment_grid_footer_content  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey } }  block=sw_cms_product_assignment_results_list_result_content  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_cms_product_assignment_results_list_list_item_label  [private]
+  select  {}  block=sw_cms_product_assignment_select  [private]
+
+data
+  steps: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  initData(): any  [private]
+  onItemSelect(item: any): any  [private]
+  onSelectCollapsed(): any  [private]
+  paginateGrid(arg0?: any): any  [private]
+  removeFromGrid(item: any): any  [private]
+  removeItem(item: any): any  [private]
+  searchItems(): any  [private]
+
 blocks
   sw_entity_many_to_many_assignment_card  [replaced] [private]
     sw_cms_product_assignment_content  [private]
@@ -33,4 +58,19 @@ blocks
         sw_cms_product_assignment_grid_column_actions_content  [scope: item] [private]
       sw_cms_product_assignment_grid_footer  [private]
         sw_cms_product_assignment_grid_footer_content  [private]
+
+refs
+  searchInput  -> input  [private]
+  selectBase  -> sw-select-base  [private]
+  swSelectResultList  -> sw-select-result-list  [private]
+
+classes
+  sw-cms-product-assignment  [private]
+  sw-cms-product-assignment-select  [private]
+  sw-cms-product-assignment__empty-state  [private]
+  sw-cms-product-assignment__grid  [private]
+  sw-cms-product-assignment__select-container  [private]
+
+notes
+  dynamic-slot `column-${column.property}`  [private]
 ```

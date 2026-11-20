@@ -10,6 +10,22 @@ component sw-settings-document-list  public  js
   source src/module/sw-settings-document/page/sw-settings-document-list/index.js
   template src/module/sw-settings-document/page/sw-settings-document-list/sw-settings-document-list.html.twig
 
+mixins
+  sw-settings-list
+
+inject
+  acl
+
+data
+  entityName: any
+  sortBy: any  [deprecated tag:v6.8.0]
+
+computed
+  collapseButtonClass: any  [deprecated tag:v6.8.0]
+  expandButtonClass: any  [deprecated tag:v6.8.0]
+  filters: any
+  listingCriteria: any
+
 blocks
   sw_settings_list
     sw_settings_document_index
@@ -39,4 +55,16 @@ blocks
         sw_settings_document_list_smart_bar_header_title
           sw_settings_document_list_smart_bar_header_amount
           sw_settings_document_list_smart_bar_header_title_text
+
+classes
+  sw-document-list__column-name
+  sw-document-list__column-type
+  sw-document-list__delete-action
+  sw-document-list__edit-action
+  sw-document-list__label-wrapper
+  sw-list
+  sw-page__smart-bar-amount
+  sw-settings-document-list
+  sw-settings-document-list-grid
+  sw-settings-document-list__add-document
 ```

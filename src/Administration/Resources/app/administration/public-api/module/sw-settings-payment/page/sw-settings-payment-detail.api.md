@@ -10,6 +10,60 @@ component sw-settings-payment-detail  public  js
   source src/module/sw-settings-payment/page/sw-settings-payment-detail/index.js
   template src/module/sw-settings-payment/page/sw-settings-payment-detail/sw-settings-payment-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+data
+  customFieldSets: any
+  deletionInProcess: any
+  isLoading: any
+  isSaveSuccessful: any
+  mediaItem: any
+  paymentMethod: any
+  showDeleteModal: any
+  uploadTag: any
+
+computed
+  forbidDelete: any
+  identifier: any
+  isNewPaymentMethod: any
+  mediaRepository: any
+  paymentMethodCriteria: any
+  paymentMethodNameError: any
+  paymentMethodRepository: any
+  paymentMethodTechnicalNameError: any
+  ruleFilter: any
+  ruleRepository: any
+  showCustomFields: any
+  technicalNameIsProvided: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  deletePaymentMethod(): Promise<any>
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onDismissRule(): any
+  onDropMedia(mediaItem: any): any
+  onError(error: any): any
+  onSave(): any
+  onSaveRule(ruleId: any): any
+  onUnlinkLogo(): any
+  openMediaSidebar(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+  setMediaFromSidebar(mediaEntity: any): any
+  setMediaItem(arg0: any): any
+
 blocks
   sw_settings_payment_detail
     sw_settings_payment_detail_actions
@@ -37,4 +91,24 @@ blocks
         sw_settings_payment_detail_top_rule_select
     sw_settings_payment_detail_header
     sw_settings_payment_detail_language_switch
+
+refs
+  mediaSidebarItem  -> sw-sidebar-media-item
+
+classes
+  sw-payment-detail__save-action
+  sw-settings-payment-detail
+  sw-settings-payment-detail-delete
+  sw-settings-payment-detail-delete__container
+  sw-settings-payment-detail__condition_container
+  sw-settings-payment-detail__description
+  sw-settings-payment-detail__field-active
+  sw-settings-payment-detail__field-after-order
+  sw-settings-payment-detail__field-availability-rule
+  sw-settings-payment-detail__field-name
+  sw-settings-payment-detail__field-position
+  sw-settings-payment-detail__field-technical-name
+  sw-settings-payment-detail__logo-image-upload
+  sw_theme_manager__confirm-delete-text
+  text-secondary
 ```

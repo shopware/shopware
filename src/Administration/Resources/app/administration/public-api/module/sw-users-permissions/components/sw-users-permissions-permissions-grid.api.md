@@ -10,6 +10,49 @@ component sw-users-permissions-permissions-grid  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid/sw-users-permissions-permissions-grid.html.twig
 
+inject
+  privileges
+
+props
+  disabled?: boolean  default=literal
+  isLoading?: boolean  default=literal
+  role?: object  default=literal
+
+computed
+  parentOrder: any
+  parentSnippetKeys: any
+  parents: any
+  permissions: any
+  permissionsWithParents: any
+  roles: any
+  usedDependencies: any
+
+methods
+  addDependenciesForRole(identifier: any): any
+  addPermission(identifier: any): any
+  allPermissionsForKeySelected(permissionKey: any): any
+  allRolesLabel(): any
+  areAllChildrenRolesSelected(parentKey: any, roleKey: any): any
+  areAllChildrenWithAllRolesSelected(parentKey: any): any
+  areSomeChildrenRolesSelected(parentKey: any, roleKey: any, ignoreMissingPrivilege?: any): any
+  areSomeChildrenWithAllRolesSelected(parentKey: any): any
+  changeAllPermissionsForKey(permissionKey: any): any
+  changePermission(permissionKey: any, permissionRole: any): any
+  compareParents(a: any, b: any): any
+  entityAllTooltip(permissionKey: any): any
+  getPermissionsForParent(parentKey: any): any
+  isParentRoleDisabled(parentKey: any, roleKey: any): any
+  isPermissionDisabled(permissionKey: any, permissionRole: any): any
+  isPermissionSelected(permissionKey: any, permissionRole: any): any
+  parentAllTooltip(parentValue: any): any
+  parentLabel(parentValue: any): any
+  parentRoleHasChildRoles(parentKey: any, roleKey: any): any
+  parentRoleTooltip(parentValue: any, role: any): any
+  privilegeTooltip(permissionKey: any, permissionRole: any): any
+  removePermission(identifier: any): any
+  toggleAllChildrenWithAllRoles(parentKey: any): any
+  toggleAllChildrenWithRole(parentKey: any, roleKey: any): any
+
 blocks
   sw_users_permissions_permissions_grid
     sw_users_permissions_permissions_grid_header
@@ -32,4 +75,16 @@ blocks
         sw_users_permissions_permissions_grid_permissions_roles_field  [scope: permission, role]
       sw_users_permissions_permissions_grid_permissions_title  [scope: permission]
         sw_users_permissions_permissions_grid_permissions_title_content  [scope: permission]
+
+classes
+  is--even
+  sw-users-permissions-permissions-grid
+  sw-users-permissions-permissions-grid__all
+  sw-users-permissions-permissions-grid__checkbox-wrapper
+  sw-users-permissions-permissions-grid__entry
+  sw-users-permissions-permissions-grid__entry-header
+  sw-users-permissions-permissions-grid__grid
+  sw-users-permissions-permissions-grid__parent
+  sw-users-permissions-permissions-grid__role_all
+  sw-users-permissions-permissions-grid__title
 ```

@@ -11,6 +11,33 @@ component sw-cms-el-video  private  ts  [private]
   template src/module/sw-cms/elements/video/component/sw-cms-el-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+data
+  mappedDemoMedia: any  [private]
+  mappedDemoMediaFetchId: any  [private]
+
+computed
+  assetFilter: (value: string) => string  [private]
+  contentClasses: Record<string, boolean>  [private]
+  coverUrl: string | null  [private]
+  mediaConfigValue: string | undefined  [private]
+  mediaRepository: RepositoryType<'media'>  [private]
+  mediaUrl: string | null  [private]
+  placeholderStyles: { 'background-image': string }  [private]
+  styles: { 'min-height': string }  [private]
+  wrapperStyles: { 'justify-content': string | null; 'align-items': string | null }  [private]
+
+methods
+  createdComponent(): any  [private]
+  loadVideoCoverMedia(media?: Entity<'media'> | null): any  [private]
+  updateMappedDemoMedia(): Promise<any>  [private]
+
 blocks
   sw_cms_element_video  [private]
     sw_cms_element_video_content  [private]
@@ -19,4 +46,11 @@ blocks
 
 crossings
   v-if  sw_cms_element_video_content_placeholder -> sw_cms_element_video_content_media  [private]
+
+classes
+  sw-cms-el-video  [private]
+  sw-cms-el-video__content  [private]
+  sw-cms-el-video__content-placeholder  [private]
+  sw-cms-el-video__content-video  [private]
+  sw-cms-el-video__placeholder-icon  [private]
 ```

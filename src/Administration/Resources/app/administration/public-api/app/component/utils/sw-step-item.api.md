@@ -11,8 +11,38 @@ component sw-step-item  private  js  [private]
   template src/app/component/utils/sw-step-item/sw-step-item.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  addStep  [private]
+  feature  [private]
+
+props
+  disabledIcon?: string  default=literal  [private]
+
+slots
+  default  {}  block=sw_step_item_description  [private]
+
+data
+  active: any  [private]
+  variant: any  [private]
+
+computed
+  icon: any  [private]
+  modifierClasses: any  [private]
+  stepDisplay: any  [private]
+
+methods
+  registerStep(): any  [private]
+  setActive(active: any): any  [private]
+  setVariant(variant: any): any  [private]
+
 blocks
   sw_step_item  [private]
     sw_step_item_bubble  [private]
     sw_step_item_description  [private]
+
+classes
+  sw-step-item  [private]
+  sw-step-item__bubble  [private]
+  sw-step-item__description  [private]
+  sw-step-item__icon  [private]
 ```

@@ -10,6 +10,53 @@ component sw-product-list  public  js
   source src/module/sw-product/page/sw-product-list/index.js
   template src/module/sw-product/page/sw-product-list/sw-product-list.html.twig
 
+mixins
+  notification, listing, placeholder
+
+inject
+  acl
+  filterFactory
+  numberRangeService
+  repositoryFactory
+
+computed
+  adminEsEnable: any
+  assetFilter: any
+  currenciesColumns: any
+  currencyFilter: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  listFilterOptions: any
+  listFilters: any
+  productBulkEditColumns: any
+  productColumns: any
+  productCriteria: any
+  productRepository: any
+  productTypes: any
+  salesChannelCriteria: any
+  showVariantModal: any
+  stockColorVariantFilter: any
+
+methods
+  closeVariantModal(): any
+  getCurrencyPriceByCurrencyId(currencyId: any, prices: any): any
+  getList(): Promise<any>
+  getProductColumns(): any
+  normalizeCategoryFilters(filters: any): any
+  onBulkEditItems(): any
+  onBulkEditModalClose(): any
+  onBulkEditModalOpen(): any
+  onChangeLanguage(languageId: any): any
+  onColumnSort(column: any): any
+  onDuplicate(referenceProduct: any): any
+  onDuplicateFinish(duplicate: any): any
+  onInlineEditCancel(product: any): any
+  onInlineEditSave(promise: any, product: any): any
+  openVariantModal(item: any): any
+  productHasVariants(productEntity: any): any
+  productIsDigital(productEntity: any): any
+  updateCriteria(criteria: any): any
+  updateTotal(arg0: any): any
+
 blocks
   sw_product_list
     sw_product_list_content
@@ -60,4 +107,24 @@ crossings
   v-if  sw_product_list_grid_columns_active_inline_edit -> sw_product_list_grid_columns_active_content
   v-if  sw_product_list_grid_columns_name_inline_edit -> sw_product_list_grid_columns_name_content
   v-if  sw_product_list_grid_columns_stock_inline_edit -> sw_product_list_grid_columns_stock_content
+
+refs
+  swProductGrid  -> sw-entity-listing
+
+classes
+  sw-page__smart-bar-amount
+  sw-product-bulk-edit-modal
+  sw-product-list
+  sw-product-list-grid
+  sw-product-list-grid__duplicate-action
+  sw-product-list__add-button-group
+  sw-product-list__add-other-context-button
+  sw-product-list__add-physical-button
+  sw-product-list__button-context-menu
+  sw-product-list__content
+  sw-product-list__digital-indicator
+  sw-product-list__variant-indicator
+
+notes
+  unresolved data data() { const data = { products: null, currencies: [], sortBy: 'createdAt', sor...
 ```

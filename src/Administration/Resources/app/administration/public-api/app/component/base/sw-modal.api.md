@@ -11,6 +11,52 @@ component sw-modal  private  js  [private]
   template src/app/component/base/sw-modal/sw-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  shortcutService  [private]
+
+props
+  closable?: boolean  default=literal  [private]
+  isLoading?: boolean  default=literal  [private]
+  selector?: string  default=literal  [private]
+  showFooter?: boolean  default=literal  [private]
+  showHeader?: boolean  default=literal  [private]
+  size?: string  default=literal  [private]
+  subtitle?: string  default=literal  [private]
+  title?: string  default=literal  [private]
+  variant?: string  default=literal  [private]
+  zIndex?: number  default=literal  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+slots
+  body  {}  block=sw_modal_body  [private]
+  default  {}  block=sw_modal_body  [private]
+  modal-footer  {}  block=sw_modal_footer  [private]
+  modal-header  {}  block=sw_modal_header  [private]
+  modal-loader  {}  block=sw_modal_loader  [private]
+  modal-title  {}  block=sw_modal_slot_header  [private]
+
+data
+  id: any  [private]
+
+computed
+  hasFooterSlot: any  [private]
+  modalBodyClasses: any  [private]
+  modalClasses: any  [private]
+  modalDialogClasses: any  [private]
+  showHelpSidebar: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [private]
+  closeModal(): any  [private]
+  closeModalOnClickOutside(domEvent: any): any  [private]
+  closeModalOnEscapeKey(event: any): any  [private]
+  createdComponent(): any  [private]
+  destroyedComponent(): any  [private]
+  mountedComponent(): any  [private]
+  setFocusToModal(): any  [private]
+
 blocks
   sw_modal  [private]
     sw_modal_element  [private]
@@ -25,4 +71,18 @@ blocks
             sw_modal_close  [private]
             sw_modal_close_button  [private]
               sw_modal_close_icon  [private]
+
+refs
+  dialog  -> div  [private]
+
+classes
+  sw-modal  [private]
+  sw-modal__body  [private]
+  sw-modal__close  [private]
+  sw-modal__dialog  [private]
+  sw-modal__footer  [private]
+  sw-modal__header  [private]
+  sw-modal__subtitle  [private]
+  sw-modal__title  [private]
+  sw-modal__titles  [private]
 ```

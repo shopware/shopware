@@ -11,6 +11,12 @@ component sw-cms-block-text-hero  private  js  [private]
   template src/module/sw-cms/blocks/text/text-hero/component/sw-cms-block-text-hero.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_text_hero  [private]
+
 blocks
   sw_cms_block_text_hero  [private]
+
+classes
+  sw-cms-block-text-hero  [private]
 ```

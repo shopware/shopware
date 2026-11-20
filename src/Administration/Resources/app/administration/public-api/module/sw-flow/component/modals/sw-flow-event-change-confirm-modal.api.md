@@ -11,10 +11,28 @@ component sw-flow-event-change-confirm-modal  private  js  [private]
   template src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal/sw-flow-event-change-confirm-modal.html.twig  [private]
   visibility-source export  [private]
 
+emits
+  modal-close(...args: any[])  [private]
+  modal-confirm(...args: any[])  [private]
+
+computed
+  sequences: any  [private]
+
+methods
+  onClose(): any  [private]
+  onConfirm(): any  [private]
+
 blocks
   sw_flow_event_change_confirm_modal  [private]
     sw_flow_event_change_confirm_footer_cancel_button  [private]
     sw_flow_event_change_confirm_footer_save_button  [private]
     sw_flow_event_change_confirm_modal_header  [private]
     sw_flow_event_change_confirm_modal_text_confirmation  [private]
+
+classes
+  sw-flow-event-change-confirm-modal  [private]
+  sw-flow-event-change-confirm-modal__cancel-button  [private]
+  sw-flow-event-change-confirm-modal__confirm-button  [private]
+  sw-flow-event-change-confirm-modal__text-confirmation  [private]
+  sw-flow-event-change-confirm-modal__title  [private]
 ```

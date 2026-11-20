@@ -10,6 +10,38 @@ component sw-users-permissions-role-mcp-reference-modal  public  js
   source src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal/index.js
   template src/module/sw-users-permissions/component/sw-users-permissions-role-mcp-reference-modal/sw-users-permissions-role-mcp-reference-modal.html.twig
 
+inject
+  mcpToolService
+
+props
+  mcpIntegrations?: any[]  default=factory
+  role: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  availableTools: any
+  hasPreselected: any
+  isLoading: any
+  viewMode: any
+
+computed
+  allMissingStatic: any
+  allowlistedToolNames: any
+  displayRows: any
+  filterOptions: any
+  relevantTools: any
+  rolePrivileges: any
+
+methods
+  closeModal(): any
+  getBadgeVariant(chip: any): any
+  grantAllMissing(): any
+  grantPrivilege(chip: any): any
+  grantRow(row: any): any
+  loadTools(): any
+
 blocks
   sw_users_permissions_role_mcp_reference_modal
     sw_users_permissions_role_mcp_reference_modal_content
@@ -26,4 +58,21 @@ blocks
 
 crossings
   <div>  sw_users_permissions_role_mcp_reference_modal -> sw_users_permissions_role_mcp_reference_modal_content
+
+classes
+  is--dynamic
+  is--granted
+  is--missing
+  sw-users-permissions-role-mcp-reference-modal
+  sw-users-permissions-role-mcp-reference-modal__content
+  sw-users-permissions-role-mcp-reference-modal__legend
+  sw-users-permissions-role-mcp-reference-modal__legend-label
+  sw-users-permissions-role-mcp-reference-modal__privilege-chip
+  sw-users-permissions-role-mcp-reference-modal__row
+  sw-users-permissions-role-mcp-reference-modal__row-chips
+  sw-users-permissions-role-mcp-reference-modal__row-grant
+  sw-users-permissions-role-mcp-reference-modal__row-label
+  sw-users-permissions-role-mcp-reference-modal__save-reminder
+  sw-users-permissions-role-mcp-reference-modal__toolbar
+  sw-users-permissions-role-mcp-reference-modal__toolbar-viewmode-select
 ```

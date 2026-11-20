@@ -11,10 +11,28 @@ component sw-bulk-edit-document-generation-failed-list  private  js  [private]
   template src/module/sw-bulk-edit/component/sw-bulk-edit-document-generation-failed-list/sw-bulk-edit-document-generation-failed-list.html.twig  [private]
   visibility-source export  [private]
 
+props
+  itemsPerPage?: number  default=literal  [private]
+  rows?: any[]  default=factory  [private]
+
+data
+  page: any  [private]
+
+computed
+  columns: any  [private]
+  paginatedRows: any  [private]
+  showPagination: any  [private]
+
+methods
+  onPageChange(arg0: any): any  [private]
+
 blocks
   sw_bulk_edit_document_generation_failed_list  [private]
     sw_bulk_edit_document_generation_failed_list_grid  [private]
       sw_bulk_edit_document_generation_failed_list_grid_column_document_types  [private]
       sw_bulk_edit_document_generation_failed_list_grid_column_order_number  [private]
       sw_bulk_edit_document_generation_failed_list_grid_pagination  [private]
+
+classes
+  sw-bulk-edit-document-generation-failed-list  [private]
 ```

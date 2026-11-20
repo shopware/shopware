@@ -11,11 +11,58 @@ component sw-flow-list  private  js  [private]
   template src/module/sw-flow/view/listing/sw-flow-list/sw-flow-list.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification, listing  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  searchTerm?: string  default=literal  [private]
+
+emits
+  on-update-total(...args: any[])  [private]
+
+data
+  currentFlow: any  [private]
+  flows: any  [private]
+  isDeleting: any  [private]
+  isDownloading: any  [private]
+  isLoading: any  [private]
+  selectedItems: any  [private]
+  sortBy: any  [private]
+  sortDirection: any  [private]
+  total: any  [private]
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0] [private]
+  detailPageLinkText: any  [private]
+  flowColumns: any  [private]
+  flowCriteria: any  [private]
+  flowRepository: any  [private]
+  triggerEvents: any  [private]
+
+methods
+  bulkDeleteWarningMessage(selectionCount: any): any  [private]
+  createComponent(): any  [private]
+  deleteWarningMessage(): any  [private]
+  getList(): any  [private]
+  getTranslatedEventName(value: any): any  [private]
+  isValidTrigger(eventName: any): any  [private]
+  onCloseDeleteModal(): any  [private]
+  onConfirmDelete(item: any): any  [private]
+  onDeleteFlow(item: any): any  [private]
+  onDuplicateFlow(item: any): any  [private]
+  onEditFlow(item: any): any  [private]
+  selectionChange(selection: any): any  [private]
+  updateRecords(result: any): any  [private]
+
 blocks
   sw_flow_list  [private]
     sw_flow_list_content  [private]
       sw_flow_list_empty_state  [after v-if] [private]
-      sw_flow_list_empty_state_icon  [after v-if] [private]
+      sw_flow_list_empty_state_icon  [after v-if] [deprecated tag:v6.8.0] [private]
       sw_flow_list_grid_action_modal  [private]
         sw_flow_list_grid_action_modal_buttons  [scope: item] [private]
         sw_flow_list_grid_action_modal_confirm_delete_text  [scope: item] [private]
@@ -33,4 +80,17 @@ blocks
     sw_flow_list_search_bar  [private]
     sw_flow_list_smart_bar_actions  [private]
     sw_flow_list_smart_bar_header  [private]
+
+classes
+  sw-context-menu-item--danger  [private]
+  sw-flow-list  [private]
+  sw-flow-list-card  [private]
+  sw-flow-list__empty-state  [private]
+  sw-flow-list__event-name  [private]
+  sw-flow-list__event-name-label  [private]
+  sw-flow-list__event-name-unknown  [private]
+  sw-flow-list__grid  [private]
+  sw-flow-list__item-delete  [private]
+  sw-flow-list__item-duplicate  [private]
+  sw-flow-list__item-edit  [private]
 ```

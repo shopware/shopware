@@ -10,6 +10,33 @@ component sw-media-folder-content  public  js
   source src/app/component/media/sw-media-folder-content/index.js
   template src/app/component/media/sw-media-folder-content/sw-media-folder-content.html.twig
 
+inject
+  filterItems
+  repositoryFactory
+
+props
+  selectedId?: string  default=literal
+  startFolderId?: string  default=literal
+
+emits
+  selected(...args: any[])
+
+data
+  parentFolder: any
+  subFolders: any
+
+computed
+  assetFilter: any
+  mediaFolderRepository: any
+
+methods
+  emitInput(folder: any): any
+  fetchParentFolder(folderId: any): Promise<any>
+  getChildCount(folder: any): any
+  getSubFolders(parentId: any): Promise<any>
+  mountedComponent(): any
+  updateParentFolder(child: any): Promise<any>
+
 blocks
   sw_media_folder_content
     sw_media_folder_content_folder_listing
@@ -19,4 +46,15 @@ blocks
             sw_media_folder_content_folder_button_icon  [scope: folder, index]
           sw_media_folder_content_switch_button  [scope: folder, index]
         sw_media_folder_content_folder_icon
+
+classes
+  is--selected
+  sw-media-folder-content
+  sw-media-folder-content__button
+  sw-media-folder-content__folder-button
+  sw-media-folder-content__folder-icon
+  sw-media-folder-content__folder-listing
+  sw-media-folder-content__list-item
+  sw-media-folder-content__parent-folder
+  sw-media-folder-content__switch-button
 ```

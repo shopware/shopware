@@ -11,6 +11,13 @@ component sw-condition-line-item-goods-total  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-goods-total/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-goods-total/sw-condition-line-item-goods-total.html.twig
 
+data
+  showFilterModal: any
+
+computed
+  count: any
+  operators: any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -26,4 +33,16 @@ blocks
         sw_condition_line_item_goods_total_field_operator
         sw_condition_line_item_goods_total_filter_button
     sw_condition_base_error  [inherited]
+
+classes
+  sw-condition
+  sw-condition-line-item-goods-total
+  sw-condition-line-item-goods-total__filter
+  sw-condition-line-item-goods-total__numfield
+  sw-condition-line-item-goods-total__value
+  sw-condition__container
+  sw-condition__context-button
+  sw-condition__create-after-action
+  sw-condition__create-before-action
+  sw-condition__value-content
 ```

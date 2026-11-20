@@ -10,6 +10,87 @@ component sw-settings-snippet-list  public  js
   source src/module/sw-settings-snippet/page/sw-settings-snippet-list/index.js
   template src/module/sw-settings-snippet/page/sw-settings-snippet-list/sw-settings-snippet-list.html.twig
 
+mixins
+  sw-settings-list
+
+inject
+  acl
+  repositoryFactory
+  snippetService
+  snippetSetService
+  userService
+
+data
+  appliedAuthors: any
+  appliedFilter: any
+  authorFilters: any
+  currentAuthor: any
+  emptyIcon: any
+  emptySnippets: any
+  entityName: any
+  filterItems: any
+  filterSettings: any
+  grid: any
+  hasResetableItems: any
+  metaId: any
+  modalDeleteAll: any
+  resetItems: any
+  showOnlyAdded: any
+  showOnlyEdited: any
+  skeletonItemAmount: any
+  snippetSets: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  activeFilters: any
+  columns: any
+  contextMenuEditSnippet: any
+  filter: any
+  hasActiveFilters: any
+  identifier: any
+  metaName: any
+  queryIdCount: any
+  queryIds: any
+  snippetRepository: any
+  snippetSetCriteria: any
+  snippetSetRepository: any
+
+methods
+  addEventListeners(): any
+  backRoutingError(): any
+  beforeDestroyComponent(): any
+  beforeUnloadListener(): any
+  createFilterSettings(): any
+  createResetErrorNote(item: any): any
+  createSuccessMessage(item: any): any  [deprecated tag:v6.8.0]
+  createdComponent(): Promise<any>
+  getColumns(): any
+  getFilterSettings(): Promise<any>
+  getList(): any
+  getName(list: any, id: any): any
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any
+  initializeSnippetSet(filter?: any): any
+  inlineSaveErrorMessage(key: any): any
+  inlineSaveSuccessMessage(key: any): any  [deprecated tag:v6.8.0]
+  onChange(field: any): any
+  onCloseDeleteModal(): any
+  onConfirmReset(fullSelection: any): any
+  onEdit(snippet: any): any
+  onEmptyClick(): any
+  onInlineEditCancel(rowItems: any): any
+  onInlineEditSave(result: any): any
+  onPageChange(arg0: any): any
+  onReset(item: any): any
+  onResetAll(): any
+  onSearch(term: any): any
+  onSelectionChanged(selection: any): any
+  onSidebarClose(): any
+  onSortColumn(column: any): any
+  prepareGrid(grid: any): any
+  removeEventListeners(): any
+  saveUserConfig(): any
+
 blocks
   sw_settings_snippet_list
     sw_settings_snippet_list_content
@@ -51,4 +132,20 @@ crossings
   v-if  sw_settings_snippet_list_column_id_inline_edit -> sw_settings_snippet_list_column_id_content
   v-if  sw_settings_snippet_list_column_value_inline_edit -> sw_settings_snippet_list_column_value_content
   v-if  sw_settings_snippet_list_delete_modal_text_reset -> sw_settings_snippet_list_delete_modal_text_delete
+
+classes
+  sw-page__smart-bar-amount
+  sw-settings-snippet-list
+  sw-settings-snippet-list__content
+  sw-settings-snippet-list__delete-action
+  sw-settings-snippet-list__delete-modal
+  sw-settings-snippet-list__delete-modal-confirm-delete-text
+  sw-settings-snippet-list__delete-modal-confirm-reset-text
+  sw-settings-snippet-list__delete-modal-delete-all-checkbox
+  sw-settings-snippet-list__delete-modal-grid
+  sw-settings-snippet-list__edit-action
+  sw-settings-snippet-list__grid
+  sw-settings-snippet-list__grid-sidebar
+  sw-settings-snippet-list__smart_bar_header
+  sw-settings_snippet_list__smart-bar-title-text
 ```

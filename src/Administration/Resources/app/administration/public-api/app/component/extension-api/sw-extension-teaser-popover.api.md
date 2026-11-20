@@ -11,6 +11,31 @@ component sw-extension-teaser-popover  private  ts  [private]
   template src/app/component/extension-api/sw-extension-teaser-popover/sw-extension-teaser-popover.html.twig  [private]
   visibility-source export  [private]
 
+props
+  component?: TeaserPopoverConfig  [private]
+  positionIdentifier: string  [private]
+
+data
+  delay: any  [private]
+  isMouseEnterContent: any  [private]
+  isMouseEnterTrigger: any  [private]
+  isOpened: any  [private]
+
+computed
+  isInsideComponent: boolean  [private]
+  popoverComponent: TeaserPopoverConfig  [private]
+
+methods
+  onMouseEnterContent(): void  [private]
+  onMouseEnterTrigger(): void  [private]
+  onMouseLeaveContent(): void  [private]
+  onMouseLeaveTrigger(): void  [private]
+
 blocks
   sw_extension_teaser_popover  [private]
+
+classes
+  sw-extension-teaser-popover  [private]
+  sw-extension-teaser-popover__content  [private]
+  sw-extension-teaser-popover__trigger  [private]
 ```

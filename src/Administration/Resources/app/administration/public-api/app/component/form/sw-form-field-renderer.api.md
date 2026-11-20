@@ -11,9 +11,63 @@ component sw-form-field-renderer  private  js  [private]
   template src/app/component/form/sw-form-field-renderer/sw-form-field-renderer.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+props
+  config?: object  default=literal  [private]
+  error?: object  default=literal  [private]
+  type?: string  default=literal  [private]
+  value: any  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_form_field_renderer_inner  [private]
+
+data
+  currency: object  [private]
+    factor: any  [private]
+    id: any  [private]
+  currentComponentName: any  [private]
+  currentValue: any  [private]
+  swFieldConfig: any  [private]
+
+computed
+  bind: any  [private]
+  componentName: any  [private]
+  componentPropName: any  [private]
+  hasConfig: any  [private]
+  optionTranslations: any  [private]
+  swFieldType: any  [private]
+  translations: any  [private]
+
+methods
+  createRepository(entity: any): any  [private]
+  createdComponent(): any  [private]
+  emitUpdate(data: any): any  [private]
+  fetchSystemCurrency(): any  [private]
+  getComponentFromType(customType?: any): any  [private]
+  getScopedSlots(): any  [private]
+  getTranslations(componentName: any, config?: any, translatableFields?: any): any  [private]
+
 blocks
   sw_form_field_renderer  [private]
     sw_form_field_renderer_inner  [private]
       sw_form_field_renderer_inner_slot  [private]
     sw_form_field_renderer_scope_slots  [private]
+
+refs
+  component  -> component  [private]
+
+classes
+  sw-form-field-renderer  [private]
+
+notes
+  dynamic-slot slotName  [private]
 ```

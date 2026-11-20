@@ -11,6 +11,29 @@ component sw-extension-file-upload  private  js  [private]
   template src/module/sw-extension/component/sw-extension-file-upload/sw-extension-file-upload.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  extensionStoreActionService  [private]
+
+data
+  confirmModalVisible: any  [private]
+  isLoading: any  [private]
+  pluginUploadUserConfig: any  [private]
+  shouldHideConfirmModal: any  [private]
+
+methods
+  closeConfirmModal(): any  [private]
+  createdComponent(): Promise<any>  [private]
+  getUserConfig(): Promise<any>  [private]
+  handleUpload(files: any): any  [private]
+  onClickUpload(): any  [private]
+  onFileInputChange(): any  [private]
+  saveConfig(value: any): any  [private]
+  showConfirmModal(): any  [private]
+  showStoreError(error: any): any  [private]
+
 blocks
   sw_extension_file_upload  [private]
     sw_extension_file_upload_confirm_modal  [private]
@@ -24,4 +47,16 @@ blocks
     sw_extension_file_upload_content  [private]
       sw_extension_file_upload_button  [private]
       sw_extension_file_upload_form  [private]
+
+refs
+  fileForm  -> form  [private]
+  fileInput  -> input  [private]
+
+classes
+  sw-extension-file-upload  [private]
+  sw-extension-file-upload-confirm-modal  [private]
+  sw-extension-file-upload__button  [private]
+  sw-extension-file-upload__content  [private]
+  sw-extension-file-upload__file-input  [private]
+  sw-extension-file-upload__form  [private]
 ```

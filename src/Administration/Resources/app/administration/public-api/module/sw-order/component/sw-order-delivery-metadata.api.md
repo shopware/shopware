@@ -10,6 +10,26 @@ component sw-order-delivery-metadata  public  js
   source src/module/sw-order/component/sw-order-delivery-metadata/index.js
   template src/module/sw-order/component/sw-order-delivery-metadata/sw-order-delivery-metadata.html.twig
 
+inject
+  customSnippetApiService
+
+props
+  delivery: object  default=factory
+  isLoading?: boolean  default=literal
+  order: object  default=factory
+  title?: string  default=literal
+
+data
+  formattingAddress: any
+
+computed
+  currencyFilter: any
+  dateFilter: any
+
+methods
+  createdComponent(): any
+  renderFormattingAddress(): any
+
 blocks
   sw_order_delivery_metadata
     sw_order_delivery_metadata_deliveries
@@ -20,4 +40,8 @@ blocks
         sw_order_delivery_metadata_slot
       sw_order_delivery_metadata_shipping_address
         sw_order_delivery_metadata_delivery_phone_number
+
+classes
+  sw-order-delivery-metadata
+  sw-order-delivery-metdata__address
 ```

@@ -10,6 +10,61 @@ component sw-promotion-v2-individual-codes-behavior  public  js
   source src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/index.js
   template src/module/sw-promotion-v2/component/promotion-codes/sw-promotion-v2-individual-codes-behavior/sw-promotion-v2-individual-codes-behavior.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  promotionCodeApiService
+  repositoryFactory
+
+props
+  promotion: object
+
+emits
+  delete-finish(...args: any[])
+  generate-finish(...args: any[])
+
+data
+  addCodesModal: any
+  codeBulkDeleteModal: any
+  codeDeleteModal: any
+  currentSelection: any
+  generateCodesModal: any
+  isAdding: any
+  isGridLoading: any
+  limit: any
+  newCodeAmount: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  codeColumns: any
+  customerRepository: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  deleteConfirmText: any
+  promotionRepository: any
+
+methods
+  createRoutingErrorNotification(name: any): any
+  loadIndividualCodesGrid(): any
+  mountedComponent(): any
+  onAddCodes(): any
+  onCloseAddCodesModal(): any
+  onCloseBulkDeleteModal(): any
+  onCloseDeleteModal(): any
+  onCloseGenerateCodesModal(): any
+  onCodeSelectionChange(selection: any): any
+  onConfirmCodeBulkDelete(): any
+  onConfirmCodeDelete(id: any): any
+  onGenerateFinish(): any
+  onOpenAddCodesModal(): any
+  onOpenGenerateCodesModal(): any
+  onSearchTermChange(term: any): any
+  onSelectionChange(selection: any): any
+  onShowCodeBulkDeleteModal(): any
+  onShowCodeDeleteModal(id: any): any
+  routeToCustomer(redeemedCustomer: any): any
+
 blocks
   sw_promotion_v2_individual_codes_behavior
     sw_promotion_v2_individual_codes_behavior_add_codes_modal  [after v-if]
@@ -42,10 +97,39 @@ blocks
     sw_promotion_v2_individual_codes_behavior_delete_bulk_modal
     sw_promotion_v2_individual_codes_behavior_empty_state
       sw_promotion_v2_individual_codes_behavior_empty_state_actions
-    sw_promotion_v2_individual_codes_behavior_empty_state_icon
+    sw_promotion_v2_individual_codes_behavior_empty_state_icon  [deprecated tag:v6.8.0]
     sw_promotion_v2_individual_codes_behavior_generate_codes_modal  [after v-if]
 
 crossings
   v-if  sw_promotion_v2_individual_codes_behavior_card -> sw_promotion_v2_individual_codes_behavior
   v-if  sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_true -> sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_false
+
+refs
+  individualCodesGrid  -> sw-one-to-many-grid
+
+classes
+  is--active
+  is--inactive
+  link
+  link-danger
+  sw-promotion-v2-individual-codes-behavior
+  sw-promotion-v2-individual-codes-behavior__add-codes-action
+  sw-promotion-v2-individual-codes-behavior__add-codes-button-cancel
+  sw-promotion-v2-individual-codes-behavior__add-codes-button-confirm
+  sw-promotion-v2-individual-codes-behavior__add-codes-modal
+  sw-promotion-v2-individual-codes-behavior__card
+  sw-promotion-v2-individual-codes-behavior__code-amount
+  sw-promotion-v2-individual-codes-behavior__code-bulk-delete-action
+  sw-promotion-v2-individual-codes-behavior__code-delete-action
+  sw-promotion-v2-individual-codes-behavior__confirm-delete-bulk-modal
+  sw-promotion-v2-individual-codes-behavior__confirm-delete-modal
+  sw-promotion-v2-individual-codes-behavior__content
+  sw-promotion-v2-individual-codes-behavior__customer-route-action
+  sw-promotion-v2-individual-codes-behavior__description
+  sw-promotion-v2-individual-codes-behavior__empty-state
+  sw-promotion-v2-individual-codes-behavior__empty-state-generate-action
+  sw-promotion-v2-individual-codes-behavior__generate-codes-action
+  sw-promotion-v2-individual-codes-behavior__grid
+  sw-promotion-v2-individual-codes-behavior__redeemed-customer-name
+  sw-promotion-v2-individual-codes-behavior__redeemed-state
 ```

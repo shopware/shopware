@@ -11,6 +11,57 @@ component sw-generic-social-media-card  private  ts  [private]
   template src/module/sw-custom-entity/component/sw-generic-social-media-card/sw-generic-social-media-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  ogDescription?: string | null  default=literal  [private]
+  ogImageId?: EntityKey<'media'> | null  default=literal  [private]
+  ogTitle?: string | null  default=literal  [private]
+
+emits
+  update:og-description(...args: any[])  [private]
+  update:og-image-id(...args: any[])  [private]
+  update:og-title(...args: any[])  [private]
+
+data
+  mediaModalIsOpen: any  [private]
+  ogImageEntity: any  [private]
+
+computed
+  mediaRepository: Repository<'media'>  [private]
+  uploadTag: string  [private]
+
+methods
+  emitMediaId(mediaId: EntityKey<'media'> | null): any  [private]
+  emitOgDescription(ogDescription: string): any  [private]
+  emitOgTitle(ogTitle: string): any  [private]
+  loadOgImage(): Promise<void>  [private]
+  onCloseMediaModal(): void  [private]
+  onCreated(): void  [private]
+  onImageUpload(arg0: { targetId: EntityKey<'media'> }): any  [private]
+  onOpenMediaModal(): void  [private]
+  onSelectionChanges(result: Entity<'media'>[]): void  [private]
+  removeOgImage(): void  [private]
+
 blocks
   sw_generic_social_media_card  [private]
+
+classes
+  media-preview--lg  [private]
+  media-preview--sm  [private]
+  sw-generic-social-media-card  [private]
+  sw-generic-social-media-card__media-modal  [private]
+  sw-generic-social-media-card__media-preview  [private]
+  sw-generic-social-media-card__media-preview-container  [private]
+  sw-generic-social-media-card__media-preview-content  [private]
+  sw-generic-social-media-card__media-preview-content-description  [private]
+  sw-generic-social-media-card__media-preview-content-link  [private]
+  sw-generic-social-media-card__media-preview-content-title  [private]
+  sw-generic-social-media-card__media-preview-image  [private]
+  sw-generic-social-media-card__media-preview-title  [private]
+  sw-generic-social-media-card__og-description-input  [private]
+  sw-generic-social-media-card__og-image-upload  [private]
+  sw-generic-social-media-card__og-image-upload-listener  [private]
+  sw-generic-social-media-card__og-title-input  [private]
 ```

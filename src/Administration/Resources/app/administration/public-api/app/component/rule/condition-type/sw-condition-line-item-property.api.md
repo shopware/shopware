@@ -11,6 +11,31 @@ component sw-condition-line-item-property  public  js
   source src/app/component/rule/condition-type/sw-condition-line-item-property/index.js
   template src/app/component/rule/condition-type/sw-condition-line-item-property/sw-condition-line-item-property.html.twig
 
+inject
+  feature
+  repositoryFactory
+
+slots
+  result-description-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_condition_line_item_properties_field_description
+  result-label-property  { ...{ item, searchTerm, highlightSearchTerm } }  block=sw_condition_line_item_properties_field_identifiers
+  selection-label-property  { ...{ item } }  block=sw_condition_line_item_properties_field_identifiers
+
+data
+  options: any
+  searchTerm: any
+
+computed
+  identifiers: any
+  operators: any
+  optionCriteria: any
+  optionRepository: any
+
+methods
+  createdComponent(): any
+  onSelectCollapsed(): any
+  setOptions(options: any): any
+  setSearchTerm(value: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -26,4 +51,15 @@ blocks
             sw_condition_line_item_properties_field_description_default  [scope: highlightSearchTerm, item, searchTerm]
         sw_condition_line_item_properties_field_operator
     sw_condition_base_error  [inherited]
+
+classes
+  sw-condition
+  sw-condition-base-line-item__matches-all
+  sw-condition-line-item-property
+  sw-condition__condition-value
+  sw-condition__container
+  sw-condition__context-button
+  sw-condition__create-after-action
+  sw-condition__create-before-action
+  sw-condition__value-content
 ```

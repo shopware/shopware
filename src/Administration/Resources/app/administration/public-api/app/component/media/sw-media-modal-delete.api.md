@@ -10,10 +10,50 @@ component sw-media-modal-delete  public  js
   source src/app/component/media/sw-media-modal-delete/index.js
   template src/app/component/media/sw-media-modal-delete/sw-media-modal-delete.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  itemsToDelete: any[]
+
+emits
+  media-delete-modal-close(...args: any[])
+  media-delete-modal-items-delete(...args: any[])
+
+data
+  folders: any
+  mediaItems: any
+  notificationId: any
+
+computed
+  mediaFolderRepository: any
+  mediaInUsages: any
+  mediaNameFilter: any
+  mediaQuickInfo: any
+  mediaRepository: any
+  snippets: any
+
+methods
+  _checkInUsage(mediaItem: any): any
+  _deleteSelection(item: any): any
+  closeDeleteModal(originalDomEvent: any): any
+  createdComponent(): any
+  deleteSelection(): Promise<any>
+  getEntityRepository(entityName: any): any
+  updateSuccessNotification(successAmount: any, failureAmount: any, totalAmount: any): Promise<any>
+
 blocks
   sw_media_modal_delete
     sw_media_modal_body
     sw_media_modal_footer
       sw_media_modal_delete_cancel_button
       sw_media_modal_delete_confirm_button
+
+classes
+  sw-media-modal-delete
+  sw-media-modal-delete__confirm
+  sw-media-modal-delete__media-list-item
 ```

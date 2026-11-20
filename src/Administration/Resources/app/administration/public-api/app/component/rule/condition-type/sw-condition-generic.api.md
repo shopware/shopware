@@ -11,6 +11,15 @@ component sw-condition-generic  public  js
   source src/app/component/rule/condition-type/sw-condition-generic/index.js
   template src/app/component/rule/condition-type/sw-condition-generic/sw-condition-generic.html.twig
 
+mixins
+  generic-condition
+
+data
+  matchesAll: any
+
+methods
+  getPlaceholder(fieldType: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -24,4 +33,16 @@ blocks
         sw_condition_generic_field_operator
         sw_condition_generic_fields  [after v-if]
     sw_condition_base_error  [inherited]
+
+classes
+  sw-condition
+  sw-condition-generic
+  sw-condition-generic__input-wrapper
+  sw-condition-generic__input-wrapper--has-unit
+  sw-condition-generic__unit-menu
+  sw-condition__container
+  sw-condition__context-button
+  sw-condition__create-after-action
+  sw-condition__create-before-action
+  sw-condition__value-content
 ```

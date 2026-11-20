@@ -11,6 +11,17 @@ component sw-cms-block-image-simple-grid  private  js  [private]
   template src/module/sw-cms/blocks/image/image-simple-grid/component/sw-cms-block-image-simple-grid.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left-bottom  {}  block=sw_cms_block_image_simple_grid  [private]
+  left-top  {}  block=sw_cms_block_image_simple_grid  [private]
+  right  {}  block=sw_cms_block_image_simple_grid  [private]
+
 blocks
   sw_cms_block_image_simple_grid  [private]
+
+classes
+  sw-cms-block-image-simple-grid  [private]
+  sw-cms-block-image-simple-grid__image-bottom  [private]
+  sw-cms-block-image-simple-grid__image-top  [private]
+  sw-cms-block-image-simple-grid__side-images  [private]
 ```

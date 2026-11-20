@@ -10,6 +10,18 @@ component sw-settings-basic-information  public  js
   source src/module/sw-settings-basic-information/page/sw-settings-basic-information/index.js
   template src/module/sw-settings-basic-information/page/sw-settings-basic-information/sw-settings-basic-information.html.twig
 
+mixins
+  notification
+
+data
+  isLoading: any
+  isSaveSuccessful: any
+
+methods
+  onLoadingChanged(loading: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_basic_information_index
     sw_settings_basic_information_content
@@ -20,4 +32,12 @@ blocks
       sw_settings_basic_information_smart_bar_header_title
         sw_settings_basic_information_smart_bar_header_amount
         sw_settings_basic_information_smart_bar_header_title_text
+
+refs
+  systemConfig  -> sw-system-config
+
+classes
+  sw-page__smart-bar-amount
+  sw-settings-basic-information
+  sw-settings-basic-information__save-action
 ```

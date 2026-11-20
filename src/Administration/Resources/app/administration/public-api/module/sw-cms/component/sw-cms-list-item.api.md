@@ -10,9 +10,53 @@ component sw-cms-list-item  public  ts
   source src/module/sw-cms/component/sw-cms-list-item/index.ts
   template src/module/sw-cms/component/sw-cms-list-item/sw-cms-list-item.html.twig
 
+inject
+  feature
+
+props
+  active?: boolean  default=literal
+  disabled?: boolean  default=literal
+  isDefault?: boolean  default=literal
+  page?: Entity<'cms_page'>  default=literal
+
+emits
+  cms-page-delete(...args: any[])
+  element-click(...args: any[])
+  item-click(...args: any[])
+  on-item-click(...args: any[])
+  preview-image-change(...args: any[])
+
+slots
+  contextMenu  {}  block=sw_cms_list_item_options
+
+computed
+  assetFilter: any
+  componentClasses: any
+  defaultItemLayoutAssetBackground: any
+  defaultLayoutAsset: any
+  previewMedia: any
+  statusClasses: any
+
+methods
+  onChangePreviewImage(page: Entity<'cms_page'>): any
+  onDelete(page: Entity<'cms_page'>): any
+  onElementClick(): any
+  onItemClick(page: Entity<'cms_page'>): any
+
 blocks
   sw_cms_list_item
     sw_cms_list_item_image
     sw_cms_list_item_info
     sw_cms_list_item_options
+
+classes
+  is--empty
+  sw-cms-list-item
+  sw-cms-list-item__image
+  sw-cms-list-item__info
+  sw-cms-list-item__is-default
+  sw-cms-list-item__locked
+  sw-cms-list-item__placeholder
+  sw-cms-list-item__status
+  sw-cms-list-item__title
 ```

@@ -11,8 +11,18 @@ component sw-version  private  js  [private]
   template src/app/component/base/sw-version/sw-version.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  version: any  [private]
+
+methods
+  getHumanReadableText(text: any): any  [private]
+
 blocks
   sw_version  [private]
     sw_version_info  [private]
       sw_version_info_text  [private]
+
+classes
+  sw-version  [private]
+  sw-version__info  [private]
 ```

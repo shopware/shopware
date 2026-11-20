@@ -11,6 +11,41 @@ component sw-cms-mapping-field  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-mapping-field/sw-cms-mapping-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  cmsService  [private]
+  repositoryFactory  [private]
+
+props
+  config: { source: 'static' | 'mapped' | 'default'; value: unknown; [key: string]: unknown; }  default=factory  [private]
+  disabled?: boolean  default=literal  [private]
+  entity?: Extract<keyof EntitySchema.EntityKeys, string> | null  default=literal  [private]
+  label?: string  default=literal  [private]
+  valueTypes?: string | any[]  default=literal  [private]
+
+slots
+  default  {}  block=sw_cms_mapping_field_content  [private]
+  preview  { demo-value }  block=sw_cms_mapping_field_preview  [private]
+
+data
+  allowedMappingTypes: any  [private]
+  demoValue: any  [private]
+  demoValueFetchId: any  [private]
+  mappingTypes: any  [private]
+
+computed
+  cmsPageState: any  [private]
+  hasPreview: any  [private]
+  isMapped: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getAllowedMappingTypes(): any  [private]
+  getDemoValue(mappingPath: string): unknown  [private]
+  onMappingRemove(): any  [private]
+  onMappingSelect(property: string): any  [private]
+  updateDemoValue(): Promise<any>  [private]
+  updateMappingTypes(): any  [private]
+
 blocks
   sw_cms_mapping_field  [private]
     sw_cms_mapping_field_content  [private]
@@ -27,4 +62,19 @@ blocks
 crossings
   v-if  sw_cms_mapping_field_content -> sw_cms_mapping_field  [private]
   v-if  sw_cms_mapping_field_mapping_selection -> sw_cms_mapping_field_mapping_remove_action  [private]
+
+classes
+  is--disabled  [private]
+  sw-cms-mapping-field  [private]
+  sw-cms-mapping-field__action  [private]
+  sw-cms-mapping-field__action-label  [private]
+  sw-cms-mapping-field__action-remove  [private]
+  sw-cms-mapping-field__empty-demo  [private]
+  sw-cms-mapping-field__form-field  [private]
+  sw-cms-mapping-field__info  [private]
+  sw-cms-mapping-field__label  [private]
+  sw-cms-mapping-field__mapping-value  [private]
+  sw-cms-mapping-field__options  [private]
+  sw-cms-mapping-field__preview  [private]
+  sw-cms-mapping-field__selection  [private]
 ```

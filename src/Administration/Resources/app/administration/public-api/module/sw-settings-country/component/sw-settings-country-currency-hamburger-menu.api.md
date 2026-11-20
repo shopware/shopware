@@ -10,6 +10,19 @@ component sw-settings-country-currency-hamburger-menu  public  js
   source src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu/index.js
   template src/module/sw-settings-country/component/sw-settings-country-currency-hamburger-menu/sw-settings-country-currency-hamburger-menu.html.twig
 
+inject
+  acl
+
+props
+  isLoading?: boolean  default=literal
+  options: any[]
+
+emits
+  currency-change(...args: any[])
+
+methods
+  onCheckCurrency(currencyId: any, isChecked: any): any
+
 blocks
   sw_settings_country_currency_hamburger_menu
     sw_country_currency_hamburger_menu_list
@@ -18,4 +31,9 @@ blocks
     sw_settings_country_currency_hamburger_menu_loader
     sw_settings_country_currency_hamburger_menu_trigger
       sw_country_currency_hamburger_menu_icon
+
+classes
+  sw-settings-country-currency-hamburger-menu__button
+  sw-settings-country-currency-hamburger-menu__item
+  sw-settings-country-currency-hamburger-menu__wrapper
 ```

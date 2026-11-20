@@ -10,6 +10,31 @@ component sw-order-create-details-header  public  js
   source src/module/sw-order/component/sw-order-create-details-header/index.js
   template src/module/sw-order/component/sw-order-create-details-header/sw-order-create-details-header.html.twig
 
+props
+  cartPrice?: object
+  currency?: object
+  customer?: object
+  orderDate: string
+
+emits
+  on-select-existing-customer(...args: any[])
+
+slots
+  default  {}  block=sw_order_create_details_header_profile
+
+data
+  showNewCustomerModal: any
+
+computed
+  currencyFilter: any
+  customerCriteria: any
+  customerId: any
+
+methods
+  onCloseNewCustomerModal(): any
+  onSelectExistingCustomer(customerId: any): any
+  onShowNewCustomerModal(): any
+
 blocks
   sw_order_create_details_header
     sw_order_create_details_header_profile  [after v-if]
@@ -26,4 +51,18 @@ blocks
           sw_order_create_search_customer_slot_selection_label_property
       sw_order_create_details_header_profile_summary
     sw_order_create_details_new_customer_modal
+
+classes
+  has-many-childrens
+  sw-order-create-details-header
+  sw-order-create-details-header__customer-result
+  sw-order-create-details-header__customer-result-item
+  sw-order-user-card__container
+  sw-order-user-card__info-summary
+  sw-order-user-card__metadata
+  sw-order-user-card__metadata-item
+  sw-order-user-card__metadata-price
+  sw-order-user-card__metadata-user-name
+  text-gray-500
+  text-truncate
 ```

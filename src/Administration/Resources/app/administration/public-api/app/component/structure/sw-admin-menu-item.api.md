@@ -11,6 +11,80 @@ component sw-admin-menu-item  private  js  [private]
   template src/app/component/structure/sw-admin-menu-item/sw-admin-menu-item.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  feature  [private]
+
+props
+  collapsibleText?: boolean  default=literal  [private]
+  displayIcon?: boolean  default=literal  [private]
+  entry: object  [private]
+  flyoutActive?: boolean  default=literal  [private]
+  iconSize?: string  default=literal  [private]
+  isExpanded?: boolean  default=literal  [private]
+  menuDepth?: number  default=literal  [private]
+  showActiveState?: boolean  default=literal  [private]
+  sidebarExpanded?: boolean  default=literal  [private]
+
+emits
+  branch-toggle(...args: any[])  [private]
+  flyout-close-request(...args: any[])  [private]
+  flyout-focus-request(...args: any[])  [private]
+  flyout-navigate(...args: any[])  [private]
+  menu-item-hover(...args: any[])  [private]
+  navigation-link-click(...args: any[])  [private]
+
+slots
+  additional-text  {}  block=sw_admin_menu_item  [private]
+  additional-text  {}  block=sw_admin_menu_item_external_link  [private]
+  additional-text  {}  block=sw_admin_menu_item_navigation_link  [private]
+  additional-text  {}  block=sw_admin_menu_item_router_link  [private]
+
+data
+  manualNestedOpen: any  [private]
+  suppressRouteKeepsFolderOpen: any  [private]
+
+computed
+  aclFilteredEntry: any  [private]
+  activeRouteNames: any  [private]
+  childRouteActive: any  [private]
+  children: any  [private]
+  collapsedAriaLabel: any  [private]
+  collapsedFlyoutAria: any  [private]
+  collapsibleLiClass: any  [private]
+  collapsibleOpen: any  [private]
+  entryPath: any  [private]
+  expandIcon: any  [private]
+  getEntryLabel: any  [private]
+  getLinkToProp: any  [private]
+  hasActiveChild: any  [private]
+  hasCollapsibleSubtree: any  [private]
+  isLeafDepth: any  [private]
+  leafLiClass: any  [private]
+  moduleColorStyle: any  [private]
+  navigationIconColor: any  [private]
+  navigationIconName: any  [private]
+  routeKeepsFolderOpen: any  [private]
+  routerLinkActiveClass: any  [private]
+  routerLinkExactActiveClass: any  [private]
+  rowActive: any  [private]
+  showMenuItem: any  [private]
+  showsCollapsedTooltip: any  [private]
+  submenuVisuallyOpen: any  [private]
+
+methods
+  collapsedTooltipTriggerProps(tooltipProps: any): any  [private]
+  forwardFlyoutNavigate(payload: any): any  [private]
+  forwardMenuItemHover(entry: any, target: any): any  [private]
+  forwardNavigationLinkClick(): any  [private]
+  getElementClasses(menuItemName: any): any  [private]
+  getIconName(name: any, isActive?: any): any  [private]
+  hasAccessToRoute(path: any): any  [private]
+  onCollapsedParentKeydown(event: any): any  [private]
+  onCollapsibleOpenUpdate(open: any): any  [private]
+  onNavigationLinkClick(): any  [private]
+  toggleSubmenu(): any  [private]
+
 blocks
   sw_admin_menu_item  [private]
     sw_admin_menu_item_expand_indicator_fold  [private]
@@ -23,4 +97,16 @@ blocks
     sw_admin_menu_item_router_link  [scope: tooltipProps] [private]
     sw_admin_menu_item_text  [after v-if] [private]
     sw_sidebar_sub_items_list  [private]
+
+classes
+  collapsible-text  [private]
+  hide-on-collapse  [private]
+  router-link-active  [private]
+  sw-admin-menu__navigation-item-row  [private]
+  sw-admin-menu__navigation-link  [private]
+  sw-admin-menu__navigation-link-expand-icon  [private]
+  sw-admin-menu__navigation-link-expand-icon-box  [private]
+  sw-admin-menu__navigation-link-icon  [private]
+  sw-admin-menu__navigation-link-label  [private]
+  sw-admin-menu__sub-navigation-list  [private]
 ```

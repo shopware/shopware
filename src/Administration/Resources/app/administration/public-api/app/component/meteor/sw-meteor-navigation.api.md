@@ -11,9 +11,21 @@ component sw-meteor-navigation  private  ts  [private]
   template src/app/component/meteor/sw-meteor-navigation/sw-meteor-navigation.html.twig  [private]
   visibility-source export  [private]
 
+props
+  fromLink?: RouteLocationNamedRaw | null  default=literal  [private]
+
+computed
+  hasParentRoute: boolean  [private]
+  parentRoute: RouteLocationNamedRaw | null  [private]
+
 blocks
   sw_meteor_navigation  [private]
     sw_meteor_navigation_link  [private]
       sw_meteor_navigation_link_icon  [private]
       sw_meteor_navigation_link_label  [private]
+
+classes
+  sw-meteor-navigation  [private]
+  sw-meteor-navigation__back-arrow  [private]
+  sw-meteor-navigation__link  [private]
 ```

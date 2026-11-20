@@ -11,6 +11,10 @@ component sw-settings-country-create  public  js
   source src/module/sw-settings-country/page/sw-settings-country-create/index.js
   template src/module/sw-settings-country/page/sw-settings-country-create/sw-settings-country-create.html.twig
 
+methods
+  createdComponent(): any
+  saveFinish(): any
+
 blocks
   sw_settings_country_detail  [inherited]
     sw_settings_country_detail_actions  [inherited]
@@ -28,4 +32,11 @@ blocks
         sw_settings_country_mt_tabs_header  [inherited] [from v6.8.0]
     sw_settings_country_detail_header  [inherited]
     sw_settings_country_detail_language_switch  [replaced]
+
+classes
+  sw-settings-country-detail
+  sw-settings-country-detail__save-action
+  sw-settings-country__address-handling-tab  [until v6.8.0]
+  sw-settings-country__setting-tab  [until v6.8.0]
+  sw-settings-country__state-tab  [until v6.8.0]
 ```

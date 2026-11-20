@@ -11,6 +11,17 @@ component sw-extension-teaser-sales-channel  private  ts  [private]
   template src/app/component/extension-api/sw-extension-teaser-sales-channel/sw-extension-teaser-sales-channel.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  teaserSalesChannels: TeaserSalesChannelConfig[]  [private]
+
 blocks
   sw_extension_teaser_sales_channel  [private]
+
+classes
+  sw-extension-teaser-sales-channel  [private]
+  sw-extension-teaser-sales-channel__icon  [private]
+  sw-extension-teaser-sales-channel__info  [private]
+  sw-extension-teaser-sales-channel__item-content  [private]
+  sw-extension-teaser-sales-channel__item-description  [private]
+  sw-extension-teaser-sales-channel__item-name  [private]
 ```

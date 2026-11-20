@@ -10,6 +10,59 @@ component sw-bulk-edit-order  public  js
   source src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js
   template src/module/sw-bulk-edit/page/sw-bulk-edit-order/sw-bulk-edit-order.html.twig
 
+mixins
+  notification
+
+inject
+  bulkEditApiFactory
+  customFieldDataProviderService
+  feature
+  orderDocumentApiService  [deprecated tag:v6.9.0]
+  repositoryFactory
+
+data
+  bulkEditData: any
+  customFieldSets: any
+  deliveryStatus: any
+  isLoadedData: any
+  isLoading: any
+  isStatusMailsSelected: any
+  isStatusSelected: any
+  itemsPerRequest: any
+  order: any
+  orderStatus: any
+  processStatus: any
+  statusTransitionFailures: any
+  transactionStatus: any
+
+computed
+  documentsFormFields: any
+  hasChanges: any
+  hasInvalidDocumentGenerationConfig: any
+  orderRepository: any
+  restrictedFields: any
+  selectedIds: any
+  stateMachineStateRepository: any
+  statusFormFields: any
+  tagsFormFields: any
+
+methods
+  closeModal(): any
+  createdComponent(): Promise<any>
+  fetchStateMachineStates(field: any): any
+  fetchStatusOptions(field: any): any
+  fetchToStateMachineTransitions(states: any): any
+  getLatestOrderStatus(): any
+  loadBulkEditData(): any
+  loadCustomFieldSets(): any
+  onChangeDocument(type: any, isChanged: any): any
+  onCustomFieldsChange(value: any): any
+  onProcessData(): any
+  onSave(): any
+  openModal(): any
+  setRouteMetaModule(): any
+  toStateMachineStatesCriteria(states: any): any
+
 blocks
   sw_bulk_edit_order
     sw_bulk_edit_order_content
@@ -26,4 +79,17 @@ blocks
       sw_bulk_edit_order_actions_save
     sw_bulk_edit_order_search_bar
     sw_bulk_edit_order_smart_bar_header
+
+classes
+  sw-bulk-edit-order
+  sw-bulk-edit-order-base__custom_fields
+  sw-bulk-edit-order-base__documents
+  sw-bulk-edit-order-base__status
+  sw-bulk-edit-order-base__tags
+  sw-bulk-edit-order__restricted-fields
+  sw-bulk-edit-order__save-action
+  sw-bulk-edit__custom-fields
+
+notes
+  unresolved computed ...deprecatedComputed
 ```

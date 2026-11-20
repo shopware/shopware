@@ -10,6 +10,71 @@ component sw-settings-shipping-price-matrix  public  js
   source src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/index.js
   template src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix/sw-settings-shipping-price-matrix.html.twig
 
+mixins
+  placeholder, notification
+
+inject
+  repositoryFactory
+
+props
+  disabled?: boolean  default=literal
+  priceGroup: object
+
+emits
+  delete-price-matrix(...args: any[])
+  duplicate-price-matrix(...args: any[])
+
+data
+  calculationTypes: any
+  isLoading: any
+  ruleColumns: any
+  showAllPrices: any
+  showDeleteModal: any
+
+computed
+  cardTitle: any
+  confirmDeleteText: any
+  currencies: any
+  currencyColumns: any
+  defaultCurrency: any
+  disableDeleteButton: any
+  isRuleMatrix: any
+  labelQuantityEnd: any
+  labelQuantityStart: any
+  mainRulePlaceholder: any
+  newPriceMatrixExists: any
+  numberFieldType: any
+  prices: any
+  restrictedRuleIds: any
+  ruleFilterCriteria: any
+  ruleRepository: any
+  shippingMethod: any
+  shippingPriceRepository: any
+  shippingRuleFilterCriteria: any  [deprecated tag:v6.8.0]
+  showDataGrid: any
+  taxRateId: any
+  unrestrictedPriceMatrixExists: any
+  usedCalculationRules: any
+
+methods
+  convertDefaultPriceToCurrencyPrice(item: any, currency: any): any
+  convertPrice(value: any, currency: any): any
+  createdComponent(): any
+  getPrice(shippingPrice: any, currency: any): any
+  getPriceOfCurrency(priceArray: any, currency: any): any
+  initCurrencyPrice(shippingPrice: any): any
+  onAddNewShippingPrice(): any
+  onCalculationChange(calculation: any): any
+  onCloseDeleteModal(): any
+  onConfirmDeleteShippingPrice(): any
+  onDeletePriceMatrix(): any
+  onDeleteShippingPrice(shippingPrice: any): any
+  onQuantityEndChange(price: any): any
+  onSaveCustomShippingRule(ruleId: any, shippingPrice: any): any
+  onSaveMainRule(ruleId: any): any
+  setPrice(shippingPrice: any, currency: any, value: any): any
+  updateShowAllPrices(): any
+
 blocks
   sw_settings_shipping_price_matrix
     sw_settings_shipping_price_matrix_delete_modal
@@ -35,4 +100,24 @@ blocks
       sw_settings_shipping_price_matrix_topbar_new_price
       sw_settings_shipping_price_matrix_topbar_rule_select
     sw_settings_shipping_price_matrix_topbar_alert
+
+classes
+  sw-settings-shipping-price-matrix
+  sw-settings-shipping-price-matrix__action-delete
+  sw-settings-shipping-price-matrix__action-duplicate
+  sw-settings-shipping-price-matrix__column-calculation-rule-select
+  sw-settings-shipping-price-matrix__confirm-delete-text
+  sw-settings-shipping-price-matrix__empty
+  sw-settings-shipping-price-matrix__empty--select-property
+  sw-settings-shipping-price-matrix__empty-text
+  sw-settings-shipping-price-matrix__empty-text-or
+  sw-settings-shipping-price-matrix__new-matrix-alert
+  sw-settings-shipping-price-matrix__price
+  sw-settings-shipping-price-matrix__price-group-context
+  sw-settings-shipping-price-matrix__price-inherit-icon
+  sw-settings-shipping-price-matrix__price-load-all
+  sw-settings-shipping-price-matrix__price-load-all-button
+  sw-settings-shipping-price-matrix__top-container
+  sw-settings-shipping-price-matrix__top-container-add-new-rule
+  sw-settings-shipping-price-matrix__top-container-rule-select
 ```

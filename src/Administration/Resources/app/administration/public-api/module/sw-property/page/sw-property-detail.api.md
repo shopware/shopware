@@ -10,6 +10,44 @@ component sw-property-detail  public  js
   source src/module/sw-property/page/sw-property-detail/index.js
   template src/module/sw-property/page/sw-property-detail/sw-property-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+props
+  groupId?: string  default=literal
+
+data
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  propertyGroup: any
+
+computed
+  defaultCriteria: any
+  identifier: any
+  optionRepository: any
+  propertyRepository: any
+  showCustomFields: any
+  tooltipCancel: any
+  tooltipSave: any
+  useNaturalSorting: any
+
+methods
+  abortOnLanguageChange(): any
+  createdComponent(): any
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  onCancel(): any
+  onChangeLanguage(): any
+  onSave(): any
+  saveFinish(): any
+  saveOnLanguageChange(): any
+
 blocks
   sw_property_detail
     sw_property_detail_content
@@ -23,4 +61,12 @@ blocks
       sw_property_detail_smart_bar_actions_save
     sw_property_detail_smart_bar_header
       sw_property_detail_smart_bar_header_title
+
+refs
+  optionListing  -> sw-property-option-list
+
+classes
+  sw-property-detail
+  sw-property-detail__back-action
+  sw-property-detail__save-action
 ```

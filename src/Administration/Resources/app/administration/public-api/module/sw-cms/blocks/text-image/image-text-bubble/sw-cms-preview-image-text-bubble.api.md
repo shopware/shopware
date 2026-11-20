@@ -11,6 +11,17 @@ component sw-cms-preview-image-text-bubble  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-bubble/preview/sw-cms-preview-image-text-bubble.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_text_bubble_preview  [private]
+
+classes
+  sw-cms-preview-image-text-bubble  [private]
+  sw-cms-preview-image-text-bubble__center  [private]
+  sw-cms-preview-image-text-bubble__image  [private]
+  sw-cms-preview-image-text-bubble__left  [private]
+  sw-cms-preview-image-text-bubble__right  [private]
+  sw-cms-preview-image-text-bubble__text  [private]
 ```

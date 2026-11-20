@@ -11,6 +11,20 @@ component sw-condition-shipping-zip-code  public  js
   source src/app/component/rule/condition-type/sw-condition-shipping-zip-code/index.js
   template src/app/component/rule/condition-type/sw-condition-shipping-zip-code/sw-condition-shipping-zip-code.html.twig
 
+data
+  inputKey: any
+  isNumeric: any
+
+computed
+  numericOptions: any
+  operators: any
+  taggedFieldPlaceholder: any
+  zipCodes: any
+
+methods
+  createdComponent(): any
+  onChangeNumeric(value: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -25,4 +39,15 @@ blocks
         sw_condition_shipping_zip_code_field_operator
         sw_condition_shipping_zip_code_field_zip_codes
     sw_condition_base_error  [inherited]
+
+classes
+  sw-condition
+  sw-condition-shipping-zip-code
+  sw-condition-zipcode-type-select
+  sw-condition__condition-value
+  sw-condition__container
+  sw-condition__context-button
+  sw-condition__create-after-action
+  sw-condition__create-before-action
+  sw-condition__value-content
 ```

@@ -11,6 +11,28 @@ component sw-import-export-activity-log-info-modal  private  js  [private]
   template src/module/sw-import-export/component/sw-import-export-activity-log-info-modal/sw-import-export-activity-log-info-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  importExport  [private]
+
+props
+  logEntity?: object  default=factory  [private]
+
+emits
+  log-close(...args: any[])  [private]
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  stateClass: any  [private]
+  typeText: any  [private]
+
+methods
+  calculateFileSize(size: any): any  [private]
+  getStateLabel(state: any): any  [private]
+  openDownload(id: any): Promise<any>  [private]
+
 blocks
   sw_import_export_activity_log_info_modal  [private]
     sw_import_export_activity_log_info_modal_description  [private]
@@ -23,4 +45,19 @@ blocks
       sw_import_export_activity_log_info_modal_description_type  [private]
       sw_import_export_activity_log_info_modal_description_user  [private]
     sw_import_export_activity_log_info_modal_download  [private]
+
+classes
+  sw-import-export-activity-log-info-modal  [private]
+  sw-import-export-activity-log-info-modal__color-badge  [private]
+  sw-import-export-activity-log-info-modal__description-list  [private]
+  sw-import-export-activity-log-info-modal__download-button  [private]
+  sw-import-export-activity-log-info-modal__item-date  [private]
+  sw-import-export-activity-log-info-modal__item-file-name  [private]
+  sw-import-export-activity-log-info-modal__item-profile  [private]
+  sw-import-export-activity-log-info-modal__item-records  [private]
+  sw-import-export-activity-log-info-modal__item-size  [private]
+  sw-import-export-activity-log-info-modal__item-state  [private]
+  sw-import-export-activity-log-info-modal__item-type  [private]
+  sw-import-export-activity-log-info-modal__item-user  [private]
+  sw-import-export-activity-log-info-modal__list-item  [private]
 ```

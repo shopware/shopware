@@ -10,11 +10,55 @@ component sw-settings-search-live-search  public  js
   source src/module/sw-settings-search/component/sw-settings-search-live-search/index.js
   template src/module/sw-settings-search/component/sw-settings-search-live-search/sw-settings-search-live-search.html.twig
 
+mixins
+  notification
+
+inject
+  liveSearchService
+  repositoryFactory
+
+props
+  currentSalesChannelId?: string  default=literal
+  searchResults?: object  default=literal
+  searchTerms?: string  default=literal
+
+emits
+  live-search-results-change(...args: any[])
+  sales-channel-change(...args: any[])
+
+data
+  liveSearchResults: any
+  liveSearchTerm: any
+  productSortingKey: any
+  productSortings: any
+  salesChannelId: any
+  salesChannels: any  [deprecated tag:v6.8.0]
+  searchInProgress: any
+  showExampleModal: any
+
+computed
+  isSearchEnable: any
+  productSortingCriteria: any
+  productSortingRepository: any
+  products: any
+  salesChannelRepository: any  [deprecated tag:v6.8.0]
+  searchColumns: any
+  searchParams: any
+
+methods
+  changeSalesChannel(salesChannelId: any): any
+  createdComponent(): any
+  fetchProductSortings(): any
+  fetchSalesChannels(): any  [deprecated tag:v6.8.0]
+  onCloseExampleModal(): any
+  onShowExampleModal(): any
+  searchOnStorefront(): any
+
 blocks
   sw_settings_search_view_live_search_card
     sw_settings_search_view_live_search_input
-      sw_settings_search_view_live_search_search_icon_wrapper
-        sw_settings_search_view_live_search_search_icon
+      sw_settings_search_view_live_search_search_icon_wrapper  [deprecated tag:v6.8.0]
+        sw_settings_search_view_live_search_search_icon  [deprecated tag:v6.8.0]
     sw_settings_search_view_live_search_rebuild_index_row
       sw_settings_search_searchable_show_example_modal
       sw_settings_search_view_live_search_description
@@ -31,4 +75,19 @@ blocks
 crossings
   v-if  sw_search_bar_results_empty_state -> sw_settings_search_view_live_search_results_search_grid
   v-if  sw_settings_search_view_live_search_results_search_grid -> sw_settings_search_view_live_search_results_no_result
+
+classes
+  sw-settings-search-live-search
+  sw-settings-search-live-search__description
+  sw-settings-search-live-search__grid-result
+  sw-settings-search-live-search__grid-result__score
+  sw-settings-search-live-search__no-result
+  sw-settings-search-live-search__rebuild-index-row
+  sw-settings-search-live-search__sales-channel-select
+  sw-settings-search-live-search__search-container
+  sw-settings-search-live-search__search-results
+  sw-settings-search-live-search__search-results-loader
+  sw-settings-search-live-search__search_box
+  sw-settings-search-live-search__show-example-link
+  sw-settings-search-live-search__sorting-select
 ```

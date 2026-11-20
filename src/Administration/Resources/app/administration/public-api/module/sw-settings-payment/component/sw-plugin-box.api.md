@@ -10,6 +10,24 @@ component sw-plugin-box  public  js
   source src/module/sw-settings-payment/component/sw-plugin-box/index.js
   template src/module/sw-settings-payment/component/sw-plugin-box/sw-plugin-box.html.twig
 
+inject
+  repositoryFactory
+  systemConfigApiService
+
+props
+  pluginId: string
+
+data
+  hasPluginConfig: any
+  plugin: any
+
+computed
+  pluginRepository: any
+
+methods
+  checkPluginConfig(): any
+  createdComponent(): any
+
 blocks
   sw_plugin_box
     sw_plugin_box_container
@@ -19,4 +37,14 @@ blocks
           sw_plugin_box_container_plugin_data_description_author
           sw_plugin_box_container_plugin_data_description_label
         sw_plugin_box_container_plugin_data_icon
+
+classes
+  has--no-icon
+  sw-plugin-box
+  sw-plugin-box__author
+  sw-plugin-box__button
+  sw-plugin-box__container
+  sw-plugin-box__description
+  sw-plugin-box__icon
+  sw-plugin-box__label
 ```

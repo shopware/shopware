@@ -11,6 +11,13 @@ component sw-sales-channel-create-base  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-create-base/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-create-base/sw-sales-channel-create-base.html.twig
 
+computed
+  activationNeedsTheme: any
+
+methods
+  createdComponent(): any
+  prefillAgenticCommerceDefaults(): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_sales_channel_detail_base  [inherited]
     sw_sales_channel_detail_agentic_commerce_tracking  [inherited] [after v-if]
@@ -71,4 +78,37 @@ blocks
       sw_sales_channel_detail_base_general_input_currencies  [inherited] [after v-if]
       sw_sales_channel_detail_base_general_input_payments_methods  [inherited] [after v-if]
       sw_sales_channel_detail_base_general_input_shipping_methods  [inherited] [after v-if]
+
+refs
+  salesChannelDomains  -> sw-sales-channel-detail-domains
+
+classes
+  sw-card__quick-link
+  sw-field--salesChannel-name
+  sw-order-user-card__tag-select
+  sw-sales-channel-detail-base
+  sw-sales-channel-detail-base__button-copy-key
+  sw-sales-channel-detail-base__button-generate-keys
+  sw-sales-channel-detail-base__description-text
+  sw-sales-channel-detail-base__feed-label
+  sw-sales-channel-detail-base__headline
+  sw-sales-channel-detail-base__headline-text
+  sw-sales-channel-detail-base__product-comparison-container
+  sw-sales-channel-detail-base__product-comparison-helptext
+  sw-sales-channel-detail-base__settings-link
+  sw-sales-channel-detail-base__unserved-language-banner
+  sw-sales-channel-detail-base__unserved-language-domain-action
+  sw-sales-channel-detail-base__unserved-language-message
+  sw-sales-channel-detail-base_general__last-generation-text
+  sw-sales-channel-detail__action-button
+  sw-sales-channel-detail__action-buttons
+  sw-sales-channel-detail__product-comparison-domain
+  sw-sales-channel-detail__product-comparison-product-stream
+  sw-sales-channel-detail__product-comparison-storefront
+  sw-sales-channel-detail__select-business-time-zone
+  sw-sales-channel-detail__select-customer-group
+  sw-sales-channel-detail__select-footer-category-id
+  sw-sales-channel-detail__select-navigation-category-id
+  sw-sales-channel-detail__select-service-category-id
+  sw-sales-channel-detail__tax-calculation
 ```

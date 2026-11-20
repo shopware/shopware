@@ -11,6 +11,58 @@ component sw-cms-el-config-image-gallery  private  js  [private]
   template src/module/sw-cms/elements/image-gallery/config/sw-cms-el-config-image-gallery.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  activeTab: any  [private]
+  columnWidth: any  [private]
+  entity: any  [private]
+  initialFolderId: any  [private]
+  mediaItems: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  defaultFolderName: any  [private]
+  displayModeValueOptions: any  [private]
+  galleryPositionValueOptions: any  [private]
+  gridAutoRows: any  [private]
+  isProductPage: any  [private]
+  mediaRepository: any  [private]
+  navigationArrowsValueOptions: any  [private]
+  navigationDotsValueOptions: any  [private]
+  sliderItems: any  [private]
+  sliderItemsConfigValue: any  [private]
+  tabs: any  [private]
+  uploadTag: any  [private]
+  verticalAlignValueOptions: any  [private]
+
+methods
+  createdComponent(): Promise<any>  [private]
+  emitUpdateEl(): any  [private]
+  getMediaItem(mediaItem: any): Promise<any>  [private]
+  initConfig(): any  [private]
+  initGalleryItems(): Promise<any>  [private]
+  mountedComponent(): any  [private]
+  onChangeDisplayMode(value: any): any  [private]
+  onChangeMinHeight(value: any): any  [private]
+  onChangeUseFetchPriorityOnFirstItem(value: any): any  [private]
+  onCloseMediaModal(): any  [private]
+  onImageUpload(mediaItem: any): Promise<any>  [private]
+  onItemRemove(mediaItem: any, index: any): any  [private]
+  onItemSort(dragData: any, dropData: any): any  [private]
+  onMediaSelectionChange(mediaItems: any): any  [private]
+  onOpenMediaModal(): any  [private]
+  updateColumnWidth(): any  [private]
+  updateMediaDataValue(): any  [private]
+
 blocks
   sw_cms_element_image_gallery_config  [private]
     sw_cms_element_image_gallery_config_tabs  [private]
@@ -71,4 +123,23 @@ blocks
 crossings
   v-if  sw_cms_element_image_gallery_config_media_preview_list -> sw_cms_element_image_gallery_config_media_preview_info  [until v6.8.0] [private]
   v-if  sw_cms_element_image_gallery_config_mt_media_preview_list -> sw_cms_element_image_gallery_config_mt_media_preview_info  [from v6.8.0] [private]
+
+refs
+  demoMediaGrid  -> div  [private]
+
+classes
+  sw-cms-el-config-image-gallery  [private]
+  sw-cms-el-config-image-gallery__mapping-preview  [private]
+  sw-cms-el-config-image-gallery__preview-image  [private]
+  sw-cms-el-config-image-gallery__setting-display-mode  [private]
+  sw-cms-el-config-image-gallery__setting-navigations  [private]
+  sw-cms-el-config-image-gallery__setting-option  [private]
+  sw-cms-el-config-image-gallery__settings-navigation  [private]
+  sw-cms-el-config-image-gallery__settings-options  [private]
+  sw-cms-el-config-image-gallery__settings-options-toggles  [private]
+  sw-cms-el-config-image-gallery__settings-use-fetch-priority-on-first-item  [private]
+  sw-cms-el-config-image-gallery__tab-content  [private]
+  sw-cms-el-config-image-gallery__tab-settings  [private]
+  sw-cms-el-config-image-gallery__tabs  [private]
+  sw-cms-el-config-image__preview-info  [private]
 ```

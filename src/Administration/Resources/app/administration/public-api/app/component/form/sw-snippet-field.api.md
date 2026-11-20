@@ -11,6 +11,44 @@ component sw-snippet-field  private  js  [private]
   template src/app/component/form/sw-snippet-field/sw-snippet-field.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+  snippetSetService  [private]
+
+props
+  fieldType?: string  default=literal  [private]
+  snippet: string  [private]
+
+data
+  isLoading: any  [private]
+  showEditModal: any  [private]
+  snippetSets: any  [private]
+  snippets: any  [private]
+  textValue: any  [private]
+
+computed
+  languageCriteria: any  [private]
+  languageRepository: any  [private]
+  snippetSetRepository: any  [private]
+  textField: any  [private]
+  textareaField: any  [private]
+
+methods
+  closeEditModal(): any  [private]
+  createdComponent(): Promise<any>  [private]
+  getSystemDefaultLocale(): Promise<any>  [private]
+  getTranslationByLocale(locale: any): any  [private]
+  onSave(): any  [private]
+  openEditModal(): any  [private]
+  updatePlaceholderValueToSnippetTranslation(): Promise<any>  [private]
+
 blocks
   sw_snippet_field  [private]
+
+classes
+  sw-snippet-field  [private]
+  sw-snippet-field__icon  [private]
+  sw-snippet-field__input-wrapper  [private]
+  sw-snippet-field__text  [private]
+  sw-snippet-field__textarea  [private]
 ```

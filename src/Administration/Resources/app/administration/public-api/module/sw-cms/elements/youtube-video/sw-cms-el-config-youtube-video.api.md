@@ -11,6 +11,41 @@ component sw-cms-el-config-youtube-video  private  js  [private]
   template src/module/sw-cms/elements/youtube-video/config/sw-cms-el-config-youtube-video.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  displayModeOptions: any  [private]
+  endValue: any  [private]
+  mediaRepository: any  [private]
+  previewSource: any  [private]
+  startValue: any  [private]
+  uploadTag: any  [private]
+  videoID: any  [private]
+
+methods
+  convertTimeToInputFormat(time: any): any  [private]
+  convertTimeToUrlFormat(time: any): any  [private]
+  createdComponent(): any  [private]
+  onCloseModal(): any  [private]
+  onImageRemove(): any  [private]
+  onImageUpload(arg0: any): Promise<any>  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: any): any  [private]
+  setTimeValue(value: any, type: any): any  [private]
+  shortenLink(link: any): any  [private]
+  updateElementData(media?: any): any  [private]
+
 blocks
   sw_cms_element_youtube_video_config  [private]
     sw_cms_element_youtube_video_config_advanced_privacy_mode  [private]
@@ -27,4 +62,13 @@ blocks
     sw_cms_element_youtube_video_config_start  [private]
     sw_cms_element_youtube_video_config_title  [private]
     sw_cms_element_youtube_video_config_video_id  [private]
+
+classes
+  sw-cms-el-config-image__mapping-preview  [private]
+  sw-cms-el-config-image__preview-info  [private]
+  sw-cms-el-config-youtube-video  [private]
+  sw-cms-el-config-youtube-video__confirmation  [private]
+  sw-cms-el-config-youtube-video__start-and-end  [private]
+  sw-cms-el-config-youtube-video__switches  [private]
+  sw-cms-el-config-youtube-video__video-id  [private]
 ```

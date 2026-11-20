@@ -11,6 +11,54 @@ component sw-product-stream-modal-preview  private  js  [private]
   template src/module/sw-product-stream/component/sw-product-stream-modal-preview/sw-product-stream-modal-preview.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  productStreamPreviewService  [private]
+  repositoryFactory  [private]
+
+props
+  defaultLimit?: number  default=literal  [private]
+  defaultSorting?: string  default=literal  [private]
+  displayAsGroup?: boolean  default=literal  [private]
+  filters: any[]  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  products: any  [private]
+  searchTerm: any  [private]
+  selectedCurrencyId: any  [private]
+  selectedCurrencyIsoCode: any  [private]
+  selectedSalesChannel: any  [private]
+  sorting: any  [private]
+  total: any  [private]
+
+computed
+  currencyFilter: any  [private]
+  previewCriteria: any  [private]
+  previewSelectionCriteria: any  [private]
+  productColumns: any  [private]
+  salesChannelCriteria: any  [private]
+  salesChannelRepository: any  [private]
+  stockColorVariantFilter: any  [private]
+
+methods
+  addRandomSort(criteria: any): any  [private]
+  closeModal(): any  [private]
+  createdComponent(): any  [private]
+  getPriceForDefaultCurrency(product: any): any  [private]
+  isNotEqualToAnyType(type: any, parentType: any): any  [private]
+  loadEntityData(): any  [private]
+  loadSalesChannelById(): any  [private]
+  loadSalesChannels(): any  [private]
+  mapFiltersForSearch(filters?: any, parentType?: any): any  [private]
+  onPageChange(arg0: any): any  [private]
+  onSalesChannelChange(): any  [private]
+  onSearchTermChange(searchTerm: any): any  [private]
+
 blocks
   sw_product_stream_modal_preview  [private]
     sw_product_stream_modal_preview_content  [private]
@@ -28,4 +76,15 @@ blocks
         sw_product_stream_modal_preview_grid_pagination  [private]
     sw_product_stream_modal_preview_footer  [private]
       sw_product_stream_modal_preview_close_button  [private]
+
+classes
+  sw-product-stream-modal-preview  [private]
+  sw-product-stream-modal-preview__close-action  [private]
+  sw-product-stream-modal-preview__content  [private]
+  sw-product-stream-modal-preview__content-header  [private]
+  sw-product-stream-modal-preview__data-grid  [private]
+  sw-product-stream-modal-preview__sales-channel-field  [private]
+  sw-product-stream-modal-preview__sales-channel-field-label  [private]
+  sw-product-stream-modal-preview__search-field  [private]
+  sw-product-stream-modal-preview__search-field-label  [private]
 ```

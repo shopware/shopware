@@ -11,6 +11,54 @@ component sw-select-selection-list  private  js  [private]
   template src/app/component/form/select/base/sw-select-selection-list/sw-select-selection-list.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  alwaysShowPlaceholder?: boolean  default=literal  [private]
+  autocomplete?: string  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  enableSearch?: boolean  default=literal  [private]
+  hideLabels?: boolean  default=literal  [private]
+  inputLabel?: string  default=literal  [private]
+  invisibleCount?: number  default=literal  [private]
+  isLoading?: boolean  default=literal  [private]
+  labelProperty?: string  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  searchTerm?: string  default=literal  [private]
+  selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
+  selections?: any[]  default=factory  [private]
+  size?: string  default=literal  [private]
+  valueProperty?: string  default=literal  [private]
+
+emits
+  item-remove(...args: any[])  [private]
+  key-down-enter(...args: any[])  [private]
+  last-item-delete(...args: any[])  [private]
+  search-term-change(...args: any[])  [private]
+  total-count-click(...args: any[])  [private]
+
+slots
+  input  { ...{ placeholder, searchTerm, onSearchTermChange, onKeyDownDelete } }  block=sw_select_selection_list_input  [private]
+  invisible-count  { ...{ invisibleCount, onClickInvisibleCount } }  block=sw_select_selection_list_load_more  [private]
+  label-property  { ...{ item: selection, index, labelProperty, valueProperty } }  block=sw_select_selection_list_item_text  [private]
+  selected-option  { ...{ selection, defaultLabel: selection[labelProperty], disabled } }  block=sw_select_selection_list_item_inner  [private]
+
+computed
+  showPlaceholder: any  [private]
+
+methods
+  blur(): any  [private]
+  focus(): any  [private]
+  getFocusEl(): any  [private]
+  isSelectionDisabled(selection: any): any  [private]
+  onClickDismiss(item: any): any  [private]
+  onClickInvisibleCount(): any  [private]
+  onKeyDownDelete(): any  [private]
+  onKeyDownEnter(): any  [private]
+  onSearchTermChange(event: any): any  [private]
+  select(): any  [private]
+
 blocks
   sw_select_selection_list  [private]
     sw_select_selection_list_input  [after v-if] [private]
@@ -19,4 +67,16 @@ blocks
         sw_select_selection_list_item_text  [scope: index, selection] [private]
     sw_select_selection_list_load_more  [after v-if] [private]
       sw_select_selection_list_load_more_item_button  [private]
+
+refs
+  swSelectInput  -> input  [private]
+
+classes
+  sw-select-selection-list  [private]
+  sw-select-selection-list__input  [private]
+  sw-select-selection-list__input-wrapper  [private]
+  sw-select-selection-list__item  [private]
+  sw-select-selection-list__item-holder  [private]
+  sw-select-selection-list__load-more  [private]
+  sw-select-selection-list__load-more-button  [private]
 ```

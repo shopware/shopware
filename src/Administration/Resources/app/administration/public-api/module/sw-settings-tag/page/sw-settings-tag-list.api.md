@@ -10,6 +10,72 @@ component sw-settings-tag-list  public  js
   source src/module/sw-settings-tag/page/sw-settings-tag-list/index.js
   template src/module/sw-settings-tag/page/sw-settings-tag-list/sw-settings-tag-list.html.twig
 
+mixins
+  listing, notification
+
+inject
+  acl
+  repositoryFactory
+  tagApiService
+
+slots
+  bulk-modal-merge-confirm-name-input  {}  block=sw_settings_tag_list_merge_modal_confirm_name_input
+  bulk-modal-merge-confirm-text  { ...{ selection, ids } }  block=sw_settings_tag_list_grid_bulk_merge_modal
+  bulk-modal-merge-footer  { ...{ selection } }  block=sw_settings_tag_list_grid_bulk_merge_modal
+  bulk-modal-merge-progress  {}  block=sw_settings_tag_list_merge_modal_progress
+
+data
+  assignmentFilter: any
+  bulkMergeProgress: object
+    currentAssignment: any
+    isRunning: any
+    progress: any
+    total: any
+  detailEntity: any
+  detailProperty: any
+  duplicateFilter: any
+  duplicateName: any
+  emptyFilter: any
+  isLoading: any
+  showBulkMergeModal: any
+  showDeleteModal: any
+  showDetailModal: any
+  showDuplicateModal: any
+  sortBy: any
+  sortDirection: any
+  tags: any
+
+computed
+  assignmentFilterOptions: any
+  assignmentProperties: any
+  filterCount: any
+  hasAssignmentFilter: any
+  tagColumns: any
+  tagCriteria: any
+  tagDefinition: any
+  tagRepository: any
+
+methods
+  getBulkMergeMessageGlue(ids: any, id: any): any
+  getCounts(id: any): any
+  getList(): any
+  getPropertyCounting(propertyName: any, id: any): any
+  onCloseBulkMergeModal(): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onCloseDuplicateModal(): any
+  onConfirmDelete(id: any): any
+  onConfirmDuplicate(id: any): any
+  onDelete(id: any): any
+  onDetail(id: any, property: any, entity: any): any
+  onDuplicate(item: any): any
+  onFilter(): any
+  onMergeTags(selection: any): any
+  onSaveFinish(): any
+  resetFilters(): any
+  setAggregations(criteria: any): any
+  sortByIdsOrder(items: any, ids: any): any
+
 blocks
   sw_settings_list
     sw_settings_tag_index
@@ -59,4 +125,32 @@ blocks
 
 crossings
   v-if  sw_settings_tag_list_grid -> sw_settings_tag_list_empty_state
+
+refs
+  swCardFilter  -> sw-card-filter
+  swSettingsTagGrid  -> sw-entity-listing
+
+classes
+  confirm-bulk-merge-text__label
+  confirm-bulk-merge-text__label-into
+  filter-badge
+  link
+  sw-data-grid__cell-value
+  sw-page__smart-bar-amount
+  sw-settings-tag-list
+  sw-settings-tag-list__bulk-merge-progress
+  sw-settings-tag-list__bulk-merge-progress-icon
+  sw-settings-tag-list__button-create
+  sw-settings-tag-list__confirm-bulk-merge-name-input
+  sw-settings-tag-list__confirm-bulk-merge-text
+  sw-settings-tag-list__confirm-delete-text
+  sw-settings-tag-list__confirm-duplicate-input
+  sw-settings-tag-list__content
+  sw-settings-tag-list__delete-action
+  sw-settings-tag-list__duplicate-action
+  sw-settings-tag-list__edit-action
+  sw-settings-tag-list__filter-assignment-select
+  sw-settings-tag-list__filter-footer
+  sw-settings-tag-list__filter-menu-trigger
+  sw-settings-tag-list__grid
 ```

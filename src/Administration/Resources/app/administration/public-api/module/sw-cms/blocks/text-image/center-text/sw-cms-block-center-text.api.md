@@ -11,6 +11,17 @@ component sw-cms-block-center-text  private  js  [private]
   template src/module/sw-cms/blocks/text-image/center-text/component/sw-cms-block-center-text.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center  {}  block=sw_cms_block_center_text  [private]
+  left  {}  block=sw_cms_block_center_text  [private]
+  right  {}  block=sw_cms_block_center_text  [private]
+
 blocks
   sw_cms_block_center_text  [private]
+
+classes
+  sw-cms-block-center-text  [private]
+  sw-cms-block-center-text__image-left  [private]
+  sw-cms-block-center-text__image-right  [private]
+  sw-cms-block-center-text__text  [private]
 ```

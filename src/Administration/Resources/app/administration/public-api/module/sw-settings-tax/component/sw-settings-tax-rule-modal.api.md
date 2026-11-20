@@ -10,6 +10,37 @@ component sw-settings-tax-rule-modal  public  js
   source src/module/sw-settings-tax/component/sw-settings-tax-rule-modal/index.js
   template src/module/sw-settings-tax/component/sw-settings-tax-rule-modal/sw-settings-tax-rule-modal.html.twig
 
+inject
+  repositoryFactory
+
+props
+  currentRule?: object  default=literal
+  tax: object
+
+emits
+  modal-close(...args: any[])
+
+data
+  currentTaxRuleType: any
+  showModal: any
+  taxRule: any
+
+computed
+  additionalComponent: any
+  countryCriteria: any
+  taxRuleActiveFromError: any
+  taxRuleCountryIdError: any
+  taxRuleRepository: any
+  taxRuleTaxRateError: any
+  taxRuleTaxRuleTypeIdError: any
+  taxRuleTypeCriteria: any
+  taxRuleTypeRepository: any
+
+methods
+  changeRuleType(id: any): any
+  createdComponent(): any
+  onConfirm(): any
+
 blocks
   sw_settings_tax_rule_modal
     sw_settings_tax_rule_modal_form_first_row
@@ -22,4 +53,7 @@ blocks
       sw_settings_tax_rule_modal_additional_component
       sw_settings_tax_rule_modal_tax_active_from
       sw_settings_tax_rule_modal_tax_rate  [after v-if]
+
+classes
+  sw-settings-tax-rule-modal__settings-modal
 ```

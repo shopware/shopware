@@ -11,10 +11,35 @@ component sw-range-filter  private  js  [private]
   template src/app/component/filter/sw-range-filter/sw-range-filter.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  isShowDivider?: boolean  default=literal  [private]
+  property: string  [private]
+  value: object  [private]
+
+emits
+  filter-update(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_range_filter_content  [private]
+  divider  {}  block=sw_range_filter_content  [private]
+  from-field  {}  block=sw_range_filter_content  [private]
+  to-field  {}  block=sw_range_filter_content  [private]
+
+methods
+  updateFilter(range: any): any  [private]
+
 blocks
   sw_range_filter  [private]
     sw_range_filter_content  [private]
       sw_range_filter_divider  [private]
       sw_range_filter_from_field  [private]
       sw_range_filter_to_field  [private]
+
+classes
+  sw-container--has-divider  [private]
+  sw-range-filter  [private]
+  sw-range-filter__divider  [private]
 ```

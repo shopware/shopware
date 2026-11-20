@@ -11,6 +11,49 @@ component sw-product-open-in-storefront-modal  private  ts  [private]
   template src/module/sw-product/component/sw-product-open-in-storefront-modal/sw-product-open-in-storefront-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  productStorefrontUrlApiService  [private]
+  repositoryFactory  [private]
+  systemConfigApiService  [private]
+
+props
+  hasUnsavedChanges?: boolean  default=literal  [private]
+  parentProduct?: Entity<'product'> | null  default=literal  [private]
+  product: Entity<'product'>  [private]
+  productName: string  [private]
+  salesChannels: Entity<'sales_channel'>[]  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  loadedSalesChannel: any  [private]
+  selectedSalesChannelId: any  [private]
+
+computed
+  invalidDomainUrls: string[]  [private]
+  isProductActive: boolean  [private]
+  languageRepository: RepositoryType<'language'>  [private]
+  modalSubtitle: string  [private]
+  persistedParentProduct: EntitySchema.Entities['product'] | null  [private]
+  persistedProduct: EntitySchema.Entities['product']  [private]
+  productRepository: RepositoryType<'product'>  [private]
+  result: SalesChannelResult | null  [private]
+  salesChannelOptions: { value: string; label: string }[]  [private]
+  selectedSalesChannel: Entity<'sales_channel'> | null  [private]
+
+methods
+  createdComponent(): void  [private]
+  getFailingReasons(productUrls: ProductStorefrontUrls | null, stockReason: StockReason | null): FailingReason[]  [private]
+  isSoldOutClearanceSale(): Promise<boolean>  [private]
+  loadLanguageNames(domains: ProductStorefrontUrls['domains']): Promise<Record<string, string>>  [private]
+  loadSelectedSalesChannel(isCancelled: () => boolean): Promise<void>  [private]
+  loadStockReason(salesChannelId: string): Promise<StockReason | null>  [private]
+  onLoadError(error: unknown, isCancelled: () => boolean): void  [private]
+  onModalRootChange(isOpen: boolean): void  [private]
+
 blocks
   sw_product_open_in_storefront_modal  [private]
     sw_product_open_in_storefront_modal_banners  [after v-if] [private]
@@ -22,4 +65,23 @@ blocks
       sw_product_open_in_storefront_modal_invalid_domains  [private]
       sw_product_open_in_storefront_modal_maintenance  [private]
     sw_product_open_in_storefront_modal_sales_channel_select  [after v-if] [private]
+
+classes
+  is--disabled  [private]
+  mt-link--external  [private]
+  sw-product-open-in-storefront-modal  [private]
+  sw-product-open-in-storefront-modal__check  [private]
+  sw-product-open-in-storefront-modal__description  [private]
+  sw-product-open-in-storefront-modal__domain  [private]
+  sw-product-open-in-storefront-modal__domain-header  [private]
+  sw-product-open-in-storefront-modal__domain-text  [private]
+  sw-product-open-in-storefront-modal__domain-url  [private]
+  sw-product-open-in-storefront-modal__domains-headline  [private]
+  sw-product-open-in-storefront-modal__footer  [private]
+  sw-product-open-in-storefront-modal__invalid-domains  [private]
+  sw-product-open-in-storefront-modal__maintenance  [private]
+  sw-product-open-in-storefront-modal__no-sales-channels  [private]
+  sw-product-open-in-storefront-modal__result  [private]
+  sw-product-open-in-storefront-modal__sales-channel-select  [private]
+  sw-product-open-in-storefront-modal__unsaved-changes  [private]
 ```

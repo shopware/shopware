@@ -12,6 +12,52 @@ component sw-one-to-many-grid  private  js  [private]
   template src/app/component/entity/sw-one-to-many-grid/sw-one-to-many-grid.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  repositoryFactory  [private]
+
+props
+  allowDelete?: boolean  default=literal  [private]
+  collection: any[]  [private]
+  dataSource?: any[] | object  default=factory  [private]
+  localMode?: boolean  default=literal  [private]
+  tooltipDelete?: object  default=factory  [private]
+
+emits
+  column-sort(...args: any[])  [private]
+  delete-item-failed(...args: any[])  [private]
+  items-delete-finish(...args: any[])  [private]
+  load-finish(...args: any[])  [private]
+
+slots
+  action-modals  { item }  block=sw_data_grid_body_cell_action_modals  [private]
+  actions  { item, item-index }  block=sw_data_grid_body_cell_actions_menu  [private]
+  additionalSettings  {}  block=sw_data_grid_settings_additional_settings_inner  [private]
+  bulk  {}  block=sw_data_grid_bulk_selected_actions  [private]
+  bulk-modals  { ...{ selection } }  block=sw_data_grid_bulk_modals  [private]
+  customSettings  {}  block=sw_data_grid_settings_custom_settings  [private]
+  delete-action  { item }  block=sw_data_grid_slot_actions  [private]
+  more-actions  { ...{ item } }  block=sw_data_grid_slot_actions  [private]
+  pagination  {}  block=sw_data_grid_pagination_inner  [private]
+  selection-content  { ...{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty } }  block=sw_data_grid_body_cell_selection  [private]
+
+data
+  initial: any  [private]
+  limit: any  [private]
+  page: any  [private]
+  total: any  [private]
+
+methods
+  applyResult(result: any): any  [private]
+  createdComponent(): any  [private]
+  deleteItem(id: any): any  [private]
+  deleteItems(): any  [private]
+  deleteItemsFinish(): any  [private]
+  load(): any  [private]
+  paginate(params: any): any  [private]
+  revert(): any  [private]
+  save(record: any): any  [private]
+  sort(column: any): any  [private]
+
 blocks
   sw_data_grid  [inherited] [private]
     sw_data_grid_pagination  [inherited] [private]
@@ -85,4 +131,49 @@ crossings
   v-if  sw_data_grid_header_columns_icon -> sw_data_grid_header_columns_label  [private]
   v-if  sw_data_grid_inline_edit_actions -> sw_data_grid_body_cell_actions_menu  [private]
   v-if  sw_data_grid_sort_indicator_icon_asc -> sw_data_grid_sort_indicator_icon_desc  [private]
+
+refs
+  column  -> th  list  [private]
+  table  -> table  [private]
+  wrapper  -> div  [private]
+
+classes
+  bulk-deselect-all  [private]
+  bulk-link  [private]
+  is--loading  [private]
+  link  [private]
+  link-warning  [private]
+  sw-data-grid  [private]
+  sw-data-grid__action-edit-column  [private]
+  sw-data-grid__actions-menu  [private]
+  sw-data-grid__body  [private]
+  sw-data-grid__bulk  [private]
+  sw-data-grid__bulk-selected  [private]
+  sw-data-grid__bulk-selected-count  [private]
+  sw-data-grid__bulk-selected-label  [private]
+  sw-data-grid__cell  [private]
+  sw-data-grid__cell--actions  [private]
+  sw-data-grid__cell--header  [private]
+  sw-data-grid__cell--property  [private]
+  sw-data-grid__cell--selection  [private]
+  sw-data-grid__cell-content  [private]
+  sw-data-grid__cell-resize  [private]
+  sw-data-grid__cell-settings  [private]
+  sw-data-grid__cell-spacer  [private]
+  sw-data-grid__cell-value  [private]
+  sw-data-grid__header  [private]
+  sw-data-grid__inline-edit-cancel  [private]
+  sw-data-grid__inline-edit-save  [private]
+  sw-data-grid__pagination  [private]
+  sw-data-grid__row  [private]
+  sw-data-grid__select-all  [private]
+  sw-data-grid__sort-indicator  [private]
+  sw-data-grid__table  [private]
+  sw-data-grid__wrapper  [private]
+  sw-one-to-many-grid__delete-action  [private]
+
+notes
+  dynamic-slot `column-${column.property}`  [private]
+  dynamic-slot `column-label-${column.property}`  [private]
+  dynamic-slot `preview-${column.property}`  [private]
 ```

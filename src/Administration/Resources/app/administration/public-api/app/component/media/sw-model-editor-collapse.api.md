@@ -11,6 +11,17 @@ component sw-model-editor-collapse  public  ts
   source src/app/component/media/sw-model-editor-collapse/index.ts
   template src/app/component/media/sw-model-editor-collapse/sw-model-editor-collapse.html.twig
 
+props
+  title: string
+
+slots
+  content  {}  block=sw_collapse_panel_content
+  header  { ...{ expanded } }  block=sw_collapse_panel_header
+
+computed
+  collapseButtonClass: { 'is--hidden': boolean }
+  expandButtonClass: { 'is--hidden': boolean }
+
 blocks
   sw_collapse_panel  [inherited]
     sw_collapse_panel_content  [inherited]
@@ -19,4 +30,13 @@ blocks
       sw_collapse_panel_header_slot  [replaced]
         sw_model_editor_collapse_buttons
         sw_model_editor_collapse_title
+
+classes
+  sw-collapse
+  sw-collapse__content
+  sw-collapse__header
+  sw-model-editor-collapse__button
+  sw-model-editor-collapse__header
+  sw-model-editor-collapse__indicator
+  sw-model-editor-collapse__title
 ```

@@ -10,6 +10,32 @@ component sw-users-permissions-role-view-general  public  js
   source src/module/sw-users-permissions/view/sw-users-permissions-role-view-general/index.js
   template src/module/sw-users-permissions/view/sw-users-permissions-role-view-general/sw-users-permissions-role-view-general.html.twig
 
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  isLoading?: boolean  default=literal
+  role?: object  default=literal
+
+data
+  mcpIntegrations: any
+  showMcpModal: any
+
+computed
+  integrationRepository: any
+  isReadOnly: any
+  roleDescriptionError: any
+  roleId: any
+  roleNameError: any
+  shouldShowMcpHint: any
+
+methods
+  loadMcpIntegrations(): Promise<any>
+  onCloseMcpModal(): any
+  onOpenMcpModal(): any
+
 blocks
   sw_users_permissions_role_role_view_general_card_view_additional_permissions  [after v-if]
   sw_users_permissions_role_role_view_general_card_view_basic_information
@@ -18,4 +44,9 @@ blocks
     sw_users_permissions_role_role_view_general_mcp_hint
   sw_users_permissions_role_role_view_general_card_view_permissions
   sw_users_permissions_role_role_view_general_mcp_modal  [after v-if]
+
+classes
+  sw-users-permissions-role-view-general
+  sw-users-permissions-role-view-general__mcp-hint
+  sw-users-permissions-role-view-general__mcp-hint-link
 ```

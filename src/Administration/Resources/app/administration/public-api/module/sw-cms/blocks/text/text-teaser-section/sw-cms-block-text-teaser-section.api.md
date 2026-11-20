@@ -11,6 +11,15 @@ component sw-cms-block-text-teaser-section  private  js  [private]
   template src/module/sw-cms/blocks/text/text-teaser-section/component/sw-cms-block-text-teaser-section.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  left  {}  block=sw_cms_block_text_teaser_section  [private]
+  right  {}  block=sw_cms_block_text_teaser_section  [private]
+
 blocks
   sw_cms_block_text_teaser_section  [private]
+
+classes
+  sw-cms-block-text-teaser-section  [private]
+  sw-cms-block-text-teaser-section__content  [private]
+  sw-cms-block-text-teaser-section__teaser  [private]
 ```

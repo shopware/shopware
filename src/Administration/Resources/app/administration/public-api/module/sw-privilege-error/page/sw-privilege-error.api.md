@@ -10,6 +10,12 @@ component sw-privilege-error  public  js
   source src/module/sw-privilege-error/page/sw-privilege-error/index.js
   template src/module/sw-privilege-error/page/sw-privilege-error/sw-privilege-error.html.twig
 
+computed
+  assetFilter: any
+
+methods
+  routerGoBack(): any
+
 blocks
   sw_privilege_error
     sw_privilege_error_inner
@@ -18,4 +24,10 @@ blocks
         sw_privilege_error_inner_content_description
         sw_privilege_error_inner_content_headline
         sw_privilege_error_inner_content_image
+
+classes
+  sw-privilege-error
+  sw-privilege-error__access-denied-image
+  sw-privilege-error__back-button
+  sw-privilege-error__content
 ```

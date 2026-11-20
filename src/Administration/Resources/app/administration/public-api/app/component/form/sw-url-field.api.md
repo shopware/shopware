@@ -11,9 +11,28 @@ component sw-url-field  private  ts  [private]
   template src/app/component/form/sw-url-field/sw-url-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  deprecated?: boolean  default=literal  [private]
+  modelValue?: string  default=literal  [private]
+  placeholder?: string  default=literal  [private]
+  value?: string  default=literal  [private]
+
+emits
+  update:modelValue(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+computed
+  realValue: any  [private]
+
+methods
+  getSlots(): any  [private]
+
 blocks
   sw_url_field  [private]
 
 crossings
   v-if  sw_url_field -> (root)  [private]
+
+notes
+  dynamic-slot name  [private]
 ```

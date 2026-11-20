@@ -11,6 +11,14 @@ component sw-cms-el-preview-image-gallery  private  js  [private]
   template src/module/sw-cms/elements/image-gallery/preview/sw-cms-el-preview-image-gallery.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_element_gallery_preview  [private]
+
+classes
+  sw-cms-el-preview-gallery  [private]
+  sw-cms-el-preview-gallery-preview  [private]
+  sw-cms-el-preview-gallery__slider  [private]
 ```

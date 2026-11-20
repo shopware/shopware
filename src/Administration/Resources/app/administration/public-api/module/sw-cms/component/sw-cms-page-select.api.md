@@ -11,6 +11,34 @@ component sw-cms-page-select  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-page-select/sw-cms-page-select.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-inline-snippet  [private]
+
+props
+  pageType: string  [private]
+  value?: string  default=literal  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  currentValue: any  [private]
+
+computed
+  bind: any  [private]
+  pageTypeCriteria: any  [private]
+  translations: any  [private]
+
+methods
+  getTranslations(): any  [private]
+
 blocks
   sw_cms_page_select  [private]
+
+refs
+  component  -> sw-entity-single-select  [private]
+
+classes
+  sw-cms-page-select  [private]
+  sw-cms-page-select-box  [private]
 ```

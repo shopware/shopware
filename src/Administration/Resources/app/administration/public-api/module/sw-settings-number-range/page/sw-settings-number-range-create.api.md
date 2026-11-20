@@ -11,6 +11,24 @@ component sw-settings-number-range-create  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-create/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-create/sw-settings-number-range-create.html.twig
 
+data
+  hasProductNumberRange: any
+  isShowProductWarning: any
+
+computed
+  disableNumberRangeTypeSelect: any
+  numberRangeTypeCriteria: any
+  productNumberRangeCriteria: any
+  showNumberRangeStateFields: any
+
+methods
+  checkPatternCollision(): any
+  createdComponent(): Promise<any>
+  getProductNumberRanges(): Promise<any>
+  onChangeType(id: any, numberRange: any): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_number_range_detail  [inherited]
     sw_settings_number_range_detail_actions  [inherited]
@@ -38,4 +56,14 @@ blocks
       sw_settings_number_range_detail_language_info  [inherited]
     sw_settings_number_range_detail_header  [inherited]
     sw_settings_number_range_detail_language_switch  [replaced]
+
+classes
+  sw-number-range-detail__select-type
+  sw-number_range-quickinfo__alert-global-type
+  sw-number_range-quickinfo__product-alert
+  sw-settings-number-range-detail
+  sw-settings-number-range-detail-assignment
+  sw-settings-number-range-detail__field_default
+  sw-settings-number-range-detail__pattern-collision-warning
+  sw-settings-number-range-detail__save-action
 ```

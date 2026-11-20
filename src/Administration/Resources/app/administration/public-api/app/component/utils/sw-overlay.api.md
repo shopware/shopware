@@ -13,4 +13,7 @@ component sw-overlay  private  js  [private]
 
 blocks
   sw_overlay  [private]
+
+classes
+  sw-overlay  [private]
 ```

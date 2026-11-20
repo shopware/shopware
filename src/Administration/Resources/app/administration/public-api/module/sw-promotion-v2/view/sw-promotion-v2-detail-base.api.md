@@ -10,6 +10,48 @@ component sw-promotion-v2-detail-base  public  js
   source src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/index.js
   template src/module/sw-promotion-v2/view/sw-promotion-v2-detail-base/sw-promotion-v2-detail-base.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  promotionCodeApiService
+
+props
+  isCreateMode: boolean
+  isLoading?: boolean  default=literal
+  promotion?: object  default=factory
+
+emits
+  clean-up-codes(...args: any[])
+  delete-individual-codes-finish(...args: any[])
+  generate-individual-codes-finish(...args: any[])
+
+data
+  CODE_TYPES: any
+  codeSortDirection: any
+  codeSortProperty: any
+  customFieldSets: any
+  isGenerateSuccessful: any
+  isGenerating: any
+  selectedCodeType: any
+
+computed
+  codeTypeOptions: any
+  promotionNameError: any
+  promotionValidUntilError: any
+  showCustomFields: any
+
+methods
+  createdComponent(): any
+  generateFinish(): any
+  initialSort(): any
+  loadCustomFieldSets(): any
+  onChangeCodeType(value: any): any
+  onGenerateCodeFixed(): any
+  setNewCodeType(value: any): any
+
 blocks
   sw_promotion_v2_detail_base
     sw_promotion_detail_custom_field_sets  [after v-if]
@@ -32,4 +74,18 @@ blocks
 
 crossings
   v-if  sw_promotion_v2_detail_base_codes_type_fixed -> sw_promotion_v2_detail_base_codes_type_individual
+
+classes
+  sw-promotion-v2-detail-base
+  sw-promotion-v2-detail-base__card-codes
+  sw-promotion-v2-detail-base__card-general
+  sw-promotion-v2-detail-base__field-active
+  sw-promotion-v2-detail-base__field-code-type
+  sw-promotion-v2-detail-base__field-max-uses-global
+  sw-promotion-v2-detail-base__field-max-uses-per-customer
+  sw-promotion-v2-detail-base__field-name
+  sw-promotion-v2-detail-base__field-valid-from
+  sw-promotion-v2-detail-base__field-valid-until
+  sw-promotion-v2-detail-base__fixed-field-code
+  sw-promotion-v2-detail-base__fixed-generate-button
 ```

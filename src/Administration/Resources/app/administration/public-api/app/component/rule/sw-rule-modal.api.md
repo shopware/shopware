@@ -11,6 +11,44 @@ component sw-rule-modal  private  js  [private]
   template src/app/component/rule/sw-rule-modal/sw-rule-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification, placeholder  [private]
+
+inject
+  feature  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+  ruleConditionsConfigApiService  [private]
+
+props
+  allowedRuleScopes?: any[]  default=literal  [private]
+  ruleAwareGroupKey?: string  default=literal  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  save(...args: any[])  [private]
+
+data
+  initialConditions: any  [private]
+  isLoading: any  [private]
+  rule: any  [private]
+
+computed
+  appScriptConditionRepository: any  [private]
+  modalTitle: any  [private]
+  ruleConditionRepository: any  [private]
+  ruleNameError: any  [private]
+  rulePriorityError: any  [private]
+  ruleRepository: any  [private]
+
+methods
+  conditionsChanged(arg0: any): any  [private]
+  createdComponent(): any  [private]
+  getChildrenConditions(condition: any): any  [private]
+  loadConditionData(): any  [private]
+  saveAndClose(): any  [private]
+  validateRuleAwareness(): any  [private]
+
 blocks
   sw_rule_modal  [private]
     sw_rule_modal_basic_info  [private]
@@ -21,4 +59,8 @@ blocks
     sw_rule_modal_footer  [private]
       sw_rule_modal_footer_button_abort  [private]
       sw_rule_modal_footer_button_save  [private]
+
+classes
+  sw-rule-modal  [private]
+  sw-rule-modal__save  [private]
 ```

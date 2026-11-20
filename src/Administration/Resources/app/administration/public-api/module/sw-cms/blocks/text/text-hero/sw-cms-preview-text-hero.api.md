@@ -13,4 +13,7 @@ component sw-cms-preview-text-hero  private  js  [private]
 
 blocks
   sw_cms_block_text_hero_preview  [private]
+
+classes
+  sw-cms-preview-text-hero  [private]
 ```

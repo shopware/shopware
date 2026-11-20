@@ -10,6 +10,23 @@ component sw-users-permissions-additional-permissions  public  js
   source src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/index.js
   template src/module/sw-users-permissions/components/sw-users-permissions-additional-permissions/sw-users-permissions-additional-permissions.html.twig
 
+inject
+  privileges
+
+props
+  disabled?: boolean  default=literal
+  isLoading?: boolean  default=literal
+  role?: object  default=literal
+
+computed
+  additionalPermissions: any
+  appPermissions: any
+
+methods
+  changeAllAppPermissionsForKey(permissionKey: any, isSelected: any): any
+  isPrivilegeSelected(privilegeKey: any): any
+  onSelectPrivilege(privilegeKey: any, isSelected: any): any
+
 blocks
   sw_users_permissions_additional_permissions
     sw_users_permissions_additional_permissions_additional_privileges
@@ -24,4 +41,11 @@ blocks
       sw_users_permissions_additional_permissions_app_privileges_switches  [scope: privilege]
         sw_users_permissions_additional_permissions_app_privileges_switches_content  [scope: privilege]
           sw_users_permissions_additional_permissions_app_privileges_switches_content_switch  [scope: key, privilege, roleName]
+
+classes
+  sw-users-permissions-additional-permissions
+  sw-users-permissions-additional-permissions-app
+  sw-users-permissions-additional-permissions__headline
+  sw-users-permissions-additional-permissions__switches
+  sw_users_permissions_additional_permissions_app_all
 ```

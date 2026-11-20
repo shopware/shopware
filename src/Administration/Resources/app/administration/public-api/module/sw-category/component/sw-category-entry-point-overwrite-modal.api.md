@@ -10,6 +10,21 @@ component sw-category-entry-point-overwrite-modal  public  js
   source src/module/sw-category/component/sw-category-entry-point-overwrite-modal/index.js
   template src/module/sw-category/component/sw-category-entry-point-overwrite-modal/sw-category-entry-point-overwrite-modal.html.twig
 
+props
+  salesChannels?: any[]  default=factory
+
+emits
+  cancel(...args: any[])
+  confirm(...args: any[])
+
+methods
+  onCancel(): any
+  onConfirm(): any
+
 blocks
   sw_category_entry_point_overwrite_modal
+
+classes
+  sw-category-entry-point-overwrite-modal
+  sw-confirm-modal__text
 ```

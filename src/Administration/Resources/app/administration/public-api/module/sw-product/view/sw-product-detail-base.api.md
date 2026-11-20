@@ -10,6 +10,55 @@ component sw-product-detail-base  public  js
   source src/module/sw-product/view/sw-product-detail-base/index.js
   template src/module/sw-product/view/sw-product-detail-base/sw-product-detail-base.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  mediaDefaultFolderService
+  repositoryFactory
+
+props
+  productId?: string  default=literal
+
+data
+  mediaDefaultFolderId: any
+  showMediaModal: any
+
+computed
+  customFieldSets: any
+  isDownloadCardVisible: any
+  isDownloadExternallyManaged: any
+  isLoading: any
+  loading: any
+  mediaDefaultFolderCriteria: any  [deprecated tag:v6.8.0]
+  mediaDefaultFolderRepository: any  [deprecated tag:v6.8.0]
+  mediaFormVisible: any
+  parentProduct: any
+  product: any
+  productMediaRepository: any
+  productStates: any  [deprecated tag:v6.8.0]
+  productType: any
+  showModeSetting: any
+
+methods
+  addMedia(media: any): any
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  isExistingMedia(media: any): any
+  isSpatial(productMedia: any): any
+  mediaRemoveInheritanceFunction(newValue: any): any
+  mediaRestoreInheritanceFunction(): any
+  onAddMedia(media: any): any
+  onCloseDownloadMediaModal(): any
+  onCloseMediaModal(): any
+  onDownloadExternalManagementChange(value: any): any
+  onOpenDownloadMediaModal(): any
+  onOpenMediaModal(): any
+  setMediaAsCover(media: any): any
+  showProductCard(key: any): any
+  showRequiredDownloadsError(): any
+
 blocks
   sw_product_detail_base
     sw_product_detail_base_basic_info_card
@@ -33,4 +82,25 @@ blocks
       sw_product_detail_deliverability_downloadable_info_form
     sw_product_detail_deliverability_info_card
       sw_product_detail_deliverability_info_form
+
+refs
+  productMediaInheritance  -> sw-inherit-wrapper
+
+classes
+  mt-card__title
+  sw-card__inherited
+  sw-card__quick-link
+  sw-inherit-wrapper__card-title
+  sw-inherit-wrapper__card-title--inherited
+  sw-inherit-wrapper__inheritance-icon
+  sw-product-detail-base
+  sw-product-detail-base__deliverability
+  sw-product-detail-base__deliverability-downloadable
+  sw-product-detail-base__downloads
+  sw-product-detail-base__guarantee-card
+  sw-product-detail-base__info
+  sw-product-detail-base__labelling-card
+  sw-product-detail-base__media
+  sw-product-detail-base__prices
+  sw-product-detail-base__visibility-structure
 ```

@@ -10,9 +10,28 @@ component sw-settings-search-search-behaviour  public  js
   source src/module/sw-settings-search/component/sw-settings-search-search-behaviour/index.js
   template src/module/sw-settings-search/component/sw-settings-search-search-behaviour/sw-settings-search-search-behaviour.html.twig
 
+inject
+  acl
+
+props
+  isLoading?: boolean  default=literal
+  searchBehaviourConfigs?: object  default=factory
+
+data
+  max: any
+  min: any
+
+computed
+  conditionsOptions: any
+
 blocks
   sw_settings_search_search_behaviour
     sw_settings_search_search_behaviour_condition
     sw_settings_search_search_behaviour_search_term_length
     sw_settings_search_search_behaviour_title
+
+classes
+  sw-settings-search-search-behaviour
+  sw-settings-search__search-behaviour-condition
+  sw-settings-search__search-behaviour-title
 ```

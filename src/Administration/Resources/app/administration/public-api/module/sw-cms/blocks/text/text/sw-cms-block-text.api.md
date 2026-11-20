@@ -11,7 +11,13 @@ component sw-cms-block-text  private  js  [private]
   template src/module/sw-cms/blocks/text/text/component/sw-cms-block-text.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_text  [private]
+
 blocks
   sw_cms_block_text  [private]
     sw_cms_block_text_slot_text_content  [private]
+
+classes
+  sw-cms-block-text  [private]
 ```

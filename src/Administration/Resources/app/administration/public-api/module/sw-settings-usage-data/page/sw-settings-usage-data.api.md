@@ -11,6 +11,15 @@ component sw-settings-usage-data  private  ts  [private]
   template src/module/sw-settings-usage-data/page/sw-settings-usage-data/sw-settings-usage-data.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+computed
+  usageDataTabs: TabItem[]  [private]
+
 blocks
   sw_settings_usage_data  [private]
+
+classes
+  sw-settings-usage-data  [private]
 ```

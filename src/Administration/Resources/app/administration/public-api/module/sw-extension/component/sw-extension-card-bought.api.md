@@ -12,6 +12,43 @@ component sw-extension-card-bought  private  js  [private]
   template src/module/sw-extension/component/sw-extension-card-bought/sw-extension-card-bought.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  sw-extension-error  [private]
+
+props
+  extension?: object  default=literal  [private]
+
+data
+  installationFailedError: any  [private]
+  removePluginData: any  [private]
+  showDeactivationModal: any  [private]
+  showExtensionInstallationFailedModal: any  [private]
+  showRatingModal: any  [private]
+
+computed
+  dateFilter: any  [private]
+  detailLink: any  [private]
+  extensionCardClasses: any  [private]
+  isExpiredRent: any  [private]
+  isExpiredTestPhase: any  [private]
+  priceInfo: any  [private]
+  showContextMenu: any  [private]
+  subscriptionExpiredText: any  [private]
+  subscriptionExpiredTextClasses: any  [private]
+
+methods
+  activateExtension(): Promise<any>  [private]
+  cancelAndRemoveExtension(): Promise<any>  [private]
+  changeExtensionStatus(): Promise<any>  [private]
+  closeDeactivationModal(): any  [private]
+  closeInstallationFailedNotification(): any  [private]
+  closeModalAndDeactivateExtension(): Promise<any>  [private]
+  closeRatingModal(): any  [private]
+  deactivateExtension(): Promise<any>  [private]
+  installAndActivateExtension(): Promise<any>  [private]
+  installExtension(): Promise<any>  [private]
+  openRatingModal(): any  [private]
+
 blocks
   sw_extension_card_base_activation_switch  [keepsParent] [private]
     sw_extension_card_base_info_inactive_label  [inherited] [private]
@@ -20,4 +57,26 @@ blocks
     sw_extension_card_base_context_menu_actions_additional  [inherited] [after v-if] [private]
   sw_extension_card_base_info_content  [keepsParent] [private]
   sw_extension_card_base_modals  [keepsParent] [after v-if] [private]
+
+classes
+  sw-extension-card-base  [private]
+  sw-extension-card-base__cancel-and-remove-link  [private]
+  sw-extension-card-base__cancel-subscription-link  [private]
+  sw-extension-card-base__context-menu  [private]
+  sw-extension-card-base__context-menu-privacy-link  [private]
+  sw-extension-card-base__info  [private]
+  sw-extension-card-base__info-inactive  [private]
+  sw-extension-card-base__info-name  [private]
+  sw-extension-card-base__main-action  [private]
+  sw-extension-card-base__meta-info  [private]
+  sw-extension-card-base__meta-info-version  [private]
+  sw-extension-card-base__open-extension  [private]
+  sw-extension-card-base__remove-link  [private]
+  sw-extension-card-base__select  [private]
+  sw-extension-card-base__switch  [private]
+  sw-extension-card-bought__detail-link  [private]
+  sw-extension-card-bought__info-price  [private]
+  sw-extension-card-bought__info-subscription-expiry  [private]
+  sw-extension-card-bought__installation-failed-modal  [private]
+  sw-extension-card-bought__rate-link  [private]
 ```

@@ -11,6 +11,25 @@ component sw-user-card  private  js  [private]
   template src/app/component/base/sw-user-card/sw-user-card.html.twig  [private]
   visibility-source export  [private]
 
+props
+  isLoading?: boolean  default=literal  [private]
+  title: string  default=literal  [private]
+  user: object  default=factory  [private]
+
+slots
+  actions  {}  block=sw_user_card_actions  [private]
+  data-additional  {}  block=sw_user_card_row_primary  [private]
+  default  {}  block=sw_user_card_row_secondary  [private]
+  metadata-additional  {}  block=sw_user_card_metadata_additional  [private]
+  summary  {}  block=sw_user_card_metadata_container  [private]
+
+computed
+  hasActionSlot: any  [private]
+  hasAdditionalDataSlot: any  [private]
+  hasSummarySlot: any  [private]
+  moduleColor: any  [private]
+  salutationFilter: any  [private]
+
 blocks
   sw_user_card  [private]
     sw_user_card_rows  [private]
@@ -29,4 +48,11 @@ blocks
         sw_user_card_slot_data_additional  [private]
       sw_user_card_row_secondary  [private]
         sw_user_card_slot_default  [private]
+
+classes
+  sw-user-card  [private]
+  sw-user-card__actions  [private]
+  sw-user-card__metadata  [private]
+  sw-user-card__metadata-item  [private]
+  sw-user-card__metadata-user-name  [private]
 ```

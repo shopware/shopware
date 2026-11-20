@@ -9,4 +9,112 @@ component sw-sales-channel-detail-agentic-file  public  js
   registered src/module/sw-sales-channel/index.js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-file/sw-sales-channel-detail-agentic-file.html.twig
+
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+  salesChannelFileApiService
+
+props
+  salesChannel?: object  default=literal
+
+data
+  customNotes: any
+  file: any
+  isContentSourcesExpanded: any
+  isLoading: any
+  isPreviewLoading: any
+  preview: any
+  selectedTemplate: any
+  templateOverrideDraft: any
+
+computed
+  canResetTemplateOverride: any
+  contentSourceTemplates: any
+  contentSourcesToggleIcon: any
+  contentSourcesToggleLabel: any
+  description: any
+  listRoute: any
+  previewContent: any
+  publicPreviewUrl: any
+  routeFileName: any
+  salesChannelFileRepository: any
+  selectedTemplateDefaultContent: any
+  supportsCustomNotes: any
+  templateColumns: any
+  templateOverrides: any
+
+methods
+  applyTemplateOverride(): any
+  buildPublicUrl(baseUrl: any, fileName: any): any
+  closeTemplateOverrideModal(): any
+  ensureSalesChannelFileCollection(): any
+  ensureSalesChannelFileConfiguration(): any
+  findSalesChannelFileConfiguration(): any
+  formatSnippetPathSegment(segment: any): any
+  getDescription(file: any): any
+  getDescriptionSnippetKey(file: any): any
+  getDisplayFileName(file: any): any
+  getEnabledLabel(file: any): any
+  getEnabledVariant(file: any): any
+  getPublicPath(file: any): any
+  getSalesChannelDomainUrl(): any
+  getTemplateDefaultContent(template: any): any
+  getTemplateOverrideContent(template: any): any
+  getTemplateRoleLabel(template: any): any
+  getTemplateRoleVariant(template: any): any
+  getToggleLabel(file: any): any
+  getUserProvidedContent(file: any): any
+  hasTemplateOverride(template: any): any
+  hasUnsavedTemplateOverrides(): any
+  isEnabled(file: any): any
+  isStorefrontSalesChannel(): any
+  loadFile(): Promise<any>
+  loadPreview(): Promise<any>
+  onToggleEnabled(): any
+  openTemplateOverrideModal(template: any): any
+  removeTemplateOverride(template: any): any
+  resetTemplateOverride(): any
+  writeConfigurationToSalesChannel(configuration: any): any
+  writeCustomNotesToSalesChannelFile(customNotes: any): any
+
+classes
+  sw-sales-channel-detail-agentic-file
+  sw-sales-channel-detail-agentic-file__back-link
+  sw-sales-channel-detail-agentic-file__content-sources-toggle
+  sw-sales-channel-detail-agentic-file__custom-notes
+  sw-sales-channel-detail-agentic-file__custom-notes-input
+  sw-sales-channel-detail-agentic-file__description
+  sw-sales-channel-detail-agentic-file__details
+  sw-sales-channel-detail-agentic-file__empty-preview
+  sw-sales-channel-detail-agentic-file__header
+  sw-sales-channel-detail-agentic-file__header-description
+  sw-sales-channel-detail-agentic-file__headline
+  sw-sales-channel-detail-agentic-file__headline-row
+  sw-sales-channel-detail-agentic-file__metadata
+  sw-sales-channel-detail-agentic-file__metadata-item
+  sw-sales-channel-detail-agentic-file__metadata-label
+  sw-sales-channel-detail-agentic-file__metadata-value
+  sw-sales-channel-detail-agentic-file__override-input
+  sw-sales-channel-detail-agentic-file__override-modal
+  sw-sales-channel-detail-agentic-file__override-modal-apply
+  sw-sales-channel-detail-agentic-file__override-modal-content
+  sw-sales-channel-detail-agentic-file__override-modal-reset
+  sw-sales-channel-detail-agentic-file__preview
+  sw-sales-channel-detail-agentic-file__preview-section
+  sw-sales-channel-detail-agentic-file__public-path
+  sw-sales-channel-detail-agentic-file__public-path-disabled
+  sw-sales-channel-detail-agentic-file__public-path-link
+  sw-sales-channel-detail-agentic-file__section-headline
+  sw-sales-channel-detail-agentic-file__source
+  sw-sales-channel-detail-agentic-file__source-button
+  sw-sales-channel-detail-agentic-file__source-name
+  sw-sales-channel-detail-agentic-file__state-action
+  sw-sales-channel-detail-agentic-file__templates
+  sw-sales-channel-detail-agentic-file__templates--collapsed
+  sw-sales-channel-detail-agentic-file__title
+  sw-sales-channel-detail-agentic-file__top-bar
 ```

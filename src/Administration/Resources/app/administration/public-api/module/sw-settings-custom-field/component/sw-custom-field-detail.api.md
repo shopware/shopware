@@ -10,6 +10,49 @@ component sw-custom-field-detail  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-detail/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-detail/sw-custom-field-detail.html.twig
 
+mixins
+  notification
+
+inject
+  SwCustomFieldListIsCustomFieldNameUnique
+  acl
+  customFieldDataProviderService
+  repositoryFactory
+
+props
+  currentCustomField: object
+  set: object
+
+emits
+  custom-field-edit-cancel(...args: any[])
+  custom-field-edit-save(...args: any[])
+
+data
+  disableCartExpose: any
+  fieldTypes: any
+
+computed
+  canSave: any
+  currentCustomFieldNameError: any
+  customFieldTypeOptions: any
+  genericConfigKeys: any
+  isProductCustomField: any
+  labelSaveButton: any
+  locales: any
+  modalTitle: any
+  renderComponentName: any
+  ruleConditionRepository: any
+
+methods
+  applyTypeConfiguration(): any
+  createEntityTypeRequiredNotification(): any
+  createNameNotUniqueNotification(): any
+  createdComponent(): any
+  getCartExposeTooltipConfig(): any
+  onCancel(): any
+  onSave(): any
+  resetTypeConfiguration(customFieldType: any): any
+
 blocks
   sw_custom_field_detail
     sw_custom_field_detail_modal
@@ -26,4 +69,17 @@ blocks
       sw_custom_field_detail_modal_store_api_aware
       sw_custom_field_detail_modal_technical_name
       sw_custom_field_detail_modal_type
+
+classes
+  sw-custom-field-detail
+  sw-custom-field-detail__allow-cart-expose
+  sw-custom-field-detail__allow-customer-write
+  sw-custom-field-detail__allow-searchable
+  sw-custom-field-detail__footer-save
+  sw-custom-field-detail__info
+  sw-custom-field-detail__modal-position
+  sw-custom-field-detail__modal-type
+  sw-custom-field-detail__searchable-banner
+  sw-custom-field-detail__store-api-aware
+  sw-custom-field-detail__technical-name
 ```

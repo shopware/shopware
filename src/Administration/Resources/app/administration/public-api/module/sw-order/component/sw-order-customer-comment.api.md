@@ -10,7 +10,14 @@ component sw-order-customer-comment  public  js
   source src/module/sw-order/component/sw-order-customer-comment/index.js
   template src/module/sw-order/component/sw-order-customer-comment/sw-order-customer-comment.html.twig
 
+props
+  customerComment: string  default=literal
+  isLoading?: boolean  default=literal
+
 blocks
   sw_order_customer_comment
     sw_order_customer_comment_content
+
+classes
+  sw-order-customer-comment
 ```

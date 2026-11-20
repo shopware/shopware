@@ -11,6 +11,18 @@ component sw-cms-el-form  private  js  [private]
   template src/module/sw-cms/elements/form/component/sw-cms-el-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  selectedForm: any  [private]
+
+methods
+  createdComponent(): any  [private]
+
 blocks
   sw_cms_element_form  [private]
+
+classes
+  sw-cms-el-form  [private]
 ```

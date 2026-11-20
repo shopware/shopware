@@ -10,9 +10,34 @@ component sw-bulk-edit-order-documents  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents/sw-bulk-edit-order-documents.html.twig
 
+mixins
+  notification
+
+inject
+  documentV2Service
+  feature
+  repositoryFactory
+
+props
+  documents: object
+  value: object
+
+data
+  documentTypes: any
+
+computed
+  documentTypeCriteria: any
+  documentTypeRepository: any
+
+methods
+  createdComponent(): Promise<any>
+
 blocks
   sw_bulk_edit_order_documents
     sw_bulk_edit_order_documents_container
       sw_bulk_edit_order_documents_skip_sent_documents
       sw_bulk_edit_order_documents_type
+
+classes
+  sw-bulk-edit-order-documents
 ```

@@ -11,6 +11,16 @@ component sw-cms-preview-image-text-row  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-row/preview/sw-cms-preview-image-text-row.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_image_text_row_preview  [private]
+
+classes
+  sw-cms-preview-image-text-row  [private]
+  sw-cms-preview-image-text-row__center  [private]
+  sw-cms-preview-image-text-row__image  [private]
+  sw-cms-preview-image-text-row__left  [private]
+  sw-cms-preview-image-text-row__right  [private]
 ```

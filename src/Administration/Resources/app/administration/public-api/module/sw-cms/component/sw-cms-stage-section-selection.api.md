@@ -10,8 +10,24 @@ component sw-cms-stage-section-selection  public  ts
   source src/module/sw-cms/component/sw-cms-stage-section-selection/index.ts
   template src/module/sw-cms/component/sw-cms-stage-section-selection/sw-cms-stage-section-selection.html.twig
 
+emits
+  section-select(...args: any[])
+
+methods
+  selectSection(type: string): any
+
 blocks
   sw_cms_stage_section_selection
     sw_cms_stage_section_selection__fullwidth
     sw_cms_stage_section_selection__sidebar
+
+classes
+  sw-cms-stage-section-selection
+  sw-cms-stage-section-selection__default
+  sw-cms-stage-section-selection__default-preview
+  sw-cms-stage-section-selection__default-preview-inner
+  sw-cms-stage-section-selection__sidebar
+  sw-cms-stage-section-selection__sidebar-preview
+  sw-cms-stage-section-selection__sidebar-preview-inner
+  sw-cms-stage-section-selection__sidebar-preview-placeholder
 ```

@@ -11,8 +11,70 @@ component sw-meteor-single-select  private  js  [private]
   template src/app/component/meteor/sw-meteor-single-select/sw-meteor-single-select.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  remove-api-error  [private]
+
+inject
+  feature  [private]
+
+props
+  highlightSearchTerm?: boolean  default=literal  [private]
+  isLoading?: boolean  default=literal  [private]
+  label?: string  default=literal  [private]
+  labelProperty?: string  default=literal  [private]
+  options: any[]  [private]
+  placeholder?: string  default=literal  [private]
+  value: any  [private]
+  valueProperty?: string  default=literal  [private]
+
+emits
+  paginate(...args: any[])  [private]
+  search(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  after-item-list  {}  block=sw_meteor_single_select_result_list  [private]
+  before-item-list  {}  block=sw_meteor_single_select_result_list  [private]
+  result-item  { ...{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey } }  block=sw_meteor_single_select_result_list  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey } }  block=sw_meteor_single_select_result_list  [private]
+
+data
+  isExpanded: any  [private]
+  itemRecentlySelected: any  [private]
+  results: any  [private]
+  searchTerm: any  [private]
+
+computed
+  currentValue: any  [private]
+  inputClasses: any  [private]
+  searchable: any  [private]
+  selectedValueLabel: any  [private]
+  selectionTextClasses: any  [private]
+  singleSelection: any  [private]
+
+methods
+  closeResultList(): any  [private]
+  debouncedSearch(): any  [private]
+  getKey(object: any, keyPath: any, defaultValue: any): any  [private]
+  isSelected(item: any): any  [private]
+  onInputSearchTerm(): any  [private]
+  openResultList(): any  [private]
+  search(): any  [private]
+  setValue(item: any): any  [private]
+  toggleResultList(): any  [private]
+
 blocks
   sw_meteor_single_select  [private]
     sw_meteor_single_select_preview  [private]
     sw_meteor_single_select_result_list  [private]
+
+refs
+  searchField  -> sw-simple-search-field  [private]
+
+classes
+  sw-meteor-single-select  [private]
+  sw-meteor-single-select__label  [private]
+  sw-meteor-single-select__preview  [private]
+  sw-meteor-single-select__result-list  [private]
+  sw-meteor-single-select__selected-value-label  [private]
 ```

@@ -11,6 +11,18 @@ component sw-extension-my-extensions-index  private  js  [private]
   template src/module/sw-extension/page/sw-extension-my-extensions-index/sw-extension-my-extensions-index.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+computed
+  extensionManagementDisabled: any  [private]
+  queryParams: any  [private]
+  searchValue: any  [private]
+
+methods
+  onSearch(term: any): any  [private]
+  updateRouteQueryTerm(term: any): any  [private]
+
 blocks
   sw_extension_my_extensions_index  [private]
     sw_extension_my_extensions_index_body  [private]
@@ -24,4 +36,7 @@ blocks
       sw_extension_my_extensions_index_smart_bar_tabs_app  [private]
       sw_extension_my_extensions_index_smart_bar_tabs_recommendation  [private]
       sw_extension_my_extensions_index_smart_bar_tabs_theme  [private]
+
+classes
+  sw-extension-store-purchased  [private]
 ```

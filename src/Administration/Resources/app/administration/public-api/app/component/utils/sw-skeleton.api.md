@@ -11,6 +11,21 @@ component sw-skeleton  private  ts  [private]
   template src/app/component/utils/sw-skeleton/sw-skeleton.html.twig  [private]
   visibility-source export  [private]
 
+props
+  variant?: string  default=literal  [private]
+
+computed
+  classList: any  [private]
+
 blocks
   sw_skeleton  [private]
+
+classes
+  sw-skeleton  [private]
+  sw-skeleton-bar  [private]
+  sw-skeleton__detail-container  [private]
+  sw-skeleton__media-preview  [private]
+  sw-skeleton__media-subtitle  [private]
+  sw-skeleton__tree-item-checkbox  [private]
+  sw-skeleton__tree-item-text  [private]
 ```

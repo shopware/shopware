@@ -11,6 +11,26 @@ component sw-notifications  private  js  [private]
   template src/app/component/utils/sw-notifications/sw-notifications.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification-translation  [private]
+
+inject
+  feature  [private]
+
+props
+  notificationsGap?: string  default=literal  [private]
+  notificationsTopGap?: string  default=literal  [private]
+  position?: string  default=literal  [private]
+
+computed
+  notifications: any  [private]
+  notificationsStyle: any  [private]
+
+methods
+  getNotificationVariant(notification: any): any  [private]
+  handleAction(action: any, notification: any): any  [private]
+  onClose(notification: any): any  [private]
+
 blocks
   sw_notifications  [private]
     sw_notifications_element  [private]
@@ -19,4 +39,10 @@ blocks
           sw_notifications_item_actions  [scope: index, notification] [private]
             sw_notifications_item_action_item  [scope: action, index, notification] [private]
           sw_notifications_item_content  [scope: index, notification] [private]
+
+classes
+  sw-notification__alert  [private]
+  sw-notifications  [private]
+  sw-notifications__actions  [private]
+  sw-notifications__message  [private]
 ```

@@ -11,6 +11,33 @@ component sw-radio-panel  private  js  [private]
   template src/app/component/base/sw-radio-panel/sw-radio-panel.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  description?: string  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  icon?: string  default=literal  [private]
+  id?: string  default=factory  [private]
+  modelValue?: string  [private]
+  name?: string  default=literal  [private]
+  required?: boolean  default=literal  [private]
+  title?: string  default=literal  [private]
+  truncate?: boolean  default=literal  [private]
+  value?: string  [private]
+
+emits
+  update:modelValue(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_radio_panel_body_slot  [private]
+
+computed
+  checked: any  [private]
+
+methods
+  toggle(): any  [private]
+
 blocks
   sw_radio_panel  [private]
     sw_radio_panel_body  [private]
@@ -20,4 +47,13 @@ blocks
         sw_radio_panel_body_image  [private]
         sw_radio_panel_body_title  [private]
     sw_radio_panel_input  [private]
+
+classes
+  is--truncate  [private]
+  sw-radio-panel  [private]
+  sw-radio-panel__body  [private]
+  sw-radio-panel__description  [private]
+  sw-radio-panel__image  [private]
+  sw-radio-panel__radio  [private]
+  sw-radio-panel__title  [private]
 ```

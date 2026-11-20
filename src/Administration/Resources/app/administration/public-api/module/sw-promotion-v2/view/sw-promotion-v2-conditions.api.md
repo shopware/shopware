@@ -10,6 +10,32 @@ component sw-promotion-v2-conditions  public  js
   source src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/index.js
   template src/module/sw-promotion-v2/view/sw-promotion-v2-conditions/sw-promotion-v2-conditions.html.twig
 
+inject
+  acl
+  repositoryFactory
+  ruleConditionDataProviderService
+
+props
+  promotion?: object  default=factory
+
+data
+  cartRestrictedRules: any
+  excludedPromotions: any
+  orderRestrictedRules: any
+  personaRestrictedRules: any
+
+computed
+  cartConditionsRuleFilter: any  [deprecated tag:v6.8.0]
+  exclusionCriteria: any
+  orderConditionsFilter: any  [deprecated tag:v6.8.0]
+  personaRuleFilter: any  [deprecated tag:v6.8.0]
+
+methods
+  createPromotionCollection(): any
+  createdComponent(): any
+  loadExclusions(): any
+  onChangeExclusions(promotions: any): any
+
 blocks
   sw_promotion_v2_conditions
     sw_promotion_v2_conditions_pre_conditions_card
@@ -20,4 +46,12 @@ blocks
       sw_promotion_v2_rule_conditions_rule_select_cart_conditions  [after v-if]
       sw_promotion_v2_rule_conditions_rule_select_customer
       sw_promotion_v2_rule_conditions_rule_select_order_conditions
+
+classes
+  sw-promotion-v2-conditions
+  sw-promotion-v2-conditions__prevent-combination
+  sw-promotion-v2-conditions__rule-select-customer
+  sw-promotion-v2-conditions__rule-select-order-conditions
+  sw-promotion-v2-conditions__rules-exclusion-selection
+  sw-promotion-v2-conditions__sales-channel-selection
 ```

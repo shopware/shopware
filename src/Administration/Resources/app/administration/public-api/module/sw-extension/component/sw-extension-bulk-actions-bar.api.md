@@ -10,4 +10,30 @@ component sw-extension-bulk-actions-bar  private  js  [private]
   source src/module/sw-extension/component/sw-extension-bulk-actions-bar/index.js  [private]
   template src/module/sw-extension/component/sw-extension-bulk-actions-bar/sw-extension-bulk-actions-bar.html.twig  [private]
   visibility-source export  [private]
+
+props
+  applicableCounts: object  [private]
+  disabled?: boolean  default=literal  [private]
+  selectedCount: number  [private]
+
+emits
+  clear(...args: any[])  [private]
+  run-action(...args: any[])  [private]
+  select-all(...args: any[])  [private]
+
+methods
+  onAction(action: any, applicableCount: any): any  [private]
+
+classes
+  is--disabled  [private]
+  link  [private]
+  sw-extension-bulk-actions-bar  [private]
+  sw-extension-bulk-actions-bar__action  [private]
+  sw-extension-bulk-actions-bar__action--danger  [private]
+  sw-extension-bulk-actions-bar__actions  [private]
+  sw-extension-bulk-actions-bar__count  [private]
+  sw-extension-bulk-actions-bar__deselect  [private]
+  sw-extension-bulk-actions-bar__label  [private]
+  sw-extension-bulk-actions-bar__select-all  [private]
+  sw-extension-bulk-actions-bar__selection  [private]
 ```

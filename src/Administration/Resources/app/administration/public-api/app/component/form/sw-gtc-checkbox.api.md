@@ -11,7 +11,22 @@ component sw-gtc-checkbox  private  js  [private]
   template src/app/component/form/sw-gtc-checkbox/sw-gtc-checkbox.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  value: boolean  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+methods
+  onChange(value: any): any  [private]
+
 blocks
   sw_gtc_checkbox  [private]
     sw_gtc_checkbox_input  [private]
+
+classes
+  sw-gtc-checkbox  [private]
 ```

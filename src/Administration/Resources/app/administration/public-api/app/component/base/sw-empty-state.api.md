@@ -11,8 +11,30 @@ component sw-empty-state  private  js  [private]
   template src/app/component/base/sw-empty-state/sw-empty-state.html.twig  [private]
   visibility-source export  [private]
 
+props
+  absolute?: boolean  default=literal  [private]
+  autoHeight?: boolean  default=literal  [private]
+  color?: string  default=literal  [private]
+  emptyModule?: boolean  default=literal  [private]
+  icon?: string  default=literal  [private]
+  showDescription?: boolean  default=literal  [private]
+  subline?: string  default=literal  [private]
+  title: string  default=literal  [private]
+
+slots
+  actions  {}  block=sw_empty_state_actions  [private]
+  default  {}  block=sw_empty_state_description  [private]
+  icon  {}  block=sw_empty_state_icon  [private]
+
+computed
+  classes: any  [private]
+  hasActionSlot: any  [private]
+  moduleColor: any  [private]
+  moduleDescription: any  [private]
+  moduleIcon: any  [private]
+
 blocks
-  sw_empty_state  [private]
+  sw_empty_state  [deprecated tag:v6.9.0] [private]
     sw_empty_state_element  [private]
       sw_empty_state_actions  [after v-if] [private]
         sw_empty_state_slot_actions  [private]
@@ -21,4 +43,13 @@ blocks
       sw_empty_state_icon  [private]
         sw_empty_state_slot_icon  [private]
       sw_empty_state_title  [private]
+
+classes
+  sw-empty-state  [private]
+  sw-empty-state__actions  [private]
+  sw-empty-state__description  [private]
+  sw-empty-state__description-content  [private]
+  sw-empty-state__element  [private]
+  sw-empty-state__icon  [private]
+  sw-empty-state__title  [private]
 ```

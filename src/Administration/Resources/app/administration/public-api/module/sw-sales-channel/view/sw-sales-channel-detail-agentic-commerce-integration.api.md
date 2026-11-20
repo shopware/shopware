@@ -10,10 +10,34 @@ component sw-sales-channel-detail-agentic-commerce-integration  public  js
   source src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/index.js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-agentic-commerce-integration/sw-sales-channel-detail-agentic-commerce-integration.html.twig
 
+inject
+  acl
+
+props
+  isLoading?: boolean  default=literal
+  productComparisonAccessUrl?: string  default=literal
+  productExport: any
+  salesChannel: any
+
+computed
+  feedUrl: any
+  integrationSnippetPrefix: any
+  isOpenAi: any
+  providerName: any
+
 blocks
   sw_sales_channel_detail_agentic_commerce_integration
     sw_sales_channel_detail_agentic_commerce_integration_card
       sw_sales_channel_detail_agentic_commerce_integration_feed_url
       sw_sales_channel_detail_agentic_commerce_integration_introduction
       sw_sales_channel_detail_agentic_commerce_integration_steps
+
+classes
+  sw-sales-channel-detail-agentic-commerce-integration
+  sw-sales-channel-detail-agentic-commerce-integration__introduction
+  sw-sales-channel-detail-agentic-commerce-integration__introduction-description
+  sw-sales-channel-detail-agentic-commerce-integration__introduction-title
+  sw-sales-channel-detail-agentic-commerce-integration__step-by-step
+  sw-sales-channel-detail-agentic-commerce-integration__step-by-step-list
+  sw-sales-channel-detail-agentic-commerce-integration__step-by-step-title
 ```

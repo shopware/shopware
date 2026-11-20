@@ -11,8 +11,23 @@ component sw-promotion-v2-empty-state-hero  private  js  [private]
   template src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero/sw-promotion-v2-empty-state-hero.html.twig  [private]
   visibility-source export  [private]
 
+props
+  assetPath?: string  default=literal  [private]
+  description?: string  default=literal  [private]
+  hideDescription?: boolean  default=literal  [private]
+  title: string  [private]
+
+slots
+  actions  {}  block=sw_promotion_v2_empty_state_hero_content_actions  [private]
+
+computed
+  actionSlotsAvailable: any  [private]
+  assetFilter: any  [private]
+  imagePath: any  [private]
+  showDescription: any  [private]
+
 blocks
-  sw_promotion_v2_empty_state_hero  [private]
+  sw_promotion_v2_empty_state_hero  [deprecated tag:v6.8.0] [private]
     sw_promotion_v2_empty_state_hero_content  [private]
       sw_promotion_v2_empty_state_hero_content_actions  [after v-if] [private]
         sw_promotion_v2_empty_state_hero_slot_actions  [private]
@@ -20,4 +35,13 @@ blocks
       sw_promotion_v2_empty_state_hero_content_title  [private]
     sw_promotion_v2_empty_state_hero_image  [private]
       sw_promotion_v2_empty_state_hero_image_asset  [private]
+
+classes
+  sw-promotion-v2-empty-state-hero  [private]
+  sw-promotion-v2-empty-state-hero__actions  [private]
+  sw-promotion-v2-empty-state-hero__asset  [private]
+  sw-promotion-v2-empty-state-hero__column-content  [private]
+  sw-promotion-v2-empty-state-hero__column-image  [private]
+  sw-promotion-v2-empty-state-hero__description  [private]
+  sw-promotion-v2-empty-state-hero__title  [private]
 ```

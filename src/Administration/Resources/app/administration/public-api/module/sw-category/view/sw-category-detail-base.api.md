@@ -10,6 +10,27 @@ component sw-category-detail-base  public  js
   source src/module/sw-category/view/sw-category-detail-base/index.js
   template src/module/sw-category/view/sw-category-detail-base/sw-category-detail-base.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+  repositoryFactory
+
+props
+  isLoading: boolean
+
+computed
+  category: any
+  categoryNameError: any
+  categoryTypeError: any
+  categoryTypeHelpText: any
+  categoryTypes: any
+  customFieldSetsArray: any
+  isCategoryColumn: any
+  isSalesChannelEntryPoint: any
+  typeLinkLabel: any
+
 blocks
   sw_category_detail_base
     sw_category_detail_attribute_sets  [after v-if]
@@ -22,4 +43,11 @@ blocks
         sw_category_detail_information_type_select
     sw_category_detail_link  [after v-if]
     sw_category_detail_menu
+
+classes
+  sw-category-detail-base
+  sw-category-detail-base__active
+  sw-category-detail-base__tags
+  sw-category-detail-base__type-container
+  sw-category-detail-base__type-selection
 ```

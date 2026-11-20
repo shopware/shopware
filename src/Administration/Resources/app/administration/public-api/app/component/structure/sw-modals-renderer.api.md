@@ -11,6 +11,19 @@ component sw-modals-renderer  private  ts  [private]
   template src/app/component/structure/sw-modals-renderer/sw-modals-renderer.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  modals: ModalItemEntry[]  [private]
+
+methods
+  buttonProps(button: buttonProps): any  [private]
+  closeModal(locationId: string): any  [private]
+  sanitizeTextContent(textContent: string): string  [private]
+
 blocks
   sw_modals_renderer  [private]
+
+classes
+  has-iframe  [private]
+  sw-modals-renderer  [private]
+  sw-modals-renderer__modal  [private]
 ```

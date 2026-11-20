@@ -11,7 +11,13 @@ component sw-cms-block-youtube-video  private  js  [private]
   template src/module/sw-cms/blocks/video/youtube-video/component/sw-cms-block-youtube-video.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  video  {}  block=sw_cms_block_youtube_video  [private]
+
 blocks
   sw_cms_block_youtube_video  [private]
     sw_cms_block_youtube_video_slot  [private]
+
+classes
+  sw-cms-block-youtube-video  [private]
 ```

@@ -11,6 +11,32 @@ component sw-cms-page-form  private  ts  [private]
   template src/module/sw-cms/component/sw-cms-page-form/sw-cms-page-form.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-state  [private]
+
+inject
+  cmsService  [private]
+
+props
+  elementUpdate?: (...args: any[]) => any  default=factory  [private]
+  page: Entity<'cms_page'>  [private]
+
+computed
+  cmsBlocks: any  [private]
+  cmsElements: any  [private]
+  slotPositions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  displayNotification(section: Entity<'cms_section'>, block: Entity<'cms_block'>): any  [private]
+  displaySectionType(block: Entity<'cms_block'>): boolean  [private]
+  getBlockTitle(block: Entity<'cms_block'>): string  [private]
+  getDeviceActive(viewport: string, section: Entity<'cms_section'>, block?: Entity<'cms_block'> | null): any  [private]
+  getSectionName(section: Entity<'cms_section'>): any  [private]
+  getSectionPosition(block: Entity<'cms_block'>): any  [private]
+  initVisibility(entity: Entity<'cms_section'> | Entity<'cms_block'>): any  [private]
+  sortSlots(block: Entity<'cms_block'>): any  [private]
+
 blocks
   sw_cms_page_form  [private]
     sw_cms_page_form_content  [after v-if] [private]
@@ -30,4 +56,27 @@ blocks
 
 crossings
   v-if  sw_cms_page_form_section_empty_state_block -> sw_cms_page_form_section  [private]
+
+classes
+  is--empty  [private]
+  sw-cms-page-form  [private]
+  sw-cms-page-form__banner-inheritance  [private]
+  sw-cms-page-form__block-card  [private]
+  sw-cms-page-form__block-device-actions  [private]
+  sw-cms-page-form__device-actions  [private]
+  sw-cms-page-form__element-config  [private]
+  sw-cms-page-form__empty-state-text  [private]
+  sw-cms-page-form__section  [private]
+  sw-cms-page-form__section-action  [private]
+  sw-cms-page-form__section-action-icon  [private]
+  sw-cms-page-form__section-action-label  [private]
+  sw-cms-page-form__section-actions  [private]
+  sw-cms-page-form__section-divider  [private]
+  sw-cms-page-form__section-name  [private]
+  sw-cms-page-form__section-name-icon  [private]
+  sw-cms-page-form__section-name-label  [private]
+  sw-cms-page-form__section-type  [private]
+  sw-cms-page-form__section-type-icon  [private]
+  sw-cms-page-form__section-type-label  [private]
+  sw-cms-page-form__section-type-name  [private]
 ```

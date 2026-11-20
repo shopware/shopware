@@ -11,6 +11,45 @@ component sw-settings-message-stats  private  ts  [private]
   template src/module/sw-settings-message-stats/page/sw-settings-message-stats/sw-settings-message-stats.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  messageStatsService  [private]
+
+data
+  columns: any  [private]
+  isLoading: any  [private]
+  statsResponse: any  [private]
+
+computed
+  formattedAverageTime: string  [private]
+  formattedProcessedSince: string  [private]
+  hasStats: boolean  [private]
+  isStatsDisabled: boolean  [private]
+  sortedMessageTypeStats: any  [private]
+  statBlocks: any  [private]
+  statsData: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  loadStats(): Promise<any>  [private]
+
 blocks
   sw_settings_message_stats  [private]
+
+classes
+  sw-settings-message-stats  [private]
+  sw-settings-message-stats__banner-container  [private]
+  sw-settings-message-stats__description  [private]
+  sw-settings-message-stats__divider  [private]
+  sw-settings-message-stats__empty-state  [private]
+  sw-settings-message-stats__message-types  [private]
+  sw-settings-message-stats__stat-content  [private]
+  sw-settings-message-stats__stat-header  [private]
+  sw-settings-message-stats__stat-icon  [private]
+  sw-settings-message-stats__stat-item  [private]
+  sw-settings-message-stats__stat-item-accent  [private]
+  sw-settings-message-stats__stat-value  [private]
+  sw-settings-message-stats__stats-grid  [private]
 ```

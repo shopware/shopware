@@ -11,6 +11,14 @@ component sw-cms-preview-youtube-video  private  js  [private]
   template src/module/sw-cms/blocks/video/youtube-video/preview/sw-cms-preview-youtube-video.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_youtube_video_preview  [private]
+
+classes
+  sw-cms-preview-youtube-video  [private]
+  sw-cms-preview-youtube-video__icon  [private]
+  sw-cms-preview-youtube-video__img  [private]
 ```

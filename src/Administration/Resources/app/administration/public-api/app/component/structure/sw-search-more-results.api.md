@@ -11,8 +11,28 @@ component sw-search-more-results  private  js  [private]
   template src/app/component/structure/sw-search-more-results/sw-search-more-results.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  searchTypeService  [private]
+
+props
+  entity: string  default=literal  [private]
+  term?: string  default=literal  [private]
+
+slots
+  content  {}  block=sw_search_more_results_content  [private]
+
+computed
+  moduleFactory: any  [private]
+  searchContent: any  [private]
+  searchTypeRoute: any  [private]
+  searchTypes: any  [private]
+
 blocks
   sw_search_more_results  [private]
     sw_search_more_results_content  [private]
       sw_search_more_results_slot_content  [private]
+
+classes
+  sw-search-more-results__link  [private]
+  sw-search-more-results__link--v2  [private]
 ```

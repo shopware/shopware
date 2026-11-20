@@ -10,9 +10,25 @@ component sw-import-export-new-profile-wizard-general-page  public  js
   source src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/index.js
   template src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard-general-page/sw-import-export-new-profile-wizard-general-page.html.twig
 
+props
+  profile: object
+
+emits
+  next-allow(...args: any[])
+  next-disable(...args: any[])
+
+computed
+  inputValid: any
+
+methods
+  isFieldFilled(field: any): any
+
 blocks
   sw_import_export_new_profile_wizard_general_page
     sw_import_export_new_profile_wizard_general_page_general
     sw_import_export_new_profile_wizard_general_page_import_settings
     sw_import_export_new_profile_wizard_general_page_indicators
+
+classes
+  sw-import-export-new-profile-wizard-general-page
 ```

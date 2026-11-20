@@ -11,10 +11,60 @@ component sw-help-sidebar  private  ts  [private]
   template src/app/component/sidebar/sw-help-sidebar/sw-help-sidebar.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  shortcutService  [private]
+
+props
+  focusTrigger?: number  default=literal  [private]
+  selector?: string  default=literal  [private]
+
+data
+  viewportWidth: any  [private]
+
+computed
+  shortcutTooltipContent: string  [private]
+  shortcutTooltipKeys: ShortcutKeyLabel[]  [private]
+  showHelpSidebar: boolean  [private]
+  showShortcutButton: boolean  [private]
+
+methods
+  beforeUnmountComponent(): void  [private] [private]
+  closeHelpSidebar(): void  [private]
+  createdComponent(): void  [private]
+  escKey(event: KeyboardEvent): void  [private] [private]
+  getHelpSidebarContainer(): HTMLElement | null  [private]
+  mountedComponent(): void  [private] [private]
+  mouseDown(event: MouseEvent): void  [private] [private]
+  openShortcutModal(): void  [private]
+  setFocusToSidebar(): void  [private]
+  unmountedComponent(): void  [private]
+  updateViewportWidth(): void  [private]
+
 blocks
   sw_help_sidebar  [private]
     sw_help_sidebar_support_content  [private]
       sw_help_sidebar_support_create_support_request  [private]
       sw_help_sidebar_support_documentation  [private]
       sw_help_sidebar_support_placeholder  [private]
+
+refs
+  container  -> div  [private]
+
+classes
+  sw-help-sidebar  [private]
+  sw-help-sidebar__body  [private]
+  sw-help-sidebar__button-close  [private]
+  sw-help-sidebar__container  [private]
+  sw-help-sidebar__footer  [private]
+  sw-help-sidebar__header  [private]
+  sw-help-sidebar__headline  [private]
+  sw-help-sidebar__navigation  [private]
+  sw-help-sidebar__shortcut  [private]
+  sw-help-sidebar__shortcut-button  [private]
+  sw-help-sidebar__shortcut-tooltip  [private]
+  sw-help-sidebar__support  [private]
+  sw-help-sidebar__support-content  [private]
+  sw-help-sidebar__support-item  [private]
+  sw-help-sidebar__support-item-link  [private]
+  sw-help-sidebar__support-title  [private]
 ```

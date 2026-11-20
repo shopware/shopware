@@ -13,4 +13,7 @@ component sw-cms-el-preview-manufacturer-logo  private  js  [private]
 
 blocks
   sw_cms_element_manufacturer_logo_preview  [private]
+
+classes
+  sw-cms-el-preview-manufacturer-logo  [private]
 ```

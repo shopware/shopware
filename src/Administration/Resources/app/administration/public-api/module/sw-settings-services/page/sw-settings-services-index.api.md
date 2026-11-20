@@ -10,4 +10,35 @@ component sw-settings-services-index  private  ts  [private]
   source src/module/sw-settings-services/page/sw-settings-services-index/index.ts  [private]
   template src/module/sw-settings-services/page/sw-settings-services-index/sw-settings-services-index.html.twig  [private]
   visibility-source export  [private]
+
+inject
+  acl  [private]
+
+data
+  grantPermissionsCardBackground: any  [private]
+  loadingError: any  [private]
+  services: any  [private]
+  suspended: any  [private]
+
+computed
+  config: any  [private]
+  consentGiven: any  [private]
+  currentRevision: any  [private]
+  servicesWithAccountRequirement: ServiceWithShopwareAccountRequirement[]  [private]
+
+methods
+  activateServices(): Promise<any>  [private]
+  reloadServices(): Promise<any>  [private]
+
+classes
+  mt-link--external  [private]
+  sw-settings-services-index  [private]
+  sw-settings-services-index__content  [private]
+  sw-settings-services-index__installing-card  [private]
+  sw-settings-services-index__installing-card-loader  [private]
+  sw-settings-services-index__installing-card-title  [private]
+  sw-settings-services-index__services-deactivated-banner  [private]
+  sw-settings-services__available-services  [private]
+  sw-settings-services__footer  [private]
+  sw-settings-services__listing-section  [private]
 ```

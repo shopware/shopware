@@ -11,6 +11,79 @@ component sw-order-upload-document-modal  private  ts  [private]
   template src/module/sw-order/component/sw-order-upload-document-modal/sw-order-upload-document-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  documentV2Service  [private]
+  numberRangeService  [private]
+  repositoryFactory  [private]
+
+props
+  documentType?: { technicalName: string }  default=literal  [private]
+  isLoadingDocument: boolean  [private]
+  order: Entity<'order'>  [private]
+
+emits
+  document-upload(...args: any[])  [private]
+  page-leave(...args: any[])  [private]
+  update:documentType(...args: any[])  [private]
+
+data
+  documentConfig: any  [private]
+  documentNumberPreview: any  [private]
+  documentTypeLoading: any  [private]
+  features: object  [private]
+    uploadFileSizeLimit: any  [private]
+  isLoading: any  [private]
+  selectedDocumentFile: any  [private]
+  selectedFileFormat: any  [private]
+  selectedTechnicalName: any  [private]
+  supportedDocumentTypes: any  [private]
+
+computed
+  currentTechnicalName: string | null  [private]
+  documentFamily: string | null  [private]
+  documentNumberErrorMessage: { detail: string } | null  [private]
+  documentTypeOptions: { label: string; value: string }[]  [private]
+  fileAcceptTypes: string  [private]
+  fileFormatOptions: { label: string; value: string }[]  [private]
+  invalidInput: boolean  [private]
+  isModalLoading: boolean  [private]
+  isStornoDocument: boolean  [private]
+  mediaRepository: RepositoryType<'media'>  [private]
+
+methods
+  createdComponent(): Promise<void>  [private]
+  onAddDocument(data: Entity<'media'>[]): void  [private]
+  onCancel(): void  [private]
+  onDocumentTypeChange(technicalName: string | null): Promise<void>  [private]
+  onUploadDocument(additionalAction?: any): Promise<void>  [private]
+  removeCustomDocument(): void  [private]
+  reserveDocumentNumber(technicalName: string, isPreview?: any): Promise<string>  [private]
+  successfulUploadFromUrl(res: { targetId: EntityKey<'media'> }): void  [private]
+  validateFile(response: Entity<'media'>): void  [private]
+
 blocks
   sw_order_upload_document_modal  [private]
+
+refs
+  fileInput  -> sw-media-upload-v2  [private]
+
+classes
+  sw-order-upload-document-modal  [private]
+  sw-order-upload-document-modal__body  [private]
+  sw-order-upload-document-modal__content  [private]
+  sw-order-upload-document-modal__divider  [private]
+  sw-order-upload-document-modal__document-number  [private]
+  sw-order-upload-document-modal__document-type  [private]
+  sw-order-upload-document-modal__empty-state  [private]
+  sw-order-upload-document-modal__file-format  [private]
+  sw-order-upload-document-modal__file-input  [private]
+  sw-order-upload-document-modal__header-fields  [private]
+  sw-order-upload-document-modal__type-specific-fields  [private]
+  sw-order-upload-document-modal__upload  [private]
+  sw-order-upload-document-modal__upload-button  [private]
+  sw-order-upload-document-modal__upload-button-arrow  [private]
+  sw-order-upload-document-modal__upload-button-send  [private]
 ```

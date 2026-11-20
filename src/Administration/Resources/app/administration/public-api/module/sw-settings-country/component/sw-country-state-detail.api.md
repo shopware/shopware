@@ -10,6 +10,27 @@ component sw-country-state-detail  public  js
   source src/module/sw-settings-country/component/sw-country-state-detail/index.js
   template src/module/sw-settings-country/component/sw-country-state-detail/sw-country-state-detail.html.twig
 
+mixins
+  placeholder
+
+inject
+  acl
+
+props
+  countryState: object
+
+emits
+  attribute-edit-cancel(...args: any[])
+  attribute-edit-save(...args: any[])
+
+computed
+  modalTitle: any
+  tooltipSave: any
+
+methods
+  onCancel(): any
+  onSave(): any
+
 blocks
   sw_country_state_detail
     sw_country_state_detail_modal
@@ -19,4 +40,8 @@ blocks
       sw_country_state_detail_modal_position
       sw_country_state_detail_modal_shortcode
       sw_country_state_detail_modal_technical_name
+
+classes
+  sw-country-state-detail
+  sw-country-state-detail__save-button
 ```

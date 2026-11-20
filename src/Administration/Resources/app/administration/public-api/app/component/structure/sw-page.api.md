@@ -11,6 +11,58 @@ component sw-page  private  js  [private]
   template src/app/component/structure/sw-page/sw-page.html.twig  [private]
   visibility-source export  [private]
 
+provide
+  removeSwPageSidebarOffset: any  [private]
+  setSwPageSidebarOffset: any  [private]
+
+props
+  headerBorderColor?: string  default=literal  [private]
+  showSearchBar?: boolean  default=literal  [private]
+  showSmartBar?: boolean  default=literal  [private]
+
+slots
+  content  {}  block=sw_page_content  [private]
+  language-switch  {}  block=sw_page_smart_bar_content_language_switch  [private]
+  search-bar  {}  block=sw_page_search_bar  [private]
+  side-content  {}  block=sw_page_content  [private]
+  sidebar  {}  block=sw_page_content_sidebar  [private]
+  smart-bar-actions  {}  block=sw_page_smart_bar_content_actions  [private]
+  smart-bar-back  {}  block=sw_page_smart_bar_back_btn  [private]
+  smart-bar-header  {}  block=sw_page_smart_bar_content_header  [private]
+
+data
+  hasFullWidthHeader: any  [private]
+  languageId: any  [private]
+  module: any  [private]
+  parentRoute: any  [private]
+  previousPath: any  [private]
+  previousRoute: any  [private]
+  scrollbarOffset: any  [private]
+  sidebarOffset: any  [private]
+
+computed
+  hasSideContentSlot: any  [private]
+  hasSidebarSlot: any  [private]
+  headerStyles: any  [deprecated tag:v6.8.0] [private]
+  pageClasses: any  [private]
+  pageColor: any  [private]
+  pageContainerClasses: any  [private]
+  pageContentClasses: any  [private]
+  pageOffset: any  [private]
+  routerBack: any  [private]
+  showHeadArea: any  [private]
+
+methods
+  beforeDestroyComponent(): any  [private]
+  createdComponent(): any  [private]
+  initPage(): any  [private]
+  mountedComponent(): any  [private]
+  readScreenWidth(): any  [private]
+  removeSidebarOffset(): any  [private]
+  setScrollbarOffset(): any  [private]
+  setSidebarOffset(sidebarWidth: any): any  [private]
+  updatedComponent(): any  [private]
+
 blocks
   sw_page  [private]
     sw_page_content  [after v-if] [private]
@@ -37,4 +89,29 @@ blocks
         sw_page_top_bar_actions  [after v-if] [private]
           sw_page_notification_center  [private]
           sw_page_top_bar_app_button  [private]
+
+refs
+  swPageContent  -> div  [private]
+
+classes
+  smart-bar__actions  [private]
+  smart-bar__back-btn  [private]
+  smart-bar__content  [private]
+  smart-bar__header  [private]
+  smart-bar__language-switch  [private]
+  sw-page  [private]
+  sw-page__back-btn-container  [private]
+  sw-page__content  [private]
+  sw-page__head-area  [private]
+  sw-page__main-content  [private]
+  sw-page__main-content-inner  [private]
+  sw-page__search-bar  [private]
+  sw-page__side-content  [private]
+  sw-page__side-content-inner  [private]
+  sw-page__sidebar  [private]
+  sw-page__sidebar-container  [private]
+  sw-page__smart-bar  [private]
+  sw-page__smart-bar-divider  [private]
+  sw-page__top-bar  [private]
+  sw-page__top-bar-actions  [private]
 ```

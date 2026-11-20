@@ -10,6 +10,95 @@ component sw-sales-channel-detail-domains  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-detail-domains/sw-sales-channel-detail-domains.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  disableEdit?: boolean  default=literal
+  salesChannel: any
+
+data
+  currentDomain: any
+  currentDomainBackup: object
+    currency: any
+    currencyId: any
+    language: any
+    languageId: any
+    measurementUnits: any
+    snippetSet: any
+    snippetSetId: any
+    url: any
+  deleteDomain: any
+  error: any
+  isEditingDomain: any
+  isLoadingDomains: any
+  locales: any
+  measurementSystems: any
+  snippetSets: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  currencyCriteria: any
+  currentDomainLocaleCode: any
+  currentDomainModalButtonText: any
+  currentDomainModalTitle: any
+  disabled: any
+  domainRepository: any
+  hreflangLocalisationOptions: any
+  isExternalStorefrontDisabled: any
+  languageNamesByPrefix: any
+  localeCodesById: any
+  localeCriteria: any
+  localeRepository: any
+  measurementSystemCriteria: any
+  measurementSystemRepository: any
+  salesChannelFilterCriteria: any
+  salesChannelIsHeadless: any
+  salesChannelLocaleCodes: any
+  selectableCurrencyIds: any
+  snippetSetCriteria: any
+  snippetSetGroups: any
+  snippetSetOptions: any
+  snippetSetRepository: any
+  sortedDomains: any
+
+methods
+  createdComponent(): Promise<any>
+  domainExistsInDatabase(url: any): Promise<any>
+  domainExistsLocal(currentDomain: any): any
+  getDomainColumns(): any
+  getLanguagePrefix(localeCode: any): any
+  getLocaleCode(languageId: any): any
+  getMeasurementName(technicalName: any): any
+  getSortValue(val: any, column: any): any
+  isOriginalUrl(url: any): any
+  localSortDomains(domains: any): any
+  onClickAddNewDomain(): Promise<any>
+  onClickDeleteDomain(domain: any): any
+  onClickEditDomain(domain: any): any
+  onClickOpenCreateDomainModal(arg0?: any): any
+  onCloseCreateDomainModal(): any
+  onCloseDeleteDomainModal(): any
+  onConfirmDeleteDomain(domain: any): any
+  onInput(): any
+  onLanguageSelect(id: any): any
+  onOptionSelect(name: any, entity: any): any
+  onSnippetSetSelect(id: any): any
+  preselectSnippetSet(languageId: any): any
+  resetCurrentDomainToBackup(): any
+  setCurrentDomainBackup(domain: any): any
+  setInitialCurrency(domain: any, currencyId?: any): any
+  setInitialLanguage(domain: any, languageId?: any): any
+  setInitialMeasurementUnits(domain: any): any
+  snippetSetSearchFunction(arg0: any): any
+  sortColumns(column: any): any
+  unicodeUriFilter(uri: any): any
+  verifyUrl(domain: any): Promise<any>
+
 blocks
   sw_sales_channel_detail_domains
     sw_sales_channel_detail_domains_create_modal
@@ -43,4 +132,21 @@ blocks
 
 crossings
   <template>  sw_sales_channel_detail_domains -> sw_sales_channel_detail_domains_grid
+
+refs
+  gridDomains  -> sw-data-grid
+
+classes
+  sw-sales-channel-detail-base__headline
+  sw-sales-channel-detail-base__headline-text
+  sw-sales-channel-detail-domains
+  sw-sales-channel-detail-domains__domain-currency-select
+  sw-sales-channel-detail-domains__domain-language-select
+  sw-sales-channel-detail-domains__domain-snippet-set-select
+  sw-sales-channel-detail-domains__domain-url-link
+  sw-sales-channel-detail-domains__headline
+  sw-sales-channel-detail-domains__headline-text
+  sw-sales-channel-detail-domains__is-external-storefront
+  sw-sales-channel-detail-domains__meta
+  sw-sales-channel-detail__button-domain-add
 ```

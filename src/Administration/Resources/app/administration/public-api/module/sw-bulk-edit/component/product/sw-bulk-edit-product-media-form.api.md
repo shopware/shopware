@@ -11,6 +11,10 @@ component sw-bulk-edit-product-media-form  public  js
   source src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/index.js
   template src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/sw-bulk-edit-product-media-form.html.twig
 
+data
+  columnCount: any
+  showCoverLabel: any
+
 blocks
   sw_product_media_form  [inherited]
     sw_product_media_form_grid  [inherited] [after v-if]
@@ -18,4 +22,12 @@ blocks
       sw_product_media_form_grid_items  [inherited]
         sw_product_media_form_grid_item  [inherited] [scope: mediaItem]
     sw_product_media_form_upload  [inherited]
+
+classes
+  is--disabled
+  sw-product-media-form
+  sw-product-media-form__column
+  sw-product-media-form__cover-container
+  sw-product-media-form__grid
+  sw-product-media-form__previews
 ```

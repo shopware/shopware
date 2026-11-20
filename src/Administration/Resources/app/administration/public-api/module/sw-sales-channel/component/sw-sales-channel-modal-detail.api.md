@@ -10,6 +10,9 @@ component sw-sales-channel-modal-detail  public  js
   source src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/index.js
   template src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/sw-sales-channel-modal-detail.html.twig
 
+props
+  detailType?: object  default=literal
+
 blocks
   sw_sales_channel_modal_detail
     sw_sales_channel_modal_detail_description
@@ -17,4 +20,16 @@ blocks
       sw_sales_channel_modal_detail_header_icon
       sw_sales_channel_modal_detail_header_meta
     sw_sales_channel_modal_detail_screenshots
+
+classes
+  sw-sales-channel-modal-detail
+  sw-sales-channel-modal-detail__description-long-text
+  sw-sales-channel-modal-detail__description-long-title
+  sw-sales-channel-modal-detail__header
+  sw-sales-channel-modal-detail__header-icon
+  sw-sales-channel-modal-detail__header-manufacturer
+  sw-sales-channel-modal-detail__header-meta
+  sw-sales-channel-modal-detail__header-name
+  sw-sales-channel-modal-detail__screenshot
+  sw-sales-channel-modal-detail__screenshots
 ```

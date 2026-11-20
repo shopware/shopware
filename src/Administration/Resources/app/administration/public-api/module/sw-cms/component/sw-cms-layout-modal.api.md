@@ -11,6 +11,59 @@ component sw-cms-layout-modal  private  js  [private]
   template src/module/sw-cms/component/sw-cms-layout-modal/sw-cms-layout-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  listing  [private]
+
+inject
+  acl  [private]
+  cmsPageTypeService  [private]
+  repositoryFactory  [private]
+  systemConfigApiService  [private]
+
+props
+  cmsPageTypes?: any[]  default=factory  [private]
+  headline?: string  default=literal  [private]
+  preSelection?: object  default=factory  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  modal-layout-select(...args: any[])  [private]
+
+data
+  defaultCategoryId: any  [private]
+  defaultProductId: any  [private]
+  disableRouteParams: any  [private]
+  isLoading: any  [private]
+  limit: any  [private]
+  listMode: any  [private]
+  pages: any  [private]
+  selectedPageObject: any  [private]
+  sortBy: any  [private]
+  sortDirection: any  [private]
+  term: any  [private]
+  total: any  [private]
+
+computed
+  cmsPageCriteria: any  [private]
+  columnConfig: any  [private]
+  dateFilter: any  [deprecated tag:v6.8.0] [private]
+  gridPreSelection: any  [deprecated tag:v6.8.0] [private]
+  pageRepository: any  [private]
+
+methods
+  closeModal(): any  [private]
+  createdComponent(): any  [private]
+  getDefaultLayouts(): Promise<any>  [private]
+  getList(): any  [private]
+  getPageType(page: any): any  [private]
+  gridItemClasses(pageId: any, index: any): any  [private]
+  onSearch(value: any): any  [private]
+  onSelectPage(pageId: any): any  [private]
+  selectInGrid(column: any): any  [deprecated tag:v6.8.0] [private]
+  selectItem(page: any): any  [private]
+  selectLayout(): any  [private]
+  toggleListMode(): any  [private]
+
 blocks
   sw_cms_layout_modal  [private]
     sw_cms_layout_modal_content  [private]
@@ -39,4 +92,19 @@ crossings
   <mt-radio-group-root>  sw_cms_layout_modal_content_container -> sw_cms_layout_modal_content_listing  [private]
   <sw-container>  sw_cms_layout_modal_content_container -> sw_cms_layout_modal_content_listing  [private]
   v-if  sw_cms_layout_modal_loader -> sw_cms_layout_modal_content_container  [private]
+
+classes
+  sw-cms-layout-modal  [private]
+  sw-cms-layout-modal__actions-mode  [private]
+  sw-cms-layout-modal__actions-sorting  [private]
+  sw-cms-layout-modal__button-select-layout  [private]
+  sw-cms-layout-modal__content  [private]
+  sw-cms-layout-modal__content-pagination  [private]
+  sw-cms-layout-modal__content-radio  [private]
+  sw-cms-layout-modal__header  [private]
+  sw-cms-layout-modal__header-search  [private]
+  sw-cms-layout-modal__header-sorting-select  [private]
+  sw-cms-layout-modal__radio-group  [private]
+  sw-cms-list__list-data-grid  [private]
+  visually-hidden  [private]
 ```

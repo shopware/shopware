@@ -11,6 +11,41 @@ component sw-condition-unit-menu  private  js  [private]
   template src/app/component/rule/sw-condition-unit-menu/sw-condition-unit-menu.html.twig  [private]
   visibility-source export  [private]
 
+props
+  type: string  [private]
+  value?: number | Date  default=literal  [private]
+  visibleValue?: number | Date  default=literal  [private]
+
+emits
+  change-unit(...args: any[])  [private]
+  set-default-unit(...args: any[])  [private]
+
+data
+  hoveringOverMenu: any  [private]
+  selectedUnit: any  [private]
+  showMenu: any  [private]
+
+computed
+  defaultUnit: any  [private]
+  unitOptions: any  [private]
+  unitSnippet: any  [private]
+
+methods
+  getConvertedValue(unit: any): any  [private]
+  isSelected(unit: any): any  [private]
+  onUnitChange(unit: any): any  [private]
+
 blocks
   sw_condition_unit_menu  [private]
+
+classes
+  sw-condition-unit-menu  [private]
+  sw-condition-unit-menu__icon  [private]
+  sw-condition-unit-menu__label  [private]
+  sw-condition-unit-menu__menu  [private]
+  sw-condition-unit-menu__menu-item  [private]
+  sw-condition-unit-menu__menu-item__label  [private]
+  sw-condition-unit-menu__menu-item__selected-label  [private]
+  sw-condition-unit-menu__menu-item__shortcut  [private]
+  sw-condition-unit-menu__wrapper  [private]
 ```

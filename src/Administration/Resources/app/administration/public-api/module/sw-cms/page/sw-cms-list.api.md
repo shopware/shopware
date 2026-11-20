@@ -10,6 +10,116 @@ component sw-cms-list  public  js
   source src/module/sw-cms/page/sw-cms-list/index.js
   template src/module/sw-cms/page/sw-cms-list/sw-cms-list.html.twig
 
+mixins
+  listing, notification, user-settings
+
+inject
+  acl
+  cmsPageTypeService
+  feature
+  mediaDefaultFolderService
+  repositoryFactory
+  systemConfigApiService
+
+data
+  assignablePageTypes: any
+  associationLimit: any
+  cardViewIdentifier: any
+  compactLayoutBreakpoint: any
+  currentPage: any
+  currentPageType: any
+  defaultCategoryId: any
+  defaultMediaFolderId: any
+  defaultProductId: any
+  isCompactLayout: any
+  isLoading: any
+  layoutResizeObserver: any
+  limit: any
+  limitDefaults: object
+    cardView: any
+    gridView: any
+  linkedLayouts: any
+  listMode: any
+  maxVisibleAssignedPages: any
+  newDefaultLayout: any
+  newName: any
+  pages: any
+  searchConfigEntity: any
+  showDeleteModal: any
+  showLayoutSetAsDefaultModal: any
+  showMediaModal: any
+  showRenameModal: any
+  sortBy: any
+  sortDirection: any
+  term: any
+
+computed
+  activePageTypeTab: any
+  adminEsEnable: any
+  associatedCategoryBuckets: any  [deprecated tag:v6.8.0]
+  associatedProductBuckets: any  [deprecated tag:v6.8.0]
+  cmsListPageTypeTabs: any
+  columnConfig: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  defaultFolderRepository: any  [deprecated tag:v6.8.0]
+  isLinkedCriteria: any
+  listCriteria: any
+  pageRepository: any
+  sortPageTypes: any
+
+methods
+  addLinkedLayoutsAggregation(criteria: any): any
+  beforeUnmountComponent(): any
+  createdComponent(): Promise<any>
+  deleteCmsPage(page: any): any
+  deleteDisabledToolTip(page: any): any
+  getColumnConfig(): any
+  getDefaultFolderId(): any
+  getDefaultLayouts(): Promise<any>
+  getList(): Promise<any>
+  getPageCategoryCount(page: any): any
+  getPageCount(page: any): any
+  getPageLandingPageCount(page: any): any
+  getPageProductCount(page: any): any
+  getPageType(page: any): any
+  getPages(page: any): any
+  getPagesString(page: any): any
+  getPagesTooltip(page: any): any
+  isDefaultLayout(page: any): any
+  layoutIsLinked(pageId: any): any
+  loadGridUserSettings(): Promise<any>
+  mountedComponent(): any
+  onChangeLanguage(languageId: any): any
+  onCloseDeleteModal(): any
+  onCloseLayoutSetAsDefault(): any
+  onCloseRenameModal(): any
+  onConfirmLayoutSetAsDefault(): Promise<any>
+  onConfirmPageDelete(): any
+  onConfirmPageRename(): any
+  onCreateNewLayout(): any
+  onDeleteCmsPage(page: any): any
+  onDuplicateCmsPage(page: any, behavior?: any): any
+  onListItemClick(page: any): any
+  onListModeChange(): any
+  onModalClose(): any
+  onOpenLayoutSetAsDefault(page: any): any
+  onPageChange(arg0: any): any
+  onPreviewChange(page: any): any
+  onPreviewImageChange(arg0: any): any
+  onPreviewImageRemove(page: any): any
+  onRenameCmsPage(page: any): any
+  onSearch(value?: any): any
+  onSortPageType(value?: any): any
+  onSortingChanged(value: any): any
+  optionContextDeleteDisabled(page: any): any
+  registerLayoutResizeObserver(): any
+  resetList(): any
+  saveCmsPage(page: any, context?: any): any
+  saveGridUserSettings(): any
+  setPageContext(): any
+  showDefaultLayoutContextMenu(cmsPage: any): any
+  updateLimit(): any
+
 blocks
   sw_cms_list
     sw_cms_list_card_view
@@ -65,4 +175,35 @@ blocks
 
 crossings
   v-if  sw_cms_list_listing_list_grid -> sw_cms_list_listing_list_card
+
+classes
+  sw-cms-list
+  sw-cms-list--compact
+  sw-cms-list-item__option-delete
+  sw-cms-list-item__option-duplicate
+  sw-cms-list-item__option-preview
+  sw-cms-list-item__option-set-as-default
+  sw-cms-list-item__options
+  sw-cms-list__actions
+  sw-cms-list__actions-mode
+  sw-cms-list__actions-sorting
+  sw-cms-list__confirm-set-as-default-modal
+  sw-cms-list__content
+  sw-cms-list__context-menu-item-delete
+  sw-cms-list__context-menu-item-duplicate
+  sw-cms-list__context-menu-item-edit
+  sw-cms-list__context-menu-item-rename
+  sw-cms-list__icon-lock
+  sw-cms-list__list
+  sw-cms-list__list-card
+  sw-cms-list__list-data-grid
+  sw-cms-list__list-grid
+  sw-cms-list__list-grid-content
+  sw-cms-list__list-pagination
+  sw-cms-list__listing
+  sw-cms-list__sidebar
+  sw-cms-list__type-nav
+  sw_tree__confirm-delete-text
+  sw_tree__confirm-rename-text
+  sw_tree__confirm-rename-text-field
 ```

@@ -10,11 +10,45 @@ component sw-product-detail-cross-selling  public  js
   source src/module/sw-product/view/sw-product-detail-cross-selling/index.js
   template src/module/sw-product/view/sw-product-detail-cross-selling/sw-product-detail-cross-selling.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=literal
+
+data
+  crossSelling: any
+  isInherited: any
+  showRestoreInheritanceModal: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  crossSellingRepository: any
+  emptyStateDescription: any
+  isChild: any
+  isLoading: any
+  isSystemDefaultLanguage: any
+  onAddCrossSellingTooltipMessage: any
+  parentCrossSellingHref: any
+  product: any
+  showCrossSellingCard: any
+
+methods
+  loadAssignedProducts(crossSelling: any): any
+  mountedComponent(): any
+  onAddCrossSelling(): any
+  onCloseRestoreInheritanceModal(): any
+  onConfirmRestoreInheritance(): any
+  onShowRestoreInheritanceModal(): any
+  removeInheritance(): any
+  restoreInheritance(): any
+
 blocks
   sw_product_detail_cross_selling
     sw_product_detail_cross_selling_empty_state_card  [after v-if]
       sw_product_detail_cross_selling_empty_state
-        sw_product_detail_cross_selling_empty_state_actions
+        sw_product_detail_cross_selling_empty_state_actions  [deprecated tag:v6.8.0]
         sw_product_detail_cross_selling_empty_state_actions_add  [after v-if]
         sw_product_detail_cross_selling_empty_state_content
           sw_product_detail_cross_selling_empty_state_content_child
@@ -36,4 +70,18 @@ blocks
 
 crossings
   v-if  sw_product_detail_cross_selling_items_wrapper -> sw_product_detail_cross_selling_empty_state_card
+
+classes
+  is--inherited
+  sw-product-detail-cross-selling
+  sw-product-detail-cross-selling__add-btn
+  sw-product-detail-cross-selling__cross-selling-list
+  sw-product-detail-cross-selling__empty-state
+  sw-product-detail-cross-selling__inherit-switch
+  sw-product-detail-cross-selling__inherit-toggle-wrapper
+  sw-product-detail-cross-selling__inheritance-icon
+  sw-product-detail-cross-selling__inheritance-label
+  sw-product-detail-cross-selling__restore-button
+  sw-product-detail-cross-selling__restore-inheritance-btn
+  sw-product-detail-cross-selling__restore-inheritance-modal
 ```

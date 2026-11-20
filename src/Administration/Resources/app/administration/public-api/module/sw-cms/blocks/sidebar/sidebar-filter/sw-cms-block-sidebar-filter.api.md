@@ -11,6 +11,12 @@ component sw-cms-block-sidebar-filter  private  js  [private]
   template src/module/sw-cms/blocks/sidebar/sidebar-filter/component/sw-cms-block-sidebar-filter.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  content  {}  block=sw_cms_block_sidebar_filter  [private]
+
 blocks
   sw_cms_block_sidebar_filter  [private]
+
+classes
+  sw-cms-block-sidebar-filter  [private]
 ```

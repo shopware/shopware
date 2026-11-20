@@ -12,6 +12,25 @@ component sw-multi-tag-ip-select  private  js  [private]
   template src/app/component/form/select/base/sw-multi-tag-ip-select/sw-multi-tag-ip-select.html.twig  [private]
   visibility-source export  [private]
 
+props
+  errorCode?: string  default=factory  [private]
+  knownIps?: any[]  default=factory  [private]
+  validate?: (...args: any[]) => any  default=factory  [private]
+
+slots
+  hint  {}  block=sw_multi_tag_select  [private]
+  label  {}  block=sw_multi_tag_select  [private]
+  selection-label-property  { ...{ item, index, labelProperty, valueProperty} }  block=sw_multi_tag_select_base_selection_list_label_inner  [private]
+
+computed
+  errorObject: any  [private]
+  validKnownIps: any  [private]
+  validUnselectedKnownIps: any  [private]
+
+methods
+  addSpecific(value: any): any  [private]
+  getKnownIp(ip: any): any  [private]
+
 blocks
   sw_multi_tag_select  [inherited] [private]
     sw_multi_tag_select_base  [inherited] [private]
@@ -25,4 +44,16 @@ blocks
         sw_multi_tag_select_validation_invalid_message  [private]
       sw_multi_tag_select_validation_valid  [inherited] [private]
         sw_multi_tag_select_validation_valid_message  [replaced] [private]
+
+refs
+  selectionList  -> sw-select-selection-list  [private]
+
+classes
+  sw-multi-tag-select  [private]
+  sw-multi-tag-select-invalid  [private]
+  sw-multi-tag-select-valid  [private]
+  sw-multi-tag-select-validation  [private]
+  sw-select-result-list  [private]
+  sw-select-result-list-popover  [private]
+  sw-select-result-list__content  [private]
 ```

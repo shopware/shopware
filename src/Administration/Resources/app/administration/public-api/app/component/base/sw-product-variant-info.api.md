@@ -11,9 +11,42 @@ component sw-product-variant-info  private  js  [private]
   template src/app/component/base/sw-product-variant-info/sw-product-variant-info.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  highlighted?: boolean  default=literal  [private]
+  ommitParenthesis?: boolean  default=literal  [private]
+  searchTerm?: string  default=literal  [private]
+  seperator?: string  default=literal  [private]
+  showTooltip?: boolean  default=literal  [private]
+  titleTerm?: string  default=literal  [private]
+  variations?: any[]  default=literal  [private]
+
+slots
+  default  {}  block=sw_product_variant_info_product_name  [private]
+
+data
+  helpText: any  [private]
+  tooltipWidth: any  [private]
+
+computed
+  productName: any  [private]
+
+methods
+  getFirstSlot(): any  [private]
+  mountedComponent(): any  [private]
+  setHelpText(): any  [private]
+
 blocks
   sw_product_variant_info  [private]
     sw_product_variant_info_options  [private]
       sw_product_variant_info_options_text  [after v-if] [scope: index, variation] [private]
     sw_product_variant_info_product_name  [private]
+
+classes
+  sw-product-variant-info  [private]
+  sw-product-variant-info__product-name  [private]
+  sw-product-variant-info__specification  [private]
+  sw-product-variant-info__text  [private]
 ```

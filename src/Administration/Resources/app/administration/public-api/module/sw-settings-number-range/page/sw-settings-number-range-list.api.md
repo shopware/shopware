@@ -10,6 +10,38 @@ component sw-settings-number-range-list  public  js
   source src/module/sw-settings-number-range/page/sw-settings-number-range-list/index.js
   template src/module/sw-settings-number-range/page/sw-settings-number-range-list/sw-settings-number-range-list.html.twig
 
+mixins
+  notification, listing, placeholder
+
+inject
+  acl
+  repositoryFactory
+
+data
+  entityName: any
+  isLoading: any
+  naturalSorting: any
+  numberRange: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  collapseButtonClass: any
+  expandButtonClass: any
+  filters: any
+  numberRangeRepository: any
+
+methods
+  getList(): any
+  getNumberRangeColumns(): any
+  invalidateNumberRangeCaches(): any
+  onChangeLanguage(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): any
+  onDelete(id: any): any
+  onInlineEditSave(promise: any, numberRange: any): any
+
 blocks
   sw_settings_list
     sw_settings_number_range_index
@@ -36,4 +68,17 @@ blocks
         sw_settings_number_range_list_smart_bar_header_title
           sw_settings_number_range_list_smart_bar_header_amount
           sw_settings_number_range_list_smart_bar_header_title_text
+
+refs
+  swSettingsNumberRangeGrid  -> sw-entity-listing
+
+classes
+  sw-entity-listing__context-menu-edit-action
+  sw-entity-listing__context-menu-edit-delete
+  sw-number-range-list__add-number-range
+  sw-page__smart-bar-amount
+  sw-settings-number-range-list
+  sw-settings-number-range-list-grid
+  sw-settings-number-range-list__columns-assignment-tag
+  sw-settings-number-range-list__confirm-delete-text
 ```

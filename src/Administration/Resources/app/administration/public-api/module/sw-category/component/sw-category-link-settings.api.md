@@ -10,6 +10,39 @@ component sw-category-link-settings  public  js
   source src/module/sw-category/component/sw-category-link-settings/index.js
   template src/module/sw-category/component/sw-category-link-settings/sw-category-link-settings.html.twig
 
+inject
+  acl
+  repositoryFactory
+
+props
+  category: object
+  isLoading?: boolean  default=literal
+
+data
+  categoriesCollection: any
+  linkHasProtocol: any
+
+computed
+  allowedCategoryTypes: any
+  categoryCriteria: any
+  categoryLinkHelpText: any
+  categoryLinkPlaceholder: any
+  categoryRepository: any
+  entityValues: any
+  internalLinkCriteria: any
+  isExternal: any
+  isInternal: any
+  linkTypeValues: any
+  mainType: any
+  productCriteria: any
+
+methods
+  changeEntity(): any
+  createCategoryCollection(): any
+  createdComponent(): any
+  onSelectionAdd(item: any): any
+  onSelectionRemove(): any
+
 blocks
   sw_category_link_settings
     sw_category_detail_link_field  [after v-if]
@@ -19,4 +52,15 @@ blocks
     sw_category_detail_link_type_select_entity_landing_page  [after v-if]
     sw_category_detail_link_type_select_entity_product  [after v-if]
     sw_category_detail_link_type_select_main
+
+classes
+  sw-category-link-settings
+  sw-category-link-settings__entity
+  sw-category-link-settings__external-link
+  sw-category-link-settings__link-has-protocol
+  sw-category-link-settings__link-new-tab
+  sw-category-link-settings__selection-category
+  sw-category-link-settings__selection-landing-page
+  sw-category-link-settings__selection-product
+  sw-category-link-settings__type
 ```

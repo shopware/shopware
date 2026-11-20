@@ -11,6 +11,12 @@ component sw-settings-custom-field-set-create  public  js
   source src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create/index.js
   template src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-create/sw-settings-custom-field-set-create.html.twig
 
+methods
+  createNameNotUniqueNotification(): any
+  createdComponent(): Promise<any>
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_settings_custom_field_set_detail  [inherited]
     sw_settings_customField_set_detail_header  [inherited]
@@ -21,4 +27,10 @@ blocks
       sw_settings_custom_field_set_detail_content_detail_base  [inherited]
       sw_settings_custom_field_set_detail_content_detail_custom_field_list  [replaced]
         sw_settings_custom_field_set_detail_content_detail_custom_field_list_empty_state
+
+classes
+  sw-settings-set-create__option-list-empty-state__empty-state
+  sw-settings-set-create__option-list-empty-state__wrapper
+  sw-settings-set-detail
+  sw-settings-set-detail__save-action
 ```

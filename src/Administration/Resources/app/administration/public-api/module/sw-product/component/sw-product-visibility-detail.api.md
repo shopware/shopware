@@ -10,6 +10,26 @@ component sw-product-visibility-detail  public  js
   source src/module/sw-product/component/sw-product-visibility-detail/index.js
   template src/module/sw-product/component/sw-product-visibility-detail/sw-product-visibility-detail.html.twig
 
+props
+  disabled?: boolean  default=literal
+
+data
+  items: any
+  limit: any
+  page: any
+  total: any
+
+computed
+  filteredItems: any
+  names: any
+  product: any
+  truncateFilter: any
+
+methods
+  changeVisibilityValue(event: any, item: any): any
+  createdComponent(): any
+  onPageChange(params: any): any
+
 blocks
   sw_product_visibility_detail
     sw_product_visibility_detail_columns
@@ -19,4 +39,12 @@ blocks
         sw_product_visibility_detail_columns_sales_channel_label  [scope: item]
       sw_product_visibility_detail_columns_search_only  [scope: item]
     sw_product_visibility_detail_pagination
+
+classes
+  sw-product-visibility-detail
+  sw-product-visibility-detail__column-all
+  sw-product-visibility-detail__column-sales-channel
+  sw-product-visibility-detail__link-only
+  sw-product-visibility-detail__name
+  sw-product-visibility-detail__search-only
 ```

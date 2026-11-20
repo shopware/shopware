@@ -10,9 +10,40 @@ component sw-settings-shipping-price-matrices  public  js
   source src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/index.js
   template src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices/sw-settings-shipping-price-matrices.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  repositoryFactory
+  ruleConditionDataProviderService
+
+props
+  disabled?: boolean  default=literal
+
+computed
+  isLoaded: any
+  newPriceMatrixExists: any
+  ruleFilter: any
+  ruleRepository: any
+  shippingMethod: any
+  shippingPriceGroups: any
+  shippingPriceRepository: any
+  unrestrictedPriceMatrixExists: any
+  usedRules: any
+
+methods
+  onAddNewPriceGroup(): any
+  onDeletePriceMatrix(shippingPriceGroup: any): any
+  onDuplicatePriceMatrix(priceGroup: any): any
+
 blocks
   sw_settings_shipping_price_matrices
     sw_settings_shipping_detail_advanced_prices_actions
       sw_settings_shipping_detail_advanced_prices_actions_add_button
     sw_settings_shipping_price_matrices_price_matrix
+
+classes
+  sw-settings-shipping-price-matrices
+  sw-settings-shipping-price-matrices__actions
+  sw-settings-shipping-price-matrices__actions-add-matrix
 ```

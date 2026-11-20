@@ -11,6 +11,24 @@ component sw-notification-center-item  private  js  [private]
   template src/app/component/utils/sw-notification-center-item/sw-notification-center-item.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification-translation  [private]
+
+props
+  notification: object  [private]
+
+emits
+  center-close(...args: any[])  [private]
+
+computed
+  itemHeaderClass: any  [private]
+  notificationActions: any  [private]
+
+methods
+  handleAction(action: any): any  [private]
+  isNotificationFromSameDay(): any  [private]
+  onDelete(): any  [private]
+
 blocks
   sw_notification_center_item  [private]
     sw_notification_center_item_actions  [private]
@@ -24,4 +42,19 @@ blocks
       sw_notification_center_item_header_delete  [private]
       sw_notification_center_item_header_timestamp  [private]
       sw_notification_center_item_header_title  [after v-if] [private]
+
+classes
+  sw-notification-center-item  [private]
+  sw-notification-center-item__actions  [private]
+  sw-notification-center-item__actions-item-container  [private]
+  sw-notification-center-item__content  [private]
+  sw-notification-center-item__delete  [private]
+  sw-notification-center-item__header  [private]
+  sw-notification-center-item__header-dot  [private]
+  sw-notification-center-item__header-left  [private]
+  sw-notification-center-item__header-right  [private]
+  sw-notification-center-item__loader  [private]
+  sw-notification-center-item__message  [private]
+  sw-notification-center-item__timestamp  [private]
+  sw-notification-center-item__title  [private]
 ```

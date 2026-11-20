@@ -10,6 +10,13 @@ component sw-cms-toolbar  public  ts
   source src/module/sw-cms/component/sw-cms-toolbar/index.ts
   template src/module/sw-cms/component/sw-cms-toolbar/sw-cms-toolbar.html.twig
 
+slots
+  actions  {}  block=sw_cms_toolbar_actions
+  language-switch  {}  block=sw_cms_toolbar_language_switch
+  sidebar  {}  block=sw_cms_toolbar_sidebar
+  title  {}  block=sw_cms_toolbar_title
+  tools  {}  block=sw_cms_toolbar_tools
+
 blocks
   sw_cms_toolbar
     sw_cms_toolbar_actions
@@ -22,4 +29,12 @@ blocks
       sw_cms_toolbar_slot_title
     sw_cms_toolbar_tools
       sw_cms_toolbar_slot_tools
+
+classes
+  sw-cms-toolbar
+  sw-cms-toolbar__actions
+  sw-cms-toolbar__language-selection
+  sw-cms-toolbar__sidebar
+  sw-cms-toolbar__title
+  sw-cms-toolbar__tools
 ```

@@ -13,4 +13,9 @@ component sw-cms-el-preview-sidebar-filter  private  js  [private]
 
 blocks
   sw_cms_element_preview_sidebar_filter  [private]
+
+classes
+  sw-cms-element-preview-sidebar-filter  [private]
+  sw-cms-element-preview-sidebar-filter__element  [private]
+  sw-cms-element-preview-sidebar-filter__wrapper  [private]
 ```

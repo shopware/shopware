@@ -10,6 +10,57 @@ component sw-first-run-wizard-plugins  public  js
   source src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/index.js
   template src/module/sw-first-run-wizard/view/sw-first-run-wizard-plugins/sw-first-run-wizard-plugins.html.twig
 
+inject
+  recommendationsService
+
+emits
+  buttons-update(...args: any[])
+  extension-activated(...args: any[])
+  frw-set-title(...args: any[])
+  loading-finished(...args: any[])
+
+data
+  categories: any
+  isLoading: any
+  plugins: any
+  regions: any
+  selectedCategory: any
+  selectedRegion: any
+
+computed
+  categoryLead: any
+  notCategoryLead: any
+  showCategoryLead: any
+  showNotCategoryLead: any
+  showSpacer: any
+
+methods
+  categoryVariant(arg0: any): any
+  createdComponent(): any
+  getRecommendationRegions(): any
+  getRecommendations(): any
+  onSelectCategory(category: any): any
+  onSelectRegion(region: any): any
+  regionVariant(arg0: any): any
+  reloadRecommendations(): any
+  setTitle(): any
+  updateButtons(): any
+
 blocks
   sw_first_run_wizard_plugins
+
+classes
+  categories
+  plugins-category-lead
+  plugins-not-category-lead
+  recommended-plugins__description
+  recommended-plugins__headline
+  recommended-plugins__headline-main
+  regions
+  select-category
+  select-region
+  spacer
+  sw-first-run-wizard-plugins
+  sw-label-category
+  sw-label-region
 ```

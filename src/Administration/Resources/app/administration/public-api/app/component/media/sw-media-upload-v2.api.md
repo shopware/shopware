@@ -10,6 +10,96 @@ component sw-media-upload-v2  public  js
   source src/app/component/media/sw-media-upload-v2/index.js
   template src/app/component/media/sw-media-upload-v2/sw-media-upload-v2.html.twig
 
+mixins
+  notification
+
+inject
+  feature
+  fileValidationService
+  mediaPresignedUploadService
+  mediaService
+  repositoryFactory
+
+props
+  addFilesOnMultiselect?: boolean  default=literal
+  allowMultiSelect?: boolean  default=literal
+  buttonLabel?: string  default=literal
+  defaultFolder?: string  default=literal
+  disabled?: boolean  default=literal
+  extensionAccept?: string  default=literal
+  extensionMimeTypesByExtension?: object  default=factory
+  fileAccept?: string  default=literal
+  helpText?: string  default=literal
+  label?: string  default=literal
+  maxFileSize?: number  default=literal
+  onMediaUploadSidebarOpen?: (...args: any[]) => any  default=literal
+  privateFilesystem?: boolean  default=literal
+  required?: boolean  default=literal
+  source?: any  default=literal
+  sourceContext?: object  default=literal
+  targetFolderId?: string  default=literal
+  uploadTag: string
+  useFileData?: boolean  default=literal
+  variant?: string  default=literal
+
+emits
+  media-drop(...args: any[])
+  media-upload-add-file(...args: any[])
+  media-upload-remove-image(...args: any[])
+  media-upload-sidebar-open(...args: any[])
+
+data
+  defaultFolderId: any
+  inputType: any
+  isDragActive: any
+  isLoading: any
+  isUploadUrlFeatureEnabled: any
+  multiSelect: any
+  pendingUploadMediaIds: any
+  preview: any
+
+computed
+  buttonFileUploadLabel: any
+  defaultFolderRepository: any
+  hasOpenMediaButtonListener: any
+  isDragActiveClass: any
+  isFileUpload: any
+  isUrlUpload: any
+  mediaFolderId: any
+  mediaNameFilter: any
+  mediaRepository: any
+  presignedUploadSupported: any
+  showPreview: any
+  swFieldLabelClasses: any
+  uploadUrlFeatureEnabled: any
+
+methods
+  beforeDestroyComponent(): any
+  checkFileSize(file: any): any
+  checkFileType(file: any): any
+  cleanupOrphanedMedia(): any
+  createdComponent(): Promise<any>
+  getDefaultFolderId(): Promise<any>
+  getMediaEntityForUpload(): any
+  getUploadFailureMessage(task: any): any  [deprecated tag:v6.8.0]
+  handleFileCheck(files: any): any
+  handleMediaServiceUploadEvent(arg0: any): any
+  handlePresignedUpload(files: any): Promise<any>
+  handleUpload(newMediaFiles: any): Promise<any>
+  mountedComponent(): any
+  onClickOpenMediaSidebar(): any
+  onClickUpload(): any
+  onDragEnter(): any
+  onDragLeave(event: any): any
+  onDrop(event: any): any
+  onDropMedia(dragData: any): any
+  onFileInputChange(): any
+  onRemoveMediaItem(): any
+  onUrlUpload(arg0: any): Promise<any>
+  stopEventPropagation(event: any): any
+  useFileUpload(): any
+  useUrlUpload(): any
+
 blocks
   sw_media_upload_v2
     sw_media_upload_v2_compact
@@ -38,4 +128,39 @@ blocks
 
 crossings
   v-if  sw_media_upload_v2_regular_preview_file -> sw_media_upload_v2_regular_preview_fallback
+
+refs
+  dropzone  -> div
+  fileForm  -> form
+  fileInput  -> input
+
+classes
+  has--source
+  is--fallback
+  is--small
+  open-media-sidebar
+  sw-media-upload-v2
+  sw-media-upload-v2__actions
+  sw-media-upload-v2__button
+  sw-media-upload-v2__button-compact-upload
+  sw-media-upload-v2__button-context-menu
+  sw-media-upload-v2__button-file-upload
+  sw-media-upload-v2__button-open-context-menu
+  sw-media-upload-v2__button-url-upload
+  sw-media-upload-v2__content
+  sw-media-upload-v2__dropzone
+  sw-media-upload-v2__fallback-icon
+  sw-media-upload-v2__file-headline
+  sw-media-upload-v2__file-info
+  sw-media-upload-v2__file-input
+  sw-media-upload-v2__form
+  sw-media-upload-v2__header
+  sw-media-upload-v2__help-text
+  sw-media-upload-v2__label
+  sw-media-upload-v2__preview
+  sw-media-upload-v2__remove-icon
+  sw-media-upload-v2__switch-mode
+  sw-media-upload-v2__upload-caption
+  sw-media-upload-v2__url-form
+  upload
 ```

@@ -11,6 +11,39 @@ component sw-search-preferences-modal  private  js  [private]
   template src/app/component/modal/sw-search-preferences-modal/sw-search-preferences-modal.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  searchPreferencesService  [private]
+  searchRankingService  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  searchPreferences: any  [private]
+  userSearchPreferences: any  [private]
+
+computed
+  defaultSearchPreferences: any  [private]
+  searchPreferencesColumns: any  [private]
+
+methods
+  addEventListeners(): any  [private]
+  beforeDestroyComponent(): any  [private]
+  createdComponent(): any  [private]
+  getDataSource(): Promise<any>  [private]
+  getModuleName(entityName: any): any  [private]
+  mountedComponent(): any  [private]
+  onCancel(): any  [private]
+  onChangeSearchPreference(searchPreference: any): any  [private]
+  onClose(): any  [private]
+  onOpenSearchSettings(): any  [private]
+  onSave(): any  [private]
+  removeEventListeners(): any  [private]
+
 blocks
   sw_search_preferences_modal  [private]
     sw_search_preferences_modal_button_cancel  [private]
@@ -19,4 +52,10 @@ blocks
     sw_search_preferences_modal_grid  [private]
       sw_search_preferences_modal_grid_column_active  [scope: item] [private]
       sw_search_preferences_modal_grid_column_module_name  [scope: item] [private]
+
+classes
+  sw-search-preferences-modal  [private]
+  sw-search-preferences-modal__button-cancel  [private]
+  sw-search-preferences-modal__button-save  [private]
+  sw-search-preferences-modal__description  [private]
 ```

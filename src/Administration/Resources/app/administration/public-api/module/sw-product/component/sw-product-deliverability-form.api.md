@@ -10,6 +10,29 @@ component sw-product-deliverability-form  public  js
   source src/module/sw-product/component/sw-product-deliverability-form/index.js
   template src/module/sw-product/component/sw-product-deliverability-form/sw-product-deliverability-form.html.twig
 
+mixins
+  placeholder
+
+props
+  allowEdit?: boolean  default=literal
+
+computed
+  loading: any
+  parentProduct: any
+  product: any
+  productDeliveryTimeIdError: any
+  productIsCloseoutError: any
+  productMaxPurchaseError: any
+  productMinPurchaseError: any
+  productPurchaseStepsError: any
+  productRestockTimeError: any
+  productShippingFreeError: any
+  productStockError: any
+  showModeSetting: any
+
+methods
+  createdComponent(): any
+
 blocks
   sw_product_deliverability_form
     sw_product_deliverability_form_available_stock_field
@@ -21,4 +44,13 @@ blocks
     sw_product_deliverability_form_restock_field  [after v-if]
     sw_product_deliverability_form_shipping_free_field  [after v-if]
     sw_product_deliverability_form_stock_field
+
+classes
+  product-deliverability-form
+  product-deliverability-form__delivery-time
+  sw-product-deliverability__max-purchase
+  sw-product-deliverability__min-purchase
+  sw-product-deliverability__purchase-step
+  sw-product-deliverability__restock-field
+  sw-product-deliverability__shipping-free
 ```

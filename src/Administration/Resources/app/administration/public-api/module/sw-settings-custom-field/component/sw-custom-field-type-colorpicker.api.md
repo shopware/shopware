@@ -11,8 +11,16 @@ component sw-custom-field-type-colorpicker  private  js  [private]
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-colorpicker/index.js  [private]
   visibility-source export  [private]
 
+data
+  propertyNames: object  [private]
+    helpText: any  [private]
+    label: any  [private]
+
 blocks
   sw_custom_field_type_base  [inherited] [private]
     sw_custom_field_type_base_content  [inherited] [private]
       sw_custom_field_type_base_labels  [inherited] [private]
+
+classes
+  sw-custom-field-type-base  [private]
 ```

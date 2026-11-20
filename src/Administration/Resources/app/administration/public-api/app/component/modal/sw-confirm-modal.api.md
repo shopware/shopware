@@ -11,6 +11,28 @@ component sw-confirm-modal  private  js  [private]
   template src/app/component/modal/sw-confirm-modal/sw-confirm-modal.html.twig  [private]
   visibility-source export  [private]
 
+props
+  text?: string  default=literal  [private]
+  textConfirm?: string  default=literal  [private]
+  title?: string  default=literal  [private]
+  type?: string  default=literal  [private]
+  variant?: string  default=literal  [private]
+
+emits
+  cancel(...args: any[])  [private]
+  close(...args: any[])  [private]
+  confirm(...args: any[])  [private]
+
+slots
+  default  {}  block=sw_confirm_modal_text  [private]
+
+computed
+  cancelText: any  [private]
+  confirmButtonVariant: any  [private]
+  confirmText: any  [private]
+  descriptionText: any  [private]
+  titleText: any  [private]
+
 blocks
   sw_confirm_modal  [private]
     sw_confirm_modal_footer  [private]
@@ -18,4 +40,10 @@ blocks
       sw_confirm_modal_footer_confirm  [private]
     sw_confirm_modal_text  [private]
       sw_confirm_modal_text_default  [private]
+
+classes
+  sw-confirm-modal  [private]
+  sw-confirm-modal__button-cancel  [private]
+  sw-confirm-modal__button-confirm  [private]
+  sw-confirm-modal__text  [private]
 ```

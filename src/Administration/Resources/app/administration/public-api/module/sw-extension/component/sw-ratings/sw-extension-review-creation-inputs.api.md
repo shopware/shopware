@@ -11,6 +11,17 @@ component sw-extension-review-creation-inputs  private  js  [private]
   template src/module/sw-extension/component/sw-ratings/sw-extension-review-creation-inputs/sw-extension-review-creation-inputs.html.twig  [private]
   visibility-source export  [private]
 
+props
+  errors?: object  default=factory  [private]
+
+emits
+  changed(...args: any[])  [private]
+
+data
+  headline: any  [private]
+  rating: any  [private]
+  text: any  [private]
+
 blocks
   sw_extension_review_creation_inputs  [private]
     sw_extension_review_creation_inputs_description_input  [private]
@@ -18,4 +29,9 @@ blocks
       sw_extension_review_creation_inputs_grid_headline_input  [private]
       sw_extension_review_creation_inputs_grid_rating_wrapper  [private]
         sw_extension_review_creation_inputs_grid_rating_wrapper_input  [private]
+
+classes
+  sw-extension-review-creation-inputs  [private]
+  sw-extension-review-creation-inputs__grid  [private]
+  sw-extension-review-creation-inputs__rating  [private]
 ```

@@ -10,6 +10,80 @@ component sw-settings-document-detail  public  js
   source src/module/sw-settings-document/page/sw-settings-document-detail/index.js
   template src/module/sw-settings-document/page/sw-settings-document-detail/sw-settings-document-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  documentV2Service
+  feature
+  repositoryFactory
+
+props
+  documentConfigId?: string  default=literal
+
+data
+  alreadyAssignedSalesChannelIdsToType: any
+  availableDocumentTypes: any
+  customFieldSets: any
+  documentConfig: object
+    config: object
+  documentConfigSalesChannelOptionsCollection: any
+  documentConfigSalesChannels: any
+  isLoading: any
+  isSaveSuccessful: any  [deprecated tag:v6.8.0]
+  isShowCountriesSelect: any  [deprecated tag:v6.8.0]
+  isShowDisplayNoteDelivery: any
+  isShowDivergentDeliveryAddress: any
+  paymentDueDateIsValid: any
+  salesChannels: any
+  selectedType: any  [deprecated tag:v6.8.0]
+  showCompanySettingsMovedBanner: any
+  typeIsLoading: any
+
+computed
+  companyFormFields: any
+  countryRepository: any  [deprecated tag:v6.8.0]
+  documentBaseConfigCriteria: any
+  documentBaseConfigRepository: any
+  documentBaseConfigSalesChannelRepository: any  [deprecated tag:v6.8.0]
+  documentConfigDocumentTypeIdError: any
+  documentConfigNameError: any
+  documentCriteria: any
+  documentTypeRepository: any  [deprecated tag:v6.8.0]
+  fileTypesSelected: any
+  formatLabels: any
+  generalDisplayFields: any
+  generalFormFields: any
+  getPaymentDueDateError: any
+  identifier: any
+  salesChannelRepository: any
+  showCompanyForm: any
+  showCustomFields: any
+  supportedFormats: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  createSalesChannelSelectOptions(): any
+  createdComponent(): Promise<any>
+  filenameInfixError(format: any): any
+  hideCompanySettingsMovedBanner(): any
+  loadAvailableDocumentTypes(): Promise<any>
+  loadAvailableSalesChannel(): Promise<any>  [deprecated tag:v6.8.0]
+  loadCustomFieldSets(): Promise<any>
+  loadEntityData(): Promise<any>
+  onAddDocumentType(typeId: any): any
+  onCancel(): Promise<any>
+  onChangeCompanyLogo(media: any): any
+  onChangeSalesChannel(): any
+  onChangeType(documentType: any): Promise<any>
+  onCompanyLogoUploadFinish(arg0: any): any
+  onRemoveDocumentType(typeId: any): any
+  onSave(): Promise<any>
+  showOption(item: any): any  [deprecated tag:v6.8.0]
+
 blocks
   sw_settings_document_detail
     sw_settings_document_detail_actions
@@ -45,4 +119,43 @@ blocks
 
 crossings
   v-if  sw_settings_document_detail_content_form_field_renderer_multi_select -> sw_settings_document_detail_content_form_field_renderer
+
+classes
+  sw-document-detail__select-type
+  sw-settings-document-detail
+  sw-settings-document-detail__assignment_card
+  sw-settings-document-detail__company-settings-moved-banner  [from v6.8.0]
+  sw-settings-document-detail__company_card  [until v6.8.0]
+  sw-settings-document-detail__company_card_display_company  [until v6.8.0]
+  sw-settings-document-detail__company_card_display_return  [until v6.8.0]
+  sw-settings-document-detail__company_card_form  [until v6.8.0]
+  sw-settings-document-detail__company_card_media  [until v6.8.0]
+  sw-settings-document-detail__company_card_media-upload-listener  [until v6.8.0]
+  sw-settings-document-detail__company_card_options  [until v6.8.0]
+  sw-settings-document-detail__company_card_required  [until v6.8.0]
+  sw-settings-document-detail__displayed_content_card
+  sw-settings-document-detail__displayed_content_card-container
+  sw-settings-document-detail__field-display-company-address  [from v6.8.0]
+  sw-settings-document-detail__field-display-return-address  [from v6.8.0]
+  sw-settings-document-detail__field_additional_note_delivery
+  sw-settings-document-detail__field_customer_vat_id
+  sw-settings-document-detail__field_divergent_delivery_address
+  sw-settings-document-detail__field_file_name_infix  [from v6.8.0]
+  sw-settings-document-detail__field_file_name_prefix
+  sw-settings-document-detail__field_file_name_suffix
+  sw-settings-document-detail__field_name
+  sw-settings-document-detail__filename_card
+  sw-settings-document-detail__filename_card-form
+  sw-settings-document-detail__filename_infix_fields  [from v6.8.0]
+  sw-settings-document-detail__filename_infix_headline  [from v6.8.0]
+  sw-settings-document-detail__filename_pattern  [from v6.8.0]
+  sw-settings-document-detail__form-field-renderer
+  sw-settings-document-detail__multi-select
+  sw-settings-document-detail__save-action
+  sw-settings-document-detail__select-type
+  sw-settings-document-detail__settings_card
+  sw-settings-document-detail__settings_card-form
+
+notes
+  unresolved data ...DOCUMENT_CONFIG_DEFAULTS
 ```

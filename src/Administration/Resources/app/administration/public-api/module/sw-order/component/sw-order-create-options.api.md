@@ -10,6 +10,45 @@ component sw-order-create-options  public  ts
   source src/module/sw-order/component/sw-order-create-options/index.ts
   template src/module/sw-order/component/sw-order-create-options/sw-order-create-options.html.twig
 
+props
+  context: ContextSwitchParameters
+  disabledAutoPromotion: boolean
+  promotionCodes: string[]
+  sendOrderConfirmationMail?: boolean  default=literal
+
+emits
+  auto-promotion-toggle(...args: any[])
+  promotions-change(...args: any[])
+  send-order-confirmation-mail-toggle(...args: any[])
+  shipping-cost-change(...args: any[])
+
+data
+  isSameAsBillingAddress: any
+  promotionCodeTags: any
+  shippingCost: any
+
+computed
+  cart: Cart
+  cartDelivery: CartDelivery | null
+  currency: Entity<'currency'>
+  customer: Entity<'customer'> | null
+  paymentMethodCriteria: CriteriaType
+  salesChannelCriteria: CriteriaType
+  salesChannelId: EntityKey<'sales_channel'>
+  shippingMethodCriteria: CriteriaType
+
+methods
+  changePromotionCodes(value: string[]): void
+  createdComponent(): void
+  loadCart(): Promise<void>
+  onChangeShippingCost(value: number): void
+  onToggleAutoPromotion(value: boolean): void
+  onToggleSendOrderConfirmationMail(value: boolean): void
+  updateCartContext(): Promise<void>
+  updateOrderContext(): Promise<void>
+  updateSameAsBillingAddressToggle(): void
+  validatePromotions(searchTerm: string): boolean
+
 blocks
   sw_order_create_options
     sw_order_create_options_container
@@ -30,4 +69,21 @@ blocks
         sw_order_create_options_shipment_headline
         sw_order_create_options_shipping_address
         sw_order_create_options_shipping_method
+
+classes
+  sw-order-create-options
+  sw-order-create-options__billing-address
+  sw-order-create-options__currency-select
+  sw-order-create-options__disable-auto-promotion
+  sw-order-create-options__headline
+  sw-order-create-options__order-container
+  sw-order-create-options__order-language
+  sw-order-create-options__payment-container
+  sw-order-create-options__payment-method
+  sw-order-create-options__promotion-code
+  sw-order-create-options__send-order-confirmation-mail
+  sw-order-create-options__shipping-address
+  sw-order-create-options__shipping-container
+  sw-order-create-options__shipping-cost
+  sw-order-create-options__shipping-method
 ```

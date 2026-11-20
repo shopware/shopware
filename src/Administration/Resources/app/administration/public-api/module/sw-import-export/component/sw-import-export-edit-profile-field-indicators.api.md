@@ -10,10 +10,26 @@ component sw-import-export-edit-profile-field-indicators  public  js
   source src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/index.js
   template src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators/sw-import-export-edit-profile-field-indicators.html.twig
 
+props
+  profile: object
+
+computed
+  profileDelimiterError: any
+  profileEnclosureError: any
+  supportedDelimiter: any
+  supportedEnclosures: any
+
 blocks
   sw_import_export_edit_profile_indicators
     sw_import_export_edit_profile_indicators_enclosure_field
     sw_import_export_edit_profile_indicators_headline
     sw_import_export_edit_profile_indicators_separator_field
     sw_import_export_edit_profile_indicators_text
+
+classes
+  sw-import-export-edit-profile-indicators
+  sw-import-export-edit-profile-indicators__enclosure-select
+  sw-import-export-edit-profile-indicators__headline
+  sw-import-export-edit-profile-indicators__separator-select
+  sw-import-export-edit-profile-indicators__text
 ```

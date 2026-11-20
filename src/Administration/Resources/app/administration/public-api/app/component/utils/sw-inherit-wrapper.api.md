@@ -11,6 +11,47 @@ component sw-inherit-wrapper  private  js  [private]
   template src/app/component/utils/sw-inherit-wrapper/sw-inherit-wrapper.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  customInheritationCheckFunction?: (...args: any[]) => any  default=literal  [private]
+  customRemoveInheritanceFunction?: (...args: any[]) => any  default=literal  [private]
+  customRestoreInheritanceFunction?: (...args: any[]) => any  default=literal  [private]
+  disabled?: boolean  default=literal  [private]
+  error?: object  default=literal  [private]
+  hasParent?: boolean  default=literal  [private]
+  helpText?: string  default=literal  [private]
+  inheritedValue: any  [private]
+  isAssociation?: boolean  default=literal  [private]
+  label?: string  default=literal  [private]
+  required?: boolean  default=literal  [private]
+  value: any  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+  update:value(...args: any[])  [private]
+
+slots
+  content  { ...{ currentValue, updateCurrentValue, isInherited, isInheritField, toggleInheritance, restoreInheritance, removeInheritance, error, label } }  block=sw_inherit_wrapper_content  [private]
+
+data
+  forceInheritanceRemove: any  [private]
+
+computed
+  currentValue: any  [private]
+  isInheritField: any  [private]
+  isInherited: any  [private]
+  labelClasses: any  [private]
+
+methods
+  removeInheritance(newValue?: any): any  [private]
+  restoreInheritance(): any  [private]
+  toggleInheritance(): any  [private]
+  updateCurrentValue(value: any): any  [private]
+  updateValue(value: any, inheritanceEventName: any): any  [private]
+
 blocks
   sw_inherit_wrapper  [private]
     sw_inherit_wrapper_content  [after v-if] [private]
@@ -19,4 +60,14 @@ blocks
         sw_inherit_wrapper_toggle_wrapper_field  [private]
         sw_inherit_wrapper_toggle_wrapper_help_text  [private]
         sw_inherit_wrapper_toggle_wrapper_label  [after v-if] [private]
+
+classes
+  has--parent  [private]
+  is--inherited  [private]
+  is--required  [private]
+  sw-inherit-wrapper  [private]
+  sw-inherit-wrapper__help-text  [private]
+  sw-inherit-wrapper__inheritance-icon  [private]
+  sw-inherit-wrapper__inheritance-label  [private]
+  sw-inherit-wrapper__toggle-wrapper  [private]
 ```

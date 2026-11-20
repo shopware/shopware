@@ -11,6 +11,36 @@ component sw-media-compact-upload-v2  public  js
   source src/app/component/media/sw-media-compact-upload-v2/index.js
   template src/app/component/media/sw-media-compact-upload-v2/sw-media-compact-upload-v2.html.twig
 
+props
+  allowMultiSelect?: boolean  default=literal
+  disableDeletionForLastItem?: object  default=factory
+  fileAccept?: string  default=literal
+  removeButtonLabel?: string  default=literal
+  source?: string | object  default=literal
+  sourceMultiselect?: any[]  default=factory
+  variant?: string  default=literal
+
+emits
+  delete-item(...args: any[])
+  selection-change(...args: any[])
+
+slots
+  context-menu-items  {}  block=sw_media_upload_v2_preview
+
+data
+  mediaModalIsOpen: any
+
+computed
+  isDeletionDisabled: any
+  mediaNameFilter: any
+  mediaPreview: any
+  removeFileButtonLabel: any
+
+methods
+  closeModal(): any
+  getFileName(item: any): any
+  onModalClosed(selection: any): any
+
 blocks
   sw_media_upload_v2  [replaced]
     sw_media_upload_v2_compact
@@ -30,4 +60,38 @@ blocks
           sw_media_upload_v2_regular_preview_fallback  [after v-if]
           sw_media_upload_v2_regular_preview_file
       sw_media_upload_v2_regular_header
+
+refs
+  dropzone  -> div
+  fileForm  -> form
+  fileInput  -> input
+
+classes
+  has--source
+  is--fallback
+  sw-context-menu-item__buttonRemove
+  sw-media-compact-upload-v2
+  sw-media-compact-upload-v2__browse-button
+  sw-media-compact-upload-v2__browse-icon
+  sw-media-compact-upload-v2__label
+  sw-media-compact-upload-v2__preview-item
+  sw-media-compact-upload-v2__preview-wrapper
+  sw-media-upload-v2
+  sw-media-upload-v2__actions
+  sw-media-upload-v2__button
+  sw-media-upload-v2__button-compact-upload
+  sw-media-upload-v2__button-context-menu
+  sw-media-upload-v2__button-url-upload
+  sw-media-upload-v2__content
+  sw-media-upload-v2__delete-item-button
+  sw-media-upload-v2__dropzone
+  sw-media-upload-v2__fallback-icon
+  sw-media-upload-v2__file-headline
+  sw-media-upload-v2__file-info
+  sw-media-upload-v2__file-input
+  sw-media-upload-v2__form
+  sw-media-upload-v2__preview
+  sw-media-upload-v2__remove-icon
+  sw-media-upload-v2__url-form
+  upload
 ```

@@ -12,6 +12,28 @@ component sw-grouped-single-select  private  js  [private]
   template src/app/component/form/select/base/sw-grouped-single-select/sw-grouped-single-select.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+
+props
+  groupIdProperty?: string  default=literal  [private]
+  groups: any[]  [private]
+
+slots
+  after-item-list  {}  block=sw_single_select_base_results_list_after  [private]
+  before-item-list  {}  block=sw_single_select_base_results_list_before  [private]
+  hint  {}  block=sw_single_select  [private]
+  label  {}  block=sw_single_select  [private]
+  result-group  { ...{ shouldShowGroupTitle, item, index, getGroupLabel, getGroupClasses } }  block=sw_single_select_base_results_list_result  [private]
+  result-item  { ...{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey } }  block=sw_single_select_base_results_list_result  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, getKey } }  block=sw_single_select_base_results_list_result_label  [private]
+  selection-label-property  { ...{ item: singleSelection, labelProperty, valueProperty, searchTerm, getKey } }  block=sw_single_select_single_selection_inner_label  [private]
+
+methods
+  getGroupClasses(item: any): any  [private]
+  getGroupLabel(item: any): any  [private]
+  shouldShowGroupTitle(item: any, index: any): any  [private]
+
 blocks
   sw_single_select  [inherited] [private]
     sw_single_select_base  [inherited] [private]
@@ -27,4 +49,15 @@ blocks
           sw_single_select_single_selection_inner  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
             sw_single_select_single_selection_inner_input  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
             sw_single_select_single_selection_inner_label  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
+
+refs
+  resultsList  -> sw-select-result-list  [private]
+  selectBase  -> sw-select-base  [private]
+  swSelectInput  -> input  [private]
+
+classes
+  sw-single-select  [private]
+  sw-single-select__selection  [private]
+  sw-single-select__selection-input  [private]
+  sw-single-select__selection-text  [private]
 ```

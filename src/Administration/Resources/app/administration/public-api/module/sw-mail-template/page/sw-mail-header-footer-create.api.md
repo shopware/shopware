@@ -11,6 +11,11 @@ component sw-mail-header-footer-create  public  js
   source src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js
   template src/module/sw-mail-template/page/sw-mail-header-footer-create/sw-mail-header-footer-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_mail_header_footer_detail  [inherited]
     sw_mail_header_footer_detail_actions  [inherited]
@@ -30,4 +35,16 @@ blocks
       sw_mail_header_footer_detail_content_language_info  [inherited]
     sw_mail_header_footer_detail_header  [inherited]
     sw_mail_header_footer_detail_language_switch  [replaced]
+
+classes
+  sw-mail-header-footer-detail
+  sw-mail-header-footer-detail__code-editor--footer-html
+  sw-mail-header-footer-detail__code-editor--footer-plain
+  sw-mail-header-footer-detail__code-editor--header-html
+  sw-mail-header-footer-detail__code-editor--header-plain
+  sw-mail-header-footer-detail__sales-channel
+  sw-mail-header-footer-detail__sales-channel-list
+  sw-mail-header-footer-detail__sales-channel-list-entry
+  sw-mail-header-footer-detail__sales-channel-list-label
+  sw-mail-header-footer-detail__save-action
 ```

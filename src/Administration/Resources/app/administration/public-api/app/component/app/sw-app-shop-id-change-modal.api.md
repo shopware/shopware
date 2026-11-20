@@ -10,4 +10,54 @@ component sw-app-shop-id-change-modal  private  ts  [private]
   source src/app/component/app/sw-app-shop-id-change-modal/index.ts  [private]
   template src/app/component/app/sw-app-shop-id-change-modal/sw-app-shop-id-change-modal.html.twig  [private]
   visibility-source export  [private]
+
+mixins
+  notification  [private]
+
+inject
+  shopIdChangeService  [private]
+
+props
+  shopIdCheck: ShopIdCheck  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+
+data
+  isLoading: any  [private]
+  selectedStrategy: any  [private]
+  showMoveShopPermanentlyConfirm: any  [private]
+  strategies: any  [private]
+
+computed
+  isMoveShopPermanentlySelected: boolean  [private]
+
+methods
+  _reloadPage(): any  [private]
+  closeModal(): any  [private]
+  confirm(): Promise<any>  [private]
+  fetchStrategies(): Promise<any>  [private]
+  getActiveStyle(arg0: Strategy): any  [private]
+  getFingerprintDescription(identifier: string): any  [private]
+  getHumanReadableFingerprintName(identifier: string): any  [private]
+  getStrategyDescription(arg0: Strategy): any  [private]
+  getStrategyLabel(arg0: Strategy): any  [private]
+  isSelected(arg0: Strategy): any  [private]
+  onConfirm(): any  [private]
+  onMoveShopPermanentlyConfirmed(): any  [private]
+  setSelectedStrategy(strategy: Strategy): any  [private]
+
+classes
+  sw-app-shop-id-change-modal  [private]
+  sw-app-shop-id-change-modal__button-strategy  [private]
+  sw-app-shop-id-change-modal__content-apps  [private]
+  sw-app-shop-id-change-modal__content-choices  [private]
+  sw-app-shop-id-change-modal__content-choices-description  [private]
+  sw-app-shop-id-change-modal__content-choices-label  [private]
+  sw-app-shop-id-change-modal__content-description  [private]
+  sw-app-shop-id-change-modal__content-fingerprint-item  [private]
+  sw-app-shop-id-change-modal__content-fingerprint-item-title  [private]
+  sw-app-shop-id-change-modal__content-fingerprint-items  [private]
+  sw-app-shop-id-change-modal__content-fingerprints  [private]
+  sw-app-shop-id-change-modal__content-migration-strategy  [private]
 ```

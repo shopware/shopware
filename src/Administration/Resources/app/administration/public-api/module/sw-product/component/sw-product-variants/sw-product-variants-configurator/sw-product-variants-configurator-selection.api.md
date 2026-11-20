@@ -11,6 +11,30 @@ component sw-product-variants-configurator-selection  public  js
   source src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/index.js
   template src/module/sw-product/component/sw-product-variants/sw-product-variants-configurator/sw-product-variants-configurator-selection/sw-product-variants-configurator-selection.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  product: object
+
+emits
+  option-select(...args: any[])
+
+slots
+  toolbar  {}  block=sw_property_search_field
+  toolbar-search-field  {}  block=sw_property_search_field
+
+computed
+  configuratorSettingsRepository: any
+
+methods
+  addOptionCount(): any
+  onOptionSelect(selection: any, item: any): any
+  selectOptions(grid: any): any
+
 blocks
   sw_property_search  [inherited]
     sw_property_search_field  [replaced]
@@ -38,4 +62,27 @@ blocks
 
 crossings
   v-if  sw_property_search_option_search_grid -> sw_property_search_empty
+
+refs
+  groupGrid  -> sw-grid
+  optionGrid  -> sw-grid
+  optionSearchGrid  -> sw-grid
+  searchField  -> sw-simple-search-field
+
+classes
+  group_grid__column-name
+  sw-product-variants-configurator-selection-search__search-field
+  sw-product-variants-configurator-selection__toolbar
+  sw-property-search
+  sw-property-search__search-field
+  sw-property-search__search-field-container
+  sw-property-search__search-selection
+  sw-property-search__search-selection__option_grid
+  sw-property-search__toolbar
+  sw-property-search__tree-selection
+  sw-property-search__tree-selection-container
+  sw-property-search__tree-selection__column-items-selected
+  sw-property-search__tree-selection__group_grid
+  sw-property-search__tree-selection__option_grid
+  sw-property-search__tree-selection__option_grid--option-value
 ```

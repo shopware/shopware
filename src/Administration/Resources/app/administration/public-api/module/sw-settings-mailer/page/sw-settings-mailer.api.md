@@ -10,6 +10,36 @@ component sw-settings-mailer  public  js
   source src/module/sw-settings-mailer/page/sw-settings-mailer/index.js
   template src/module/sw-settings-mailer/page/sw-settings-mailer/sw-settings-mailer.html.twig
 
+mixins
+  notification
+
+inject
+  systemConfigApiService
+
+data
+  isFirstConfiguration: any
+  isLoading: any
+  isSaveSuccessful: any
+  mailerSettings: object
+  smtpHostError: any
+  smtpPortError: any
+
+computed
+  emailAgentOptions: any
+  emailSendmailOptions: any
+  isSmtpMode: any
+
+methods
+  checkFirstConfiguration(): any
+  createdComponent(): Promise<any>
+  loadMailerSettings(): Promise<any>
+  loadPageContent(): Promise<any>
+  onSaveFinish(): Promise<any>
+  resetSmtpHostError(): any
+  resetSmtpPortError(): any
+  saveMailerSettings(): Promise<any>
+  validateSmtpConfiguration(): any
+
 blocks
   sw_settings_mailer_index
     sw_settings_mailer_content
@@ -17,7 +47,7 @@ blocks
       sw_settings_mailer_first_configuration
         sw_settings_mailer_first_configuration_description
         sw_settings_mailer_first_configuration_headline
-      sw_settings_mailer_headline_agent  [after v-if]
+      sw_settings_mailer_headline_agent  [after v-if] [deprecated tag:v6.8.0]
       sw_settings_mailer_smtp
         sw_settings_mailer_smtp_settings
     sw_settings_mailer_smart_bar_actions
@@ -25,4 +55,18 @@ blocks
     sw_settings_mailer_smart_bar_header
       sw_settings_mailer_smart_bar_header_title
         sw_settings_mailer_smart_bar_header_title_text
+
+classes
+  sw-settings-mailer
+  sw-settings-mailer__description
+  sw-settings-mailer__first-configuration
+  sw-settings-mailer__headline
+  sw-settings-mailer__help-text
+  sw-settings-mailer__input-fields
+  sw-settings-mailer__radio-selection
+  sw-settings-mailer__select-agent
+  sw-settings-mailer__switch-disable-delivery
+
+notes
+  unresolved data ...defaultMailerSettings
 ```

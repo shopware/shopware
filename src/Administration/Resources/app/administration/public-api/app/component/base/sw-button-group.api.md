@@ -11,7 +11,20 @@ component sw-button-group  private  js  [private]
   template src/app/component/base/sw-button-group/sw-button-group.html.twig  [private]
   visibility-source export  [private]
 
+props
+  block?: boolean  default=literal  [private]
+  splitButton?: boolean  default=literal  [private]
+
+slots
+  default  {}  block=sw_button_group  [private]
+
+computed
+  buttonGroupClasses: any  [private]
+
 blocks
   sw_button_group  [private]
     sw_button_group_slot_default  [private]
+
+classes
+  sw-button-group  [private]
 ```

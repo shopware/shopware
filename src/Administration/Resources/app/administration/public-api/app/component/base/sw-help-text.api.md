@@ -11,7 +11,17 @@ component sw-help-text  private  js  [private]
   template src/app/component/base/sw-help-text/sw-help-text.html.twig  [private]
   visibility-source export  [private]
 
+props
+  hideDelay?: number  default=literal  [private]
+  showDelay?: number  default=literal  [private]
+  text: string  default=literal  [private]
+  tooltipPosition?: string  default=literal  [private]
+  width?: number  default=literal  [private]
+
 blocks
   sw_help_text  [private]
     sw_help_text_icon  [private]
+
+classes
+  sw-help-text  [private]
 ```

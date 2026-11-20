@@ -10,7 +10,19 @@ component sw-settings-search-view-live-search  public  js
   source src/module/sw-settings-search/view/sw-settings-search-view-live-search/index.js
   template src/module/sw-settings-search/view/sw-settings-search-view-live-search/sw-settings-search-view-live-search.html.twig
 
+props
+  currentSalesChannelId?: string  default=literal
+  isLoading?: boolean  default=literal
+  searchResults?: object  default=factory
+  searchTerms?: string  default=literal
+
+computed
+  storefrontEsEnable: any
+
 blocks
   sw_settings_search_view_live_search
     sw_settings_search_view_live_search_content_card  [after v-if]
+
+classes
+  sw-settings-search__view-live-search
 ```

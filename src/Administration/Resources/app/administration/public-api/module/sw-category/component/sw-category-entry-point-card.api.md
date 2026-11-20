@@ -10,6 +10,35 @@ component sw-category-entry-point-card  public  js
   source src/module/sw-category/component/sw-category-entry-point-card/index.js
   template src/module/sw-category/component/sw-category-entry-point-card/sw-category-entry-point-card.html.twig
 
+inject
+  acl
+
+props
+  category: object
+  isLoading?: boolean  default=literal
+
+data
+  addedNavigationSalesChannels: any
+  configureHomeModalVisible: any
+  initialNavigationSalesChannels: any
+  selectedEntryPoint: any
+
+computed
+  associatedCollection: any
+  entryPoints: any
+  hasExistingNavigation: any
+  helpText: any
+  salesChannelCriteria: any
+  salesChannelSelectionLabel: any
+
+methods
+  closeConfigureHomeModal(): any
+  getInitialEntryPointFromCategory(): any
+  onEntryPointChange(): any
+  onSalesChannelChange(changedEntityCollection: any): any
+  openConfigureHomeModal(): any
+  resetSalesChannelCollections(): any
+
 blocks
   sw_category_entry_point_card
     sw_category_entry_point_card_button_configure_home  [after v-if]
@@ -19,4 +48,12 @@ blocks
       sw_category_detail_entry_point_navigation_list_link
     sw_category_entry_point_card_sales_channel_selection  [after v-if]
     sw_category_entry_point_card_selection
+
+classes
+  sw-category-entry-point-card
+  sw-category-entry-point-card__button-configure-home
+  sw-category-entry-point-card__entry-point-selection
+  sw-category-entry-point-card__navigation-entry
+  sw-category-entry-point-card__navigation-list
+  sw-category-entry-point-card__sales-channel-selection
 ```

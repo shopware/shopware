@@ -10,6 +10,47 @@ component sw-import-export-new-profile-wizard  public  js
   source src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/index.js
   template src/module/sw-import-export/component/profile-wizard/sw-import-export-new-profile-wizard/sw-import-export-new-profile-wizard.html.twig
 
+inject
+  feature
+  importExportProfileMapping
+  repositoryFactory
+
+props
+  profile: object
+
+emits
+  close(...args: any[])
+  profile-save(...args: any[])
+
+data
+  csvUploadPagePosition: any
+  currentlyActivePage: any
+  missingRequiredFields: any
+  nextButtonDisabled: any
+  pagesCount: any
+  systemRequiredFields: any
+
+computed
+  parentProfileCriteria: any
+  profileRepository: any
+  showCsvSkipButton: any
+  showNextButton: any
+  showValidationError: any
+
+methods
+  checkValidation(parentProfile: any): any
+  getParentProfileSelected(): any
+  loadSystemRequiredFieldsForEntity(entityName: any): any
+  onClose(): any
+  onCurrentPageChange(activePageIndex: any): any
+  onFinish(): any
+  onNextAllow(): any
+  onNextDisable(): any
+  onNextPage(): any
+  pageTitleSnippet(snippet: any): any
+  resetViolations(): any
+  saveProfile(): any
+
 blocks
   sw_import_export_new_profile_wizard
     sw_import_export_new_profile_wizard_footer_right_button
@@ -27,4 +68,12 @@ blocks
 
 crossings
   v-if  sw_import_export_new_profile_wizard_footer_right_button_finish -> sw_import_export_new_profile_wizard_footer_right_button
+
+refs
+  wizard  -> sw-wizard
+
+classes
+  sw-import-export-new-profile-wizard
+  sw-import-export-new-profile-wizard__footer-right-button-group
+  sw-import-export-new-profile-wizard__violation-modal
 ```

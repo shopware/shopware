@@ -10,6 +10,9 @@ component sw-settings-snippet-create  public  js
   registered src/module/sw-settings-snippet/index.js
   source src/module/sw-settings-snippet/page/sw-settings-snippet-create/index.js
 
+data
+  isCreate: any
+
 blocks
   sw_settings_snippet_detail  [inherited]
     sw_settings_snippet_detail_actions  [inherited]
@@ -23,4 +26,14 @@ blocks
           sw_settings_snippet_set_detail_card_snippets_fields  [inherited]
     sw_settings_snippet_detail_header  [inherited]
     sw_settings_snippet_detail_smart_bar  [inherited]
+
+classes
+  smart-bar__back-btn
+  snippet-general-card
+  snippet-overview-card
+  sw-settings-snippet-detail
+  sw-settings-snippet-detail__translation-original-label
+  sw-settings-snippet-detail__translation-original-value
+  sw-settings-snippet-set-detail-card
+  sw-snippet-detail__save-action
 ```

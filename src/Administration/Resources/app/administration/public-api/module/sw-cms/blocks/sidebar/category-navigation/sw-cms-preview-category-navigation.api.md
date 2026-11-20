@@ -13,4 +13,10 @@ component sw-cms-preview-category-navigation  private  js  [private]
 
 blocks
   sw_cms_block_category_navigation_preview  [private]
+
+classes
+  sw-cms-block-category-navigation__placeholder  [private]
+  sw-cms-block-category-navigation__placeholder--subcategory  [private]
+  sw-cms-block-category-placeholder-listing  [private]
+  sw-cms-preview-category-navigation  [private]
 ```

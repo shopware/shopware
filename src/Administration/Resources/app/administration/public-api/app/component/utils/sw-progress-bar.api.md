@@ -11,8 +11,24 @@ component sw-progress-bar  private  js  [private]
   template src/app/component/utils/sw-progress-bar/sw-progress-bar.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  userActivityService  [private]
+
+props
+  maxValue?: number  default=literal  [private]
+  value?: number  default=literal  [private]
+
+computed
+  progressClasses: any  [private]
+  styleWidth: any  [private]
+
 blocks
   sw_progress_bar  [private]
     sw_progress_bar_total  [private]
       sw_progress_bar_total_value  [private]
+
+classes
+  sw-progress-bar  [private]
+  sw-progress-bar__total  [private]
+  sw-progress-bar__value  [private]
 ```

@@ -11,6 +11,16 @@ component sw-cms-preview-gallery-buybox  private  js  [private]
   template src/module/sw-cms/blocks/commerce/gallery-buybox/preview/sw-cms-preview-gallery-buybox.html.twig  [private]
   visibility-source export  [private]
 
+computed
+  assetFilter: any  [private]
+
 blocks
   sw_cms_block_gallery_buybox_preview  [private]
+
+classes
+  sw-cms-preview-gallery-buybox  [private]
+  sw-cms-preview-gallery-buybox__buybox  [private]
+  sw-cms-preview-gallery-buybox__gallery  [private]
+  sw-cms-preview-gallery-buybox__images  [private]
+  sw-cms-preview-gallery-buybox__slider  [private]
 ```

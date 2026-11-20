@@ -11,6 +11,18 @@ component sw-field-error  private  js  [private]
   template src/app/component/form/field-base/sw-field-error/sw-field-error.html.twig  [private]
   visibility-source export  [private]
 
+props
+  error?: object  default=literal  [private]
+
+computed
+  errorMessage: any  [private]
+
+methods
+  formatParameters(parameters: any): any  [private]
+
 blocks
   sw_field_error  [private]
+
+classes
+  sw-field__error  [private]
 ```

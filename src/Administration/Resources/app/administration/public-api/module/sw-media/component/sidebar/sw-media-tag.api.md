@@ -10,7 +10,23 @@ component sw-media-tag  public  js
   source src/module/sw-media/component/sidebar/sw-media-tag/index.js
   template src/module/sw-media/component/sidebar/sw-media-tag/sw-media-tag.html.twig
 
+inject
+  repositoryFactory
+
+props
+  disabled?: boolean  default=literal
+  media: object
+
+computed
+  mediaRepository: any
+
+methods
+  handleChange(): any
+
 blocks
   sw_media_tag
     sw_media_tag_input
+
+classes
+  sw-media-tag
 ```

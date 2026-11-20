@@ -11,6 +11,25 @@ component sw-self-maintained-extension-card  private  js  [private]
   source src/module/sw-extension/component/sw-self-maintained-extension-card/index.js  [private]
   visibility-source export  [private]
 
+mixins
+  sw-extension-error  [private]
+
+props
+  extension: object  [private]
+
+computed
+  extensionCardClasses: any  [private]
+  isInstalled: any  [private]
+  permissions: any  [private]
+
+methods
+  activateExtension(): Promise<any>  [private]
+  changeExtensionStatus(): Promise<any>  [private]
+  deactivateExtension(): Promise<any>  [private]
+  installAndActivateExtension(): Promise<any>  [private]
+  installExtension(): Promise<any>  [private]
+  removeExtension(removeData: any): Promise<any>  [private]
+
 blocks
   sw_extension_card_base_activation_switch  [inherited] [private]
     sw_extension_card_base_info_inactive_label  [inherited] [private]
@@ -19,4 +38,21 @@ blocks
     sw_extension_card_base_context_menu_actions_additional  [inherited] [after v-if] [private]
   sw_extension_card_base_info_content  [inherited] [private]
   sw_extension_card_base_modals  [inherited] [after v-if] [private]
+
+classes
+  sw-extension-card-base  [private]
+  sw-extension-card-base__cancel-and-remove-link  [private]
+  sw-extension-card-base__cancel-subscription-link  [private]
+  sw-extension-card-base__context-menu  [private]
+  sw-extension-card-base__context-menu-privacy-link  [private]
+  sw-extension-card-base__info  [private]
+  sw-extension-card-base__info-inactive  [private]
+  sw-extension-card-base__info-name  [private]
+  sw-extension-card-base__main-action  [private]
+  sw-extension-card-base__meta-info  [private]
+  sw-extension-card-base__meta-info-version  [private]
+  sw-extension-card-base__open-extension  [private]
+  sw-extension-card-base__remove-link  [private]
+  sw-extension-card-base__select  [private]
+  sw-extension-card-base__switch  [private]
 ```

@@ -10,6 +10,61 @@ component sw-settings-snippet-detail  public  js
   source src/module/sw-settings-snippet/page/sw-settings-snippet-detail/index.js
   template src/module/sw-settings-snippet/page/sw-settings-snippet-detail/sw-settings-snippet-detail.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  repositoryFactory
+  snippetSetService
+
+data
+  isAddedSnippet: any
+  isCreate: any
+  isInvalidKey: any
+  isLoading: any
+  isLoadingSnippets: any
+  isSaveSuccessful: any
+  isSaveable: any
+  limit: any
+  moduleData: any
+  page: any
+  pushParams: any
+  queryIds: any
+  sets: any
+  snippets: any
+  translationKey: any
+  translationKeyOrigin: any
+
+computed
+  backPath: any
+  currentAuthor: any
+  identifier: any
+  invalidKeyError: any
+  snippetRepository: any
+  snippetSetCriteria: any
+  snippetSetRepository: any
+  snippetStates: any
+
+methods
+  applySnippetsToDummies(snippets: any): any
+  checkIsSaveable(): any
+  createSnippetDummy(): any
+  createdComponent(): any
+  doChange(): any
+  getCustomList(): any
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any
+  getPlaceholder(snippet: any): any
+  getSnippetState(snippet: any): any
+  initializeSnippet(): any
+  onChange(snippet: any, value: any): any
+  onNewKeyRedirect(isNewOrigin?: any): any
+  onRemoveInheritance(snippet: any): any
+  onResetSnippet(snippet: any): any
+  onSave(): any
+  prepareContent(): any
+  saveFinish(): any
+
 blocks
   sw_settings_snippet_detail
     sw_settings_snippet_detail_actions
@@ -23,4 +78,14 @@ blocks
           sw_settings_snippet_set_detail_card_snippets_fields
     sw_settings_snippet_detail_header
     sw_settings_snippet_detail_smart_bar
+
+classes
+  smart-bar__back-btn
+  snippet-general-card
+  snippet-overview-card
+  sw-settings-snippet-detail
+  sw-settings-snippet-detail__translation-original-label
+  sw-settings-snippet-detail__translation-original-value
+  sw-settings-snippet-set-detail-card
+  sw-snippet-detail__save-action
 ```

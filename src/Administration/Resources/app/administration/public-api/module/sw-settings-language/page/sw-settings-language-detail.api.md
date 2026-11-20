@@ -10,6 +10,75 @@ component sw-settings-language-detail  public  js
   source src/module/sw-settings-language/page/sw-settings-language-detail/index.js
   template src/module/sw-settings-language/page/sw-settings-language-detail/sw-settings-language-detail.html.twig
 
+mixins
+  notification, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  feature
+  repositoryFactory
+  translationService
+
+props
+  languageId?: string  default=literal
+
+data
+  builtInLocales: any
+  customFieldSets: any
+  isLoading: any
+  isSaveSuccessful: any
+  isSnippetMetadataLoading: any
+  isUpdatingSnippets: any
+  justCreated: any
+  language: any
+  parentTranslationCodeId: any
+  showAlertForChangeParentLanguage: any
+  showAllSalesChannels: any
+  snippetMetadata: any
+  usedTranslationIds: any
+
+computed
+  allowSave: any
+  assignedSalesChannels: any
+  identifier: any
+  inheritanceTooltipText: any
+  isIsoCodeRequired: any
+  isNewLanguage: any
+  isSystemDefaultLanguageId: any
+  languageHasName: any
+  languageLocaleIdError: any
+  languageNameError: any
+  languageRepository: any
+  parentLanguageCriteria: any
+  salesChannelsCardTitle: any
+  salesChannelsEmptyHint: any
+  showCustomFields: any
+  showSnippetAutoUpdate: any
+  showSnippetUpdateButton: any
+  snippetUpdateButtonLabel: any
+  snippetUpdateState: any
+  snippetUpdatesLabel: any
+  tooltipCancel: any
+  tooltipSave: any
+  usedLocaleCriteria: any
+  visibleSalesChannels: any
+
+methods
+  checkTranslationCodeInheritance(value: any): any
+  createdComponent(): any
+  invalidateLanguageCaches(): any
+  isLocaleAlreadyUsed(itemId: any): any
+  loadCustomFieldSets(): any
+  loadEntityData(): any
+  loadSnippetMetadata(): any
+  onCancel(): any
+  onInputLanguage(parentId: any): any
+  onOpenSalesChannelSettings(): any
+  onSave(): any
+  onUpdateSnippets(): any
+  setParentTranslationCodeId(parentId: any): any
+
 blocks
   sw_settings_language_detail
     sw_settings_language_detail_actions
@@ -27,11 +96,41 @@ blocks
         sw_settings_language_detail_content_field_localeId
         sw_settings_language_detail_content_field_name
         sw_settings_language_detail_content_field_parentId  [after v-if]
-      sw_settings_language_detail_content_language_info
+      sw_settings_language_detail_content_language_info  [deprecated tag:v6.8.0]
       sw_settings_language_detail_created_banner
       sw_settings_language_detail_custom_field_sets  [after v-if]
     sw_settings_language_detail_header
 
 crossings
   v-if  sw_settings_language_detail_sales_channels_assigned -> sw_settings_language_detail_sales_channels_empty
+
+classes
+  is--loading
+  sw-settings-language--alert-change-parent
+  sw-settings-language-detail
+  sw-settings-language-detail__active
+  sw-settings-language-detail__card-title
+  sw-settings-language-detail__cards-row
+  sw-settings-language-detail__content-card
+  sw-settings-language-detail__created-banner
+  sw-settings-language-detail__name
+  sw-settings-language-detail__sales-channel
+  sw-settings-language-detail__sales-channel-icon
+  sw-settings-language-detail__sales-channel-link
+  sw-settings-language-detail__sales-channels-card
+  sw-settings-language-detail__sales-channels-intro
+  sw-settings-language-detail__sales-channels-list
+  sw-settings-language-detail__sales-channels-settings
+  sw-settings-language-detail__sales-channels-toggle
+  sw-settings-language-detail__save-action
+  sw-settings-language-detail__select-iso-code
+  sw-settings-language-detail__select-locale
+  sw-settings-language-detail__select-parent
+  sw-settings-language-detail__snippet-link
+  sw-settings-language-detail__snippet-link-wrapper
+  sw-settings-language-detail__snippet-updates-actions
+  sw-settings-language-detail__snippet-updates-button
+  sw-settings-language-detail__snippet-updates-card
+  sw-settings-language-detail__snippet-updates-help
+  sw-settings-language-detail__snippet-updates-status
 ```

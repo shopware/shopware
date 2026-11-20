@@ -11,6 +11,26 @@ component sw-condition-customer-custom-field  public  js
   source src/app/component/rule/condition-type/sw-condition-customer-custom-field/index.js
   template src/app/component/rule/condition-type/sw-condition-customer-custom-field/sw-condition-customer-custom-field.html.twig
 
+mixins
+  sw-inline-snippet
+
+inject
+  feature
+
+computed
+  customFieldCriteria: any
+  operator: any
+  operators: any
+  renderedField: any
+  renderedFieldValue: any
+  selectedField: any
+  selectedFieldSet: any
+  truncateFilter: any
+
+methods
+  getFieldDescription(item: any): any
+  onFieldChange(id: any): any
+
 blocks
   sw_condition_base  [inherited]
     sw_condition_base_content  [inherited]
@@ -26,4 +46,21 @@ blocks
         sw_condition_customer_custom_field_operator
         sw_condition_customer_custom_field_value  [after v-if]
     sw_condition_base_error  [inherited]
+
+refs
+  selectedField  -> sw-entity-single-select
+
+classes
+  sw-condition
+  sw-condition-customer-custom-field
+  sw-condition-customer-custom-field__selected-field
+  sw-condition__condition-value
+  sw-condition__container
+  sw-condition__context-button
+  sw-condition__create-after-action
+  sw-condition__create-before-action
+  sw-condition__value-content
+
+notes
+  unresolved mixins Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)
 ```

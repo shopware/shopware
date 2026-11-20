@@ -10,9 +10,28 @@ component sw-cms-sidebar-nav-element  public  ts
   source src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element/index.ts
   template src/module/sw-cms/component/sw-cms-sidebar/sw-cms-sidebar-nav-element/sw-cms-sidebar-nav-element.html.twig
 
+props
+  block: Entity<'cms_block'>
+  duplicable?: boolean  default=factory
+  removable?: boolean  default=factory
+
+emits
+  block-delete(...args: any[])
+  block-duplicate(...args: any[])
+
+methods
+  onBlockDelete(): any
+  onBlockDuplicate(): any
+
 blocks
   sw_cms_sidebar_navigator_element
     sw_cms_sidebar_sidebar_navigator_element_delete
     sw_cms_sidebar_sidebar_navigator_element_duplicate
     sw_cms_sidebar_sidebar_navigator_element_label
+
+classes
+  navigator-element__action-delete
+  navigator-element__action-duplicate
+  navigator-element__label
+  sw-cms-sidebar__navigator-element
 ```

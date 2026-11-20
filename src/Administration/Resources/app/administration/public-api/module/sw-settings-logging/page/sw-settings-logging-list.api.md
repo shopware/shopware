@@ -10,6 +10,42 @@ component sw-settings-logging-list  public  js
   source src/module/sw-settings-logging/page/sw-settings-logging-list/index.js
   template src/module/sw-settings-logging/page/sw-settings-logging-list/sw-settings-logging-list.html.twig
 
+mixins
+  sw-settings-list, placeholder
+
+inject
+  repositoryFactory
+
+data
+  displayedLog: any
+  entityName: any
+  isLoading: any
+  logLevels: object
+    Alert: any
+    Critical: any
+    Debug: any
+    Emergency: any
+    Error: any
+    Info: any
+    Notice: any
+    Warning: any
+  logs: any
+  sortBy: any
+  sortDirection: any
+
+computed
+  dateFilter: any  [deprecated tag:v6.8.0]
+  logColumns: any
+  logEntryRepository: any
+  modalNameFromLogEntry: any
+
+methods
+  closeInfoModal(): any
+  getList(): any
+  getLogColumns(): any
+  logLevelToString(level: any): any
+  showInfoModal(entryContents: any): any
+
 blocks
   sw_settings_list
     sw_settings_logging_list_content
@@ -28,4 +64,9 @@ blocks
     sw_settings_logging_list_smart_bar_header
       sw_settings_logging_list_smart_bar_header_title
         sw_settings_logging_list_smart_bar_header_title_text
+
+classes
+  sw-settings-logging-list
+  sw-settings-logging-list__custom-content
+  sw-settings-logging-list__sidebar
 ```

@@ -10,6 +10,53 @@ component sw-duplicated-media-v2  public  js
   source src/app/component/utils/sw-duplicated-media-v2/index.js
   template src/app/component/utils/sw-duplicated-media-v2/sw-duplicated-media-v2.html.twig
 
+inject
+  mediaPresignedUploadService
+  mediaService
+  repositoryFactory
+
+data
+  existingMedia: any
+  failedUploadTasks: any
+  isLoading: any
+  postponedFailedUploads: any
+  selectedOption: any
+  shouldSaveSelection: any
+  suggestedName: any
+  targetEntity: any
+
+computed
+  additionalErrorCount: any
+  buttonLabel: any
+  currentTask: any
+  currentTaskDetails: any
+  dateFilter: any
+  fileSizeFilter: any
+  hasAdditionalErrors: any
+  isWorkingOnMultipleTasks: any
+  mediaRepository: any
+  options: any
+  presignedSupported: any
+  showModal: any
+
+methods
+  beforeDestroyComponent(): any
+  createdComponent(): any
+  emitUploadFinished(uploadTag: any, targetId: any, originalTargetId?: any): any
+  handleMediaServiceUploadEvent(arg0: any): any
+  isDuplicatedNameError(error: any): any
+  keepFile(uploadTask: any): Promise<any>
+  loadDefaultOption(): any
+  presignedUpload(uploadTask: any, mediaId: any): Promise<any>
+  renameFile(uploadTask: any): Promise<any>
+  replaceFile(uploadTask: any): Promise<any>
+  saveDefaultOption(): any
+  skipAll(): Promise<any>
+  skipCurrentFile(): Promise<any>
+  skipFile(uploadTask: any): Promise<any>
+  solveDuplicate(): Promise<any>
+  updatePreviewData(): Promise<any>
+
 blocks
   sw_duplicated_media_v2
     sw_duplicated_media_v2_body
@@ -28,4 +75,19 @@ blocks
       sw_duplicated_media_v2_cancel_button  [after v-if]
       sw_duplicated_media_v2_save_selection
       sw_duplicated_media_v2_upload_button
+
+classes
+  sw-duplicated-media-v2
+  sw-duplicated-media-v2__additional-error-count
+  sw-duplicated-media-v2__description
+  sw-duplicated-media-v2__options
+  sw-duplicated-media-v2__preview
+  sw-duplicated-media-v2__preview-separator
+  sw-duplicated-media-v2__preview_label
+  sw-duplicated-media-v2__spacer
+  sw-duplicated-media-v2__target-details
+  sw-duplicated-media-v2__target-label
+  sw-duplicated-media-v2__target-preview
+  sw-duplicated-media-v2__target-upload
+  sw-duplicated-media-v2__upload
 ```

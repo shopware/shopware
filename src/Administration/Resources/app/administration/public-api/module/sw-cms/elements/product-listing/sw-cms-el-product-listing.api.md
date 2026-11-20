@@ -11,6 +11,25 @@ component sw-cms-el-product-listing  private  js  [private]
   template src/module/sw-cms/elements/product-listing/component/sw-cms-el-product-listing.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+computed
+  currentDemoProducts: any  [private]
+  demoProductCount: any  [private]
+  demoProductElement: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  getProduct(index: any): any  [private]
+  mountedComponent(): any  [private]
+
 blocks
   sw_cms_element_product_listing  [private]
+
+classes
+  sw-cms-el-product-listing  [private]
+  sw-cms-el-product-listing__content  [private]
+  sw-cms-el-product-listing__pagination  [private]
+  sw-cms-el-product-listing__pagination-entry  [private]
 ```

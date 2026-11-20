@@ -9,4 +9,15 @@ component sw-arrow-field  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/rule/sw-arrow-field/index.js  [private]
   visibility-source export  [private]
+
+props
+  disabled?: boolean  default=literal  [private]
+  primary?: string  default=literal  [private]
+  secondary?: string  default=literal  [private]
+
+computed
+  arrowFill: any  [private]
+
+methods
+  getArrow(): any  [private]
 ```

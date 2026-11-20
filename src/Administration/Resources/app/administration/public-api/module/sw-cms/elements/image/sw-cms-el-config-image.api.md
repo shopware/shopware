@@ -11,6 +11,43 @@ component sw-cms-el-config-image  private  js  [private]
   template src/module/sw-cms/elements/image/config/sw-cms-el-config-image.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  cms-element  [private]
+
+inject
+  repositoryFactory  [private]
+
+emits
+  element-update(...args: any[])  [private]
+
+data
+  initialFolderId: any  [private]
+  mediaModalIsOpen: any  [private]
+
+computed
+  assetFilter: any  [private]
+  displayModeOptions: any  [private]
+  horizontalAlignOptions: any  [private]
+  mediaRepository: any  [private]
+  previewSource: any  [private]
+  uploadTag: any  [private]
+  verticalAlignOptions: any  [private]
+
+methods
+  createdComponent(): any  [private]
+  emitUpdate(): any  [private]
+  formatMinHeight(value: any): any  [private]
+  isUnitlessNumber(value: any): any  [private]
+  onChangeDisplayMode(value: any): any  [private]
+  onChangeIsDecorative(value: any): any  [private]
+  onChangeMinHeight(value: any): any  [private]
+  onCloseModal(): any  [private]
+  onImageRemove(): any  [private]
+  onImageUpload(arg0: any): Promise<any>  [private]
+  onOpenMediaModal(): any  [private]
+  onSelectionChanges(mediaEntity: any): any  [private]
+  updateElementData(media?: any): any  [private]
+
 blocks
   sw_cms_element_image_config  [private]
     sw_cms_element_image_config_display_mode  [private]
@@ -20,4 +57,14 @@ blocks
     sw_cms_element_image_config_media_upload  [scope: isInherited] [private]
     sw_cms_element_image_config_min_height  [private]
     sw_cms_element_image_config_vertical_align  [private]
+
+classes
+  sw-cms-el-config-image  [private]
+  sw-cms-el-config-image__display-mode  [private]
+  sw-cms-el-config-image__is-decorative  [private]
+  sw-cms-el-config-image__link  [private]
+  sw-cms-el-config-image__link-aria-label  [private]
+  sw-cms-el-config-image__link-tab  [private]
+  sw-cms-el-config-image__mapping-preview  [private]
+  sw-cms-el-config-image__preview-info  [private]
 ```

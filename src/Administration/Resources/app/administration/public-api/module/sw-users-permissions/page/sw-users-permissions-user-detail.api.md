@@ -10,6 +10,108 @@ component sw-users-permissions-user-detail  public  js
   source src/module/sw-users-permissions/page/sw-users-permissions-user-detail/index.js
   template src/module/sw-users-permissions/page/sw-users-permissions-user-detail/sw-users-permissions-user-detail.html.twig
 
+mixins
+  notification, salutation
+
+inject
+  acl
+  feature
+  integrationService
+  loginService
+  mediaDefaultFolderService
+  repositoryFactory
+  userService
+  userValidationService
+
+data
+  confirmPasswordModal: any
+  currentIntegration: any
+  currentUser: any
+  integrations: any
+  isEmailAlreadyInUse: any
+  isIntegrationsLoading: any
+  isLoading: any
+  isModalLoading: any
+  isSaveSuccessful: any
+  isUsernameUsed: any
+  languages: any
+  mediaDefaultFolderId: any
+  mediaItem: any
+  newPassword: any
+  newPasswordConfirm: any
+  showDeleteModal: any
+  showMediaModal: any
+  showSecretAccessKey: any
+  skeletonItemAmount: any
+  timezoneOptions: any
+  user: any
+  userId: any
+  userModuleIconColorsSelection: any
+  userThemeSelection: any
+
+computed
+  aclRoleCriteria: any
+  avatarMedia: any
+  disableConfirm: any
+  fullName: any
+  hasLanguage: any
+  identifier: any
+  integrationColumns: any
+  isCurrentUser: any
+  isError: any
+  languageCriteria: any
+  languageId: any
+  languageRepository: any
+  localeOptions: any
+  localeRepository: any
+  mcpGrantedPrivileges: any
+  mediaRepository: any
+  moduleIconColorsOptions: any
+  tooltipCancel: any
+  tooltipSave: any
+  userCriteria: any
+  userEmailError: any
+  userFirstNameError: any
+  userLastNameError: any
+  userLocaleIdError: any
+  userModuleIconColors: any
+  userPasswordError: any
+  userRepository: any
+  userTheme: any
+  userUsernameError: any
+
+methods
+  addAccessKey(): any
+  checkEmail(): Promise<any>
+  checkUsername(): any
+  createdComponent(): any
+  getMediaDefaultFolderId(): any
+  loadCurrentUser(): any
+  loadKeys(): any
+  loadLanguages(): any
+  loadMediaItem(targetId: any): any
+  loadUser(): any
+  onCancel(): any
+  onCloseConfirmPasswordModal(): any
+  onCloseDeleteModal(): any
+  onCloseDetailModal(): any
+  onConfirmDelete(id: any): any
+  onDropMedia(mediaItem: any): any
+  onMcpAllowlistUpdate(allowlist: any): any
+  onMediaSelectionChange(arg0: any): any
+  onOpenMedia(): any
+  onSave(): any
+  onSaveIntegration(): any
+  onSearch(value: any): any
+  onShowDetailModal(id: any): any
+  onUnlinkLogo(): any
+  saveFinish(): any
+  saveUser(context: any): Promise<any>
+  setMediaItem(arg0: any): any
+  setPassword(password: any): any
+  updateAuthToken(): Promise<any>
+  updateCurrentUser(): Promise<any>
+
 blocks
   sw_settings_user_detail
     sw_settings_user_detail_actions
@@ -66,4 +168,34 @@ blocks
 
 crossings
   v-if  sw_settings_user_detail_detail_modal_inner_field_help_text -> sw_settings_user_detail_detail_modal_inner_help_text
+
+classes
+  sw-field
+  sw-product-list__edit-action
+  sw-settings-user-detail
+  sw-settings-user-detail__cards
+  sw-settings-user-detail__detail
+  sw-settings-user-detail__grid
+  sw-settings-user-detail__grid-aclRoles
+  sw-settings-user-detail__grid-active
+  sw-settings-user-detail__grid-context-menu-delete
+  sw-settings-user-detail__grid-context-menu-edit
+  sw-settings-user-detail__grid-eMail
+  sw-settings-user-detail__grid-firstName
+  sw-settings-user-detail__grid-is-admin
+  sw-settings-user-detail__grid-jobTitle
+  sw-settings-user-detail__grid-language
+  sw-settings-user-detail__grid-lastName
+  sw-settings-user-detail__grid-module-icon-colors
+  sw-settings-user-detail__grid-password
+  sw-settings-user-detail__grid-profile-picture
+  sw-settings-user-detail__grid-theme
+  sw-settings-user-detail__grid-timezone
+  sw-settings-user-detail__grid-username
+  sw-settings-user-detail__information-grid
+  sw-settings-user-detail__roles-permissions-grid
+  sw-settings-user-detail__save-action
+  sw-settings-user-detail__secret-help-text-alert
+  sw-settings-user-detail__secret-help-text-button
+  sw-settings-user-detail__user-interface-grid
 ```

@@ -10,6 +10,60 @@ component sw-order-list  public  js
   source src/module/sw-order/page/sw-order-list/index.js
   template src/module/sw-order/page/sw-order-list/sw-order-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  feature
+  filterFactory
+  repositoryFactory
+  stateStyleDataProviderService
+
+data
+  activeFilterNumber: any
+  defaultFilters: any
+  filterCriteria: any
+  filterLoading: any  [deprecated tag:v6.8.0]
+  isLoading: any
+  orders: any
+  searchConfigEntity: any
+  showBulkEditModal: any
+  showDeleteModal: any
+  sortBy: any
+  sortDirection: any
+  storeKey: any
+
+computed
+  adminEsEnable: any
+  assetFilter: any
+  currencyFilter: any
+  hasActiveSearchOrFilter: any
+  listFilterOptions: any
+  listFilters: any
+  orderColumns: any
+  orderCriteria: any
+  orderRepository: any
+  productCriteria: any
+  salesChannelCriteria: any
+
+methods
+  createdComponent(): any
+  disableDeletion(order: any): any
+  getList(): Promise<any>
+  getOrderColumns(): any
+  getStatusCriteria(value: any): any
+  getVariantFromDeliveryState(order: any): any
+  getVariantFromOrderState(order: any): any
+  getVariantFromPaymentState(order: any): any
+  onBulkEditItems(): Promise<any>
+  onChangeLanguage(): any
+  onCloseDeleteModal(): any
+  onConfirmDelete(id: any): any
+  onDelete(id: any): any
+  onEdit(order: any): any
+  onInlineEditSave(order: any): any
+
 blocks
   sw_order_list
     sw_order_list_content
@@ -67,4 +121,28 @@ blocks
 
 crossings
   v-if  sw_order_list_empty_state -> sw_order_list_grid
+
+refs
+  bulkEditModal  -> sw-bulk-edit-modal
+  orderGrid  -> sw-data-grid
+
+classes
+  link
+  link-primary
+  sw-order-bulk-edit-modal
+  sw-order-bulk_edit__manual-order-label
+  sw-order-list
+  sw-order-list__add-order
+  sw-order-list__confirm-delete-text
+  sw-order-list__content
+  sw-order-list__manual-order-label
+  sw-order-list__order-view-action
+  sw-order-list__sidebar
+  sw-order-list__state
+  sw-order-list__tooltip-order-comment
+  sw-page__smart-bar-amount
+
+notes
+  unresolved computed ...deprecatedComputed
+  unresolved methods ...deprecatedMethods
 ```

@@ -989,6 +989,24 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Core popovers render with `mt-floating-ui` before 6.8
+
+`sw-context-button`, `sw-select-result-list`, `sw-multi-tag-select`, `sw-media-field` and `sw-condition-unit-menu` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
+
+The popovers are still teleported to `<body>`, but the markup around them changed.
+Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around these popovers is replaced by `.mt-floating-ui__content`.
+  Update styles and end-to-end selectors that matched the old wrapper.
+- The `--placement-*` modifier classes are gone.
+  `mt-floating-ui` flips the popover itself and marks the resolved side with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content` and on the `mt-floating-ui` element that stays inside the field.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
+- The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
+  The private `zIndex` prop of `sw-context-button` was removed.
+- The `sw-media-field` picker is mounted to `<body>` also inside a modal, instead of into the modal.
+
 ### The smart bar back button names its target
 
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.

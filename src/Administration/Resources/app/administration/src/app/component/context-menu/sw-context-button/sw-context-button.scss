@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 $sw-context-button-color-text: var(--color-icon-primary-default);
 $sw-context-button-border-radius: var(--border-radius-xs);
 $sw-context-button-color-border: var(--color-border-primary-default);
@@ -54,7 +56,6 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
         position: absolute;
         left: 50%;
         top: 100%;
-        transform: translate(-35px, 10px);
     }
 
     .mt-button {
@@ -62,33 +63,21 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
     }
 }
 
-.sw-popover__wrapper.sw-context-button__menu-popover {
-    &.--placement-bottom-outside {
-        .sw-context-menu {
-            transform: translate(0, 13px);
-        }
+.mt-floating-ui__content.sw-context-button__menu-popover {
+    z-index: $z-index-context-menu;
 
-        .sw-context-menu .sw-context-menu__content::before {
+    &[data-placement$="-end"] .sw-context-menu__content::before {
+        left: unset;
+        right: 28px;
+    }
+
+    &[data-placement^="top"] .sw-context-menu .sw-context-menu__content {
+        margin-top: 0;
+
+        &::before {
             top: auto;
             bottom: -5px;
             transform: rotate(225deg);
-        }
-    }
-
-    &.--placement-right-outside {
-        .sw-context-menu {
-            transform: translate(calc(-100% + 69px), 0);
-
-            .sw-context-menu__content::before {
-                left: unset;
-                right: 28px;
-            }
-        }
-    }
-
-    &.--placement-right-outside.--placement-bottom-outside {
-        .sw-context-menu {
-            transform: translate(calc(-100% + 69px), 13px);
         }
     }
 }

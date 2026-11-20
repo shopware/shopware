@@ -133,8 +133,9 @@ async function createWrapper() {
                 'sw-container': {
                     template: '<div class="sw-container"><slot></slot></div>',
                 },
-                'sw-popover': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-single-select': await wrapTestComponent('sw-single-select', { sync: true }),
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list', { sync: true }),

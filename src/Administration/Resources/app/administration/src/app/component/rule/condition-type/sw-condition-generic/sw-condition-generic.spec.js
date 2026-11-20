@@ -118,7 +118,8 @@ async function createWrapper(condition = {}, component = 'sw-condition-generic')
                     template: '<div class="sw-popover"><slot></slot></div>',
                 },
                 'mt-floating-ui': {
-                    template: '<div><slot /></div>',
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
                 },
                 'sw-multi-tag-select': await wrapTestComponent('sw-multi-tag-select'),
                 'sw-ai-copilot-badge': true,

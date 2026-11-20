@@ -1,3 +1,5 @@
+@import "~scss/variables";
+
 .sw-select-result-list {
     position: absolute;
     top: 0;
@@ -6,6 +8,10 @@
     bottom: 0;
     overflow: hidden;
     pointer-events: none;
+}
+
+.mt-floating-ui__content.sw-select-result-list-popover {
+    z-index: $z-index-context-menu;
 }
 
 .sw-select-result-list-popover:not(.mt-floating-ui__content) {
@@ -23,10 +29,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-}
-
-.sw-select-result-list-popover .sw-popover__wrapper {
-    width: 100%;
 }
 
 .sw-select-result-list__content {
@@ -58,8 +60,4 @@
     opacity: 0;
     min-height: 293px;
     height: 293px;
-}
-
-.sw-popover__wrapper.--placement-bottom-outside.sw-select-result-list-popover-wrapper {
-    transform: translate(0, calc(-100% - 48px));
 }

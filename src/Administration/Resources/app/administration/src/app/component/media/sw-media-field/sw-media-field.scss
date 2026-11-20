@@ -54,22 +54,16 @@ $sw-media-field-border-color-picker: var(--color-border-secondary-default);
     .sw-media-field__empty-preview {
         background: $transparent-background-url;
     }
-
-    &__popover {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        height: 100%;
-    }
 }
 
-.sw-media-field__expanded-content {
+// The class also sits on the always rendered floating-ui wrapper, so the styles target only its content.
+.mt-floating-ui__content.sw-media-field__expanded-content {
+    z-index: $z-index-context-menu;
     width: 380px;
     padding: 30px;
     background-color: var(--color-elevation-surface-raised);
     border: 1px solid $sw-media-field-border-color-picker;
     border-radius: $sw-media-field-border-radius-picker;
-    transform: translate(calc(-100% + 45px), 6px);
 
     .sw-simple-search-field {
         margin-bottom: 8px;
@@ -100,6 +94,12 @@ $sw-media-field-border-color-picker: var(--color-border-secondary-default);
         border-top: 1px solid $sw-media-field-border-color-picker;
         border-left: 1px solid $sw-media-field-border-color-picker;
         z-index: $z-index-context-menu;
+    }
+
+    &.mt-floating-ui--bottom::before {
+        top: auto;
+        bottom: -5px;
+        transform: rotate(225deg);
     }
 
     .sw-media-field__actions_bar {
@@ -136,25 +136,5 @@ $sw-media-field-border-color-picker: var(--color-border-secondary-default);
 
     .sw-pagination {
         border: none;
-    }
-}
-
-.mt-modal:has(.sw-popover__wrapper.sw-media-field__expanded-content) {
-    overflow: visible;
-
-    .mt-modal__header,
-    .mt-modal__content,
-    .mt-modal__footer {
-        overflow-x: hidden;
-    }
-}
-
-.sw-popover__wrapper.sw-media-field__expanded-content.--placement-bottom-outside {
-    transform: translate(calc(-100% + 45px), calc(-100% - 50px));
-
-    &::before {
-        top: auto;
-        bottom: -5px;
-        transform: rotate(225deg);
     }
 }

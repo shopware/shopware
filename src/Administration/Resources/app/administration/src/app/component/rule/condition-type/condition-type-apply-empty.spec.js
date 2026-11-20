@@ -64,7 +64,7 @@ async function createWrapperForComponent(componentName) {
                 'sw-block-field': await wrapTestComponent('sw-block-field'),
                 'sw-base-field': await wrapTestComponent('sw-base-field'),
                 'sw-text-field': true,
-                'sw-popover': true,
+                'mt-floating-ui': true,
                 'sw-datepicker': true,
                 'sw-loader': true,
                 'sw-context-menu': true,

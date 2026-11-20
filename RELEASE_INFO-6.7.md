@@ -171,8 +171,8 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
-* **Deleted roles:** A deleted role is removed from the `aclRoleIds` of every webhook.
-  A webhook whose last listed role is deleted keeps an empty list instead of falling back to all of its owner's roles.
+* **Deleting a role:** A role that is listed in the `aclRoleIds` of a webhook cannot be deleted.
+  The deletion is rejected with `FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK`; remove the role from the webhook first.
 * **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
 * **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
   These entries are removed after the same lifetime as successful and failed ones.
@@ -385,6 +385,16 @@ public function __invoke(string $id): McpToolResult
 ```
 
 App tools keep the `{"success": …}` envelope as their response format.
+
+The new PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a `#[McpTool]` method whose native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
+For now it is registered in `core-rules.neon` only, which the Shopware PHPStan extension doesn't load for extensions by default, so it does not fail your build in 6.7.
+It moves to `rules.neon` with 6.8.0.
+To check your tools today, add it to the `rules` of your `phpstan.neon`:
+
+```neon
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
+```
 
 ### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
 
@@ -898,6 +908,18 @@ A price definition written to a price definition field, for example `priceDefini
 Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
 The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
 
+### Customer group registration SEO URLs for headless sales channels
+
+Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0).
+The rows are written with the route name `store-api.customer-group-registration.config` (the Store API route a headless frontend calls to render the registration form) — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`.
+Headless sales channels without an external storefront domain keep getting no rows;
+storefront sales channels are unaffected.
+
+The headless rows are maintained by the Core (`CustomerGroupRegistrationSeoUrlSubscriber`), so they are also written in headless installations without the Storefront bundle.
+They additionally react to domain changes:
+toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
+The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -967,6 +989,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### The smart bar back button names its target
+
+The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
+Without a resolvable title it shows only the icon, labelled "Go back".
+Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
 ### Custom fields on the customer create page
 
 The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.
@@ -1203,17 +1230,17 @@ The separate `Extensions` process and the port per extension are gone.
 The `vite.config` of an extension can no longer change the address of its dev server.
 The watcher ignores `server.port`, `server.host`, `server.ws` and the connection options of `server.hmr` (`protocol`, `host`, `port`, `clientPort`, `path` and `server`) there.
 
-### Customer group registration SEO URLs for headless sales channels
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+It bundles the Administration and its plugins, but not apps.
+Changes to plugin files reload the page instead of using HMR.
 
-Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0).
-The rows are written with the route name `store-api.customer-group-registration.config` (the Store API route a headless frontend calls to render the registration form) — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`.
-Headless sales channels without an external storefront domain keep getting no rows;
-storefront sales channels are unaffected.
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
+Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
+Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
+If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
-The headless rows are maintained by the Core (`CustomerGroupRegistrationSeoUrlSubscriber`), so they are also written in headless installations without the Storefront bundle.
-They additionally react to domain changes:
-toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
-The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
+For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ### Rule Builder: free-text list conditions use `sw-multi-tag-select`
 
@@ -1340,6 +1367,13 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### TypeScript Administration scaffolding
+
+`bin/console plugin:create --create-admin-module` now generates `main.ts` and TypeScript module and page implementations.
+Generated modules and components are checked against the installed Administration types.
+After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
+Existing plugin files are unchanged.
+
 ### Order detail shows every shipment in 6.8
 
 With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
@@ -1347,20 +1381,6 @@ A delivery with negative shipping costs is a discount, every other delivery is a
 Until now, every delivery besides the primary one was shown as a shipping discount.
 The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, sorted like `OrderDeliveryCollection::getShipments()`.
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
-
-## API
-
-To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
-It bundles the Administration and its plugins, but not apps.
-Changes to plugin files reload the page instead of using HMR.
-
-Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
-Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
-`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
-Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
-If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
-
-For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
 
@@ -1373,6 +1393,11 @@ Deliveries with negative shipping costs are shipping discounts and are not liste
 Carts and orders with one shipment render as before.
 The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
 The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
+
+### Guest customers can create an account from the account menu
+
+The header account menu now shows a "Create account" button for guest customers in the new block `layout_header_actions_account_widget_dropdown_guest_convert` in `storefront/layout/header/account-menu.html.twig`.
+It leads to the guest conversion page (`frontend.account.convert.page`), which was previously only linked from the checkout finish page.
 
 ### New shipping method blocks added
 

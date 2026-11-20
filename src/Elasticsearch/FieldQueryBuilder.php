@@ -24,6 +24,15 @@ use Shopware\Elasticsearch\Product\SearchFieldConfig;
 use Shopware\Elasticsearch\Query\MatchBoolPrefixQuery;
 
 /**
+ * Builds the per-(field, token) DisMax of clauses that together express
+ * "does this token match this field?": exact-subfield TermQuery (when the
+ * field opts in via `useExactSubfield`), fuzzy match, prefix match, n-gram
+ * match. The DisMax picks the strongest signal.
+ *
+ * @see Resources/doc/SEARCH_ARCHITECTURE.md §4.2 ("FieldQueryBuilder — the
+ *      per-field clause set") for the boost values, the rationale, and how
+ *      this composes with the merchant's per-field ranking and BM25.
+ *
  * @internal
  *
  * Builds the per-field query for a SINGLE search token. Splitting the user's input into

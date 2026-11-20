@@ -3,7 +3,7 @@
  */
 
 const { RuleTester } = require('eslint');
-const { fileTargets } = require('./override-target');
+const { targetAt, fileTargets } = require('./override-target');
 
 const rule = {
     meta: { type: 'problem', schema: [] },
@@ -11,6 +11,11 @@ const rule = {
         return {
             'Program:exit'() {
                 context.report({ loc: { line: 1, column: 0 }, message: `file:${fileTargets(context).join(',') || 'none'}` });
+            },
+            MemberExpression(node) {
+                if (node.object.type === 'ThisExpression' && node.property.name === 'probe') {
+                    context.report({ node, message: `at:${targetAt(context, node) ?? 'none'}` });
+                }
             },
         };
     },
@@ -23,34 +28,34 @@ new RuleTester({
     invalid: [
         {
             name: 'finds the target of an override in the same file',
-            code: "Shopware.Component.override('sw-order-list', { computed: { a() { return this.isLoading; } } });",
-            errors: [{ message: 'file:sw-order-list' }],
+            code: "Shopware.Component.override('sw-order-list', { computed: { a() { return this.probe; } } });",
+            errors: [{ message: 'file:sw-order-list' }, { message: 'at:sw-order-list' }],
         },
         {
-            name: 'finds every override and extension in one file',
+            name: 'tells several overrides and extensions in one file apart',
             code: [
-                "Component.override('sw-a', { methods: { a() { this.isLoading(); } } });",
-                "Component.extend('acme-b', 'sw-b', { methods: { b() { this.isLoading(); } } });",
+                "Component.override('sw-a', { methods: { a() { this.probe(); } } });",
+                "Component.extend('acme-b', 'sw-b', { methods: { b() { this.probe(); } } });",
             ].join('\n'),
-            errors: [{ message: 'file:sw-a,sw-b' }],
+            errors: [{ message: 'file:sw-a,sw-b' }, { message: 'at:sw-a' }, { message: 'at:sw-b' }],
         },
         {
             name: 'falls back to a core component folder name for export default',
             filename: '/plugin/src/extension/sw-order-list/index.js',
-            code: 'export default { methods: { a() { this.isLoading(); } } };',
-            errors: [{ message: 'file:sw-order-list' }],
+            code: 'export default { methods: { a() { this.probe(); } } };',
+            errors: [{ message: 'file:sw-order-list' }, { message: 'at:sw-order-list' }],
         },
         {
             name: 'unwraps wrapComponentConfig and TypeScript casts',
             filename: '/plugin/src/extension/sw-order-list/index.ts',
-            code: 'export default Shopware.Component.wrapComponentConfig({ methods: { a() { this.isLoading(); } } }) as never;',
-            errors: [{ message: 'file:sw-order-list' }],
+            code: 'export default Shopware.Component.wrapComponentConfig({ methods: { a() { this.probe(); } } }) as never;',
+            errors: [{ message: 'file:sw-order-list' }, { message: 'at:sw-order-list' }],
         },
         {
             name: 'has no target in a plugin folder',
             filename: '/plugin/src/component/acme-list/index.js',
-            code: 'export default { methods: { a() { this.isLoading(); } } };',
-            errors: [{ message: 'file:none' }],
+            code: 'export default { methods: { a() { this.probe(); } } };',
+            errors: [{ message: 'file:none' }, { message: 'at:none' }],
         },
     ],
 });

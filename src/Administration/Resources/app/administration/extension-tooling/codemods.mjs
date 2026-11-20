@@ -18,6 +18,8 @@ const scriptFiles = [
     '**/*.mjs',
     '**/*.cjs',
     '**/*.ts',
+    '**/*.mts',
+    '**/*.cts',
     '**/*.tsx',
 ];
 const vueFiles = ['**/*.vue'];
@@ -50,6 +52,8 @@ export function shopwareAdminCodemods({ scriptRules = [], templateRules = [] } =
                 '**/*.spec.mjs',
                 '**/*.spec.cjs',
                 '**/*.spec.ts',
+                '**/*.spec.mts',
+                '**/*.spec.cts',
                 '**/*.spec.tsx',
             ],
         },

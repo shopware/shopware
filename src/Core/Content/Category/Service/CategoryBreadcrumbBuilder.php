@@ -167,8 +167,12 @@ class CategoryBreadcrumbBuilder
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if ($mainCategory = $this->getMainCategoryFromProduct($product, $context)) {
-            return $mainCategory;
+        $preloadedCategory = $this->getPreloadedMainCategory($product, $context);
+        if ($preloadedCategory !== null) {
+            return \in_array($preloadedCategory->getId(), $product->getCategoryIds() ?? [], true)
+                && $this->isCategoryAvailableForCustomer($preloadedCategory, $context)
+                ? $preloadedCategory
+                : null;
         }
 
         $categoryIds = $product->getCategoryIds() ?? [];
@@ -197,20 +201,14 @@ class CategoryBreadcrumbBuilder
         return $product->getMainCategories()->first()?->getCategory();
     }
 
-    private function getMainCategoryFromProduct(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    private function getPreloadedMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (!$product->getMainCategories()?->count()) {
-            return null;
-        }
-
-        $category = $product->getMainCategories()->filterBySalesChannelId($context->getSalesChannelId())->first()?->getCategory();
+        $category = $product->getMainCategories()?->filterBySalesChannelId($context->getSalesChannelId())->first()?->getCategory();
 
         if (
             !$category instanceof CategoryEntity
             // @deprecated tag:v6.8.0 - Remove when MainCategoryEntity::getCategory() returns null instead of an empty entity.
             || !isset($category->id)
-            || !\in_array($category->getId(), $product->getCategoryIds() ?? [], true)
-            || !$this->isCategoryAvailableForCustomer($category, $context)
         ) {
             return null;
         }

@@ -31,6 +31,8 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 
 /**
  * @internal
@@ -247,6 +249,48 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         );
 
         static::assertSame($category, $builder->getProductSeoCategory($product, $this->salesChannelContext));
+    }
+
+    #[DataProvider('invalidPreloadedMainCategoryProvider')]
+    public function testGetProductSeoCategoryDoesNotQueryAnInvalidPreloadedMainCategoryAgain(bool $active, string $path, bool $assigned): void
+    {
+        $mainCategory = new CategoryEntity();
+        $mainCategory->setId(Uuid::randomHex());
+        $mainCategory->setActive($active);
+        $mainCategory->setPath($path);
+
+        $fallbackCategory = new CategoryEntity();
+        $fallbackCategory->setId(Uuid::randomHex());
+
+        $productMainCategory = new MainCategoryEntity();
+        $productMainCategory->setId(Uuid::randomHex());
+        $productMainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $productMainCategory->setCategory($mainCategory);
+
+        $categoryIds = $assigned ? [$mainCategory->getId(), $fallbackCategory->getId()] : [$fallbackCategory->getId()];
+        $product = $this->getProductEntity([], $categoryIds);
+        $product->setMainCategories(new MainCategoryCollection([$productMainCategory]));
+
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new CategoryCollection([$fallbackCategory])]);
+        $builder = new CategoryBreadcrumbBuilder(
+            $categoryRepository,
+            StaticSalesChannelRepository::of(SalesChannelProductCollection::class, [
+                static fn () => static::fail('The preloaded main category must not be queried again.'),
+            ]),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($fallbackCategory, $builder->getProductSeoCategory($product, $this->salesChannelContext));
+        static::assertCount(1, $categoryRepository->searchedCriteria);
+        static::assertSame('breadcrumb-builder', $categoryRepository->searchedCriteria[0]->getTitle());
+    }
+
+    public static function invalidPreloadedMainCategoryProvider(): \Generator
+    {
+        yield 'not assigned to the product' => [true, '|navigationCategoryId|', false];
+        yield 'inactive' => [false, '|navigationCategoryId|', true];
+        yield 'outside the sales channel category trees' => [true, '|otherRootCategoryId|', true];
     }
 
     public function testGetProductCategoryByReferrerShouldReturnReferrerCategoryHiddenInNavigation(): void

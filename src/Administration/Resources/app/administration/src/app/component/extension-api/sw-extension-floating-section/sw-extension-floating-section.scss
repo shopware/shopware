@@ -1,0 +1,32 @@
+@import "~scss/variables";
+
+// Sits in the bottom left corner of the parent, which needs `position: relative`
+.sw-extension-floating-section {
+    position: absolute;
+    left: var(--scale-size-24);
+    bottom: var(--scale-size-24);
+
+    // Same layer as modals and the sidebar. Equal layers paint in DOM order: the sidebar and modals come later
+    // in the DOM and cover the panel, while the panel stays above the backdrop of the sidebar.
+    z-index: $z-index-modal;
+    width: min(31.25rem, calc(100% - var(--scale-size-48)));
+    max-height: calc(100% - var(--scale-size-48));
+    border-radius: var(--border-radius-card);
+    box-shadow: 0 6px 12px -8px var(--color-elevation-shadow-default);
+    overflow: auto;
+
+    &[inert] {
+        box-shadow: none;
+    }
+
+    // An extension that has not reported a height yet has nothing to show. Without this the browser gives its
+    // iframe the default height of 150px, which shows an empty box, or an error page if it failed to load.
+    iframe[height="100%"] {
+        height: 0;
+    }
+}
+
+// The open off-canvas menu covers the panel, which would otherwise hide the lower end of the menu
+.sw-desktop:has(.sw-admin-menu.is--off-canvas-shown) .sw-extension-floating-section {
+    z-index: $z-index-off-canvas - 2;
+}

@@ -17,6 +17,37 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### Password hashing of customers and administration users is configurable
+
+Customer and administration user passwords are hashed by the new services `shopware.password_hasher.customer` and `shopware.password_hasher.admin`, both extending `Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher`.
+Configure the algorithm and its `password_hash()` options per scope:
+
+```yaml
+shopware:
+    password_hasher:
+        customer:
+            algorithm: argon2id # default, bcrypt or argon2id
+            options: { memory_cost: 65536, time_cost: 4 }
+```
+
+Options PHP cannot hash with, for example a bcrypt `cost` outside 4 to 31, fail while the container is built.
+Options read from environment variables are only checked when a password is hashed.
+
+Every login hashes or verifies a password with these settings, including logins with an unknown email, which keeps the response time the same for existing and unknown accounts.
+With the example above, each login request needs 64 MiB of memory, so plan the PHP memory limit and the number of workers for concurrent logins.
+The default `login` and `oauth` rate limiters are keyed by user and IP, so they do not throttle requests that use a new email each time.
+Enable the per IP rate limiters `login_client` and `oauth_client` via `shopware.api.rate_limiter` to cover that case.
+
+On every successful login (Store API, Storefront, Administration), a hash created with other settings is replaced by a hash of the current settings.
+Existing hashes keep working, so the configuration can be changed at any time.
+As PHP 8.4 raised the default bcrypt cost from 10 to 12, existing hashes are also replaced once on PHP 8.4 and newer with the default configuration.
+
+For a custom hash format, decorate one of the services.
+Keep verifying the previous format, for example by delegating to the decorated hasher, and return `true` from `needsRehash()` for it.
+`isHashed()` decides whether a value written to a `PasswordField` with `for: customer` or `for: admin` is stored as it is, for example when importing customers with existing hashes.
+The `algorithm` and `hashOptions` arguments of those fields are ignored in favour of the configured hasher; other `PasswordField` instances are unchanged.
+`Shopware\Core\Framework\PasswordHasher\PasswordHasherRegistry` returns the hasher of a scope.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

@@ -699,6 +699,12 @@ For extensions that already build positions holding part of a line item, this ch
 The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania, Romania and Slovakia to the current VAT rates, and adds a 5% rule for "Reduced rate 2" in Slovakia and Slovenia.
 Only rules of the default tax groups that still have their original rate and were never edited are changed.
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
+### Migrations no longer narrow a queued full indexer run
+
+When migrations of one update register the same indexer with `MigrationStep::registerIndexer()`, once without updaters and once with a list of updaters, the indexer now runs with all updaters, in either order.
+Before, the list of updaters replaced the full run.
+Updates from 6.7.9 or older therefore run the complete `product.indexer` again, which takes longer for large catalogs.
+Shops that were updated from 6.7.9 or older before this release can run `bin/console dal:refresh:index --only=product.indexer` to catch up on the product indexing that was skipped.
 
 ## API
 

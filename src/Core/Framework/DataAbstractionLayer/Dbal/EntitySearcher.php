@@ -199,26 +199,9 @@ class EntitySearcher implements EntitySearcherInterface
             $partitionColumns[] = 'inner_q.`' . $alias . '`';
         }
 
-        $outer = new QueryBuilder($this->connection);
-
-        foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
-            // the outer query cannot reach the table aliases the expression is built from, so it travels as a column
-            $alias = Criteria::SCORE_FIELD;
-            if ($expression !== Criteria::SCORE_FIELD) {
-                $alias = '_sort_' . $i;
-                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($alias));
-            }
-
-            $outer->addOrderBy('ranked.' . EntityDefinitionQueryHelper::escape($alias), $direction);
-        }
-
-        $query->resetOrderBy();
+        $outer = $this->createOuterQuery($query, $fields, 'ranked');
 
         $innerSql = $query->getSQL();
-
-        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
-            $outer->addSelect('ranked.' . EntityDefinitionQueryHelper::escape($column));
-        }
 
         $outer->from(\sprintf(
             '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, %s) as _rn FROM (%s) inner_q)',
@@ -237,27 +220,38 @@ class EntitySearcher implements EntitySearcherInterface
      */
     private function buildWindowTotalQuery(QueryBuilder $query, array $fields): QueryBuilder
     {
+        $outer = $this->createOuterQuery($query, $fields, 'counted');
+
+        $outer->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
+            ->from('(' . $query->getSQL() . ')', 'counted')
+            ->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        return $outer;
+    }
+
+    /**
+     * @param array<string, Field> $fields keyed by storage name
+     */
+    private function createOuterQuery(QueryBuilder $query, array $fields, string $alias): QueryBuilder
+    {
         $outer = new QueryBuilder($this->connection);
 
         foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
-            $alias = Criteria::SCORE_FIELD;
+            // the outer query cannot reach the table aliases the expression is built from, so it travels as a column
+            $column = Criteria::SCORE_FIELD;
             if ($expression !== Criteria::SCORE_FIELD) {
-                $alias = '_sort_' . $i;
-                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($alias));
+                $column = '_sort_' . $i;
+                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($column));
             }
 
-            $outer->addOrderBy('counted.' . EntityDefinitionQueryHelper::escape($alias), $direction);
+            $outer->addOrderBy($alias . '.' . EntityDefinitionQueryHelper::escape($column), $direction);
         }
 
         $query->resetOrderBy();
 
         foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
-            $outer->addSelect('counted.' . EntityDefinitionQueryHelper::escape($column));
+            $outer->addSelect($alias . '.' . EntityDefinitionQueryHelper::escape($column));
         }
-
-        $outer->addSelect('COUNT(*) OVER() AS ' . EntityDefinitionQueryHelper::escape(self::WINDOW_TOTAL))
-            ->from('(' . $query->getSQL() . ')', 'counted')
-            ->setParameters($query->getParameters(), $query->getParameterTypes());
 
         return $outer;
     }

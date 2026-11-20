@@ -184,14 +184,15 @@ class DocumentGenerator
 
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                // A document generated again only gets the files it is missing and keeps its deep link code,
-                // which customers already have in links.
+                // A document generated again only gets the files it is missing. It keeps its other file, the order version
+                // and config that file was rendered from, and its deep link code, which customers already have in links.
                 $storedDocument = $this->loadStoredDocument($operation, $context);
                 [$storedMediaId, $storedA11yMediaId] = Feature::silent('v6.9.0.0', static fn (): array => [
                     $storedDocument?->getDocumentMediaFileId(),
                     $storedDocument?->getDocumentA11yMediaFileId(),
                 ]);
 
+                $orderVersionId = $storedDocument?->getOrderVersionId() ?: $operation->getOrderVersionId();
                 $deepLinkCode = $storedDocument?->getDeepLinkCode() ?? Random::getAlphanumericString(32);
                 $mediaId = $storedMediaId ?? $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $storedA11yMediaId ?? $this->resolveMediaIdForA11y($operation, $context, $document);
@@ -201,10 +202,10 @@ class DocumentGenerator
                     'documentTypeId' => $documentTypeId,
                     'fileType' => $operation->getFileType(),
                     'orderId' => $operation->getOrderId(),
-                    'orderVersionId' => $operation->getOrderVersionId(),
+                    'orderVersionId' => $orderVersionId,
                     'static' => $operation->isStatic(),
                     'documentMediaFileId' => $mediaId,
-                    'config' => $document->getConfig(),
+                    'config' => $storedDocument?->getConfig() ?? $document->getConfig(),
                     'deepLinkCode' => $deepLinkCode,
                     'referencedDocumentId' => $operation->getReferencedDocumentId(),
                     'documentA11yMediaFileId' => $mediaIdForHtmlA11y,
@@ -213,7 +214,7 @@ class DocumentGenerator
                 $generatedDocuments[] = [
                     'id' => $id,
                     'orderId' => $operation->getOrderId(),
-                    'orderVersionId' => $operation->getOrderVersionId(),
+                    'orderVersionId' => $orderVersionId,
                     'documentNumber' => $document->getNumber(),
                 ];
 

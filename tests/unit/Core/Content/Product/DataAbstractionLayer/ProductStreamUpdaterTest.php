@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamMappingIndex
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductStreamUpdater;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Defaults;
@@ -32,6 +33,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -388,7 +390,8 @@ class ProductStreamUpdaterTest extends TestCase
         $updater->handle($message);
     }
 
-    public function testHandleLoadsStreamPageByPage(): void
+    #[DataProvider('searchPageSizeProvider')]
+    public function testHandleLoadsStreamPageByPage(?bool $elasticsearchEnabled, ?int $maxResultWindow, int $pageSize): void
     {
         $message = new ProductStreamMappingIndexingMessage(Uuid::randomHex());
 
@@ -412,24 +415,25 @@ class ProductStreamUpdaterTest extends TestCase
         $connection
             ->expects($this->once())
             ->method('transactional')
-            ->withAnyParameters();
+            ->withAnyParameters()
+            ->willReturnCallback(static fn (callable $operation) => $operation());
 
-        $firstPage = array_map(static fn () => Uuid::randomHex(), range(1, 1000));
+        $firstPage = array_map(static fn () => Uuid::randomHex(), range(1, $pageSize));
         $allMatches = [...$firstPage, Uuid::randomHex()];
 
         $definition = new ProductDefinition();
         $repository = StaticEntityRepository::of(ProductCollection::class, [
-            static function (Criteria $criteria) use ($firstPage): array {
+            static function (Criteria $criteria) use ($firstPage, $pageSize): array {
                 static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                static::assertSame(1000, $criteria->getLimit());
+                static::assertSame($pageSize, $criteria->getLimit());
 
                 return self::page($firstPage);
             },
-            static function (Criteria $criteria) use ($allMatches): array {
+            static function (Criteria $criteria) use ($allMatches, $pageSize): array {
                 static::assertTrue($criteria->hasState(Criteria::STATE_ELASTICSEARCH_AWARE));
-                static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => 1000]), $criteria->getFilters()['increment']);
+                static::assertEquals(new RangeFilter('autoIncrement', [RangeFilter::GT => $pageSize]), $criteria->getFilters()['increment']);
 
-                return self::page([$allMatches[1000]], 1001);
+                return self::page([$allMatches[$pageSize]], $pageSize + 1);
             },
         ], $definition);
 
@@ -449,11 +453,46 @@ class ProductStreamUpdaterTest extends TestCase
             $manyToManyFieldUpdater,
             $this->createDefaultLanguageRepo(),
             true,
+            parameterBag: new ParameterBag($elasticsearchEnabled === null ? [] : [
+                'elasticsearch.enabled' => $elasticsearchEnabled,
+                'elasticsearch.index_settings.max_result_window' => $maxResultWindow,
+            ]),
         );
 
         $updater->handle($message);
 
         static::assertSame($allMatches, $updatedIds);
+    }
+
+    /**
+     * @return iterable<string, array{?bool, ?int, int}>
+     */
+    public static function searchPageSizeProvider(): iterable
+    {
+        yield 'without OpenSearch the batch is capped at 50k' => [null, null, 50000];
+        yield 'disabled OpenSearch does not restrict SQL batches' => [false, 500, 50000];
+        yield 'small result windows are respected' => [true, 500, 500];
+        yield 'the default OpenSearch window limits the batch to 10k' => [true, 10000, 10000];
+        yield 'larger OpenSearch windows do not exceed the 50k cap' => [true, 100000, 50000];
+    }
+
+    public function testRejectsAnEmptyResultWindow(): void
+    {
+        $this->expectExceptionObject(ProductException::invalidStreamResultWindow(0));
+
+        new ProductStreamUpdater(
+            static::createStub(Connection::class),
+            new ProductDefinition(),
+            StaticEntityRepository::of(ProductCollection::class, []),
+            static::createStub(MessageBusInterface::class),
+            static::createStub(ManyToManyIdFieldUpdater::class),
+            $this->createDefaultLanguageRepo(),
+            indexingEnabled: true,
+            parameterBag: new ParameterBag([
+                'elasticsearch.enabled' => true,
+                'elasticsearch.index_settings.max_result_window' => 0,
+            ]),
+        );
     }
 
     public function testUpdateProductsSkipsInvalidFilter(): void
@@ -657,7 +696,7 @@ class ProductStreamUpdaterTest extends TestCase
     private static function firstPageCriteria(Criteria $criteria): Criteria
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
-        $criteria->setLimit(1000);
+        $criteria->setLimit(50000);
         $criteria->addSorting(new FieldSorting('autoIncrement', FieldSorting::ASCENDING));
         $criteria->setFilter('increment', new RangeFilter('autoIncrement', [RangeFilter::GTE => 0]));
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);

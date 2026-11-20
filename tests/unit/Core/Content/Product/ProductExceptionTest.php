@@ -15,6 +15,16 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(ProductException::class)]
 class ProductExceptionTest extends TestCase
 {
+    public function testInvalidStreamResultWindow(): void
+    {
+        $exception = ProductException::invalidStreamResultWindow(0);
+
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+        static::assertSame(ProductException::INVALID_STREAM_RESULT_WINDOW, $exception->getErrorCode());
+        static::assertSame('Product stream result window must be greater than zero, 0 given.', $exception->getMessage());
+        static::assertSame(['window' => 0], $exception->getParameters());
+    }
+
     public function testInvalidCheapestPriceFacade(): void
     {
         $productId = 'product-id-1';

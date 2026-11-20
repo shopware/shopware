@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Mcp\Tool;
 
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -43,11 +45,36 @@ class StoreApiToolsetsListToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new StoreApiToolsetsListTool($registry, $storage, $requestStack, new McpRequestedToolsetResolver($requestStack));
-        $result = json_decode($tool(), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool();
 
-        static::assertTrue($result['success']);
-        static::assertSame('store-api', $result['data']['toolsets'][0]['name']);
-        static::assertTrue($result['data']['toolsets'][0]['enabled']);
-        static::assertSame('tool-groups', $result['_meta']['taxonomy']);
+        static::assertFalse($result->isError());
+        static::assertSame('store-api', $result->data['toolsets'][0]['name']);
+        static::assertTrue($result->data['toolsets'][0]['enabled']);
+        static::assertSame('tool-groups', $result->meta['taxonomy']);
+    }
+
+    public function testIsUnavailableOnTheStatelessEra(): void
+    {
+        $registry = $this->createMock(McpToolsetRegistry::class);
+        $registry->expects($this->never())->method('toolsets');
+
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest());
+
+        $tool = new StoreApiToolsetsListTool($registry, static::createStub(McpToolsetSessionStorage::class), $requestStack, new McpRequestedToolsetResolver($requestStack));
+        $result = $tool();
+
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('?toolsets=', $result->error->message);
+    }
+
+    private static function statelessRequest(): Request
+    {
+        return Request::create('/store-api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

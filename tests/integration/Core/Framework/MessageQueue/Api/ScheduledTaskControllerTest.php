@@ -50,8 +50,8 @@ class ScheduledTaskControllerTest extends TestCase
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
@@ -81,8 +81,8 @@ class ScheduledTaskControllerTest extends TestCase
         static::assertSame(200, $client->getResponse()->getStatusCode());
         static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
 
-        /** @var ScheduledTaskEntity $task */
         $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 

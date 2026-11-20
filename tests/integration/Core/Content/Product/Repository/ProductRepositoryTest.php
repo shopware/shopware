@@ -1037,25 +1037,19 @@ class ProductRepositoryTest extends TestCase
         static::assertSame($parentName, $green->getTranslated()['name']);
         static::assertNull($green->getName());
 
-        /** @var array{price: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR));
+        $price = $this->connection->fetchOne('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
+        static::assertIsString($price);
+        static::assertEquals(['c' . Defaults::CURRENCY => $parentPrice], json_decode($price, true, 512, \JSON_THROW_ON_ERROR));
 
-        /** @var array{name: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT `name` FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertSame($parentName, $row['name']);
+        static::assertSame($parentName, $this->connection->fetchOne('SELECT `name` FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]));
 
-        /** @var array{price: string|null} $row */
-        $row = $this->connection->fetchAssociative('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertNull($row['price']);
+        static::assertNull($this->connection->fetchOne('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]));
 
-        /** @var array{name: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT `name` FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertSame($redName, $row['name']);
+        static::assertSame($redName, $this->connection->fetchOne('SELECT `name` FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]));
 
-        /** @var array{price: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR));
+        $price = $this->connection->fetchOne('SELECT `price` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
+        static::assertIsString($price);
+        static::assertEquals(['c' . Defaults::CURRENCY => $greenPrice], json_decode($price, true, 512, \JSON_THROW_ON_ERROR));
 
         $row = $this->connection->fetchAssociative('SELECT * FROM product_translation WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
         static::assertFalse($row);
@@ -1161,12 +1155,9 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        /** @var array{parent_id: string|null} $raw */
-        $raw = $this->connection->fetchAssociative('SELECT `parent_id` FROM product WHERE id = :id', [
+        static::assertNull($this->connection->fetchOne('SELECT `parent_id` FROM product WHERE id = :id', [
             'id' => Uuid::fromHexToBytes($child),
-        ]);
-
-        static::assertNull($raw['parent_id']);
+        ]));
 
         $criteria = new Criteria([$child]);
         $criteria->addAssociation('manufacturer');
@@ -1265,12 +1256,9 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->upsert($data, Context::createDefaultContext());
 
-        /** @var array{parent_id: string|null} $raw */
-        $raw = $this->connection->fetchAssociative('SELECT `parent_id` FROM product WHERE id = :id', [
+        static::assertNull($this->connection->fetchOne('SELECT `parent_id` FROM product WHERE id = :id', [
             'id' => Uuid::fromHexToBytes($child),
-        ]);
-
-        static::assertNull($raw['parent_id']);
+        ]));
 
         $criteria = new Criteria([$child]);
         $criteria->addAssociation('manufacturer');
@@ -1373,26 +1361,26 @@ class ProductRepositoryTest extends TestCase
         static::assertSame($parentTaxId, $red->getTaxId());
         static::assertSame($greenTaxId, $green->getTaxId());
 
-        /** @var array{price: string, tax_id: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT `price`, `tax_id` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-
+        $row = $this->connection->fetchAssociative('SELECT `price`, LOWER(HEX(`tax_id`)) AS `tax_id` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
+        static::assertIsArray($row);
+        static::assertIsString($row['price']);
         static::assertEquals(
             [
                 'c' . Defaults::CURRENCY => ['net' => 9, 'gross' => 10, 'linked' => true, 'currencyId' => Defaults::CURRENCY],
             ],
             json_decode($row['price'], true, 512, \JSON_THROW_ON_ERROR)
         );
-        static::assertSame($parentTaxId, Uuid::fromBytesToHex($row['tax_id']));
+        static::assertSame($parentTaxId, $row['tax_id']);
 
-        /** @var array{price: string|null, tax_id: string|null} $row */
-        $row = $this->connection->fetchAssociative('SELECT `price`, `tax_id` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertNull($row['price']);
-        static::assertNull($row['tax_id']);
+        static::assertSame(
+            ['price' => null, 'tax_id' => null],
+            $this->connection->fetchAssociative('SELECT `price`, LOWER(HEX(`tax_id`)) AS `tax_id` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)])
+        );
 
-        /** @var array{price: string|null, tax_id: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT `price`, `tax_id` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertNull($row['price']);
-        static::assertSame($greenTaxId, Uuid::fromBytesToHex($row['tax_id']));
+        static::assertSame(
+            ['price' => null, 'tax_id' => $greenTaxId],
+            $this->connection->fetchAssociative('SELECT `price`, LOWER(HEX(`tax_id`)) AS `tax_id` FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)])
+        );
 
         $criteria = new Criteria([$redId, $greenId]);
         $criteria->addAssociation('tax');
@@ -1568,17 +1556,11 @@ class ProductRepositoryTest extends TestCase
         static::assertCount(1, $redMedia);
         static::assertTrue($redMedia->has($parentMediaId));
 
-        /** @var array{media_id: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT media_id FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
-        static::assertSame($parentMediaId, Uuid::fromBytesToHex($row['media_id']));
+        static::assertSame($parentMediaId, $this->connection->fetchOne('SELECT LOWER(HEX(media_id)) FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($parentId)]));
 
-        /** @var array{media_id: string}|false $row */
-        $row = $this->connection->fetchAssociative('SELECT media_id FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
-        static::assertFalse($row);
+        static::assertFalse($this->connection->fetchOne('SELECT LOWER(HEX(media_id)) FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($redId)]));
 
-        /** @var array{media_id: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT media_id FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
-        static::assertSame($greenMediaId, Uuid::fromBytesToHex($row['media_id']));
+        static::assertSame($greenMediaId, $this->connection->fetchOne('SELECT LOWER(HEX(media_id)) FROM product_media WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($greenId)]));
     }
 
     public function testActiveInheritance(): void
@@ -1833,20 +1815,23 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(CategoryCollection::class, $greenCategories);
         static::assertSame([$greenCategory], array_values($greenCategories->getIds()));
 
-        /** @var array{category_tree: string, categories: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
+        $row = $this->connection->fetchAssociative('SELECT category_tree, LOWER(HEX(categories)) AS categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($parentId)]);
+        static::assertIsArray($row);
+        static::assertIsString($row['category_tree']);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
-        static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
+        static::assertSame($parentId, $row['categories']);
 
-        /** @var array{category_tree: string, categories: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
+        $row = $this->connection->fetchAssociative('SELECT category_tree, LOWER(HEX(categories)) AS categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($redId)]);
+        static::assertIsArray($row);
+        static::assertIsString($row['category_tree']);
         static::assertContains($parentCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
-        static::assertSame($parentId, Uuid::fromBytesToHex($row['categories']));
+        static::assertSame($parentId, $row['categories']);
 
-        /** @var array{category_tree: string, categories: string} $row */
-        $row = $this->connection->fetchAssociative('SELECT category_tree, categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
+        $row = $this->connection->fetchAssociative('SELECT category_tree, LOWER(HEX(categories)) AS categories FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($greenId)]);
+        static::assertIsArray($row);
+        static::assertIsString($row['category_tree']);
         static::assertContains($greenCategory, json_decode($row['category_tree'], true, 512, \JSON_THROW_ON_ERROR));
-        static::assertSame($greenId, Uuid::fromBytesToHex($row['categories']));
+        static::assertSame($greenId, $row['categories']);
     }
 
     public function testVariantInheritanceWithCategoriesAndFilters(): void

@@ -58,7 +58,7 @@ function expectedCurrentSeoUrl({ routeName, pathInfo, salesChannelId, foreignKey
     return { foreignKey, isCanonical: true, languageId: LANGUAGE_ID, pathInfo, routeName, salesChannelId, isModified: true };
 }
 
-async function createWrapper() {
+async function createWrapper(stubs = {}) {
     return mount(await wrapTestComponent('sw-seo-url', { sync: true }), {
         global: {
             renderStubDefaultSlot: true,
@@ -67,12 +67,24 @@ async function createWrapper() {
                 'sw-sales-channel-switch': true,
                 'sw-text-field': true,
                 'sw-inherit-wrapper': true,
+                ...stubs,
             },
             provide: {
                 repositoryFactory: {
                     create: (entity) => ({
-                        search: () =>
-                            Promise.resolve(entity === 'sales_channel' ? createEntityCollection(SALES_CHANNELS) : []),
+                        search: (criteria) => {
+                            if (entity !== 'sales_channel') {
+                                return Promise.resolve([]);
+                            }
+
+                            const { ids } = criteria;
+
+                            return Promise.resolve(
+                                createEntityCollection(
+                                    ids.length ? SALES_CHANNELS.filter(({ id }) => ids.includes(id)) : SALES_CHANNELS,
+                                ),
+                            );
+                        },
                         create: () => ({}),
                         schema: { entity: {} },
                     }),
@@ -318,5 +330,34 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         expect(wrapper.vm.headlessExternalStorefrontUrl).toBeNull();
         expect(wrapper.vm.seoUrlHelptext).toBeNull();
         expect(wrapper.vm.allowInput).toBe(true);
+    });
+
+    it('loads a selected sales channel that is not part of the initially loaded sales channels', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper({
+            'mt-card': { template: '<div><slot name="toolbar"></slot><slot></slot></div>' },
+            'sw-inherit-wrapper': {
+                template: '<div><slot name="content" v-bind="{ isInherited: false, currentValue: null }"></slot></div>',
+            },
+            'mt-text-field': {
+                props: ['disabled', 'disableInheritanceToggle', 'helpText'],
+                template: '<input class="mt-text-field">',
+            },
+        });
+        await flushPromises();
+        // with many sales channels, the initially loaded page does not contain every sales channel
+        setSalesChannels([SALES_CHANNELS[0]]);
+        await wrapper.setData({ showEmptySeoUrlError: false });
+
+        wrapper
+            .findComponent('sw-sales-channel-switch-stub')
+            .vm.$emit('change-sales-channel-id', PRODUCT_COMPARISON_SALES_CHANNEL_ID);
+        await flushPromises();
+
+        expect(Shopware.Store.get('swSeoUrl').salesChannelCollection.has(PRODUCT_COMPARISON_SALES_CHANNEL_ID)).toBe(true);
+        const seoPathField = wrapper.findComponent('.mt-text-field');
+        expect(seoPathField.props('disabled')).toBe(true);
+        expect(seoPathField.props('disableInheritanceToggle')).toBe(true);
+        expect(seoPathField.props('helpText')).toBe('sw-seo-url.textSeoUrlsNotSupported');
     });
 });

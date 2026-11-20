@@ -10,7 +10,6 @@ import './sw-condition-line-item-goods-total.scss';
  * @component-example
  * <sw-condition-line-item-goods-total :condition="condition" :level="0"></sw-condition-line-item-goods-total>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

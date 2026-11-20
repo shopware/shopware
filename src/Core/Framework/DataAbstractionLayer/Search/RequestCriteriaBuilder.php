@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -249,10 +252,31 @@ class RequestCriteriaBuilder
                     continue;
                 }
 
+                if (!\is_string($propertyName)) {
+                    throw FrameworkException::associationNotFound((string) $propertyName);
+                }
+
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw FrameworkException::associationNotFound((string) $propertyName);
+                    throw FrameworkException::associationNotFound($propertyName);
+                }
+
+                try {
+                    EntityDefinitionQueryHelper::validateFieldIsApiAware($field, $propertyName, $context);
+                } catch (ApiProtectionException $exception) {
+                    // @deprecated tag:v6.8.0 - Always reject non-visible requested associations.
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw $exception;
+                    }
+
+                    Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
+                        'Requesting the association "%s.%s" is deprecated because it is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested associations.',
+                        $definition->getEntityName(),
+                        $propertyName,
+                    ));
+
+                    continue;
                 }
 
                 $ref = $field->getReferenceDefinition();
@@ -271,7 +295,29 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['fields'])) {
-            $criteria->addFields($payload['fields']);
+            $fields = [];
+            foreach ($payload['fields'] as $accessor) {
+                try {
+                    EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
+                } catch (ApiProtectionException $exception) {
+                    // @deprecated tag:v6.8.0 - Always reject fields traversing non-visible associations.
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw $exception;
+                    }
+
+                    Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
+                        'Requesting the field "%s.%s" is deprecated because it traverses an association that is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested fields.',
+                        $definition->getEntityName(),
+                        $accessor,
+                    ));
+
+                    continue;
+                }
+
+                $fields[] = $accessor;
+            }
+
+            $criteria->addFields($fields);
         }
 
         $searchException->tryToThrow();

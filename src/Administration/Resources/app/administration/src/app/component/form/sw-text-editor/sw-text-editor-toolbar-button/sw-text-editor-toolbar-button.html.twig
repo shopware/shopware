@@ -69,15 +69,29 @@
         class="sw-text-editor-toolbar-button__children"
         :class="getDropdownClasses(buttonConfig)"
     >
+        {% block sw_text_editor_toolbar_button_child_search %}
+        <label
+            v-if="buttonConfig.searchable"
+            class="sw-text-editor-toolbar-button__children-search"
+        >
+            <span class="visually-hidden">{{ $t('sw-text-editor-toolbar.childSearch.label') }}</span>
+            <mt-search
+                v-model="childSearchTerm"
+                size="small"
+                :placeholder="$t('sw-text-editor-toolbar.childSearch.placeholder')"
+            />
+        </label>
+        {% endblock %}
+
         <div class="sw-text-editor-toolbar-button__children-inner-container">
             <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
             <div
-                v-for="(child, childIndex) in buttonConfig.children"
+                v-for="(child, childIndex) in filteredChildren"
                 :key="childIndex"
                 v-tooltip.right="getTooltipConfig(buttonConfig, child)"
                 :class="childActive(child)"
                 class="sw-text-editor-toolbar-button__children-child"
-                @click="handleButtonClick(child)"
+                @click="handleChildClick(child)"
             >
                 {% block sw_text_editor_toolbar_button_child_item %}
                 <div>
@@ -94,6 +108,15 @@
                 </div>
                 {% endblock %}
             </div>
+
+            {% block sw_text_editor_toolbar_button_child_search_empty %}
+            <div
+                v-if="showChildSearchEmptyState"
+                class="sw-text-editor-toolbar-button__children-empty"
+            >
+                {{ $t('sw-text-editor-toolbar.childSearch.noResults') }}
+            </div>
+            {% endblock %}
         </div>
     </div>
     {% endblock %}

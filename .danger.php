@@ -13,7 +13,6 @@ use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\LegacyTestsInSrc;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingIntegrationTestInSplitSuite;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingMigrationTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingPackageAttributeInTests;
-use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingPullRequestDescription;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingReleaseInfo;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\MissingUnitTests;
 use Shopware\Core\DevOps\StaticAnalyze\Danger\Rules\PhpstanBaselineGrowth;
@@ -36,7 +35,6 @@ return (new Config())
     ->useThreadOn(Config::REPORT_LEVEL_WARNING)
     ->useRule(new DangerConfigChanged())
     ->useRule(new InlineRuleInDangerConfig())
-    ->useRule(new MissingPullRequestDescription())
     ->useRule(new DeprecatedChangelogFormat())
     ->useRule(new MissingReleaseInfo())
     ->useRule(new IgnoredPhpstanErrorsInTouchedFiles())

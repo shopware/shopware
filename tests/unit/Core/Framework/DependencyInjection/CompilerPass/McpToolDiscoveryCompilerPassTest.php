@@ -91,6 +91,24 @@ class McpToolDiscoveryCompilerPassTest extends TestCase
         static::assertFalse($container->hasDefinition('tool.blocked'));
     }
 
+    public function testAllowlistRecordsTheGroupsItTrimmed(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter('shopware.mcp.allowed_tools', ['shopware-discovery-core-tool']);
+
+        foreach ([
+            'tool.allowed' => McpDiscoveryTestCoreTool::class,
+            'tool.grouped' => McpDiscoveryTestDiscoveryGroupTool::class,
+            'tool.ungrouped' => McpDiscoveryTestNamespacedTool::class,
+        ] as $serviceId => $class) {
+            $container->setDefinition($serviceId, (new Definition($class))->addTag('mcp.tool'));
+        }
+
+        (new McpToolDiscoveryCompilerPass())->process($container);
+
+        static::assertSame(['discovery'], $container->getParameter(McpToolDiscoveryCompilerPass::TRIMMED_TOOL_GROUPS_PARAMETER));
+    }
+
     public function testEmptyAllowlistKeepsAllTools(): void
     {
         $container = $this->createContainer();

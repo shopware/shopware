@@ -89,6 +89,11 @@ class OrderApiService extends ApiService {
      * @deprecated tag:v6.8.0 - Will be removed. Use `applyAutomaticPromotions` instead
      */
     toggleAutomaticPromotions(orderId, versionId, skipAutomaticPromotions, additionalParams = {}, additionalHeaders = {}) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'orderApiService.toggleAutomaticPromotions() is deprecated. Use `applyAutomaticPromotions` instead.',
+        );
+
         const route = `_action/order/${orderId}/toggleAutomaticPromotions`;
         const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
 

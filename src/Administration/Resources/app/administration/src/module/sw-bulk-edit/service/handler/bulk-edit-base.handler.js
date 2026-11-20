@@ -176,6 +176,12 @@ class BulkEditBaseHandler {
             return;
         }
 
+        if (change.inheritFromParentId && fieldDefinition.mapping) {
+            await this._handleInheritedManyToManyChange(fieldDefinition, change);
+
+            return;
+        }
+
         const { mapping, entity, local, reference, localField, referenceField } = fieldDefinition;
 
         const isMappingField = !!mapping;
@@ -312,6 +318,90 @@ class BulkEditBaseHandler {
                 }
             });
         });
+    }
+
+    /**
+     * @private
+     */
+    async _handleInheritedManyToManyChange(fieldDefinition, change) {
+        const { mapping, local, reference, referenceField } = fieldDefinition;
+        const parentId = change.inheritFromParentId;
+
+        this.groupedPayload.delete[mapping] = {};
+        this.groupedPayload.upsert[mapping] = {};
+
+        const changeValue = Array.isArray(change.value) ? change.value : [change.value];
+        const selectedIds = changeValue.filter(Boolean).map((item) => item[referenceField]);
+
+        if (selectedIds.length === 0) {
+            return;
+        }
+
+        const referenceIdsByLocalId = await this._fetchManyToManyReferenceIds(fieldDefinition, [
+            ...this.entityIds,
+            parentId,
+        ]);
+        const parentReferenceIds = referenceIdsByLocalId[parentId] ?? [];
+
+        this.entityIds.forEach((entityId) => {
+            const ownReferenceIds = referenceIdsByLocalId[entityId] ?? [];
+            const baseReferenceIds = ownReferenceIds.length > 0 ? ownReferenceIds : parentReferenceIds;
+
+            const finalReferenceIds =
+                change.type === bulkSyncTypes.REMOVE
+                    ? baseReferenceIds.filter((referenceId) => !selectedIds.includes(referenceId))
+                    : [...new Set([...baseReferenceIds, ...selectedIds])];
+
+            if (ownReferenceIds.length === 0 && finalReferenceIds.length === baseReferenceIds.length) {
+                return;
+            }
+
+            ownReferenceIds.forEach((referenceId) => {
+                if (!finalReferenceIds.includes(referenceId)) {
+                    this.groupedPayload.delete[mapping][`${referenceId}.${entityId}`] = [
+                        {
+                            [local]: entityId,
+                            [reference]: referenceId,
+                        },
+                    ];
+                }
+            });
+
+            finalReferenceIds.forEach((referenceId) => {
+                if (!ownReferenceIds.includes(referenceId)) {
+                    this.groupedPayload.upsert[mapping][`${referenceId}.${entityId}`] = [
+                        {
+                            [reference]: referenceId,
+                            [local]: entityId,
+                        },
+                    ];
+                }
+            });
+        });
+    }
+
+    /**
+     * @private
+     */
+    async _fetchManyToManyReferenceIds(fieldDefinition, localIds, page = 1, referenceIdsByLocalId = {}) {
+        const { mapping, local, reference } = fieldDefinition;
+
+        const criteria = new Criteria(page, 500);
+        criteria.addFilter(Criteria.equalsAny(local, localIds));
+
+        const mappingIds = await this.repositoryFactory.create(mapping).searchIds(criteria);
+
+        mappingIds.data.forEach(({ [local]: localId, [reference]: referenceId }) => {
+            (referenceIdsByLocalId[localId] ??= []).push(referenceId);
+        });
+
+        const fetched = Object.values(referenceIdsByLocalId).reduce((acc, referenceIds) => acc + referenceIds.length, 0);
+
+        if (mappingIds.data.length > 0 && mappingIds.total > fetched) {
+            return this._fetchManyToManyReferenceIds(fieldDefinition, localIds, page + 1, referenceIdsByLocalId);
+        }
+
+        return referenceIdsByLocalId;
     }
 
     /**

@@ -9,6 +9,12 @@ const { chunk } = Shopware.Utils.array;
 const { cloneDeep } = Shopware.Utils.object;
 const { convert } = Shopware.Utils.unitConversion;
 
+const inheritedManyToManyFields = [
+    'properties',
+    'categories',
+    'tags',
+];
+
 /**
  * @sw-package inventory
  */
@@ -1326,6 +1332,10 @@ export default {
                     this.transformVariantVisibilityChange(change);
                 }
 
+                if (this.isChild && ['add', 'remove'].includes(bulkEditField.type)) {
+                    this.flagInheritedManyToManyChange(change);
+                }
+
                 if (this.isChild && change.value !== null && types.isArray(change.value)) {
                     change.value.forEach((association) => {
                         delete association.id;
@@ -1349,6 +1359,12 @@ export default {
 
             if (hasRegulationPrice) {
                 this.processRegulationPrice();
+            }
+        },
+
+        flagInheritedManyToManyChange(change) {
+            if (inheritedManyToManyFields.includes(change.field)) {
+                change.inheritFromParentId = this.$route.params.parentId;
             }
         },
 

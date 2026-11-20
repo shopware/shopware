@@ -39,14 +39,8 @@ export default {
             filterCriteria: [],
             // @deprecated tag:v6.8.0 - Will be removed
             productTypeOptions: [
-                {
-                    label: this.$t('sw-product.type.physical'),
-                    value: 'physical',
-                },
-                {
-                    label: this.$t('sw-product.type.digital'),
-                    value: 'digital',
-                },
+                { label: this.$t('sw-product.type.physical'), value: 'physical' },
+                { label: this.$t('sw-product.type.digital'), value: 'digital' },
             ],
             defaultFilters: [
                 'product-number-filter',

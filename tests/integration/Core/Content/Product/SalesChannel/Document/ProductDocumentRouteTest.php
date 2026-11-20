@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Document;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductException;
@@ -11,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -224,9 +227,12 @@ class ProductDocumentRouteTest extends TestCase
 
         static::getContainer()->get('product.repository')->create([$drill, $saw, $hidden], $context);
 
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE media SET private = 1 WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList([$this->ids->get('certificate'), $this->ids->get('datenblatt')])],
+            ['ids' => ArrayParameterType::BINARY],
+        );
         static::getContainer()->get('media.repository')->update([
-            ['id' => $this->ids->get('certificate'), 'private' => true],
-            ['id' => $this->ids->get('datenblatt'), 'private' => true],
             ['id' => $this->ids->get('certificate-copy'), 'path' => null],
         ], $context);
     }

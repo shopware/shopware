@@ -10,4 +10,17 @@ component sw-settings-rule-tree  private  js  [private]
   registered src/module/sw-settings-rule/index.js  [private]
   source src/module/sw-settings-rule/component/sw-settings-rule-tree/index.js  [private]
   visibility-source export  [private]
+
+blocks
+  sw_tree  [inherited] [private]
+    sw_tree_actions_headline  [inherited] [private]
+    sw_tree_content  [inherited] [private]
+      sw_tree_items  [inherited] [private]
+        sw_tree_slot_items  [inherited] [private]
+    sw_tree_delete_modal  [inherited] [private]
+      sw_tree_delete_modal_confirm_delete_text  [inherited] [private]
+      sw_tree_delete_modal_footer  [inherited] [private]
+        sw_tree_delete_modal_cancel  [inherited] [private]
+        sw_tree_delete_modal_confirm  [inherited] [private]
+    sw_tree_search  [inherited] [private]
 ```

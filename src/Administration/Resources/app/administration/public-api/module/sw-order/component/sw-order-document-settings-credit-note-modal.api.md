@@ -12,8 +12,24 @@ component sw-order-document-settings-credit-note-modal  public  js
   template src/module/sw-order/component/sw-order-document-settings-credit-note-modal/sw-order-document-settings-credit-note-modal.html.twig
 
 blocks
-  sw_order_document_settings_modal_form_first_row
-    sw_order_document_settings_modal_form_credit_document_number
-    sw_order_document_settings_modal_form_document_date
-    sw_order_document_settings_modal_form_document_select_invoice
+  sw_order_document_settings_modal  [inherited]
+    sw_order_document_settings_modal_form_additional_content  [inherited]
+    sw_order_document_settings_modal_form_document_comment  [inherited]
+    sw_order_document_settings_modal_form_document_footer  [inherited]
+      sw_order_document_settings_modal_form_document_footer_cancel  [inherited]
+      sw_order_document_settings_modal_form_document_footer_preview  [inherited]
+      sw_order_document_settings_modal_form_document_footer_split_button  [inherited]
+        sw_order_document_settings_modal_form_document_footer_split_button_context  [inherited]
+          sw_order_document_settings_modal_form_document_footer_split_button_context_arrow  [inherited]
+          sw_order_document_settings_modal_form_document_footer_split_button_context_create_download  [inherited]
+          sw_order_document_settings_modal_form_document_footer_split_button_context_create_send  [inherited]
+        sw_order_document_settings_modal_form_document_footer_split_button_create  [inherited]
+    sw_order_document_settings_modal_form_file_upload  [inherited]
+      sw_order_document_settings_modal_form_file_upload_input  [inherited]
+      sw_order_document_settings_modal_form_file_upload_toggle  [inherited]
+    sw_order_document_settings_modal_form_first_row  [replaced]
+      sw_order_document_settings_modal_form_credit_document_number
+      sw_order_document_settings_modal_form_document_date
+      sw_order_document_settings_modal_form_document_select_invoice
+    sw_order_document_settings_modal_media_modal  [inherited]
 ```

@@ -28,10 +28,6 @@ on:
         type: boolean
         default: false
 
-env:
-  # Temporary PHP 8.6 testing: include Composer calls nested inside setup-shopware.
-  COMPOSER_IGNORE_PLATFORM_REQ: php
-
 permissions:
   contents: read
 

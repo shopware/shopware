@@ -52,7 +52,7 @@ test(
 
         await test.step('Select the other customer address as the shipping address and save.', async () => {
             const addressUpdate = waitForOrderAddressUpdate(ShopAdmin.page, order.id);
-            await ShopAdmin.attemptsTo(ChangeOrderShippingAddress(order.id, shippingStreet));
+            await ShopAdmin.attemptsTo(ChangeOrderShippingAddress(order.id, versionId, shippingStreet));
 
             const updateResponse = await addressUpdate;
             expect(updateResponse.request().headers()['sw-version-id']).toBe(versionId);

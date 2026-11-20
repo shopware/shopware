@@ -2808,6 +2808,12 @@ The computed property `gridPreSelection` and the method `selectInGrid()` of the 
 The modal selects layouts with a Meteor radio group in both views and no longer uses the data grid's selection column.
 Set `selectedPageObject` through `selectItem(page)` or `onSelectPage(pageId)` instead.
 
+## Removed `sw-product-detail.loadLanguage()`
+
+The method `loadLanguage()` of the Administration page `sw-product-detail` was deprecated and is removed.
+The page no longer called it when the content language changed, because the language auto-fetching service loads the content language with its locale into `Shopware.Context.api.language`.
+Read `Shopware.Context.api.language` instead, and watch `Shopware.Context.api.languageId` to react to a language switch.
+
 # Storefront
 
 <details>

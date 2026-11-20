@@ -28,7 +28,6 @@ import template from './sw-step-display.html.twig';
  *   </sw-step-item>
  * </sw-step-display>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

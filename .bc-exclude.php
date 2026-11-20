@@ -143,6 +143,9 @@ return [
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
 
+        // AppException is internal, but its methods are still compared through subclasses that are not marked internal
+        preg_quote('Shopware\Core\Framework\App\AppException', '/') . '(::|#|$)',
+
         // Only thrown during the legacy commercial license sync; all services
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),

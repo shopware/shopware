@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -62,8 +63,13 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame([$this->ids->get('manual-document')], array_column($response['elements'], 'id'));
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove, the Store API rejects requested associations it does not expose
+     */
     public function testLoadLeavesOutTheFilesOfTheTranslations(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->browser->request('POST', '/store-api/product/' . $this->ids->get('saw') . '/documents', [
             'associations' => ['translations' => ['associations' => ['media' => []]]],
         ]);
@@ -77,8 +83,13 @@ class ProductDocumentRouteTest extends TestCase
         }
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove, the Store API rejects requested associations it does not expose
+     */
     public function testLoadLeavesOutTheProductOfTheDocuments(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $this->browser->request('POST', '/store-api/product/' . $this->ids->get('drill') . '/documents', [
             'associations' => ['product' => ['associations' => ['productReviews' => []]]],
         ]);
@@ -87,6 +98,20 @@ class ProductDocumentRouteTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertSame(1, $response['total']);
         static::assertArrayNotHasKey('product', $response['elements'][0]);
+    }
+
+    public function testLoadRejectsAssociationsTheStoreApiDoesNotExpose(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        foreach ([['saw', ['translations' => ['associations' => ['media' => []]]]], ['drill', ['product' => []]]] as [$product, $associations]) {
+            $this->browser->request('POST', '/store-api/product/' . $this->ids->get($product) . '/documents', [
+                'associations' => $associations,
+            ]);
+
+            static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $this->decode()['errors'][0]['code']);
+        }
     }
 
     public function testLoadRejectsCriteriaOnTheProductOfTheDocuments(): void

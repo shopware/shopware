@@ -207,6 +207,11 @@ async function createWrapper({
                     props: ['webhook'],
                     template: '<div class="deliveries-modal"></div>',
                 },
+                'sw-settings-webhook-secret-modal': {
+                    name: 'sw-settings-webhook-secret-modal',
+                    props: ['webhook'],
+                    template: '<div class="secret-modal"></div>',
+                },
                 'mt-badge': {
                     template: '<span class="mt-badge"><slot></slot></span>',
                 },
@@ -438,6 +443,48 @@ describe('src/module/sw-settings-webhook/page/sw-settings-webhook-list', () => {
         await flushPromises();
 
         expect(wrapper.find('.deliveries-modal').exists()).toBe(false);
+    });
+
+    it('offers a signing secret only for webhooks without an app', async () => {
+        const { wrapper } = await createWrapper({ privileges: ['webhook.editor'] });
+
+        expect(wrapper.find('.row-user-webhook .sw-settings-webhook-list__secret-action').exists()).toBe(true);
+        expect(wrapper.find('.row-integration-webhook .sw-settings-webhook-list__secret-action').exists()).toBe(true);
+        expect(wrapper.find('.row-app-integration-webhook .sw-settings-webhook-list__secret-action').exists()).toBe(false);
+        expect(wrapper.find('.row-app-webhook .sw-settings-webhook-list__secret-action').exists()).toBe(false);
+    });
+
+    it('lets a user who is not an admin set the signing secret only of their own webhooks', async () => {
+        const ownWebhook = { ...userWebhook, id: 'own-webhook', ownerUserId: 'current-user-id' };
+        const { wrapper } = await createWrapper({
+            privileges: ['webhook.editor'],
+            webhooks: [ownWebhook, userWebhook, integrationWebhook],
+        });
+
+        expect(
+            wrapper.find('.row-own-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
+        ).toBeUndefined();
+        expect(
+            wrapper.find('.row-user-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
+        ).toBeDefined();
+        expect(
+            wrapper.find('.row-integration-webhook .sw-settings-webhook-list__secret-action').attributes('disabled'),
+        ).toBeDefined();
+    });
+
+    it('opens and closes the signing secret of a webhook', async () => {
+        const { wrapper } = await createWrapper({ isAdmin: true });
+
+        await wrapper.find('.row-user-webhook .sw-settings-webhook-list__secret-action').trigger('click');
+
+        expect(wrapper.findComponent({ name: 'sw-settings-webhook-secret-modal' }).props('webhook')).toEqual(
+            expect.objectContaining({ id: 'user-webhook' }),
+        );
+
+        child(wrapper, 'sw-settings-webhook-secret-modal').vm.$emit('modal-close');
+        await flushPromises();
+
+        expect(wrapper.find('.secret-modal').exists()).toBe(false);
     });
 
     it('lets an admin delete webhooks, except those of apps', async () => {

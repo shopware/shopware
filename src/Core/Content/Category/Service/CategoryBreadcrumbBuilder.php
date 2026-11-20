@@ -167,15 +167,16 @@ class CategoryBreadcrumbBuilder
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
+        $categoryIds = $product->getCategoryIds() ?? [];
+
         $preloadedCategory = $this->getPreloadedMainCategory($product, $context);
         if ($preloadedCategory !== null) {
-            return \in_array($preloadedCategory->getId(), $product->getCategoryIds() ?? [], true)
-                && $this->isCategoryAvailableForCustomer($preloadedCategory, $context)
-                ? $preloadedCategory
-                : null;
-        }
+            if (\in_array($preloadedCategory->getId(), $categoryIds, true) && $this->isCategoryAvailableForCustomer($preloadedCategory, $context)) {
+                return $preloadedCategory;
+            }
 
-        $categoryIds = $product->getCategoryIds() ?? [];
+            return null;
+        }
 
         if ($categoryIds === []) {
             return null;

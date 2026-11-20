@@ -558,10 +558,8 @@ class CacheInvalidationSubscriber
                 ...$this->getCmsPageIdsByBackground($mediaIds),
             ]),
             ...array_map(LandingPageRoute::buildName(...), $this->getLandingPageIdsBySlotConfigOverride($mediaIds)),
-            ...array_map(EntityCacheKeyGenerator::buildProductTag(...), [
-                ...$this->getProductIdsBySlotConfigOverride($mediaIds),
-                ...$this->getProductIdsByManufacturerMedia($mediaIds),
-            ]),
+            ...array_map(EntityCacheKeyGenerator::buildProductTag(...), $this->getProductIdsBySlotConfigOverride($mediaIds)),
+            ...array_map(EntityCacheKeyGenerator::buildManufacturerTag(...), $this->getManufacturerIdsByMedia($mediaIds)),
         ]));
     }
 
@@ -647,24 +645,15 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * The manufacturer logo element of product pages shows the logo of the manufacturer, the detail page of a variant is tagged with its parent
+     * The detail pages of products are tagged with their manufacturer, whose logo they can show
      *
      * @param list<string> $mediaIds
      *
      * @return list<string>
      */
-    private function getProductIdsByManufacturerMedia(array $mediaIds): array
+    private function getManufacturerIdsByMedia(array $mediaIds): array
     {
-        $manufacturerIds = $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM product_manufacturer WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
-        if ($manufacturerIds === []) {
-            return [];
-        }
-
-        return $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT LOWER(HEX(COALESCE(parent_id, id))) FROM product WHERE product_manufacturer_id IN (:ids) AND product_manufacturer_version_id = :version AND version_id = :version',
-            ['ids' => Uuid::fromHexToBytesList($manufacturerIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
+        return $this->fetchIdsByMedia('SELECT LOWER(HEX(id)) FROM product_manufacturer WHERE media_id IN (:ids) AND version_id = :version', $mediaIds);
     }
 
     /**

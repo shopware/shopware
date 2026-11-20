@@ -67,7 +67,7 @@ class MediaReplacementCacheInvalidationTest extends TestCase
 
         $tags = $this->replaceFileAndCollectInvalidatedTags($this->ids->get('media'));
 
-        static::assertContains(EntityCacheKeyGenerator::buildProductTag($this->ids->get('product')), $tags);
+        static::assertContains(EntityCacheKeyGenerator::buildManufacturerTag($this->ids->get('manufacturer')), $tags);
     }
 
     public function testInvalidatesProductListingOfCategoriesOfProductMedia(): void

@@ -168,7 +168,6 @@ class CacheInvalidationSubscriberTest extends TestCase
             'override-variant' => Uuid::randomHex(),
             'override-parent' => Uuid::randomHex(),
             'manufacturer' => Uuid::randomHex(),
-            'manufacturer-product' => Uuid::randomHex(),
         ];
 
         // every lookup is answered by the table it reads
@@ -185,7 +184,6 @@ class CacheInvalidationSubscriberTest extends TestCase
             'FROM product_translation_media_usage' => [$ids['override-variant']],
             'FROM product WHERE id IN' => [$ids['override-parent']],
             'FROM product_manufacturer WHERE media_id' => [$ids['manufacturer']],
-            'FROM product WHERE product_manufacturer_id IN' => [$ids['manufacturer-product']],
         ];
 
         $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn([['product_id' => $ids['product'], 'variant_id' => null]]);
@@ -217,7 +215,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             EntityCacheKeyGenerator::buildCmsTag($ids['block-page']),
             LandingPageRoute::buildName($ids['landing-page']),
             EntityCacheKeyGenerator::buildProductTag($ids['override-parent']),
-            EntityCacheKeyGenerator::buildProductTag($ids['manufacturer-product']),
+            EntityCacheKeyGenerator::buildManufacturerTag($ids['manufacturer']),
         ] as $tag) {
             static::assertContains($tag, $tags);
         }

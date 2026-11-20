@@ -12,7 +12,7 @@ component sw-media-compact-upload-v2  public  js
   template src/app/component/media/sw-media-compact-upload-v2/sw-media-compact-upload-v2.html.twig
 
 blocks
-  sw_media_upload_v2
+  sw_media_upload_v2  [replaced]
     sw_media_upload_v2_compact
       sw_media_upload_v2_compact_button_context_menu
       sw_media_upload_v2_compact_button_file_upload

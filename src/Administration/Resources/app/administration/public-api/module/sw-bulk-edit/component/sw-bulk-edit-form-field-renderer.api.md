@@ -12,6 +12,9 @@ component sw-bulk-edit-form-field-renderer  public  js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer/sw-bulk-edit-form-field-renderer.html.twig
 
 blocks
-  sw_form_field_renderer
+  sw_form_field_renderer  [keepsParent]
     sw_form_field_renderer_inner
+      sw_form_field_renderer_inner  [inherited]
+      sw_form_field_renderer_inner_slot  [inherited]
+      sw_form_field_renderer_scope_slots  [inherited]
 ```

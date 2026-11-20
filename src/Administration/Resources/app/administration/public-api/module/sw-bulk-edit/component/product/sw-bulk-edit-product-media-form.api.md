@@ -12,5 +12,10 @@ component sw-bulk-edit-product-media-form  public  js
   template src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form/sw-bulk-edit-product-media-form.html.twig
 
 blocks
-  sw_product_media_form_cover_preview
+  sw_product_media_form  [inherited]
+    sw_product_media_form_grid  [inherited]
+      sw_product_media_form_cover_preview  [replaced]
+      sw_product_media_form_grid_items  [inherited]
+        sw_product_media_form_grid_item  [inherited]
+    sw_product_media_form_upload  [inherited]
 ```

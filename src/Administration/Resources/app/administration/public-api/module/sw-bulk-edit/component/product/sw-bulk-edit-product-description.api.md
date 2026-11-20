@@ -9,4 +9,13 @@ component sw-bulk-edit-product-description  public  js
   extends sw-text-editor
   registered src/module/sw-bulk-edit/index.js
   source src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-description/index.js
+
+blocks
+  sw_text_editor  [inherited]
+    sw_text_editor_box  [inherited]
+      sw_text_editor_box_content  [inherited]
+      sw_text_editor_box_table_toolbar  [inherited]
+      sw_text_editor_box_toolbar  [inherited]
+      sw_text_editor_box_word_count  [inherited]
+    sw_text_editor_label  [inherited]
 ```

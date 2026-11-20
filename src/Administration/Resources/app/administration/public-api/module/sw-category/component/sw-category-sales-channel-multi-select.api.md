@@ -12,6 +12,23 @@ component sw-category-sales-channel-multi-select  public  js
   template src/module/sw-category/component/sw-category-sales-channel-multi-select/sw-category-sales-channel-multi-select.html.twig
 
 blocks
-  sw_entity_multi_select_base_results_list_result_label
-  sw_entity_multi_select_base_selection_list_label_inner
+  sw_entity_multi_select  [inherited]
+    sw_entity_multi_select_base  [inherited]
+      sw_entity_multi_select_base_results  [inherited]
+        sw_entity_multi_select_base_results_slot  [inherited]
+          sw_entity_multi_select_base_results_list  [inherited]
+            sw_entity_multi_select_base_results_list_after  [inherited]
+            sw_entity_multi_select_base_results_list_before  [inherited]
+              sw_entity_multi_select_base_results_list_before_advanced_selection  [inherited]
+              sw_entity_multi_select_base_results_list_before_slot  [inherited]
+            sw_entity_multi_select_base_results_list_result  [inherited]
+              sw_entity_multi_select_base_results_list_result_description  [inherited]
+              sw_entity_multi_select_base_results_list_result_label  [replaced]
+              sw_entity_multi_select_base_results_list_result_preview  [inherited]
+      sw_entity_multi_select_base_selection  [inherited]
+        sw_entity_multi_select_advanced_selection_modal  [inherited]
+        sw_entity_multi_select_base_selection_slot  [inherited]
+          sw_entity_multi_select_base_selection_list  [inherited]
+            sw_entity_multi_select_base_selection_list_label  [inherited]
+              sw_entity_multi_select_base_selection_list_label_inner  [replaced]
 ```

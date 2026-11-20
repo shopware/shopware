@@ -230,7 +230,7 @@ describe('sw-product-document-remove-modal', () => {
 
             await confirmRemoval(modal);
 
-            const operation = { mediaId: document.mediaId, title: 'Manual' };
+            const operation = { type: 'remove', mediaId: document.mediaId, title: 'Manual' };
             expect(variantSync).toHaveBeenCalledTimes(1);
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
             expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, message: removeSuccess(2) }]);
@@ -239,14 +239,19 @@ describe('sw-product-document-remove-modal', () => {
 
         it('matches a document by its queued operation and drops the queued changes', async () => {
             const document = createDocument('Manual');
-            const queued = { mediaId: 'old-media', title: 'Old', changes: { title: 'Manual', mediaId: document.mediaId } };
+            const queued = {
+                type: 'update' as const,
+                mediaId: 'old-media',
+                title: 'Old',
+                changes: { title: 'Manual', mediaId: document.mediaId },
+            };
             Shopware.Store.get('swProductDetail').documentVariantOperations = { [document.id]: queued };
             variantSync.mockResolvedValueOnce(['variant-a']);
             const modal = await createWrapper({ documents: [document], hasVariants: true });
 
             await confirmRemoval(modal);
 
-            const operation = { mediaId: 'old-media', title: 'Old' };
+            const operation = { type: 'remove', mediaId: 'old-media', title: 'Old' };
             expect(variantSync).toHaveBeenCalledWith(product.id, [operation], true);
             expect(removals(modal)).toEqual([{ operations: { [document.id]: operation }, message: removeSuccess(1) }]);
             expect(getVariantOperations()).toEqual({ [document.id]: queued });
@@ -261,8 +266,8 @@ describe('sw-product-document-remove-modal', () => {
             await confirmRemoval(modal);
 
             const operations = {
-                [manual.id]: { mediaId: manual.mediaId, title: 'Manual' },
-                [untitled.id]: { mediaId: untitled.mediaId, title: null },
+                [manual.id]: { type: 'remove', mediaId: manual.mediaId, title: 'Manual' },
+                [untitled.id]: { type: 'remove', mediaId: untitled.mediaId, title: null },
             };
             const message = translate('sw-product.documentForm.bulkRemoveSuccess', {
                 count: 3,
@@ -293,7 +298,7 @@ describe('sw-product-document-remove-modal', () => {
             const operations = Object.fromEntries(
                 documents.map((document, index) => [
                     document.id,
-                    { mediaId: document.mediaId, title: titles[index], changes },
+                    { type: 'update', mediaId: document.mediaId, title: titles[index], changes },
                 ]),
             );
             const message = translate(`sw-product.documentForm.${success}`, {
@@ -337,7 +342,7 @@ describe('sw-product-document-remove-modal', () => {
             finishDryRun(['variant-a']);
             await flushPromises();
 
-            const operations = { [document.id]: { mediaId: document.mediaId, title: 'Manual' } };
+            const operations = { [document.id]: { type: 'remove', mediaId: document.mediaId, title: 'Manual' } };
             expect(removals(modal)).toEqual([{ operations, message: removeSuccess(1) }]);
         });
 

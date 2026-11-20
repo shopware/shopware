@@ -62,7 +62,7 @@ describe('src/module/sw-product/service/product-document-variant.service', () =>
             ],
         ]);
 
-        const variantIds = await service.sync('product-id', [{ mediaId: MEDIA_ID, title: 'Manual' }], true);
+        const variantIds = await service.sync('product-id', [{ type: 'remove', mediaId: MEDIA_ID, title: 'Manual' }], true);
 
         expect(variantIds).toEqual(['variant-a', 'variant-b']);
         expect(searchedCriteria[0].filter).toEqual([
@@ -79,8 +79,9 @@ describe('src/module/sw-product/service/product-document-variant.service', () =>
         const { service, repository, syncService } = createService([[removed, renamed]]);
 
         await service.sync('product-id', [
-            { mediaId: MEDIA_ID, title: 'Manual' },
+            { type: 'remove', mediaId: MEDIA_ID, title: 'Manual' },
             {
+                type: 'update',
                 mediaId: 'datasheet-media',
                 title: 'Datasheet',
                 changes: { title: 'Safety datasheet', position: 3 } as unknown as { title: string },
@@ -110,7 +111,12 @@ describe('src/module/sw-product/service/product-document-variant.service', () =>
         const copy = createDocument('variant-a', 'Handbuch');
         const { service, repository, syncService } = createService([[copy]]);
 
-        await service.sync('product-id', [{ mediaId: MEDIA_ID, title: 'Handbuch' }], false, GERMAN_LANGUAGE_ID);
+        await service.sync(
+            'product-id',
+            [{ type: 'update', mediaId: MEDIA_ID, title: 'Handbuch', changes: { title: null, mediaId: null } }],
+            false,
+            GERMAN_LANGUAGE_ID,
+        );
 
         expect(syncService.sync).toHaveBeenCalledWith(
             {
@@ -129,7 +135,7 @@ describe('src/module/sw-product/service/product-document-variant.service', () =>
     it('loads all variant copies in one request with only the fields it compares and writes', async () => {
         const { service, repository, searchedCriteria } = createService([[createDocument('variant-a', 'Manual')]]);
 
-        await service.sync('product-id', [{ mediaId: MEDIA_ID, title: 'Manual' }], true);
+        await service.sync('product-id', [{ type: 'remove', mediaId: MEDIA_ID, title: 'Manual' }], true);
 
         expect(repository.search).toHaveBeenCalledTimes(1);
         expect(searchedCriteria[0]).toMatchObject({

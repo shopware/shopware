@@ -164,7 +164,7 @@ describe('sw-product-document-form variant persistence', () => {
             await clickButton(wrapper, 'global.default.apply');
             await flushPromises();
             const changedField = field === 'title' ? { title } : { mediaId };
-            const operation = { mediaId: englishMediaId, title: 'Manual', changes: changedField };
+            const operation = { type: 'update', mediaId: englishMediaId, title: 'Manual', changes: changedField };
             expect(mockVariantSync).toHaveBeenCalledTimes(1);
             expect(mockVariantSync).toHaveBeenCalledWith(productId, [operation], true);
             expect(store.documentVariantOperations).toEqual({ [documentId]: operation });
@@ -234,7 +234,7 @@ describe('sw-product-document-form variant persistence', () => {
             .vm.$emit('update:checked', true);
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
-        const operation = { mediaId: englishMediaId, title: 'Manual' };
+        const operation = { type: 'remove', mediaId: englishMediaId, title: 'Manual' };
         expect(mockVariantSync).toHaveBeenCalledWith(productId, [operation], true);
         expect(store.documentVariantOperations).toEqual({ [documentId]: operation });
 

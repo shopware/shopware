@@ -2,6 +2,10 @@
 
 namespace Shopware\Tests\Unit\Administration\Framework\Twig;
 
+use League\Flysystem\Filesystem as FlysystemFilesystem;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use Pentatrion\ViteBundle\Service\FileAccessor;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -52,6 +56,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
             $this->packageMock,
             $kernel,
             new Filesystem(),
+            new FlysystemFilesystem(new InMemoryFilesystemAdapter()),
         );
     }
 
@@ -168,6 +173,7 @@ class ViteFileAccessorDecoratorTest extends TestCase
             $this->packageMock,
             $kernel,
             new Filesystem(),
+            new FlysystemFilesystem(new InMemoryFilesystemAdapter()),
         );
 
         static::assertSame([], $decorator->getData('PlainBundle', ViteFileAccessorDecorator::ENTRYPOINTS));
@@ -185,9 +191,94 @@ class ViteFileAccessorDecoratorTest extends TestCase
             $this->packageMock,
             $kernel,
             new Filesystem(),
+            new FlysystemFilesystem(new InMemoryFilesystemAdapter()),
         );
 
         static::assertSame([], $decorator->getData('NoViteBundle', ViteFileAccessorDecorator::ENTRYPOINTS));
+    }
+
+    public function testReadsManifestFromAssetFilesystemWhenLocalFileIsMissing(): void
+    {
+        $assetFilesystem = $this->remoteFilesystem('bundles/administration/administration/.vite/entrypoints.json');
+        $decorator = $this->createDecorator($assetFilesystem, new BundleFixture('Administration', __DIR__ . '/Fixtures/NoLocal'));
+
+        static::assertTrue($decorator->hasFile('_default', FileAccessor::ENTRYPOINTS));
+        static::assertSame(
+            'https:://shopware.com/bundles/administration/administration/assets/app.js',
+            $decorator->getData('_default', FileAccessor::ENTRYPOINTS)['entryPoints']['administration']['js'][0]
+        );
+    }
+
+    public function testBundleSuffixIsStrippedInRemoteKey(): void
+    {
+        $assetFilesystem = $this->remoteFilesystem('bundles/test/administration/.vite/entrypoints.json');
+        $decorator = $this->createDecorator($assetFilesystem, new BundleFixture('TestBundle', __DIR__ . '/Fixtures/NoLocal'));
+
+        static::assertTrue($decorator->hasFile('TestBundle', FileAccessor::ENTRYPOINTS));
+    }
+
+    public function testLocalFileWinsOverRemote(): void
+    {
+        $assetFilesystem = new FlysystemFilesystem(new InMemoryFilesystemAdapter());
+        $assetFilesystem->write('bundles/administration/administration/.vite/entrypoints.json', '{"entryPoints":{"administration":{"js":["/remote.js"]}}}');
+        $decorator = $this->createDecorator($assetFilesystem, new BundleFixture('Administration', __DIR__ . '/Fixtures/Administration'));
+
+        static::assertSame(
+            'https:://shopware.com/bundles/administration/administration/assets/app.js',
+            $decorator->getData('_default', FileAccessor::ENTRYPOINTS)['entryPoints']['administration']['js'][0]
+        );
+    }
+
+    public function testNeitherLocalNorRemoteFileExists(): void
+    {
+        $decorator = $this->createDecorator(
+            new FlysystemFilesystem(new InMemoryFilesystemAdapter()),
+            new BundleFixture('Administration', __DIR__ . '/Fixtures/NoLocal')
+        );
+
+        static::assertFalse($decorator->hasFile('_default', FileAccessor::ENTRYPOINTS));
+        static::assertSame([], $decorator->getData('_default', FileAccessor::ENTRYPOINTS));
+    }
+
+    public function testFilesystemExceptionIsHandled(): void
+    {
+        $assetFilesystem = static::createStub(FilesystemOperator::class);
+        $assetFilesystem->method('fileExists')->willThrowException(new class('storage down') extends \RuntimeException implements FilesystemException {
+        });
+        $decorator = $this->createDecorator($assetFilesystem, new BundleFixture('Administration', __DIR__ . '/Fixtures/NoLocal'));
+
+        static::assertFalse($decorator->hasFile('_default', FileAccessor::ENTRYPOINTS));
+        static::assertSame([], $decorator->getData('_default', FileAccessor::ENTRYPOINTS));
+    }
+
+    public function testManifestIsReadOnlyOncePerBundleAndFileType(): void
+    {
+        $assetFilesystem = $this->createMock(FilesystemOperator::class);
+        $assetFilesystem->expects($this->once())->method('fileExists')->willReturn(false);
+        $decorator = $this->createDecorator($assetFilesystem, new BundleFixture('Administration', __DIR__ . '/Fixtures/NoLocal'));
+
+        static::assertFalse($decorator->hasFile('_default', FileAccessor::ENTRYPOINTS));
+        static::assertFalse($decorator->hasFile('_default', FileAccessor::ENTRYPOINTS));
+        static::assertSame([], $decorator->getData('_default', FileAccessor::ENTRYPOINTS));
+    }
+
+    private function remoteFilesystem(string $path): FilesystemOperator
+    {
+        $filesystem = new FlysystemFilesystem(new InMemoryFilesystemAdapter());
+        $filesystem->write($path, (string) file_get_contents(__DIR__ . '/Fixtures/Administration/Resources/public/administration/.vite/entrypoints.json'));
+
+        return $filesystem;
+    }
+
+    private function createDecorator(FilesystemOperator $assetFilesystem, BundleFixture $bundle): ViteFileAccessorDecorator
+    {
+        return new ViteFileAccessorDecorator(
+            $this->configs,
+            $this->packageMock,
+            new StubKernel([$bundle]),
+            new Filesystem(),
+            $assetFilesystem,
+        );
     }
 }
 

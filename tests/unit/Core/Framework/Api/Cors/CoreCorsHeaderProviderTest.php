@@ -39,7 +39,7 @@ class CoreCorsHeaderProviderTest extends TestCase
 
         (new CoreCorsHeaderProvider())->provide($headers);
 
-        static::assertSame(self::PLATFORM_HEADERS, $headers->getAllowed());
+        static::assertSame([...self::PLATFORM_HEADERS, 'Mcp-Method', 'Mcp-Name'], $headers->getAllowed());
     }
 
     public function testExposesThePlatformHeadersAndTheFileNameOfDownloads(): void
@@ -48,7 +48,7 @@ class CoreCorsHeaderProviderTest extends TestCase
 
         (new CoreCorsHeaderProvider())->provide($headers);
 
-        static::assertSame([...self::PLATFORM_HEADERS, 'Content-Disposition'], $headers->getExposed());
+        static::assertSame([...self::PLATFORM_HEADERS, 'Content-Disposition', 'WWW-Authenticate'], $headers->getExposed());
     }
 
     public function testContributedHeadersCanBeRemovedAgain(): void

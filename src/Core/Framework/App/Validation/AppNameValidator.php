@@ -24,6 +24,10 @@ class AppNameValidator extends AbstractManifestValidator
      */
     public function validate(Manifest $manifest, ?Context $context): array
     {
+        if ($manifest->isManagedByComposer()) {
+            return [];
+        }
+
         $directory = strtolower(basename($this->sourceResolver->filesystemForManifest($manifest)->location));
 
         if ($directory === strtolower($manifest->getMetadata()->getName())) {

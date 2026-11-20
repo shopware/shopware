@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
+use Shopware\Core\Framework\Demodata\Generator\ProductDocumentFileProvider;
 use Shopware\Core\Framework\Demodata\Generator\ProductGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -249,6 +250,8 @@ class ProductGeneratorTest extends TestCase
                 static::assertContains($media['mediaId'], $mediaIds);
             }
 
+            static::assertArrayNotHasKey('documents', $product);
+
             static::assertIsArray($product['properties']);
             static::assertIsArray($product['properties'][0]);
             static::assertIsString($product['properties'][0]['id']);
@@ -315,5 +318,85 @@ class ProductGeneratorTest extends TestCase
                 static::assertSame($instantDeliveryId, $product['deliveryTimeId']);
             }
         }
+    }
+
+    public function testProductsGetDocumentsFromTheProvidedFiles(): void
+    {
+        $files = [];
+        for ($i = 0; $i < 10; ++$i) {
+            $files[] = ['title' => 'Document ' . $i, 'mediaId' => Uuid::randomHex()];
+        }
+
+        $documentFileProvider = static::createStub(ProductDocumentFileProvider::class);
+        $documentFileProvider->method('getDocuments')->willReturn($files);
+
+        $productRepository = new StaticEntityRepository([]);
+        $this->createGenerator($productRepository, $documentFileProvider)->generate(41, $this->createContext());
+
+        $products = array_merge(...array_map(array_values(...), $productRepository->creates));
+        static::assertCount(41, $products);
+
+        $documentCounts = [];
+        foreach ($products as $product) {
+            $documents = $product['documents'];
+            $documentCounts[] = \count($documents);
+            static::assertSame(array_keys($documents), array_column($documents, 'position'));
+
+            foreach ($documents as $document) {
+                static::assertContains(['title' => $document['title'], 'mediaId' => $document['mediaId']], $files);
+                static::assertSame(['shopwareDemoData' => true], $document['customFields']);
+            }
+
+            foreach ($product['children'] ?? [] as $variant) {
+                static::assertArrayNotHasKey('documents', $variant);
+            }
+        }
+
+        static::assertContains(0, $documentCounts);
+        static::assertGreaterThan(4, max($documentCounts));
+    }
+
+    /**
+     * @param StaticEntityRepository<*> $productRepository
+     */
+    private function createGenerator(StaticEntityRepository $productRepository, ProductDocumentFileProvider $documentFileProvider): ProductGenerator
+    {
+        $tax = (new TaxEntity())->assign(['_uniqueIdentifier' => 'tax_0', 'taxRate' => 10, 'id' => Uuid::randomHex()]);
+        $taxRepository = new StaticEntityRepository([
+            new EntitySearchResult('tax', 1, new TaxCollection([$tax]), null, new Criteria(), Context::createDefaultContext()),
+        ]);
+        $mediaRepository = new StaticEntityRepository([[], [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()]]);
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('getRepository')->willReturnCallback(static fn (string $entityName) => match ($entityName) {
+            'tax' => $taxRepository,
+            'media' => $mediaRepository,
+            default => $productRepository,
+        });
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+        $connection->method('fetchFirstColumn')->willReturn([]);
+
+        return new ProductGenerator(
+            $connection,
+            $registry,
+            static::createStub(InheritanceUpdater::class),
+            null,
+            $documentFileProvider,
+        );
+    }
+
+    private function createContext(): DemodataContext
+    {
+        $faker = Factory::create();
+        $faker->addProvider(new Commerce($faker));
+        $faker->seed(1);
+
+        $context = static::createStub(DemodataContext::class);
+        $context->method('getFaker')->willReturn($faker);
+        $context->method('getConsole')->willReturn(static::createStub(SymfonyStyle::class));
+
+        return $context;
     }
 }

@@ -5,20 +5,24 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -41,6 +45,11 @@ class ProductDocumentValidatorTest extends TestCase
 
     private MediaCollection $storedFiles;
 
+    /**
+     * @var list<string>
+     */
+    private array $documentIds = [];
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -50,7 +59,7 @@ class ProductDocumentValidatorTest extends TestCase
     public function testSubscribedEvents(): void
     {
         static::assertSame(
-            [PreWriteValidationEvent::class => 'validate'],
+            [PreWriteValidationEvent::class => 'preValidate', BeforeMediaFileReplacedEvent::class => 'validateReplacedFile'],
             ProductDocumentValidator::getSubscribedEvents()
         );
     }
@@ -77,14 +86,14 @@ class ProductDocumentValidatorTest extends TestCase
         $this->translations = [$this->translation('manual', self::GERMAN, '/0/translations/' . self::GERMAN, file: 'manual-file')];
 
         $expected = array_map(static fn (string $code): array => ['code' => $code, 'pointer' => '/0/translations/' . self::GERMAN . '/mediaId'], $codes);
-        static::assertSame($expected, $this->validate());
+        static::assertSame($expected, $this->preValidate());
     }
 
     public function testAFileTheSearchDoesNotReturnIsReportedAsNotFound(): void
     {
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'missing-file')];
 
-        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/mediaId']], $this->validate());
+        static::assertSame([['code' => ProductDocumentValidator::VIOLATION_FILE_NOT_FOUND, 'pointer' => '/0/mediaId']], $this->preValidate());
     }
 
     public function testAFileIsOnlyCheckedWhenATranslationGetsIt(): void
@@ -93,14 +102,38 @@ class ProductDocumentValidatorTest extends TestCase
         $this->storeFile(self::file(private: true));
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
 
-        static::assertSame([], $this->validate());
+        static::assertSame([], $this->preValidate());
     }
 
     public function testAWriteWithoutDocumentTranslationsPasses(): void
     {
         $this->translations = [];
 
-        static::assertSame([], $this->validate());
+        static::assertSame([], $this->preValidate());
+    }
+
+    public static function replacedFileProvider(): iterable
+    {
+        yield 'an allowed file' => ['pdf', 1024, []];
+        yield 'another file type' => ['xlsx', 1024, [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
+        yield 'a file over the maximum size' => ['pdf', 1025, [ProductDocumentValidator::VIOLATION_FILE_TOO_LARGE]];
+        yield 'a presigned upload without a declared size gets only the type check' => ['xlsx', null, [ProductDocumentValidator::VIOLATION_FILE_EXTENSION_NOT_ALLOWED]];
+    }
+
+    /**
+     * @param list<string> $codes
+     */
+    #[DataProvider('replacedFileProvider')]
+    public function testAReplacedDocumentFileMustFitTheLimits(string $extension, ?int $size, array $codes): void
+    {
+        $this->documentIds = [$this->ids->get('manual')];
+
+        static::assertSame($codes, $this->replaceFile($extension, $size));
+    }
+
+    public function testAReplacedFileThatNoDocumentUsesIsNotChecked(): void
+    {
+        static::assertSame([], $this->replaceFile('xlsx', 1025));
     }
 
     private static function file(?string $extension = 'pdf', ?int $size = 1024, bool $private = false, ?string $path = 'media/manual.pdf'): MediaEntity
@@ -127,13 +160,13 @@ class ProductDocumentValidatorTest extends TestCase
     /**
      * @return list<array{code: mixed, pointer: mixed}>
      */
-    private function validate(): array
+    private function preValidate(): array
     {
         // an Admin API request runs in the user scope, where the media repository hides private files
         $context = Context::createDefaultContext(new AdminApiSource(null));
         $event = new PreWriteValidationEvent(WriteContext::createFromContext($context), []);
 
-        $this->validator()->validate($event);
+        $this->validator()->preValidate($event);
 
         $errors = [];
         foreach ($event->getExceptions()->getErrors() as $error) {
@@ -141,6 +174,23 @@ class ProductDocumentValidatorTest extends TestCase
         }
 
         return $errors;
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function replaceFile(string $extension, ?int $size): array
+    {
+        $context = Context::createDefaultContext(new AdminApiSource(null));
+        $event = new BeforeMediaFileReplacedEvent($this->ids->get('manual-file'), $extension, 'application/octet-stream', $size, $context);
+
+        try {
+            $this->validator()->validateReplacedFile($event);
+        } catch (ConstraintViolationException $exception) {
+            return array_column(iterator_to_array($exception->getErrors(), false), 'code');
+        }
+
+        return [];
     }
 
     private function validator(): ProductDocumentValidator
@@ -157,7 +207,15 @@ class ProductDocumentValidatorTest extends TestCase
             },
         ]);
 
-        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], maxFileSize: 1024));
+        $productDocumentRepository = StaticEntityRepository::of(ProductDocumentCollection::class, [
+            function (Criteria $criteria): array {
+                static::assertEquals([new EqualsFilter('translations.mediaId', $this->ids->get('manual-file'))], $criteria->getFilters());
+
+                return $this->documentIds;
+            },
+        ]);
+
+        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], 1024, ['pdf', 'docx']), $productDocumentRepository);
     }
 
     private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow

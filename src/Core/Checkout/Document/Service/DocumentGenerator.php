@@ -184,15 +184,17 @@ class DocumentGenerator
 
                 $id = $operation->getDocumentId() ?? Uuid::randomHex();
 
-                // A document generated again only gets the files it is missing. It keeps its other file, the order version
-                // and config that file was rendered from, and its deep link code, which customers already have in links.
+                // A document generated again only gets the files it is missing and keeps its deep link code,
+                // which customers already have in links. While it keeps a stored file, it also keeps the order
+                // version and config that file was rendered from.
                 $storedDocument = $this->loadStoredDocument($operation, $context);
                 [$storedMediaId, $storedA11yMediaId] = Feature::silent('v6.9.0.0', static fn (): array => [
                     $storedDocument?->getDocumentMediaFileId(),
                     $storedDocument?->getDocumentA11yMediaFileId(),
                 ]);
 
-                $orderVersionId = $storedDocument?->getOrderVersionId() ?: $operation->getOrderVersionId();
+                $keptDocument = $storedMediaId !== null || $storedA11yMediaId !== null ? $storedDocument : null;
+                $orderVersionId = $keptDocument?->getOrderVersionId() ?: $operation->getOrderVersionId();
                 $deepLinkCode = $storedDocument?->getDeepLinkCode() ?? Random::getAlphanumericString(32);
                 $mediaId = $storedMediaId ?? $this->resolveMediaId($operation, $context, $document);
                 $mediaIdForHtmlA11y = $storedA11yMediaId ?? $this->resolveMediaIdForA11y($operation, $context, $document);
@@ -205,7 +207,7 @@ class DocumentGenerator
                     'orderVersionId' => $orderVersionId,
                     'static' => $operation->isStatic(),
                     'documentMediaFileId' => $mediaId,
-                    'config' => $storedDocument?->getConfig() ?? $document->getConfig(),
+                    'config' => $keptDocument?->getConfig() ?? $document->getConfig(),
                     'deepLinkCode' => $deepLinkCode,
                     'referencedDocumentId' => $operation->getReferencedDocumentId(),
                     'documentA11yMediaFileId' => $mediaIdForHtmlA11y,

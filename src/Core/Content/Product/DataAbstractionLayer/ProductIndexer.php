@@ -91,7 +91,10 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
-        return new ProductIndexingMessage(array_values($ids), $iterator->getOffset());
+        $message = new ProductIndexingMessage(array_values($ids), $iterator->getOffset());
+        $message->isFullIndexing = true;
+
+        return $message;
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage

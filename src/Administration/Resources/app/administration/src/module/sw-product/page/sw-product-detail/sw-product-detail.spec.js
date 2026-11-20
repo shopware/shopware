@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import { deprecations } from 'test/_helper_/deprecations';
 import 'src/module/sw-settings-seo/component/sw-seo-url/store';
 
 const advancedModeSettings = {
@@ -1097,6 +1098,24 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expect(getFunction.mock.calls.map(([id]) => id)).not.toContain('german');
         } finally {
             api.languageId = originalLanguageId;
+        }
+    });
+
+    it('keeps the deprecated loadLanguage setting the content language until the 6.8 major', async () => {
+        wrapper.unmount();
+        wrapper = await createWrapper(undefined, (id) => Promise.resolve({ id, variation: [] }));
+        await flushPromises();
+        const api = Shopware.Store.get('context').api;
+        const originalLanguage = api.language;
+
+        try {
+            // eslint-disable-next-line sw-test-rules/no-vm-access -- loadLanguage() is deprecated and no longer called by the page
+            await wrapper.vm.loadLanguage('german');
+
+            expect(api.language).toEqual(expect.objectContaining({ id: 'german' }));
+            expect(deprecations).toHaveTriggered('sw-product-detail.loadLanguage() is deprecated');
+        } finally {
+            api.language = originalLanguage;
         }
     });
 

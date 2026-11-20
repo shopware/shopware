@@ -5,10 +5,11 @@
  * notices of the change.
  */
 import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-markers';
-import type { BlockFacts, ComponentFacts } from './block-facts';
+import type { BlockFacts } from './block-facts';
 import { sourceLabel } from './block-facts';
 import { blockLabel, crossingId } from './block-structure';
 import type { Crossing } from './block-structure';
+import type { ComponentFacts } from './component-facts';
 import type { FlagContext } from './flag-states';
 import { isMajorOnly } from './flag-states';
 import { rule } from './rules';

@@ -5,8 +5,8 @@
  * at the head commit. It knows nothing about flag states, markers or visibility, which `break-check.ts` adds.
  */
 import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-markers';
-import type { ComponentFacts } from './block-facts';
 import type { SourceLine } from './block-tree';
+import type { ComponentFacts } from './component-facts';
 import type { Finding, FindingGroup } from './findings';
 import type { FlagContext, FlagState } from './flag-states';
 

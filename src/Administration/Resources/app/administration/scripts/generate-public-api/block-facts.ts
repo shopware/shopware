@@ -35,7 +35,7 @@ export interface BlockFacts {
 }
 
 /** @private */
-export interface ComponentFacts {
+export interface BlockStructureFacts {
     blocks: ReadonlyMap<string, BlockFacts>;
     crossings: ReadonlyMap<string, Crossing>;
 }
@@ -94,7 +94,7 @@ function ancestorsOf(block: string, parents: ReadonlyMap<string, (string | null)
  *
  * The blocks and crossings of the component that exist in `state`.
  */
-export function factsOf(unit: ComponentUnit, state: FlagState): ComponentFacts {
+export function blockStructureFactsOf(unit: ComponentUnit, state: FlagState): BlockStructureFacts {
     const places = new Map<string, TemplateBlock[]>();
 
     unit.blocks

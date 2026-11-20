@@ -57,7 +57,7 @@ Reading the structure after the merge needs no rules of its own for `{% parent %
 flowchart TD
     git["git-source-tree.ts<br/>reads the sources of a commit out of git"]
     commits["commit-check.ts<br/>generates the snapshots of two commits, or of a whole range"]
-    facts["block-facts.ts<br/>the blocks and crossings of a component in one flag state"]
+    facts["component-facts.ts, block-facts.ts<br/>what the rules compare about a component in one flag state"]
     rules["rules.ts, block-rules.ts<br/>what a rule is made of, and one rule per kind of change to a block"]
     check["break-check.ts<br/>runs the rules per component and state, then decides the group"]
     findings["findings.ts<br/>prints the summary"]
@@ -72,6 +72,7 @@ It gets the facts of one component in one state at the base and at the head, and
 `break-check.ts` joins what a rule found in both states, and then decides whether a marker announced the change, whether the component is private, and whether an extend child only inherits the finding.
 A new rule for blocks is one entry in `BLOCK_RULES`.
 The rules of another unit kind get a file of their own and join `RULES` in `break-check.ts`.
+Its facts get a file of their own too and join `ComponentFacts` in `component-facts.ts`.
 
 ## Rules the code follows
 

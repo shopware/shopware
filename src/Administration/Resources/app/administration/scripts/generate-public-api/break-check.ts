@@ -6,10 +6,10 @@
  * break, a change that a marker announced, or a change to a private component.
  */
 import type { Marker } from '../../eslint-rules/deprecation-rules/utils/api-markers';
-import { factsOf } from './block-facts';
-import type { ComponentFacts } from './block-facts';
 import { BLOCK_RULES } from './block-rules';
 import { byCodePoint } from './code-point-order';
+import { factsOf } from './component-facts';
+import type { ComponentFacts } from './component-facts';
 import { FINDING_GROUPS } from './findings';
 import type { Finding } from './findings';
 import { FLAG_STATES, isMajorOnly, perState } from './flag-states';

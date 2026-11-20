@@ -13,7 +13,7 @@
 %}
 
 {% set defaultAttributes = {
-    class: 'sw-offcanvas offcanvas-' ~ placement ~ ' offcanvas-' ~ breakpoint,
+    class: 'sw-offcanvas offcanvas-' ~ placement ~ (breakpoint ? ' offcanvas-' ~ breakpoint : ' offcanvas'),
     tabindex: -1,
     id: id,
     'data-bs-backdrop': backdrop,

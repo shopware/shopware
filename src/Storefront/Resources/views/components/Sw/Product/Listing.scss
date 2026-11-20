@@ -22,3 +22,9 @@
     gap: var(--spacer-sm);
     margin-bottom: var(--spacer-sm);
 }
+
+.sw-product-listing__counter {
+    align-self: start;
+    padding-block: var(--form-select-padding-y);
+    line-height: var(--form-select-line-height);
+}

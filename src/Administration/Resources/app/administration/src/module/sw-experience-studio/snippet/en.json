@@ -201,6 +201,28 @@
             }
           }
         },
+        "showFiltersInOffcanvas": {
+          "title": "Show Filters in Off-Canvas",
+          "helpText": "Turn this on for the small breakpoints where the filters do not fit next to the content. From the first breakpoint that is turned off, the filters are shown directly on every larger breakpoint.",
+          "xs": {
+            "title": "Show Filters in Off-Canvas (XS)"
+          },
+          "sm": {
+            "title": "Show Filters in Off-Canvas (SM)"
+          },
+          "md": {
+            "title": "Show Filters in Off-Canvas (MD)"
+          },
+          "lg": {
+            "title": "Show Filters in Off-Canvas (LG)"
+          },
+          "xl": {
+            "title": "Show Filters in Off-Canvas (XL)"
+          },
+          "xxl": {
+            "title": "Show Filters in Off-Canvas (XXL)"
+          }
+        },
         "visibleFilterCount": {
           "title": "Visible Filter Count"
         },
@@ -1157,8 +1179,12 @@
         "description": "Price, rating, delivery information, variant selection, quantity selector and buy button for a product, stacked in a grid container."
       },
       "category-page": {
-        "name": "Category page",
+        "name": "Category page - with sidebar",
         "description": "Collection of components that make up the category page."
+      },
+      "category-page-full-width": {
+        "name": "Category page - full width",
+        "description": "A filter panel above a full-width product listing."
       },
       "image-slider": {
         "name": "Image slider",

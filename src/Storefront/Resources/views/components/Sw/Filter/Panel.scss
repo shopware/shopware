@@ -3,9 +3,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: start;
+    align-self: start;
     gap: 0.5rem;
     background-color: var(--sw-filter-panel-background-color, transparent);
-    padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
 }
@@ -22,6 +22,26 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
+}
+
+.sw-filter-panel__expand {
+    padding-right: 2.2rem;
+
+    .sw-icon {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.7rem;
+    }
+
+    // The open offcanvas shows every filter, so there is nothing to expand
+    .sw-offcanvas.show & {
+        display: none;
+    }
+}
+
+.sw-filter-panel__offcanvas-toggle.btn-filter {
+    text-align: center;
+    width: 100%;
 }
 
 .sw-filter-panel.is--vertical {

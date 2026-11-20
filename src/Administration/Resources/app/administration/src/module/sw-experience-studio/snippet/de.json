@@ -201,6 +201,28 @@
             }
           }
         },
+        "showFiltersInOffcanvas": {
+          "title": "Filter im Off-Canvas anzeigen",
+          "helpText": "Aktiviere dies für die kleinen Breakpoints, auf denen die Filter nicht neben den Inhalt passen. Ab dem ersten deaktivierten Breakpoint werden die Filter auf allen größeren Breakpoints direkt angezeigt.",
+          "xs": {
+            "title": "Filter im Off-Canvas anzeigen (XS)"
+          },
+          "sm": {
+            "title": "Filter im Off-Canvas anzeigen (SM)"
+          },
+          "md": {
+            "title": "Filter im Off-Canvas anzeigen (MD)"
+          },
+          "lg": {
+            "title": "Filter im Off-Canvas anzeigen (LG)"
+          },
+          "xl": {
+            "title": "Filter im Off-Canvas anzeigen (XL)"
+          },
+          "xxl": {
+            "title": "Filter im Off-Canvas anzeigen (XXL)"
+          }
+        },
         "visibleFilterCount": {
           "title": "Anzahl sichtbarer Filter"
         },
@@ -1157,8 +1179,12 @@
         "description": "Preis, Bewertung, Lieferinformationen, Variantenauswahl, Mengenauswahl und Kaufen-Button für ein Produkt, untereinander in einem Rastercontainer."
       },
       "category-page": {
-        "name": "Kategorieseite",
+        "name": "Kategorieseite - mit Seitenleiste",
         "description": "Zusammenstellung der Komponenten einer Kategorieseite."
+      },
+      "category-page-full-width": {
+        "name": "Kategorieseite - volle Breite",
+        "description": "Ein Filterbereich über einer Produktliste in voller Breite."
       },
       "image-slider": {
         "name": "Bild-Slider",

@@ -16,6 +16,8 @@ provide
   setSwPageSidebarOffset: any  [private]
 
 props
+  backLabel?: string  default=literal  [private]
+  backRoute?: string | object  default=literal  [private]
   headerBorderColor?: string  default=literal  [private]
   showSearchBar?: boolean  default=literal  [private]
   showSmartBar?: boolean  default=literal  [private]
@@ -41,6 +43,9 @@ data
   sidebarOffset: any  [private]
 
 computed
+  backButtonLabel: any  [private]
+  backTarget: any  [private]
+  backTitle: any  [private]
   hasSideContentSlot: any  [private]
   hasSidebarSlot: any  [private]
   headerStyles: any  [deprecated tag:v6.8.0] [private]
@@ -96,6 +101,9 @@ refs
 classes
   smart-bar__actions  [private]
   smart-bar__back-btn  [private]
+  smart-bar__back-btn--compact  [private]
+  smart-bar__back-link  [private]
+  smart-bar__back-link-label  [private]
   smart-bar__content  [private]
   smart-bar__header  [private]
   smart-bar__language-switch  [private]

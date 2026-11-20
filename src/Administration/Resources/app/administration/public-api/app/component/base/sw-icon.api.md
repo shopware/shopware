@@ -13,4 +13,7 @@ component sw-icon  private  js  [private]
 
 blocks
   sw_icon  [private]
+
+crossings
+  v-if  sw_icon -> (root)  [private]
 ```

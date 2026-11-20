@@ -13,10 +13,10 @@ component sw-product-price-form  public  js
 blocks
   sw_product_price_form
     sw_product_price_form_fields
-      sw_product_price_form_price_field
+      sw_product_price_form_price_field  [after v-if]
       sw_product_price_form_tax_field
     sw_product_price_form_link
       sw_product_price_form_advanced_prices_link
-      sw_product_price_form_maintain_currencies_link
+      sw_product_price_form_maintain_currencies_link  [after v-if]
     sw_product_price_form_maintain_currencies_modal
 ```

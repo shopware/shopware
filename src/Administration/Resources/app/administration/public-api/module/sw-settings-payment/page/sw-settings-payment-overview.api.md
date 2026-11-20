@@ -15,10 +15,10 @@ blocks
     sw_settings_payment_overview_content
       sw_settings_payment_overview_content_inner
         sw_settings_payment_overview_empty_state
-        sw_settings_payment_overview_list
-          sw_settings_payment_overview_list_card_custom_card
-          sw_settings_payment_overview_list_card_custom_location
-          sw_settings_payment_overview_list_card_default
+        sw_settings_payment_overview_list  [after v-if]
+          sw_settings_payment_overview_list_card_custom_card  [scope: card]
+          sw_settings_payment_overview_list_card_custom_location  [scope: card]
+          sw_settings_payment_overview_list_card_default  [scope: card]
         sw_settings_payment_overview_sorting_modal_card
           sw_settings_payment_overview_sorting_modal_card_button
       sw_settings_payment_overview_sorting_modal

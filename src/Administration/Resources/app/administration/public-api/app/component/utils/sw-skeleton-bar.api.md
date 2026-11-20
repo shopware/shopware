@@ -13,5 +13,8 @@ component sw-skeleton-bar  private  ts  [private]
 
 blocks
   sw_skeleton_bar  [private]
-  sw_skeleton_bar_deprecated  [private]
+  sw_skeleton_bar_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_skeleton_bar -> sw_skeleton_bar_deprecated  [private]
 ```

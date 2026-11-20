@@ -17,8 +17,8 @@ blocks
       sw_property_list_grid_columns_actions_delete
       sw_settings_country_state_list_empty
       sw_settings_property_list_grid_columns_actions
-        sw_settings_property_list_grid_columns_actions_edit
-    sw_property_option_list_loader
+        sw_settings_property_list_grid_columns_actions_edit  [scope: item]
+    sw_property_option_list_loader  [after v-if]
     sw_property_option_list_toolbar
       sw_property_option_list_toolbar_container
         sw_property_option_list_toolbar_add

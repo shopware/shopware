@@ -19,16 +19,16 @@ blocks
         sw_order_create_base_line_items_summary
           sw_order_create_base_line_items_summary_entries
             sw_order_create_base_line_items_summary_amount
-            sw_order_create_base_line_items_summary_amount_free_tax
-            sw_order_create_base_line_items_summary_amount_total
+            sw_order_create_base_line_items_summary_amount_free_tax  [after v-if]
+            sw_order_create_base_line_items_summary_amount_total  [after v-if]
             sw_order_create_base_line_items_summary_amount_without_tax
             sw_order_create_base_line_items_summary_shipping_cost
-            sw_order_create_base_line_items_summary_taxes
+            sw_order_create_base_line_items_summary_taxes  [after v-if]
           sw_order_create_base_line_items_switch_promotions
           sw_order_create_base_line_items_voucher_field
-    sw_order_create_details
+    sw_order_create_details  [after v-if]
       sw_order_create_details_body
       sw_order_create_details_footer
       sw_order_create_details_header
-    sw_order_create_promotion_modal
+    sw_order_create_promotion_modal  [after v-if]
 ```

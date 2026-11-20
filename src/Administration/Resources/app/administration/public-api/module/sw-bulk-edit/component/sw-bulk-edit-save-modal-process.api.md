@@ -12,7 +12,7 @@ component sw-bulk-edit-save-modal-process  public  js
 
 blocks
   sw_bulk_edit_save_modal_process
-    sw_bulk_edit_save_modal_process_content
+    sw_bulk_edit_save_modal_process_content  [after v-if]
     sw_bulk_edit_save_modal_process_generate_document
     sw_bulk_edit_save_modal_process_icon
 ```

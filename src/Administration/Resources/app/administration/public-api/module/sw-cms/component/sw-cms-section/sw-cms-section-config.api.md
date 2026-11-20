@@ -16,7 +16,7 @@ blocks
       sw_cms_section_config__quickaction_delete
       sw_cms_section_config__quickaction_duplicate
     sw_cms_section_config__settings
-      sw_cms_section_config_background_color_field
+      sw_cms_section_config_background_color_field  [after v-if]
       sw_cms_section_config_background_image_field
         sw_cms_section_config_background_image_position_field
       sw_cms_section_config_name_field

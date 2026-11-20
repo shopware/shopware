@@ -17,19 +17,19 @@ blocks
         sw_settings_tax_list_content_card
           sw_settings_tax_list_grid
             sw_settings_tax_list_grid_action_modals
-              sw_settings_tax_list_delete_modal
-                sw_settings_tax_list_delete_modal_confirm_delete_text
-                sw_settings_tax_list_delete_modal_footer
-                  sw_settings_tax_list_delete_modal_cancel
-                  sw_settings_tax_list_delete_modal_confirm
+              sw_settings_tax_list_delete_modal  [scope: item]
+                sw_settings_tax_list_delete_modal_confirm_delete_text  [scope: item]
+                sw_settings_tax_list_delete_modal_footer  [scope: item]
+                  sw_settings_tax_list_delete_modal_cancel  [scope: item]
+                  sw_settings_tax_list_delete_modal_confirm  [scope: item]
             sw_settings_tax_list_grid_column_default
-              sw_settings_tax_list_grid_column_default_editor
-              sw_settings_tax_list_grid_column_default_label
+              sw_settings_tax_list_grid_column_default_editor  [scope: isInlineEdit, item]
+              sw_settings_tax_list_grid_column_default_label  [scope: isInlineEdit, item]
             sw_settings_tax_list_grid_column_default_name
             sw_settings_tax_list_grid_column_default_tax_rate
             sw_settings_tax_list_grid_columns_actions
-              sw_settings_tax_list_grid_columns_actions_delete
-              sw_settings_tax_list_grid_columns_actions_edit
+              sw_settings_tax_list_grid_columns_actions_delete  [scope: item]
+              sw_settings_tax_list_grid_columns_actions_edit  [scope: item]
       sw_settings_tax_list_search_bar
       sw_settings_tax_list_smart_bar_actions
         sw_settings_tax_list_smart_bar_actions_add

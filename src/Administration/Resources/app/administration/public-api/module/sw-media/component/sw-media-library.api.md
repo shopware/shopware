@@ -18,8 +18,8 @@ blocks
     sw_media_library_scroll_container
       sw_media_library_media_grid
         sw_media_library_back_to_parent_item
-        sw_media_library_load_buttons
-          sw_media_library_load_all_button
+        sw_media_library_load_buttons  [after v-if]
+          sw_media_library_load_all_button  [after v-if]
           sw_media_library_load_more_button
-        sw_media_library_media_item_list
+        sw_media_library_media_item_list  [after v-if]
 ```

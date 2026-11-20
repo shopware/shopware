@@ -13,9 +13,9 @@ component sw-extension-adding-failed  private  js  [private]
 
 blocks
   sw_extension_adding_failed  [private]
-    sw_extension_adding_failed_button_close  [private]
+    sw_extension_adding_failed_button_close  [after v-if] [private]
     sw_extension_adding_failed_headline  [private]
     sw_extension_adding_failed_icon  [private]
-    sw_extension_adding_failed_licence_cancellation  [private]
+    sw_extension_adding_failed_licence_cancellation  [after v-if] [private]
     sw_extension_adding_failed_notification  [private]
 ```

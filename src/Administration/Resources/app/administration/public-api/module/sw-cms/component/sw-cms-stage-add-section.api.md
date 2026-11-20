@@ -13,6 +13,6 @@ component sw-cms-stage-add-section  private  ts  [private]
 
 blocks
   sw_cms_add_section  [private]
-    sw_cms_add_section_button  [private]
+    sw_cms_add_section_button  [after v-if] [private]
     sw_cms_add_section_selection  [private]
 ```

@@ -37,7 +37,7 @@ blocks
       sw_settings_sso_user_detail_key_grid  [private]
         sw_settings_sso_user_detail_key_grid_content  [private]
           sw_settings_sso_user_detail_grid_columns_actions  [private]
-            sw_settings_sso_user_detail_grid_columns_actions_delete  [private]
-            sw_settings_sso_user_detail_grid_columns_actions_edit  [private]
+            sw_settings_sso_user_detail_grid_columns_actions_delete  [scope: item] [private]
+            sw_settings_sso_user_detail_grid_columns_actions_edit  [scope: item] [private]
     sw_settings_sso_user_detail_header  [private]
 ```

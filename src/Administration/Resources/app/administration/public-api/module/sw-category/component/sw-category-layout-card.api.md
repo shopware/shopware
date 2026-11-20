@@ -12,7 +12,7 @@ component sw-category-layout-card  public  js
 
 blocks
   sw_category_layout_card
-    sw_category_detail_layout_desc
+    sw_category_detail_layout_desc  [after v-if]
       sw_category_detail_layout_desc_actions
         sw_category_detail_layout_desc_actions_designer
         sw_category_detail_layout_desc_actions_layout

@@ -13,13 +13,21 @@ component sw-button-deprecated  private  js  [private]
 
 blocks
   sw_button  [private]
-    sw_button_button  [private]
+    sw_button_button  [after v-if] [private]
       sw_button_button_content  [private]
         sw_button_button_slot_default  [private]
-    sw_button_link  [private]
+    sw_button_link  [after v-if] [private]
       sw_button_link_content  [private]
         sw_button_link_slot_default  [private]
     sw_button_router_link  [private]
       sw_button_router_link_content  [private]
         sw_button_router_link_slot_default  [private]
+        sw_button_router_link_slot_default  [scope: href, navigate] [private]
+      sw_button_router_link_content  [scope: href, navigate] [private]
+        sw_button_router_link_slot_default  [private]
+        sw_button_router_link_slot_default  [scope: href, navigate] [private]
+
+crossings
+  v-if  sw_button_link -> sw_button_button  [private]
+  v-if  sw_button_router_link -> sw_button_link  [private]
 ```

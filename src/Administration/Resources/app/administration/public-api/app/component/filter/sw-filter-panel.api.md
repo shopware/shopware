@@ -14,8 +14,8 @@ component sw-filter-panel  private  js  [private]
 blocks
   sw_filter_panel  [private]
     sw_filter_panel_item  [private]
-      sw_filter_panel_extension_point  [private]
-      sw_multi_select_filter_content_path_label  [private]
-      sw_multi_select_filter_content_path_result_item  [private]
-        sw_multi_select_filter_content_path_result_label  [private]
+      sw_filter_panel_extension_point  [after v-if] [scope: filter] [private]
+      sw_multi_select_filter_content_path_label  [scope: filter] [private]
+      sw_multi_select_filter_content_path_result_item  [scope: filter] [private]
+        sw_multi_select_filter_content_path_result_label  [scope: filter, index, item] [private]
 ```

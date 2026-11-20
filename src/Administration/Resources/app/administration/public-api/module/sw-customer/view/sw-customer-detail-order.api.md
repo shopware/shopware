@@ -18,7 +18,7 @@ blocks
         sw_customer_detail_order_card_grid_columns_number
         sw_customer_detail_order_card_grid_columns_order_date_time
       sw_customer_detail_order_card_grid_columns_action
-        sw_customer_detail_order_card_grid_columns_action_button
+        sw_customer_detail_order_card_grid_columns_action_button  [scope: item]
     sw_customer_detail_order_card_grid_empty_state
       sw_customer_detail_order_card_grid_empty_state_action
     sw_customer_detail_order_card_toolbar

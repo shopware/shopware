@@ -197,6 +197,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
             WHERE order_line_item.id IN (:ids)
                 AND order_line_item.version_id = :version
                 AND type = :type
+                AND referenced_id IS NOT NULL
                 AND state_machine_state.technical_name != :cancelled_state
         SQL;
 
@@ -222,6 +223,7 @@ final class OrderStockSubscriber implements EventSubscriberInterface
             SELECT id, referenced_id as product_id, quantity
             FROM order_line_item
             WHERE type = :type
+                AND referenced_id IS NOT NULL
                 AND order_id = :id
                 AND version_id = :version
         SQL;

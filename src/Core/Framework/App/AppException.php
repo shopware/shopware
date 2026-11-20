@@ -6,6 +6,7 @@ use Shopware\Administration\Controller\Exception\AppByNameNotFoundException;
 use Shopware\Administration\Controller\Exception\MissingAppSecretException;
 use Shopware\Core\Framework\App\Exception\ActionNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Shopware\Core\Framework\App\Exception\AppFlowException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -360,6 +361,16 @@ class AppException extends HttpException
             'Unable to read file: "{{ file }}"',
             ['file' => $file]
         );
+    }
+
+    public static function cmsBlockFileMissing(string $blockName, string $fileName): AppCmsExtensionException
+    {
+        return new AppCmsExtensionException(\sprintf('File "%s" for block "%s" is missing', $fileName, $blockName));
+    }
+
+    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): AppCmsExtensionException
+    {
+        return new AppCmsExtensionException(\sprintf('Block "%s" is outside of the cms/blocks directory', $blockName));
     }
 
     /**

@@ -9,7 +9,7 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
     let wrapper;
     let swSelectResult;
 
-    async function createWrapper(innerTemplate = '') {
+    async function createWrapper(innerTemplate = '', setActiveItemIndex = () => {}) {
         const Parent = {
             components: {
                 swSelectResult,
@@ -81,7 +81,7 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve('bar') }),
                 },
-                setActiveItemIndex: () => {},
+                setActiveItemIndex,
             },
             attachTo: document.body,
         });
@@ -100,6 +100,21 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
 
     afterEach(() => {
         wrapper.unmount();
+    });
+
+    it('should only take over the active item when the mouse moves over it', async () => {
+        const setActiveItemIndex = jest.fn();
+        wrapper.unmount();
+        wrapper = await createWrapper('', setActiveItemIndex);
+        await flushPromises();
+
+        const result = wrapper.find('.sw-select-result');
+
+        await result.trigger('mouseenter');
+        expect(setActiveItemIndex).not.toHaveBeenCalled();
+
+        await result.trigger('mousemove');
+        expect(setActiveItemIndex).toHaveBeenCalledWith(0);
     });
 
     it('should react on $parent.$parent event', async () => {

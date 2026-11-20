@@ -1166,6 +1166,11 @@
       "placeholderProduct": "Select a product...",
       "placeholderCategory": "Select a category..."
     },
+    "childSearch": {
+      "label": "Search entries",
+      "placeholder": "Search...",
+      "noResults": "No results found."
+    },
     "table": {
       "addHeading": "Add table heading",
       "cols": "Columns",

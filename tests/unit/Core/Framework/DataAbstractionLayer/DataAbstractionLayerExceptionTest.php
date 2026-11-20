@@ -302,4 +302,31 @@ class DataAbstractionLayerExceptionTest extends TestCase
         $this->expectExceptionMessage('Configuration for product elasticsearch definition not found');
         DataAbstractionLayerException::configNotFound();
     }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testInvalidIdentifier66(): void
+    {
+        $e = DataAbstractionLayerException::invalidIdentifier('.a*/b');
+
+        static::assertInstanceOf(\InvalidArgumentException::class, $e);
+        static::assertSame(
+            'Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier',
+            $e->getMessage()
+        );
+    }
+
+    public function testInvalidIdentifier(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $e = DataAbstractionLayerException::invalidIdentifier('.a*/b');
+
+        static::assertInstanceOf(DataAbstractionLayerException::class, $e);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame(DataAbstractionLayerException::DBAL_INVALID_IDENTIFIER, $e->getErrorCode());
+        static::assertSame(
+            'Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier ".a*/b"',
+            $e->getMessage()
+        );
+    }
 }

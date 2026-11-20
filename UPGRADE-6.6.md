@@ -1,3 +1,20 @@
+# 6.6.10.32
+## Active media uploads and Storefront documents
+
+Public HTML uploads are rejected by default. Review existing public HTML assets and remove files that are no longer needed. Installations that explicitly allow public HTML must protect those assets at the serving layer, for example with a suitable Content Security Policy or a separate origin.
+
+Custom HTML document templates must work without scripts, embedded documents, base URL changes or form submissions. The Storefront document policy can be overridden through the container parameter `shopware.security.private_media_csp` in `config/services.yaml`. Admin API and Store API responses retain their existing CSP.
+## Media paths and file names are validated on API writes
+
+Admin API, Sync API, apps and integrations can no longer set or change `media.path` or `media_thumbnail.path` to a relative path.
+This affects the external file upload flow described in `UPGRADE-6.5.md`.
+To store a file in the shop's own storage, use the media upload actions.
+External media keep working with an absolute `http` or `https` URL.
+
+The update does not rewrite values stored before it.
+Check `media.path` and `media_thumbnail.path` for relative values that the configured path strategy does not produce, for example values containing `..` or a backslash, or starting with `/`.
+Correct such paths before deleting or replacing the affected media, because both act on the stored path.
+
 # 6.6.10.31
 ## GARAN guarantee terms per product
 Products have new fields for the guarantee terms, inherited by variants: `guaranteeTermsMediaId` for a PDF and `guaranteeTermsUrl` for a web page. `guaranteeTermsUrl` only accepts `http://` and `https://` URLs; other values are rejected with the `INVALID_GARAN_GUARANTEE_TERMS_URL` violation.

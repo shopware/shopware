@@ -64,6 +64,7 @@ class ApiException extends HttpException
     public const API_MISSING_REQUEST_PARAMETER_CODE = 'FRAMEWORK__API_REQUEST_PARAMETER_MISSING';
     public const API_INVALID_IDS_PARAMETER = 'FRAMEWORK__API_INVALID_IDS_PARAMETER';
     public const API_EXPECTATION_NOT_SUPPORTED = 'FRAMEWORK__API_EXPECTATION_NOT_SUPPORTED';
+    public const API_INVALID_CLONE_OVERWRITE = 'FRAMEWORK__API_INVALID_CLONE_OVERWRITE';
 
     /**
      * @param list<array{pointer: string, entity: string}> $exceptions
@@ -196,6 +197,16 @@ class ApiException extends HttpException
     public static function noEntityCloned(string $entity, string $id): ShopwareHttpException
     {
         return new NoEntityClonedException($entity, $id);
+    }
+
+    public static function invalidCloneOverwrite(string $propertyPath): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::API_INVALID_CLONE_OVERWRITE,
+            'The value of "{{ propertyPath }}" is not allowed in clone overwrites.',
+            ['propertyPath' => $propertyPath]
+        );
     }
 
     public static function expectationNotSupported(): self

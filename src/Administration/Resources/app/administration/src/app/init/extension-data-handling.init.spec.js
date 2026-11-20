@@ -9,11 +9,12 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
     initializeExtensionDataLoader();
     let searchResult = { searchFoo: 'bar' };
     let getResult = { getFoo: 'bar' };
-    let saveResult = { saveFoo: 'bar' };
+    // save/saveAll/delete resolve with the raw request response, including its request config headers
+    let saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
     let cloneResult = { cloneFoo: 'bar' };
     let hasChangesResult = true;
-    let saveAllResult = { saveAllFoo: 'bar' };
-    let deleteResult = { deleteFoo: 'bar' };
+    let saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
+    let deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
     let createResult = { createFoo: 'bar' };
     const searchMockMethod = jest.fn((criteria, context) => {
         if (context.shouldFail) {
@@ -25,22 +26,23 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
             context,
         };
     });
-    const getMockMethod = jest.fn((criteria, context) => {
-        return {
+    // the repository methods resolve asynchronously like the real repository
+    const getMockMethod = jest.fn((id, context) => {
+        return Promise.resolve({
             ...getResult,
             context,
-        };
+        });
     });
-    const saveMockMethod = jest.fn(() => saveResult);
-    const cloneMockMethod = jest.fn((criteria, behaviour, context) => {
-        return {
+    const saveMockMethod = jest.fn(() => Promise.resolve(saveResult));
+    const cloneMockMethod = jest.fn((id, behaviour, context) => {
+        return Promise.resolve({
             ...cloneResult,
             context,
-        };
+        });
     });
     const hasChangesMockMethod = jest.fn(() => hasChangesResult);
-    const saveAllMockMethod = jest.fn(() => saveAllResult);
-    const deleteMockMethod = jest.fn(() => deleteResult);
+    const saveAllMockMethod = jest.fn(() => Promise.resolve(saveAllResult));
+    const deleteMockMethod = jest.fn(() => Promise.resolve(deleteResult));
     const createMockMethod = jest.fn((context) => {
         return {
             ...createResult,
@@ -79,11 +81,11 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         createMockMethod.mockClear();
         searchResult = { searchFoo: 'bar' };
         getResult = { getFoo: 'bar' };
-        saveResult = { saveFoo: 'bar' };
+        saveResult = { saveFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
         cloneResult = { cloneFoo: 'bar' };
         hasChangesResult = true;
-        saveAllResult = { saveAllFoo: 'bar' };
-        deleteResult = { deleteFoo: 'bar' };
+        saveAllResult = { saveAllFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
+        deleteResult = { deleteFoo: 'bar', config: { headers: { Authorization: 'Bearer admin-token' } } };
         createResult = { createFoo: 'bar' };
 
         // create mock extension
@@ -154,6 +156,50 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
         });
     });
 
+    it('should filter nested contexts of the resolved repositoryGet result', async () => {
+        getMockMethod.mockImplementationOnce((id, context) => {
+            return Promise.resolve({
+                ...getResult,
+                categories: {
+                    context,
+                },
+            });
+        });
+
+        const result = await send('repositoryGet', {
+            entityName: 'product',
+            id: 'my-awesome-id',
+            context: {
+                languageId: 'my-awesome-language-id',
+            },
+        });
+
+        expect(result.categories.context).toEqual({
+            languageId: 'my-awesome-language-id',
+        });
+    });
+
+    it('should never return the auth token, even if the extension requests it', async () => {
+        searchMockMethod.mockImplementationOnce(() => {
+            return Promise.resolve({
+                ...searchResult,
+                context: { ...Shopware.Context.api },
+            });
+        });
+
+        const result = await send('repositorySearch', {
+            entityName: 'product',
+            criteria: new Criteria(),
+            context: {
+                authToken: true,
+                languageId: 'my-awesome-language-id',
+            },
+        });
+
+        expect(result.context).not.toHaveProperty('authToken');
+        expect(result.context).toHaveProperty('languageId');
+    });
+
     it('should handle repositorySave', async () => {
         const result = await send('repositorySave', {
             entityName: 'product',
@@ -174,7 +220,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        expect(result).toEqual(saveResult);
+        // The handler must not return the raw repository response to the extension
+        expect(result).toBeNull();
     });
 
     it('should handle repositoryClone', async () => {
@@ -242,7 +289,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        expect(result).toEqual(saveAllResult);
+        // The handler must not return the raw repository response to the extension
+        expect(result).toBeNull();
     });
 
     it('should handle repositoryDelete', async () => {
@@ -261,7 +309,8 @@ describe('src/app/init/extension-data-handling.init.ts', () => {
                 languageId: 'my-awesome-language-id',
             }),
         );
-        expect(result).toEqual(deleteResult);
+        // The handler must not return the raw repository response to the extension
+        expect(result).toBeNull();
     });
 
     it('should handle repositoryCreate', async () => {

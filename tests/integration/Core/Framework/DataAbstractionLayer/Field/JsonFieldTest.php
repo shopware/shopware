@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -421,6 +422,18 @@ EOF;
 
         static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_TIME_FORMAT), $decoded['child']['childDateTime']);
         static::assertEquals($insertTime->format(Defaults::STORAGE_DATE_FORMAT), $decoded['child']['childDate']);
+    }
+
+    public function testJsonPathWithCommentMarkerIsRejected(): void
+    {
+        $repo = $this->getRepository();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('data.a*/b', 'bar'));
+
+        static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('.a*/b'));
+
+        $repo->search($this->registerDefinition(JsonDefinition::class), $criteria, Context::createDefaultContext());
     }
 
     public function testNestedJsonFilter(): void

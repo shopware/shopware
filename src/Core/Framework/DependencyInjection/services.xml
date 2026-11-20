@@ -34,6 +34,8 @@ frame-ancestors 'none';
             <parameter key="installer"/>
         </parameter>
 
+        <parameter key="shopware.security.private_media_csp">script-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'</parameter>
+
         <parameter key="shopware_http_cache_enabled_default">1</parameter>
         <parameter key="shopware.http.cache.enabled">%env(default:shopware_http_cache_enabled_default:SHOPWARE_HTTP_CACHE_ENABLED)%</parameter>
 

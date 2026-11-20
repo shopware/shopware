@@ -54,10 +54,10 @@ function filterContext(result: any, customContext: any) {
         // eslint-disable-next-line no-restricted-syntax
         for (const key in result) {
             if (key === 'context') {
-                // delete everything inside context except properties of customContext
+                // delete everything inside context except the properties of customContext
                 // eslint-disable-next-line no-restricted-syntax
                 for (const contextKey in result[key]) {
-                    if (!customContext || !customContext[contextKey]) {
+                    if (contextKey === 'authToken' || !customContext || !customContext[contextKey]) {
                         delete result[key][contextKey];
                     }
                 }
@@ -101,7 +101,7 @@ export default function initializeExtensionDataLoader(): void {
 
     Shopware.ExtensionAPI.handle(
         'repositoryGet',
-        ({ entityName, id, criteria = new Shopware.Data.Criteria(), context }, additionalInformation) => {
+        async ({ entityName, id, criteria = new Shopware.Data.Criteria(), context }, additionalInformation) => {
             const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
             if (!repository) {
                 return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities) as Promise<null>;
@@ -109,7 +109,8 @@ export default function initializeExtensionDataLoader(): void {
 
             const mergedContext = { ...Shopware.Context.api, ...context };
 
-            const result = repository.get(id, mergedContext, criteria);
+            // The context has to be filtered on the resolved entity, not on the pending promise
+            const result = await repository.get(id, mergedContext, criteria);
             filterContext(result, context);
             return result;
         },
@@ -123,21 +124,26 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.save(entity as Entity<keyof EntitySchema.Entities>, mergedContext) as Promise<void>;
+        // Wait for the save, but do not return its result: the extension only needs to know it succeeded,
+        // not the raw request response.
+        return repository.save(entity as Entity<keyof EntitySchema.Entities>, mergedContext).then(() => undefined);
     });
 
-    Shopware.ExtensionAPI.handle('repositoryClone', ({ entityName, behavior, entityId, context }, additionalInformation) => {
-        const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
-        if (!repository) {
-            return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities);
-        }
+    Shopware.ExtensionAPI.handle(
+        'repositoryClone',
+        async ({ entityName, behavior, entityId, context }, additionalInformation) => {
+            const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
+            if (!repository) {
+                return rejectRepositoryCreation(entityName as keyof EntitySchema.Entities);
+            }
 
-        const mergedContext = { ...Shopware.Context.api, ...context };
+            const mergedContext = { ...Shopware.Context.api, ...context };
 
-        const result = repository.clone(entityId, behavior as $TSDangerUnknownObject, mergedContext);
-        filterContext(result, context);
-        return result;
-    });
+            const result = await repository.clone(entityId, behavior as $TSDangerUnknownObject, mergedContext);
+            filterContext(result, context);
+            return result;
+        },
+    );
 
     Shopware.ExtensionAPI.handle('repositoryHasChanges', ({ entityName, entity }, additionalInformation) => {
         const repository = getRepository(entityName as keyof EntitySchema.Entities, additionalInformation);
@@ -156,7 +162,11 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.saveAll(entities as EntityCollection<keyof EntitySchema.Entities>, mergedContext) as Promise<void>;
+        // Wait for the save, but do not return its result: the extension only needs to know it succeeded,
+        // not the raw request response.
+        return repository
+            .saveAll(entities as EntityCollection<keyof EntitySchema.Entities>, mergedContext)
+            .then(() => undefined);
     });
 
     Shopware.ExtensionAPI.handle('repositoryDelete', ({ entityName, entityId, context }, additionalInformation) => {
@@ -167,7 +177,9 @@ export default function initializeExtensionDataLoader(): void {
 
         const mergedContext = { ...Shopware.Context.api, ...context };
 
-        return repository.delete(entityId, mergedContext) as unknown as Promise<void>;
+        // Wait for the delete, but do not return its result: the extension only needs to know it succeeded,
+        // not the raw request response.
+        return repository.delete(entityId, mergedContext).then(() => undefined);
     });
 
     Shopware.ExtensionAPI.handle('repositoryCreate', ({ entityName, entityId, context }, additionalInformation) => {

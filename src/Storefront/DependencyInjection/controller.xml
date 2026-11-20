@@ -132,6 +132,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewLoader"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\FindVariant\FindProductVariantRoute"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -287,6 +288,7 @@
         <service id="Shopware\Storefront\Controller\DocumentController" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument>%shopware.security.private_media_csp%</argument>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -170,6 +170,7 @@ class EntityDefinitionQueryHelper
             }
 
             if (!$field instanceof AssociationField) {
+                // Association traversal ends here, so any remaining `extensions` keys stay in the accessor.
                 break;
             }
 

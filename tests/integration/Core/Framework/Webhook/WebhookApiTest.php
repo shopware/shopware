@@ -464,6 +464,23 @@ class WebhookApiTest extends TestCase
         static::assertFalse($this->fetchSubscription($webhookId));
     }
 
+    public function testAclRolesOfAnAppAreRejected(): void
+    {
+        $app = (new AppFixture(static::getContainer()->get('app.repository')))->createAppFromData([
+            'aclRole' => ['name' => 'app-role', 'privileges' => ['product:read']],
+        ]);
+        $appRoleId = $app->getAclRoleId();
+
+        $webhookId = $this->createWebhookWithAclRoles('product.written', [$appRoleId]);
+
+        $this->assertApiErrors([[
+            'code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION',
+            'field' => 'aclRoleIds',
+            'detail' => 'Role "' . $appRoleId . '" belongs to an app.',
+        ]]);
+        static::assertFalse($this->fetchSubscription($webhookId));
+    }
+
     public function testAnEmptyAclRoleListIsRejected(): void
     {
         $webhookId = $this->createWebhookWithAclRoles('product.written', []);

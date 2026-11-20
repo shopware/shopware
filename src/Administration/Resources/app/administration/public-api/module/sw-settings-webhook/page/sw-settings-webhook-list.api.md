@@ -18,6 +18,7 @@ blocks
       sw_settings_webhook_list_empty_state  [after v-if] [private]
       sw_settings_webhook_list_grid  [private]
       sw_settings_webhook_list_load_error  [after v-if] [private]
+      sw_settings_webhook_list_roles_modal  [after v-if] [private]
       sw_settings_webhook_list_secret_modal  [after v-if] [private]
     sw_settings_webhook_list_search_bar  [private]
     sw_settings_webhook_list_sidebar  [private]

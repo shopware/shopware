@@ -136,6 +136,15 @@
                 >
                     {{ $t('sw-settings-webhook.list.actionSetSecret') }}
                 </sw-context-menu-item>
+
+                <sw-context-menu-item
+                    v-tooltip.bottom="editRolesTooltip(item)"
+                    class="sw-settings-webhook-list__edit-roles-action"
+                    :disabled="!canEditRoles(item)"
+                    @click="openRoles(item)"
+                >
+                    {{ $t('sw-settings-webhook.list.actionEditRoles') }}
+                </sw-context-menu-item>
             </template>
 
             <template #delete-action="{ item, showDelete, allowDelete }">
@@ -165,6 +174,15 @@
             v-if="secretWebhook"
             :webhook="secretWebhook"
             @modal-close="closeSecret"
+        />
+        {% endblock %}
+
+        {% block sw_settings_webhook_list_roles_modal %}
+        <sw-settings-webhook-roles-modal
+            v-if="rolesWebhook"
+            :webhook="rolesWebhook"
+            @saved="getList"
+            @modal-close="closeRoles"
         />
         {% endblock %}
 

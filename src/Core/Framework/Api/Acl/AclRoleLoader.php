@@ -68,6 +68,24 @@ class AclRoleLoader
     }
 
     /**
+     * @param list<string> $roleIds
+     *
+     * @return list<string> the given roles that belong to an app
+     */
+    public function getAppRoleIds(array $roleIds): array
+    {
+        if ($roleIds === []) {
+            return [];
+        }
+
+        return $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(`acl_role_id`)) FROM `app` WHERE `acl_role_id` IN (:aclRoleIds)',
+            ['aclRoleIds' => Uuid::fromHexToBytesList($roleIds)],
+            ['aclRoleIds' => ArrayParameterType::BINARY]
+        );
+    }
+
+    /**
      * @param list<string> $userIds
      *
      * @return array<string, AclRoles> keyed by user id

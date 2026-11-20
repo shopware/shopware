@@ -364,12 +364,11 @@
             "additionalProperties": false,
             "properties": {
                 "algorithm": {
-                    "description": "\"default\" uses PHP's PASSWORD_DEFAULT. argon2i and argon2id require PHP to be compiled with Argon2 support.",
+                    "description": "\"default\" uses PHP's PASSWORD_DEFAULT. argon2id requires PHP to be compiled with Argon2 support.",
                     "type": "string",
                     "enum": [
                         "default",
                         "bcrypt",
-                        "argon2i",
                         "argon2id"
                     ],
                     "default": "default"

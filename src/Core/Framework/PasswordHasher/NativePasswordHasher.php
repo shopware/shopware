@@ -16,13 +16,11 @@ class NativePasswordHasher extends AbstractPasswordHasher
 {
     final public const ALGORITHM_DEFAULT = 'default';
     final public const ALGORITHM_BCRYPT = 'bcrypt';
-    final public const ALGORITHM_ARGON2I = 'argon2i';
     final public const ALGORITHM_ARGON2ID = 'argon2id';
 
     final public const ALGORITHMS = [
         self::ALGORITHM_DEFAULT,
         self::ALGORITHM_BCRYPT,
-        self::ALGORITHM_ARGON2I,
         self::ALGORITHM_ARGON2ID,
     ];
 

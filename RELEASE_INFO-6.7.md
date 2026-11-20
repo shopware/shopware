@@ -851,7 +851,15 @@ Rebuild these indexes with `bin/console es:admin:index` when enabling 6.8; see `
 
 Added `idx.product.parent_type` on `product(parent_id, parent_version_id, type)` to accelerate exact counts in the default product list.
 The migration requires online index creation using `ALGORITHM=INPLACE, LOCK=NONE`.
-On large installations, create this index before the update using `ALGORITHM=INPLACE, LOCK=NONE` to keep the update's migration step short.
+On large installations, create this index before the update to keep the update's migration step short:
+
+```sql
+ALTER TABLE `product`
+    ADD INDEX `idx.product.parent_type` (`parent_id`, `parent_version_id`, `type`),
+    ALGORITHM=INPLACE,
+    LOCK=NONE;
+```
+
 The migration detects the existing index and leaves the Administration pagination unchanged.
 
 ### `blocks-list.json` is replaced by the public API snapshot

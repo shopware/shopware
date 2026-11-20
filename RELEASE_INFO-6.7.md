@@ -530,6 +530,14 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### CSV exports escape values that start a formula
+
+Values in CSV exports that start with `=`, `+`, `-`, `@`, a tab, a carriage return or a line feed, or with the full-width `＝`, `＋`, `－` or `＠`, now get a single quote (`'`) in front.
+Spreadsheet applications then show such a value as text instead of running it as a formula.
+This also applies to the file of invalid records that an import creates.
+The header row and plain numbers such as `-2` stay unchanged.
+Importing an exported file unchanged keeps the quote in these values.
+
 ### Rules match the address of a visitor without a customer
 
 A visitor who is neither logged in nor registered can now send an address, which is stored on the context as `SalesChannelContext::getProspectiveCustomer()`.

@@ -43,7 +43,7 @@ class RepositoryWriterFacadeTest extends TestCase
         $facade = new RepositoryWriterFacade(
             $registry,
             static::createStub(SyncService::class),
-            AppContextFactory::forApp($hookContext, $integrationId, ['product:create']),
+            AppContextFactory::forApp($hookContext, Uuid::randomHex(), $integrationId, ['product:create']),
         );
 
         $first = $write($facade)->getContext();
@@ -86,7 +86,7 @@ class RepositoryWriterFacadeTest extends TestCase
         $facade = new RepositoryWriterFacade(
             static::createStub(DefinitionInstanceRegistry::class),
             $syncService,
-            AppContextFactory::forApp($hookContext, $integrationId, ['product:update']),
+            AppContextFactory::forApp($hookContext, Uuid::randomHex(), $integrationId, ['product:update']),
         );
 
         $payload = [['entity' => 'product', 'action' => 'upsert', 'payload' => [['id' => Uuid::randomHex()]]]];

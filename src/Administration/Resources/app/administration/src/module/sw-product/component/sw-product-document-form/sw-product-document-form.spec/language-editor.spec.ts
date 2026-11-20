@@ -169,6 +169,7 @@ describe('sw-product-document-form language editor', () => {
         await clickButton(wrapper, 'global.default.apply');
         await flushPromises();
         const operation = {
+            type: 'update',
             mediaId: document.translations[0].mediaId,
             title: 'Manual',
             changes: { mediaId: media.id },
@@ -266,7 +267,7 @@ describe('sw-product-document-form language editor', () => {
         await wrapper.get('.sw-product-document-form__apply-to-variants input').setValue(true);
         await clickButton(wrapper, 'global.default.apply');
         await flushPromises();
-        const operation = { mediaId: media.id, title: 'Handbuch', changes: { title: null } };
+        const operation = { type: 'update', mediaId: media.id, title: 'Handbuch', changes: { title: null } };
         expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
         expect(store.documentVariantOperations).toEqual({ [document.id]: operation });
         expect(document).toMatchObject({ title: null, mediaId: media.id });

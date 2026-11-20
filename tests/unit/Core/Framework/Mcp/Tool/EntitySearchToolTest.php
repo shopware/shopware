@@ -69,13 +69,11 @@ class EntitySearchToolTest extends TestCase
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(0, $data['_meta']['total']);
-        static::assertSame([], $data['data']);
-        static::assertSame(1, $data['_meta']['page']);
-        static::assertSame(25, $data['_meta']['limit']);
+        static::assertFalse($output->isError());
+        static::assertSame(0, $output->meta['total']);
+        static::assertSame([], $output->data);
+        static::assertSame(1, $output->meta['page']);
+        static::assertSame(25, $output->meta['limit']);
     }
 
     public function testSearchWithPagination(): void
@@ -117,12 +115,10 @@ class EntitySearchToolTest extends TestCase
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', '{"limit": 10, "page": 2}');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(42, $data['_meta']['total']);
-        static::assertSame(2, $data['_meta']['page']);
-        static::assertSame(10, $data['_meta']['limit']);
+        static::assertFalse($output->isError());
+        static::assertSame(42, $output->meta['total']);
+        static::assertSame(2, $output->meta['page']);
+        static::assertSame(10, $output->meta['limit']);
     }
 
     public function testTopLevelParamsMergeIntoCriteria(): void
@@ -173,8 +169,7 @@ class EntitySearchToolTest extends TestCase
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', '{}', 5, 2, 'shirt');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
+        static::assertFalse($output->isError());
     }
 
     public function testDefaultLimitIsAlwaysAppliedToPayload(): void
@@ -363,11 +358,9 @@ class EntitySearchToolTest extends TestCase
         );
         $output = ($tool)('product', 'not-json');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Invalid JSON', $data['error']);
-        static::assertStringContainsString('criteria', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Invalid JSON', $output->error->message);
+        static::assertStringContainsString('criteria', $output->error->message);
     }
 
     public function testDeniesAccessWithoutReadPermission(): void
@@ -386,11 +379,9 @@ class EntitySearchToolTest extends TestCase
         $tool = new EntitySearchTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class), static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertArrayHasKey('error', $data);
-        static::assertStringContainsString('product:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertNotNull($output->error);
+        static::assertStringContainsString('product:read', $output->error->message);
     }
 
     public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
@@ -423,11 +414,9 @@ class EntitySearchToolTest extends TestCase
         $tool = new EntitySearchTool($registry, $criteriaBuilder, $contextProvider, static::createStub(JsonEntityEncoder::class), $criteriaValidator);
         $output = ($tool)('order', '{"associations": {"orderCustomer": {}}}');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Missing privilege:', $data['error']);
-        static::assertStringContainsString('order_customer:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Missing privilege:', $output->error->message);
+        static::assertStringContainsString('order_customer:read', $output->error->message);
     }
 
     public function testUnknownEntityReturnsError(): void
@@ -448,12 +437,10 @@ class EntitySearchToolTest extends TestCase
         );
         $output = ($tool)('unknown_entity');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('unknown_entity', $data['error']);
-        static::assertStringContainsString('shopware://entities', $data['error']);
-        static::assertSame(McpToolError::INVALID_ARGUMENTS, $data['code']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('unknown_entity', $output->error->message);
+        static::assertStringContainsString('shopware://entities', $output->error->message);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $output->error->code);
     }
 
     #[TestDox('A rejected filter is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
@@ -487,16 +474,11 @@ class EntitySearchToolTest extends TestCase
             static::createStub(AclCriteriaValidator::class),
         );
 
-        $data = json_decode(
-            ($tool)('product', '{"filter":[{"type":"equals"}]}'),
-            true,
-            512,
-            \JSON_THROW_ON_ERROR
-        );
+        $data = ($tool)('product', '{"filter":[{"type":"equals"}]}');
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('/filter/0/equals/field', $data['error']);
-        static::assertStringContainsString('The filter should contain a "field".', $data['error']);
+        static::assertTrue($data->isError());
+        static::assertStringContainsString('/filter/0/equals/field', $data->error->message);
+        static::assertStringContainsString('The filter should contain a "field".', $data->error->message);
     }
 
     #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]

@@ -258,7 +258,12 @@ describe('sw-product-document-form language-version removal', () => {
         const store = Shopware.Store.get('swProductDetail');
         store.product = await loadProduct('Handbuch', germanMedia.id);
         store.product.childCount = 3;
-        const operation = { mediaId: germanMedia.id, title: 'Handbuch', changes: { title: null, mediaId: null } };
+        const operation = {
+            type: 'update',
+            mediaId: germanMedia.id,
+            title: 'Handbuch',
+            changes: { title: null, mediaId: null },
+        };
         const saveSpy = jest.spyOn(repository, 'save');
         wrapper = await createWrapper(undefined, undefined, repository);
         await wrapper.findAll('sw-context-menu-item-stub').at(-1)!.trigger('click');

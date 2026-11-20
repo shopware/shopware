@@ -68,6 +68,7 @@ describe('sw-product-document-form variant editing', () => {
             await flushPromises();
 
             const operation = {
+                type: 'update',
                 mediaId: original.id,
                 title: 'manual',
                 changes: { title: 'Battery safety data sheet', mediaId: replacement.id },
@@ -178,7 +179,12 @@ describe('sw-product-document-form variant editing', () => {
             expect(document.mediaId).toBe(replacement.id);
             expect(getDocumentMedia(document)?.id).toBe(replacement.id);
             expect(store.documentVariantOperations).toEqual({
-                [document.id]: { mediaId: original.id, title: 'manual', changes: { mediaId: replacement.id } },
+                [document.id]: {
+                    type: 'update',
+                    mediaId: original.id,
+                    title: 'manual',
+                    changes: { mediaId: replacement.id },
+                },
             });
         });
     });

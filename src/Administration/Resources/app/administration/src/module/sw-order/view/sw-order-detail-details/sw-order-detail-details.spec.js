@@ -4,6 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const orderMock = {
     orderCustomer: {
@@ -102,7 +103,7 @@ function setMultiShipmentOrder() {
     };
 }
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     orderMock.transactions.last = () => ({
         stateMachineState: {
             translated: {
@@ -164,6 +165,7 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
+            ...props,
         },
     });
 }
@@ -176,9 +178,22 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
+    beforeEach(() => {
+        allowDeprecation('sw-order-detail-details.onShippingChargeEdited() is deprecated');
+        allowDeprecation('sw-order-detail-details.shippingCosts is deprecated');
+    });
+
     afterEach(() => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
         Shopware.Store.get('swOrderDetail').setOrderAddressIds(null);
+    });
+
+    it('should report the deprecated isSaveSuccessful prop the order detail page still passes', async () => {
+        wrapper = await createWrapper({ isSaveSuccessful: true });
+
+        expect(deprecations).toHaveTriggered(
+            'The prop "isSaveSuccessful" of the component "sw-order-detail-details" is deprecated',
+        );
     });
 
     it('should have a disabled on transaction card', async () => {

@@ -182,8 +182,9 @@ export default Shopware.Component.wrapComponentConfig({
         variantOperation(): DocumentVariantOperation | null {
             const queuedOperation = Store.get('swProductDetail').documentVariantOperations[this.document.id];
             const { mediaId, title } = queuedOperation ?? this.document.translated ?? {};
+            const queuedChanges = queuedOperation?.type === 'update' ? queuedOperation.changes : {};
             return this.applyToVariants && this.hasVariants && this.hasChanges && mediaId
-                ? { mediaId, title: title || null, changes: { ...queuedOperation?.changes, ...this.changes } }
+                ? { type: 'update', mediaId, title: title || null, changes: { ...queuedChanges, ...this.changes } }
                 : null;
         },
 

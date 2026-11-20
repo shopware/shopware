@@ -75,7 +75,7 @@ describe('sw-product-document-form variant removal', () => {
         await clickButton(wrapper, 'global.default.remove');
         await flushPromises();
 
-        const operation = { mediaId: media.id, title: 'manual' };
+        const operation = { type: 'remove', mediaId: media.id, title: 'manual' };
         expect(mockVariantSync).toHaveBeenCalledTimes(1);
         expect(mockVariantSync).toHaveBeenCalledWith(store.product.id, [operation], true);
         expect(store.documentVariantOperations).toEqual({ [document.id]: operation });

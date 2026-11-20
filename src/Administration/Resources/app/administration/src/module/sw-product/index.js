@@ -6,6 +6,7 @@ import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 import ProductStorefrontUrlApiService from './service/product-storefront-url.api.service';
 import ProductDocumentVariantService from './service/product-document-variant.service';
+import ProductDocumentApiService from './service/product-document.api.service';
 
 const { Module } = Shopware;
 
@@ -147,6 +148,12 @@ Shopware.Service().register('productDocumentVariantService', () => {
     return new ProductDocumentVariantService(
         Shopware.Service().get('repositoryFactory'),
         Shopware.Service().get('syncService'),
+    );
+});
+Shopware.Service().register('productDocumentApiService', () => {
+    return new ProductDocumentApiService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service().get('loginService'),
     );
 });
 Shopware.Service().register('productStorefrontUrlApiService', () => {

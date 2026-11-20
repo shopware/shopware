@@ -3,6 +3,7 @@
  */
 import type { ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
+import type { ProductDocumentUploadSettings } from 'src/module/sw-product/service/product-document.api.service';
 import {
     addDocuments,
     cleanupWrappers,
@@ -12,24 +13,16 @@ import {
     createWrapper,
     getDocuments,
     selectMedia,
+    uploadSettings,
 } from './helpers';
 
-describe('sw-product-document-form frontend upload rules', () => {
+describe('sw-product-document-form upload settings', () => {
     const originalLanguageId = Shopware.Context.api.languageId;
-    const originalSettings = Shopware.Store.get('context').app.config.settings;
-    const maxFileSize = 20 * 1024 * 1024;
-    const mimeTypesByExtension = {
-        pdf: ['application/pdf'],
-        docx: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-        jpg: ['image/jpeg'],
-        jpeg: ['image/jpeg'],
-        png: ['image/png'],
-    };
+    const { maxFileSize } = uploadSettings;
 
     beforeEach(() => {
         Object.assign(global, { activeAclRoles: ['product.editor'] });
         Shopware.Context.api.languageId = Shopware.Context.api.systemLanguageId;
-        Shopware.Store.get('context').app.config.settings = undefined;
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
         store.product = createProduct();
@@ -40,18 +33,17 @@ describe('sw-product-document-form frontend upload rules', () => {
         cleanupWrappers();
         await flushPromises();
         Shopware.Context.api.languageId = originalLanguageId;
-        Shopware.Store.get('context').app.config.settings = originalSettings;
         jest.restoreAllMocks();
     });
 
-    it('uses frontend rules in the upload picker without backend configuration', async () => {
+    it('passes the upload settings to the upload picker and the media modal', async () => {
         const wrapper = await createWrapper();
         await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
         const upload = wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2');
 
         expect(upload.props()).toMatchObject({
             extensionAccept: 'pdf,docx,jpg,jpeg,png',
-            extensionMimeTypesByExtension: mimeTypesByExtension,
+            extensionMimeTypesByExtension: uploadSettings.allowedMimeTypesByExtension,
             maxFileSize,
         });
 
@@ -104,7 +96,7 @@ describe('sw-product-document-form frontend upload rules', () => {
         { extension: 'jpeg', size: 1024, accepted: true },
         { extension: 'png', size: 1024, accepted: true },
         { extension: 'txt', size: 1024, accepted: false },
-    ])('validates $extension files of $size bytes against frontend rules', async ({ extension, size, accepted }) => {
+    ])('validates $extension files of $size bytes against the upload settings', async ({ extension, size, accepted }) => {
         const wrapper = await createWrapper();
         const media = createMedia('document');
         media.fileExtension = extension;
@@ -116,7 +108,7 @@ describe('sw-product-document-form frontend upload rules', () => {
         expect(wrapper.findAll('.document-row')).toHaveLength(accepted ? 1 : 0);
     });
 
-    it('uses frontend rules for replacement uploads and media selection', async () => {
+    it('uses the upload settings for replacement uploads and media selection', async () => {
         const wrapper = await createWrapper();
         const media = createMedia('original');
         await addDocuments(wrapper, [media]);
@@ -125,7 +117,7 @@ describe('sw-product-document-form frontend upload rules', () => {
         const upload = wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2');
         expect(upload.props()).toMatchObject({
             extensionAccept: 'pdf,docx,jpg,jpeg,png',
-            extensionMimeTypesByExtension: mimeTypesByExtension,
+            extensionMimeTypesByExtension: uploadSettings.allowedMimeTypesByExtension,
             maxFileSize,
         });
 
@@ -144,27 +136,57 @@ describe('sw-product-document-form frontend upload rules', () => {
         expect(wrapper.get('.document-row').text()).toContain('replacement.pdf');
     });
 
-    it('keeps frontend rules when backend upload configuration is present', async () => {
-        Object.assign(Shopware.Store.get('context').app.config, {
-            settings: {
-                ...originalSettings,
-                productDocuments: {
-                    allowedExtensions: ['txt'],
-                    allowedMimeTypesByExtension: { txt: ['text/plain'] },
-                    maxFileSize: 512,
-                },
-            },
+    it('accepts only the file types and size that the API returns', async () => {
+        const wrapper = await createWrapper(undefined, undefined, undefined, {
+            getUploadSettings: jest.fn().mockResolvedValue({
+                allowedExtensions: ['txt'],
+                allowedMimeTypesByExtension: { txt: ['text/plain'] },
+                maxFileSize: 512,
+            }),
         });
-        const wrapper = await createWrapper();
-        const rejected = createMedia('text-file');
-        rejected.fileExtension = 'txt';
-        rejected.fileSize = 512;
-        const accepted = createMedia('manual');
-        accepted.fileSize = maxFileSize;
-        await addDocuments(wrapper, [rejected, accepted]);
+        const accepted = createMedia('text-file');
+        accepted.fileExtension = 'txt';
+        accepted.fileSize = 512;
+        const rejected = createMedia('manual');
+        await addDocuments(wrapper, [accepted, rejected]);
 
         expect(getDocuments()).toHaveLength(1);
         expect(getDocuments()?.[0].mediaId).toBe(accepted.id);
-        expect(wrapper.get('.document-row').text()).toContain('manual.pdf');
+        expect(wrapper.get('.document-row').text()).toContain('text-file.txt');
+    });
+
+    it('disables adding documents until the upload settings are loaded', async () => {
+        let resolveSettings: (settings: ProductDocumentUploadSettings) => void = () => {};
+        const settings = new Promise<ProductDocumentUploadSettings>((resolve) => {
+            resolveSettings = resolve;
+        });
+        const wrapper = await createWrapper(undefined, undefined, undefined, { getUploadSettings: () => settings });
+
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeDefined();
+
+        resolveSettings(uploadSettings);
+        await flushPromises();
+
+        expect(wrapper.get('.sw-product-document-form__empty-state button').attributes('disabled')).toBeUndefined();
+    });
+
+    it('skips the browser-side check when the upload settings cannot be loaded', async () => {
+        const wrapper = await createWrapper(undefined, undefined, undefined, {
+            getUploadSettings: jest.fn().mockRejectedValue(new Error('Request failed')),
+        });
+        await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
+
+        expect(wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').props()).toMatchObject({
+            extensionAccept: '',
+            maxFileSize: Number.POSITIVE_INFINITY,
+        });
+
+        const textFile = createMedia('text-file');
+        textFile.fileExtension = 'txt';
+        const largeFile = createMedia('large');
+        largeFile.fileSize = maxFileSize + 1;
+        await selectMedia(wrapper, [textFile, largeFile]);
+
+        expect(getDocuments()).toHaveLength(2);
     });
 });

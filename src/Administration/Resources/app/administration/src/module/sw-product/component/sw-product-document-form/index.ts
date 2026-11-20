@@ -5,6 +5,7 @@ import useSnackbar from 'src/app/composables/use-snackbar';
 import type EntityFactory from 'src/core/data/entity-factory.data';
 import useNotification from 'src/app/composables/use-notification';
 import type { DocumentChanges } from 'src/module/sw-product/service/product-document-variant.service';
+import type { ProductDocumentUploadSettings } from 'src/module/sw-product/service/product-document.api.service';
 import type { DocumentEdit, DocumentUploadRules } from './sw-product-document-edit-modal';
 import type { DocumentRemoval } from './sw-product-document-remove-modal';
 import { getDocumentMedia, setDocumentMedia } from './product-document.helper';
@@ -31,16 +32,6 @@ const columns = [
         align: 'right',
     },
 ];
-
-const documentExtensions = [
-    'pdf',
-    'docx',
-    'jpg',
-    'jpeg',
-    'png',
-];
-
-const documentMaxFileSize = 20 * 1024 * 1024;
 
 const { Context, Store, Utils } = Shopware;
 const { cloneDeep, pick } = Utils.object;
@@ -70,7 +61,7 @@ export default Shopware.Component.wrapComponentConfig({
         'repositoryFactory',
         'entityFactory',
         'acl',
-        'fileValidationService',
+        'productDocumentApiService',
         'mediaDefaultFolderService',
     ],
 
@@ -83,6 +74,7 @@ export default Shopware.Component.wrapComponentConfig({
             showRestoreInheritanceModal: false,
             isInheritanceRemoved: false,
             mediaFolderId: undefined as string | null | undefined,
+            uploadSettings: undefined as ProductDocumentUploadSettings | null | undefined,
             editingDocument: null as Entity<'product_document'> | null,
             selectedDocuments: [] as Entity<'product_document'>[],
             documentsToRemove: [] as Entity<'product_document'>[],
@@ -150,7 +142,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canAddDocuments(): boolean {
-            return this.canEditDocuments && this.isSystemDefaultLanguage;
+            return this.canEditDocuments && this.isSystemDefaultLanguage && this.uploadSettings !== undefined;
         },
 
         canEditDocuments(): boolean {
@@ -194,23 +186,26 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         uploadRules(): DocumentUploadRules {
-            const mimeTypes = Object.entries(this.fileValidationService.extensionByType);
-            const allowedMimeTypesByExtension = Object.fromEntries(
-                documentExtensions.map((extension) => [
-                    extension,
-                    mimeTypes.filter(([, extensions]) => extensions.includes(extension)).map(([mimeType]) => mimeType),
-                ]),
-            );
+            if (!this.uploadSettings) {
+                return {
+                    allowedExtensions: [],
+                    allowedMimeTypesByExtension: {},
+                    maxFileSize: Number.POSITIVE_INFINITY,
+                    fileAccept: '*/*',
+                };
+            }
 
             return {
-                allowedExtensions: documentExtensions,
-                allowedMimeTypesByExtension,
-                maxFileSize: documentMaxFileSize,
-                fileAccept: [...new Set(Object.values(allowedMimeTypesByExtension).flat())].join(','),
+                ...this.uploadSettings,
+                fileAccept: [...new Set(Object.values(this.uploadSettings.allowedMimeTypesByExtension).flat())].join(','),
             };
         },
 
         uploadHint(): string {
+            if (!this.uploadSettings) {
+                return '';
+            }
+
             return this.$t('sw-product.documentForm.uploadHint', {
                 extensions: this.uploadRules.allowedExtensions.join(', ').toUpperCase(),
                 size: Utils.format.fileSize(this.uploadRules.maxFileSize),
@@ -244,15 +239,27 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     async created() {
-        try {
-            this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
-        } catch {
-            this.mediaFolderId = null;
-        }
+        await Promise.all([this.loadMediaFolderId(), this.loadUploadSettings()]);
     },
 
     methods: {
         getDocumentMedia,
+
+        async loadMediaFolderId(): Promise<void> {
+            try {
+                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
+            } catch {
+                this.mediaFolderId = null;
+            }
+        },
+
+        async loadUploadSettings(): Promise<void> {
+            try {
+                this.uploadSettings = await this.productDocumentApiService.getUploadSettings();
+            } catch {
+                this.uploadSettings = null;
+            }
+        },
 
         getFileName(document: Entity<'product_document'>): string {
             const media = getDocumentMedia(document);
@@ -365,7 +372,9 @@ export default Shopware.Component.wrapComponentConfig({
         isValidMedia(media: Entity<'media'>, exceptDocument: Entity<'product_document'> | null): boolean {
             const { allowedExtensions, maxFileSize } = this.uploadRules;
             const extension = media.fileExtension?.toLowerCase() ?? '';
-            const isAllowedFile = allowedExtensions.includes(extension) && (media.fileSize ?? Infinity) <= maxFileSize;
+            const isAllowedFile =
+                !this.uploadSettings ||
+                (allowedExtensions.includes(extension) && (media.fileSize ?? Infinity) <= maxFileSize);
             const isDuplicate = this.documents.some(
                 (document) => document !== exceptDocument && document.translated?.mediaId === media.id,
             );

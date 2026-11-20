@@ -30,11 +30,18 @@ async function createWrapper({ save = jest.fn(() => Promise.resolve()) } = {}) {
                     props: ['modelValue'],
                     emits: ['update:modelValue'],
                     template: `
-                        <input
-                            class="mt-text-field"
-                            :value="modelValue"
-                            @input="$emit('update:modelValue', $event.target.value)"
-                        />`,
+                        <div>
+                            <input
+                                class="mt-text-field"
+                                :value="modelValue"
+                                @input="$emit('update:modelValue', $event.target.value)"
+                            />
+                            <slot name="suffix"></slot>
+                        </div>`,
+                },
+                'sw-field-copyable': {
+                    props: ['copyableText'],
+                    template: '<span class="sw-field-copyable">{{ copyableText }}</span>',
                 },
                 'mt-banner': {
                     template: '<div class="mt-banner"><slot></slot></div>',
@@ -63,6 +70,15 @@ describe('src/module/sw-settings-webhook/component/sw-settings-webhook-secret-mo
         await wrapper.find('.sw-settings-webhook-secret-modal__generate').trigger('click');
 
         expect((wrapper.find('.mt-text-field').element as HTMLInputElement).value).toMatch(/^[0-9a-f]{64}$/);
+    });
+
+    it('offers to copy the secret once there is one', async () => {
+        const { wrapper } = await createWrapper();
+        expect(wrapper.find('.sw-field-copyable').exists()).toBe(false);
+
+        await wrapper.find('.mt-text-field').setValue('secret-of-the-receiver');
+
+        expect(wrapper.find('.sw-field-copyable').text()).toBe('secret-of-the-receiver');
     });
 
     it('asks to copy a secret only while it is the generated one', async () => {

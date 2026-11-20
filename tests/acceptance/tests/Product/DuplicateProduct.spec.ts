@@ -20,7 +20,9 @@ test(
 
         // The source product is left untouched by the clone.
         const originalResponse = await AdminApiContext.get(`./product/${product.id}?_response=detail`);
-        const { data: original } = (await originalResponse.json()) as { data: { name: string; productNumber: string; active: boolean } };
+        const { data: original } = (await originalResponse.json()) as {
+            data: { name: string; productNumber: string; active: boolean };
+        };
         ShopAdmin.expects(original.name).toBe(product.name);
         ShopAdmin.expects(original.productNumber).toBe(product.productNumber);
         ShopAdmin.expects(original.active).toBe(true);

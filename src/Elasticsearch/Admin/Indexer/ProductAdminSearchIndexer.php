@@ -98,7 +98,14 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             }
         }
 
-        return array_values(array_unique(array_filter($productIds, '\is_string')));
+        $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));
+
+        if ($productIds === [] || !Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API')) {
+            return $productIds;
+        }
+
+        // variants index the values they inherit from their parent, e.g. price, active, visibilities and cover
+        return array_values(array_unique([...$productIds, ...$this->fetchVariantIds($productIds)]));
     }
 
     public function getName(): string
@@ -681,5 +688,25 @@ SQL,
         }
 
         return $result !== [] ? $result : null;
+    }
+
+    /**
+     * @param list<string> $parentIds
+     *
+     * @return list<string>
+     */
+    private function fetchVariantIds(array $parentIds): array
+    {
+        /** @var list<string> $variantIds */
+        $variantIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND parent_version_id = :versionId AND version_id = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($parentIds),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $variantIds;
     }
 }

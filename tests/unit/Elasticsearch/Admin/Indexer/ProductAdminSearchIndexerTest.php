@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -163,6 +164,53 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertSame([$productId], $indexer->getUpdatedIds($event));
     }
 
+    public function testGetUpdatedIdsContainsTheVariantsOfWrittenProducts(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->with(
+                static::stringContains('parent_id IN (:ids)'),
+                static::callback(static fn (array $params): bool => $params['ids'] === [Uuid::fromHexToBytes($parentId)])
+            )
+            ->willReturn([$variantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($indexer, $parentId, $variantId): void {
+            static::assertSame([$parentId, $variantId], $indexer->getUpdatedIds($this->createProductWrittenEvent($parentId)));
+        });
+    }
+
+    public function testGetUpdatedIdsDoesNotLoadVariantsWithoutTheAdvancedAdminSearch(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        Feature::withFeatureDisabled('ENABLE_OPENSEARCH_FOR_ADMIN_API', function () use ($indexer, $productId): void {
+            static::assertSame([$productId], $indexer->getUpdatedIds($this->createProductWrittenEvent($productId)));
+        });
+    }
+
     public function testGlobalCriteria(): void
     {
         $indexer = new ProductAdminSearchIndexer(
@@ -246,6 +294,19 @@ class ProductAdminSearchIndexerTest extends TestCase
         $textQueries = array_column($result->getQueries()->toArray()['bool']['should'], 'simple_query_string');
 
         static::assertSame(["test\n"], array_column($textQueries, 'query'));
+    }
+
+    private function createProductWrittenEvent(string $productId): EntityWrittenContainerEvent
+    {
+        return new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($productId, ['active' => false], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
     }
 
     private function getConnection(): Connection

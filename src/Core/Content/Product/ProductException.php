@@ -29,6 +29,17 @@ class ProductException extends HttpException
     final public const PRODUCT_REVIEW_NOT_ACTIVE = 'PRODUCT__REVIEW_NOT_ACTIVE';
     final public const PRODUCT_ORIGINAL_ID_NOT_FOUND = 'PRODUCT__ORIGINAL_ID_NOT_FOUND';
     public const MISSING_REQUEST_PARAMETER_CODE = 'PRODUCT__MISSING_REQUEST_PARAMETER_CODE';
+    public const INVALID_STREAM_RESULT_WINDOW = 'PRODUCT__INVALID_STREAM_RESULT_WINDOW';
+
+    public static function invalidStreamResultWindow(int $window): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_STREAM_RESULT_WINDOW,
+            'Product stream result window must be greater than zero, {{ window }} given.',
+            ['window' => $window]
+        );
+    }
 
     public static function invalidCheapestPriceFacade(string $id): self
     {

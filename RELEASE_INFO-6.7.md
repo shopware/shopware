@@ -17,6 +17,12 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### Larger batches for dynamic product group rebuilds
+
+Dynamic product group rebuilds use batches of up to 50,000 matching products per language.
+With OpenSearch enabled, batches are limited by the configured `elasticsearch.index_settings.max_result_window`, which defaults to 10,000.
+Larger batches reduce query round trips and increase peak memory per batch.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.

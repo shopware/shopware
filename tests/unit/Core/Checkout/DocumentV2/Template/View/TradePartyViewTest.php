@@ -46,6 +46,21 @@ class TradePartyViewTest extends TestCase
         static::assertSame('max@example.com', $view->email);
     }
 
+    public function testBuyerFromOrderCarriesTheVatIdItIsGiven(): void
+    {
+        $order = $this->createOrderWithBillingAddress(
+            firstName: 'Max',
+            lastName: 'Mustermann',
+            street: '',
+            zipcode: '',
+            city: '',
+            countryIso: 'FR',
+        );
+
+        static::assertNull(TradePartyView::buyerFromOrder($order)->vatId);
+        static::assertSame('FR12345678901', TradePartyView::buyerFromOrder($order, 'FR12345678901')->vatId);
+    }
+
     public function testBuyerNameAppendsCompanyWhenPresent(): void
     {
         $order = $this->createOrderWithBillingAddress(

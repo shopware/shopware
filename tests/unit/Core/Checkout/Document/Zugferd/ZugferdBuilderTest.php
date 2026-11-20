@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -145,6 +146,26 @@ class ZugferdBuilderTest extends TestCase
         static::assertStringContainsString('TypeCode>' . ZugferdInvoiceType::INVOICE . '<', $invoiceXml);
         static::assertStringContainsString("Reason>$creditLabel<", $invoiceXml);
         static::assertStringNotContainsString("Name>$creditLabel<", $invoiceXml);
+    }
+
+    public function testAnIntraCommunityDeliveryIsStatedWithTheVatIdOfTheDocumentSettings(): void
+    {
+        $resolver = static::createStub(IntraCommunityTaxResolver::class);
+        $resolver->method('getIntraCommunityVatId')->willReturn('FR12345678901');
+        $resolver->method('getShippingAddress')->willReturn($this->getOrderAddress());
+        $builder = $this->createZugferdBuilder($resolver);
+
+        $xml = $builder->buildDocument($this->buildTaxFreeOrder(), $this->buildDocumentConfig(), Context::createDefaultContext());
+
+        static::assertStringContainsString('<ram:CategoryCode>K</ram:CategoryCode>', $xml);
+        static::assertStringNotContainsString('<ram:CategoryCode>Z</ram:CategoryCode>', $xml);
+        static::assertStringContainsString('<ram:ID schemeID="VA">FR12345678901</ram:ID>', $xml);
+
+        $xml = $builder->buildDocument($this->buildTaxFreeOrder(), $this->buildDocumentConfig(['vatId' => '']), Context::createDefaultContext());
+
+        static::assertStringContainsString('<ram:CategoryCode>Z</ram:CategoryCode>', $xml);
+        static::assertStringNotContainsString('<ram:CategoryCode>K</ram:CategoryCode>', $xml);
+        static::assertStringNotContainsString('FR12345678901', $xml);
     }
 
     #[DataProvider('discountLineItemProvider')]
@@ -314,18 +335,45 @@ class ZugferdBuilderTest extends TestCase
         return $order;
     }
 
-    private function createZugferdBuilder(): ZugferdBuilder
+    private function createZugferdBuilder(?IntraCommunityTaxResolver $intraCommunityTaxResolver = null): ZugferdBuilder
     {
         return new ZugferdBuilder(
             static::createStub(EventDispatcherInterface::class),
-            new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator())
+            new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator()),
+            $intraCommunityTaxResolver ?? static::createStub(IntraCommunityTaxResolver::class),
         );
     }
 
-    private function buildDocumentConfig(): DocumentConfiguration
+    private function buildTaxFreeOrder(): OrderEntity
     {
-        $overrides = [];
+        $product = $this->buildOrderLineItemEntity(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $product->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
+        $currency = new CurrencyEntity();
+        $currency->setIsoCode('EUR');
+
+        $address = $this->getOrderAddress();
+        $order = new OrderEntity();
+        $order->setTaxStatus(CartPrice::TAX_STATE_FREE);
+        $order->setLineItems(new OrderLineItemCollection([$product]));
+        $order->setOrderCustomer($this->getOrderCustomer());
+        $order->setBillingAddressId($address->getId());
+        $order->setAddresses(new OrderAddressCollection([$address]));
+        $order->setSalesChannelId(Uuid::randomHex());
+        $order->setAmountTotal(100.0);
+        $order->setAmountNet(100.0);
+        $order->setCurrency($currency);
+        $order->setPrice(new CartPrice(100.0, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE));
+        $order->setDeliveries(new OrderDeliveryCollection());
+
+        return $order;
+    }
+
+    /**
+     * @param array<string, mixed> $overrides
+     */
+    private function buildDocumentConfig(array $overrides = []): DocumentConfiguration
+    {
         $country = new CountryEntity();
         $country->setId(Uuid::randomHex());
         $country->setIso('UK');

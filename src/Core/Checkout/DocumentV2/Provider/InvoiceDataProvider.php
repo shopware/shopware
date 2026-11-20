@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\DocumentV2\Template\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TaxBreakdownView;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxExemptionView;
 use Shopware\Core\Checkout\DocumentV2\Template\View\TradePartyView;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -101,17 +102,30 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             ->getDocumentType($generationRequest->documentType)
             ->allowsNegativeLineItems();
 
+        $taxExemption = TaxExemptionView::fromIntraCommunitySupply(
+            $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
+            $this->intraCommunityTaxResolver->getShippingAddress($order),
+            $bundle->company->vatId,
+        );
+
         $lineItems = LineItemView::listFromOrder($order, $allowNegative);
         $allowanceCharges = AllowanceChargeView::listFromOrder($order);
+        $taxBreakdown = TaxBreakdownView::listFromOrder($order);
+
+        if ($taxExemption !== null) {
+            $lineItems = array_map(static fn (LineItemView $item) => $item->withTaxCategory($taxExemption->taxCategory), $lineItems);
+            $allowanceCharges = array_map(static fn (AllowanceChargeView $item) => $item->withTaxCategory($taxExemption->taxCategory), $allowanceCharges);
+            $taxBreakdown = array_map(static fn (TaxBreakdownView $tax) => $tax->withTaxCategory($taxExemption->taxCategory), $taxBreakdown);
+        }
 
         return new InvoiceRenderData(
             typeCode: TypeCode::INVOICE,
             buyerReference: $order->getOrderNumber() ?? '',
-            buyer: TradePartyView::buyerFromOrder($order),
+            buyer: TradePartyView::buyerFromOrder($order, $taxExemption?->buyerVatId),
             deliveryDate: $this->resolveDeliveryDate($order),
             lineItems: $lineItems,
             allowanceCharges: $allowanceCharges,
-            taxBreakdown: TaxBreakdownView::listFromOrder($order),
+            taxBreakdown: $taxBreakdown,
             monetarySummation: MonetarySummationView::fromOrder(
                 $order,
                 $lineItems,
@@ -127,6 +141,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
                 $bundle->legacyConfig
             ),
             intraCommunityDelivery: $isIntraCommunityDelivery,
+            taxExemption: $taxExemption,
             custom: ['invoiceNumber' => $documentNumber],
         );
     }

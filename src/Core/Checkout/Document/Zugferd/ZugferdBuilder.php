@@ -9,6 +9,7 @@ use horstoeko\zugferd\ZugferdProfiles;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -37,7 +38,8 @@ class ZugferdBuilder
      */
     public function __construct(
         protected EventDispatcherInterface $eventDispatcher,
-        protected AmountCalculator $calculator
+        protected AmountCalculator $calculator,
+        private readonly IntraCommunityTaxResolver $intraCommunityTaxResolver,
     ) {
     }
 
@@ -127,6 +129,11 @@ class ZugferdBuilder
         $document = (new ZugferdDocument(ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3), $taxStatus === CartPrice::TAX_STATE_GROSS))
             ->withBuyerInformation($customer, $billingAddress)
             ->withSellerInformation($config)
+            ->withIntraCommunitySupply(
+                $this->intraCommunityTaxResolver->getIntraCommunityVatId($order),
+                $this->intraCommunityTaxResolver->getShippingAddress($order),
+                $config->getVatId(),
+            )
             ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())

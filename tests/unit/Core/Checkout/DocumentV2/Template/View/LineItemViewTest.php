@@ -28,6 +28,16 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(LineItemView::class)]
 class LineItemViewTest extends TestCase
 {
+    public function testWithTaxCategoryChangesOnlyTheCategory(): void
+    {
+        $view = new LineItemView('1', 'SW-1', '4006381333931', 'Widget', 2.0, 1.0, 'H87', 50.0, 100.0, TaxCategory::ZERO_RATED, 0.0);
+
+        static::assertEquals(
+            new LineItemView('1', 'SW-1', '4006381333931', 'Widget', 2.0, 1.0, 'H87', 50.0, 100.0, TaxCategory::INTRA_COMMUNITY_SUPPLY, 0.0),
+            $view->withTaxCategory(TaxCategory::INTRA_COMMUNITY_SUPPLY),
+        );
+    }
+
     public function testListFromOrderNumbersProductLineItemsAndComputesNet(): void
     {
         $order = $this->createOrder(CartPrice::TAX_STATE_GROSS, [

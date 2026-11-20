@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
 use Shopware\Core\Checkout\DocumentV2\Service\CreditItemResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TaxCategory;
 use Shopware\Core\Checkout\DocumentV2\Template\Enum\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Type\CreditNoteDocumentType;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
@@ -122,6 +123,32 @@ class CreditNoteDataProviderTest extends TestCase
         static::assertSame([], $data->allowanceCharges);
     }
 
+    public function testTheCreditLinesOfAnIntraCommunitySupplyHaveCategoryK(): void
+    {
+        $shippingAddress = new OrderAddressEntity();
+        $shippingAddress->setZipcode('75001');
+        $resolver = static::createStub(IntraCommunityTaxResolver::class);
+        $resolver->method('getIntraCommunityVatId')->willReturn('FR12345678901');
+        $resolver->method('getShippingAddress')->willReturn($shippingAddress);
+
+        $order = self::createOrder(withCredit: true);
+        $input = new ProviderInput(
+            $order,
+            $this->buildRequest($order),
+            new ReferencedDocument(
+                id: Uuid::randomHex(),
+                documentNumber: '1000',
+                orderVersionId: Uuid::randomHex(),
+            ),
+        );
+
+        $data = $this->createProvider(['vatId' => 'DE123456789'], $resolver)->provideRenderingData($input, Context::createDefaultContext());
+
+        static::assertCount(1, $data->lineItems);
+        static::assertSame(TaxCategory::INTRA_COMMUNITY_SUPPLY, $data->lineItems[0]->taxCategory);
+        static::assertSame($shippingAddress, $data->taxExemption?->deliveryAddress);
+    }
+
     public function testProvideRenderingDataThrowsWhenTheOrderHasNoCreditItems(): void
     {
         $order = self::createOrder(withCredit: false);
@@ -140,18 +167,24 @@ class CreditNoteDataProviderTest extends TestCase
         $this->createProvider()->provideRenderingData($input, Context::createDefaultContext());
     }
 
-    private function createProvider(): CreditNoteDataProvider
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function createProvider(array $config = [], ?IntraCommunityTaxResolver $intraCommunityTaxResolver = null): CreditNoteDataProvider
     {
         $connection = static::createStub(Connection::class);
         $connection->method('fetchFirstColumn')->willReturn([]);
 
         return new CreditNoteDataProvider(
-            $this->createInvoiceDataProvider(),
+            $this->createInvoiceDataProvider($config, $intraCommunityTaxResolver),
             new CreditItemResolver($connection),
         );
     }
 
-    private function createInvoiceDataProvider(): InvoiceDataProvider
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function createInvoiceDataProvider(array $config = [], ?IntraCommunityTaxResolver $intraCommunityTaxResolver = null): InvoiceDataProvider
     {
         $companyCountry = new CountryEntity();
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
@@ -163,7 +196,7 @@ class CreditNoteDataProviderTest extends TestCase
         );
 
         $documentConfigRepository = new StaticEntityRepository(
-            [new DocumentBaseConfigCollection([$this->createBaseConfig()])],
+            [new DocumentBaseConfigCollection([$this->createBaseConfig($config)])],
             new DocumentBaseConfigDefinition(),
         );
 
@@ -184,7 +217,7 @@ class CreditNoteDataProviderTest extends TestCase
         return new InvoiceDataProvider(
             $configLoader,
             $documentTypeRegistry,
-            static::createStub(IntraCommunityTaxResolver::class),
+            $intraCommunityTaxResolver ?? static::createStub(IntraCommunityTaxResolver::class),
         );
     }
 
@@ -199,7 +232,10 @@ class CreditNoteDataProviderTest extends TestCase
         );
     }
 
-    private function createBaseConfig(): DocumentBaseConfigEntity
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function createBaseConfig(array $config): DocumentBaseConfigEntity
     {
         $entity = new DocumentBaseConfigEntity();
         $entity->setUniqueIdentifier(Uuid::randomHex());
@@ -214,6 +250,7 @@ class CreditNoteDataProviderTest extends TestCase
             'companyZipcode' => '12345',
             'companyCity' => 'Example City',
             'companyCountryId' => self::COMPANY_COUNTRY_ID,
+            ...$config,
         ]);
 
         return $entity;

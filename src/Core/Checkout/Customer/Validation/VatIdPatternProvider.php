@@ -123,6 +123,17 @@ class VatIdPatternProvider implements ResetInterface
     }
 
     /**
+     * EN 16931 (BR-CO-09) needs this prefix on every VAT ID, while the VAT ID patterns may leave it out.
+     */
+    public function hasMemberStatePrefix(string $vatId): bool
+    {
+        $prefix = strtoupper(substr($vatId, 0, 2));
+
+        // Greece prefixes its VAT IDs with EL instead of its ISO code
+        return $prefix === 'EL' || \array_key_exists($prefix, $this->getEuCountryIds());
+    }
+
+    /**
      * @return string|null the ISO code of the member state, null if the country lies outside the EU
      */
     public function getMemberStateOfCountry(string $countryId): ?string

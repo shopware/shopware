@@ -869,6 +869,79 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame('0.00', self::nodeValue($tax, 'RateApplicablePercent'));
     }
 
+    public function testAnIntraCommunitySupplyStatesCategoryKOnEveryPositionAndOneExemptBreakdown(): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument();
+        $document->withIntraCommunitySupply('FR12345678901', $this->createShippingAddress('75001'), 'DE123456789');
+        $this->addTaxFreePositions($document);
+        $dom = $this->getDom($document);
+
+        $categories = [];
+        foreach ($dom->getElementsByTagName('CategoryCode') as $category) {
+            $categories[] = $category->nodeValue;
+        }
+        // the product line, the shipping charge, the allowance and the breakdown
+        static::assertSame(['K', 'K', 'K', 'K'], $categories);
+
+        $breakdown = $dom->getElementsByTagName('ApplicableTradeTax')->item(1);
+        static::assertNotNull($breakdown);
+        static::assertSame('Intra-community supply', self::nodeValue($breakdown, 'ExemptionReason'));
+        static::assertSame('VATEX-EU-IC', self::nodeValue($breakdown, 'ExemptionReasonCode'));
+        static::assertSame('0.00', self::nodeValue($breakdown, 'RateApplicablePercent'));
+        static::assertSame('0.00', self::nodeValue($breakdown, 'CalculatedAmount'));
+        static::assertSame('100.00', self::nodeValue($breakdown, 'BasisAmount'));
+    }
+
+    public function testAnIntraCommunitySupplyNamesTheBuyerVatIdAndTheDeliveryAddress(): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument();
+        $document->withIntraCommunitySupply('FR12345678901', $this->createShippingAddress('75001'), 'DE123456789');
+        $dom = $this->getDom($document);
+
+        $buyerVatId = $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->item(0);
+        static::assertNotNull($buyerVatId);
+        static::assertSame('VA', $buyerVatId->getElementsByTagName('ID')->item(0)?->getAttribute('schemeID'));
+        static::assertSame('FR12345678901', self::nodeValue($buyerVatId, 'ID'));
+
+        $shipTo = $dom->getElementsByTagName('ShipToTradeParty')->item(0);
+        static::assertNotNull($shipTo);
+        static::assertSame('1 Rue de Rivoli', self::nodeValue($shipTo, 'LineOne'));
+        static::assertSame('75001', self::nodeValue($shipTo, 'PostcodeCode'));
+        static::assertSame('Paris', self::nodeValue($shipTo, 'CityName'));
+        static::assertSame('FR', self::nodeValue($shipTo, 'CountryID'));
+    }
+
+    /**
+     * @param array{string|null, string|null, string|null} $data buyer VAT ID, zip code of the shipping address, seller VAT ID
+     */
+    #[DataProvider('incompleteIntraCommunitySupplyProvider')]
+    public function testAnIntraCommunitySupplyWithoutTheDataOfCategoryKKeepsTheRateBasedCategory(array $data): void
+    {
+        [$buyerVatId, $zipcode, $sellerVatId] = $data;
+
+        $document = $this->createIntraCommunitySupplyDocument();
+        $document->withIntraCommunitySupply($buyerVatId, $zipcode === null ? null : $this->createShippingAddress($zipcode), $sellerVatId);
+        $this->addTaxFreePositions($document);
+        $dom = $this->getDom($document);
+
+        foreach ($dom->getElementsByTagName('CategoryCode') as $category) {
+            static::assertSame('Z', $category->nodeValue);
+        }
+        static::assertSame(0, $dom->getElementsByTagName('ExemptionReason')->length);
+        static::assertSame(0, $dom->getElementsByTagName('ExemptionReasonCode')->length);
+        static::assertSame(0, $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->length);
+        static::assertSame(0, $dom->getElementsByTagName('ShipToTradeParty')->length);
+    }
+
+    public static function incompleteIntraCommunitySupplyProvider(): \Generator
+    {
+        yield 'no intra-community delivery, so no buyer VAT ID' => [[null, '75001', 'DE123456789']];
+        yield 'no shipping address' => [['FR12345678901', null, 'DE123456789']];
+        yield 'a shipping address without zip code' => [['FR12345678901', '', 'DE123456789']];
+        yield 'no seller VAT ID in the document settings' => [['FR12345678901', '75001', null]];
+        yield 'an empty seller VAT ID in the document settings' => [['FR12345678901', '75001', '']];
+    }
+
     public function testGetBuilderReturnsTheBuilderTheDocumentWritesTo(): void
     {
         $builder = ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3);
@@ -894,6 +967,65 @@ class ZugferdDocumentTest extends TestCase
         $order->setTotalRounding(new CashRoundingConfig(2, .01, false));
 
         return $document->getDomContent($order, new AmountCalculator(new CashRounding(), new PercentageTaxRuleBuilder(), new TaxCalculator()));
+    }
+
+    private function createIntraCommunitySupplyDocument(): ZugferdDocumentMock
+    {
+        $customer = new OrderCustomerEntity();
+        $customer->setFirstName('Max');
+        $customer->setLastName('Mustermann');
+        $customer->setEmail('max@example.com');
+
+        $document = $this->createDocument();
+        $document->withBuyerInformation($customer, $this->createBillingAddress(countryIso: 'FR', stateShortCode: ''));
+
+        return $document;
+    }
+
+    private function createShippingAddress(string $zipcode): OrderAddressEntity
+    {
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $country->setIso('FR');
+
+        $address = new OrderAddressEntity();
+        $address->setId(Uuid::randomHex());
+        $address->setStreet('1 Rue de Rivoli');
+        $address->setZipcode($zipcode);
+        $address->setCity('Paris');
+        $address->setCountry($country);
+
+        return $address;
+    }
+
+    /**
+     * A tax-free product line of 100.00, shipping costs of 10.00 and a discount of 10.00.
+     */
+    private function addTaxFreePositions(ZugferdDocumentMock $document): void
+    {
+        $product = new OrderLineItemEntity();
+        $product->setId(Uuid::randomHex());
+        $product->setLabel('Widget');
+        $product->setQuantity(1);
+        $product->setPosition(1);
+        $product->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $discount = new OrderLineItemEntity();
+        $discount->setId(Uuid::randomHex());
+        $discount->setLabel('TENOFF');
+        $discount->setQuantity(1);
+        $discount->setPosition(2);
+        $discount->setPrice(new CalculatedPrice(-10.0, -10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $delivery = new OrderDeliveryEntity();
+        $delivery->setId(Uuid::randomHex());
+        $delivery->setShippingCosts(new CalculatedPrice(10.0, 10.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $document
+            ->withDelivery(new OrderDeliveryCollection([$delivery]))
+            ->withTaxes(new CartPrice(100.0, 100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_FREE))
+            ->withProductLineItem($product, '')
+            ->withDiscountItem($discount);
     }
 
     private function createBillingAddress(string $countryIso, string $stateShortCode): OrderAddressEntity

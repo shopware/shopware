@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -413,6 +414,88 @@ class IntraCommunityTaxResolverTest extends TestCase
         $this->resolver->isIntraCommunityDelivery($order);
 
         $this->assertPublished($country, $order->getOrderCustomer()?->getCustomer(), $order);
+    }
+
+    /**
+     * @param list<string> $vatIds
+     */
+    #[DataProvider('intraCommunityVatIdProvider')]
+    public function testTheIntraCommunityVatIdIsTheFirstVatIdWithTheCodeOfAMemberState(array $vatIds, ?string $expected): void
+    {
+        // Without the pattern check a VAT ID without country code makes an intra-community delivery too
+        $country = $this->country(self::FR_ID);
+        $country->setCheckVatIdPattern(false);
+
+        static::assertSame($expected, $this->resolver->getIntraCommunityVatId($this->order($country, $vatIds)));
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string|null}>
+     */
+    public static function intraCommunityVatIdProvider(): iterable
+    {
+        yield 'a VAT ID of another member state' => [[self::FOREIGN_VAT], self::FOREIGN_VAT];
+        yield 'the first VAT ID with a country code wins' => [['12345678901', '', 'fr12345678901', self::FOREIGN_VAT], 'FR12345678901'];
+        yield 'a VAT ID in small letters is written in capitals' => [['nl123456789b01'], 'NL123456789B01'];
+        yield 'the Greek EL prefix names a member state' => [['el123456789'], 'EL123456789'];
+        yield 'no VAT ID has a country code' => [['12345678901'], null];
+    }
+
+    public function testATaxedOrderHasNoIntraCommunityVatId(): void
+    {
+        $order = $this->order($this->country(self::FR_ID), [self::FOREIGN_VAT], CartPrice::TAX_STATE_NET);
+
+        static::assertNull($this->resolver->getIntraCommunityVatId($order));
+    }
+
+    public function testTheIntraCommunityVatIdIsOneThePluginChose(): void
+    {
+        // The German VAT ID would make the delivery domestic, the plugin decides on the Dutch one
+        $order = $this->order($this->country(self::FR_ID), [self::SELLER_VAT, self::FOREIGN_VAT]);
+        static::assertNull($this->resolver->getIntraCommunityVatId($order));
+
+        $this->dispatcher->addListener(ResolveVatIdsExtension::onPost(), static function (ResolveVatIdsExtension $extension): void {
+            $extension->result = [self::FOREIGN_VAT];
+        });
+
+        static::assertSame(self::FOREIGN_VAT, $this->resolver->getIntraCommunityVatId($order));
+    }
+
+    public function testTheShippingAddressIsThatOfThePrimaryDelivery(): void
+    {
+        $order = $this->orderWithTwoDeliveries();
+
+        static::assertSame('primary', $this->resolver->getShippingAddress($order)?->getId());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTheShippingAddressIsThatOfTheFirstDeliveryWithoutTheMajorFlag(): void
+    {
+        $order = $this->orderWithTwoDeliveries();
+
+        static::assertSame('first', $this->resolver->getShippingAddress($order)?->getId());
+
+        // The ZUGFeRD credit note drops the deliveries of the order it bills
+        $order->setDeliveries(new OrderDeliveryCollection());
+
+        static::assertSame('primary', $this->resolver->getShippingAddress($order)?->getId());
+    }
+
+    private function orderWithTwoDeliveries(): OrderEntity
+    {
+        $order = $this->order($this->country(self::FR_ID), [self::FOREIGN_VAT]);
+        $primaryDelivery = $order->getPrimaryOrderDelivery();
+        static::assertNotNull($primaryDelivery);
+        $primaryDelivery->getShippingOrderAddress()?->setId('primary');
+
+        $firstAddress = new OrderAddressEntity();
+        $firstAddress->setId('first');
+        $firstDelivery = new OrderDeliveryEntity();
+        $firstDelivery->setId('cccccccccccccccccccccccccccccccc');
+        $firstDelivery->setShippingOrderAddress($firstAddress);
+        $order->setDeliveries(new OrderDeliveryCollection([$firstDelivery, $primaryDelivery]));
+
+        return $order;
     }
 
     private function assertPublished(CountryEntity $country, ?CustomerEntity $customer, ?OrderEntity $order): void

@@ -6,7 +6,7 @@
         {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
         {% if feature('BREADCRUMB_REWORK') %}
             {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
-                breadcrumbItems: page.breadcrumb
+                breadcrumbItems: page.breadcrumb ?? null
             } only %}
         {% else %}
             {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {

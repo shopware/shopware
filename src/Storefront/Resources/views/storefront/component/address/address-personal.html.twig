@@ -6,6 +6,18 @@
     lastname, and birthday fields for address forms (e.g. registering a user, creating or updating an address)
 #}
 {% block component_address_personal_fields %}
+    {% set prefix = prefix ?? null %}
+    {% set idPrefix = idPrefix ?? '' %}
+    {% set accountType = accountType ?? null %}
+    {% set onlyCompanyRegistration = onlyCompanyRegistration ?? false %}
+    {% set showCompanyFields = showCompanyFields ?? false %}
+    {% set showVatIdField = showVatIdField ?? false %}
+    {% set customToggleTarget = customToggleTarget ?? false %}
+    {% set hideCustomerTypeSelect = hideCustomerTypeSelect ?? false %}
+    {% set scope = scope ?? null %}
+    {% set parentSelector = parentSelector ?? null %}
+    {% set violationPath = violationPath ?? null %}
+
     {% block component_address_personal_account_type %}
         {% set accountTypeFieldName = prefix ? prefix ~ '[accountType]' : 'accountType' %}
 
@@ -18,11 +30,13 @@
                 {% endif %}
 
                 {% set isCompany = false %}
+                {# Customer/address entities expose getCompany(); submitted form data uses RequestDataBag::get('company'). #}
+                {% set company = data.company is defined ? data.company : data.get('company') %}
 
                 {% if accountType %}
                     {# An explicitly provided account type (e.g. the stored customer account type on the profile page) always wins over inferring the type from a populated company field. #}
                     {% set isCompany = accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
-                {% elseif page.address.company or data.company is not empty %}
+                {% elseif (page.address.company ?? null) or company is not empty %}
                     {% set isCompany = true %}
                 {% endif %}
 

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<container>
+    <services>
+        <service id="event_dispatcher" alias="debug.dispatcher"/>
+        <service id="listener.alias" alias="listener"/>
+        <service id="listener" class="Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderListenerFixture"/>
+        <service id="not_registered" class="NeverLoadThisClass"/>
+        <service id="debug.dispatcher" class="Symfony\Component\EventDispatcher\EventDispatcher">
+            <call method="addListener">
+                <argument>Shopware\Storefront\Event\StorefrontRenderEvent</argument>
+                <argument type="collection">
+                    <argument type="service_closure" id="listener.alias"/>
+                    <argument>onRender</argument>
+                </argument>
+                <argument>100</argument>
+            </call>
+            <call method="addListener">
+                <argument>frontend.example.render</argument>
+                <argument type="collection">
+                    <argument type="service_closure" id="listener"/>
+                    <argument>onRender</argument>
+                </argument>
+                <argument>0</argument>
+            </call>
+            <call method="addListener">
+                <argument>unrelated.event</argument>
+                <argument type="collection">
+                    <argument type="service_closure" id="not_registered"/>
+                    <argument>neverLoad</argument>
+                </argument>
+                <argument>0</argument>
+            </call>
+        </service>
+    </services>
+</container>

@@ -17,6 +17,11 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### Generic CMS slot data
+
+`CmsSlotEntity` now accepts a PHPDoc type parameter, for example `CmsSlotEntity<ProductListingStruct>`, to describe the data exposed by `getData()` and accepted by `setData()`.
+The default remains `Struct` for existing annotations.
+Shopware's PHPStan setup infers data types for CMS slot lookups from registered resolver implementations.
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
@@ -1384,6 +1389,14 @@ Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-or
 
 ## Storefront
 
+### Address editor modal page type
+
+Passing a page other than `AddressListingPage` or its subclasses to `AddressEditorModalStruct::setPage()` was deprecated.
+Pass an `AddressListingPage` instance or `null` instead.
+Other page types still work with a deprecation warning while `v6.8.0.0` is disabled and throw when the flag is enabled.
+The struct's page property already declares `AddressListingPage|null` in PHPDoc for static analysis.
+In 6.8, the protected `$page` property, the return type of `getPage()` and the parameter of `setPage()` will be natively narrowed to `?AddressListingPage`.
+Extensions that redeclare the property or override the getter must prepare compatible declarations.
 ### Checkout and account pages list every shipment
 
 When a cart or order has more than one shipment, the confirm, finish and edit order pages and the account order history list each shipment with its shipping method, address, shipping costs and delivery period, and the account order list shows the state of every shipment.

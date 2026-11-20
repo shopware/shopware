@@ -1,0 +1,8 @@
+services:
+    -
+        class: Twig\Environment
+        factory: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TemplateContractRuleTest::createEnvironment
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TemplateContracts
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension

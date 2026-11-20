@@ -3,7 +3,7 @@
         <fieldset class="card-body">
             {% set shippingMethodInvalid = true %}
 
-            {% for shipping in page.shippingMethods %}
+            {% for shipping in page.shippingMethods ?? [] %}
                 {% if shipping.id is same as(context.shippingMethod.id) %}
                     {% set shippingMethodInvalid = false %}
                 {% endif %}

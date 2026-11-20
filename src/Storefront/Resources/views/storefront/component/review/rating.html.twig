@@ -1,7 +1,16 @@
 {% block component_review_rating %}
+    {## template-contract ##}
+    {% types {
+        points: 'int|float|numeric-string|null',
+        altText?: 'string|null',
+        size?: 'string|null',
+        themeIconConfig?: 'array<string, array{path: string, namespace: string}>',
+    } %}
+
     {% set full = points|round(0, 'floor') %}
     {% set left = ((points - full) * 4)|round %}
     {% set left = left / 4 %}
+    {% set half = 0 %}
 
     {% if left > 0 %}
         {% set half = 1 %}

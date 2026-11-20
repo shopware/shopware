@@ -1,0 +1,38 @@
+includes:
+    - src/Core/DevOps/StaticAnalyze/PHPStan/cms-elements.neon
+
+parameters:
+    level: 5
+    bootstrapFiles:
+        - vendor-bin/twigstan/bootstrap.php
+    symfony:
+        constantHassers: false
+        containerXmlPath: var/cache/static_phpstan_dev/Shopware_Core_DevOps_StaticAnalyze_StaticAnalyzeKernelPhpstan_devDebugContainer.xml
+    parallel:
+        maximumNumberOfProcesses: 2
+services:
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TemplateContracts
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\TemplateContractRule
+        tags:
+            - phpstan.rules.rule
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StorefrontGlobalsTypeResolver
+        tags:
+            - phpstan.broker.expressionTypeResolverExtension
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\GuardedAttributeIgnoreExtension
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StructGetVarsReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventData
+        factory: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\RenderEventData::fromFile(@PHPStan\PhpDoc\TypeStringResolver, %currentWorkingDirectory%/var/cache/twigstan-listeners/context.json)
+
+conditionalTags:
+    Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\GuardedAttributeIgnoreExtension:
+        phpstan.ignoreErrorExtension: %twigstan.phases.analysis%

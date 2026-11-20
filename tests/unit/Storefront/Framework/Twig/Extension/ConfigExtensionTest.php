@@ -13,7 +13,6 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\TemplateConfigAccessor;
-use Twig\TwigFunction;
 
 /**
  * @internal
@@ -29,11 +28,17 @@ class ConfigExtensionTest extends TestCase
 
         static::assertCount(4, $functions);
 
-        $names = array_map(static fn (TwigFunction $f) => $f->getName(), $functions);
-        static::assertContains('theme_config', $names);
-        static::assertContains('theme_scripts', $names);
-        static::assertContains('import_map', $names);
-        static::assertContains('theme_css_vars', $names);
+        $needsContext = [];
+        foreach ($functions as $function) {
+            $needsContext[$function->getName()] = $function->needsContext();
+        }
+
+        static::assertSame([
+            'theme_config' => true,
+            'theme_scripts' => false,
+            'import_map' => false,
+            'theme_css_vars' => true,
+        ], $needsContext);
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]

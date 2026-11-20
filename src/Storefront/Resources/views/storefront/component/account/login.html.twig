@@ -31,7 +31,7 @@
                     {% endblock %}
 
                     {% block component_account_login_form_error %}
-                        {% if loginError %}
+                        {% if loginError ?? null %}
                             {% if errorSnippet != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: 'danger',
@@ -65,7 +65,7 @@
                                     id: 'loginMail',
                                     name: 'username',
                                     autocomplete: 'username webauthn',
-                                    error: loginError,
+                                    error: loginError ?? null,
                                     validationRules: 'required,email',
                                     additionalClass: 'col-sm-6 col-lg-12',
                                 } %}
@@ -78,7 +78,7 @@
                                     id: 'loginPassword',
                                     name: 'password',
                                     autocomplete: 'current-password',
-                                    error: loginError,
+                                    error: loginError ?? null,
                                     validationRules: 'required',
                                     additionalClass: 'col-sm-6 col-lg-12',
                                 } %}

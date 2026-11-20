@@ -23,7 +23,7 @@
                                     autocapitalize="off"
                                     placeholder="{{ 'header.searchPlaceholder'|trans|striptags }}"
                                     aria-label="{{ 'header.searchPlaceholder'|trans|striptags }}"
-                                    value="{{ page.searchTerm }}">
+                                    value="{{ page.searchTerm ?? '' }}">
                             {% endblock %}
 
                             {% block layout_header_search_button %}

@@ -127,7 +127,6 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.3",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
@@ -313,6 +312,7 @@
         "lint:github-scripts": "Lints and format-checks the TypeScript/JavaScript scripts under .github with ESLint and Prettier",
         "lint:github-scripts:fix": "Fixes ESLint findings and applies Prettier formatting to the scripts under .github",
         "lint:snippets": "Validates existence of snippets in all core-supported languages",
+        "lint:twigstan": "Analyzes Twig templates using TwigStan",
         "ludtwig:storefront": "Codestyle checks for all Storefront twig files using ludtwig",
         "ludtwig:storefront:fix": "Auto-fixes all fixable twig codestyle in Storefront",
         "make:coverage": "Generate test coverage files for current branch",
@@ -503,6 +503,10 @@
             "npm --prefix .github/bin/js run lint:fix"
         ],
         "lint:snippets": "@php bin/shopware translation:validate",
+        "lint:twigstan": [
+            "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "@php vendor-bin/twigstan/bin/twigstan"
+        ],
         "ludtwig:storefront": "cd ./src/Storefront/Resources/views; ludtwig .",
         "ludtwig:storefront:fix": "@ludtwig:storefront --fix",
         "make:coverage": [
@@ -535,6 +539,7 @@
         "phpstan": [
             "Composer\\Config::disableProcessTimeout",
             "@php src/Core/DevOps/StaticAnalyze/phpstan-bootstrap.php",
+            "@php src/Core/DevOps/StaticAnalyze/cms-element-data.php",
             "phpstan analyze --memory-limit=4G -vv"
         ],
         "phpstan-errors-by-area": [
@@ -552,12 +557,16 @@
             "phpunit"
         ],
         "post-install-cmd": [
-            "@composer bin all install --ansi",
+            "@composer bin danger-php install --ansi",
+            "@composer bin rector install --ansi",
+            "@composer bin roave-backward-compatibility-check install --ansi",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
             "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
         ],
         "post-update-cmd": [
-            "@composer bin all update --ansi",
+            "@composer bin danger-php update --ansi",
+            "@composer bin rector update --ansi",
+            "@composer bin roave-backward-compatibility-check update --ansi",
             "ln -sf ./../../vendor-bin/roave-backward-compatibility-check/vendor/bin/roave-backward-compatibility-check vendor/bin/roave-backward-compatibility-check",
             "ln -sf ./../../vendor-bin/rector/vendor/bin/rector vendor/bin/rector"
         ],

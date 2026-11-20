@@ -1,5 +1,5 @@
 {% block cms_element_cross_selling_tabs_inner %}
-    {% if not sliderConfig %}
+    {% if not (sliderConfig ?? null) %}
         {% set sliderConfig = element.fieldConfig.elements %}
     {% endif %}
 

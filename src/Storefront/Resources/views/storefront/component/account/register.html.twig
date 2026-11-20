@@ -23,6 +23,7 @@
                                name="redirectTo"
                                value="{{ redirectTo }}">
 
+                        {% set redirectParameters = redirectParameters ?? null -%}
                         <input type="hidden"
                                name="redirectParameters"
                                value="{{ redirectParameters is iterable ? redirectParameters|json_encode : redirectParameters }}">
@@ -41,7 +42,7 @@
 
                         <input type="hidden"
                                name="errorParameters"
-                               value="{{ errorParameters }}">
+                               value="{{ errorParameters ?? null }}">
                     {% endblock %}
 
                     {% block component_account_register_personal %}

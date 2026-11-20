@@ -52,7 +52,7 @@
                 </span>
             {% endblock %}
 
-            {% if not hideTitle %}
+            {% if not (hideTitle ?? false) %}
                 {% block component_filter_property_select_preview_list_item_label_element %}
                     <label class="filter-multi-select-item-label" for="{{ id }}">
                         {% block component_filter_property_select_preview_list_item_label %}

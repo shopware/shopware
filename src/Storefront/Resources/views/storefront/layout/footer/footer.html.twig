@@ -117,7 +117,7 @@
                                 {% set showRevocationButton = config('core.basicInformation.showRevocationButton') %}
 
                                 {% if revocationRequestCmsPageId and showRevocationButton %}
-                                    {% set revocationRequestUrl = revocationRequestCmsPageId ? path(cmsPath, { id: revocationRequestCmsPageId }) : '#' %}
+                                    {% set revocationRequestUrl = path(cmsPath, { id: revocationRequestCmsPageId }) %}
 
                                     {# Check for seoUrl and use it if present #}
                                     {% for serviceMenuItem in footer.serviceMenu %}
@@ -342,7 +342,7 @@
             {% block layout_footer_vat %}
                 {% set cmsPath = 'frontend.cms.page.full' %}
 
-                {% if showVatNotice or showVatNotice is not defined %}
+                {% if showVatNotice is not defined or showVatNotice %}
                     <div class="footer-vat">
                         {% set shippingSnippetKey = context.taxState == 'gross' ? 'footer.includeVatTextPage' : 'footer.excludeVatTextPage' %}
 

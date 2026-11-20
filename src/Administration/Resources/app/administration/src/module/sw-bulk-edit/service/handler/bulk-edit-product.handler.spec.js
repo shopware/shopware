@@ -817,6 +817,106 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 },
             ],
             [
+                'add a category to variants keeps the categories they inherit',
+                [
+                    {
+                        type: 'add',
+                        field: 'categories',
+                        value: [{ id: 'cat_new' }],
+                        inheritFromParentId: 'parent_id',
+                    },
+                ],
+                {
+                    'upsert-product_category': {
+                        action: 'upsert',
+                        entity: 'product_category',
+                        payload: [
+                            { categoryId: 'cat_a', productId: 'product_1' },
+                            { categoryId: 'cat_b', productId: 'product_1' },
+                            { categoryId: 'cat_new', productId: 'product_1' },
+                            { categoryId: 'cat_new', productId: 'product_2' },
+                        ],
+                    },
+                },
+                {
+                    product_category: [
+                        { productId: 'parent_id', categoryId: 'cat_a' },
+                        { productId: 'parent_id', categoryId: 'cat_b' },
+                        { productId: 'product_2', categoryId: 'cat_x' },
+                    ],
+                },
+            ],
+            [
+                'add an inherited category to variants changes only the overriding ones',
+                [
+                    {
+                        type: 'add',
+                        field: 'categories',
+                        value: [{ id: 'cat_a' }],
+                        inheritFromParentId: 'parent_id',
+                    },
+                ],
+                {
+                    'upsert-product_category': {
+                        action: 'upsert',
+                        entity: 'product_category',
+                        payload: [{ categoryId: 'cat_a', productId: 'product_2' }],
+                    },
+                },
+                {
+                    product_category: [
+                        { productId: 'parent_id', categoryId: 'cat_a' },
+                        { productId: 'product_2', categoryId: 'cat_x' },
+                    ],
+                },
+            ],
+            [
+                'remove a category from variants per variant (inheriting vs overriding)',
+                [
+                    {
+                        type: 'remove',
+                        field: 'categories',
+                        value: [{ id: 'cat_a' }],
+                        inheritFromParentId: 'parent_id',
+                    },
+                ],
+                {
+                    'upsert-product_category': {
+                        action: 'upsert',
+                        entity: 'product_category',
+                        payload: [{ categoryId: 'cat_b', productId: 'product_1' }],
+                    },
+                    'delete-product_category': {
+                        action: 'delete',
+                        entity: 'product_category',
+                        payload: [{ productId: 'product_2', categoryId: 'cat_a' }],
+                    },
+                },
+                {
+                    product_category: [
+                        { productId: 'parent_id', categoryId: 'cat_a' },
+                        { productId: 'parent_id', categoryId: 'cat_b' },
+                        { productId: 'product_2', categoryId: 'cat_a' },
+                        { productId: 'product_2', categoryId: 'cat_x' },
+                    ],
+                },
+            ],
+            [
+                'add no category to variants leaves them untouched',
+                [
+                    {
+                        type: 'add',
+                        field: 'categories',
+                        value: null,
+                        inheritFromParentId: 'parent_id',
+                    },
+                ],
+                {},
+                {
+                    product_category: [{ productId: 'parent_id', categoryId: 'cat_a' }],
+                },
+            ],
+            [
                 'add an oneToMany association with mapping reference field',
                 [
                     {

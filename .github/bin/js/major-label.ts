@@ -421,8 +421,8 @@ export function missingLabels(context: PullRequestContext, wanted: string[]): st
 
 /**
  * Labels are only ever added: whoever removed one has overruled the detection for good.
- * A bot never has: `srvaroa/labeler` rewrites the whole label set from a snapshot taken
- * before this workflow added its label, and that removal shows up as `github-actions[bot]`.
+ * A bot never has: a removal by `github-actions[bot]` is another workflow racing this one,
+ * as `srvaroa/labeler` did by rewriting the whole label set from an older snapshot.
  */
 export function withoutRemovedLabels(labels: string[], events: IssueEvent[]): string[] {
     const removed = new Set(

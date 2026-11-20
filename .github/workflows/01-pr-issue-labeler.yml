@@ -20,9 +20,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/bin/js
-      - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
-        env:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # Rules and reasoning: .github/bin/js/body-labels.ts
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { applyBodyLabels } = await import('${{ github.workspace }}/.github/bin/js/body-labels.ts')
+            await applyBodyLabels({ github, core, context })
 
   cleanup-needs-triage:
     runs-on: ubuntu-24.04

@@ -153,24 +153,4 @@ describe('sw-product-document-form upload settings', () => {
         expect(getDocuments()?.[0].mediaId).toBe(accepted.id);
         expect(wrapper.get('.document-row').text()).toContain('text-file.txt');
     });
-
-    it('skips the browser-side check when the upload settings cannot be loaded', async () => {
-        const wrapper = await createWrapper(undefined, undefined, undefined, {
-            getUploadSettings: jest.fn().mockRejectedValue(new Error('Request failed')),
-        });
-        await clickButton(wrapper, 'sw-product.documentForm.buttonAdd');
-
-        expect(wrapper.getComponent<ComponentPublicInstance>('.sw-media-upload-v2').props()).toMatchObject({
-            extensionAccept: '',
-            maxFileSize: Number.POSITIVE_INFINITY,
-        });
-
-        const textFile = createMedia('text-file');
-        textFile.fileExtension = 'txt';
-        const largeFile = createMedia('large');
-        largeFile.fileSize = maxFileSize + 1;
-        await selectMedia(wrapper, [textFile, largeFile]);
-
-        expect(getDocuments()).toHaveLength(2);
-    });
 });

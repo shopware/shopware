@@ -777,7 +777,6 @@ Clients can compare these hashes to find out which cookies were added or changed
 ### Product documents in the API
 
 The Admin API has the new entities `product_document` and `product_document_translation`.
-`GET /api/_info/config` returns the document settings in `settings.productDocuments`.
 In the Store API, `documents.translations` of a product only contains the translations of the requested language and its fallbacks that have a public file.
 ### Order deliveries have a `position` field
 

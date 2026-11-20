@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\EventListener;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -118,6 +119,27 @@ class ErrorResponseFactoryTest extends TestCase
                     'detail' => $exceptionDetail,
                 ],
             ],
+        ], $responseBody);
+    }
+
+    public function testOAuthExceptionCarriesTheOAuthErrorMembers(): void
+    {
+        $response = (new ErrorResponseFactory())->getResponseFromException(OAuthServerException::invalidGrant('The code was redeemed.'));
+        $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $response->getStatusCode());
+        static::assertSame([
+            'errors' => [
+                [
+                    'code' => '10',
+                    'status' => '400',
+                    'title' => 'The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.',
+                    'detail' => 'The code was redeemed.',
+                ],
+            ],
+            'error' => 'invalid_grant',
+            'error_description' => 'The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.',
+            'hint' => 'The code was redeemed.',
         ], $responseBody);
     }
 

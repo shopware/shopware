@@ -21,7 +21,6 @@ export type ValidationError = {
 /**
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type CustomValidator = (
     errors: ValidationError[],
     entity: Entity<any>,

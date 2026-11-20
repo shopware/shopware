@@ -19,5 +19,5 @@ blocks
         sw_language_switch_footer_button_revert  [private]
         sw_language_switch_footer_button_save  [private]
       sw_language_switch_message  [private]
-    sw_language_switch_select  [private]
+    sw_language_switch_select  [after v-if] [private]
 ```

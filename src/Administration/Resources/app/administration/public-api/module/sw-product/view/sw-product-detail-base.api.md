@@ -17,18 +17,18 @@ blocks
     sw_product_detail_base_category_card
       sw_product_detail_base_category_form
     sw_product_detail_base_documents
-    sw_product_detail_base_download_external_management
+    sw_product_detail_base_download_external_management  [after v-if]
     sw_product_detail_base_guarantee_card
       sw_product_detail_base_guarantee_form
     sw_product_detail_base_media
-      sw_product_detail_base_media_card
-        sw_product_detail_base_media_card_form
-        sw_product_detail_base_media_card_title
-    sw_product_detail_base_media_modal
-    sw_product_detail_base_price_card
+      sw_product_detail_base_media_card  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance]
+        sw_product_detail_base_media_card_form  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance]
+        sw_product_detail_base_media_card_title  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance]
+    sw_product_detail_base_media_modal  [after v-if]
+    sw_product_detail_base_price_card  [after v-if]
       sw_product_detail_base_advanced_prices_link
       sw_product_detail_base_price_form
-    sw_product_detail_base_settings_card
+    sw_product_detail_base_settings_card  [after v-if]
       sw_product_detail_base_settings_form
     sw_product_detail_deliverability_downloadable_info_card
       sw_product_detail_deliverability_downloadable_info_form

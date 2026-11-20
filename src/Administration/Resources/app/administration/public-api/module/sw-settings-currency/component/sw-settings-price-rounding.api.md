@@ -12,7 +12,7 @@ component sw-settings-price-rounding  public  js
 
 blocks
   sw_settings_price_rounding
-    sw_settings_price_rounding_container_grand
+    sw_settings_price_rounding_container_grand  [after v-if]
       sw_settings_price_rounding_container_grand_decimals
       sw_settings_price_rounding_container_grand_interval
       sw_settings_price_rounding_container_grand_round_for_net
@@ -22,7 +22,7 @@ blocks
       sw_settings_price_rounding_container_items_round_for_net
     sw_settings_price_rounding_header_grand
     sw_settings_price_rounding_header_info
-    sw_settings_price_rounding_header_items
+    sw_settings_price_rounding_header_items  [after v-if]
     sw_settings_price_rounding_header_warning
     sw_settings_price_rounding_spacer
     sw_settings_price_rounding_subline_grand

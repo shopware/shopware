@@ -16,14 +16,14 @@ blocks
       sw_order_customer_grid_content_column_select
       sw_order_customer_grid_content_grid_column_name
       sw_settings_product_feature_set_list_grid_columns_actions
-    sw_order_customer_grid_customer_changes_modal
+    sw_order_customer_grid_customer_changes_modal  [after v-if]
       sw_order_customer_grid_customer_changes_modal_action_changes
       sw_order_customer_grid_customer_changes_modal_action_close
       sw_order_customer_grid_customer_changes_modal_description
-    sw_order_customer_grid_empty_state
+    sw_order_customer_grid_empty_state  [after v-if]
     sw_order_customer_grid_empty_state_icon
     sw_order_customer_grid_new_customer_modal
-    sw_order_customer_grid_sales_channel_select_modal
+    sw_order_customer_grid_sales_channel_select_modal  [after v-if]
       sw_order_customer_grid_sales_channel_action_close
       sw_order_customer_grid_sales_channel_action_select
       sw_order_customer_grid_sales_channel_description

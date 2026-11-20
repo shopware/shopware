@@ -15,6 +15,6 @@ blocks
     sw_seo_url_card
       sw_seo_url_additional
       sw_seo_url_card_seo_path
-        sw_seo_url_card_seo_path_edit
+        sw_seo_url_card_seo_path_edit  [scope: props]
       sw_seo_url_card_toolbar
 ```

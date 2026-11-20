@@ -13,4 +13,7 @@ component sw-card  private  ts  [private]
 
 blocks
   sw_card  [private]
+
+crossings
+  v-if  sw_card -> (root)  [private]
 ```

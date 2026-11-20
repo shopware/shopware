@@ -17,10 +17,14 @@ blocks
     sw_cms_mapping_field_info  [private]
       sw_cms_mapping_field_label  [private]
       sw_cms_mapping_field_mapping  [private]
-        sw_cms_mapping_field_mapping_remove_action  [private]
+        sw_cms_mapping_field_mapping_remove_action  [after v-if] [private]
         sw_cms_mapping_field_mapping_selection  [private]
           sw_cms_mapping_field_mapping_selection_action  [private]
           sw_cms_mapping_field_mapping_selection_options  [private]
     sw_cms_mapping_field_mapping_value  [private]
     sw_cms_mapping_field_preview  [private]
+
+crossings
+  v-if  sw_cms_mapping_field_content -> sw_cms_mapping_field  [private]
+  v-if  sw_cms_mapping_field_mapping_selection -> sw_cms_mapping_field_mapping_remove_action  [private]
 ```

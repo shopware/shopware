@@ -13,9 +13,9 @@ component sw-extension-ratings-card  private  js  [private]
 
 blocks
   sw_extension_ratings_card  [private]
-    sw_extension_ratings_card_empty_state  [private]
+    sw_extension_ratings_card_empty_state  [after v-if] [private]
       sw_extension_ratings_card_empty_state_content  [private]
-    sw_extension_ratings_card_footer  [private]
+    sw_extension_ratings_card_footer  [after v-if] [private]
       sw_extension_ratings_card_footer_review_creation  [private]
     sw_extension_ratings_card_has_reviews  [private]
       sw_extension_ratings_card_has_reviews_summary  [private]
@@ -23,4 +23,7 @@ blocks
         sw_extension_ratings_card_has_reviews_wrapper_more_button  [private]
         sw_extension_ratings_card_has_reviews_wrapper_review  [private]
     sw_extension_ratings_card_installed_and_licensed_headline  [private]
+
+crossings
+  v-if  sw_extension_ratings_card_has_reviews -> sw_extension_ratings_card_empty_state  [private]
 ```

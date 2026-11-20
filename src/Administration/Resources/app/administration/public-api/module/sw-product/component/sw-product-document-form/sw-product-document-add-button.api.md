@@ -13,5 +13,5 @@ component sw-product-document-add-button  private  ts  [private]
 
 blocks
   sw_product_document_add_button  [private]
-    sw_product_document_add_button_language_hint  [private]
+    sw_product_document_add_button_language_hint  [after v-if] [private]
 ```

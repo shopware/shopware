@@ -17,18 +17,18 @@ blocks
       sw_settings_shipping_price_matrix_delete_modal_footer
         sw_settings_shipping_price_matrix_delete_modal_cancel
         sw_settings_shipping_price_matrix_delete_modal_confirm
-    sw_settings_shipping_price_matrix_empty
+    sw_settings_shipping_price_matrix_empty  [after v-if]
       sw_settings_shipping_price_matrix_empty_property_store
       sw_settings_shipping_price_matrix_empty_rule_select
       sw_settings_shipping_price_matrix_empty_text
     sw_settings_shipping_price_matrix_price_grid
       sw_settings_shipping_price_matrix_price_grid_actions
-        sw_settings_shipping_price_matrix_price_grid_actions_delete
+        sw_settings_shipping_price_matrix_price_grid_actions_delete  [scope: item]
       sw_settings_shipping_price_matrix_price_grid_column_calculcation_rule
       sw_settings_shipping_price_matrix_price_grid_column_quantity_end
       sw_settings_shipping_price_matrix_price_grid_column_quantity_start
       sw_settings_shipping_price_matrix_price_grid_currencies_list
-    sw_settings_shipping_price_matrix_topbar
+    sw_settings_shipping_price_matrix_topbar  [after v-if]
       sw_settings_shipping_price_matrix_topbar_context_button
         sw_settings_shipping_price_matrix_topbar_context_button_delete
         sw_settings_shipping_price_matrix_topbar_context_button_duplicate

@@ -17,7 +17,7 @@ blocks
     sw_product_variants_media_upload_content
       sw_product_variants_media_upload_drop_zone
         sw_product_variants_media_upload_actions
-          sw_product_variants_media_upload_actions_compact
+          sw_product_variants_media_upload_actions_compact  [after v-if]
             sw_product_variants_media_upload_actions_compact_button_context
               sw_product_variants_media_upload_actions_compact_button_context_open_action
               sw_product_variants_media_upload_actions_compact_button_context_upload_action
@@ -27,14 +27,17 @@ blocks
         sw_product_variants_media_upload_cover_preview
           sw_product_variants_media_upload_cover_image
           sw_product_variants_media_upload_cover_image_empty
-        sw_product_variants_media_upload_preview
-          ssw_product_variants_media_upload_content_preview_file
-          sw_product_variants_media_upload_action_buttons
-            sw_product_variants_media_upload_context
-              sw_product_variants_media_upload_context_cover_action
-              sw_product_variants_media_upload_context_delete_action
-              sw_product_variants_media_upload_context_preview_action
+        sw_product_variants_media_upload_preview  [after v-if]
+          ssw_product_variants_media_upload_content_preview_file  [scope: index, item]
+          sw_product_variants_media_upload_action_buttons  [scope: index, item]
+            sw_product_variants_media_upload_context  [scope: index, item]
+              sw_product_variants_media_upload_context_cover_action  [scope: index, item]
+              sw_product_variants_media_upload_context_delete_action  [scope: index, item]
+              sw_product_variants_media_upload_context_preview_action  [after v-if] [scope: index, item]
     sw_product_variants_media_upload_file_input
-    sw_product_variants_media_upload_listener
+    sw_product_variants_media_upload_listener  [after v-if]
     sw_product_variants_media_upload_preview_modal
+
+crossings
+  v-if  sw_product_variants_media_upload_actions_regular -> sw_product_variants_media_upload_actions_compact
 ```

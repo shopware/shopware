@@ -18,16 +18,16 @@ blocks
       sw_media_upload_v2_compact_button_file_upload
       sw_media_upload_v2_compact_label
       sw_media_upload_v2_compact_url_form
-    sw_media_upload_v2_file_input
-    sw_media_upload_v2_regular
+    sw_media_upload_v2_file_input  [after v-if]
+    sw_media_upload_v2_regular  [after v-if]
       sw_media_upload_v2_regular_drop_zone
         sw_media_upload_v2_actions
-          sw_media_upload_v2_regular_actions_add
-            sw_media_upload_v2_regular_media_sidebar_button
+          sw_media_upload_v2_regular_actions_add  [after v-if]
+            sw_media_upload_v2_regular_media_sidebar_button  [after v-if]
             sw_media_upload_v2_regular_upload_button
           sw_media_upload_v2_regular_actions_url
         sw_media_upload_v2_preview
-          sw_media_upload_v2_regular_preview_fallback
+          sw_media_upload_v2_regular_preview_fallback  [after v-if]
           sw_media_upload_v2_regular_preview_file
       sw_media_upload_v2_regular_header
 ```

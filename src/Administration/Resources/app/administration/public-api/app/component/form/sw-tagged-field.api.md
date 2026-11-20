@@ -13,7 +13,7 @@ component sw-tagged-field  private  js  [private]
 
 blocks
   sw_tagged_field  [private]
-    sw_tagged_field_inner  [private]
-      sw_tagged_field_item_input  [private]
-        sw_tagged_field_input  [private]
+    sw_tagged_field_inner  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
+      sw_tagged_field_item_input  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
+        sw_tagged_field_input  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
 ```

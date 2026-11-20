@@ -91,11 +91,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     computed: {
         product(): Entity<'product'> {
-            return Shopware.Store.get('swProductDetail').product;
+            return Store.get('swProductDetail').product;
         },
 
         parentProduct(): Entity<'product'> {
-            return Shopware.Store.get('swProductDetail').parentProduct;
+            return Store.get('swProductDetail').parentProduct;
         },
 
         documentRepository() {
@@ -107,18 +107,15 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         languageId() {
-            return Shopware.Store.get('context').api.languageId;
+            return Store.get('context').api.languageId;
         },
 
         isSystemDefaultLanguage(): boolean {
-            return Shopware.Store.get('context').isSystemDefaultLanguage;
+            return Store.get('context').isSystemDefaultLanguage;
         },
 
-        documentContext() {
-            return {
-                ...Shopware.Context.api,
-                language: Shopware.Store.get('context').api.language as Entity<'language'> | null,
-            };
+        contextLanguage(): Entity<'language'> | null {
+            return Store.get('context').api.language as Entity<'language'> | null;
         },
 
         documents(): EntityCollection<'product_document'> {
@@ -148,7 +145,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         canEdit(): boolean {
-            const isLanguageReady = this.isSystemDefaultLanguage || this.documentContext.language?.id === this.languageId;
+            const isLanguageReady = this.isSystemDefaultLanguage || this.contextLanguage?.id === this.languageId;
             return this.acl.can('product.editor') && isLanguageReady;
         },
 
@@ -165,7 +162,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         languageCode(): string {
-            const language = this.documentContext.language;
+            const language = this.contextLanguage;
             if (this.isSystemDefaultLanguage || language?.id !== this.languageId) {
                 return '';
             }
@@ -174,7 +171,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         contentLanguageName(): string {
-            const language = this.documentContext.language;
+            const language = this.contextLanguage;
             const code = language?.locale?.code.split('-')[0];
             const locale = Store.get('session').currentLocale || 'en-GB';
             const names = new Intl.DisplayNames([locale], { type: 'language' });
@@ -247,18 +244,14 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     async created() {
-        await this.createdComponent();
+        try {
+            this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
+        } catch {
+            this.mediaFolderId = null;
+        }
     },
 
     methods: {
-        async createdComponent() {
-            try {
-                this.mediaFolderId = await this.mediaDefaultFolderService.getDefaultFolderId('product_document');
-            } catch {
-                this.mediaFolderId = null;
-            }
-        },
-
         getDocumentMedia,
 
         getFileName(document: Entity<'product_document'>): string {

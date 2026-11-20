@@ -64,7 +64,7 @@
                             <template #add-button>
                                 {% block sw_product_document_form_empty_add %}
                                 <mt-button
-                                    :disabled="isInherited || !canAddDocuments"
+                                    :disabled="!canAddDocuments"
                                     size="small"
                                     variant="secondary"
                                     @click="showUploadModal = true"

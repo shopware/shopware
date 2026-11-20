@@ -9,6 +9,7 @@ export interface SettingsItem {
     icon?: string;
     id?: string;
     label?: string;
+    since?: string;
     to?:
         | {
               name: string;

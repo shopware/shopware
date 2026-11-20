@@ -98,9 +98,7 @@ describe('repository.data.ts', () => {
             },
         });
 
-        const repository = repositoryFactory.create('product', null, {
-            useAxiosV1: false,
-        });
+        const repository = repositoryFactory.create('product');
 
         const criteriaWithoutTitle = new Criteria();
         const criteriaWithTitle = new Criteria();
@@ -144,24 +142,6 @@ describe('repository.data.ts', () => {
                 'total-count-mode': 0,
             }),
         );
-    });
-
-    it('should use axios v1 for repository requests regardless of repository options', async () => {
-        responses.addResponse({
-            method: 'POST',
-            url: '/search/product',
-            status: 200,
-            response: {
-                data: [],
-            },
-        });
-
-        const repository = repositoryFactory.create('product');
-
-        await repository.search(new Criteria());
-
-        expect(clientMock.history.post).toHaveLength(1);
-        expect(clientMock.history.post[0].useAxiosV1).toBe(true);
     });
 
     it('should build the correct headers', async () => {

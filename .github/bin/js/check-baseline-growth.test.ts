@@ -34,10 +34,21 @@ const writeFallowBaseline = (findings: Record<string, string[]>): void => {
 };
 
 const check = (baseline = BASELINE) => {
-    const result = spawnSync(process.execPath, [SCRIPT, '--base', baseSha, '--config', CONFIG, baseline], {
-        cwd: repo,
-        encoding: 'utf8',
-    });
+    const result = spawnSync(
+        process.execPath,
+        [
+            SCRIPT,
+            '--base',
+            baseSha,
+            '--config',
+            CONFIG,
+            baseline,
+        ],
+        {
+            cwd: repo,
+            encoding: 'utf8',
+        },
+    );
 
     return { status: result.status, output: `${result.stdout}${result.stderr}` };
 };

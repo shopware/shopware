@@ -30,6 +30,15 @@ export function warn(context: GeneratorContext, message: string, extension?: str
     context.warnings.push(extension === undefined ? { message } : { message, extension });
 }
 
+/** Books a warning that only affects type-checking or linting, such as a missing entity schema. */
+export function warnTypeCheckOrLint(context: GeneratorContext, message: string, extension?: string): void {
+    context.warnings.push({
+        message,
+        ...(extension === undefined ? {} : { extension }),
+        typeCheckOrLintOnly: true,
+    });
+}
+
 export function record(context: GeneratorContext, result: WriteResult): ManagedFileState {
     // Reported project-root-relative so every consumer renders portable paths.
     context.writes.push({

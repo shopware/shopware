@@ -51,6 +51,8 @@ class SalesChannelException extends HttpException
     final public const SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES = 'FRAMEWORK__SALES_CHANNEL_FILE_INVALID_TEMPLATE_OVERRIDES';
     final public const SALES_CHANNEL_FILE_NOT_FOUND = 'FRAMEWORK__SALES_CHANNEL_FILE_NOT_FOUND';
     final public const SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY = 'FRAMEWORK__SALES_CHANNEL_UNEXPECTED_COMBINED_PRIMARY_KEY';
+    final public const PROSPECTIVE_ADDRESS_WITH_CUSTOMER = 'SYSTEM__PROSPECTIVE_ADDRESS_WITH_CUSTOMER';
+    final public const PROSPECTIVE_ADDRESS_WITH_COUNTRY = 'SYSTEM__PROSPECTIVE_ADDRESS_WITH_COUNTRY';
     private const INVALID_UUID_MESSAGE_TEMPLATE = 'Provided %s is not a valid UUID';
 
     public static function tooManyNestedCriteria(int $limit): self
@@ -232,6 +234,26 @@ class SalesChannelException extends HttpException
     public static function customerNotLoggedIn(): CartException
     {
         return CartException::customerNotLoggedIn();
+    }
+
+    public static function prospectiveAddressWithCustomer(string $field): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROSPECTIVE_ADDRESS_WITH_CUSTOMER,
+            'The field "{{ field }}" is only accepted without a logged in customer, use "{{ field }}Id" instead.',
+            ['field' => $field],
+        );
+    }
+
+    public static function prospectiveAddressWithCountry(string $field): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROSPECTIVE_ADDRESS_WITH_COUNTRY,
+            'The field "{{ field }}" can not be sent together with "shippingAddress", the context country is taken from the shipping address.',
+            ['field' => $field],
+        );
     }
 
     public static function contextPermissionsLocked(): self

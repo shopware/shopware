@@ -42,6 +42,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
          */
         personaRuleFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-v2-conditions.personaRuleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));
@@ -53,6 +58,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
          */
         cartConditionsRuleFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-v2-conditions.cartConditionsRuleFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));
@@ -64,6 +74,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
          */
         orderConditionsFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-v2-conditions.orderConditionsFilter is deprecated. Will be removed, does not offer additional filtering compared to default ruleFilter.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addAssociation('conditions').addSorting(Criteria.sort('name', 'ASC', false));

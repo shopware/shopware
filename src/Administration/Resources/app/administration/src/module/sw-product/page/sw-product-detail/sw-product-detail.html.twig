@@ -189,7 +189,10 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     v-if="productId"
                     class="sw-product-detail-page__tabs"
@@ -287,7 +290,7 @@
                 {% endblock %}
 
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             <sw-extension-component-section

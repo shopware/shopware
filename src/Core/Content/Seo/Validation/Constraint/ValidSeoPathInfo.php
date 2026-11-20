@@ -88,15 +88,33 @@ class ValidSeoPathInfo extends Constraint
      * `product?colo=red blue` is normalised to `product?colo=red%20blue`.
      *
      * Valid percent-escapes survive untouched, so `rawurlencode(slugify(...))`
-     * output for non-ASCII slug configs (e.g. `caf%C3%A9`) is preserved.
+     * output for non-ASCII slug configs (e.g. `caf%C3%A9`) is preserved, and
+     * raw non-ASCII characters are percent-encoded the same way (see
+     * {@see self::encodeNonAscii()}).
      */
     public static function sanitize(string $path): string
     {
-        $path = \str_replace(' ', '%20', $path);
+        $path = self::encodeNonAscii(\str_replace(' ', '%20', $path));
 
         return (string) \preg_replace(
             '/(?:' . self::DISALLOWED_SEQUENCES . ')+/',
             self::SANITIZE_SEPARATOR,
+            $path
+        );
+    }
+
+    /**
+     * Percent-encodes every non-ASCII byte, so a path entered as `Babyöl` is
+     * stored as `Baby%C3%B6l`. The frontend always sends non-ASCII characters
+     * percent-encoded and the resolver matches the stored value literally, so a
+     * raw stored character could never be resolved. ASCII characters, including
+     * existing percent-escapes, `/` and `?`, are left untouched.
+     */
+    public static function encodeNonAscii(string $path): string
+    {
+        return (string) \preg_replace_callback(
+            '/[\x80-\xFF]+/',
+            static fn (array $match): string => \rawurlencode($match[0]),
             $path
         );
     }

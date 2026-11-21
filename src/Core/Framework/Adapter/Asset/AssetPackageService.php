@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\Exception\InvalidArgumentException;
 use Symfony\Component\Asset\Package as AssetPackage;
 use Symfony\Component\Asset\Packages;
-use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 #[Package('framework')]
@@ -29,10 +28,8 @@ class AssetPackageService
             /** @see AssetService::getTargetDirectory() */
             $targetPath = '/bundles/' . preg_replace('/bundle$/D', '', mb_strtolower($bundleName));
 
-            $path = $package->getUrl($targetPath);
-
             try {
-                $bundlePackage = new UrlPackage($path, new PrefixVersionStrategy($targetPath, $versionStrategy));
+                $bundlePackage = new BundleAssetPackage($package, $targetPath, new PrefixVersionStrategy($targetPath, $versionStrategy));
             } catch (InvalidArgumentException $exception) {
                 throw AdapterException::invalidAssetUrl($exception);
             }

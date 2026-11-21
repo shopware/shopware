@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem\Adapter;
 
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use League\Flysystem\UrlGeneration\PrefixPublicUrlGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\LocalFactory;
@@ -25,5 +26,32 @@ class LocalFactoryTest extends TestCase
         ]);
 
         static::assertInstanceOf(LocalFilesystemAdapter::class, $adapter);
+    }
+
+    public function testCreateFilesystemUsesThePublicUrlOption(): void
+    {
+        $filesystem = (new LocalFactory())->createFilesystem(['root' => __DIR__], ['public_url' => 'https://cdn.example']);
+
+        static::assertSame('https://cdn.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testCreateFilesystemUsesThePublicUrlGenerator(): void
+    {
+        $filesystem = (new LocalFactory())->createFilesystem(
+            ['root' => __DIR__],
+            ['public_url_generator' => new PrefixPublicUrlGenerator('https://generated.example')],
+        );
+
+        static::assertSame('https://generated.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
+    }
+
+    public function testConfiguredPublicUrlTakesPrecedenceOverTheGenerator(): void
+    {
+        $filesystem = (new LocalFactory())->createFilesystem(
+            ['root' => __DIR__],
+            ['public_url' => 'https://cdn.example', 'public_url_generator' => new PrefixPublicUrlGenerator('https://generated.example')],
+        );
+
+        static::assertSame('https://cdn.example/media/a.jpg', $filesystem->publicUrl('media/a.jpg'));
     }
 }

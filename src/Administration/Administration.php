@@ -4,6 +4,7 @@ namespace Shopware\Administration;
 
 use Pentatrion\ViteBundle\PentatrionViteBundle;
 use Shopware\Administration\DependencyInjection\AdministrationMigrationCompilerPass;
+use Shopware\Administration\DependencyInjection\ViteEntrypointsLookupCompilerPass;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
@@ -32,6 +33,7 @@ class Administration extends Bundle
         $loader->load('framework.php');
 
         $container->addCompilerPass(new AdministrationMigrationCompilerPass());
+        $container->addCompilerPass(new ViteEntrypointsLookupCompilerPass());
     }
 
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array

@@ -2,16 +2,16 @@
 
 namespace Shopware\Core\Framework\Adapter\Asset;
 
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 #[Package('framework')]
 class FallbackUrlPackage extends UrlPackage
 {
+    private readonly RequestBaseUrlResolver $baseUrlResolver;
+
     /**
      * @internal
      *
@@ -20,38 +20,24 @@ class FallbackUrlPackage extends UrlPackage
     public function __construct(
         string|array $baseUrls,
         VersionStrategyInterface $versionStrategy,
-        private readonly ?RequestStack $requestStack = null
+        ?RequestStack $requestStack = null
     ) {
-        if (!\is_array($baseUrls)) {
-            $baseUrls = (array) $baseUrls;
-        }
+        parent::__construct($baseUrls, $versionStrategy);
 
-        parent::__construct($this->applyFallback($baseUrls), $versionStrategy);
+        $this->baseUrlResolver = new RequestBaseUrlResolver($requestStack);
     }
 
     /**
-     * @param list<string> $baseUrls
-     *
-     * @return list<string>
+     * Empty base URLs are resolved per call, so a package reused across requests in long-running workers follows the current host
      */
-    private function applyFallback(array $baseUrls): array
+    public function getBaseUrl(string $path): string
     {
-        $request = $this->requestStack?->getMainRequest() ?? new Request(server: $_SERVER);
+        $baseUrl = parent::getBaseUrl($path);
 
-        if ($request->getHost() === '') {
-            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
-        } else {
-            $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
-            $requestUrl = rtrim($basePath, '/') . '/';
+        if ($baseUrl !== '') {
+            return $baseUrl;
         }
 
-        foreach ($baseUrls as &$url) {
-            if ($url === '') {
-                $url = $requestUrl;
-            }
-        }
-        unset($url);
-
-        return $baseUrls;
+        return $this->baseUrlResolver->resolve();
     }
 }

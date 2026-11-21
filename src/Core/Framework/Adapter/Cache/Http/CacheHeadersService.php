@@ -91,6 +91,8 @@ class CacheHeadersService
         $ruleIds = array_unique($ruleIds);
         sort($ruleIds);
 
+        $customer = $context->getCustomer();
+
         // Must not depend on the route scope: storefront and Store API share the sw-cache-hash cookie on a domain,
         // so a Store API client on a storefront page would otherwise overwrite the storefront's cookie on every call.
         $parts = [
@@ -98,7 +100,11 @@ class CacheHeadersService
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
-            HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+            HttpCacheCookieEvent::LOGGED_IN_STATE => match (true) {
+                $customer === null => 'not-logged-in',
+                $customer->getGuest() => 'guest',
+                default => 'logged-in',
+            },
             HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
         ];
 

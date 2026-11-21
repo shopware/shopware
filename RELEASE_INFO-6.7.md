@@ -15,6 +15,20 @@ The theme is compiled after the commit.
 For that, `ThemeService::updateTheme()` skips the compile when the context has the new state `ThemeService::STATE_SKIP_COMPILE`.
 Classes overriding `updateTheme()` without calling the parent method should handle that state.
 
+### Outdated default standard VAT rates are corrected for EE, FI, RO and SK
+
+`Migration1794989867CorrectCountryStandardVatRates` raises four default per-country standard VAT rates to their current value:
+Estonia 20% to 24%, Finland 24% to 25.5%, Romania 19% to 21% and Slovakia 20% to 23%.
+These rates were written in 2020 and the member states have raised them since, so an existing shop charges customers in those countries an outdated tax until the update runs.
+
+Only a row that still looks like the untouched 2020 default is corrected: an `entire_country` rule in the `Standard rate` tax class that still carries the 2020 rate and has `updated_at IS NULL`.
+A rate you configured yourself, a rule in another tax class, a rule scoped to a postal code, and a rate that is neither the old nor the new default all stay as they are.
+A shop that renamed the `Standard rate` tax class keeps its old rates and has to correct them by hand.
+
+The reduced rates the same 2020 migration wrote have also drifted and are deliberately left alone:
+which of a country's published reduced rates belongs in which of the two reduced slots is a tax judgement.
+Verify your reduced rates against your own tax advice.
+
 ## Core
 
 ### JSON keys named extensions in DAL criteria

@@ -564,6 +564,60 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         expect(router.currentRoute.value.query.page).toBe('1');
     });
 
+    it('should reset term and page when the same route is opened again without a query', async () => {
+        await wrapper.unmount();
+
+        const listParams = [];
+        wrapper = await createWrapper({
+            methods: {
+                getList() {
+                    listParams.push({ term: this.term, page: this.page });
+                },
+            },
+        });
+        await router.push({
+            name: 'sw.product.index',
+            query: { page: 3, limit: 25, term: 'old search value' },
+        });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: 'old search value', page: 3 });
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: '', page: 1 });
+        expect(router.currentRoute.value.query.term).toBe('');
+        expect(router.currentRoute.value.query.page).toBe('1');
+    });
+
+    it('should leave the term untouched when the same route is opened again without a query or a term', async () => {
+        await wrapper.unmount();
+
+        const listParams = [];
+        wrapper = await createWrapper({
+            methods: {
+                getList() {
+                    listParams.push({ term: this.term, page: this.page });
+                },
+            },
+        });
+        await router.push({
+            name: 'sw.product.index',
+            query: { page: 3, limit: 25 },
+        });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: undefined, page: 3 });
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listParams.at(-1)).toEqual({ term: undefined, page: 1 });
+        expect(router.currentRoute.value.query.page).toBe('1');
+        expect(router.currentRoute.value.fullPath).not.toContain('term=');
+    });
+
     it('should update the data correctly on onSwitchFilter', async () => {
         wrapper.vm.onSwitchFilter(undefined, 0);
 

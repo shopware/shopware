@@ -548,6 +548,31 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(blurSpy).toHaveBeenCalled();
     });
 
+    it('should clear the search term when the listing resets its term', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product',
+            initialSearch: 'shirt',
+        });
+
+        expect(wrapper.find('.sw-search-bar__input').element.value).toBe('shirt');
+
+        await wrapper.setProps({ initialSearch: '' });
+
+        expect(wrapper.find('.sw-search-bar__input').element.value).toBe('');
+    });
+
+    it('should keep the search term while the user is typing', async () => {
+        wrapper = await createWrapper({
+            initialSearchType: 'product',
+            initialSearch: 'shirt',
+        });
+
+        await wrapper.find('.sw-search-bar__input').trigger('focus');
+        await wrapper.setProps({ initialSearch: '' });
+
+        expect(wrapper.find('.sw-search-bar__input').element.value).toBe('shirt');
+    });
+
     it('should search with repository when no service is set in searchTypeService', async () => {
         wrapper = await createWrapper(
             {

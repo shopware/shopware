@@ -277,4 +277,84 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(selectItemMock).toHaveBeenCalledTimes(1);
         expect(selectItemMock).toHaveBeenCalledWith(true, { id: 'prop-id-2', name: 'prop-2' });
     });
+
+    it('should search custom fields by the label shown in the grid', async () => {
+        const search = jest.fn(() => Promise.resolve([]));
+        const wrapper = await createWrapper({
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
+                repositoryFactory: {
+                    create: () => ({ search }),
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+        search.mockClear();
+
+        const searchField = wrapper.findComponent('.sw-simple-search-field');
+        await searchField.vm.$emit('update:value', 'Shown label');
+        await searchField.vm.$emit('search-term-change', 'Shown label');
+        await flushPromises();
+
+        const customFieldSearch = search.mock.calls.find(([criteria]) => criteria.sortings.some((s) => s.field === 'type'));
+        expect(customFieldSearch).toBeDefined();
+
+        const parsed = JSON.stringify(customFieldSearch[0].parse());
+        expect(parsed).toContain('config.label');
+        expect(parsed).toContain('Shown label');
+        expect(customFieldSearch[0].filters).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    type: 'multi',
+                    operator: 'OR',
+                    queries: expect.arrayContaining([
+                        { type: 'contains', field: 'name', value: 'Shown label' },
+                        { type: 'contains', field: 'type', value: 'Shown label' },
+                    ]),
+                }),
+            ]),
+        );
+    });
+
+    it('should keep the chosen page size when searching custom fields', async () => {
+        const search = jest.fn((criteria) => {
+            const isCustomFieldSearch = criteria.sortings.some((s) => s.field === 'type');
+            return Promise.resolve(Object.assign([], { total: isCustomFieldSearch ? 50 : 0 }));
+        });
+        const wrapper = await createWrapper({
+            provide: {
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {},
+                },
+                repositoryFactory: {
+                    create: () => ({ search }),
+                },
+            },
+        });
+        await flushPromises();
+
+        await wrapper.setData(returnPageConfigDataObject({ showCustomField: true }));
+        await flushPromises();
+
+        await wrapper.findComponent({ name: 'sw-pagination' }).vm.$emit('page-change', { page: 3, limit: 25 });
+        await flushPromises();
+        search.mockClear();
+
+        const searchField = wrapper.findComponent('.sw-simple-search-field');
+        await searchField.vm.$emit('update:value', 'Shown label');
+        await searchField.vm.$emit('search-term-change', 'Shown label');
+        await flushPromises();
+
+        const customFieldSearch = search.mock.calls.find(([criteria]) => criteria.sortings.some((s) => s.field === 'type'));
+        expect(customFieldSearch).toBeDefined();
+        expect(customFieldSearch[0].limit).toBe(25);
+        expect(customFieldSearch[0].page).toBe(1);
+    });
 });

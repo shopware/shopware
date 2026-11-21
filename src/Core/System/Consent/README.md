@@ -112,3 +112,18 @@ The `revision` column stores the accepted revision only. Non-accepted states cle
  1) Implement a `ConsentDefinition` class
  2) Register it as a service and tag it with `shopware.consent.definition`.
  3) If you need a new scope, implement `ConsentScope`, register it as a service, and tag it with `shopware.consent.scope`. Ensure it resolves both the identifier and actor from the `Context` or throws an appropriate `ConsentException`.
+
+## Where definitions come from
+
+`ConsentService` collects every definition from the `ConsentDefinitionProvider`s tagged
+`shopware.consent.definition_provider`, keyed by name. The providers are iterated in tag priority order and a
+later one wins. The collected set is cached until `ConsentService::reset()`, because the consents of installed
+apps change while the shop runs.
+
+There are two providers:
+
+- `TaggedConsentDefinitionProvider` provides the consents registered in the container, tagged
+  `shopware.consent.definition`. This is how a new bundled consent is added, see above.
+- `AppConsentDefinitionProvider` provides the consents apps declare in their manifest. These are only known at
+  runtime, so they cannot be registered in the container.
+

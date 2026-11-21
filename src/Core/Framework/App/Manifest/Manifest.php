@@ -46,6 +46,7 @@ class Manifest
     private array $sourceConfig = [];
 
     private function __construct(
+        private readonly \DOMDocument $document,
         private string $path,
         private readonly bool $validatesPermissions,
         /**
@@ -101,6 +102,15 @@ class Manifest
         }
 
         return self::create($doc, $xmlFile);
+    }
+
+    /**
+     * The parsed manifest, for app feature definitions that read their own section instead of a
+     * typed accessor. Validated against the schema when the manifest was loaded.
+     */
+    public function getDocument(): \DOMDocument
+    {
+        return $this->document;
     }
 
     public function getPath(): string
@@ -353,6 +363,7 @@ class Manifest
         }
 
         return new self(
+            $doc,
             \dirname($xmlFile),
             $validatesPermissions,
             $requirements,

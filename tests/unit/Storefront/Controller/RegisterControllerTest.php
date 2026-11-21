@@ -172,13 +172,17 @@ class RegisterControllerTest extends TestCase
         static::assertSame(5, $controller->recorder()->renderStorefrontParameters['waitTime'] ?? null);
     }
 
-    public function testCheckoutRegisterPassesRedirectParametersToTemplate(): void
+    /**
+     * @param array<string, string>|string $redirectParameters
+     */
+    #[DataProvider('checkoutRegisterRedirectParametersProvider')]
+    public function testCheckoutRegisterPassesRedirectParametersToTemplate(array|string $redirectParameters): void
     {
         $context = Generator::generateSalesChannelContext();
         $context->assign(['customer' => null]);
         $request = new Request(query: [
             'redirectTo' => 'frontend.checkout.finish.page',
-            'redirectParameters' => '{"orderId":"order-id"}',
+            'redirectParameters' => $redirectParameters,
         ]);
         $cart = new Cart(Uuid::randomHex());
         $cart->add(new LineItem('test', 'test'));
@@ -192,6 +196,12 @@ class RegisterControllerTest extends TestCase
 
         static::assertSame('frontend.checkout.finish.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? null);
         static::assertSame('{"orderId":"order-id"}', $controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
+    }
+
+    public static function checkoutRegisterRedirectParametersProvider(): \Generator
+    {
+        yield 'preserve JSON from the query' => ['{"orderId":"order-id"}'];
+        yield 'encode an array from the query as JSON' => [['orderId' => 'order-id']];
     }
 
     public function testCheckoutRegisterRedirectsLoggedInCustomerWithRedirectParameters(): void

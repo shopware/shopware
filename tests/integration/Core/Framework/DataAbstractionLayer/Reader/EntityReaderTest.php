@@ -748,6 +748,46 @@ class EntityReaderTest extends TestCase
         static::assertInstanceOf(ProductPriceCollection::class, $green->getPrices());
     }
 
+    public function testInheritedOneToManyOfEntityWithoutParent(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->productRepository->create([
+            (new ProductBuilder($ids, 'p1'))->price(100)->build(),
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$ids->get('p1')]);
+        $criteria->addAssociation('prices');
+
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(true);
+
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertInstanceOf(ProductPriceCollection::class, $product->getPrices());
+        static::assertCount(0, $product->getPrices());
+    }
+
+    public function testManyToManyWithCriteriaOfEntityWithoutParent(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->create([
+            ['id' => $ids->get('category'), 'name' => 'root'],
+        ], $context);
+
+        $criteria = new Criteria([$ids->get('category')]);
+        $criteria->getAssociation('products')->addFilter(new EqualsFilter('active', true));
+
+        $category = $this->categoryRepository->search($criteria, $context)->getEntities()->first();
+
+        static::assertInstanceOf(CategoryEntity::class, $category);
+        static::assertInstanceOf(ProductCollection::class, $category->getProducts());
+        static::assertCount(0, $category->getProducts());
+    }
+
     public function testInheritanceWithPaginatedOneToMany(): void
     {
         $ruleA = Uuid::randomHex();

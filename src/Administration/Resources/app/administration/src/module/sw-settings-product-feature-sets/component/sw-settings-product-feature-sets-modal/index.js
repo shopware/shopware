@@ -32,6 +32,7 @@ export default {
             showPageOne: true,
             term: '',
             customFieldSearchTerm: '',
+            customFieldLimit: 10,
             showCustomField: false,
             showPropertyGroups: false,
             showProductInfo: false,
@@ -118,7 +119,7 @@ export default {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 10);
+            const criteria = new Criteria(1, this.customFieldLimit);
             criteria.addSorting(Criteria.sort('type', 'DESC'));
 
             if (this.customFieldSearchTerm) {
@@ -130,6 +131,7 @@ export default {
                 criteria.addFilter(
                     Criteria.multi('OR', [
                         Criteria.contains('name', this.customFieldSearchTerm),
+                        Criteria.contains('type', this.customFieldSearchTerm),
                         ...[...locales].filter(Boolean).map((locale) => {
                             return Criteria.contains(`config.label.${locale}`, this.customFieldSearchTerm);
                         }),
@@ -479,6 +481,7 @@ export default {
         },
 
         paginateCustomFieldGrid({ page, limit }) {
+            this.customFieldLimit = limit;
             this.customFieldCriteria.setPage(page);
             this.customFieldCriteria.setLimit(limit);
 

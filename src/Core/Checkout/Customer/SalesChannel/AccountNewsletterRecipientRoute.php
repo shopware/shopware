@@ -27,8 +27,10 @@ class AccountNewsletterRecipientRoute extends AbstractAccountNewsletterRecipient
      *
      * @param SalesChannelRepository<NewsletterRecipientCollection> $newsletterRecipientRepository
      */
-    public function __construct(private readonly SalesChannelRepository $newsletterRecipientRepository, private readonly ExtensionDispatcher $extensions)
-    {
+    public function __construct(
+        private readonly SalesChannelRepository $newsletterRecipientRepository,
+        private readonly ExtensionDispatcher $extensions,
+    ) {
     }
 
     public function getDecorated(): AbstractAccountNewsletterRecipientRoute

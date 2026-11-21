@@ -12,7 +12,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 /**
  * @phpstan-type ConstraintErrorData array{
  *     code: string|null,
- *     status: '400',
+ *     status: string,
  *     title: 'Constraint violation error',
  *     detail: string|\Stringable,
  *     meta: array{parameters: array<string, mixed>},
@@ -30,7 +30,8 @@ class ConstraintViolationException extends ShopwareHttpException
      */
     public function __construct(
         ConstraintViolationList $violations,
-        private readonly array $inputData
+        private readonly array $inputData,
+        private readonly int $statusCode = Response::HTTP_BAD_REQUEST,
     ) {
         $this->mapErrorCodes($violations);
 
@@ -98,7 +99,7 @@ class ConstraintViolationException extends ShopwareHttpException
         foreach ($this->violations as $violation) {
             $error = [
                 'code' => $violation->getCode(),
-                'status' => '400',
+                'status' => (string) $this->getStatusCode(),
                 'title' => 'Constraint violation error',
                 'detail' => $violation->getMessage(),
                 'source' => [
@@ -119,7 +120,7 @@ class ConstraintViolationException extends ShopwareHttpException
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_BAD_REQUEST;
+        return $this->statusCode;
     }
 
     private function mapErrorCodes(ConstraintViolationList $violations): void

@@ -1,0 +1,473 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Required, nullable and default request and response fields",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/presence/string": {
+            "post": {
+                "operationId": "checkStringFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StringFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/StringFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/presence/integer": {
+            "post": {
+                "operationId": "checkIntegerFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/IntegerFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/IntegerFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/presence/number": {
+            "post": {
+                "operationId": "checkNumberFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NumberFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/NumberFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/presence/boolean": {
+            "post": {
+                "operationId": "checkBooleanFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BooleanFieldPresenceInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/BooleanFieldPresenceInput"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/presence/components": {
+            "post": {
+                "operationId": "checkSharedFieldPresence",
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "shared": {
+                                        "$ref": "#/components/schemas/SharedFieldPresence"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Shared and response-only field presence",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "shared": {
+                                            "$ref": "#/components/schemas/SharedFieldPresence"
+                                        },
+                                        "responseOnly": {
+                                            "$ref": "#/components/schemas/ResponseOnlyFieldPresence"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "StringFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "string"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "string",
+                        "default": ""
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": ""
+                    },
+                    "optionalScalar": {
+                        "type": "string"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "string",
+                        "default": ""
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": ""
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "IntegerFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "integer"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": 0
+                    },
+                    "optionalScalar": {
+                        "type": "integer"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": 0
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "NumberFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "number"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "number",
+                        "default": 2.5
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": 2.5
+                    },
+                    "optionalScalar": {
+                        "type": "number"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "number",
+                        "default": 2.5
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": 2.5
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "BooleanFieldPresenceInput": {
+                "x-dto-inline": true,
+                "type": "object",
+                "required": [
+                    "requiredScalar",
+                    "requiredScalarWithDefault",
+                    "requiredNullable",
+                    "requiredNullableWithDefault",
+                    "requiredNullableWithNullDefault"
+                ],
+                "properties": {
+                    "requiredScalar": {
+                        "type": "boolean"
+                    },
+                    "requiredScalarWithDefault": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "requiredNullable": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "requiredNullableWithDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": false
+                    },
+                    "optionalScalar": {
+                        "type": "boolean"
+                    },
+                    "optionalScalarWithDefault": {
+                        "type": "boolean",
+                        "default": false
+                    },
+                    "optionalNullable": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "optionalNullableWithDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": false
+                    },
+                    "requiredNullableWithNullDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "optionalNullableWithNullDefault": {
+                        "type": [
+                            "boolean",
+                            "null"
+                        ],
+                        "default": null
+                    }
+                }
+            },
+            "SharedFieldPresence": {
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/StringFieldPresenceInput"
+                    }
+                ]
+            },
+            "ResponseOnlyFieldPresence": {
+                "x-dto-namespace": "Shopware\\Core\\Example\\FieldPresence",
+                "x-dto-package": "framework",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/StringFieldPresenceInput"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Duplicate DTO names",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/order": {
+            "post": {
+                "operationId": "createOrder",
+                "description": "Creates an order from the current cart.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrderRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Order created"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CreateOrderRequest": {
+                "type": "object",
+                "required": [
+                    "cartToken"
+                ],
+                "properties": {
+                    "cartToken": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

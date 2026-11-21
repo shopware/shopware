@@ -1,0 +1,26 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "externalMediaType",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/payload": {
+            "post": {
+                "operationId": "createPayload",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "$ref": "payload.json#/components/mediaTypes/Payload"
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Accepted"
+                    }
+                }
+            }
+        }
+    }
+}

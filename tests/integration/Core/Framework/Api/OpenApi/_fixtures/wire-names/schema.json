@@ -1,0 +1,41 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "wire-names",
+        "version": "1.0.0"
+    },
+    "paths": {},
+    "components": {
+        "schemas": {
+            "WireNames": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "properties": {
+                    "total-count-mode": {
+                        "type": "integer",
+                        "default": 0
+                    },
+                    "post-filter": {
+                        "type": "string",
+                        "default": "it's\\default"
+                    },
+                    "camelCase": {
+                        "type": "string",
+                        "default": "it's\\default"
+                    },
+                    "snake_case": {
+                        "type": "string",
+                        "default": "it's\\default"
+                    },
+                    "quote'field": {
+                        "type": "string",
+                        "default": "it's\\default"
+                    }
+                },
+                "required": [
+                    "total-count-mode"
+                ]
+            }
+        }
+    }
+}

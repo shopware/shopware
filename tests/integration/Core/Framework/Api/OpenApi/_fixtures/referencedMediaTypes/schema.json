@@ -1,0 +1,191 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "Referenced JSON media types",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/inline": {
+            "post": {
+                "operationId": "createInlinePayload",
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "$ref": "#/components/mediaTypes/InlinePayloadAlias"
+                        },
+                        "text/plain": {
+                            "$ref": "#/components/mediaTypes/Unsupported"
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created inline payload",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/mediaTypes/InlinePayload"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/referenced": {
+            "query": {
+                "operationId": "queryPayload",
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/PayloadAlias"
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/PayloadAlias"
+                    }
+                }
+            }
+        },
+        "/additional": {
+            "additionalOperations": {
+                "REPORT": {
+                    "operationId": "reportPayload",
+                    "x-dto-namespace": "App\\DTO",
+                    "x-dto-package": "framework",
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/mediaTypes/RequestPayloadAlias"
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Payload report",
+                            "content": {
+                                "application/json": {
+                                    "$ref": "#/components/mediaTypes/ResponsePayloadAlias"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "requestBodies": {
+            "PayloadAlias": {
+                "$ref": "#/components/requestBodies/Payload"
+            },
+            "Payload": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/mediaTypes/RequestPayloadAlias"
+                    }
+                }
+            }
+        },
+        "responses": {
+            "PayloadAlias": {
+                "$ref": "#/components/responses/Payload"
+            },
+            "Payload": {
+                "description": "Matching payload",
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/mediaTypes/ResponsePayloadAlias"
+                    }
+                }
+            }
+        },
+        "mediaTypes": {
+            "InlinePayloadAlias": {
+                "$ref": "#/components/mediaTypes/InlinePayload"
+            },
+            "InlinePayload": {
+                "schema": {
+                    "type": "object",
+                    "required": [
+                        "id"
+                    ],
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "settings": {
+                            "$ref": "#/components/schemas/Settings"
+                        },
+                        "details": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "RequestPayloadAlias": {
+                "$ref": "#/components/mediaTypes/RequestPayload"
+            },
+            "RequestPayload": {
+                "schema": {
+                    "$ref": "#/components/schemas/RequestPayload"
+                }
+            },
+            "ResponsePayloadAlias": {
+                "$ref": "#/components/mediaTypes/ResponsePayload"
+            },
+            "ResponsePayload": {
+                "schema": {
+                    "$ref": "#/components/schemas/ResponsePayload"
+                }
+            },
+            "Unused": {
+                "$ref": "#/components/mediaTypes/MissingUnused"
+            }
+        },
+        "schemas": {
+            "Settings": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RequestPayload": {
+                "x-dto-namespace": "App\\DTO\\Shared",
+                "x-dto-package": "framework",
+                "type": "object",
+                "required": [
+                    "term"
+                ],
+                "properties": {
+                    "term": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ResponsePayload": {
+                "x-dto-namespace": "App\\DTO\\Shared",
+                "x-dto-package": "framework",
+                "type": "object",
+                "required": [
+                    "matched"
+                ],
+                "properties": {
+                    "matched": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    }
+}

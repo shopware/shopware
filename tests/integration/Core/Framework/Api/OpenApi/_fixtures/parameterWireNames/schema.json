@@ -1,0 +1,48 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "parameterWireNames",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/wire-names": {
+            "post": {
+                "x-dto-namespace": "App\\DTO",
+                "operationId": "wireNames",
+                "parameters": [
+                    {
+                        "name": "query-name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "default": "it's\\query"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "body-name": {
+                                        "type": "string",
+                                        "default": "body"
+                                    },
+                                    "camelCase": {
+                                        "type": "string",
+                                        "default": ""
+                                    },
+                                    "HTTPStatus": {
+                                        "type": "integer",
+                                        "default": 200
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

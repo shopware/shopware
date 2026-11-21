@@ -1,0 +1,16 @@
+{
+    "openapi": "3.2.0",
+    "info": { "title": "Default constant name collision", "version": "1.0.0" },
+    "paths": {},
+    "components": {
+        "schemas": {
+            "ConflictingDefaults": {
+                "type": "object",
+                "properties": {
+                    "foo": { "type": "string", "default": "first" },
+                    "FOO": { "type": "string", "default": "second" }
+                }
+            }
+        }
+    }
+}

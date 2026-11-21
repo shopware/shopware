@@ -1,0 +1,35 @@
+{
+    "openapi": "3.2.0",
+    "info": {
+        "title": "enumDefault",
+        "version": "1.0.0"
+    },
+    "paths": {},
+    "components": {
+        "schemas": {
+            "Criteria": {
+                "x-dto-namespace": "App\\DTO",
+                "type": "object",
+                "properties": {
+                    "totalCountMode": {
+                        "$ref": "#/components/schemas/TotalCountMode"
+                    },
+                    "exactMode": {
+                        "$ref": "#/components/schemas/TotalCountMode",
+                        "default": "exact"
+                    }
+                }
+            },
+            "TotalCountMode": {
+                "x-dto-namespace": "App\\DTO",
+                "x-dto-package": "framework",
+                "type": "string",
+                "enum": [
+                    "none",
+                    "exact"
+                ],
+                "default": "none"
+            }
+        }
+    }
+}

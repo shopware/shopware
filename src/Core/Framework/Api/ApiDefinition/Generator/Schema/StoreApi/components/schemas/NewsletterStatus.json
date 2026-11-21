@@ -5,6 +5,8 @@
     "components": {
         "schemas": {
             "NewsletterStatus": {
+                "x-dto-namespace": "Shopware\\Core\\Checkout\\Customer\\SalesChannel\\NewsletterRecipient",
+                "x-dto-package": "checkout",
                 "type": "string",
                 "enum": ["notSet", "optIn", "optOut", "direct", "undefined"],
                 "description": "The subscription status. Possible values are: notSet, optIn, optOut, direct, undefined."

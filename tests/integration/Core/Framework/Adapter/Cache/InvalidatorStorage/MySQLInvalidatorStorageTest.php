@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
 use Doctrine\DBAL\TransactionIsolationLevel;
@@ -234,7 +233,7 @@ class MySQLInvalidatorStorageTest extends TestCase
 
         $connection->expects($this->atLeastOnce())
             ->method('executeStatement')
-            ->with('DELETE /*+ INDEX(invalidation_tags PRIMARY) */ FROM invalidation_tags WHERE id IN (:ids)', ['ids' => ['id1', 'id2']], ['ids' => ArrayParameterType::BINARY])
+            ->with('DELETE FROM invalidation_tags WHERE id = :id', ['id' => 'id1'])
             ->willThrowException($e);
 
         $connection->expects($this->once())

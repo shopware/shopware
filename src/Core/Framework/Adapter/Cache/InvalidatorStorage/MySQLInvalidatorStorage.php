@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage;
 
-use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use Psr\Log\LoggerInterface;
@@ -84,13 +83,12 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
             return [];
         }
 
-        foreach (array_chunk(array_column($rows, 'id'), 1000) as $ids) {
-            RetryableQuery::retryable($this->connection, function () use ($ids): void {
-                // without the hint MySQL scans the whole table when the ids cover most of it, and waits for rows locked by other transactions
+        foreach (array_column($rows, 'id') as $id) {
+            RetryableQuery::retryable($this->connection, function () use ($id): void {
+                // a primary key lookup per id, so the delete never waits for rows locked by other transactions
                 $this->connection->executeStatement(
-                    \sprintf('DELETE /*+ INDEX(%1$s PRIMARY) */ FROM %1$s WHERE id IN (:ids)', self::TABLE_NAME),
-                    ['ids' => $ids],
-                    ['ids' => ArrayParameterType::BINARY]
+                    \sprintf('DELETE FROM %s WHERE id = :id', self::TABLE_NAME),
+                    ['id' => $id]
                 );
             });
         }

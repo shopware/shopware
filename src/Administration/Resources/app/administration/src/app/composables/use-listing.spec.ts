@@ -88,7 +88,7 @@ describe('src/app/composables/use-listing', () => {
         expect(listing.sortBy.value).toBeNull();
         expect(listing.sortDirection.value).toBe('ASC');
         expect(listing.naturalSorting.value).toBe(false);
-        expect(listing.term.value).toBe('');
+        expect(listing.term.value).toBeUndefined();
         expect(listing.disableRouteParams.value).toBe(false);
     });
 
@@ -125,7 +125,6 @@ describe('src/app/composables/use-listing', () => {
         expect(router.currentRoute.value.query).toEqual({
             limit: '25',
             page: '1',
-            term: '',
             sortBy: null,
             sortDirection: 'ASC',
             naturalSorting: false,
@@ -223,6 +222,23 @@ describe('src/app/composables/use-listing', () => {
         expect(listing.page.value).toBe(1);
         expect(router.currentRoute.value.query.term).toBe('');
         expect(router.currentRoute.value.query.page).toBe('1');
+    });
+
+    it('leaves the term untouched when the same route is opened again without a query or a term', async () => {
+        const { listing, router } = await mountListing();
+
+        listing.onPageChange({ page: 3, limit: 25 });
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.page).toBe('3');
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listing.term.value).toBeUndefined();
+        expect(listing.page.value).toBe(1);
+        expect(router.currentRoute.value.query.page).toBe('1');
+        expect(router.currentRoute.value.fullPath).not.toContain('term=');
     });
 
     it('toggles the sort direction when the same column is sorted twice', async () => {

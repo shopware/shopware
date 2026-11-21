@@ -230,7 +230,10 @@ export default Shopware.Mixin.register(
 
             resetListing() {
                 this.page = 1;
-                this.term = '';
+
+                if (this.term) {
+                    this.term = '';
+                }
 
                 this.updateRoute({
                     page: this.page,

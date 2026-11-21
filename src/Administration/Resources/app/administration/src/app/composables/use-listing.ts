@@ -191,7 +191,10 @@ export default function useListing(options: UseListingOptions): UseListingReturn
 
     function resetListing(): void {
         page.value = 1;
-        term.value = '';
+
+        if (term.value) {
+            term.value = '';
+        }
 
         updateRoute({
             page: page.value,

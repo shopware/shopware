@@ -257,6 +257,7 @@ class CartContextHasherTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, $address === null ? null : (new CustomerAddressEntity())->assign($address)),
             new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $shippingMethodId,
         );
     }
 }

@@ -49,7 +49,8 @@ class DeliveryCollectionTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice($shippingCosts, $shippingCosts, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $shippingMethodId
         );
     }
 }

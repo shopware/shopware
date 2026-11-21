@@ -104,6 +104,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
@@ -156,6 +157,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $costs = new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection());
@@ -214,7 +216,8 @@ class DeliveryCalculatorTest extends TestCase
             new DeliveryDate(new \DateTime(), new \DateTime()),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
 
         $context = $this->createMock(SalesChannelContext::class);
@@ -272,6 +275,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             $costs,
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $quantityPriceCalculatorMock = $this->createMock(QuantityPriceCalculator::class);
@@ -352,6 +356,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(5.00, 5.00, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
 
         $capturedDefinition = null;
@@ -859,6 +864,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Uuid::randomHex(),
         );
     }
 
@@ -887,6 +893,7 @@ class DeliveryCalculatorTest extends TestCase
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, null),
             new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER,
         );
     }
 

@@ -78,6 +78,17 @@
                         "items": {
                             "type": "object",
                             "properties": {
+                                "identifier": {
+                                    "description": "Unique identity of the transaction within the cart, the same for the same transaction in the next calculation. `null` only for transactions an extension builds without one, it is always set from 6.8.0.0 on.",
+                                    "oneOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                },
                                 "paymentMethodId": {
                                     "type": "string"
                                 },
@@ -87,7 +98,8 @@
                                 "payload": {
                                     "$ref": "#/components/schemas/OrderTransaction/properties/payload"
                                 }
-                            }
+                            },
+                            "required": ["identifier"]
                         }
                     },
                     "modified": {

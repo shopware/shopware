@@ -293,7 +293,8 @@ class ShippingStreetRuleTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
             new ShippingMethodEntity(),
             $location,
-            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Delivery::DEFAULT_IDENTIFIER
         );
     }
 }

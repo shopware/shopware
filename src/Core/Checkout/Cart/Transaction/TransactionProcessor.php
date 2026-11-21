@@ -36,7 +36,7 @@ class TransactionProcessor
         }
 
         return new TransactionCollection([
-            new Transaction($amount, $context->getPaymentMethod()->getId()),
+            new Transaction($amount, $context->getPaymentMethod()->getId(), Transaction::DEFAULT_IDENTIFIER),
         ]);
     }
 }

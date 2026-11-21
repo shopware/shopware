@@ -150,8 +150,8 @@ class OrderConverterTest extends TestCase
             ->split($position, 2, DeliveryTime::createFromEntity($shippingMethodDeliveryTime), $context);
 
         $cart->setDeliveries(new DeliveryCollection([
-            new Delivery(new DeliveryPositionCollection([$part]), $part->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), $delivery->getShippingCosts()),
-            new Delivery(new DeliveryPositionCollection([$remainder]), $remainder->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())),
+            new Delivery(new DeliveryPositionCollection([$part]), $part->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), $delivery->getShippingCosts(), 'part'),
+            new Delivery(new DeliveryPositionCollection([$remainder]), $remainder->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 'remainder'),
         ]));
 
         $orderId = static::getContainer()->get(OrderPersister::class)->persist($cart, $context);
@@ -193,6 +193,64 @@ class OrderConverterTest extends TestCase
         }
 
         static::assertEquals([2 => $part->getPrice(), 1 => $remainder->getPrice()], $cartPositionPrices);
+    }
+
+    public function testIdentifiersOfDeliveriesAndTransactionsSurviveTheRoundTripThroughTheOrder(): void
+    {
+        $context = $this->login($this->getContext());
+
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('split-item', LineItem::CUSTOM_LINE_ITEM_TYPE, null, 3))
+                ->setLabel('Split item')
+                ->setStackable(true)
+                ->setPriceDefinition(new QuantityPriceDefinition(9.99, new TaxRuleCollection([new TaxRule(19)]), 3))
+        );
+        $cart = static::getContainer()->get(CartRuleLoader::class)->loadByCart($context, $cart, new CartBehavior())->getCart();
+
+        $delivery = $cart->getDeliveries()->first();
+        static::assertNotNull($delivery);
+        static::assertSame(Delivery::DEFAULT_IDENTIFIER, $delivery->getIdentifier());
+        static::assertSame(Transaction::DEFAULT_IDENTIFIER, $cart->getTransactions()->first()?->getIdentifier());
+
+        $position = $delivery->getPositions()->get('split-item');
+        static::assertNotNull($position);
+        $shippingMethodDeliveryTime = $delivery->getShippingMethod()->getDeliveryTime();
+        static::assertNotNull($shippingMethodDeliveryTime);
+
+        [$part, $remainder] = static::getContainer()->get(DeliveryPositionSplitter::class)
+            ->split($position, 2, DeliveryTime::createFromEntity($shippingMethodDeliveryTime), $context);
+
+        $cart->setDeliveries(new DeliveryCollection([
+            new Delivery(new DeliveryPositionCollection([$part]), $part->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), $delivery->getShippingCosts(), 'warehouse-1'),
+            new Delivery(new DeliveryPositionCollection([$remainder]), $remainder->getDeliveryDate(), $delivery->getShippingMethod(), $delivery->getLocation(), new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()), 'warehouse-2'),
+        ]));
+
+        $orderId = static::getContainer()->get(OrderPersister::class)->persist($cart, $context);
+
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.positions.orderLineItem');
+
+        /** @var EntityRepository<OrderCollection> $orderRepository */
+        $orderRepository = static::getContainer()->get('order.repository');
+        $order = $orderRepository->search($criteria, $context->getContext())->getEntities()->get($orderId);
+        static::assertNotNull($order);
+
+        $orderDeliveryIdentifiers = array_values($order->getDeliveries()?->map(static fn (OrderDeliveryEntity $orderDelivery) => $orderDelivery->getIdentifier()) ?? []);
+        sort($orderDeliveryIdentifiers);
+        static::assertSame(['warehouse-1', 'warehouse-2'], $orderDeliveryIdentifiers);
+        static::assertSame(Transaction::DEFAULT_IDENTIFIER, $order->getTransactions()?->first()?->getIdentifier());
+
+        $convertedCart = $this->orderConverter->convertToCart($order, $context->getContext());
+
+        $cartDeliveryIdentifiers = array_values($convertedCart->getDeliveries()->map(static fn (Delivery $convertedDelivery) => $convertedDelivery->getIdentifier()));
+        sort($cartDeliveryIdentifiers);
+        static::assertSame(['warehouse-1', 'warehouse-2'], $cartDeliveryIdentifiers);
+        static::assertSame(Transaction::DEFAULT_IDENTIFIER, $convertedCart->getTransactions()->first()?->getIdentifier());
     }
 
     private function getCustomer(): CustomerEntity
@@ -241,6 +299,7 @@ class OrderConverterTest extends TestCase
     {
         return new Transaction(
             new CalculatedPrice($cost, $cost, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            Uuid::randomHex(),
             Uuid::randomHex()
         );
     }
@@ -263,7 +322,8 @@ class OrderConverterTest extends TestCase
             new DeliveryDate(new \DateTimeImmutable('now'), new \DateTimeImmutable('now')),
             $shippingMethod,
             new ShippingLocation(new CountryEntity(), null, $billingAddress),
-            new CalculatedPrice($cost, $cost, new CalculatedTaxCollection(), new TaxRuleCollection())
+            new CalculatedPrice($cost, $cost, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            $id
         );
 
         $delivery->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct($id));

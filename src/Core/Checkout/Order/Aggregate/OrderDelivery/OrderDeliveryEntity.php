@@ -26,6 +26,8 @@ class OrderDeliveryEntity extends Entity
 
     protected string $orderVersionId;
 
+    protected ?string $identifier = null;
+
     protected string $shippingOrderAddressId;
 
     protected string $shippingOrderAddressVersionId;
@@ -218,6 +220,16 @@ class OrderDeliveryEntity extends Entity
     public function setOrderVersionId(string $orderVersionId): void
     {
         $this->orderVersionId = $orderVersionId;
+    }
+
+    public function getIdentifier(): ?string
+    {
+        return $this->identifier;
+    }
+
+    public function setIdentifier(?string $identifier): void
+    {
+        $this->identifier = $identifier;
     }
 
     public function getShippingOrderAddressVersionId(): string

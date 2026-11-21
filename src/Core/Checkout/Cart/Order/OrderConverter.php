@@ -129,6 +129,12 @@ class OrderConverter
 
                 throw OrderException::deliveryWithoutAddress();
             }
+
+            self::validateUniqueIdentifiers($cart->getDeliveries(), OrderException::duplicateDeliveryIdentifier(...));
+        }
+
+        if ($conversionContext->shouldIncludeTransactions()) {
+            self::validateUniqueIdentifiers($cart->getTransactions(), OrderException::duplicateTransactionIdentifier(...));
         }
 
         $data = CartTransformer::transform(
@@ -496,6 +502,7 @@ class OrderConverter
         }
 
         $cartDeliveries = new DeliveryCollection();
+        $identifiers = [];
         foreach ($keys as $id) {
             if (!$orderDelivery = $orderDeliveries->get($id)) {
                 throw OrderException::orderDeliveryNotFound($id);
@@ -547,6 +554,8 @@ class OrderConverter
                 continue;
             }
 
+            $identifier = self::uniqueIdentifier($orderDelivery->getIdentifier(), $orderDelivery->getId(), $identifiers);
+
             $cartDelivery = new Delivery(
                 $deliveryPositions,
                 $deliveryDate,
@@ -556,7 +565,8 @@ class OrderConverter
                     $orderDelivery->getShippingOrderAddress()->getCountryState(),
                     null
                 ),
-                $orderDelivery->getShippingCosts()
+                $orderDelivery->getShippingCosts(),
+                $identifier
             );
             $cartDelivery->setPayload($orderDelivery->getPayload());
             $cartDelivery->addExtension(self::ORIGINAL_ID, new IdStruct($orderDelivery->getId()));
@@ -576,6 +586,7 @@ class OrderConverter
         $keys = \array_filter(\array_unique([$primaryOrderTransactionId, ...$orderTransactions->getKeys()]));
 
         $cartTransactions = new TransactionCollection();
+        $identifiers = [];
         foreach ($keys as $id) {
             $orderTransaction = $orderTransactions->get($id);
             if ($orderTransaction === null) {
@@ -585,6 +596,7 @@ class OrderConverter
             $cartTransaction = new Transaction(
                 $orderTransaction->getAmount(),
                 $orderTransaction->getPaymentMethodId(),
+                self::uniqueIdentifier($orderTransaction->getIdentifier(), $orderTransaction->getId(), $identifiers),
             );
             $cartTransaction->setPayload($orderTransaction->getPayload());
             $cartTransaction->addExtension(self::ORIGINAL_ID, new IdStruct($orderTransaction->getId()));
@@ -593,6 +605,52 @@ class OrderConverter
         }
 
         return $cartTransactions;
+    }
+
+    /**
+     * @param array<string, true> $identifiers
+     */
+    private static function uniqueIdentifier(?string $identifier, string $id, array &$identifiers): string
+    {
+        if ($identifier === null || isset($identifiers[$identifier])) {
+            $identifier = $id;
+        }
+
+        $identifiers[$identifier] = true;
+
+        return $identifier;
+    }
+
+    /**
+     * @param iterable<Delivery|Transaction> $elements
+     * @param \Closure(string): OrderException $duplicateIdentifier
+     */
+    private static function validateUniqueIdentifiers(iterable $elements, \Closure $duplicateIdentifier): void
+    {
+        $identifiers = [];
+        foreach ($elements as $element) {
+            $identifier = $element->getIdentifier();
+            if ($identifier === null) {
+                continue;
+            }
+
+            if (!isset($identifiers[$identifier])) {
+                $identifiers[$identifier] = true;
+
+                continue;
+            }
+
+            $exception = $duplicateIdentifier($identifier);
+
+            // @deprecated tag:v6.8.0 - Remove the feature check and the deprecation, always throw the exception
+            if (!Feature::isActive('v6.8.0.0')) {
+                Feature::triggerDeprecationOrThrow('v6.8.0.0', $exception->getMessage() . ' Converting it to an order will throw in v6.8.0.0.');
+
+                return;
+            }
+
+            throw $exception;
+        }
     }
 
     /**

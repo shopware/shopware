@@ -630,7 +630,8 @@ class TaxProviderProcessorTest extends TestCase
                 new DeliveryDate(new \DateTime(), new \DateTime()),
                 new ShippingMethodEntity(),
                 new ShippingLocation(new CountryEntity(), null, null),
-                $price
+                $price,
+                Delivery::DEFAULT_IDENTIFIER
             ),
         ]);
 

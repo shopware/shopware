@@ -222,4 +222,63 @@ class IndexMappingUpdaterTest extends TestCase
 
         $updater->update(Context::createDefaultContext());
     }
+
+    public function testUpdateWithConflictedMappingError(): void
+    {
+        $elasticsearchHelper = $this->createMock(ElasticsearchHelper::class);
+        $elasticsearchHelper->method('getIndexName')->willReturn('index');
+        $elasticsearchHelper->expects($this->once())->method('allowIndexing')->willReturn(true);
+
+        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition
+            ->method('getEntityDefinition')
+            ->willReturn(new ProductDefinition());
+
+        $registry = new ElasticsearchRegistry([$definition]);
+
+        $client = $this->createMock(Client::class);
+        $indicesNamespace = $this->createMock(IndicesNamespace::class);
+        $indicesNamespace
+            ->expects($this->once())
+            ->method('putMapping')
+            ->with([
+                'index' => 'index',
+                'body' => [
+                    'foo' => '1',
+                ],
+            ])->willThrowException(new BadRequest400Exception('Mapper for [name.01985ba1826270e4b8ea5da15a05c7bf.search] conflicts with existing mapper:\n\tCannot update parameter [analyzer] from [sw_czech_analyzer] to [sw_whitespace_analyzer].', Response::HTTP_BAD_REQUEST));
+
+        $client
+            ->method('indices')
+            ->willReturn($indicesNamespace);
+
+        $indexMappingProvider = $this->createMock(IndexMappingProvider::class);
+        $indexMappingProvider
+            ->method('build')
+            ->willReturn(['foo' => '1']);
+
+        $elasticsearchHelper->expects($this->once())->method('logAndThrowException')->with(
+            static::callback(static function (ElasticsearchProductException $exception) {
+                return $exception->getMessage() === 'One or more fields already exist in the index with different types. Please reset the index and rebuild it.';
+            }),
+        );
+
+        $storage = $this->createMock(AbstractKeyValueStorage::class);
+        $storage->expects($this->once())
+            ->method('set')
+            ->with(
+                SystemUpdateListener::CONFIG_KEY,
+                ['product'],
+            );
+
+        $updater = new IndexMappingUpdater(
+            $registry,
+            $elasticsearchHelper,
+            $client,
+            $indexMappingProvider,
+            $storage,
+        );
+
+        $updater->update(Context::createDefaultContext());
+    }
 }

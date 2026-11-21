@@ -5,6 +5,9 @@
  */
 import { config, DOMWrapper, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
+import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
+
+const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 
 let bulkEditResponse = {
     data: {},
@@ -1753,4 +1756,157 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             },
         });
     });
+
+    /* eslint-disable sw-test-rules/no-vm-access -- the change list of a variant bulk edit is built in onProcessData and only leaves the page through the save route */
+    it.each([
+        [
+            'properties',
+            'add',
+            'parent_id',
+            'parent_id',
+        ],
+        [
+            'categories',
+            'remove',
+            'parent_id',
+            'parent_id',
+        ],
+        [
+            'tags',
+            'add',
+            'parent_id',
+            'parent_id',
+        ],
+        [
+            'properties',
+            'overwrite',
+            'parent_id',
+            undefined,
+        ],
+        [
+            'properties',
+            'add',
+            'null',
+            undefined,
+        ],
+    ])('should flag the %s %s change of variants with parent "%s"', async (field, type, parentId, expected) => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId, includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct[field] = {
+            isChanged: true,
+            type,
+            value: [{ id: 'reference_id' }],
+            isInherited: false,
+        };
+        wrapper.vm.product[field] = wrapper.vm.bulkEditProduct[field].value;
+
+        wrapper.vm.onProcessData();
+
+        const change = wrapper.vm.bulkEditSelected.find((entry) => entry.field === field);
+        expect(change.inheritFromParentId).toBe(expected);
+    });
+
+    it('should keep the inherited properties of a variant when bulk adding a property option', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        const parentRows = [
+            { id: 'pp_parent_a', productId: 'parent_id', optionId: 'option_a' },
+            { id: 'pp_parent_b', productId: 'parent_id', optionId: 'option_b' },
+        ];
+        const ownRows = [{ id: 'pp_own_x', productId: 'variant_own', optionId: 'option_x' }];
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            properties: [{ id: 'option_a' }, { id: 'option_b' }],
+            productProperties: parentRows,
+        });
+
+        wrapper.vm.bulkEditProduct.properties = {
+            isChanged: true,
+            type: 'add',
+            value: [new Shopware.Data.Entity('option_new', 'property_group_option', { groupId: 'group_new' })],
+            isInherited: false,
+        };
+        wrapper.vm.product.properties = wrapper.vm.bulkEditProduct.properties.value;
+
+        wrapper.vm.onProcessData();
+
+        const changes = wrapper.vm.bulkEditSelected.filter((entry) => entry.field === 'properties');
+        expect(changes).toHaveLength(1);
+
+        Shopware.EntityDefinition = EntityDefinitionFactory;
+        Shopware.EntityDefinition.add('product', {
+            entity: 'product',
+            properties: {
+                id: { type: 'uuid' },
+                properties: {
+                    type: 'association',
+                    relation: 'many_to_many',
+                    entity: 'property_group_option',
+                    mapping: 'product_property',
+                    local: 'productId',
+                    reference: 'optionId',
+                    referenceField: 'id',
+                },
+            },
+        });
+        Shopware.EntityDefinition.add('property_group_option', {
+            entity: 'property_group_option',
+            properties: { id: { type: 'uuid' } },
+        });
+
+        const handler = new BulkEditApiFactory().getHandler('product');
+        handler.syncService = { sync: () => true };
+        handler.entityName = 'product';
+        handler.entityIds = ['variant_inherit', 'variant_own'];
+        handler.groupedPayload = { upsert: {}, delete: {} };
+
+        const matches = (row, filter) => {
+            const values = Array.isArray(filter.value) ? filter.value : String(filter.value).split('|');
+
+            return filter.type === 'equalsAny' || filter.type === 'equals' ? values.includes(row[filter.field]) : true;
+        };
+        const query = (criteria) => {
+            const rows = [...parentRows, ...ownRows].filter((row) => {
+                return criteria.filters.every((filter) => matches(row, filter));
+            });
+            const result = rows.slice((criteria.page - 1) * criteria.limit, criteria.page * criteria.limit);
+            result.data = result;
+            result.total = rows.length;
+
+            return result;
+        };
+        jest.spyOn(handler.repositoryFactory, 'create').mockImplementation(() => ({
+            search: async (criteria) => query(criteria),
+            searchIds: async (criteria) => {
+                const result = query(criteria);
+
+                return { total: result.total, data: [...result] };
+            },
+        }));
+
+        const payload = await handler.buildBulkSyncPayload(changes);
+
+        const optionsOf = (productId) => {
+            return (payload['upsert-product_property']?.payload ?? [])
+                .filter((row) => row.productId === productId)
+                .map((row) => row.optionId)
+                .sort();
+        };
+
+        expect(payload['delete-product_property']).toBeUndefined();
+        expect(optionsOf('variant_inherit')).toEqual(['option_a', 'option_b', 'option_new']);
+        expect(optionsOf('variant_own')).toEqual(['option_new']);
+    });
+    /* eslint-enable sw-test-rules/no-vm-access */
 });

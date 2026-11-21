@@ -393,8 +393,14 @@ class RegisterController extends StorefrontController
         return (string) ($request->query->get('redirectTo') ?? $request->request->get('redirectTo') ?? $default);
     }
 
-    private function getRedirectParameters(Request $request): mixed
+    private function getRedirectParameters(Request $request): string
     {
-        return $request->query->all()['redirectParameters'] ?? $request->request->all()['redirectParameters'] ?? '[]';
+        $parameters = $request->query->all()['redirectParameters'] ?? $request->request->all()['redirectParameters'] ?? '[]';
+
+        if (\is_array($parameters)) {
+            return json_encode($parameters, \JSON_THROW_ON_ERROR);
+        }
+
+        return (string) $parameters;
     }
 }

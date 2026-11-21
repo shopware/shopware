@@ -5,6 +5,7 @@ test(
     { tag: '@Settings' },
     async ({ ShopAdmin, TestDataService, AdminApiContext, IdProvider }) => {
         const customFieldSet = await TestDataService.createCustomFieldSet({
+            name: `cf_set_${IdProvider.getIdPair().id}`,
             relations: [{ id: IdProvider.getIdPair().uuid, entityName: 'product' }],
         });
         const label = `Shown label ${IdProvider.getIdPair().id}`;

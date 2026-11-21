@@ -1,5 +1,6 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import type {
+    ContentSystemBreakpointFallbacks,
     ContentSystemElementTypeProperty,
     ContentSystemElementTypeSpecification,
 } from 'src/core/service/api/content-system-element-type.api.service';
@@ -58,6 +59,10 @@ export default Shopware.Component.wrapComponentConfig({
         styleOptions: {
             type: Object,
             required: false,
+            default: () => ({}),
+        },
+        breakpointFallbacks: {
+            type: Object as PropType<ContentSystemBreakpointFallbacks>,
             default: () => ({}),
         },
         isLoadingTypes: {

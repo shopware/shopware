@@ -8,8 +8,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\Sty
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Registers a single flat (breakpointAware=false) style option so the persistence tests can exercise the
- * flat write→DB→decode round-trip end-to-end — no shipped core option is flat. Wired only in the test
+ * Registers flat and breakpoint-aware numeric options for style persistence tests. Wired only in the test
  * environment via the content_system.style_option_loader tag in services_test.php.
  *
  * @final
@@ -18,6 +17,8 @@ use Shopware\Core\Framework\Log\Package;
 class TestStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
 {
     public const FLAT_INTEGER = 'test-flat-span';
+
+    public const RESPONSIVE_INTEGER = 'test-responsive-integer';
 
     public const SOURCE = 'test';
 
@@ -28,6 +29,13 @@ class TestStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
                 self::FLAT_INTEGER,
                 new StyleOptionValueType('integer', null, null, null, null),
                 false,
+                null,
+                self::SOURCE,
+            ),
+            new StyleOptionSpecification(
+                self::RESPONSIVE_INTEGER,
+                new StyleOptionValueType('integer', null, ['min' => 1, 'max' => 12], null, null),
+                true,
                 null,
                 self::SOURCE,
             ),

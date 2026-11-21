@@ -9,44 +9,20 @@ priority: 100
 layout:
   - component: Sw:Grid:Container
     properties:
-      mode: explicit
-      columns: 3
+      gridLayout:
+        lg:
+          columns: [{ type: px, value: 300 }, { type: auto }]
+          areas: [[a1, a1], [a2, a3], [a2, a4]]
+        sm:
+          columns: [{ type: auto }]
+          areas: [[a1]]
+        md:
+          columns: [{ type: auto }]
+          areas: [[a1]]
       justify: stretch
     slots:
       content:
         - component: Sw:Product:ReviewFilters
-          style:
-            col-span:
-              xs: 3
-              sm: 3
-              md: 3
-              lg: 3
-              xl: 3
-              xxl: 3
         - component: Sw:Product:ReviewSummary
-          style:
-            row-span:
-              xs: 1
-              sm: 1
-              md: 1
-              lg: 2
-              xl: 2
-              xxl: 2
         - component: Sw:Product:Reviews
-          style:
-            col-span:
-              xs: 3
-              sm: 3
-              md: 3
-              lg: 2
-              xl: 2
-              xxl: 2
         - component: Sw:Product:ReviewForm
-          style:
-            col-span:
-              xs: 3
-              sm: 3
-              md: 3
-              lg: 2
-              xl: 2
-              xxl: 2

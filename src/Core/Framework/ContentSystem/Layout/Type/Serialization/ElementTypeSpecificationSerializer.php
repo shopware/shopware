@@ -156,6 +156,7 @@ class ElementTypeSpecificationSerializer
             defaultMapping: $propertyData['defaultMapping'] ?? null,
             titleSnippet: $propertyData['titleSnippet'] ?? null,
             descriptionSnippet: $propertyData['descriptionSnippet'] ?? null,
+            items: isset($propertyData['items']) ? $this->denormalizeProperty('items', $propertyData['items']) : null,
         );
     }
 
@@ -262,6 +263,10 @@ class ElementTypeSpecificationSerializer
 
             if ($prop->properties !== null) {
                 $propData['properties'] = $this->normalizeProperties($prop->properties);
+            }
+
+            if ($prop->items !== null) {
+                $propData['items'] = $this->normalizeProperties(['items' => $prop->items])['items'];
             }
 
             $normalized[$key] = $propData;

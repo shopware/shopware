@@ -1,0 +1,136 @@
+{
+    "openapi": "3.1.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ContentSystemPropertySpecification": {
+                "type": "object",
+                "required": [
+                    "type",
+                    "contextTypes",
+                    "translatable",
+                    "enum",
+                    "default",
+                    "properties",
+                    "required",
+                    "mappable",
+                    "inlineMappable",
+                    "title",
+                    "description",
+                    "adminUI",
+                    "defaultMapping"
+                ],
+                "properties": {
+                    "type": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        ],
+                        "description": "Primitive type name, FQCN, object, array, or a list of those for union declarations."
+                    },
+                    "contextTypes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "single",
+                                "collection"
+                            ]
+                        }
+                    },
+                    "translatable": {
+                        "type": "boolean",
+                        "description": "`true` means the property stores one value per language: its stored value is a language map, language id in lowercase UUID hex to a value of `type`, rather than a bare value of `type`."
+                    },
+                    "enum": {
+                        "type": [
+                            "array",
+                            "null"
+                        ],
+                        "items": {
+                            "type": [
+                                "string",
+                                "integer",
+                                "number",
+                                "boolean"
+                            ]
+                        }
+                    },
+                    "default": {
+                        "type": [
+                            "string",
+                            "integer",
+                            "number",
+                            "boolean",
+                            "null"
+                        ]
+                    },
+                    "properties": {
+                        "type": [
+                            "object",
+                            "array",
+                            "null"
+                        ],
+                        "description": "Nested schema for object-typed properties. Encodes as `[]` when no nested properties are declared.",
+                        "maxItems": 0,
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ContentSystemPropertySpecification"
+                        }
+                    },
+                    "items": {
+                        "$ref": "#/components/schemas/ContentSystemPropertySpecification",
+                        "description": "Descriptive schema for array items; stored values are not validated recursively."
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "mappable": {
+                        "type": "boolean"
+                    },
+                    "inlineMappable": {
+                        "type": "boolean"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "titleSnippet": {
+                        "type": "string",
+                        "description": "Optional Administration snippet key for the property title."
+                    },
+                    "descriptionSnippet": {
+                        "type": "string",
+                        "description": "Optional Administration snippet key for the property description."
+                    },
+                    "adminUI": {
+                        "type": [
+                            "object",
+                            "null"
+                        ]
+                    },
+                    "defaultMapping": {
+                        "description": "Initial mapping for a freshly scaffolded element when the layout root offers a compatible candidate. Insert, preset attachment, wrapping containers, and replacement mutations apply it. Duplication preserves the copied mapping state. Direct DAL, Admin CRUD API, and Sync API writes do not seed it, and saving does not restore a removed mapping.",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ContentSystemMappingSourceReference"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

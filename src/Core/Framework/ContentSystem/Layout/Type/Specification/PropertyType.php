@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *     contextTypes: list<string>,
  *     translatable: bool,
  *     enum: list<string|int|float|bool>|null,
+ *     items?: array<string, mixed>,
  *     default: string|int|float|bool|null,
  *     properties: array<string, array<string, mixed>>|null
  * }
@@ -54,6 +55,7 @@ final readonly class PropertyType
         private ?array $enum,
         private string|int|float|bool|null $default,
         private ?array $properties = null,
+        private ?PropertySpecification $items = null,
     ) {
     }
 
@@ -78,6 +80,7 @@ final readonly class PropertyType
             'enum' => $this->enum,
             'default' => $this->default,
             'properties' => $properties,
+            ...($this->items !== null ? ['items' => $this->items->toSchema()] : []),
         ];
     }
 
@@ -350,6 +353,10 @@ final readonly class PropertyType
      */
     private function contextTypesFor(string $type): array
     {
+        if ($type === 'array') {
+            return [ContextType::Collection->value];
+        }
+
         // Bare `object` names an object without naming which, so it rules nothing out.
         if ($type === 'object') {
             return [ContextType::Single->value, ContextType::Collection->value];

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  *     contextTypes: list<string>,
  *     translatable: bool,
  *     enum: list<string|int|float|bool>|null,
+ *     items?: array<string, mixed>,
  *     default: string|int|float|bool|null,
  *     properties: array<string, array<string, mixed>>|null,
  *     required: bool,

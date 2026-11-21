@@ -23,6 +23,7 @@ use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
@@ -377,7 +378,11 @@ class InfoController extends AbstractController
 
         // styleOptions are universal (settable on every type), so they are folded in here as well as served standalone.
         // Cast to an object so an empty option set serializes as {} (the OpenAPI type: object), not [].
-        return new JsonResponse(['types' => $types, 'styleOptions' => (object) $this->styleOptionSchemas()]);
+        return new JsonResponse([
+            'types' => $types,
+            'styleOptions' => (object) $this->styleOptionSchemas(),
+            'breakpointFallbacks' => Breakpoint::fallbackMap(),
+        ]);
     }
 
     #[Route(path: '/api/_info/content-system-style-options.json', name: 'api.info.content-system-style-options', methods: ['GET'])]

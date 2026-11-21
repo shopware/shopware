@@ -9,8 +9,16 @@ priority: 200
 layout:
   - component: Sw:Grid:Container
     properties:
-      mode: explicit
-      columns: 4
+      gridLayout:
+        lg:
+          columns: [{ type: px, value: 300 }, { type: auto }]
+          areas: [[a1, a2]]
+        sm:
+          columns: [{ type: auto }]
+          areas: [[a1]]
+        md:
+          columns: [{ type: auto }]
+          areas: [[a1]]
       justify: stretch
     slots:
       content:
@@ -24,14 +32,6 @@ layout:
               xl: true
               xxl: true
         - component: Sw:Product:Listing
-          style:
-            col-span:
-              xs: 4
-              sm: 4
-              md: 4
-              lg: 3
-              xl: 3
-              xxl: 3
           slots:
             filters-panel:
               - component: Sw:Filter:Panel

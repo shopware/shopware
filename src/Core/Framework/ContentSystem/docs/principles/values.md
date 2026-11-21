@@ -15,7 +15,7 @@ A client check may gate an interaction. A client check must not coerce, filter o
 
 Why: A rewrite based on a guess hides the client defect. A copy of a rule in the client diverges from the server's rule or becomes a second gate that the server cannot see.
 
-Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults and normalize style. The multi-entity picker trims unresolvable ids.
+Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults and normalize style. The multi-entity picker trims unresolvable ids. The grid layout relies on the client to respect the structural and geometry rules declared in the grid container specification; the server does not validate those rules, so invalid data may fail during rendering.
 
 In code:
 
@@ -36,7 +36,7 @@ It also copies the default selection of `AbstractLayoutMutation::resolveDefaultS
 
 In code:
 
-- `PropertyType::admits()` owns the acceptance of a value for a declared property.
+- `PropertyType::admits()` owns the declared-type check for a property value.
 - `PropertyType::nonLanguageKeys()` owns the key rule of a language map, and `PropertyTypeConformanceValidator` and `AbstractLayoutMutation` both call it.
 - `StoredElementCodec::MAX_NESTING_DEPTH` owns the nesting bound.
 - `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on `MAX_NESTING_DEPTH`.

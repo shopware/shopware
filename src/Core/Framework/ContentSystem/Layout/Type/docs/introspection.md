@@ -45,11 +45,23 @@ Response:
       },
       "defaultBindingRootSources": null
     }
-  ]
+  ],
+  "styleOptions": {},
+  "breakpointFallbacks": {
+    "xs": ["sm", "lg"],
+    "sm": ["lg"],
+    "md": ["lg"],
+    "lg": [],
+    "xl": ["lg"],
+    "xxl": ["xl", "lg"]
+  }
 }
 ```
 
-`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`; a property `type` is a primitive name (`string`, `boolean`, `integer`, `number`) or an FQCN for hydrated data.
+`source` is `core`, `bundle:<name>`, `plugin:<name>`, or `app:<name>`.
+A property `type` is a primitive name (`string`, `boolean`, `integer`, `number`), `object`, `array`, an FQCN for hydrated data, or a list of types.
+Objects describe named members through `properties`; arrays describe their entries through `items`.
+These nested declarations describe values but do not recursively validate stored values.
 
 `icon` is the Meteor icon name used by the sidebar tree and as the picker fallback.
 `illustration` is the independent SVG filename without its extension, or `null` when none is declared.
@@ -57,9 +69,17 @@ Response:
 `priority` is always an integer, defaulting to `0` when the type declaration omits `meta.priority`.
 The Administration uses higher priorities first within each element picker category, with label and type name as tie-breakers.
 
-`mappable` says whether the property may be mapped. `contextTypes` derives accepted candidate cardinalities from `type`. Primitives and non-`Collection` classes accept `single`; `Collection` classes accept `collection`; bare `object` accepts both. A union combines its members' kinds: `string|integer` accepts only `single`, while a union mixing collection and non-collection classes accepts both. The client filters a candidate's `contextType` against this list; the server still checks effective-type assignability.
+`mappable` says whether the property may be mapped.
+`contextTypes` derives accepted candidate cardinalities from `type`.
+Primitives and non-`Collection` classes accept `single`; `array` and `Collection` classes accept `collection`; bare `object` accepts both.
+A union combines its members' kinds: `string|integer` accepts only `single`, while a union mixing collection and non-collection classes accepts both.
+The client filters a candidate's `contextType` against this list; the server still checks effective-type assignability.
 
-Each type entry carries a folded `bindingSpecifications` catalogue. The response also carries one top-level `styleOptions` catalogue. See [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
+Each type entry carries a folded `bindingSpecifications` catalogue.
+The response also carries a top-level `styleOptions` catalogue and a `breakpointFallbacks` map.
+Each breakpoint maps to an ordered list of fallback keys.
+Clients check the field's own value first, then use the first set value in the list.
+See [Style options](../../Element/Style/docs/introspection.md) and [Binding specifications](../../../Binding/docs/introspection.md).
 
 ## `storageSchema`
 
@@ -74,6 +94,7 @@ Each entry is `{ kind, type, required }` plus an optional `default` and an optio
 | `config` | a reference token a binding's loader config names | `string` or `list<string>` |
 
 A declared FQCN property gets no entry at all: nothing is stored under the reference key itself, only under its `resolvedBy` storage key.
+Declared `object`, `array`, and union properties also get no `property` entry, even when their values are stored under their own keys.
 
 On `resolvedByStorage` and `config`, `type` is the config key's `referencedType`, not the type of the reference token. The token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
 

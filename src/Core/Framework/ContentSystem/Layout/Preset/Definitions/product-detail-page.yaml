@@ -13,36 +13,20 @@ layout:
         - component: Sw:Navigation:Breadcrumb
   - component: Sw:Grid:Container
     properties:
-      mode: explicit
-      columns:
-        xs: 1
-        sm: 1
-        md: 12
-        lg: 12
-        xl: 12
-      rows: 1
+      gridLayout:
+        lg:
+          columns: [{ type: fraction, value: 10 }, { type: fraction, value: 2 }]
+          areas: [[a1, a2]]
+        sm:
+          columns: [{ type: auto }]
+          areas: [[a1]]
     slots:
       content:
         - component: Sw:Content:Text
           properties:
             text: "<h1>{{map:product.name}}</h1>"
-          style:
-            col-span:
-              xs: 1
-              sm: 1
-              md: 10
-              lg: 10
-              xl: 10
-              xxl: 10
         - component: Sw:Product:Manufacturer
           style:
-            col-span:
-              xs: 1
-              sm: 1
-              md: 2
-              lg: 2
-              xl: 2
-              xxl: 2
             justify-self:
               xs: end
               sm: end
@@ -60,6 +44,16 @@ layout:
   - component: Sw:Grid:Container
     properties:
       align: start
+      gridLayout:
+        lg:
+          columns: [{ type: auto }, { type: auto }]
+          areas: [[a1, a2]]
+        sm:
+          columns: [{ type: auto }]
+          areas: [[a1]]
+        md:
+          columns: [{ type: auto }]
+          areas: [[a1]]
     slots:
       content:
         - component: Sw:Media:Gallery

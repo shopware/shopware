@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Loader;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -134,8 +135,7 @@ class YamlTypeLoaderTest extends TestCase
         $expectedPanels = [
             'mode' => 'general',
             'itemMinWidth' => 'general',
-            'columns' => 'general',
-            'rows' => 'general',
+            'gridLayout' => 'general',
             'fullWidth' => 'general',
             'gap' => 'spacing',
             'maxWidth' => 'spacing',
@@ -317,6 +317,52 @@ class YamlTypeLoaderTest extends TestCase
             )
         );
         $loader->load();
+    }
+
+    #[DataProvider('malformedSchemaProvider')]
+    public function testWrapsDeserializationFailuresWithFileContext(string $schema): void
+    {
+        $filesystem = new Filesystem();
+        $filesystem->mkdir($this->tempDir . '/nested');
+        $file = $this->tempDir . '/nested/invalid.yaml';
+        $filesystem->dumpFile($file, $schema);
+
+        try {
+            $this->createLoader([new ElementTypeSourceDirectory('source', $this->tempDir, 'Sw')])->load();
+            static::fail('Expected the invalid schema to abort the load.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::ELEMENT_TYPE_LOAD_FAILED, $exception->getErrorCode());
+            static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
+            static::assertInstanceOf(\TypeError::class, $exception->getPrevious());
+            static::assertStringContainsString($file, $exception->getMessage());
+            static::assertStringContainsString('Invalid schema: ' . $exception->getPrevious()->getMessage(), $exception->getMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function malformedSchemaProvider(): iterable
+    {
+        yield 'string items' => ["properties:\n  areas: { type: array, items: string }"];
+        yield 'integer items' => ["properties:\n  areas: { type: array, items: 7 }"];
+        yield 'nested items' => ["properties:\n  areas: { type: array, items: { type: array, items: string } }"];
+        yield 'typed DTO field' => ["meta:\n  label: [invalid]"];
+    }
+
+    public function testNullItemsStillFailsSemanticValidation(): void
+    {
+        $yaml = self::MINIMAL_VALID_YAML . "properties:\n  areas:\n    type: array\n    title: Areas\n    description: Areas.\n    items: null\n";
+        (new Filesystem())->dumpFile($this->tempDir . '/invalid.yaml', $yaml);
+
+        try {
+            $this->createLoader([new ElementTypeSourceDirectory('source', $this->tempDir, 'Sw')])->load();
+            static::fail('Expected the invalid type definition to abort the load.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::ELEMENT_TYPE_LOAD_FAILED, $exception->getErrorCode());
+            static::assertNull($exception->getPrevious());
+            static::assertStringContainsString('items', $exception->getMessage());
+        }
     }
 
     #[TestDox('throws batch validation exception when files have violations')]

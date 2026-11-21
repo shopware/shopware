@@ -57,13 +57,12 @@ class DraftLayoutStyleParityTest extends TestCase
     #[TestDox('yields the same style shape from the draft decode path as the write boundary produces for the same raw element')]
     public function testDraftDecodeMatchesWriteBoundaryStyle(): void
     {
-        // A partially specified breakpoint map of an option that declares a default: the normalizer fills the
-        // missing breakpoints, so a path that skipped it would produce a visibly different map.
+        // A scalar exercises the normalizer that wraps it in a breakpoint map.
         $raw = [[
             'id' => self::ELEMENT_ID,
             'component' => 'Sw:Content:Text',
             'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => '<p>Parity</p>']],
-            'style' => ['align-self' => ['xs' => 'center']],
+            'style' => ['align-self' => 'center'],
         ]];
 
         // One normalizer instance feeds both paths, so a path that stops calling it is what the comparison
@@ -102,8 +101,7 @@ class DraftLayoutStyleParityTest extends TestCase
     }
 
     /**
-     * A registry holding the one breakpoint-aware option this test styles, declared with a default so the
-     * partial map expands.
+     * A registry holding the breakpoint-aware option used by the fixture.
      */
     private function styleNormalizer(): ElementStyleNormalizer
     {

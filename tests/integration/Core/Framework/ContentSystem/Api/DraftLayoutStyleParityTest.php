@@ -28,13 +28,12 @@ class DraftLayoutStyleParityTest extends TestCase
     #[TestDox('yields the same style shape from the container-wired draft decode path as the container-wired write boundary')]
     public function testContainerWiredDraftDecodeMatchesWriteBoundaryStyle(): void
     {
-        // A partially specified breakpoint map of a core option that declares a default ("auto"): the
-        // normalizer fills the missing breakpoints, so a path wired without it produces a visibly smaller map.
+        // A scalar exercises the normalizer that wraps it in a breakpoint map.
         $raw = [[
             'id' => 'parity-element',
             'component' => TestElementTypeLoader::DEFAULTED_PRIMITIVE,
             'properties' => ['headline' => 'Parity'],
-            'style' => ['align-self' => ['xs' => 'center']],
+            'style' => ['align-self' => 'center'],
         ]];
 
         $draftStyle = static::getContainer()->get(DraftLayoutDecoder::class)
@@ -46,9 +45,6 @@ class DraftLayoutStyleParityTest extends TestCase
 
         static::assertSame($writtenStyle, $draftStyle);
 
-        // Guards the equivalence against being vacuously true on an untouched map. It depends on the
-        // `align-self` declaration (Definitions/align-self.yaml) staying breakpoint-aware with a default:
-        // a red HERE after a change to that YAML asks for a new expanding fixture option, not a wiring fix.
         static::assertIsArray($draftStyle['align-self']);
         static::assertSame(Breakpoint::values(), array_keys($draftStyle['align-self']));
     }

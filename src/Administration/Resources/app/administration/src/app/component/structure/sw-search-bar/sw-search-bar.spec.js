@@ -55,7 +55,13 @@ describe('src/app/component/structure/sw-search-bar', () => {
     let spyLoadTypeSearchResultsByService;
     let userActivityApiServiceMock;
 
-    async function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = [], customProviders = {}) {
+    async function createWrapper(
+        props,
+        searchTypes = searchTypeServiceTypes,
+        privileges = [],
+        customProviders = {},
+        customMocks = {},
+    ) {
         swSearchBarComponent = await wrapTestComponent('sw-search-bar');
         spyLoadResults = jest.spyOn(swSearchBarComponent.methods, 'loadResults');
         spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
@@ -88,6 +94,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                             term: '',
                         },
                     },
+                    ...customMocks,
                 },
                 provide: {
                     searchService: customProviders.searchService ?? {
@@ -2180,5 +2187,63 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(Object.keys(queries)).toEqual(['custom_entity']);
         expect(queries.custom_entity.hasAssociation('coupon')).toBe(true);
         expect(queries.custom_entity.ids).toEqual(['customId']);
+    });
+
+    describe('module filter labels', () => {
+        const allSearchTypes = {
+            all: {
+                entityName: '',
+                placeholderSnippet: '',
+                listingRoute: '',
+            },
+            ...searchTypeServiceTypes,
+        };
+        let originalFallbackLocale;
+
+        beforeEach(() => {
+            originalFallbackLocale = Shopware.Context.app.fallbackLocale;
+            Shopware.Context.app.fallbackLocale = 'en-GB';
+        });
+
+        afterEach(() => {
+            Shopware.Context.app.fallbackLocale = originalFallbackLocale;
+        });
+
+        async function openModuleFilterLabels(customMocks) {
+            wrapper = await createWrapper({ initialSearchType: 'category' }, allSearchTypes, [], {}, customMocks);
+            await wrapper.find('.sw-search-bar__type--v2').trigger('click');
+
+            return wrapper.findAll('.sw-search-bar__type-item-name').map((item) => item.text());
+        }
+
+        it('should use the fallback locale snippets when the active locale has no entity snippets', async () => {
+            const labels = await openModuleFilterLabels({
+                $te: (key, locale) => locale === 'en-GB',
+            });
+
+            expect(labels).toEqual([
+                'global.sw-search-bar.searchTypeAll',
+                'global.entities.product',
+                'global.entities.category',
+                'global.entities.customer',
+                'global.entities.order',
+                'global.entities.media',
+            ]);
+        });
+
+        it('should show the entity name of each type when no locale has an entity snippet', async () => {
+            const labels = await openModuleFilterLabels({
+                $te: () => false,
+            });
+
+            expect(labels).toEqual([
+                'global.sw-search-bar.searchTypeAll',
+                'product',
+                'category',
+                'customer',
+                'order',
+                'media',
+            ]);
+        });
     });
 });

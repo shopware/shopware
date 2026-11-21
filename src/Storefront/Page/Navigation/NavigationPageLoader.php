@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
-use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
@@ -49,7 +48,6 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             throw CategoryException::categoryNotFound($category->getId());
         }
 
-        $this->loadMetaData($category, $page, $context->getSalesChannel());
         $page->setNavigationId($category->getId());
         $page->setCategory($category);
 
@@ -61,17 +59,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             $page->setCmsPage($category->getCmsPage());
         }
 
-        if ($page->getMetaInformation()) {
-            $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
-                ? $this->seoUrlReplacer->generate('frontend.home.page')
-                : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $navigationId]);
-
-            if ($request->query->has('p') && $request->query->getInt('p') > 1) {
-                $canonical .= '?p=' . $request->query->get('p');
-            }
-
-            $page->getMetaInformation()->setCanonical($canonical);
-        }
+        $this->loadMetaData($page, $context->getSalesChannel(), $request);
 
         $this->eventDispatcher->dispatch(
             new NavigationPageLoadedEvent($page, $context, $request)
@@ -80,7 +68,7 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
         return $page;
     }
 
-    private function loadMetaData(CategoryEntity $category, NavigationPage $page, SalesChannelEntity $salesChannel): void
+    private function loadMetaData(NavigationPage $page, SalesChannelEntity $salesChannel, Request $request): void
     {
         $metaInformation = $page->getMetaInformation();
 
@@ -88,13 +76,11 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             return;
         }
 
-        $isHome = $salesChannel->getNavigationCategoryId() === $category->getId();
+        $category = $page->getCategory();
 
-        $metaDescription = $isHome && $salesChannel->getTranslation('homeMetaDescription')
-            ? $salesChannel->getTranslation('homeMetaDescription')
-            : $category->getTranslation('metaDescription')
-            ?? $category->getTranslation('description');
-        $metaInformation->setMetaDescription((string) $metaDescription);
+        \assert($category !== null);
+
+        $isHome = $salesChannel->getNavigationCategoryId() === $category->getId();
 
         $metaTitle = $isHome && $salesChannel->getTranslation('homeMetaTitle')
             ? $salesChannel->getTranslation('homeMetaTitle')
@@ -102,9 +88,21 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             ?? $category->getTranslation('name');
         $metaInformation->setMetaTitle((string) $metaTitle);
 
+        $metaDescription = $isHome && $salesChannel->getTranslation('homeMetaDescription')
+            ? $salesChannel->getTranslation('homeMetaDescription')
+            : $category->getTranslation('metaDescription')
+            ?? $category->getTranslation('description');
+        $metaInformation->setMetaDescription((string) $metaDescription);
+
         $keywords = $isHome && $salesChannel->getTranslation('homeKeywords')
             ? $salesChannel->getTranslation('homeKeywords')
             : $category->getTranslation('keywords');
         $metaInformation->setMetaKeywords((string) $keywords);
+
+        $canonical = $isHome
+            ? $this->seoUrlReplacer->generate('frontend.home.page')
+            : $this->seoUrlReplacer->generate(NavigationPageSeoUrlRoute::ROUTE_NAME, ['navigationId' => $category->getId()]);
+        $canonical .= ($request->query->has('p') && $request->query->getInt('p') > 1) ? '?p=' . $request->query->get('p') : '';
+        $metaInformation->setCanonical($canonical);
     }
 }

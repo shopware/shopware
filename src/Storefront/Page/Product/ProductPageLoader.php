@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Content\Product\SalesChannel\Review\RatingMatrix;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,6 +59,7 @@ class ProductPageLoader
         private readonly AbstractProductDetailRoute $productDetailRoute,
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
+        private readonly SeoUrlPlaceholderHandlerInterface $seoUrlReplacer,
         private readonly CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
     }
@@ -70,6 +73,7 @@ class ProductPageLoader
     public function load(Request $request, SalesChannelContext $context): ProductPage
     {
         $productId = $request->attributes->get('productId');
+
         if (!$productId) {
             throw RoutingException::missingRequestParameter('productId', '/productId');
         }
@@ -144,11 +148,14 @@ class ProductPageLoader
 
         foreach ($page->getConfiguratorSettings() as $group) {
             $groupOptions = $group->getOptions();
+
             if ($groupOptions === null) {
                 continue;
             }
+
             foreach ($optionIds as $optionId) {
                 $groupOption = $groupOptions->get($optionId);
+
                 if ($groupOption !== null) {
                     $options->add($groupOption);
                 }
@@ -162,31 +169,33 @@ class ProductPageLoader
     {
         $metaInformation = $page->getMetaInformation();
 
-        if (!$metaInformation) {
+        if ($metaInformation === null) {
             return;
         }
 
-        $metaDescription = $page->getProduct()->getTranslation('metaDescription')
-            ?? $page->getProduct()->getTranslation('description');
+        $product = $page->getProduct();
+
+        if ((string) $product->getTranslation('metaTitle') !== '') {
+            $metaInformation->setMetaTitle((string) $product->getTranslation('metaTitle'));
+        } else {
+            $metaTitleParts = [$product->getTranslation('name')];
+
+            foreach ($page->getSelectedOptions() as $option) {
+                $metaTitleParts[] = $option->getTranslation('name');
+            }
+
+            $metaTitleParts[] = $product->getProductNumber();
+            $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
+        }
+
+        $metaDescription = $product->getTranslation('metaDescription')
+            ?? $product->getTranslation('description');
         $metaInformation->setMetaDescription((string) $metaDescription);
 
-        $metaInformation->setMetaKeywords((string) $page->getProduct()->getTranslation('keywords'));
+        $metaInformation->setMetaKeywords((string) $product->getTranslation('keywords'));
 
-        if ((string) $page->getProduct()->getTranslation('metaTitle') !== '') {
-            $metaInformation->setMetaTitle((string) $page->getProduct()->getTranslation('metaTitle'));
-
-            return;
-        }
-
-        $metaTitleParts = [$page->getProduct()->getTranslation('name')];
-
-        foreach ($page->getSelectedOptions() as $option) {
-            $metaTitleParts[] = $option->getTranslation('name');
-        }
-
-        $metaTitleParts[] = $page->getProduct()->getProductNumber();
-
-        $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
+        $canonical = $this->seoUrlReplacer->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $product->getCanonicalProductId() ?? $product->getId()]);
+        $metaInformation->setCanonical($canonical);
     }
 
     /**

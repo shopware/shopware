@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Extension\ListAddressRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -67,9 +68,9 @@ class ListAddressRoute extends AbstractListAddressRoute
             ->addAssociation('country')
             ->addAssociation('countryState');
 
-        // Without a requested limit the API max limit cuts the list, so report the real total to make the cut visible
         if (
-            $criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)
+            Feature::isActive('v6.8.0.0')
+            && $criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)
             && $criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NONE
         ) {
             $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);

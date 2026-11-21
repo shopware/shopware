@@ -18,9 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -101,24 +103,17 @@ class ListAddressRouteTest extends TestCase
     #[DataProvider('totalCountModeProvider')]
     public function testLoadCountsAllAddressesWhenTheLimitWasNotRequested(bool $limitNotRequested, int $requestedMode, int $expectedMode): void
     {
-        $criteria = new Criteria();
-        $criteria->setTotalCountMode($requestedMode);
-        if ($limitNotRequested) {
-            $criteria->setLimit(100);
-            $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
-        }
-
-        $context = Generator::generateSalesChannelContext();
-        $customer = $context->getCustomer();
-        static::assertNotNull($customer);
-
-        $searchResult = static::createStub(EntitySearchResult::class);
-        $searchResult->method('getEntities')->willReturn(new CustomerAddressCollection());
-        $this->addressRepository->method('search')->willReturn($searchResult);
-
-        $this->route->load($criteria, $context, $customer);
+        $criteria = Feature::withFeatureEnabled('v6.8.0.0', fn () => $this->loadWithTotalCountMode($limitNotRequested, $requestedMode));
 
         static::assertSame($expectedMode, $criteria->getTotalCountMode());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testLoadKeepsTheTotalCountModeBeforeTheMajor(): void
+    {
+        $criteria = $this->loadWithTotalCountMode(true, Criteria::TOTAL_COUNT_MODE_NONE);
+
+        static::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
     }
 
     /**
@@ -153,5 +148,27 @@ class ListAddressRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->load($criteria, $context, $customer));
+    }
+
+    private function loadWithTotalCountMode(bool $limitNotRequested, int $requestedMode): Criteria
+    {
+        $criteria = new Criteria();
+        $criteria->setTotalCountMode($requestedMode);
+        if ($limitNotRequested) {
+            $criteria->setLimit(100);
+            $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+        }
+
+        $context = Generator::generateSalesChannelContext();
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new CustomerAddressCollection());
+        $this->addressRepository->method('search')->willReturn($searchResult);
+
+        $this->route->load($criteria, $context, $customer);
+
+        return $criteria;
     }
 }

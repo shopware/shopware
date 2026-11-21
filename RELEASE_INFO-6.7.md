@@ -938,13 +938,10 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
-### The address list reports all matching addresses in `total`
+### The address list reports all matching addresses in `total` in 6.8
 
-A request to `/store-api/account/list-address` without `limit` returns at most `shopware.api.store.max_limit` addresses (100 by default).
-Before, `total` then reported the number of returned addresses, so a customer with more addresses looked complete.
-Now `total` is the number of all addresses that match the request's filters and search term when the request has no `limit`.
-This also applies to `"total-count-mode": "none"`; only `"total-count-mode": "next-pages"` is kept.
-Load the remaining addresses with `page` or `limit`.
+A request to `/store-api/account/list-address` without `limit` returns at most `shopware.api.store.max_limit` addresses (100 by default), and `total` reports the number of returned addresses.
+With the `v6.8.0.0` feature flag, `total` is the number of all addresses that match the request's filters and search term, see `UPGRADE-6.8.md`.
 
 ## Features
 

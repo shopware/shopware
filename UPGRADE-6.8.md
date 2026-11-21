@@ -431,6 +431,13 @@ If your plugin, app, or integration relied on reading custom top-level keys from
 
 The Store API route `/store-api/document/download` returns now a standard Shopware domain exception with status code `404` and the code `DOCUMENT_FILETYPE_UNAVAILABLE` when the document has no generated document with the requested mime type, instead of returning a `204` status code.
 
+## `/store-api/account/list-address` reports all addresses in `total`
+
+A request to `/store-api/account/list-address` without `limit` returns at most `shopware.api.store.max_limit` addresses (100 by default).
+`total` is now the number of all addresses that match the request's filters and search term, also for `"total-count-mode": "none"`.
+Only `"total-count-mode": "next-pages"` is kept.
+Load the remaining addresses with `page` or `limit`.
+
 ## Removal of `/api/_info/queue.json` endpoint
 
 The `/api/_info/queue.json` endpoint has been removed. You may `/api/_info/message-stats.json` as alternative to get statistics for message queues.

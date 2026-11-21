@@ -35,6 +35,7 @@ Put such a change behind the major flag and keep the old markup in the branch th
 ```
 
 - Give the new markup new blocks, because a template cannot define a block twice; keep the old blocks unchanged in the `v-else` branch.
+- Mark each old block with ``{# @deprecated tag:v6.8.0 - Use `sw_example_entity_select` instead. #}``.
 - Inject `feature` in the component, the template reads it.
 - Keep the old JavaScript path running while the flag is inactive, for example the loading in `created` or a watcher, behind `!this.feature.isActive('V6_8_0_0')`.
 - Deprecate the members that only the old path needs.

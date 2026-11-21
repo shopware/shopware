@@ -1764,12 +1764,13 @@ The customer address select in order creation (`sw-order-customer-address-select
 The old `sw-single-select` markup was removed, including the `result-item` slot content of the address select and the Twig blocks `sw_product_seo_form_canonical_url_select`, `sw_product_seo_form_canonical_url_select_selection` and `sw_product_seo_form_canonical_url_select_result`.
 Override the new blocks `sw_order_customer_address_select_entity_select`, `sw_product_seo_form_canonical_url_entity_select`, `sw_product_seo_form_canonical_url_entity_select_selection` and `sw_product_seo_form_canonical_url_entity_select_result` instead.
 
-The members that loaded the options for the old selects were removed without replacement:
+The members that loaded the options for the old selects were removed:
 
 - `sw-order-customer-address-select`: the computed properties `addressRepository` and `addressCriteria`, the methods `getCustomerAddresses()`, `searchAddress()`, `searchAddressResults()` and `getDisplayedCustomerAddresses()`, and the data properties `customerAddresses`, `isLoading` and `addressSearchTerm`.
 - `sw-product-seo-form`: the computed properties `variantCriteria`, `isCanonicalUrlSelectLoading` and `variantsWithResetOption`, the methods `fetchVariants()` and `onSearch()`, and the data properties `variants` and `searchTerm`.
 
-Change the loaded options through the computed properties `customerAddressCriteria` and `canonicalVariantCriteria` instead.
+Use `customerAddressCriteria` instead of `addressCriteria` and `canonicalVariantCriteria` instead of `variantCriteria`.
+The other members have no replacement.
 
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 

@@ -62,6 +62,11 @@ class ProductStreamBuilderTest extends TestCase
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
+    public function testAbstractClassResolvesToProductStreamBuilder(): void
+    {
+        static::assertSame($this->service, static::getContainer()->get(AbstractProductStreamBuilder::class));
+    }
+
     public function testBuildFilters(): void
     {
         $this->createTestEntity();

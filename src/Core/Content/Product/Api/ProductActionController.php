@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Api;
 
+use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Content\Product\Util\VariantCombinationLoader;
 use Shopware\Core\Framework\Context;
@@ -21,7 +23,9 @@ class ProductActionController extends AbstractController
      */
     public function __construct(
         private readonly VariantCombinationLoader $combinationLoader,
-        private readonly ProductTypeRegistry $productTypeRegistry
+        private readonly ProductTypeRegistry $productTypeRegistry,
+        private readonly ProductDocumentConfig $productDocumentConfig,
+        private readonly ?PresignedMediaUploadService $presignedMediaUploadService
     ) {
     }
 
@@ -37,5 +41,19 @@ class ProductActionController extends AbstractController
     public function getProductTypes(): JsonResponse
     {
         return new JsonResponse($this->productTypeRegistry->getTypes());
+    }
+
+    #[Route(path: '/api/_action/product/document-upload-settings', name: 'api.action.product.document_upload_settings', methods: ['GET'])]
+    public function getDocumentUploadSettings(Context $context): JsonResponse
+    {
+        $mimeTypesByExtension = $this->productDocumentConfig->getMimeTypesByExtension($context);
+        $presignedUploadSupported = $this->presignedMediaUploadService?->isAvailable() ?? false;
+
+        return new JsonResponse([
+            'allowedExtensions' => array_map(strval(...), array_keys($mimeTypesByExtension)),
+            'allowedMimeTypesByExtension' => $mimeTypesByExtension,
+            // presigned uploads go straight to the storage, past PHP's limits
+            'maxFileSize' => $presignedUploadSupported ? $this->productDocumentConfig->maxFileSize : $this->productDocumentConfig->getMaxUploadFileSize(),
+        ]);
     }
 }

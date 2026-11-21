@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
@@ -447,6 +448,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(VariantCombinationLoader::class),
             service(ProductTypeRegistry::class),
+            service(ProductDocumentConfig::class),
+            service(PresignedMediaUploadService::class)->nullOnInvalid(),
         ])
         ->call('setContainer', [
             service('service_container'),

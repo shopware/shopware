@@ -7,6 +7,26 @@ import { defineComponent, type ComponentPublicInstance } from 'vue';
 import repositoryFactory from 'test/_setup/_mocks_/repositoryFactory.service.mock';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import fileValidationService from 'src/app/service/file-validation.service';
+import type { ProductDocumentUploadSettings } from 'src/module/sw-product/service/product-document.api.service';
+
+/** @private */
+export const uploadSettings: ProductDocumentUploadSettings = {
+    allowedExtensions: [
+        'pdf',
+        'docx',
+        'jpg',
+        'jpeg',
+        'png',
+    ],
+    allowedMimeTypesByExtension: {
+        pdf: ['application/pdf'],
+        docx: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        jpg: ['image/jpeg'],
+        jpeg: ['image/jpeg'],
+        png: ['image/png'],
+    },
+    maxFileSize: 20 * 1024 * 1024,
+};
 
 /** @private */
 export const mockSnackbar = jest.fn((config: Omit<Snackbar, 'id'>): Snackbar => ({ id: 'document-feedback', ...config }));
@@ -53,6 +73,7 @@ export async function createWrapper(
         baseView?: boolean;
         isInherited?: boolean;
         getDefaultFolderId?: () => Promise<string | null>;
+        getUploadSettings?: () => Promise<ProductDocumentUploadSettings>;
     } = {},
 ) {
     if (options.isInherited) {
@@ -82,6 +103,9 @@ export async function createWrapper(
                 },
                 mediaPresignedUploadService: {},
                 productDocumentVariantService: { sync: mockVariantSync },
+                productDocumentApiService: {
+                    getUploadSettings: options.getUploadSettings ?? jest.fn().mockResolvedValue(uploadSettings),
+                },
                 fileValidationService: fileValidationService(),
                 entityFactory: new EntityFactory(),
                 repositoryFactory: {
@@ -158,6 +182,7 @@ export async function createWrapper(
         },
     });
     wrappers.push(wrapper);
+    await flushPromises();
     return wrapper;
 }
 

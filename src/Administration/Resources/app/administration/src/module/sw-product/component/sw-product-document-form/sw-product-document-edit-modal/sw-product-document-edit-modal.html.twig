@@ -54,7 +54,7 @@
                 />
                 {% endblock %}
                 <mt-text
-                    v-if="!fileError"
+                    v-if="!fileError && fileHint"
                     size="xs"
                     color="color-text-secondary-default"
                     class="sw-product-document-form__upload-hint"

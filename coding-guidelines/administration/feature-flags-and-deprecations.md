@@ -11,6 +11,41 @@ Follow the general feature-flag rules in [core feature flags](../core/feature-fl
 - Keep the old behavior inside the branch that will be deleted when the flag is removed.
 - Test both relevant flag states when both branches are still supported.
 
+## Template changes
+
+Twig blocks, slot content, rendered components, CSS classes and `$refs` of a public component template are extension points.
+Keeping the block names is not enough:
+replacing the component inside a block, removing slot content or renaming classes breaks extensions that override, style or reach into it.
+Search for precedents before changing such markup, for example with `grep -rn "feature.isActive('v6.8.0.0')" --include=*.twig src/Administration`.
+
+Put such a change behind the major flag and keep the old markup in the branch that is removed at the major:
+
+```twig
+<template v-if="feature.isActive('v6.8.0.0')">
+    {% block sw_example_entity_select %}
+    <sw-entity-single-select ... />
+    {% endblock %}
+</template>
+
+<template v-else>
+    {% block sw_example_select %}
+    <sw-single-select ... />
+    {% endblock %}
+</template>
+```
+
+- Give the new markup new blocks, because a template cannot define a block twice; keep the old blocks unchanged in the `v-else` branch.
+- Inject `feature` in the component, the template reads it.
+- Keep the old JavaScript path running while the flag is inactive, for example the loading in `created` or a watcher, behind `!this.feature.isActive('V6_8_0_0')`.
+- Deprecate the members that only the old path needs.
+  Core calls them from the old path on purpose, so wrap these calls in `Shopware.Feature.silence('V6_8_0_0', () => ...)`.
+  The callback must be synchronous, so also silence deprecated calls inside a `.then()` of the old path.
+- A deprecated member that the old markup calls directly, like a `@search` handler, runs on every use before the major.
+  It has no guard and states why, see [Runtime guards](#runtime-guards).
+- Test the new markup with `it.activeFeatureFlags(['v6.8.0.0'])` and the old one with `it.deprecated('v6.8.0.0')`, see the [Jest helper ADR](../../adr/2026-08-06-administration-jest-feature-flag-helpers.md).
+  Tests of the old markup can live in a separate `<component>.legacy.spec.js` next to the main spec.
+- Document the new blocks and the switch in the release notes and the removed markup in the upgrade notes.
+
 ## Deprecations
 
 - Mark deprecated Administration APIs with `@deprecated tag:vX.Y.Z - ...` and name the replacement.

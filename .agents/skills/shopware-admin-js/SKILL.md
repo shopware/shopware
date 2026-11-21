@@ -34,4 +34,4 @@ Keep general Administration structure, tech stack, docs links, and scripts in `s
 
 - Read `coding-guidelines/administration/architecture.md` when changing Admin architecture, component registration, services, state, or module patterns.
 - Read `coding-guidelines/administration/testing.md` when adding or restructuring Administration Jest tests.
-- Read `coding-guidelines/administration/feature-flags-and-deprecations.md` when touching Admin feature flags, deprecations, or BC behavior.
+- Read `coding-guidelines/administration/feature-flags-and-deprecations.md` when touching Admin feature flags, deprecations, or BC behavior, including markup changes inside the blocks of a public component template.

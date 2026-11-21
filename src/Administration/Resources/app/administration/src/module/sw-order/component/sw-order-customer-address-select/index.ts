@@ -150,12 +150,6 @@ export default Component.wrapComponentConfig({
                 }
             },
         },
-
-        value(): void {
-            // The select loads the selected address with these criteria, a term or page left from the result list would miss it
-            this.customerAddressCriteria.setPage(1);
-            this.customerAddressCriteria.setTerm('');
-        },
     },
 
     created() {

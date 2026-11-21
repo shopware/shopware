@@ -313,7 +313,6 @@ export default {
          */
         onCanonicalVariantSelectCollapsed() {
             this.removeOptionNameQueries();
-            this.canonicalVariantCriteria.setTerm('');
         },
 
         /**

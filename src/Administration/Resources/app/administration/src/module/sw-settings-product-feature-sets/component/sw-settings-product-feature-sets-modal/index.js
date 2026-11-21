@@ -31,6 +31,7 @@ export default {
             selectedFeatureType: null,
             showPageOne: true,
             term: '',
+            customFieldSearchTerm: '',
             showCustomField: false,
             showPropertyGroups: false,
             showProductInfo: false,
@@ -117,8 +118,24 @@ export default {
         },
 
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 10);
             criteria.addSorting(Criteria.sort('type', 'DESC'));
+
+            if (this.customFieldSearchTerm) {
+                const locales = new Set([
+                    Shopware.Store.get('session').currentLocale,
+                    Shopware.Context.app.fallbackLocale,
+                ]);
+
+                criteria.addFilter(
+                    Criteria.multi('OR', [
+                        Criteria.contains('name', this.customFieldSearchTerm),
+                        ...[...locales].filter(Boolean).map((locale) => {
+                            return Criteria.contains(`config.label.${locale}`, this.customFieldSearchTerm);
+                        }),
+                    ]),
+                );
+            }
 
             const featureIds = this.getFeaturesIds('customField');
             if (featureIds.length > 0) {
@@ -220,7 +237,6 @@ export default {
                 this.features = this.productFeatureSet.features;
             }
 
-            this.customFieldCriteria.setLimit(10);
             this.propertyGroupCriteria.setLimit(10);
 
             this.getCustomFieldList();
@@ -229,7 +245,7 @@ export default {
         },
 
         onSearchCustomFields() {
-            this.customFieldCriteria.setTerm(this.term);
+            this.customFieldSearchTerm = this.term;
             this.getCustomFieldList();
         },
 

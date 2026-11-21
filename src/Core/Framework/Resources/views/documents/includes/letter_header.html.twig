@@ -30,11 +30,12 @@ All blocks of this template are available in the template which renders this tem
                 } %}<br/>
 
                 {% set customerVatId = customer.vatIds|first -%}
-                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.intraCommunityDelivery) -%}
+                {#- The reverse-charge note is invalid without the customer's VAT ID -#}
+                {% set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.intraCommunityDelivery or config.reverseCharge) -%}
 
                 {%- if not feature('v6.8.0.0') -%}
                     {%- set customerVatId = customer.vatIds|first -%}
-                    {%- set displayCustomerVatId = customerVatId and config.displayCustomerVatId -%}
+                    {%- set displayCustomerVatId = customerVatId and (config.displayCustomerVatId or config.reverseCharge) -%}
                     {#- @deprecated tag:v6.8.0 - displayCustomerVatIdForDelivery will be removed without replacement -#}
                     {%- set displayCustomerVatIdForDelivery = customerVatId and billingAddress.country.companyTax.enabled and config.displayAdditionalNoteDelivery and billingAddress.country.id in config.deliveryCountries -%}
                 {%- endif -%}

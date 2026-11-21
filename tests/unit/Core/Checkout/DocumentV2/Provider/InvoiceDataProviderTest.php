@@ -417,7 +417,7 @@ class InvoiceDataProviderTest extends TestCase
         static::assertSame([TaxCategory::INTRA_COMMUNITY_SUPPLY], $categories($data->taxBreakdown));
         static::assertSame('FR12345678901', $data->buyer->vatId);
         static::assertSame(TaxCategory::INTRA_COMMUNITY_SUPPLY, $data->taxExemption?->taxCategory);
-        static::assertSame('75001', $data->taxExemption->deliveryAddress->getZipcode());
+        static::assertSame('75001', $data->taxExemption->deliveryAddress?->getZipcode());
     }
 
     public function testWithoutTheVatIdSettingAnIntraCommunitySupplyKeepsTheRateBasedCategory(): void
@@ -431,10 +431,73 @@ class InvoiceDataProviderTest extends TestCase
         static::assertNull($data->taxExemption);
     }
 
+    public function testReverseChargeGivesEveryPositionCategoryAEAndNamesTheBuyerWithoutADeliveryAddress(): void
+    {
+        $data = $this->provideReverseChargeData(['vatId' => 'DE123456789']);
+
+        $categories = static fn (array $views): array => array_map(static fn (LineItemView|AllowanceChargeView|TaxBreakdownView $view) => $view->taxCategory, $views);
+        static::assertSame([TaxCategory::REVERSE_CHARGE], $categories($data->lineItems));
+        static::assertSame([TaxCategory::REVERSE_CHARGE], $categories($data->allowanceCharges));
+        static::assertSame([TaxCategory::REVERSE_CHARGE], $categories($data->taxBreakdown));
+        static::assertSame('NL123456789B01', $data->buyer->vatId);
+        static::assertSame(TaxCategory::REVERSE_CHARGE, $data->taxExemption?->taxCategory);
+        static::assertNull($data->taxExemption->deliveryAddress);
+    }
+
+    public function testWithoutTheVatIdSettingReverseChargeKeepsTheRateBasedCategory(): void
+    {
+        $data = $this->provideReverseChargeData([]);
+
+        static::assertSame(TaxCategory::ZERO_RATED, $data->lineItems[0]->taxCategory);
+        static::assertNull($data->buyer->vatId);
+        static::assertNull($data->taxExemption);
+    }
+
+    #[DataProvider('labelSettingProvider')]
+    public function testTheReverseChargeNoteFollowsTheIntraCommunityDeliveryLabel(bool $displayAdditionalNoteDelivery): void
+    {
+        $data = $this->provideReverseChargeData(['displayAdditionalNoteDelivery' => $displayAdditionalNoteDelivery]);
+
+        static::assertSame($displayAdditionalNoteDelivery, $data->reverseCharge);
+        static::assertFalse($data->intraCommunityDelivery);
+    }
+
+    public static function labelSettingProvider(): \Generator
+    {
+        yield 'label on' => [true];
+        yield 'label off' => [false];
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function provideReverseChargeData(array $config): InvoiceRenderData
+    {
+        $resolver = static::createStub(IntraCommunityTaxResolver::class);
+        $resolver->method('isReverseCharge')->willReturn(true);
+        $resolver->method('getReverseChargeVatId')->willReturn('NL123456789B01');
+
+        return $this->provideTaxFreeData($config, $resolver);
+    }
+
     /**
      * @param array<string, mixed> $config
      */
     private function provideIntraCommunitySupplyData(array $config): InvoiceRenderData
+    {
+        $resolver = static::createStub(IntraCommunityTaxResolver::class);
+        $resolver->method('getIntraCommunityVatId')->willReturn('FR12345678901');
+        $resolver->method('getShippingAddress')->willReturnCallback(static fn (OrderEntity $order) => $order->getPrimaryOrderDelivery()?->getShippingOrderAddress());
+
+        return $this->provideTaxFreeData($config, $resolver);
+    }
+
+    /**
+     * A tax-free product line of 100.00 to a French business customer, delivered to Paris
+     *
+     * @param array<string, mixed> $config
+     */
+    private function provideTaxFreeData(array $config, IntraCommunityTaxResolver $resolver): InvoiceRenderData
     {
         $order = self::createOrder(
             accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
@@ -454,10 +517,6 @@ class InvoiceDataProviderTest extends TestCase
         $product->setQuantity(1);
         $product->setPrice(new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $order->setLineItems(new OrderLineItemCollection([$product]));
-
-        $resolver = static::createStub(IntraCommunityTaxResolver::class);
-        $resolver->method('getIntraCommunityVatId')->willReturn('FR12345678901');
-        $resolver->method('getShippingAddress')->willReturn($shippingAddress);
 
         return $this->createProvider($config, $resolver)->provideRenderingData(
             new ProviderInput($order, new DocumentGenerationRequest(
@@ -516,6 +575,7 @@ class InvoiceDataProviderTest extends TestCase
                 static::createStub(SystemConfigService::class),
                 static::createStub(EntityRepository::class),
                 new ExtensionDispatcher(new EventDispatcher()),
+                StaticEntityRepository::of(OrderLineItemCollection::class, [new OrderLineItemCollection()]),
             ),
         );
     }
@@ -570,7 +630,13 @@ class InvoiceDataProviderTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn($sellerCountryId);
 
-        return new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, static::createStub(EntityRepository::class), new ExtensionDispatcher(new EventDispatcher()));
+        return new IntraCommunityTaxResolver(
+            new VatIdPatternProvider($repository),
+            $systemConfigService,
+            static::createStub(EntityRepository::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+            StaticEntityRepository::of(OrderLineItemCollection::class, [new OrderLineItemCollection()]),
+        );
     }
 
     private function createPatternCountry(string $id, string $iso, string $vatIdPattern): CountryEntity
@@ -641,6 +707,7 @@ class InvoiceDataProviderTest extends TestCase
         $billingCountry = new CountryEntity();
         $billingCountry->setUniqueIdentifier(Uuid::randomHex());
         $billingCountry->setIso('DE');
+        $billingCountry->setIsEu(true);
 
         $billingAddress = new OrderAddressEntity();
         $billingAddress->setUniqueIdentifier($billingAddressId);

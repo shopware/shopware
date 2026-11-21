@@ -172,8 +172,13 @@ class ZugferdDocument
 
         $deliveryAddress = $this->taxExemption->deliveryAddress;
 
+        $this->zugferdBuilder->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $this->taxExemption->buyerVatId);
+
+        if ($deliveryAddress === null) {
+            return $this;
+        }
+
         $this->zugferdBuilder
-            ->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $this->taxExemption->buyerVatId)
             ->setDocumentShipTo()
             ->setDocumentShipToAddress(
                 lineOne: $deliveryAddress->getStreet(),

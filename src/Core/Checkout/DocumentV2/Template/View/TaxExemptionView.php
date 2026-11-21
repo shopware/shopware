@@ -18,7 +18,7 @@ final readonly class TaxExemptionView
     public function __construct(
         public TaxCategory $taxCategory,
         public string $buyerVatId,
-        public OrderAddressEntity $deliveryAddress,
+        public ?OrderAddressEntity $deliveryAddress,
     ) {
     }
 
@@ -33,5 +33,18 @@ final readonly class TaxExemptionView
         }
 
         return new self(TaxCategory::INTRA_COMMUNITY_SUPPLY, $buyerVatId, $deliveryAddress);
+    }
+
+    /**
+     * Category AE needs the seller and the buyer VAT ID (BR-AE-02), but no delivery address, because digital products are
+     * not delivered. Without one of them the e-invoice keeps the rate-based category.
+     */
+    public static function fromReverseCharge(?string $buyerVatId, ?string $sellerVatId): ?self
+    {
+        if ($buyerVatId === null || ($sellerVatId ?? '') === '') {
+            return null;
+        }
+
+        return new self(TaxCategory::REVERSE_CHARGE, $buyerVatId, null);
     }
 }

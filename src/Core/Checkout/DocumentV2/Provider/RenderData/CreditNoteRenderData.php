@@ -40,6 +40,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
         public ?\DateTimeImmutable $paymentDueDate,
         public bool $intraCommunityDelivery,
         public ?TaxExemptionView $taxExemption = null,
+        public bool $reverseCharge = false,
         /**
          * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
          */
@@ -70,6 +71,7 @@ final readonly class CreditNoteRenderData extends AbstractRenderData
             paymentDueDate: null,
             intraCommunityDelivery: $invoice->intraCommunityDelivery,
             taxExemption: $invoice->taxExemption,
+            reverseCharge: $invoice->reverseCharge,
             custom: [
                 'creditNoteNumber' => $creditNoteNumber,
                 'invoiceNumber' => $referencedInvoiceNumber,

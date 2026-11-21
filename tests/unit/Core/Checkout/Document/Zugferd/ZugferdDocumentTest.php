@@ -926,6 +926,40 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame(0, $dom->getElementsByTagName('ShipToTradeParty')->length);
     }
 
+    public function testReverseChargeStatesCategoryAEOnEveryPositionAndOneExemptBreakdown(): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument(new TaxExemptionView(TaxCategory::REVERSE_CHARGE, 'NL123456789B01', null));
+        $this->addTaxFreePositions($document);
+        $dom = $this->getDom($document);
+
+        $categories = [];
+        foreach ($dom->getElementsByTagName('CategoryCode') as $category) {
+            $categories[] = $category->nodeValue;
+        }
+        // the product line, the shipping charge, the allowance and the breakdown
+        static::assertSame(['AE', 'AE', 'AE', 'AE'], $categories);
+
+        $breakdown = $dom->getElementsByTagName('ApplicableTradeTax')->item(1);
+        static::assertNotNull($breakdown);
+        static::assertSame('Reverse charge', self::nodeValue($breakdown, 'ExemptionReason'));
+        static::assertSame('VATEX-EU-AE', self::nodeValue($breakdown, 'ExemptionReasonCode'));
+        static::assertSame('0.00', self::nodeValue($breakdown, 'RateApplicablePercent'));
+        static::assertSame('0.00', self::nodeValue($breakdown, 'CalculatedAmount'));
+        static::assertSame('100.00', self::nodeValue($breakdown, 'BasisAmount'));
+    }
+
+    public function testReverseChargeNamesTheBuyerVatIdWithoutADeliverToAddress(): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument(new TaxExemptionView(TaxCategory::REVERSE_CHARGE, 'NL123456789B01', null));
+        $dom = $this->getDom($document);
+
+        $buyerVatId = $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->item(0);
+        static::assertNotNull($buyerVatId);
+        static::assertSame('VA', $buyerVatId->getElementsByTagName('ID')->item(0)?->getAttribute('schemeID'));
+        static::assertSame('NL123456789B01', self::nodeValue($buyerVatId, 'ID'));
+        static::assertSame(0, $dom->getElementsByTagName('ShipToTradeParty')->length);
+    }
+
     public function testGetBuilderReturnsTheBuilderTheDocumentWritesTo(): void
     {
         $builder = ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3);

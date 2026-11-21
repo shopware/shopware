@@ -13,7 +13,7 @@ component sw-context-menu-item  private  js  [private]
 
 blocks
   sw_context_menu_item  [private]
-    sw_context_menu_item_entry  [private]
+    sw_context_menu_item_entry  [after v-if] [private]
       sw_context_menu_item_entry_icon  [private]
         sw_context_menu_item_entry_slot_icon  [private]
       sw_context_menu_item_entry_text  [private]
@@ -23,4 +23,7 @@ blocks
         sw_context_menu_item_slot_icon  [private]
       sw_context_menu_item_text  [private]
         sw_context_menu_item_slot_default  [private]
+
+crossings
+  v-if  sw_context_menu_item_router_link -> sw_context_menu_item_entry  [private]
 ```

@@ -15,7 +15,7 @@ blocks
   sw_product_deliverability_downloadable_form  [private]
     sw_product_deliverability_downloadable_form_available_stock_field  [private]
     sw_product_deliverability_downloadable_form_delivery_time_field  [private]
-    sw_product_deliverability_downloadable_form_is_closeout_field  [private]
+    sw_product_deliverability_downloadable_form_is_closeout_field  [after v-if] [private]
     sw_product_deliverability_downloadable_form_max_purchase_field  [private]
     sw_product_deliverability_downloadable_form_min_purchase_field  [private]
     sw_product_deliverability_downloadable_form_order_quantity_switch  [private]

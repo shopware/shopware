@@ -13,4 +13,7 @@ component sw-checkbox-field  private  ts  [private]
 
 blocks
   sw_checkbox_field  [private]
+
+crossings
+  v-if  sw_checkbox_field -> (root)  [private]
 ```

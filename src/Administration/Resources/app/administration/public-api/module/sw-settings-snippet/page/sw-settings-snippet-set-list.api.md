@@ -13,7 +13,7 @@ component sw-settings-snippet-set-list  public  js
 blocks
   sw_settings_snippet_set_list
     sw_settings_snippet_set_list_card
-      sw_settings_snippet_set_list_card_list
+      sw_settings_snippet_set_list_card_list  [after v-if]
         sw_settings_snippet_set_list_card_list_container
           sw_settings_snippet_set_list_card_list_container_header
             sw_settings_snippet_set_list_card_list_container_header_btn_edit_set

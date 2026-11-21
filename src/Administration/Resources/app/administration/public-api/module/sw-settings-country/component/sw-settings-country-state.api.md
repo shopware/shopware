@@ -16,8 +16,8 @@ blocks
     sw_settings_country_state_detail
     sw_settings_country_state_list_empty
     sw_settings_country_state_list_listing
-      sw_settings_country_state_list_listing_action_edit
-      sw_settings_country_state_list_listing_column_name
+      sw_settings_country_state_list_listing_action_edit  [scope: item]
+      sw_settings_country_state_list_listing_column_name  [scope: item]
     sw_settings_country_state_list_toolbar_add
     sw_settings_country_state_list_toolbar_delete
 ```

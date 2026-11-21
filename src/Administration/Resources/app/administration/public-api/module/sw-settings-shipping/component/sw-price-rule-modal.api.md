@@ -14,10 +14,10 @@ component sw-price-rule-modal  public  js
 blocks
   sw_rule_modal  [inherited]
     sw_rule_modal_basic_info  [inherited]
-      sw_rule_modal_basic_info_description  [replaced]
+      sw_rule_modal_basic_info_description  [replaced] [after v-if]
       sw_rule_modal_basic_info_name  [inherited]
       sw_rule_modal_basic_info_priority  [inherited]
-    sw_rule_modal_condition_tree  [inherited]
+    sw_rule_modal_condition_tree  [inherited] [after v-if]
     sw_rule_modal_footer  [inherited]
       sw_rule_modal_footer_button_abort  [inherited]
       sw_rule_modal_footer_button_save  [inherited]

@@ -15,6 +15,6 @@ blocks
   sw_settings_rule_category_tree  [private]
     sw_settings_rule_category_tree_component  [private]
       sw_settings_rule_category_tree_items  [private]
-        sw_settings_rule_category_tree_item  [private]
+        sw_settings_rule_category_tree_item  [scope: checkItem, disableContextMenu, draggedItem, newElementId, onChangeRoute, sortable, translationContext, treeItems] [private]
     sw_settings_rule_category_tree_toolbar  [private]
 ```

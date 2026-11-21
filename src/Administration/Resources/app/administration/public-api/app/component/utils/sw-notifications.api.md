@@ -16,7 +16,7 @@ blocks
     sw_notifications_element  [private]
       sw_notifications_transition_group  [private]
         sw_notifications_item  [private]
-          sw_notifications_item_actions  [private]
-            sw_notifications_item_action_item  [private]
-          sw_notifications_item_content  [private]
+          sw_notifications_item_actions  [scope: index, notification] [private]
+            sw_notifications_item_action_item  [scope: action, index, notification] [private]
+          sw_notifications_item_content  [scope: index, notification] [private]
 ```

@@ -14,10 +14,10 @@ component sw-login-recovery  private  ts  [private]
 blocks
   sw_login_recovery  [private]
     sw_login_recovery_alert  [private]
-    sw_login_recovery_form  [private]
+    sw_login_recovery_form  [after v-if] [private]
       sw_login_recovery_form_email_field  [private]
       sw_login_recovery_form_submit  [private]
     sw_login_recovery_headline  [private]
       sw_login_recovery_text  [private]
-    sw_login_recovery_link_expired  [private]
+    sw_login_recovery_link_expired  [after v-if] [private]
 ```

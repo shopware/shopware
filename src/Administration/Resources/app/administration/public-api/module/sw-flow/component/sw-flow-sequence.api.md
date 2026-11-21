@@ -13,10 +13,10 @@ component sw-flow-sequence  private  js  [private]
 
 blocks
   sw_flow_sequence  [private]
-    sw_flow_sequence_action  [private]
-    sw_flow_sequence_condition  [private]
+    sw_flow_sequence_action  [after v-if] [private]
+    sw_flow_sequence_condition  [after v-if] [private]
     sw_flow_sequence_extension  [private]
-    sw_flow_sequence_false_block  [private]
+    sw_flow_sequence_false_block  [after v-if] [private]
     sw_flow_sequence_selector  [private]
     sw_flow_sequence_true_block  [private]
 ```

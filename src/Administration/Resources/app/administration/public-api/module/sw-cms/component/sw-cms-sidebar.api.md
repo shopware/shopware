@@ -28,9 +28,9 @@ blocks
       sw_cms_sidebar_block_overview_content
         sw_cms_sidebar_block_overview_category
         sw_cms_sidebar_block_overview_preview
-          sw_cms_sidebar_block_overview_preview_component
-          sw_cms_sidebar_block_overview_preview_favorite_action
-          sw_cms_sidebar_block_overview_preview_label
+          sw_cms_sidebar_block_overview_preview_component  [scope: block]
+          sw_cms_sidebar_block_overview_preview_favorite_action  [scope: block]
+          sw_cms_sidebar_block_overview_preview_label  [scope: block]
     sw_cms_sidebar_layout_assignment
       sw_cms_sidebar_layout_assignment_content
         sw_cms_sidebar_layout_assignment_action_open
@@ -39,19 +39,19 @@ blocks
     sw_cms_sidebar_navigator
       sw_cms_sidebar_navigator_content
         sw_cms_sidebar_navigator_section
-          sw_cms_sidebar_navigator_main_elements
-            sw_cms_sidebar_navigator_main_element
-            sw_cms_sidebar_navigator_main_empty
-          sw_cms_sidebar_navigator_section_header
-            sw_cms_sidebar_navigator_section_menu
-              sw_cms_sidebar_navigator_section_menu_delete
-              sw_cms_sidebar_navigator_section_menu_duplicate
-              sw_cms_sidebar_navigator_section_menu_move_down
-              sw_cms_sidebar_navigator_section_menu_move_up
-              sw_cms_sidebar_navigator_section_menu_settings
-          sw_cms_sidebar_navigator_sidebar_elements
-            sw_cms_sidebar_navigator_sidebar_element
-            sw_cms_sidebar_navigator_sidebar_empty
+          sw_cms_sidebar_navigator_main_elements  [scope: section, sectionIndex]
+            sw_cms_sidebar_navigator_main_element  [scope: section, sectionIndex]
+            sw_cms_sidebar_navigator_main_empty  [scope: section, sectionIndex]
+          sw_cms_sidebar_navigator_section_header  [scope: section, sectionIndex]
+            sw_cms_sidebar_navigator_section_menu  [scope: section, sectionIndex]
+              sw_cms_sidebar_navigator_section_menu_delete  [scope: section, sectionIndex]
+              sw_cms_sidebar_navigator_section_menu_duplicate  [scope: section, sectionIndex]
+              sw_cms_sidebar_navigator_section_menu_move_down  [scope: section, sectionIndex]
+              sw_cms_sidebar_navigator_section_menu_move_up  [scope: section, sectionIndex]
+              sw_cms_sidebar_navigator_section_menu_settings  [scope: section, sectionIndex]
+          sw_cms_sidebar_navigator_sidebar_elements  [scope: section, sectionIndex]
+            sw_cms_sidebar_navigator_sidebar_element  [scope: section, sectionIndex]
+            sw_cms_sidebar_navigator_sidebar_empty  [scope: section, sectionIndex]
     sw_cms_sidebar_navigator_confirm_modal
       sw_cms_sidebar_navigator_confirm_modal_content
         sw_cms_sidebar_navigator_confirm_modal_content_input_reminder
@@ -64,7 +64,7 @@ blocks
           sw_cms_sidebar_page_settings_css_class_field
           sw_cms_sidebar_page_settings_demo_field
             sw_cms_sidebar_page_settings_demo_field_result_item
-              sw_cms_sidebar_page_settings_demo_field_result_label
+              sw_cms_sidebar_page_settings_demo_field_result_label  [scope: index, item]
             sw_cms_sidebar_page_settings_demo_field_variant_label
           sw_cms_sidebar_page_settings_name_field
           sw_cms_sidebar_page_settings_type_field

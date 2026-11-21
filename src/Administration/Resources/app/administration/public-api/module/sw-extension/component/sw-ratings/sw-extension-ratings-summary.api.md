@@ -18,9 +18,9 @@ blocks
       sw_extension_ratings_summary_grid_label  [private]
       sw_extension_ratings_summary_grid_rating_progress_bars  [private]
         sw_extension_ratings_summary_grid_rating_progress_bars_count_rows  [private]
-          sw_extension_ratings_summary_grid_rating_progress_bars_count_rows_count  [private]
+          sw_extension_ratings_summary_grid_rating_progress_bars_count_rows_count  [scope: ratingGroup] [private]
         sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows  [private]
-          sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar  [private]
+          sw_extension_ratings_summary_grid_rating_progress_bars_progress_bar_rows_progress_bar  [scope: ratingGroup] [private]
       sw_extension_ratings_summary_grid_rating_rows  [private]
-        sw_extension_ratings_summary_grid_rating_rows_content  [private]
+        sw_extension_ratings_summary_grid_rating_rows_content  [scope: ratingGroup] [private]
 ```

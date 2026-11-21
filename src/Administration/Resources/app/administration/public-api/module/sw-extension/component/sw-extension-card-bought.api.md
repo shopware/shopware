@@ -17,7 +17,7 @@ blocks
     sw_extension_card_base_info_inactive_label  [inherited] [private]
   sw_extension_card_base_activation_switch_switch  [inherited] [private]
   sw_extension_card_base_context_menu_actions  [keepsParent] [private]
-    sw_extension_card_base_context_menu_actions_additional  [inherited] [private]
+    sw_extension_card_base_context_menu_actions_additional  [inherited] [after v-if] [private]
   sw_extension_card_base_info_content  [keepsParent] [private]
-  sw_extension_card_base_modals  [keepsParent] [private]
+  sw_extension_card_base_modals  [keepsParent] [after v-if] [private]
 ```

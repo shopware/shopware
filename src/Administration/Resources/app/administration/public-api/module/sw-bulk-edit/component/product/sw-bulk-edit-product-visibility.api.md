@@ -13,6 +13,6 @@ component sw-bulk-edit-product-visibility  public  js
 blocks
   sw_bulk_edit_product_visibility
     sw_bulk_edit_product_visibility_advanced
-    sw_bulk_edit_product_visibility_advanced_modal
+    sw_bulk_edit_product_visibility_advanced_modal  [after v-if]
     sw_bulk_edit_product_visibility_select
 ```

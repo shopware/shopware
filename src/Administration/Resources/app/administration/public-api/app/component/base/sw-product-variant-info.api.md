@@ -14,6 +14,6 @@ component sw-product-variant-info  private  js  [private]
 blocks
   sw_product_variant_info  [private]
     sw_product_variant_info_options  [private]
-      sw_product_variant_info_options_text  [private]
+      sw_product_variant_info_options_text  [after v-if] [scope: index, variation] [private]
     sw_product_variant_info_product_name  [private]
 ```

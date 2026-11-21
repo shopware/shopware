@@ -20,7 +20,7 @@ blocks
           sw_order_create_content_tabs_general  [until v6.8.0]
         sw_order_create_content_view
       sw_order_create_invalid_promotion_modal
-      sw_order_create_remind_payment_modal
+      sw_order_create_remind_payment_modal  [after v-if]
         sw_order_create_remind_payment_modal_content
         sw_order_create_remind_payment_modal_footer
     sw_order_create_language_switch

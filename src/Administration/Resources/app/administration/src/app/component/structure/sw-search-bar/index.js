@@ -251,6 +251,14 @@ export default {
             this.searchTerm = newValue.query.term ? newValue.query.term : '';
         },
 
+        initialSearch(newValue) {
+            if (this.isActive) {
+                return;
+            }
+
+            this.searchTerm = newValue;
+        },
+
         '$route.name': {
             handler(to, from) {
                 if (from === undefined || to === from) {

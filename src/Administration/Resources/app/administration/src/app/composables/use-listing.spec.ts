@@ -205,6 +205,25 @@ describe('src/app/composables/use-listing', () => {
         expect(router.currentRoute.value.query).toMatchObject({ term: 'shirt', page: '1' });
     });
 
+    it('resets the search term and page when the same route is opened again without a query', async () => {
+        const { listing, router } = await mountListing();
+
+        listing.onSearch('shirt');
+        await flushPromises();
+        listing.onPageChange({ page: 3, limit: 25 });
+        await flushPromises();
+
+        expect(router.currentRoute.value.query.term).toBe('shirt');
+
+        await router.push({ name: 'sw.product.index' });
+        await flushPromises();
+
+        expect(listing.term.value).toBeUndefined();
+        expect(listing.page.value).toBe(1);
+        expect(router.currentRoute.value.query.term).toBeUndefined();
+        expect(router.currentRoute.value.query.page).toBe('1');
+    });
+
     it('toggles the sort direction when the same column is sorted twice', async () => {
         const { listing, router } = await mountListing({ sortBy: 'name' });
 

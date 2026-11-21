@@ -5,7 +5,7 @@
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
-export const manyVariants = Array.from({ length: 30 }, (_, index) => ({
+const manyVariants = Array.from({ length: 30 }, (_, index) => ({
     id: `variant${index + 1}`,
     name: `Variant ${index + 1}`,
     optionName: index === 28 ? 'Red' : `Color ${index + 1}`,

@@ -679,6 +679,16 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Product documents
+
+Products can have documents, such as manuals, datasheets or certificates, in `product.documents`.
+A document can be uploaded per language with a translatable title and fall back to the default language.
+A variant can have its own documents or inherit those of its parent.
+The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
+The scheduled task `product_document.media.cleanup` runs about once a month and deletes files from the "Product Document Media" folder that no product document or other entity uses and that were uploaded more than a day ago.
+Keep files you link elsewhere, for example from a product description, in another folder.
+To turn the cleanup off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
+
 ### Event before a media file is replaced
 
 `Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media.
@@ -905,6 +915,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Product documents in the API
+
+The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product, each with its file in the requested language, or in the default language if it has none.
+CMS product pages return the same documents in the `documents` data of the description and reviews element (`product-description-reviews`).
+
 ### Media upload endpoints accept a title and an alt text
 
 `POST /api/_action/media/upload`, `POST /api/_action/media/upload_by_url` and `POST /api/_action/media/external-link` accept the optional fields `title` and `alt`.
@@ -1006,6 +1021,12 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
+
+### Product list filters by product documents
+
+The product list has a new "Documents" filter, registered as `product-documents-filter`.
+It finds the products with or without product documents; variants count the documents they inherit from their parent.
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
 
 ### The smart bar back button names its target
 
@@ -1379,6 +1400,12 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
+### Dynamic product groups filter by product documents
+
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No".
+It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
+
 ### Meteor Component Library updated to 5.10.0
 
 The Administration now uses Meteor Component Library `5.10.0`, Meteor Admin SDK `6.17.0` and Meteor Icon Kit `5.12.0`.
@@ -1389,6 +1416,10 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
+
+### Product documents in the Administration
+
+You can add documents on the product detail page, and they are saved in the public folder "Product Document Media" by default.
 
 ### TypeScript Administration scaffolding
 
@@ -1689,7 +1720,18 @@ When maintenance mode was switched off, the redirect from the maintenance page i
 Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
+### New documents tab on the Storefront product detail page
+
+The product detail page has a new "Documents" tab that lists the documents of the product, which customers can click to download.
+
 ## Hosting & Configuration
+
+### Admin search reindexes products after queued inheritance updates
+
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin search index also reindexes the products whose inherited data the product indexer updates in the message queue.
+This covers the variants of product families with 50 or more products.
+A full `bin/console dal:refresh:index` leaves the products to the admin search index rebuild that runs after it.
+`ProductIndexerEvent::$isFullIndexing` tells whether the event comes from such a full indexing run.
 
 ### Password recovery is rate limited per IP
 

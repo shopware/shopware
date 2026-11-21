@@ -39,19 +39,14 @@ export default {
             filterCriteria: [],
             // @deprecated tag:v6.8.0 - Will be removed
             productTypeOptions: [
-                {
-                    label: this.$t('sw-product.type.physical'),
-                    value: 'physical',
-                },
-                {
-                    label: this.$t('sw-product.type.digital'),
-                    value: 'digital',
-                },
+                { label: this.$t('sw-product.type.physical'), value: 'physical' },
+                { label: this.$t('sw-product.type.digital'), value: 'digital' },
             ],
             defaultFilters: [
                 'product-number-filter',
                 'active-filter',
                 'product-without-images-filter',
+                'product-documents-filter',
                 'release-date-filter',
                 'stock-filter',
                 'price-filter',
@@ -176,13 +171,8 @@ export default {
                     fromPlaceholder: this.$t('sw-product.filters.fromPlaceholder'),
                     toPlaceholder: this.$t('sw-product.filters.toPlaceholder'),
                 },
-                'product-without-images-filter': {
-                    property: 'media',
-                    label: this.$t('sw-product.filters.imagesFilter.label'),
-                    placeholder: this.$t('sw-product.filters.imagesFilter.placeholder'),
-                    optionHasCriteria: this.$t('sw-product.filters.imagesFilter.textHasCriteria'),
-                    optionNoCriteria: this.$t('sw-product.filters.imagesFilter.textNoCriteria'),
-                },
+                'product-without-images-filter': { property: 'media', ...this.getExistenceFilterTexts('imagesFilter') },
+                'product-documents-filter': { property: 'documents', ...this.getExistenceFilterTexts('documentsFilter') },
                 'manufacturer-filter': {
                     property: 'manufacturer',
                     label: this.$t('sw-product.filters.manufacturerFilter.label'),
@@ -317,6 +307,15 @@ export default {
     },
 
     methods: {
+        getExistenceFilterTexts(snippetKey) {
+            return {
+                label: this.$t(`sw-product.filters.${snippetKey}.label`),
+                placeholder: this.$t(`sw-product.filters.${snippetKey}.placeholder`),
+                optionHasCriteria: this.$t(`sw-product.filters.${snippetKey}.textHasCriteria`),
+                optionNoCriteria: this.$t(`sw-product.filters.${snippetKey}.textNoCriteria`),
+            };
+        },
+
         async getList() {
             this.isLoading = true;
 

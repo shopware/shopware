@@ -249,6 +249,85 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertSame($category, $builder->getProductSeoCategory($product, $this->salesChannelContext));
     }
 
+    public function testGetProductSeoCategoryDoesNotRequeryPreloadedUnusableMainCategory(): void
+    {
+        $categoryId = Uuid::randomHex();
+
+        $category = new CategoryEntity();
+        $category->setId($categoryId);
+        $category->setActive(false);
+        $category->setVisible(true);
+        $category->setPath('|otherRootCategoryId|');
+
+        $mainCategory = new MainCategoryEntity();
+        $mainCategory->setId(Uuid::randomHex());
+        $mainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $mainCategory->setCategoryId($categoryId);
+        $mainCategory->setCategory($category);
+
+        $product = $this->getProductEntity([], [$categoryId]);
+        $product->setMainCategories(new MainCategoryCollection([$mainCategory]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->never())->method('search');
+
+        $builder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([], []),
+            $productRepository,
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertNull($builder->getProductSeoCategory($product, $this->salesChannelContext));
+    }
+
+    public function testGetProductSeoCategoryQueriesParentMainCategoryWhenVariantMainCategoryIsUnusable(): void
+    {
+        $parentCategory = new CategoryEntity();
+        $parentCategory->setId(Uuid::randomHex());
+        $parentCategory->setActive(true);
+        $parentCategory->setPath('|navigationCategoryId|');
+
+        $variantCategory = new CategoryEntity();
+        $variantCategory->setId(Uuid::randomHex());
+        $variantCategory->setActive(false);
+        $variantCategory->setPath('|navigationCategoryId|');
+
+        $variant = $this->getProductEntity([], [$parentCategory->getId(), $variantCategory->getId()]);
+        $variant->setParentId(Uuid::randomHex());
+
+        $variantMainCategory = new MainCategoryEntity();
+        $variantMainCategory->setId(Uuid::randomHex());
+        $variantMainCategory->setProductId($variant->getId());
+        $variantMainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $variantMainCategory->setCategoryId($variantCategory->getId());
+        $variantMainCategory->setCategory($variantCategory);
+        $variant->setMainCategories(new MainCategoryCollection([$variantMainCategory]));
+
+        $parentMainCategory = new MainCategoryEntity();
+        $parentMainCategory->setId(Uuid::randomHex());
+        $parentMainCategory->setProductId((string) $variant->getParentId());
+        $parentMainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $parentMainCategory->setCategoryId($parentCategory->getId());
+        $parentMainCategory->setCategory($parentCategory);
+        $loadedVariant = clone $variant;
+        $loadedVariant->setMainCategories(new MainCategoryCollection([$parentMainCategory]));
+
+        $productRepository = $this->createMock(SalesChannelRepository::class);
+        $productRepository->expects($this->once())->method('search')->willReturn(
+            new EntitySearchResult('product', 1, new ProductCollection([$loadedVariant]), null, new Criteria(), $this->salesChannelContext->getContext()),
+        );
+
+        $builder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([], []),
+            $productRepository,
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($parentCategory, $builder->getProductSeoCategory($variant, $this->salesChannelContext));
+    }
+
     public function testGetProductCategoryByReferrerShouldReturnReferrerCategoryHiddenInNavigation(): void
     {
         $categoryId = Uuid::randomHex();

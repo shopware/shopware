@@ -167,11 +167,18 @@ class CategoryBreadcrumbBuilder
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if ($mainCategory = $this->getMainCategoryFromProduct($product, $context)) {
-            return $mainCategory;
-        }
-
         $categoryIds = $product->getCategoryIds() ?? [];
+
+        $preloadedMainCategory = $this->getPreloadedMainCategory($product, $context);
+        if ($preloadedMainCategory !== null) {
+            if (\in_array($preloadedMainCategory->getId(), $categoryIds, true) && $this->isCategoryAvailableForCustomer($preloadedMainCategory, $context)) {
+                return $preloadedMainCategory;
+            }
+
+            if (!$this->isOwnMainCategoryOfVariant($product, $context)) {
+                return null;
+            }
+        }
 
         if ($categoryIds === []) {
             return null;
@@ -197,25 +204,30 @@ class CategoryBreadcrumbBuilder
         return $product->getMainCategories()->first()?->getCategory();
     }
 
-    private function getMainCategoryFromProduct(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
+    private function getPreloadedMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if (!$product->getMainCategories()?->count()) {
-            return null;
-        }
-
-        $category = $product->getMainCategories()->filterBySalesChannelId($context->getSalesChannelId())->first()?->getCategory();
+        $category = $product->getMainCategories()?->filterBySalesChannelId($context->getSalesChannelId())->first()?->getCategory();
 
         if (
             !$category instanceof CategoryEntity
             // @deprecated tag:v6.8.0 - Remove when MainCategoryEntity::getCategory() returns null instead of an empty entity.
             || !isset($category->id)
-            || !\in_array($category->getId(), $product->getCategoryIds() ?? [], true)
-            || !$this->isCategoryAvailableForCustomer($category, $context)
         ) {
             return null;
         }
 
         return $category;
+    }
+
+    private function isOwnMainCategoryOfVariant(ProductEntity $product, SalesChannelContext $context): bool
+    {
+        if ($product->getParentId() === null) {
+            return false;
+        }
+
+        $mainCategory = $product->getMainCategories()?->filterBySalesChannelId($context->getSalesChannelId())->first();
+
+        return $mainCategory?->getProductId() === $product->getId();
     }
 
     /**

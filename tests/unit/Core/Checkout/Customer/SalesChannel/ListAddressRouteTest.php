@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -15,6 +16,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -94,6 +96,39 @@ class ListAddressRouteTest extends TestCase
         static::assertInstanceOf(AddressListingCriteriaEvent::class, $events[0]);
         static::assertSame($criteria, $events[0]->getCriteria());
         static::assertSame($context, $events[0]->getSalesChannelContext());
+    }
+
+    #[DataProvider('totalCountModeProvider')]
+    public function testLoadCountsAllAddressesWhenTheLimitWasNotRequested(bool $limitNotRequested, int $requestedMode, int $expectedMode): void
+    {
+        $criteria = new Criteria();
+        $criteria->setTotalCountMode($requestedMode);
+        if ($limitNotRequested) {
+            $criteria->setLimit(100);
+            $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+        }
+
+        $context = Generator::generateSalesChannelContext();
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new CustomerAddressCollection());
+        $this->addressRepository->method('search')->willReturn($searchResult);
+
+        $this->route->load($criteria, $context, $customer);
+
+        static::assertSame($expectedMode, $criteria->getTotalCountMode());
+    }
+
+    /**
+     * @return iterable<string, array{bool, int, int}>
+     */
+    public static function totalCountModeProvider(): iterable
+    {
+        yield 'limit applied by the server' => [true, Criteria::TOTAL_COUNT_MODE_NONE, Criteria::TOTAL_COUNT_MODE_EXACT];
+        yield 'limit requested by the client' => [false, Criteria::TOTAL_COUNT_MODE_NONE, Criteria::TOTAL_COUNT_MODE_NONE];
+        yield 'count mode requested by the client' => [true, Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, Criteria::TOTAL_COUNT_MODE_NEXT_PAGES];
     }
 
     public function testPublishesExtension(): void

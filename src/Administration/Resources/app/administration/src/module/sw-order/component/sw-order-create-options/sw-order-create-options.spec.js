@@ -143,9 +143,22 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
                     sync: true,
                 }),
-                'sw-order-customer-address-select': await wrapTestComponent('sw-order-customer-address-select', {
-                    sync: true,
-                }),
+                // The select itself is covered by its own spec, a click selects the other address here
+                'sw-order-customer-address-select': {
+                    props: [
+                        'value',
+                        'sameAddressValue',
+                        'sameAddressLabel',
+                        'disabled',
+                    ],
+                    emits: ['update:value'],
+                    template: `
+                        <button
+                            class="sw-order-customer-address-select"
+                            :disabled="disabled"
+                            @click="$emit('update:value', sameAddressValue)"
+                        >{{ value === sameAddressValue && sameAddressLabel ? sameAddressLabel : value }}</button>`,
+                },
 
                 'sw-text-field': true,
                 'sw-entity-single-select': {
@@ -222,17 +235,19 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         Shopware.Store.register(contextStore);
     });
 
-    it('should show address option correctly', async () => {
+    it('should pass the addresses to the address selects', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
-        // Click to open result list
-        await billingAddressSelect.trigger('click');
-
-        expect(wrapper.find('li[selected="true"]').text()).toBe('Summerfield 27, 10332, San Francisco, California, USA');
-        expect(wrapper.find('sw-highlight-text-stub').attributes().text).toBe(
-            'Ebbinghoff 10, 48624, London, Nottingham, United Kingdom',
+        expect(wrapper.findComponent('.sw-order-create-options__billing-address').props()).toEqual(
+            expect.objectContaining({ value: '1', sameAddressValue: '2' }),
+        );
+        expect(wrapper.findComponent('.sw-order-create-options__shipping-address').props()).toEqual(
+            expect.objectContaining({
+                value: '2',
+                sameAddressValue: '1',
+                sameAddressLabel: 'sw-order.initialModal.options.textSameAsBillingAddress',
+            }),
         );
     });
 
@@ -240,17 +255,15 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let shippingSelectionText = wrapper.find(
-            '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
-        );
-        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address');
+        expect(shippingSelectionText.text()).toBe('2');
 
         const switchSameAddress = wrapper.find('.mt-switch input[name="sw-field--isSameAsBillingAddress"]');
         await switchSameAddress.setChecked(true);
 
         expect(wrapper.vm.context.shippingAddressId).toBe('1');
 
-        shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
+        shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address');
         expect(shippingSelectionText.text()).toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
         expect(wrapper.findComponent('.sw-order-create-options__shipping-address').vm.disabled).toBe(true);
@@ -292,19 +305,13 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let shippingSelectionText = wrapper.find(
-            '.sw-order-create-options__shipping-address .sw-single-select__selection-text',
-        );
-        expect(shippingSelectionText.text()).toBe('Ebbinghoff 10, 48624, London, Nottingham, United Kingdom');
+        let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address');
+        expect(shippingSelectionText.text()).toBe('2');
 
-        const billingAddressSelect = wrapper.find('.sw-order-create-options__billing-address .sw-select__selection');
-        // Click to open result list
-        await billingAddressSelect.trigger('click');
+        // Selects the shipping address as billing address
+        await wrapper.find('.sw-order-create-options__billing-address').trigger('click');
 
-        const addressOptions = wrapper.findAll('.sw-select-result');
-        await addressOptions.at(1).trigger('click');
-
-        shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address .sw-single-select__selection-text');
+        shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address');
         expect(shippingSelectionText.text()).toBe('sw-order.initialModal.options.textSameAsBillingAddress');
 
         expect(wrapper.vm.context.billingAddressId).toBe('2');

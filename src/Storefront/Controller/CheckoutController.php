@@ -25,6 +25,7 @@ use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
@@ -126,7 +127,7 @@ class CheckoutController extends StorefrontController
             PlatformRequest::ATTRIBUTE_NO_STORE => true,
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
-            PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE => 'frontend.checkout.register.page',
+            StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => 'frontend.checkout.register.page',
         ],
         methods: [Request::METHOD_GET]
     )]
@@ -218,7 +219,7 @@ class CheckoutController extends StorefrontController
         defaults: [
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
             PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
-            PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE => 'frontend.checkout.register.page',
+            StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => 'frontend.checkout.register.page',
         ],
         methods: [Request::METHOD_POST]
     )]

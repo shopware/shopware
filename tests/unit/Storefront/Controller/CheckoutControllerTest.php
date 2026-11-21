@@ -31,6 +31,7 @@ use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteDefaults;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
@@ -194,14 +195,14 @@ class CheckoutControllerTest extends TestCase
     }
 
     #[DataProvider('loginRequiredRouteProvider')]
-    public function testCheckoutRouteRequiresLogin(string $routeName, ?string $expectedLoginRedirectRoute): void
+    public function testCheckoutRouteRequiresLogin(string $routeName, ?string $expectedLoginRoute): void
     {
         $route = (new AttributeRouteControllerLoader())->load(CheckoutController::class)->get($routeName);
 
         static::assertNotNull($route);
         static::assertTrue($route->getDefault(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED));
         static::assertTrue($route->getDefault(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST));
-        static::assertSame($expectedLoginRedirectRoute, $route->getDefault(PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE));
+        static::assertSame($expectedLoginRoute, $route->getDefault(StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE));
     }
 
     public static function loginRequiredRouteProvider(): \Generator

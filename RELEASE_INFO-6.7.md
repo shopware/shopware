@@ -1160,16 +1160,20 @@ The command is deprecated and will be removed in 6.9.0.0.
 
 ### Custom login redirect target for Storefront routes
 
-Storefront routes can set `PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE` in their route defaults.
+Storefront routes can set `StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE` in their route defaults.
 Visitors who open such a route without being logged in are redirected to that route instead of the login page:
 
 ```php
+use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteDefaults;
+use Symfony\Component\Routing\Attribute\Route;
+
 #[Route(
     path: '/my-plugin/checkout',
     name: 'frontend.my-plugin.checkout',
     defaults: [
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
-        PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE => 'frontend.checkout.register.page',
+        StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => 'frontend.checkout.register.page',
     ],
     methods: [Request::METHOD_GET]
 )]

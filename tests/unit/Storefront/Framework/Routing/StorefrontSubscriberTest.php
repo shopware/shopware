@@ -13,6 +13,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\MaintenanceRedirectEvent;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Framework\Routing\StorefrontSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -36,6 +37,7 @@ class StorefrontSubscriberTest extends TestCase
     {
         $expected = [
             KernelEvents::REQUEST => [
+                ['removeLoginRouteFromRouteParameters', 1],
                 ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
@@ -236,28 +238,43 @@ class StorefrontSubscriberTest extends TestCase
         );
     }
 
-    public function testCustomerNotLoggedInHandlerUsesLoginRedirectRouteOfRequest(): void
+    public function testCustomerNotLoggedInHandlerUsesLoginRouteOfRequest(): void
     {
-        $request = new Request(
-            query: ['orderId' => 'order-id'],
-            attributes: [
-                SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
-                '_route' => 'frontend.checkout.finish.page',
-                '_route_params' => [],
-                PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE => 'frontend.checkout.register.page',
+        $loginRoute = 'frontend.checkout.register.page';
+        $request = new Request(attributes: [
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            '_route' => 'frontend.checkout.finish.page',
+            '_route_params' => [
+                'orderId' => 'order-id',
+                StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => $loginRoute,
             ],
-        );
+            StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => $loginRoute,
+        ]);
 
         $router = $this->createMock(RouterInterface::class);
         $router->expects($this->once())
             ->method('generate')
-            ->with('frontend.checkout.register.page', [
+            ->with($loginRoute, [
                 'redirectTo' => 'frontend.checkout.finish.page',
                 'redirectParameters' => '{"orderId":"order-id"}',
             ])
             ->willReturn('/checkout/register');
 
-        $this->handleCustomerNotLoggedIn($router, $request);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new StorefrontSubscriber($router, static::createStub(MaintenanceModeResolver::class), $dispatcher));
+        $kernel = static::createStub(HttpKernelInterface::class);
+
+        $dispatcher->dispatch(new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST), KernelEvents::REQUEST);
+
+        static::assertSame(['orderId' => 'order-id'], $request->attributes->get('_route_params'));
+        static::assertSame($loginRoute, $request->attributes->get(StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE));
+
+        $event = new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, RoutingException::customerNotLoggedIn());
+        $dispatcher->dispatch($event, KernelEvents::EXCEPTION);
+
+        $response = $event->getResponse();
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/checkout/register', $response->getTargetUrl());
     }
 
     public function testRedirectCustomerNonStorefrontRequest(): void

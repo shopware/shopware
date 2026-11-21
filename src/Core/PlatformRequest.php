@@ -92,12 +92,6 @@ final class PlatformRequest
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
     public const ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST = '_loginRequiredAllowGuest';
-
-    /**
-     * Name of the Storefront route a customer is redirected to when the route requires authentication.
-     * Defaults to the login page `frontend.account.login.page`.
-     */
-    public const ATTRIBUTE_LOGIN_REDIRECT_ROUTE = '_loginRedirectRoute';
     public const ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE = 'allow_maintenance';
 
     public const ATTRIBUTE_CLEAR_SITE_DATA = '_clearSiteData';
@@ -116,7 +110,6 @@ final class PlatformRequest
         self::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED,
         self::ATTRIBUTE_LOGIN_REQUIRED,
         self::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
-        self::ATTRIBUTE_LOGIN_REDIRECT_ROUTE,
         self::ATTRIBUTE_IS_ALLOWED_IN_MAINTENANCE,
         self::ATTRIBUTE_ALLOW_ORDER_RESTORATION,
     ];

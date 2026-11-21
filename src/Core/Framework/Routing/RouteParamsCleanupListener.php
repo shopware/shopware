@@ -15,7 +15,6 @@ class RouteParamsCleanupListener
         PlatformRequest::ATTRIBUTE_CAPTCHA,
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED,
         PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST,
-        PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE,
         PlatformRequest::ATTRIBUTE_ACL,
         PlatformRequest::ATTRIBUTE_OPENAPI,
         TemplateScopeDetector::SCOPES_ATTRIBUTE,

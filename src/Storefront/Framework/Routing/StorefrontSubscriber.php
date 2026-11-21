@@ -43,6 +43,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::REQUEST => [
+                ['removeLoginRouteFromRouteParameters', 1],
                 ['maintenanceResolver'],
             ],
             KernelEvents::EXCEPTION => [
@@ -53,6 +54,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
         ];
+    }
+
+    public function removeLoginRouteFromRouteParameters(RequestEvent $event): void
+    {
+        $attributes = $event->getRequest()->attributes;
+        $routeParams = $attributes->get('_route_params');
+
+        if (!\is_array($routeParams) || !\array_key_exists(StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE, $routeParams)) {
+            return;
+        }
+
+        unset($routeParams[StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE]);
+        $attributes->set('_route_params', $routeParams);
     }
 
     public function customerNotLoggedInHandler(ExceptionEvent $event): void
@@ -79,7 +93,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ];
         }
 
-        $loginRoute = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE);
+        $loginRoute = $request->attributes->get(StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE);
         if (!\is_string($loginRoute) || $loginRoute === '') {
             $loginRoute = 'frontend.account.login.page';
         }

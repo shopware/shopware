@@ -9,11 +9,12 @@
             name="select"
             v-bind="{ onInput, selectedSalesChannelId, salesChannel }"
         >
-            <sw-single-select
+            <sw-entity-single-select
                 v-model:value="selectedSalesChannelId"
-                :options="salesChannel"
-                label-property="translated.name"
-                value-property="id"
+                entity="sales_channel"
+                :criteria="criteria"
+                :placeholder="$t('sw-sales-channel-switch.labelDefaultOption')"
+                :reset-option="$t('sw-sales-channel-switch.labelDefaultOption')"
                 show-clearable-button
                 @update:value="onInput"
             />

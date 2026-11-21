@@ -1751,6 +1751,19 @@ The component loads the product custom fields with the new `customFieldRepositor
 
 The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` data properties, and the `sw_settings_user_list_delete_modal_input__confirm_password` Twig block in `sw-users-permissions-user-listing` are deprecated and will be removed. Extensions that customize user verification should extend `sw-verify-user-modal` instead.
 
+## Address and canonical variant selects based on `sw-entity-single-select`
+
+The customer address select in order creation (`sw-order-customer-address-select`) and the "Variant for canonical URL" select of the product SEO form (`sw-product-seo-form`) are based on `sw-entity-single-select`.
+The old `sw-single-select` markup was removed, including the `result-item` slot content of the address select and the Twig blocks `sw_product_seo_form_canonical_url_select`, `sw_product_seo_form_canonical_url_select_selection` and `sw_product_seo_form_canonical_url_select_result`.
+Override the new blocks `sw_order_customer_address_select_entity_select`, `sw_product_seo_form_canonical_url_entity_select`, `sw_product_seo_form_canonical_url_entity_select_selection` and `sw_product_seo_form_canonical_url_entity_select_result` instead.
+
+The members that loaded the options for the old selects were removed without replacement:
+
+- `sw-order-customer-address-select`: the computed properties `addressRepository` and `addressCriteria`, the methods `getCustomerAddresses()`, `searchAddress()`, `searchAddressResults()` and `getDisplayedCustomerAddresses()`, and the data properties `customerAddresses`, `isLoading` and `addressSearchTerm`.
+- `sw-product-seo-form`: the computed properties `variantCriteria`, `isCanonicalUrlSelectLoading` and `variantsWithResetOption`, the methods `fetchVariants()` and `onSearch()`, and the data properties `variants` and `searchTerm`.
+
+Change the loaded options through the computed properties `customerAddressCriteria` and `canonicalVariantCriteria` instead.
+
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.

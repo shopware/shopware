@@ -938,6 +938,14 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### The address list reports all matching addresses in `total`
+
+A request to `/store-api/account/list-address` without `limit` returns at most `shopware.api.store.max_limit` addresses (100 by default).
+Before, `total` then reported the number of returned addresses, so a customer with more addresses looked complete.
+Now `total` is the number of all addresses that match the request's filters and search term when the request has no `limit`.
+This also applies to `"total-count-mode": "none"`; only `"total-count-mode": "next-pages"` is kept.
+Load the remaining addresses with `page` or `limit`.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -1396,6 +1404,19 @@ Check your Administration extensions for these changes:
 Generated modules and components are checked against the installed Administration types.
 After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
 Existing plugin files are unchanged.
+
+### Address and canonical variant selects load their options page by page in 6.8
+
+With the `v6.8.0.0` feature flag, two selects of the Administration are based on `sw-entity-single-select`:
+the customer address select in order creation (`sw-order-customer-address-select`) and the "Variant for canonical URL" select of the product SEO form (`sw-product-seo-form`).
+They show the first 25 entries, load the next ones when the list is scrolled to its end and search on the server.
+Before, the address select loaded up to 500 addresses at once, and the variant select showed only the first 25 variants.
+The variant select still finds variants by their option names.
+
+Without the flag, both components render the old `sw-single-select` unchanged.
+The new selects come with new Twig blocks: `sw_order_customer_address_select_entity_select`, `sw_product_seo_form_canonical_url_entity_select`, `sw_product_seo_form_canonical_url_entity_select_selection` and `sw_product_seo_form_canonical_url_entity_select_result`.
+The members that load the options for the old selects are deprecated, see `UPGRADE-6.8.md`.
+Change the loaded options through the new computed properties `customerAddressCriteria` and `canonicalVariantCriteria`.
 
 ### Order detail shows every shipment in 6.8
 

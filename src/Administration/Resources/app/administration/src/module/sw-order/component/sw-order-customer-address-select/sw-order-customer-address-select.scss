@@ -1,7 +1,8 @@
 @import "~scss/variables";
 
 .sw-order-customer-address-select {
-    .sw-single-select .sw-single-select__selection-text {
+    .sw-single-select .sw-single-select__selection-text,
+    .sw-entity-single-select__selection-text {
         padding-right: 22px;
     }
 }

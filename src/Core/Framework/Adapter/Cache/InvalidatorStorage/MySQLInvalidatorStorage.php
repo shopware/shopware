@@ -83,17 +83,15 @@ class MySQLInvalidatorStorage extends AbstractInvalidatorStorage
             return [];
         }
 
-        $firstTagId = $rows[0]['id'];
-        $lastTagId = $rows[array_key_last($rows)]['id'];
-
-        $query = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare(\sprintf('DELETE FROM %s WHERE id BETWEEN :firstTagId AND :lastTagId', self::TABLE_NAME))
-        );
-        $query->execute([
-            'firstTagId' => $firstTagId,
-            'lastTagId' => $lastTagId,
-        ]);
+        foreach (array_column($rows, 'id') as $id) {
+            RetryableQuery::retryable($this->connection, function () use ($id): void {
+                // a primary key lookup per id, so the delete never waits for rows locked by other transactions
+                $this->connection->executeStatement(
+                    \sprintf('DELETE FROM %s WHERE id = :id', self::TABLE_NAME),
+                    ['id' => $id]
+                );
+            });
+        }
 
         return array_column($rows, 'tag');
     }

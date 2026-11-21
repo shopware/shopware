@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache\InvalidatorSto
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\RetryableException;
-use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\TransactionIsolationLevel;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Cache\InvalidatorStorage\MySQLInvalidatorSto
 use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
@@ -124,6 +124,56 @@ class MySQLInvalidatorStorageTest extends TestCase
         static::assertSame(['tag4', 'tag5', 'tag6'], $result);
     }
 
+    public function testLoadAndDeleteKeepsUnreadTagsWithinTheReadIdRange(): void
+    {
+        $storage = new MySQLInvalidatorStorage(
+            $this->connection,
+            $this->logger,
+            fn () => $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes('0190000000007000800000000000000b'), 'tag' => 'tag2']),
+        );
+
+        $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes('0190000000007000800000000000000a'), 'tag' => 'tag1']);
+        $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes('0190000000007000800000000000000c'), 'tag' => 'tag3']);
+
+        $tags = $storage->loadAndDelete();
+
+        static::assertSame(['tag1', 'tag3'], $tags);
+
+        $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+
+        static::assertSame(['tag2'], $result);
+    }
+
+    public function testLoadAndDeleteDoesNotWaitForTagsLockedByAnotherTransaction(): void
+    {
+        // with only a few rows MySQL still uses the primary key, so use enough rows to make it consider a full table scan
+        $expected = [];
+        for ($i = 1; $i <= 20; ++$i) {
+            $this->connection->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes(\sprintf('01900000000070008000%012x', $i * 2)), 'tag' => 'tag' . $i]);
+            $expected[] = 'tag' . $i;
+        }
+
+        // a parallel request stores a tag but did not commit yet
+        $connection2 = MySQLFactory::create();
+        $connection2->beginTransaction();
+        $connection2->insert('invalidation_tags', ['id' => Uuid::fromHexToBytes(\sprintf('01900000000070008000%012x', 21)), 'tag' => 'locked']);
+
+        $this->connection->executeStatement('SET SESSION innodb_lock_wait_timeout = 1');
+
+        try {
+            $tags = $this->storage->loadAndDelete();
+        } finally {
+            $this->connection->executeStatement('SET SESSION innodb_lock_wait_timeout = DEFAULT');
+            $connection2->commit();
+        }
+
+        static::assertSame($expected, $tags);
+
+        $result = $this->connection->fetchFirstColumn('SELECT tag FROM invalidation_tags');
+
+        static::assertSame(['locked'], $result);
+    }
+
     public function testLoadAndDeleteWithParallelDelete(): void
     {
         // create a separate connection to simulate parallel request
@@ -179,18 +229,12 @@ class MySQLInvalidatorStorageTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn([['id' => 'id1', 'tag1'], ['id' => 'id2', 'tag2']]);
 
-        $statement = static::createStub(Statement::class);
-
         $e = new class('Deadlock') extends \Exception implements RetryableException {};
 
-        $statement
+        $connection->expects($this->atLeastOnce())
             ->method('executeStatement')
+            ->with('DELETE FROM invalidation_tags WHERE id = :id', ['id' => 'id1'])
             ->willThrowException($e);
-
-        $connection->expects($this->once())
-            ->method('prepare')
-            ->with('DELETE FROM invalidation_tags WHERE id BETWEEN :firstTagId AND :lastTagId')
-            ->willReturn($statement);
 
         $connection->expects($this->once())
             ->method('transactional')

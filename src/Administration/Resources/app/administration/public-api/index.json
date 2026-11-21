@@ -9137,7 +9137,8 @@
             "visibility": "public",
             "extends": null,
             "blocks": [
-                "sw_order_customer_address_select"
+                "sw_order_customer_address_select",
+                "sw_order_customer_address_select_entity_select"
             ]
         },
         "sw-order-customer-comment": {
@@ -10802,6 +10803,9 @@
             "blocks": [
                 "sw_product_seo_form",
                 "sw_product_seo_form_canonical_url",
+                "sw_product_seo_form_canonical_url_entity_select",
+                "sw_product_seo_form_canonical_url_entity_select_result",
+                "sw_product_seo_form_canonical_url_entity_select_selection",
                 "sw_product_seo_form_canonical_url_select",
                 "sw_product_seo_form_canonical_url_select_result",
                 "sw_product_seo_form_canonical_url_select_selection",

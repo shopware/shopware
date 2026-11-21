@@ -71,7 +71,6 @@ const missingTests = [
     'src/app/component/structure/sw-hidden-iframes/index.js',
     'src/app/component/structure/sw-inheritance-warning/index.js',
     'src/app/component/structure/sw-modals-renderer/index.ts',
-    'src/app/component/structure/sw-sales-channel-config/index.js',
     'src/app/component/structure/sw-sales-channel-switch/index.js',
     'src/app/component/structure/sw-search-more-results/index.js',
     'src/app/component/tree/sw-tree/fixtures/treeItems.js',

@@ -56,7 +56,6 @@ const manyAddresses = Array.from({ length: 60 }, (_, index) =>
 );
 
 function addressMatchesSearch(address, searchTerm) {
-    // Like the server, which does not search the zipcode
     return [
         address.street,
         address.city,
@@ -96,7 +95,6 @@ function createAddressRepository(availableAddresses) {
     return {
         searchedCriteria,
         search,
-        // Like the real repository, which searches with the given criteria restricted to the id
         get: (id, context, criteria) => {
             const getCriteria = criteria ?? new Criteria(1, 1);
             getCriteria.setIds([id]);

@@ -143,7 +143,6 @@ async function createWrapper() {
                 'sw-base-field': await wrapTestComponent('sw-base-field', {
                     sync: true,
                 }),
-                // The select itself is covered by its own spec, a click selects the other address here
                 'sw-order-customer-address-select': {
                     props: [
                         'value',
@@ -308,7 +307,6 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         let shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address');
         expect(shippingSelectionText.text()).toBe('2');
 
-        // Selects the shipping address as billing address
         await wrapper.find('.sw-order-create-options__billing-address').trigger('click');
 
         shippingSelectionText = wrapper.find('.sw-order-create-options__shipping-address');

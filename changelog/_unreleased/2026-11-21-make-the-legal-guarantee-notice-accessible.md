@@ -12,6 +12,7 @@ ___
 ___
 # Storefront
 * Added the snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which labels the legal guarantee notice link on the checkout confirm page and in the privacy notice modal, and says that it opens a new tab.
+* Added the snippet `global.default.close`, which labels the close button of the legal guarantee notice modals on the checkout confirm page and in the privacy notice.
 * Added the blocks `page_checkout_confirm_legal_guarantee_notice_inline_text`, `page_checkout_confirm_legal_guarantee_notice_modal_text` and `component_privacy_legal_guarantee_notice_modal_text`, which render the notice text visually hidden. The notice link is described by it.
 ___
 # Upgrade Information

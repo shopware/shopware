@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Finish\SystemLocker;
 use Shopware\Core\Maintenance\MaintenanceException;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\Maintenance\System\Service\DemoProductsCreator;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 use Symfony\Component\Console\Application;
@@ -188,6 +189,8 @@ class SystemInstallCommand extends Command
         }
 
         $this->eventDispatcher->dispatch(new SystemInstallCompletedEvent(Context::createCLIContext()));
+
+        DemoProductsCreator::create($this->projectDir, $output);
 
         return $result;
     }

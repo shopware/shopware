@@ -11,15 +11,12 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
-use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
-use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -53,13 +50,15 @@ class StorefrontCartFacade
             return $originalCart;
         }
 
+        $errorsBeforeSwitch = new ErrorCollection($cartErrors->getElements());
+
         // Switch shipping method if blocked
         $contextShippingMethod = $this->blockedShippingMethodSwitcher->switch($cartErrors, $originalContext);
 
         // Switch payment method if blocked
         $contextPaymentMethod = $this->blockedPaymentMethodSwitcher->switch($cartErrors, $originalContext);
 
-        return $this->switchCartMethods($originalCart, $originalContext, $contextShippingMethod, $contextPaymentMethod);
+        return $this->switchCartMethods($originalCart, $originalContext, $contextShippingMethod, $contextPaymentMethod, $errorsBeforeSwitch);
     }
 
     public function getWithCheckoutGateway(
@@ -84,7 +83,8 @@ class StorefrontCartFacade
         Cart $originalCart,
         SalesChannelContext $originalContext,
         ShippingMethodEntity $contextShippingMethod,
-        PaymentMethodEntity $contextPaymentMethod
+        PaymentMethodEntity $contextPaymentMethod,
+        ErrorCollection $errorsBeforeSwitch,
     ): Cart {
         if ($contextShippingMethod->getId() === $originalContext->getShippingMethod()->getId()
             && $contextPaymentMethod->getId() === $originalContext->getPaymentMethod()->getId()
@@ -109,7 +109,7 @@ class StorefrontCartFacade
         }
 
         // The context's shipping or payment method is still blocked in the recalculated cart, rollback changes
-        $this->removeSwitchNotices($originalCart->getErrors());
+        $originalCart->setErrors($errorsBeforeSwitch);
 
         return $originalCart;
     }
@@ -117,6 +117,7 @@ class StorefrontCartFacade
     private function resolveBlockedMethodsFromGatewayResponse(Cart $cart, SalesChannelContext $context, CheckoutGatewayRouteResponse $gatewayResponse): Cart
     {
         $cartErrors = $gatewayResponse->getErrors();
+        $errorsBeforeSwitch = new ErrorCollection($cart->getErrors()->getElements());
 
         $contextShippingMethod = $this->blockedShippingMethodSwitcher->switch(
             $cartErrors,
@@ -129,7 +130,7 @@ class StorefrontCartFacade
             $gatewayResponse->getPaymentMethods()
         );
 
-        return $this->switchCartMethods($cart, $context, $contextShippingMethod, $contextPaymentMethod);
+        return $this->switchCartMethods($cart, $context, $contextShippingMethod, $contextPaymentMethod, $errorsBeforeSwitch);
     }
 
     private function isContextMethodBlocked(ErrorCollection $errors, SalesChannelContext $context): bool
@@ -165,35 +166,5 @@ class StorefrontCartFacade
         // inherit rule changes done by CartRuleLoader
         $originalContext->setRuleIds($updatedContext->getRuleIds());
         $originalContext->setAreaRuleIds($updatedContext->getAreaRuleIds());
-    }
-
-    /**
-     * Remove all PaymentMethodChangedErrors and ShippingMethodChangedErrors from cart
-     */
-    private function removeSwitchNotices(ErrorCollection $cartErrors): void
-    {
-        foreach ($cartErrors as $error) {
-            if (!$error instanceof ShippingMethodChangedError && !$error instanceof PaymentMethodChangedError) {
-                continue;
-            }
-
-            if ($error instanceof ShippingMethodChangedError) {
-                $cartErrors->add(new ShippingMethodBlockedError(
-                    id: $error->getOldShippingMethodId(),
-                    name: $error->getOldShippingMethodName(),
-                    reason: $error->getReason(),
-                ));
-            }
-
-            if ($error instanceof PaymentMethodChangedError) {
-                $cartErrors->add(new PaymentMethodBlockedError(
-                    id: $error->getOldPaymentMethodId(),
-                    name: $error->getOldPaymentMethodName(),
-                    reason: $error->getReason(),
-                ));
-            }
-
-            $cartErrors->remove($error->getId());
-        }
     }
 }

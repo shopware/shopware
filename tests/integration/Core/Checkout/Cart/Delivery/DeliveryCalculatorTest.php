@@ -185,6 +185,7 @@ class DeliveryCalculatorTest extends TestCase
             'id' => $shippingMethod->getId(),
             'name' => $shippingMethodName,
             'reason' => 'no shipping costs found',
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
     }
 

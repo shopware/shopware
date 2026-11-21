@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Shipping\Cart\Error;
 
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
 use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
@@ -13,12 +15,16 @@ class ShippingMethodBlockedError extends Error
 {
     private const KEY = 'shipping-method-blocked';
 
+    /**
+     * @param list<string> $deliveryIdentifiers
+     */
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
     #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
     public function __construct(
         protected readonly string $name,
         protected readonly ?string $id = null,
         protected readonly ?string $reason = null,
+        protected array $deliveryIdentifiers = [],
     ) {
         if ($id === null || $reason === null) {
             Feature::triggerDeprecationOrThrow(
@@ -36,6 +42,29 @@ class ShippingMethodBlockedError extends Error
         parent::__construct($this->message);
     }
 
+    /**
+     * Lists the identifiers of the deliveries, leaving out deliveries without an identifier and those with negative shipping costs, like shipping discounts
+     *
+     * @param iterable<Delivery> $deliveries
+     */
+    public static function forDeliveries(ShippingMethodEntity $shippingMethod, string $reason, iterable $deliveries): self
+    {
+        $deliveryIdentifiers = [];
+
+        foreach ($deliveries as $delivery) {
+            if ($delivery->getIdentifier() !== null && $delivery->getShippingCosts()->getTotalPrice() >= 0) {
+                $deliveryIdentifiers[] = $delivery->getIdentifier();
+            }
+        }
+
+        return new self(
+            name: (string) $shippingMethod->getTranslation('name'),
+            id: $shippingMethod->getId(),
+            reason: $reason,
+            deliveryIdentifiers: $deliveryIdentifiers,
+        );
+    }
+
     public function isPersistent(): bool
     {
         return false;
@@ -47,6 +76,7 @@ class ShippingMethodBlockedError extends Error
             'id' => $this->id,
             'name' => $this->name,
             'reason' => $this->reason,
+            'deliveryIdentifiers' => $this->deliveryIdentifiers,
         ];
     }
 
@@ -65,6 +95,22 @@ class ShippingMethodBlockedError extends Error
     public function getReason(): ?string
     {
         return $this->reason;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getDeliveryIdentifiers(): array
+    {
+        return $this->deliveryIdentifiers;
+    }
+
+    /**
+     * @internal
+     */
+    public function addDeliveryIdentifiersOf(self $error): void
+    {
+        $this->deliveryIdentifiers = array_values(array_unique([...$error->getDeliveryIdentifiers(), ...$this->deliveryIdentifiers]));
     }
 
     public function blockOrder(): bool

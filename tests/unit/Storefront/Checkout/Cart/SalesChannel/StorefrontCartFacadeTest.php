@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -241,6 +242,7 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
             'reason' => 'reason',
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
 
         $controlCart = $this->getCart();
@@ -360,8 +362,8 @@ class StorefrontCartFacadeTest extends TestCase
         );
         $returnedCart = $cartFacade->get('', $salesChannelContext);
 
-        static::assertCount(0, $errorCollection->filterInstance(ShippingMethodChangedError::class));
-        $filtered = $errorCollection->filterInstance(ShippingMethodBlockedError::class);
+        static::assertCount(0, $returnedCart->getErrors()->filterInstance(ShippingMethodChangedError::class));
+        $filtered = $returnedCart->getErrors()->filterInstance(ShippingMethodBlockedError::class);
         static::assertCount(1, $filtered);
         $error = $filtered->first();
         static::assertInstanceOf(ShippingMethodBlockedError::class, $error);
@@ -369,10 +371,11 @@ class StorefrontCartFacadeTest extends TestCase
             'id' => $error->getShippingMethodId(),
             'name' => 'original-shipping-method-name',
             'reason' => 'reason',
+            'deliveryIdentifiers' => [Delivery::DEFAULT_IDENTIFIER],
         ], $error->getParameters());
 
-        static::assertCount(0, $errorCollection->filterInstance(PaymentMethodChangedError::class));
-        $filtered = $errorCollection->filterInstance(PaymentMethodBlockedError::class);
+        static::assertCount(0, $returnedCart->getErrors()->filterInstance(PaymentMethodChangedError::class));
+        $filtered = $returnedCart->getErrors()->filterInstance(PaymentMethodBlockedError::class);
         static::assertCount(1, $filtered);
         $error = $filtered->first();
         static::assertInstanceOf(PaymentMethodBlockedError::class, $error);
@@ -627,6 +630,66 @@ class StorefrontCartFacadeTest extends TestCase
         static::assertSame('original-payment-method-id', $salesChannelContext->getPaymentMethod()->getId());
     }
 
+    public function testGetWithCheckoutGatewayRestoresTheBlockedErrorWhenTheFallbackIsBlockedToo(): void
+    {
+        $cart = $this->getCart();
+        $cart->addErrors(new ShippingMethodBlockedError(
+            name: 'original-shipping-method-name',
+            id: 'original-shipping-method-id',
+            reason: 'rule not matching or inactive',
+            deliveryIdentifiers: ['warehouse-1'],
+        ));
+        $paymentMethods = new PaymentMethodCollection([
+            $this->createPaymentMethod('original-payment-method-id', 'Original payment method'),
+        ]);
+        $shippingMethods = new ShippingMethodCollection([
+            $this->createShippingMethod('fallback-shipping-method-id', 'Fallback shipping method'),
+        ]);
+
+        $checkoutGatewayRoute = static::createStub(AbstractCheckoutGatewayRoute::class);
+        $checkoutGatewayRoute->method('load')->willReturnCallback(static function (Request $request, Cart $loadedCart) use ($paymentMethods, $shippingMethods): CheckoutGatewayRouteResponse {
+            $loadedCart->getErrors()->add(new ShippingMethodBlockedError(
+                name: 'original-shipping-method-name',
+                id: 'original-shipping-method-id',
+                reason: 'not allowed',
+                deliveryIdentifiers: [Delivery::DEFAULT_IDENTIFIER],
+            ));
+
+            return new CheckoutGatewayRouteResponse($paymentMethods, $shippingMethods, $loadedCart->getErrors());
+        });
+
+        $recalculatedCart = $this->getCart();
+        $recalculatedCart->addErrors(new ShippingMethodBlockedError(
+            name: 'fallback-shipping-method-name',
+            id: 'fallback-shipping-method-id',
+            reason: 'not allowed',
+        ));
+        $cartCalculator = static::createStub(CartCalculator::class);
+        $cartCalculator->method('calculate')->willReturn($recalculatedCart);
+
+        $salesChannelContext = $this->getSalesChannelContextWithDefaults(
+            defaultPaymentMethodId: 'original-payment-method-id',
+            defaultShippingMethodId: 'fallback-shipping-method-id',
+        );
+
+        $cartFacade = $this->getStorefrontCartFacade(
+            cart: $cart,
+            cartCalculator: $cartCalculator,
+            checkoutGatewayRoute: $checkoutGatewayRoute,
+        );
+
+        $result = $cartFacade->getWithCheckoutGateway(new Request(), 'token', $salesChannelContext);
+
+        static::assertSame($cart, $result->cart);
+        static::assertSame('original-shipping-method-id', $salesChannelContext->getShippingMethod()->getId());
+
+        $errors = $result->gatewayResponse->getErrors();
+        static::assertCount(0, $errors->filterInstance(ShippingMethodChangedError::class));
+        $blockedError = $errors->get('shipping-method-blocked-original-shipping-method-id');
+        static::assertInstanceOf(ShippingMethodBlockedError::class, $blockedError);
+        static::assertSame(['warehouse-1', Delivery::DEFAULT_IDENTIFIER], $blockedError->getDeliveryIdentifiers());
+    }
+
     public function testGetWithCheckoutGatewayKeepsBlockedMethodOfAnotherDelivery(): void
     {
         $cart = $this->getCart();
@@ -816,6 +879,7 @@ class StorefrontCartFacadeTest extends TestCase
                     id: 'original-shipping-method-id',
                     name: 'original-shipping-method-name',
                     reason: 'reason',
+                    deliveryIdentifiers: [Delivery::DEFAULT_IDENTIFIER],
                 )
             );
         }

@@ -578,6 +578,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
+        await flushPromises();
         await wrapper.setData({
             term: 'foo',
         });
@@ -623,6 +624,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should not build query score when search ranking field is null', async () => {
+        await flushPromises();
         await wrapper.setData({
             term: 'foo',
         });
@@ -646,6 +648,7 @@ describe('module/sw-product/page/sw-product-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
+        await flushPromises();
         await wrapper.setData({
             term: 'foo',
         });
@@ -748,6 +751,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         const parentId = 'parent-product-id';
         const variantId = 'variant-product-id';
 
+        await flushPromises();
         await wrapper.setData({
             term: 'SW10001',
         });

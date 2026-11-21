@@ -88,7 +88,7 @@ describe('src/app/composables/use-listing', () => {
         expect(listing.sortBy.value).toBeNull();
         expect(listing.sortDirection.value).toBe('ASC');
         expect(listing.naturalSorting.value).toBe(false);
-        expect(listing.term.value).toBeUndefined();
+        expect(listing.term.value).toBe('');
         expect(listing.disableRouteParams.value).toBe(false);
     });
 
@@ -125,6 +125,7 @@ describe('src/app/composables/use-listing', () => {
         expect(router.currentRoute.value.query).toEqual({
             limit: '25',
             page: '1',
+            term: '',
             sortBy: null,
             sortDirection: 'ASC',
             naturalSorting: false,
@@ -218,9 +219,9 @@ describe('src/app/composables/use-listing', () => {
         await router.push({ name: 'sw.product.index' });
         await flushPromises();
 
-        expect(listing.term.value).toBeUndefined();
+        expect(listing.term.value).toBe('');
         expect(listing.page.value).toBe(1);
-        expect(router.currentRoute.value.query.term).toBeUndefined();
+        expect(router.currentRoute.value.query.term).toBe('');
         expect(router.currentRoute.value.query.page).toBe('1');
     });
 

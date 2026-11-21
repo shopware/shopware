@@ -586,8 +586,8 @@ describe('src/app/mixin/listing.mixin.ts', () => {
         await router.push({ name: 'sw.product.index' });
         await flushPromises();
 
-        expect(listParams.at(-1)).toEqual({ term: undefined, page: 1 });
-        expect(router.currentRoute.value.query.term).toBeUndefined();
+        expect(listParams.at(-1)).toEqual({ term: '', page: 1 });
+        expect(router.currentRoute.value.query.term).toBe('');
         expect(router.currentRoute.value.query.page).toBe('1');
     });
 

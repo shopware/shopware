@@ -731,7 +731,6 @@ class RegisterControllerTest extends TestCase
             $container->get(AccountLoginPageLoader::class),
             $container->get(RegisterRoute::class),
             $container->get(RegisterConfirmRoute::class),
-            $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
             $systemConfigService,
             $customerRepository,

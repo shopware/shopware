@@ -1677,6 +1677,26 @@ bin/console seo:repair:link-category-takeover --apply --no-interaction <category
 The categories get their SEO URLs back, and their fallback URLs redirect to them.
 The command is deprecated and will be removed in 6.9.0.0.
 
+### Custom login redirect target for Storefront routes
+
+Storefront routes can set `PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE` in their route defaults.
+Visitors who open such a route without being logged in are redirected to that route instead of the login page:
+
+```php
+#[Route(
+    path: '/my-plugin/checkout',
+    name: 'frontend.my-plugin.checkout',
+    defaults: [
+        PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+        PlatformRequest::ATTRIBUTE_LOGIN_REDIRECT_ROUTE => 'frontend.checkout.register.page',
+    ],
+    methods: [Request::METHOD_GET]
+)]
+```
+
+The confirm page and the order submission of the checkout use it to redirect to the checkout register page.
+After a login on the checkout register page, customers return to the page they came from.
+
 ### `ThemeConfigChangedEvent` is dispatched after the theme is saved
 
 `ThemeService::updateTheme()` now dispatches `ThemeConfigChangedEvent` after the new theme configuration is written to the database.

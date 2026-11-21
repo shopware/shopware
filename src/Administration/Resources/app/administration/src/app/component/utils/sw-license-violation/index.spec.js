@@ -4,6 +4,7 @@
 
 import LicenseViolationComponent from './index';
 import 'src/app/store/license-violation.store';
+import { mount } from '@vue/test-utils';
 
 describe('src/app/component/utils/sw-license-violation', () => {
     const violation = {
@@ -70,5 +71,42 @@ describe('src/app/component/utils/sw-license-violation', () => {
         expect(context.extensionStoreActionService.getMyExtensions).toHaveBeenCalled();
         expect(context.licenseViolationService.saveViolationsToCache).toHaveBeenCalledWith([]);
         expect(Shopware.Store.get('licenseViolation').violations).toEqual([]);
+    });
+
+    it.each([
+        [true, true],
+        [false, false],
+    ])('shows the remove action only when allowUpdate is %s', async (allowUpdate, canRemove) => {
+        const wrapper = mount(await wrapTestComponent('sw-license-violation', { sync: true }), {
+            global: {
+                provide: {
+                    cacheApiService: {},
+                    extensionStoreActionService: { getMyExtensions: jest.fn(() => Promise.resolve([])) },
+                    licenseViolationService: {},
+                    loginService: { isLoggedIn: () => false },
+                },
+                mocks: { $route: {} },
+                stubs: {
+                    'sw-modal': { template: '<div><slot /></div>' },
+                    'mt-button': { template: '<button><slot /></button>' },
+                    'mt-checkbox': true,
+                },
+            },
+        });
+
+        Shopware.Store.get('licenseViolation').violations = [
+            {
+                ...violation,
+                extensions: { licenseViolation: { text: 'Violation', actions: [{ externalLink: '#', label: 'Buy' }] } },
+            },
+        ];
+        await wrapper.setData({
+            showViolation: true,
+            plugins: [{ name: violation.name, allowUpdate }],
+        });
+
+        expect(wrapper.find('.sw-license-violation__table-action-remove').exists()).toBe(canRemove);
+        expect(wrapper.text().includes('sw-license-violation.removeExternally')).toBe(!canRemove);
+        wrapper.unmount();
     });
 });

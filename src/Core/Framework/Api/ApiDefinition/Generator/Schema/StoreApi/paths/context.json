@@ -90,14 +90,36 @@
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "countryId": {
-                                        "description": "Country",
+                                        "description": "Country. Without a logged in customer, a country that differs from the stored `shippingAddress` removes the prospective customer.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$"
                                     },
                                     "countryStateId": {
-                                        "description": "Country State",
+                                        "description": "Country State. Without a logged in customer, a state that differs from the stored `shippingAddress` removes the prospective customer.",
                                         "type": "string",
                                         "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "shippingAddress": {
+                                        "description": "Only without a logged in customer: the address the visitor has entered so far, stored as the `prospectiveCustomer` of the context. Replaces the stored shipping address, its country becomes the context country. `null` removes the prospective customer. Can not be combined with `countryId` or `countryStateId`.",
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
+                                    },
+                                    "billingAddress": {
+                                        "description": "Only without a logged in customer: a billing address that differs from the shipping address. `null` removes it.",
+                                        "oneOf": [
+                                            {
+                                                "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                                            },
+                                            {
+                                                "type": "null"
+                                            }
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -111,7 +133,7 @@
                     },
                     "400": {
                         "$ref": "#/components/responses/400",
-                        "description": "One of the submitted ids is not a string, or does not reference an entity that is available in the current sales channel."
+                        "description": "One of the submitted ids is not a string, or does not reference an entity that is available in the current sales channel, an address is invalid, an address was sent for a logged in customer, or a shipping address was sent together with a country."
                     },
                     "401": {
                         "$ref": "#/components/responses/401",

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -93,7 +94,10 @@ class ChangeEmailRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('errors', $response);
-        static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
+        static::assertEqualsCanonicalizing(
+            ['VIOLATION::IS_BLANK_ERROR', 'VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT'],
+            array_column($response['errors'], 'code')
+        );
     }
 
     public function testChangeInvalidPassword(): void
@@ -112,6 +116,36 @@ class ChangeEmailRouteTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
+    }
+
+    /**
+     * @param array<string, string> $data
+     */
+    #[DataProvider('blankEmailProvider')]
+    public function testChangeWithBlankEmailIsRejected(array $data): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/change-email',
+                [...$data, 'password' => 'shopware']
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/email', $response['errors'][0]['source']['pointer']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function blankEmailProvider(): iterable
+    {
+        yield 'missing email' => [[]];
+        yield 'empty email' => [['email' => '', 'emailConfirmation' => '']];
     }
 
     public function testChange(): void

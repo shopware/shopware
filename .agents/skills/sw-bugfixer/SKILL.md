@@ -2,9 +2,9 @@
 name: sw-bugfixer
 description: >
   Diagnose and fix a Shopware 6 GitHub issue, or improve an existing Bugfixer pull
-  request after maintainer feedback. Use when the user asks to fix an issue,
-  create a bugfix PR, handle a qi/sw-bugfixer issue, improve a Bugfixer PR, or react to
-  /sw-bugfixer feedback.
+  request after maintainer feedback. Covers a bug report with steps to reproduce, broken
+  behavior in src/Core, Administration or Storefront, and maintainer review feedback on
+  an automated fix. Not for new features, general code review, or PR text without a fix.
 disable-model-invocation: true
 license: MIT
 allowed-tools: Bash(rg:*) Bash(find:*) Bash(ls:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*) Bash(git blame:*) Bash(git status:*) Bash(git branch:*) Bash(git checkout:*) Bash(git switch:*) Bash(git rev-parse:*) Bash(git merge-base:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(gh pr view:*) Bash(gh pr diff:*) Bash(gh pr checks:*) Bash(gh api repos/*:*) Bash(composer:*) Bash(php:*) Bash(bin/console:*) Bash(npm:*) Bash(pnpm:*) Read Glob Grep Edit

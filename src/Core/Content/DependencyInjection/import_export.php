@@ -58,6 +58,7 @@ use Shopware\Core\Content\Product\ProductTypeRegistry;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CustomFieldsSerializer as DalCustomFieldsSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\CustomField\CustomFieldService;
@@ -94,7 +95,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SystemDefaultValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -199,13 +200,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('language.repository'),
         ])
-        ->tag('shopware.import_export.field_serializer', ['priority' => -500]);
+        ->tag('shopware.import_export.field_serializer', ['priority' => -500])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(PriceSerializer::class)
         ->args([
             service('currency.repository'),
         ])
-        ->tag('shopware.import_export.field_serializer', ['priority' => -500]);
+        ->tag('shopware.import_export.field_serializer', ['priority' => -500])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(CustomFieldsSerializer::class)
         ->args([

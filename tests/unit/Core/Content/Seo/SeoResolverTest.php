@@ -408,6 +408,48 @@ class SeoResolverTest extends TestCase
         static::assertTrue($resolved->isCanonical);
     }
 
+    /**
+     * @return iterable<string, array{0: string, 1: string}>
+     */
+    public static function caseAndSlashVariantProvider(): iterable
+    {
+        yield 'identical path wins over a lowercase variant without slash' => ['/Guide/', '/navigation/page'];
+        yield 'identical path wins over a capitalised variant with slash' => ['/guide', '/navigation/link'];
+    }
+
+    #[DataProvider('caseAndSlashVariantProvider')]
+    public function testResolveUrlPrefersCanonicalRowMatchingTheRequestedPath(string $requestPath, string $expectedPathInfo): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        $rows = [
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'isCanonical' => true,
+                'pathInfo' => '/navigation/link',
+                'seoPathInfo' => 'guide',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'isCanonical' => true,
+                'pathInfo' => '/navigation/page',
+                'seoPathInfo' => 'Guide/',
+            ],
+        ];
+
+        foreach ([$rows, array_reverse($rows)] as $rowsInDatabaseOrder) {
+            $connection = static::createStub(Connection::class);
+            $connection->method('executeQuery')->willReturn(FakeResultFactory::createResult($rowsInDatabaseOrder, $connection));
+            $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
+
+            $resolved = (new SeoResolver($connection))->resolveUrl(new SeoUrlRequestContext(Uuid::randomHex(), $salesChannelId, $requestPath));
+
+            static::assertSame($expectedPathInfo, $resolved->pathInfo);
+        }
+    }
+
     public function testResolveUrlFallbackFindsCanonicalSiblingWhenFirstHitIsNotCanonical(): void
     {
         $salesChannelId = Uuid::randomHex();

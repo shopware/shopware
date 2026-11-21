@@ -56,8 +56,8 @@ class ExtensionLoaderTest extends TestCase
             new AppCollection([])
         );
 
-        /** @var ExtensionStruct $extension */
         $extension = $extensions->get('TestAppTheme');
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertTrue($extension->isTheme());
         $this->removeApp(__DIR__ . '/../_fixtures/TestAppTheme');
     }
@@ -74,8 +74,8 @@ class ExtensionLoaderTest extends TestCase
             new AppCollection([$this->getInstalledApp()])
         );
 
-        /** @var ExtensionStruct $extension */
         $extension = $extensions->get('TestApp');
+        static::assertInstanceOf(ExtensionStruct::class, $extension);
         static::assertSame('1.0.0', $extension->getVersion());
         static::assertSame('1.0.1', $extension->getLatestVersion());
     }

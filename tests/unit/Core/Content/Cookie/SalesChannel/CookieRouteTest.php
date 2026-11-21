@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Extension\CookieRouteExtension;
@@ -374,6 +375,146 @@ class CookieRouteTest extends TestCase
         static::assertSame('old-hash-2', $secondHashEntry->value); // Should remain unchanged
     }
 
+    public function testCookieHashesCoverEveryEntryAndDirectGroupCookie(): void
+    {
+        $response = $this->getCookieGroups($this->createCookieGroups());
+
+        static::assertSame(
+            ['analytics', 'cookie-config-hash', 'cookie-preference', 'youtube-video'],
+            array_keys($response->getCookieHashes())
+        );
+    }
+
+    public function testCookieHashesAreIndependentOfTheOrder(): void
+    {
+        $cookieGroups = $this->createCookieGroups();
+        $reversedGroups = [];
+        foreach (array_reverse($cookieGroups->getElements()) as $cookieGroup) {
+            $entries = $cookieGroup->getEntries();
+            if ($entries !== null) {
+                $cookieGroup->setEntries(new CookieEntryCollection(array_reverse($entries->getElements())));
+            }
+            $reversedGroups[] = $cookieGroup;
+        }
+
+        static::assertSame(
+            $this->getCookieGroups($this->createCookieGroups())->getCookieHashes(),
+            $this->getCookieGroups(new CookieGroupCollection($reversedGroups))->getCookieHashes()
+        );
+    }
+
+    public function testCookieHashOfTheConfigurationHashCookieIgnoresTheGeneratedHash(): void
+    {
+        $original = $this->getCookieGroups($this->createCookieGroups());
+
+        $changedGroups = $this->createCookieGroups();
+        self::getAnalyticsEntry($changedGroups)->name = 'Tracking';
+        $changed = $this->getCookieGroups($changedGroups);
+
+        static::assertNotSame($original->getHash(), $changed->getHash());
+        static::assertSame(
+            $original->getCookieHashes()[CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE],
+            $changed->getCookieHashes()[CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE]
+        );
+    }
+
+    /**
+     * @param \Closure(CookieGroupCollection): void $change
+     */
+    #[DataProvider('consentRelevantChangeProvider')]
+    public function testCookieHashChangesOnlyForTheAffectedCookie(string $cookie, \Closure $change): void
+    {
+        $original = $this->getCookieGroups($this->createCookieGroups())->getCookieHashes();
+
+        $changedGroups = $this->createCookieGroups();
+        $change($changedGroups);
+        $changed = $this->getCookieGroups($changedGroups)->getCookieHashes();
+
+        static::assertNotSame($original[$cookie], $changed[$cookie]);
+        unset($original[$cookie], $changed[$cookie]);
+        static::assertSame($original, $changed, 'Cookies not affected by the change must keep their hash');
+    }
+
+    public static function consentRelevantChangeProvider(): \Generator
+    {
+        yield 'moving an entry to another group' => ['analytics', static function (CookieGroupCollection $groups): void {
+            $groups->remove('statistics');
+            $marketing = new CookieGroup('marketing');
+            $marketing->name = 'Statistics';
+            $marketing->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+            $groups->add($marketing);
+        }];
+        yield 'making the group of an entry required' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->isRequired = true;
+        }];
+        yield 'renaming the group of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->name = 'Tracking';
+        }];
+        yield 'describing the group of an entry differently' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->description = 'Used for advertising';
+        }];
+        yield 'changing the value of the group of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->value = '2';
+        }];
+        yield 'changing the expiration of the group of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->expiration = 365;
+        }];
+        yield 'renaming an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->name = 'Tracking';
+        }];
+        yield 'describing an entry differently' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->description = 'Used for advertising';
+        }];
+        yield 'changing the value of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->value = '2';
+        }];
+        yield 'changing the expiration of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->expiration = 365;
+        }];
+        yield 'hiding an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->hidden = true;
+        }];
+        yield 'describing a direct group cookie differently' => ['youtube-video', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'comfort')->description = 'Plays videos';
+        }];
+        yield 'changing the expiration of a direct group cookie' => ['youtube-video', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'comfort')->expiration = 365;
+        }];
+        yield 'listing an entry in a second group' => ['analytics', static function (CookieGroupCollection $groups): void {
+            $marketing = new CookieGroup('marketing');
+            $marketing->name = 'Marketing';
+            $marketing->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+            $groups->add($marketing);
+        }];
+    }
+
+    public function testCookieHashOfACookieInSeveralGroupsCoversEveryGroup(): void
+    {
+        $cookieGroups = $this->createCookieGroups();
+        $marketing = new CookieGroup('marketing');
+        $marketing->name = 'Marketing';
+        $marketing->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+        $cookieGroups->add($marketing);
+        $original = $this->getCookieGroups($cookieGroups)->getCookieHashes();
+
+        $marketing->description = 'Used for advertising';
+        $changed = $this->getCookieGroups($cookieGroups)->getCookieHashes();
+
+        static::assertNotSame($original['analytics'], $changed['analytics']);
+    }
+
+    public function testRemovingACookieKeepsTheHashesOfTheRemainingCookies(): void
+    {
+        $original = $this->getCookieGroups($this->createCookieGroups())->getCookieHashes();
+
+        $changedGroups = $this->createCookieGroups();
+        $changedGroups->remove('comfort');
+        $changed = $this->getCookieGroups($changedGroups)->getCookieHashes();
+
+        unset($original['youtube-video']);
+        static::assertSame($original, $changed);
+    }
+
     public function testPublishesExtension(): void
     {
         $request = new Request();
@@ -394,5 +535,62 @@ class CookieRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->getCookieGroups($request, $salesChannelContext));
+    }
+
+    private function getCookieGroups(CookieGroupCollection $cookieGroups): CookieRouteResponse
+    {
+        $cookieProvider = static::createStub(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        return (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))
+            ->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+    }
+
+    private function createCookieGroups(): CookieGroupCollection
+    {
+        $preference = new CookieEntry('cookie-preference');
+        $preference->value = '1';
+        $configHash = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $required = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $required->isRequired = true;
+        $required->name = 'Technically required';
+        $required->setEntries(new CookieEntryCollection([$preference, $configHash]));
+
+        $statistics = new CookieGroup('statistics');
+        $statistics->name = 'Statistics';
+        $statistics->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+
+        $comfort = new CookieGroup('comfort');
+        $comfort->name = 'YouTube video';
+        $comfort->value = '1';
+        $comfort->setCookie('youtube-video');
+
+        return new CookieGroupCollection([$required, $statistics, $comfort]);
+    }
+
+    private static function createAnalyticsEntry(): CookieEntry
+    {
+        $entry = new CookieEntry('analytics');
+        $entry->name = 'Google Analytics';
+        $entry->value = '1';
+        $entry->expiration = 30;
+
+        return $entry;
+    }
+
+    private static function getGroup(CookieGroupCollection $groups, string $technicalName): CookieGroup
+    {
+        $group = $groups->get($technicalName);
+        static::assertNotNull($group);
+
+        return $group;
+    }
+
+    private static function getAnalyticsEntry(CookieGroupCollection $groups): CookieEntry
+    {
+        $entry = self::getGroup($groups, 'statistics')->getEntries()?->get('analytics');
+        static::assertNotNull($entry);
+
+        return $entry;
     }
 }

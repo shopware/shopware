@@ -14,7 +14,6 @@ const DEFAULT_LIMIT = null;
  * @method createCustomFieldTypeService
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createCustomFieldService() {
     const $typeStore = {
         select: {

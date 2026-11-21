@@ -60,6 +60,8 @@ describe('build/vue-setup-transform override transforms', () => {
                     'sw_example_headline',
                 ],
             });
+            const __swSetupNamespace = Symbol('sw-example.override');
+            const __swSetupOverrideScope = (scope) => scope.__swOverride[__swSetupNamespace];
             </script>
             <template>
                 <sw-block sw-internal-component-name='sw-example' extends="sw_example_headline" #default="__swSetupScope">
@@ -68,9 +70,6 @@ describe('build/vue-setup-transform override transforms', () => {
             </template>
             <script setup lang="ts">
             import { computed } from 'vue';
-
-            const __swSetupNamespace = Symbol('sw-example.override');
-            const __swSetupOverrideScope = (scope) => scope.__swOverride[__swSetupNamespace];
 
             Shopware.Component.overrideComponentSetup()('sw-example', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
             const useSwPreviousState = () => __swSetupPreviousState;

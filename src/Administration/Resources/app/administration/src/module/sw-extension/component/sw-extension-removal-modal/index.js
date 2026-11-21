@@ -19,6 +19,11 @@ export default {
             type: Boolean,
             required: true,
         },
+        hasDeletableFiles: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
         isLoading: {
             type: Boolean,
             required: true,
@@ -27,25 +32,45 @@ export default {
 
     computed: {
         title() {
-            return this.isLicensed
-                ? this.$t('sw-extension-store.component.sw-extension-removal-modal.titleCancel', {
-                      extensionName: this.extensionName,
-                  })
-                : this.$t('sw-extension-store.component.sw-extension-removal-modal.titleRemove', {
-                      extensionName: this.extensionName,
-                  });
+            if (!this.isLicensed) {
+                return this.$t('sw-extension-store.component.sw-extension-removal-modal.titleRemove', {
+                    extensionName: this.extensionName,
+                });
+            }
+
+            if (!this.hasDeletableFiles) {
+                return this.$t('sw-extension-store.component.sw-extension-removal-modal.titleCancelSubscription', {
+                    extensionName: this.extensionName,
+                });
+            }
+
+            return this.$t('sw-extension-store.component.sw-extension-removal-modal.titleCancel', {
+                extensionName: this.extensionName,
+            });
         },
 
         alert() {
-            return this.isLicensed
-                ? this.$t('sw-extension-store.component.sw-extension-removal-modal.alertCancel')
-                : this.$t('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
+            if (!this.isLicensed) {
+                return this.$t('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
+            }
+
+            if (!this.hasDeletableFiles) {
+                return this.$t('sw-extension-store.component.sw-extension-removal-modal.alertCancelSubscription');
+            }
+
+            return this.$t('sw-extension-store.component.sw-extension-removal-modal.alertCancel');
         },
 
         btnLabel() {
-            return this.isLicensed
-                ? this.$t('sw-extension-store.component.sw-extension-removal-modal.labelCancel')
-                : this.$t('global.default.remove');
+            if (!this.isLicensed) {
+                return this.$t('global.default.remove');
+            }
+
+            if (!this.hasDeletableFiles) {
+                return this.$t('sw-extension-store.component.sw-extension-removal-modal.labelCancelSubscription');
+            }
+
+            return this.$t('sw-extension-store.component.sw-extension-removal-modal.labelCancel');
         },
     },
 

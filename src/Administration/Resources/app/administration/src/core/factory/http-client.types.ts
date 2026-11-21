@@ -6,10 +6,14 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type HttpClientValue = any;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export type HttpHeaders = Record<string, HttpClientValue>;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @public
+ */
 export interface HttpRequestConfig<Data = HttpClientValue> {
     [key: string]: HttpClientValue;
     url?: string;
@@ -20,10 +24,20 @@ export interface HttpRequestConfig<Data = HttpClientValue> {
     data?: Data;
     timeout?: number;
     signal?: HttpClientValue;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `signal` with an `AbortController` instead.
+     */
     cancelToken?: HttpClientValue;
-    responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream';
+    responseType?: 'arraybuffer' | 'blob' | 'document' | 'json' | 'text' | 'stream' | 'formdata';
     adapter?: HttpClientValue;
     version?: number;
+    /**
+     * Selects the legacy compatibility mode for a single request. `false` restores the query encoding and plain
+     * response headers of the removed Axios 0.x transport, `true` uses plain Axios 1.x behaviour. Without the
+     * option the `V6_8_0_0` feature flag decides.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed; Axios 1.x behaviour becomes unconditional.
+     */
     useAxiosV1?: boolean;
 }
 
@@ -38,18 +52,36 @@ export interface HttpResponse<Data = HttpClientValue> {
     request?: HttpClientValue;
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Shares the visibility of HttpResponse, which it wraps.
+export interface HttpError<Data = HttpClientValue> extends Error {
+    code?: string;
+    config?: HttpRequestConfig;
+    request?: HttpClientValue;
+    response?: HttpResponse<Data>;
+    status?: number;
+}
+
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and `AbortSignal` instead.
+ * @public
+ */
 export interface HttpCancelToken {
     promise: Promise<unknown>;
     reason?: unknown;
     throwIfRequested: () => void;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` instead.
+ */
 interface HttpCancelTokenSource {
     token: HttpCancelToken;
     cancel: (message?: string) => void;
 }
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` instead.
+ */
 interface HttpCancelTokenFactory {
     new (executor: (cancel: (message?: string) => void) => void): HttpCancelToken;
     source: () => HttpCancelTokenSource;
@@ -58,8 +90,8 @@ interface HttpCancelTokenFactory {
 interface HttpInterceptorManager<Value> {
     handlers: HttpClientValue[];
     use: <Result = Value>(
-        onFulfilled?: (value: Value) => Result | Promise<Result>,
-        onRejected?: (error: HttpClientValue) => HttpClientValue,
+        onFulfilled?: ((value: Value) => Result | Promise<Result>) | null,
+        onRejected?: ((error: HttpClientValue) => HttpClientValue) | null,
         options?: unknown,
     ) => number;
     eject: (id: number) => void;
@@ -79,8 +111,11 @@ interface HttpClientDefaults extends HttpRequestConfig {
     };
 }
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export interface HttpClient {
+/**
+ * The Axios surface of the HTTP client without the Shopware additions `isCancel` and `CancelToken`.
+ */
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations -- Shares the visibility of HttpClient, which extends it.
+export interface HttpClientBase {
     <Data = HttpClientValue, Response = HttpResponse<Data>, RequestData = HttpClientValue>(
         config: HttpRequestConfig<RequestData>,
     ): Promise<Response>;
@@ -137,12 +172,33 @@ export interface HttpClient {
         data?: RequestData,
         config?: HttpRequestConfig<RequestData>,
     ) => Promise<Response>;
+    query: <Data = HttpClientValue, Response = HttpResponse<Data>, RequestData = HttpClientValue>(
+        url: string,
+        data?: RequestData,
+        config?: HttpRequestConfig<RequestData>,
+    ) => Promise<Response>;
+    /**
+     * Creates a derived client that inherits this client's defaults. Keeps the facade structurally compatible with
+     * `AxiosInstance`, so extensions can still hand the client to `axios-mock-adapter` without a cast.
+     *
+     * The derived client has none of the interceptors of the Administration client, so no token refresh and no
+     * global error handling, and none of the Shopware additions.
+     */
+    create: (config?: HttpRequestConfig) => HttpClientBase;
     getUri: (config?: HttpRequestConfig) => string;
-    isCancel: (value: unknown) => boolean;
-    CancelToken: HttpCancelTokenFactory;
     defaults: HttpClientDefaults;
     interceptors: {
-        request: HttpInterceptorManager<HttpRequestConfig>;
+        // Request interceptors always receive the resolved request config, which carries the headers.
+        request: HttpInterceptorManager<HttpRequestConfig & { headers: HttpClientValue }>;
         response: HttpInterceptorManager<HttpResponse>;
     };
+}
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export interface HttpClient extends HttpClientBase {
+    isCancel: (value: unknown) => boolean;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use `AbortController` and the `signal` request option instead.
+     */
+    CancelToken: HttpCancelTokenFactory;
 }

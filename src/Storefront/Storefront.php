@@ -5,6 +5,7 @@ namespace Shopware\Storefront;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\DependencyInjection\DisableTemplateCachePass;
+use Shopware\Storefront\DependencyInjection\LegacyCookieProviderBridgePass;
 use Shopware\Storefront\DependencyInjection\StorefrontMigrationReplacementCompilerPass;
 use Shopware\Storefront\DependencyInjection\ThemeCompilerAssetCompilerPass;
 use Shopware\Storefront\DependencyInjection\TwigComponentBundlePass;
@@ -42,6 +43,8 @@ class Storefront extends Bundle implements ThemeInterface
         $container->addCompilerPass(new DisableTemplateCachePass());
         $container->addCompilerPass(new StorefrontMigrationReplacementCompilerPass());
         $container->addCompilerPass(new ThemeCompilerAssetCompilerPass());
+        // Must run after FeatureFlagCompilerPass removed inactive feature services
+        $container->addCompilerPass(new LegacyCookieProviderBridgePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, -100);
         // Auto-register Twig component namespaces for all bundles
         // Must run before Symfony's TwigComponentPass processes the configuration
         $container->addCompilerPass(new TwigComponentBundlePass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 100);

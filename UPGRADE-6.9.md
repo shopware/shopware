@@ -136,6 +136,23 @@ Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to
 The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
 Use `name` and `description` instead.
 
+To find extensions that still decorate `CookieProviderInterface`, run `bin/console debug:container --deprecations` in debug mode on 6.7 or 6.8.
+Move each reported decorator to a `CookieGroupCollectEvent` listener.
+The cookie groups are keyed by their technical name, which is the former `snippet_name`.
+
+```php
+public function __invoke(CookieGroupCollectEvent $event): void
+{
+    $entry = new CookieEntry('my-cookie');
+    $entry->name = 'my-extension.cookie.name';
+
+    $event->cookieGroupCollection
+        ->get(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_COMFORT_FEATURES)
+        ?->getEntries()
+        ?->add($entry);
+}
+```
+
 ## Removed `seo:repair:link-category-takeover` command
 
 The `seo:repair:link-category-takeover` command has been removed.

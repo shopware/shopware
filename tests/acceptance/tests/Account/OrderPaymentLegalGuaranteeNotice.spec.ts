@@ -50,6 +50,9 @@ test(
                 'href',
                 /^https:\/\/europa\.eu\/youreurope\//,
             );
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleName(
+                /Your legal guarantee rights|Ihre gesetzlichen Gewährleistungsrechte/i,
+            );
         });
 
         await test.step('The inline setting displays the notice without a modal.', async () => {

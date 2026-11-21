@@ -72,6 +72,9 @@ test.describe('Customer Registration Form', () => {
                 /Your legal guarantee rights|Ihre gesetzlichen Gewährleistungsrechte/i,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toBeVisible();
+            await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleName(
+                /Your legal guarantee rights|Ihre gesetzlichen Gewährleistungsrechte/i,
+            );
 
             // Checkbox enabled, legal guarantee notice enabled: both the checkbox and the notice paragraph are shown.
             await TestDataService.setSystemConfig({

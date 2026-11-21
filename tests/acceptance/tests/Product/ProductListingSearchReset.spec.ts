@@ -6,9 +6,9 @@ test(
     async ({ ShopAdmin, TestDataService, AdminProductListing }) => {
         const product = await TestDataService.createBasicProduct();
         const searchField = AdminProductListing.page.getByRole('searchbox', { name: 'Search products...' });
-        const productsMenuItem = AdminProductListing.page
-            .locator('.sw-admin-menu__navigation-link')
-            .filter({ hasText: /^\s*Products\s*$/ });
+        const productsMenuItem = AdminProductListing.page.locator(
+            '.sw-admin-menu__item--sw-product .sw-admin-menu__navigation-link',
+        );
 
         await test.step('Search for a product in the product listing.', async () => {
             await ShopAdmin.goesTo(AdminProductListing.url());

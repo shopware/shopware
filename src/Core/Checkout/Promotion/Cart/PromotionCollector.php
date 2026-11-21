@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\PromotionLineItemFactory;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
@@ -451,7 +452,7 @@ class PromotionCollector implements CartDataCollectorInterface
     }
 
     /**
-     * Counts the orders of the customer that redeemed a promotion with a per-customer limit.
+     * Counts the orders of the customer that redeemed a promotion with a per-customer limit, without cancelled orders.
      *
      * @return array<string, int> keyed by promotion id
      */
@@ -479,9 +480,15 @@ class PromotionCollector implements CartDataCollectorInterface
                      INNER JOIN order_line_item
                                 ON (order_line_item.order_id = order_customer.order_id
                                     AND order_line_item.order_version_id = order_customer.order_version_id)
+                     INNER JOIN `order`
+                                ON (`order`.id = order_customer.order_id
+                                    AND `order`.version_id = order_customer.order_version_id)
+                     INNER JOIN state_machine_state
+                                ON state_machine_state.id = `order`.state_id
             WHERE order_customer.customer_id = :customerId
               AND order_line_item.promotion_id IN (:promotionIds)
               AND order_line_item.version_id = :versionId
+              AND state_machine_state.technical_name != :cancelledState
             GROUP BY order_line_item.promotion_id
         SQL;
 
@@ -492,6 +499,7 @@ class PromotionCollector implements CartDataCollectorInterface
                 'customerId' => Uuid::fromHexToBytes($customerId),
                 'promotionIds' => Uuid::fromHexToBytesList(array_values(array_unique($promotionIds))),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'cancelledState' => OrderStates::STATE_CANCELLED,
             ],
             ['promotionIds' => ArrayParameterType::BINARY]
         );

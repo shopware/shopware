@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SystemConfig\SalesChannel\ConfigCastTrait;
+use Shopware\Tests\Unit\Core\System\SystemConfig\SalesChannel\Stub\ConfigCastFixture;
 
 /**
  * @internal
@@ -73,37 +74,5 @@ class ConfigCastTraitTest extends TestCase
         yield 'int is cast to string' => [['key' => 12], '12'];
         yield 'bool true is cast to "1"' => [['key' => true], '1'];
         yield 'unexpected array falls back to empty string' => [['key' => ['nested']], ''];
-    }
-}
-
-/**
- * @internal exposes the private trait methods for the test
- */
-class ConfigCastFixture
-{
-    use ConfigCastTrait;
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    public static function castBool(array $config, string $key): bool
-    {
-        return self::boolValue($config, $key);
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    public static function castInt(array $config, string $key): int
-    {
-        return self::intValue($config, $key);
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    public static function castString(array $config, string $key): string
-    {
-        return self::stringValue($config, $key);
     }
 }

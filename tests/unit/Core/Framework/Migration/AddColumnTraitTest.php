@@ -14,6 +14,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\AddColumnTrait;
+use Shopware\Tests\Unit\Core\Framework\Migration\Stub\TestAddColumnMigration;
 
 /**
  * @internal
@@ -132,28 +133,5 @@ class AddColumnTraitTest extends TestCase
         $schemaManager->method('introspectTableByUnquotedName')->willReturn($table);
 
         return $schemaManager;
-    }
-}
-
-/**
- * @internal
- */
-class TestAddColumnMigration
-{
-    use AddColumnTrait;
-
-    /**
-     * @param non-empty-string $table
-     * @param non-empty-string $column
-     */
-    public function callAddColumn(
-        Connection $connection,
-        string $table,
-        string $column,
-        string $type,
-        bool $nullable = true,
-        string $default = 'NULL'
-    ): bool {
-        return $this->addColumn($connection, $table, $column, $type, $nullable, $default);
     }
 }

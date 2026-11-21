@@ -2856,7 +2856,7 @@
       "count": 2
     },
     "@typescript-eslint/ban-ts-comment": {
-      "count": 3
+      "count": 2
     },
     "no-restricted-syntax": {
       "count": 4

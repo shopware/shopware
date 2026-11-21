@@ -29,6 +29,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -47,6 +48,7 @@ use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -112,7 +114,13 @@ class InvoiceRendererTest extends TestCase
             $connectionMock,
             static::createStub(DocumentFileRendererRegistry::class),
             new NativeClock(),
-            new IntraCommunityTaxResolver($vatIdPatternProvider, static::createStub(SystemConfigService::class), static::createStub(EntityRepository::class), new ExtensionDispatcher(new EventDispatcher()))
+            new IntraCommunityTaxResolver(
+                $vatIdPatternProvider,
+                static::createStub(SystemConfigService::class),
+                static::createStub(EntityRepository::class),
+                new ExtensionDispatcher(new EventDispatcher()),
+                StaticEntityRepository::of(OrderLineItemCollection::class, [new OrderLineItemCollection()]),
+            )
         );
 
         $operations = [

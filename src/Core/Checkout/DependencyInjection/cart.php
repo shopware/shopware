@@ -410,6 +410,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('country.repository'),
             service(ExtensionDispatcher::class),
+            service('order_line_item.repository'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 

@@ -134,6 +134,7 @@ class ZugferdBuilder
                 $this->intraCommunityTaxResolver->getShippingAddress($order),
                 $config->getVatId(),
             )
+            ->withReverseCharge($this->intraCommunityTaxResolver->getReverseChargeVatId($order), $config->getVatId())
             ->withDocumentInformation($config->getDocumentDate() ?? 'now', $config->getDocumentNumber() ?? '', $order->getCurrency()?->getIsoCode() ?? '', $documentType)
             ->withDelivery($order->getDeliveries() ?? new OrderDeliveryCollection())
             ->withTaxes($order->getPrice())

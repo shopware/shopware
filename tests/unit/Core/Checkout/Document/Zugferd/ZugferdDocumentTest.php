@@ -942,6 +942,65 @@ class ZugferdDocumentTest extends TestCase
         yield 'an empty seller VAT ID in the document settings' => [['FR12345678901', '75001', '']];
     }
 
+    public function testReverseChargeStatesCategoryAEOnEveryPositionAndOneExemptBreakdown(): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument();
+        $document->withReverseCharge('NL123456789B01', 'DE123456789');
+        $this->addTaxFreePositions($document);
+        $dom = $this->getDom($document);
+
+        $categories = [];
+        foreach ($dom->getElementsByTagName('CategoryCode') as $category) {
+            $categories[] = $category->nodeValue;
+        }
+        // the product line, the shipping charge, the allowance and the breakdown
+        static::assertSame(['AE', 'AE', 'AE', 'AE'], $categories);
+
+        $breakdown = $dom->getElementsByTagName('ApplicableTradeTax')->item(1);
+        static::assertNotNull($breakdown);
+        static::assertSame('Reverse charge', self::nodeValue($breakdown, 'ExemptionReason'));
+        static::assertSame('VATEX-EU-AE', self::nodeValue($breakdown, 'ExemptionReasonCode'));
+        static::assertSame('0.00', self::nodeValue($breakdown, 'RateApplicablePercent'));
+        static::assertSame('0.00', self::nodeValue($breakdown, 'CalculatedAmount'));
+        static::assertSame('100.00', self::nodeValue($breakdown, 'BasisAmount'));
+    }
+
+    public function testReverseChargeNamesTheBuyerVatIdWithoutADeliverToAddress(): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument();
+        $document->withReverseCharge('NL123456789B01', 'DE123456789');
+        $dom = $this->getDom($document);
+
+        $buyerVatId = $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->item(0);
+        static::assertNotNull($buyerVatId);
+        static::assertSame('VA', $buyerVatId->getElementsByTagName('ID')->item(0)?->getAttribute('schemeID'));
+        static::assertSame('NL123456789B01', self::nodeValue($buyerVatId, 'ID'));
+        static::assertSame(0, $dom->getElementsByTagName('ShipToTradeParty')->length);
+    }
+
+    #[DataProvider('incompleteReverseChargeProvider')]
+    public function testReverseChargeWithoutTheDataOfCategoryAEKeepsTheRateBasedCategory(?string $buyerVatId, ?string $sellerVatId): void
+    {
+        $document = $this->createIntraCommunitySupplyDocument();
+        $document->withReverseCharge($buyerVatId, $sellerVatId);
+        $this->addTaxFreePositions($document);
+        $dom = $this->getDom($document);
+
+        foreach ($dom->getElementsByTagName('CategoryCode') as $category) {
+            static::assertSame('Z', $category->nodeValue);
+        }
+        static::assertSame(0, $dom->getElementsByTagName('ExemptionReason')->length);
+        static::assertSame(0, $dom->getElementsByTagName('ExemptionReasonCode')->length);
+        static::assertSame(0, $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->length);
+    }
+
+    public static function incompleteReverseChargeProvider(): \Generator
+    {
+        yield 'no reverse charge, so no buyer VAT ID' => [null, 'DE123456789'];
+        yield 'no seller VAT ID in the document settings' => ['NL123456789B01', null];
+        yield 'an empty seller VAT ID in the document settings' => ['NL123456789B01', ''];
+    }
+
     public function testGetBuilderReturnsTheBuilderTheDocumentWritesTo(): void
     {
         $builder = ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_XRECHNUNG_3);

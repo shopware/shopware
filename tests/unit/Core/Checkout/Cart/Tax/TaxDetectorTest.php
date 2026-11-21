@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,6 +28,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -968,6 +970,7 @@ class TaxDetectorTest extends TestCase
             $this->createSystemConfigService($countries, $sellerIso),
             $repository,
             new ExtensionDispatcher(new EventDispatcher()),
+            StaticEntityRepository::of(OrderLineItemCollection::class),
         ));
     }
 
@@ -990,6 +993,7 @@ class TaxDetectorTest extends TestCase
             $this->createSystemConfigService($countries, $sellerIso),
             $repository,
             new ExtensionDispatcher(new EventDispatcher()),
+            StaticEntityRepository::of(OrderLineItemCollection::class),
         ));
     }
 
@@ -1005,7 +1009,7 @@ class TaxDetectorTest extends TestCase
         $systemConfigService = static::createStub(SystemConfigService::class);
         $systemConfigService->method('getString')->willReturn(Uuid::randomHex());
 
-        return new TaxDetector(new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, $repository, new ExtensionDispatcher(new EventDispatcher())));
+        return new TaxDetector(new IntraCommunityTaxResolver(new VatIdPatternProvider($repository), $systemConfigService, $repository, new ExtensionDispatcher(new EventDispatcher()), StaticEntityRepository::of(OrderLineItemCollection::class)));
     }
 
     /**

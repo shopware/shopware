@@ -116,11 +116,13 @@ final class InvoiceRenderer extends AbstractDocumentRenderer
 
                     $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
+                    $displayNote = ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false;
+
                     $config->merge([
                         'documentDate' => $operation->getConfig()['documentDate'] ?? $now,
                         'documentNumber' => $number,
-                        'intraCommunityDelivery' => ($config->jsonSerialize()['displayAdditionalNoteDelivery'] ?? false) !== false
-                            && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
+                        'intraCommunityDelivery' => $displayNote && $this->intraCommunityTaxResolver->isIntraCommunityDelivery($order),
+                        'reverseCharge' => $displayNote && $this->intraCommunityTaxResolver->isReverseCharge($order),
                         'custom' => [
                             'invoiceNumber' => $number,
                         ],

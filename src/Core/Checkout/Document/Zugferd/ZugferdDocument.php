@@ -68,7 +68,13 @@ class ZugferdDocument
 
     private const UNIT_PRICE_NODE_PATH = '/rsm:CrossIndustryInvoice/rsm:SupplyChainTradeTransaction/ram:IncludedSupplyChainTradeLineItem/ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice/ram:ChargeAmount';
 
-    private const INTRA_COMMUNITY_SUPPLY_REASON = 'Intra-community supply';
+    /**
+     * The exemption reason (BT-120) and its code (BT-121) of each exempt category, untranslated like the other texts
+     */
+    private const EXEMPTION_REASONS = [
+        ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES => ['Intra-community supply', ZugferdVATExemptionReasonCode::VATEX_EU_IC],
+        ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE => ['Reverse charge', ZugferdVATExemptionReasonCode::VATEX_EU_AE],
+    ];
 
     /**
      * @deprecated tag:v6.8.0 - Will be removed. Use mappedPrices instead
@@ -91,7 +97,12 @@ class ZugferdDocument
 
     private string $currentDocumentType = ZugferdInvoiceType::INVOICE;
 
-    private bool $isIntraCommunitySupply = false;
+    /**
+     * The category every position states for an exempt order, otherwise each position has the category of its rate
+     *
+     * @var key-of<self::EXEMPTION_REASONS>|null
+     */
+    private ?string $exemptCategory = null;
 
     /**
      * @var array{chargeAmount: CalculatedPrice[], lineTotalAmount: CalculatedPrice[], allowanceAmount: CalculatedPrice[]}
@@ -182,7 +193,7 @@ class ZugferdDocument
             return $this;
         }
 
-        $this->isIntraCommunitySupply = true;
+        $this->exemptCategory = ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
 
         $this->zugferdBuilder
             ->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $buyerVatId)
@@ -193,6 +204,24 @@ class ZugferdDocument
                 city: $shippingAddress->getCity(),
                 country: $shippingAddress->getCountry()?->getIso(),
             );
+
+        return $this;
+    }
+
+    /**
+     * @internal
+     *
+     * States reverse charge (category AE) on every position when the XML can carry the seller and the buyer VAT ID
+     * it requires (BR-AE-02). Otherwise the positions keep their rate-based category. Must come before the positions and taxes.
+     */
+    public function withReverseCharge(?string $buyerVatId, ?string $sellerVatId): self
+    {
+        if ($buyerVatId === null || ($sellerVatId ?? '') === '') {
+            return $this;
+        }
+
+        $this->exemptCategory = ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE;
+        $this->zugferdBuilder->addDocumentBuyerTaxRegistration(ZugferdReferenceCodeQualifiers::VAT_REGI_NUMB, $buyerVatId);
 
         return $this;
     }
@@ -428,14 +457,16 @@ class ZugferdDocument
     public function withTaxes(CartPrice $price): self
     {
         if ($price->getTaxStatus() === CartPrice::TAX_STATE_FREE) {
+            [$exemptionReason, $exemptionReasonCode] = $this->exemptCategory === null ? [null, null] : self::EXEMPTION_REASONS[$this->exemptCategory];
+
             $this->zugferdBuilder->addDocumentTax(
                 $this->getTaxCode(null),
                 'VAT',
                 $price->getTotalPrice(),
                 0,
                 0,
-                $this->isIntraCommunitySupply ? self::INTRA_COMMUNITY_SUPPLY_REASON : null,
-                $this->isIntraCommunitySupply ? ZugferdVATExemptionReasonCode::VATEX_EU_IC : null,
+                $exemptionReason,
+                $exemptionReasonCode,
             );
 
             return $this;
@@ -562,8 +593,8 @@ class ZugferdDocument
 
     protected function getTaxCode(?CalculatedTax $tax): string
     {
-        if ($this->isIntraCommunitySupply) {
-            return ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES;
+        if ($this->exemptCategory !== null) {
+            return $this->exemptCategory;
         }
 
         return match ($tax?->getTaxRate() ?? 0.0) {

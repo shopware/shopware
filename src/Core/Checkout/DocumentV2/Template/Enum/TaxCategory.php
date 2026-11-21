@@ -19,6 +19,7 @@ enum TaxCategory: string
     case STANDARD_RATE = 'S';
     case ZERO_RATED = 'Z';
     case INTRA_COMMUNITY_SUPPLY = 'K';
+    case REVERSE_CHARGE = 'AE';
 
     public static function fromRate(float $taxRate): self
     {
@@ -32,6 +33,7 @@ enum TaxCategory: string
     {
         return match ($this) {
             self::INTRA_COMMUNITY_SUPPLY => 'VATEX-EU-IC',
+            self::REVERSE_CHARGE => 'VATEX-EU-AE',
             default => null,
         };
     }
@@ -43,6 +45,7 @@ enum TaxCategory: string
     {
         return match ($this) {
             self::INTRA_COMMUNITY_SUPPLY => 'Intra-community supply',
+            self::REVERSE_CHARGE => 'Reverse charge',
             default => null,
         };
     }

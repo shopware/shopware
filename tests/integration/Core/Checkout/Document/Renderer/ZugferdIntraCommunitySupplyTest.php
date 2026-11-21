@@ -9,17 +9,11 @@ use Shopware\Core\Checkout\Cart\Extension\ResolveDispatchCountryExtension;
 use Shopware\Core\Checkout\Cart\Extension\ResolveVatIdsExtension;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
-use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
-use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdCancellationInvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdCreditNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
-use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
@@ -139,7 +133,7 @@ class ZugferdIntraCommunitySupplyTest extends TestCase
     }
 
     /**
-     * @param array{billingCountry?: string, shippingCountry?: string, vatIds?: list<string>, accountType?: string, product?: string, withPromotion?: bool} $order
+     * @param array{billingCountry?: string, shippingCountry?: string, vatIds?: list<string>, accountType?: string, withPromotion?: bool} $order
      */
     #[DataProvider('ordersWithoutIntraCommunitySupply')]
     public function testAnotherOrderKeepsTheXmlItHasToday(array $order, string $category, ?string $frenchVatIdPattern = null): void
@@ -265,47 +259,6 @@ class ZugferdIntraCommunitySupplyTest extends TestCase
         yield 'invoice' => [ZugferdRenderer::TYPE];
         yield 'cancellation invoice' => [ZugferdCancellationInvoiceRenderer::TYPE];
         yield 'credit note' => [ZugferdCreditNoteRenderer::TYPE];
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    private function render(
-        string $documentType,
-        string $orderId,
-        ?string $invoiceId = null,
-        array $config = [],
-        string $fileType = FileTypes::XML,
-    ): string {
-        $operation = new DocumentGenerateOperation($orderId, $fileType, $config, $invoiceId);
-
-        $result = static::getContainer()->get(DocumentRendererRegistry::class)
-            ->render($documentType, [$orderId => $operation], $this->context, new DocumentRendererConfig());
-
-        static::assertSame([], array_map(static fn (\Throwable $error): string => $error->getMessage(), $result->getErrors()));
-        $document = $result->getOrderSuccess($orderId);
-        static::assertNotNull($document);
-
-        return $document->getContent();
-    }
-
-    /**
-     * The cancellation invoice and the credit note refer to an invoice.
-     */
-    private function createInvoice(string $orderId): string
-    {
-        $invoice = $this->createDocument('invoice', $orderId, ['documentNumber' => self::DOCUMENT_NUMBER, 'documentDate' => self::DOCUMENT_DATE], $this->context)->first();
-        static::assertNotNull($invoice);
-
-        return $invoice->getId();
-    }
-
-    private function getOrderTaxStatus(string $orderId): ?string
-    {
-        /** @var EntityRepository<OrderCollection> $orderRepository */
-        $orderRepository = static::getContainer()->get('order.repository');
-
-        return $orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first()?->getTaxStatus();
     }
 
     private function createSalesChannelWithoutVatId(): string

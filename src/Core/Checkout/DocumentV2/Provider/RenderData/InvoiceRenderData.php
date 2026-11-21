@@ -44,6 +44,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         public ?\DateTimeImmutable $paymentDueDate,
         public bool $intraCommunityDelivery,
         public ?TaxExemptionView $taxExemption = null,
+        public bool $reverseCharge = false,
         /**
          * @deprecated tag:v6.8.0 - feeds the legacy flat `config.custom.*` template contract
          */

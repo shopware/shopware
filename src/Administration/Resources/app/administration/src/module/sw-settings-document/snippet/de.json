@@ -91,7 +91,7 @@
       "labelDisplayDocumentInCustomerAccount": "Dokument im Bereich \"Mein Konto\"",
       "labelDisplayDivergentDeliveryAddress": "Abweichende Lieferadresse",
       "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt.",
-      "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\".",
+      "helpTextDisplayAdditionalNoteDelivery": "Nur für EU-Mitgliedsstaaten, siehe auch \"Einstellungen > Länder\". Steuerfreie Bestellungen, die nur digitale Produkte enthalten, erhalten stattdessen den Hinweis \"Steuerschuldnerschaft des Leistungsempfängers\".",
       "helpTextPaymentDueDate": "Verwendet einen relativen Datums-Modifier basierend auf dem Dokumentdatum, zum Beispiel \"+14 days\".",
       "labelFileTypes": "Dateiformate",
       "placeholderFileTypes": "Dateiformate auswählen ...",

@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import { loadDIVE } from './utils/spatial-dive-load-util';
-import type NativeEventEmitter from 'src/helper/emitter.helper';
 
 declare global {
     interface Window {
@@ -18,51 +17,34 @@ declare global {
     };
 }
 
+type ArError = {
+    reason: string;
+    solution: string;
+};
+
+type SpatialArViewerOptions = {
+    modelUrl: string;
+    spatialArId: string;
+    arPlacement: 'horizontal' | 'vertical' | null;
+    snippets: {
+        openArView: string;
+        launchingArView: string;
+        arErrors: {
+            desktopNotSupported: ArError;
+            notSafariOnIOS: ArError;
+            IOSVersionMismatch: ArError;
+            unknownIOSError: ArError;
+            unknownARError: ArError;
+        };
+    };
+};
+
 /**
  * @package innovation
  *
  * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
  */
-export default class SpatialArViewerPlugin extends Plugin {
-    /**
-     * The element that contains the AR button.
-     * @type {HTMLElement}
-     */
-    private el!: HTMLElement;
-
-    public options!: {
-        modelUrl: string;
-        spatialArId: string;
-        arPlacement: 'horizontal' | 'vertical' | null;
-        snippets: {
-            openArView: string;
-            launchingArView: string;
-            arErrors: {
-                desktopNotSupported: {
-                    reason: string;
-                    solution: string;
-                };
-                notSafariOnIOS: {
-                    reason: string;
-                    solution: string;
-                };
-                IOSVersionMismatch: {
-                    reason: string;
-                    solution: string;
-                };
-                unknownIOSError: {
-                    reason: string;
-                    solution: string;
-                };
-                unknownARError: {
-                    reason: string;
-                    solution: string;
-                };
-            };
-        };
-    };
-
-    $emitter: NativeEventEmitter;
+export default class SpatialArViewerPlugin extends Plugin<SpatialArViewerOptions, HTMLElement> {
 
     /**
      * `qrModalAutostartARButton` will only be set if the page was entered with the `autostartAr` parameter.

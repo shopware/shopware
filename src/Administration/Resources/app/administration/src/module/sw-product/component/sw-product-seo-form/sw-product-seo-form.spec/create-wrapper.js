@@ -28,7 +28,7 @@ function variantMatches(variant, criteria) {
 export function createVariantRepository(variants = manyVariants) {
     const repository = { searchedCriteria: [], criteria: null };
 
-    repository.search = jest.fn((criteria) => {
+    repository.search = (criteria) => {
         repository.searchedCriteria.push(Shopware.Data.Criteria.fromCriteria(criteria));
         repository.criteria = criteria;
 
@@ -54,13 +54,13 @@ export function createVariantRepository(variants = manyVariants) {
                 result.length,
             ),
         );
-    });
+    };
 
-    repository.get = jest.fn((id, context, criteria) => {
+    repository.get = (id, context, criteria) => {
         criteria.setIds([id]);
 
         return repository.search(criteria).then((result) => result.get(id));
-    });
+    };
 
     return repository;
 }

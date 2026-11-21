@@ -96,10 +96,9 @@ function createAddressRepository(availableAddresses) {
         searchedCriteria,
         search,
         get: (id, context, criteria) => {
-            const getCriteria = criteria ?? new Criteria(1, 1);
-            getCriteria.setIds([id]);
+            criteria.setIds([id]);
 
-            return search(getCriteria).then((result) => result.get(id));
+            return search(criteria).then((result) => result.get(id));
         },
     };
 }

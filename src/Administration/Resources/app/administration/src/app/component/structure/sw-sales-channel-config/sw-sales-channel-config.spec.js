@@ -42,22 +42,13 @@ function createSalesChannelRepository() {
         );
     };
 
-    return {
-        searchedCriteria,
-        search,
-        get: (id, context, criteria) => {
-            criteria.setIds([id]);
-
-            return search(criteria).then((result) => result.get(id));
-        },
-    };
+    return { searchedCriteria, search };
 }
 
 async function createWrapper({ slots = {} } = {}) {
     const salesChannelRepository = createSalesChannelRepository();
     const systemConfigApiService = {
         getValues: jest.fn(() => Promise.resolve({ 'core.example.value': 'value' })),
-        batchSave: jest.fn(() => Promise.resolve()),
     };
 
     const wrapper = mount(await wrapTestComponent('sw-sales-channel-config', { sync: true }), {

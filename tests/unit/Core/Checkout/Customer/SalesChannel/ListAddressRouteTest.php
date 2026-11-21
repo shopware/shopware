@@ -155,7 +155,6 @@ class ListAddressRouteTest extends TestCase
         $criteria = new Criteria();
         $criteria->setTotalCountMode($requestedMode);
         if ($limitNotRequested) {
-            $criteria->setLimit(100);
             $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
         }
 

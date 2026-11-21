@@ -54,7 +54,7 @@ test(
                 /\(opens in a new tab\)|\(öffnet in einem neuen Tab\)/,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleDescription(
-                /LEGAL GUARANTEE|GESETZLICHE GEWÄHRLEISTUNG/,
+                /europa\.eu\/youreurope\//,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal.locator('svg')).toHaveAttribute('aria-hidden', 'true');
         });
@@ -71,7 +71,7 @@ test(
                 /\(opens in a new tab\)|\(öffnet in einem neuen Tab\)/,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeInline.getByRole('link')).toHaveAccessibleDescription(
-                /LEGAL GUARANTEE|GESETZLICHE GEWÄHRLEISTUNG/,
+                /europa\.eu\/youreurope\//,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal).toHaveCount(0);
         });

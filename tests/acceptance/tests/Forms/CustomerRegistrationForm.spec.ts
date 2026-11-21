@@ -76,7 +76,7 @@ test.describe('Customer Registration Form', () => {
                 /\(opens in a new tab\)|\(öffnet in einem neuen Tab\)/,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal.getByRole('link')).toHaveAccessibleDescription(
-                /LEGAL GUARANTEE|GESETZLICHE GEWÄHRLEISTUNG/,
+                /europa\.eu\/youreurope\//,
             );
             await ShopCustomer.expects(legalGuaranteeNoticeModal.locator('svg')).toHaveAttribute('aria-hidden', 'true');
 

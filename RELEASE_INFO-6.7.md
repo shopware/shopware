@@ -1177,6 +1177,8 @@ Visitors who open such a route without being logged in are redirected to that ro
 
 The confirm page and the order submission of the checkout use it to redirect to the checkout register page.
 After a login on the checkout register page, customers return to the page they came from.
+The checkout register page no longer redirects to the cart page when the cart is empty.
+Its URL now carries `redirectTo` and `redirectParameters`, so tests waiting for `**/checkout/register` need to match the path only.
 
 ### `ThemeConfigChangedEvent` is dispatched after the theme is saved
 

@@ -90,15 +90,12 @@ export default Component.wrapComponentConfig({
         },
 
         customerAddressCriteria(): CriteriaType {
-            // A customer can have thousands of addresses, the select loads them page by page
             const criteria = new Criteria(1, 25);
             criteria.addFilter(Criteria.equals('customerId', this.customer?.id ?? null));
             criteria.addAssociation('salutation');
             criteria.addAssociation('country');
             criteria.addAssociation('countryState');
 
-            // A fixed order keeps the pages from overlapping or leaving out addresses with the same search score.
-            // The DAL ignores the _score sorting without a search term.
             criteria.addSorting(Criteria.sort('_score', 'DESC'));
             criteria.addSorting(Criteria.sort('createdAt', 'ASC'));
             criteria.addSorting(Criteria.sort('id', 'ASC'));
@@ -167,7 +164,6 @@ export default Component.wrapComponentConfig({
 
     methods: {
         createdComponent(): void {
-            // Without the flag, the template keeps the old select, which needs the loaded addresses
             if (!this.feature.isActive('V6_8_0_0')) {
                 Shopware.Feature.silence('V6_8_0_0', () => {
                     void this.getCustomerAddresses();

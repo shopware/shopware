@@ -70,6 +70,10 @@ export default {
             criteria.addAssociation('options.group');
             criteria.addFilter(Criteria.equals('parentId', this.product?.id ?? null));
 
+            criteria.addSorting(Criteria.sort('_score', 'DESC'));
+            criteria.addSorting(Criteria.sort('productNumber', 'ASC'));
+            criteria.addSorting(Criteria.sort('id', 'ASC'));
+
             return criteria;
         },
 
@@ -190,7 +194,6 @@ export default {
 
         'product.id': {
             handler: function (value) {
-                // Without the flag, the template keeps the old select, which needs the loaded variants
                 if (!value || this.feature.isActive('V6_8_0_0')) {
                     return;
                 }
@@ -291,10 +294,10 @@ export default {
         },
 
         /**
-         * Option names are no search field of the product, so the select searches them with additional queries.
+         * @private
          */
         onCanonicalVariantSearchTermChange(searchTerm) {
-            this.canonicalVariantCriteria.queries = [];
+            this.removeOptionNameQueries();
 
             searchTerm
                 .split(' ')
@@ -305,10 +308,21 @@ export default {
                 });
         },
 
+        /**
+         * @private
+         */
         onCanonicalVariantSelectCollapsed() {
-            // The select loads the selected variant and the next result list with these criteria
-            this.canonicalVariantCriteria.queries = [];
+            this.removeOptionNameQueries();
             this.canonicalVariantCriteria.setTerm('');
+        },
+
+        /**
+         * @private
+         */
+        removeOptionNameQueries() {
+            this.canonicalVariantCriteria.queries = this.canonicalVariantCriteria.queries.filter(
+                ({ query }) => query.field !== 'product.options.name',
+            );
         },
 
         /**

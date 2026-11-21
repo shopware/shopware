@@ -3,18 +3,20 @@
 namespace Shopware\Storefront\Framework\AffiliateTracking;
 
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Stores the affiliate and campaign code of the query in the session.
- * Pages ignore both parameters in the HTTP cache key,
- * so for a cached page the `CartWidget` plugin forwards them with its request.
+ * The `CartWidget` plugin forwards both parameters from cached pages.
  *
  * @internal
  */
@@ -39,10 +41,19 @@ class AffiliateTrackingListener implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            // @deprecated tag:v6.8.0 - Remove the legacy cache bypass.
+            HttpCacheKeyEvent::class => 'disableCacheForAffiliateTracking',
             KernelEvents::CONTROLLER => [
                 ['checkAffiliateTracking', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST],
             ],
         ];
+    }
+
+    public function disableCacheForAffiliateTracking(HttpCacheKeyEvent $event): void
+    {
+        if (!Feature::isActive('v6.8.0.0') && $this->getTrackingCodes($event->request) !== []) {
+            $event->isCacheable = false;
+        }
     }
 
     public function checkAffiliateTracking(ControllerEvent $event): void
@@ -56,17 +67,14 @@ class AffiliateTrackingListener implements EventSubscriberInterface
             return;
         }
 
-        $codes = [];
-        foreach ([OrderService::AFFILIATE_CODE_KEY, OrderService::CAMPAIGN_CODE_KEY] as $key) {
-            $code = $request->query->all()[$key] ?? null;
-
-            if (\is_string($code) && $code !== '' && mb_strlen($code) <= self::MAX_CODE_LENGTH) {
-                $codes[$key] = $code;
-            }
-        }
-
+        $codes = $this->getTrackingCodes($request);
         if ($codes === []) {
             return;
+        }
+
+        // @deprecated tag:v6.8.0 - Remove the legacy cache bypass.
+        if (!Feature::isActive('v6.8.0.0')) {
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_NO_STORE, true);
         }
 
         /** @phpstan-ignore shopware.unsafeRequestHasSession (using $skipIfUninitialized = false as session will be started intentionally later; this can take the PHP session lock and is limited to affiliate tracking storing codes in the storefront session.) */
@@ -78,5 +86,23 @@ class AffiliateTrackingListener implements EventSubscriberInterface
         foreach ($codes as $key => $code) {
             $session->set($key, $code);
         }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getTrackingCodes(Request $request): array
+    {
+        $codes = [];
+        $query = $request->query->all();
+        foreach ([OrderService::AFFILIATE_CODE_KEY, OrderService::CAMPAIGN_CODE_KEY] as $key) {
+            $code = $query[$key] ?? null;
+
+            if (\is_string($code) && $code !== '' && mb_strlen($code) <= self::MAX_CODE_LENGTH) {
+                $codes[$key] = $code;
+            }
+        }
+
+        return $codes;
     }
 }

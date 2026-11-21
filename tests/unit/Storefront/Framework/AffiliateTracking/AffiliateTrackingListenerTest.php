@@ -6,12 +6,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Framework\Adapter\Cache\Event\HttpCacheKeyEvent;
+use Shopware\Core\Framework\Adapter\Cache\Http\HttpCacheKeyGenerator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -29,10 +33,57 @@ class AffiliateTrackingListenerTest extends TestCase
     public function testSubscribedEvents(): void
     {
         static::assertSame([
+            HttpCacheKeyEvent::class => 'disableCacheForAffiliateTracking',
             KernelEvents::CONTROLLER => [
                 ['checkAffiliateTracking', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE_POST],
             ],
         ], AffiliateTrackingListener::getSubscribedEvents());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTrackingCodesBypassCacheIn67(): void
+    {
+        $listener = new AffiliateTrackingListener();
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber($listener);
+        $generator = new HttpCacheKeyGenerator('test', $dispatcher, [OrderService::AFFILIATE_CODE_KEY, OrderService::CAMPAIGN_CODE_KEY]);
+        $request = new Request(query: [OrderService::AFFILIATE_CODE_KEY => 'affiliate']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        $trackedKey = $generator->generate($request);
+        $plainKey = $generator->generate(new Request());
+
+        static::assertSame($plainKey->key, $trackedKey->key);
+        static::assertTrue($plainKey->isCacheable);
+        static::assertFalse($trackedKey->isCacheable);
+
+        $listener->checkAffiliateTracking($this->createControllerEvent($request));
+
+        static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_NO_STORE));
+        static::assertSame('affiliate', $request->getSession()->get(OrderService::AFFILIATE_CODE_KEY));
+    }
+
+    public function testCartWidgetStoresTrackingCodesFromCachedPagesIn68(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new AffiliateTrackingListener());
+        $generator = new HttpCacheKeyGenerator('test', $dispatcher, [OrderService::AFFILIATE_CODE_KEY, OrderService::CAMPAIGN_CODE_KEY]);
+        $codes = [OrderService::AFFILIATE_CODE_KEY => 'affiliate', OrderService::CAMPAIGN_CODE_KEY => 'campaign'];
+        $trackedRequest = Request::create('/category', parameters: $codes);
+
+        $trackedKey = $generator->generate($trackedRequest);
+
+        static::assertSame($generator->generate(Request::create('/category'))->key, $trackedKey->key);
+        static::assertTrue($trackedKey->isCacheable);
+
+        $widgetRequest = Request::create('/widgets/checkout/info', parameters: $codes);
+        $widgetRequest->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StorefrontRouteScope::ID]);
+        $widgetRequest->setSession(new Session(new MockArraySessionStorage()));
+
+        $dispatcher->dispatch($this->createControllerEvent($widgetRequest), KernelEvents::CONTROLLER);
+
+        static::assertSame($codes, $widgetRequest->getSession()->all());
     }
 
     /**

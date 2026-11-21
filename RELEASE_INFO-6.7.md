@@ -938,6 +938,11 @@ They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
+### Store API returns the text of the legal guarantee notice
+
+`GET /store-api/legal-guarantee-notice` now also returns `text`: the notice's text as HTML, in the language of `svg`.
+The SVG is marked `aria-hidden`, so headless frontends should render `text` as its text alternative, for example visually hidden next to the SVG.
+
 ## Features
 
 ### Disable the Administration password recovery flow
@@ -1688,6 +1693,13 @@ Subscribers that load the theme while handling the event now get the saved confi
 When maintenance mode was switched off, the redirect from the maintenance page into the shop was stored in the HTTP cache.
 Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
+
+### The legal guarantee notice has a text alternative
+
+The legal guarantee notice SVGs are now hidden from assistive technology, and the new Twig filter `sw_legal_guarantee_notice_text` renders the notice's text in the language of the SVG.
+On the checkout confirm page and in the privacy notice modal, the notice link is labelled with the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
+The link is described by the notice text, which the new blocks `page_checkout_confirm_legal_guarantee_notice_inline_text`, `page_checkout_confirm_legal_guarantee_notice_modal_text` and `component_privacy_legal_guarantee_notice_modal_text` render visually hidden.
+If your theme overrides the notice link blocks, add the `aria-label` and `aria-describedby` attributes there as well.
 
 ## Hosting & Configuration
 

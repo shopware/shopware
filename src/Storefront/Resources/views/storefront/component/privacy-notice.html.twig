@@ -102,9 +102,16 @@
                                             <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
                                                target="_blank"
                                                rel="noopener"
-                                               aria-label="{{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|striptags }}">
+                                               aria-label="{{ 'checkout.confirmLegalGuaranteeNoticeYourEuropeLink'|trans|striptags }}"
+                                               aria-describedby="{{ legalGuaranteeNoticeModalId }}-text">
                                                 {{ context.languageId|sw_legal_guarantee_notice }}
                                             </a>
+
+                                            {% block component_privacy_legal_guarantee_notice_modal_text %}
+                                                <div id="{{ legalGuaranteeNoticeModalId }}-text" class="visually-hidden">
+                                                    {{ context.languageId|sw_legal_guarantee_notice_text }}
+                                                </div>
+                                            {% endblock %}
                                         </div>
                                     {% endblock %}
                                 </div>

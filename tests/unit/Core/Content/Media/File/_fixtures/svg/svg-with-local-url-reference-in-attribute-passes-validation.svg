@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <lineargradient id="grad"><stop offset="0" stop-color="red"/></lineargradient>
+    </defs>
+    <rect width="10" height="10" fill="url(#grad)"/>
+</svg>

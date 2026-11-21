@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <lineargradient id="grad"><stop offset="0" stop-color="red"/></lineargradient>
+    </defs>
+    <style type="text/css">.a{fill:url(#grad);}</style>
+    <rect class="a" width="10" height="10"/>
+</svg>

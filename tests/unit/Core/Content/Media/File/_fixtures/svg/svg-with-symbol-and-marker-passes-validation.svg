@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <defs>
+        <symbol id="dot" viewBox="0 0 2 2"><circle cx="1" cy="1" r="1"/></symbol>
+        <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0 0L6 3L0 6z"/>
+        </marker>
+    </defs>
+    <use href="#dot" x="0" y="0"/>
+    <line x1="0" y1="10" x2="20" y2="10" stroke="black" marker-end="url(#arrow)"/>
+</svg>

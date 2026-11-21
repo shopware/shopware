@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" viewBox="0 0 10 10" data-name="icon" focusable="false" inkscape:version="1.3" sodipodi:docname="icon.svg">
+    <metadata><rdf:RDF><cc:Work rdf:about=""><dc:format>image/svg+xml</dc:format></cc:Work></rdf:RDF></metadata>
+    <sodipodi:namedview pagecolor="#fff" bordercolor="#666" />
+    <defs>
+        <filter id="shadow" filterUnits="userSpaceOnUse"><feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur" /></filter>
+    </defs>
+    <rect width="10" height="10" filter="url(#shadow)" color-rendering="auto" />
+</svg>

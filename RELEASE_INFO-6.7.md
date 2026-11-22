@@ -38,7 +38,8 @@ Options PHP cannot hash with, for example a bcrypt `cost` outside 4 to 31, fail 
 Options read from environment variables are only checked when a password is hashed.
 
 Every login hashes or verifies a password with these settings, including logins with an unknown email, which keeps the response time the same for existing and unknown accounts.
-With the example above, each login request needs 64 MiB of memory, so plan the PHP memory limit and the number of workers for concurrent logins.
+With the example above, each login request needs 64 MiB of memory.
+libargon2 allocates this memory outside of PHP's `memory_limit`, so plan the memory of your workers or containers for concurrent logins instead.
 The default `login` and `oauth` rate limiters are keyed by user and IP, so they do not throttle requests that use a new email each time.
 Enable the per IP rate limiters `login_client` and `oauth_client` via `shopware.api.rate_limiter` to cover that case.
 

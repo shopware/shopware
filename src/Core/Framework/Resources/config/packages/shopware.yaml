@@ -803,7 +803,7 @@ shopware:
     password_hasher:
         customer:
             algorithm: default # default, bcrypt or argon2id
-            options: []
+            options: {}
         admin:
             algorithm: default
-            options: []
+            options: {}

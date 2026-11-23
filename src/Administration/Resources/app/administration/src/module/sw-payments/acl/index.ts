@@ -12,7 +12,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         editor: {
             privileges: [],
-            dependencies: ['sw-payments.viewer'],
+            dependencies: ['sw-payments.viewer', 'payment.editor'],
         },
         creator: {
             privileges: [],

@@ -11,13 +11,14 @@ async function createWrapper(additionalOptions = {}) {
             stubs: {
                 'sw-context-button': await wrapTestComponent('sw-context-button'),
                 'sw-loader': true,
-                'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                 'sw-ignore-class': true,
                 'sw-extension-component-section': true,
                 'sw-ai-copilot-badge': true,
-                'mt-floating-ui': true,
+                'mt-floating-ui': {
+                    props: ['isOpened'],
+                    template: '<div><slot v-if="isOpened"></slot></div>',
+                },
             },
         },
         props: {

@@ -22,11 +22,11 @@ Running example: production, the live shop, runs at `https://shop.example` with 
 
 ```mermaid
 flowchart LR
-    S1["1. Database copied to staging<br/>The copy has production's identity,<br/>so apps can't tell the two apart"]
-    S2["2. Staging picks 'Move shop permanently'<br/>Apps now talk to staging"]
-    S3["3. Production is locked out<br/>Apps reject its requests"]
-    S4["4. Staging runs reinstall-apps<br/>It gets its own new identity"]
-    S5["5. Production stays locked out<br/>The only key apps would accept is gone"]
+    S1["<b>1. Database copied to staging</b><br/>The copy has production's identity,<br/>so apps can't tell the two apart"]
+    S2["<b>2. Staging picks 'Move shop permanently'</b><br/>Apps now talk to staging"]
+    S3["<b>3. Production is locked out</b><br/>Apps reject its requests"]
+    S4["<b>4. Staging runs reinstall-apps</b><br/>It gets its own new identity"]
+    S5["<b>5. Production stays locked out</b><br/>The only key apps would accept is gone"]
     S1 --> S2 --> S3 --> S4 --> S5
     style S1 fill:#69c,stroke:#333,color:#fff
     style S2 fill:#f90,stroke:#333,color:#fff

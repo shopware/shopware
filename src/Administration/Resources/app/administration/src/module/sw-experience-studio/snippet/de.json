@@ -19,7 +19,6 @@
         "emptyDescription": "Erstelle ein Layout, um mit der Bearbeitung zu beginnen.",
         "loadError": "Die Layoutliste konnte nicht geladen werden.",
         "open": "Layout öffnen",
-        "activate": "Layout anzeigen",
         "deleteTitle": "Layout löschen?",
         "deleteDescription": "Möchtest Du „{name}“ dauerhaft löschen? Ungespeicherte Änderungen an diesem Layout gehen verloren.",
         "deleteError": "Das Layout konnte nicht gelöscht werden."
@@ -1027,14 +1026,9 @@
         "zoomTo100": "Auf 100 % zoomen",
         "resetZoom": "Zoom auf 100 % zurücksetzen",
         "fit": "Alle Layouts einpassen",
-        "resizeNorth": "Vorschau am oberen Rand skalieren",
-        "resizeNorthEast": "Vorschau an der oberen rechten Ecke skalieren",
         "resizeEast": "Vorschau am rechten Rand skalieren",
-        "resizeSouthEast": "Vorschau an der unteren rechten Ecke skalieren",
         "resizeSouth": "Vorschau am unteren Rand skalieren",
-        "resizeSouthWest": "Vorschau an der unteren linken Ecke skalieren",
-        "resizeWest": "Vorschau am linken Rand skalieren",
-        "resizeNorthWest": "Vorschau an der oberen linken Ecke skalieren"
+        "resizeWest": "Vorschau am linken Rand skalieren"
       },
       "assignmentModal": {
         "title": "Layout-Zuweisungen",
@@ -1077,6 +1071,7 @@
       "translationSettings": {
         "title": "Übersetzungen",
         "openAction": "Layout übersetzen",
+        "showMore": "Weitere Felder anzeigen",
         "emptyState": "Dieses Layout hat keine übersetzbaren Felder."
       },
       "elementSettings": {

@@ -22,6 +22,7 @@ async function createWrapper(allowEdit = true) {
     ];
     const fields = getLayoutTranslationFields(elements, () => type);
     const wrapper = mount(component as Component, {
+        attachTo: document.body,
         props: { fields, languageChain: ['german', 'english'], languageName: 'German', allowEdit },
         global: {
             provide: { repositoryFactory: {} },
@@ -35,6 +36,11 @@ async function createWrapper(allowEdit = true) {
                     sync: true,
                 }),
                 'mt-badge': MtBadge as Component,
+                'mt-text-editor': {
+                    props: ['label', 'modelValue', 'disabled'],
+                    template:
+                        '<textarea :aria-label="label" :value="modelValue" :disabled="disabled" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+                },
             },
         },
     });
@@ -49,10 +55,11 @@ describe('layout translation settings', () => {
 
     it('shows only translatable controls with frame language fallback, including false and zero values', async () => {
         view = await createWrapper();
-        expect(view.wrapper.findAll('li')).toHaveLength(3);
+        expect(view.wrapper.findAll('li')).toHaveLength(1);
+        expect(view.wrapper.findAllComponents('.sw-experience-studio-settings-fields')).toHaveLength(1);
         expect(
             view.wrapper.findAll('.sw-experience-studio-translation-settings__context').map((context) => context.text()),
-        ).toEqual(['Text', 'Text', 'Text']);
+        ).toEqual(['Text']);
         expect(view.wrapper.get<HTMLInputElement>('input[aria-label="Title"]').element.value).toBe('Hello');
         expect(view.wrapper.get<HTMLInputElement>('input[type="checkbox"]').element.checked).toBe(false);
         expect(view.wrapper.get<HTMLInputElement>('.mt-number-field input').element.value).toBe('0');
@@ -67,10 +74,82 @@ describe('layout translation settings', () => {
         ).toEqual(['English', 'English', 'English']);
     });
 
-    it('routes each edit to its original element and property', async () => {
+    it('reveals large layouts in batches without remounting existing rich-text editors', async () => {
         view = await createWrapper();
-        await view.wrapper.get('input[aria-label="Title"]').setValue('Hallo');
+        const type = translationType({
+            text: translationProperty({ title: 'Body', adminUI: { component: 'text-editor' } }),
+            altText: translationProperty({ title: 'Alternate body', adminUI: { component: 'text-editor' } }),
+            caption: translationProperty({ title: 'Caption', adminUI: { component: 'text-editor' } }),
+        });
+        const fields = getLayoutTranslationFields(
+            Array.from({ length: 15 }, (_, index) => ({
+                id: `element-${index}`,
+                component: type.name,
+                properties: {
+                    text: { english: `Body ${index}` },
+                    altText: { english: `Alternate body ${index}` },
+                    caption: { english: `Caption ${index}` },
+                },
+            })),
+            () => type,
+        );
+        await view.wrapper.setProps({ fields, languageChain: ['english'] });
+
+        expect(view.wrapper.findAll('textarea')).toHaveLength(20);
+        const settings = view.wrapper.findAllComponents('.sw-experience-studio-settings-fields');
+        expect(settings).toHaveLength(7);
+        const splitElementSettings = settings[6].element;
+        expect(settings[6].findAll('textarea')).toHaveLength(2);
+        const firstEditor = view.wrapper.get<HTMLTextAreaElement>('textarea');
+        await firstEditor.setValue('Updated body');
         expect(view.wrapper.emitted('update-properties')).toEqual([
+            [{ elementId: 'element-0', propertyKey: 'text', value: 'Updated body' }],
+        ]);
+
+        await view.wrapper.get('.sw-experience-studio-translation-settings__show-more').trigger('click');
+
+        expect(view.wrapper.findAll('textarea')).toHaveLength(40);
+        const expandedSettings = view.wrapper.findAllComponents('.sw-experience-studio-settings-fields');
+        expect(expandedSettings).toHaveLength(14);
+        expect(expandedSettings[6].element).toBe(splitElementSettings);
+        expect(expandedSettings[6].findAll('textarea')).toHaveLength(3);
+        expect(view.wrapper.get('textarea').element).toBe(firstEditor.element);
+        expect(document.activeElement).toBe(view.wrapper.findAll('textarea')[20].element);
+
+        await view.wrapper.get('.sw-experience-studio-translation-settings__show-more').trigger('click');
+
+        const editors = view.wrapper.findAll('textarea');
+        expect(editors).toHaveLength(45);
+        expect(view.wrapper.findAllComponents('.sw-experience-studio-settings-fields')).toHaveLength(15);
+        expect(view.wrapper.find('.sw-experience-studio-translation-settings__show-more').exists()).toBe(false);
+        expect(document.activeElement).toBe(editors[40].element);
+        await editors[44].setValue('Last updated body');
+        expect(view.wrapper.emitted('update-properties')?.[1]).toEqual([
+            { elementId: 'element-14', propertyKey: 'caption', value: 'Last updated body' },
+        ]);
+    });
+
+    it('routes fields with the same keys to their own element and property', async () => {
+        view = await createWrapper();
+        const secondElement: ContentElementNode = {
+            id: 'second',
+            component: view.type.name,
+            properties: { title: { english: 'Second' }, enabled: { german: false }, count: { german: 1 } },
+        };
+        await view.wrapper.setProps({
+            fields: [...view.fields, ...view.fields.map((entry) => ({ ...entry, element: secondElement }))],
+        });
+        expect(view.wrapper.findAllComponents('.sw-experience-studio-settings-fields')).toHaveLength(2);
+        const titles = view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]');
+        expect(titles.map((input) => input.element.value)).toEqual(['Hello', 'Second']);
+
+        await titles[1].setValue('Zweiter');
+        await view.wrapper.findAll('.mt-number-field input')[1].setValue('4');
+        await titles[0].setValue('Hallo');
+
+        expect(view.wrapper.emitted('update-properties')).toEqual([
+            [{ elementId: 'second', propertyKey: 'title', value: 'Zweiter' }],
+            [{ elementId: 'second', propertyKey: 'count', value: 4 }],
             [{ elementId: 'element', propertyKey: 'title', value: 'Hallo' }],
         ]);
     });
@@ -104,19 +183,53 @@ describe('layout translation settings', () => {
 
     it('keeps mapped fields read-only and hides actions that would change layout bindings', async () => {
         view = await createWrapper();
-        await view.wrapper.setProps({ fields: [{ ...view.fields[0], mappingPath: 'product.name' }] });
+        await view.wrapper.setProps({
+            fields: view.fields.map((entry) =>
+                entry.field.key === 'title' ? { ...entry, mappingPath: 'product.name' } : entry,
+            ),
+        });
+        expect(view.wrapper.findAllComponents('.sw-experience-studio-settings-fields')).toHaveLength(1);
         expect(view.wrapper.get('.sw-experience-studio-settings-fields__mapping-name').text()).toBe('product.name');
         expect(
             view.wrapper.get('.sw-experience-studio-settings-fields__mapping-value').attributes('disabled'),
         ).toBeDefined();
         expect(view.wrapper.find('.sw-experience-studio-settings-fields__mapping-remove').exists()).toBe(false);
+        await view.wrapper.get('input[type="checkbox"]').setValue(true);
         view.wrapper
             .getComponent<ComponentPublicInstance>('.sw-experience-studio-settings-fields')
             .vm.$emit('update-field', { key: 'title', value: 'Blocked' });
-        expect(view.wrapper.emitted('update-properties')).toBeUndefined();
+        expect(view.wrapper.emitted('update-properties')).toEqual([
+            [{ elementId: 'element', propertyKey: 'enabled', value: true }],
+        ]);
     });
 
-    it('rejects updates to properties outside the entry being edited', async () => {
+    it('keeps validation attached to the correct element and property within a group', async () => {
+        view = await createWrapper();
+        const secondElement: ContentElementNode = { ...view.fields[0].element, id: 'second' };
+        await view.wrapper.setProps({
+            fields: [...view.fields, ...view.fields.map((entry) => ({ ...entry, element: secondElement }))],
+            violations: [
+                {
+                    code: 'unfilled_required_input',
+                    scope: 'binding',
+                    severity: 'error',
+                    elementId: 'second',
+                    key: 'count',
+                    message: 'Count input is unavailable.',
+                    candidates: [],
+                },
+            ],
+        });
+
+        const settings = view.wrapper.findAllComponents('.sw-experience-studio-settings-fields');
+        expect(settings).toHaveLength(2);
+        expect(settings[0].find('[role="alert"]').exists()).toBe(false);
+        expect(settings[1].get('[role="alert"]').text()).toBe('Count input is unavailable.');
+        expect(settings[1].findAll('.is--error')).toHaveLength(1);
+        expect(settings[1].find('.is--error .mt-number-field input').exists()).toBe(true);
+    });
+
+    it('rejects updates to non-translatable properties', async () => {
         view = await createWrapper();
         view.wrapper
             .getComponent<ComponentPublicInstance>('.sw-experience-studio-settings-fields')

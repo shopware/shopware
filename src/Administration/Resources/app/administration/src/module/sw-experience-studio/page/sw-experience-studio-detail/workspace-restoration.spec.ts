@@ -107,6 +107,43 @@ describe('Experience Studio workspace preview reference restoration', () => {
         expect(editor.createNotificationError).not.toHaveBeenCalled();
     });
 
+    it.each(['unassigned', 'inactive'])(
+        'opens the workspace with a warning when its preview channel has %s languages',
+        async (state) => {
+            const { editor, target } = createRestore();
+            target.configuration.previewSalesChannelId = 'channel';
+            const configuration = Shopware.Utils.object.cloneDeep(target.configuration);
+            editor.salesChannelRepository.search.mockResolvedValueOnce({ length: 1, first: () => ({ id: 'channel' }) });
+            editor.salesChannelRepository.get.mockResolvedValueOnce({
+                id: 'channel',
+                languageId: Shopware.Defaults.systemLanguageId,
+                languages:
+                    state === 'unassigned'
+                        ? []
+                        : [{ id: Shopware.Defaults.systemLanguageId, parentId: null, active: false }],
+            });
+
+            await methods.openWorkspace.call(editor, target.id);
+
+            expect(editor.workspaceError).toBe(false);
+            expect(editor.workspaceStore.activate).toHaveBeenCalledWith(target);
+            expect(editor.frames).toEqual([
+                expect.objectContaining({ id: 'layout-a', layoutId: 'layout-a', previewEntityId: 'saved-entity' }),
+            ]);
+            expect(editor.previewSalesChannelId).toBeNull();
+            expect(editor.previewLanguageContext).toBeNull();
+            expect(editor.$router.replace).toHaveBeenCalledWith({
+                name: 'sw.experience.studio.workspace',
+                params: { workspaceId: target.id },
+            });
+            expect(target.configuration).toEqual(configuration);
+            expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+                message: 'sw-experience-studio.workspace.manager.missingReferences',
+            });
+            expect(editor.createNotificationError).not.toHaveBeenCalled();
+        },
+    );
+
     it('preserves the current workspace when the target channel language lookup fails', async () => {
         const { editor, target, current } = createRestore();
         const frames = editor.frames;

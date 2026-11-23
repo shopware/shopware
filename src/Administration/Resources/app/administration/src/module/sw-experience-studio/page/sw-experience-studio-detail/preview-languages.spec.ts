@@ -28,6 +28,7 @@ function createEditor() {
         applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
         scheduleWorkspaceSetup: jest.fn(),
         createNotificationError: jest.fn(),
+        createNotificationWarning: jest.fn(),
         $t: (key: string) => key,
     };
 }
@@ -69,6 +70,17 @@ describe('preview languages in the selected sales channel', () => {
             languageParents: { french: null, german: 'parent' },
         });
         expect(get).toHaveBeenCalledWith('selected', Shopware.Context.api, expect.anything());
+    });
+
+    it.each(['unassigned', 'inactive'])('returns no preview context for a channel with %s languages', async (state) => {
+        const get = jest.fn().mockResolvedValue({
+            languageId: 'german',
+            languages: state === 'unassigned' ? [] : [{ id: 'german', name: 'German', active: false }],
+        });
+
+        const context = await methods.loadPreviewLanguageContext.call({ salesChannelRepository: { get } }, 'selected');
+
+        expect(context).toBeNull();
     });
 
     it('keeps supported frame choices and replaces unavailable saved or legacy choices with the channel default', () => {
@@ -132,6 +144,21 @@ describe('preview languages in the selected sales channel', () => {
         expect(editor.previewSalesChannelId).toBe('previous-channel');
         expect(editor.frames[0].languageId).toBe('english');
         expect(editor.createNotificationError).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the last working channel and warns if the next channel has no active languages', async () => {
+        const editor = createEditor();
+        editor.loadPreviewLanguageContext.mockResolvedValueOnce(null);
+
+        await methods.refreshPreviewLanguages.call(editor);
+
+        expect(editor.previewSalesChannelId).toBe('previous-channel');
+        expect(editor.previewLanguageContext.salesChannelId).toBe('previous-channel');
+        expect(editor.frames[0].languageId).toBe('english');
+        expect(editor.createNotificationWarning).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.workspace.manager.missingReferences',
+        });
+        expect(editor.createNotificationError).not.toHaveBeenCalled();
     });
 
     it('starts newly opened frames in the selected channel default language', () => {

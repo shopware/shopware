@@ -1,5 +1,8 @@
 {% block sw_experience_studio_translation_settings %}
-<div class="sw-experience-studio-translation-settings">
+<div
+    ref="translationSettings"
+    class="sw-experience-studio-translation-settings"
+>
     <mt-empty-state
         v-if="isLoadingTypes"
         icon="regular-hourglass"
@@ -17,12 +20,13 @@
     />
     <ol
         v-else
-        class="sw-experience-studio-translation-settings__fields"
+        class="sw-experience-studio-translation-settings__elements"
     >
         <li
-            v-for="entry in fields"
-            :key="`${entry.element.id}-${entry.field.key}`"
-            class="sw-experience-studio-translation-settings__field"
+            v-for="entry in visibleElements"
+            :key="entry.element.id"
+            class="sw-experience-studio-translation-settings__element"
+            tabindex="-1"
             @focusin="$emit('focus-element', entry.element.id)"
         >
             <div class="sw-experience-studio-translation-settings__context">
@@ -34,11 +38,11 @@
                 {{ getElementLabel(entry) }}
             </div>
             <sw-experience-studio-settings-fields
-                :fields="[entry.field]"
+                :fields="entry.fields"
                 :field-id-prefix="entry.element.id"
                 :values="getValues(entry)"
                 :language-name="languageName"
-                :allow-edit="allowEdit && entry.mappingPath === null"
+                :allow-edit="allowEdit"
                 :allow-mapping="false"
                 :selected-element-type="entry.elementType"
                 :mapping-candidates="mappingCandidates"
@@ -48,5 +52,13 @@
             />
         </li>
     </ol>
+    <mt-button
+        v-if="hasMoreFields"
+        class="sw-experience-studio-translation-settings__show-more"
+        variant="secondary"
+        @click="showMoreFields"
+    >
+        {{ $t('sw-experience-studio.detail.translationSettings.showMore') }}
+    </mt-button>
 </div>
 {% endblock %}

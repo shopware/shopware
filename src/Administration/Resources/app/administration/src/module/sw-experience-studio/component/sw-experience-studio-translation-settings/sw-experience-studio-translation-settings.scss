@@ -1,13 +1,13 @@
 .sw-experience-studio-translation-settings {
     min-width: 0;
 
-    &__fields {
+    &__elements {
         margin: 0;
         padding: 0;
         list-style: none;
     }
 
-    &__field {
+    &__element {
         min-width: 0;
         border-bottom: 1px solid var(--color-border-primary-default);
     }
@@ -20,6 +20,10 @@
         color: var(--color-text-secondary-default);
         font-size: var(--font-size-2xs);
         line-height: var(--font-line-height-2xs);
+    }
+
+    &__show-more {
+        margin: var(--scale-size-16);
     }
 
     .sw-experience-studio-settings-fields__panel-content {

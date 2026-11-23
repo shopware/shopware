@@ -841,6 +841,7 @@ export default Shopware.Component.wrapComponentConfig({
                     configuration.previewSalesChannelId,
                 );
                 const languageContext = await this.loadPreviewLanguageContext(salesChannelId);
+                const missingLanguageContext = salesChannelId !== null && languageContext === null;
                 this.isRestoringWorkspace = true;
                 this.resetWorkspaceEditor();
                 const missingLanguages = this.applyPreviewLanguageContext(languageContext, frames);
@@ -848,7 +849,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.workspaceStore.activate(workspace);
                 this.openLayouts = openLayouts;
                 this.frames = frames;
-                this.previewSalesChannelId = salesChannelId;
+                this.previewSalesChannelId = languageContext?.salesChannelId ?? null;
                 if (frames[0]) {
                     this.activateFrame(frames[0].id);
                 }
@@ -856,7 +857,7 @@ export default Shopware.Component.wrapComponentConfig({
                 await this.$nextTick();
                 this.isRestoringWorkspace = false;
                 await this.$router.replace({ name: 'sw.experience.studio.workspace', params: { workspaceId: id } });
-                if (missingReferences || missingSalesChannel || missingLanguages) {
+                if (missingReferences || missingSalesChannel || missingLanguages || missingLanguageContext) {
                     this.createNotificationWarning({
                         message: this.$t('sw-experience-studio.workspace.manager.missingReferences'),
                     });
@@ -937,7 +938,7 @@ export default Shopware.Component.wrapComponentConfig({
             const languages = salesChannel?.languages?.filter((language) => language.active) ?? [];
             const defaultLanguage = languages.find((language) => language.id === salesChannel?.languageId) ?? languages[0];
             if (!defaultLanguage) {
-                throw new Error('The preview sales channel has no active languages.');
+                return null;
             }
             return {
                 salesChannelId,
@@ -986,6 +987,13 @@ export default Shopware.Component.wrapComponentConfig({
             try {
                 const context = await this.loadPreviewLanguageContext(salesChannelId);
                 if (requestId !== this.previewLanguageRequestSequence || salesChannelId !== this.previewSalesChannelId) {
+                    return;
+                }
+                if (salesChannelId && !context) {
+                    this.previewSalesChannelId = this.previewLanguageContext?.salesChannelId ?? null;
+                    this.createNotificationWarning({
+                        message: this.$t('sw-experience-studio.workspace.manager.missingReferences'),
+                    });
                     return;
                 }
                 this.applyPreviewLanguageContext(context);

@@ -62,10 +62,25 @@ export interface ContentSystemInlineMappingParseResponse {
     tokens: ContentSystemInlineMappingToken[];
 }
 
+type InlineMappingParseResult =
+    | ContentSystemInlineMappingParseResponse
+    | { revision: number; error: { code: string; message: string } };
+
+interface PendingInlineMappingParse {
+    text: string;
+    revision: number;
+    resolve: (response: ContentSystemInlineMappingParseResponse) => void;
+    reject: (error: unknown) => void;
+}
+
+const INLINE_MAPPING_PARSE_BATCH_SIZE = 50;
+
 /**
  * Gateway for the content system mapping candidate catalogue, keyed by root source.
  */
 class ContentSystemMappingCandidateApiService extends ApiService {
+    private pendingInlineMappingParses: PendingInlineMappingParse[] = [];
+
     constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-mapping-candidates') {
         super(httpClient, loginService, apiEndpoint);
         this.name = 'contentSystemMappingCandidateService';
@@ -96,13 +111,47 @@ class ContentSystemMappingCandidateApiService extends ApiService {
     }
 
     parseInlineMappingTokens(text: string, revision: number): Promise<ContentSystemInlineMappingParseResponse> {
-        return this.httpClient
-            .post<ContentSystemInlineMappingParseResponse>(
-                '/_action/content-system/inline-mapping/parse',
-                { text, revision },
+        return new Promise((resolve, reject) => {
+            this.pendingInlineMappingParses.push({ text, revision, resolve, reject });
+
+            if (this.pendingInlineMappingParses.length === 1) {
+                void Promise.resolve().then(() => this.flushInlineMappingParses());
+            }
+        });
+    }
+
+    private flushInlineMappingParses(): void {
+        const pending = this.pendingInlineMappingParses;
+        this.pendingInlineMappingParses = [];
+
+        for (let offset = 0; offset < pending.length; offset += INLINE_MAPPING_PARSE_BATCH_SIZE) {
+            void this.parseInlineMappingBatch(pending.slice(offset, offset + INLINE_MAPPING_PARSE_BATCH_SIZE));
+        }
+    }
+
+    private async parseInlineMappingBatch(pending: PendingInlineMappingParse[]): Promise<void> {
+        try {
+            const response = await this.httpClient.post<{ results: InlineMappingParseResult[] }>(
+                '/_action/content-system/inline-mapping/parse-batch',
+                { requests: pending.map(({ text, revision }) => ({ text, revision })) },
                 { headers: this.getBasicHeaders() },
-            )
-            .then((response) => ApiService.handleResponse<ContentSystemInlineMappingParseResponse>(response));
+            );
+            const payload = ApiService.handleResponse<{ results: InlineMappingParseResult[] }>(response);
+
+            if (!Array.isArray(payload?.results) || payload.results.length !== pending.length) {
+                throw new Error('Invalid inline mapping parse batch response.');
+            }
+
+            payload.results.forEach((result, index) => {
+                if ('error' in result) {
+                    pending[index].reject(new Error(result.error.message));
+                } else {
+                    pending[index].resolve(result);
+                }
+            });
+        } catch (error) {
+            pending.forEach((request) => request.reject(error));
+        }
     }
 }
 

@@ -1,0 +1,115 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Content System Inline Mapping Batch Parser",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/_action/content-system/inline-mapping/parse-batch": {
+            "post": {
+                "tags": ["Content System"],
+                "summary": "Parse inline mapping tokens for multiple fields",
+                "operationId": "contentSystemInlineMappingParseBatch",
+                "description": "Parses 1 to 50 independent texts using the server's inline mapping syntax. Results preserve request order, including duplicate entries, and echo each request's revision. Offsets are UTF-8 byte offsets within that entry's text. Clients must discard stale revisions. Text containing mapping syntax is limited to 256 KiB per entry; exceeding that limit returns an error for that entry while other entries are parsed. Requires the `content_layout:read` privilege.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["requests"],
+                                "properties": {
+                                    "requests": {
+                                        "type": "array",
+                                        "minItems": 1,
+                                        "maxItems": 50,
+                                        "items": {
+                                            "type": "object",
+                                            "required": ["text", "revision"],
+                                            "properties": {
+                                                "text": { "type": "string" },
+                                                "revision": { "type": "integer", "minimum": 0 }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "One parse result or input-size error per request, in request order.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": ["results"],
+                                    "properties": {
+                                        "results": {
+                                            "type": "array",
+                                            "minItems": 1,
+                                            "maxItems": 50,
+                                            "items": {
+                                                "oneOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "required": ["revision", "tokens"],
+                                                        "properties": {
+                                                            "revision": { "type": "integer" },
+                                                            "tokens": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "required": ["path", "match", "canonicalToken", "offset", "insideMarkup", "malformed"],
+                                                                    "properties": {
+                                                                        "path": { "type": "string" },
+                                                                        "match": { "type": "string" },
+                                                                        "canonicalToken": { "type": ["string", "null"], "description": "Server-generated canonical token text, or null for a malformed token." },
+                                                                        "offset": { "type": "integer", "minimum": 0, "description": "UTF-8 byte offset in this entry's submitted text." },
+                                                                        "insideMarkup": { "type": "boolean" },
+                                                                        "malformed": { "type": "boolean" }
+                                                                    },
+                                                                    "additionalProperties": false
+                                                                }
+                                                            }
+                                                        },
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "required": ["revision", "error"],
+                                                        "properties": {
+                                                            "revision": { "type": "integer" },
+                                                            "error": {
+                                                                "type": "object",
+                                                                "required": ["code", "message"],
+                                                                "properties": {
+                                                                    "code": { "type": "string", "enum": ["CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE"] },
+                                                                    "message": { "type": "string" }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "additionalProperties": false
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            }
+                        }
+                    },
+                    "400": { "$ref": "#/components/responses/400" },
+                    "500": {
+                        "description": "The parser engine failed (CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED). The whole request fails without returning successful partial results."
+                    }
+                }
+            }
+        }
+    }
+}

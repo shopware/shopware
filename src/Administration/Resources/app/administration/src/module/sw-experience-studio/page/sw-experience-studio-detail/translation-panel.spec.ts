@@ -219,7 +219,7 @@ describe('frame layout translation panel', () => {
         await flushPromises();
     }
 
-    it('opens a separate flat list for an inactive frame, including fields in nested elements', async () => {
+    it('opens a separate element list for an inactive frame, including fields in nested elements', async () => {
         view = await createWrapper();
         await openTranslations();
 
@@ -230,7 +230,7 @@ describe('frame layout translation panel', () => {
         );
         expect(view.wrapper.find('sw-experience-studio-element-settings-stub').exists()).toBe(false);
         expect(view.wrapper.find('sw-experience-studio-layout-tree-stub').exists()).toBe(true);
-        expect(view.wrapper.findAll('.sw-experience-studio-translation-settings__field')).toHaveLength(3);
+        expect(view.wrapper.findAll('.sw-experience-studio-translation-settings__element')).toHaveLength(3);
         expect(
             view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]').map((input) => input.element.value),
         ).toEqual(['Erster', 'Verschachtelt']);
@@ -360,7 +360,7 @@ describe('frame layout translation panel', () => {
         types.typesByName = registeredTypes;
         types.isLoading = false;
         await flushPromises();
-        expect(view.wrapper.findAll('.sw-experience-studio-translation-settings__field')).toHaveLength(3);
+        expect(view.wrapper.findAll('.sw-experience-studio-translation-settings__element')).toHaveLength(3);
         expect((view.wrapper.get('.sw-experience-studio-canvas__panel--settings').element as HTMLElement).style.width).toBe(
             '640px',
         );

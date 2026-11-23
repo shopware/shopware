@@ -49,7 +49,8 @@ class ProductGenerator implements DemodataGeneratorInterface
         private readonly Connection $connection,
         private readonly DefinitionInstanceRegistry $registry,
         private readonly InheritanceUpdater $updater,
-        private readonly ?StatesUpdater $statesUpdater = null
+        private readonly ?StatesUpdater $statesUpdater = null,
+        private readonly ?ProductDocumentFileProvider $documentFileProvider = null,
     ) {
     }
 
@@ -66,10 +67,13 @@ class ProductGenerator implements DemodataGeneratorInterface
         $this->faker = $context->getFaker();
         $this->io = $context->getConsole();
 
-        $this->createProducts($context->getContext(), $numberOfItems);
+        $this->createProducts($context->getContext(), $numberOfItems, $this->documentFileProvider?->getDocuments($context) ?? []);
     }
 
-    private function createProducts(Context $context, int $count): void
+    /**
+     * @param list<array{title: string, mediaId: string}> $documents
+     */
+    private function createProducts(Context $context, int $count, array $documents): void
     {
         $visibilities = $this->buildVisibilities();
 
@@ -123,6 +127,10 @@ class ProductGenerator implements DemodataGeneratorInterface
             }
 
             $product['properties'] = $this->buildProperties($propertyOptionIds);
+
+            if ($documents !== []) {
+                $product['documents'] = $this->buildDocuments($documents);
+            }
 
             if ($i % 40 === 0) {
                 $combination = $this->faker->randomElement($combinations);
@@ -242,6 +250,27 @@ class ProductGenerator implements DemodataGeneratorInterface
             'maxPurchase' => 1,
             'deliveryTimeId' => $instantDeliveryId,
         ];
+    }
+
+    /**
+     * @param list<array{title: string, mediaId: string}> $documents
+     *
+     * @return list<array{id: string, position: int, title: string, mediaId: string, customFields: array<string, bool>}>
+     */
+    private function buildDocuments(array $documents): array
+    {
+        $payload = [];
+        foreach ($this->faker->randomElements($documents, $this->faker->numberBetween(0, \count($documents))) as $position => $document) {
+            $payload[] = [
+                'id' => Uuid::randomHex(),
+                'position' => $position,
+                'title' => $document['title'],
+                'mediaId' => $document['mediaId'],
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
+            ];
+        }
+
+        return $payload;
     }
 
     /**

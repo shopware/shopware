@@ -154,6 +154,44 @@ class ConfigurationTest extends TestCase
         static::assertTrue($config['cdn']['path_cache_buster']);
     }
 
+    public function testProductDocumentSettingsHaveDefaults(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => []]]);
+
+        // the core list lives in shopware.yaml, like filesystem.allowed_extensions
+        static::assertSame([
+            'allowed_extensions' => [],
+            'max_file_size' => 20 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testAShopReplacesTheProductDocumentSettings(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            ['product_documents' => ['allowed_extensions' => ['pdf', 'docx', 'jpg', 'jpeg', 'png'], 'max_file_size' => 20 * 1024 * 1024]],
+            ['product_documents' => ['allowed_extensions' => ['pdf'], 'max_file_size' => 5 * 1024 * 1024]],
+        ]);
+
+        static::assertSame([
+            'allowed_extensions' => ['pdf'],
+            'max_file_size' => 5 * 1024 * 1024,
+        ], $config['product_documents']);
+    }
+
+    public function testTheLargestProductDocumentFileAcceptsAUnit(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => '5M']]]);
+
+        static::assertSame(5 * 1024 * 1024, $config['product_documents']['max_file_size']);
+    }
+
+    public function testTheLargestProductDocumentFileMustBePositive(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => '0']]]);
+    }
+
     public function testTranslationConfigTreeNode(): void
     {
         $configuration = new Configuration();

@@ -48,15 +48,6 @@
         ],
         "sw-media-field > sw-popover": [
             "default"
-        ],
-        "sw-multi-tag-ip-select > sw-popover": [
-            "default"
-        ],
-        "sw-multi-tag-select > sw-popover": [
-            "default"
-        ],
-        "sw-select-result-list > sw-popover": [
-            "default"
         ]
     },
     "The old usage of \"sw-skeleton-bar\" is deprecated and will be removed in v6.8.0.0. Please use \"mt-skeleton-bar\" instead.": {

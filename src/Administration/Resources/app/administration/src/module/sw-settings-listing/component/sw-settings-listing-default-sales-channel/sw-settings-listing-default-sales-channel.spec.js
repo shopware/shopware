@@ -57,12 +57,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-default-s
                         'sw-label': true,
                         'sw-loader': true,
                         'sw-modal': true,
-                        'sw-popover': {
-                            props: ['popoverClass'],
-                            template: `
-                    <div class="sw-popover" :class="popoverClass">
-                        <slot></slot>
-                    </div>`,
+                        'mt-floating-ui': {
+                            props: ['isOpened'],
+                            template: '<div><slot v-if="isOpened"></slot></div>',
                         },
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),

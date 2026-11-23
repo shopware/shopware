@@ -46,7 +46,7 @@
             {% endblock %}
 
             {% block sw_media_field_media_popover %}
-            {# Mounted only while open: the deprecated sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
+            {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
             <mt-floating-ui
                 v-if="showPicker"
                 class="sw-media-field__expanded-content"

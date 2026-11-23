@@ -9,28 +9,28 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1794988092AddPaymentPrivilegesToShopwarePaymentsRoles;
+use Shopware\Core\Migration\V6_7\Migration1794988092AddPaymentViewerToShopwarePaymentsViewer;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(Migration1794988092AddPaymentPrivilegesToShopwarePaymentsRoles::class)]
-class Migration1794988092AddPaymentPrivilegesToShopwarePaymentsRolesTest extends TestCase
+#[CoversClass(Migration1794988092AddPaymentViewerToShopwarePaymentsViewer::class)]
+class Migration1794988092AddPaymentViewerToShopwarePaymentsViewerTest extends TestCase
 {
     use MigrationTestTrait;
 
     private Connection $connection;
 
-    private Migration1794988092AddPaymentPrivilegesToShopwarePaymentsRoles $migration;
+    private Migration1794988092AddPaymentViewerToShopwarePaymentsViewer $migration;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->migration = new Migration1794988092AddPaymentPrivilegesToShopwarePaymentsRoles();
+        $this->migration = new Migration1794988092AddPaymentViewerToShopwarePaymentsViewer();
     }
 
     public function testGetCreationTimestamp(): void
@@ -53,20 +53,17 @@ class Migration1794988092AddPaymentPrivilegesToShopwarePaymentsRolesTest extends
         static::assertNotContains('payment_method:update', $privileges);
     }
 
-    public function testAddsPaymentEditorPrivilegesToShopwarePaymentsEditorRoles(): void
+    public function testShopwarePaymentsEditorRolesDoNotGetPaymentEditorPrivileges(): void
     {
         $roleId = $this->createRole(['sw-payments.viewer', 'sw-payments.editor', 'payment_method:read']);
 
         $this->migration->update($this->connection);
-        $this->migration->update($this->connection);
 
         $privileges = $this->fetchPrivileges($roleId);
 
-        static::assertContains('sw-payments.editor', $privileges);
-        static::assertCount(1, \array_keys($privileges, 'payment.viewer', true));
-        static::assertCount(1, \array_keys($privileges, 'payment.editor', true));
-        static::assertCount(1, \array_keys($privileges, 'payment_method:update', true));
-        static::assertContains('media:create', $privileges);
+        static::assertContains('payment.viewer', $privileges);
+        static::assertNotContains('payment.editor', $privileges);
+        static::assertNotContains('payment_method:update', $privileges);
     }
 
     public function testUnrelatedRolesAreNotUpdated(): void

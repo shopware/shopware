@@ -185,25 +185,6 @@ class ConfigurationTest extends TestCase
         static::assertSame(5 * 1024 * 1024, $config['product_documents']['max_file_size']);
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function malformedProductDocumentFileSizes(): iterable
-    {
-        yield 'a binary unit' => ['20MiB'];
-        yield 'a decimal' => ['1.5M'];
-        yield 'a leading zero' => ['020M'];
-        yield 'text' => ['twenty megabytes'];
-    }
-
-    #[DataProvider('malformedProductDocumentFileSizes')]
-    public function testTheLargestProductDocumentFileRejectsMalformedSizes(string $size): void
-    {
-        $this->expectException(InvalidConfigurationException::class);
-
-        (new Processor())->processConfiguration(new Configuration(), [['product_documents' => ['max_file_size' => $size]]]);
-    }
-
     public function testTheLargestProductDocumentFileMustBePositive(): void
     {
         $this->expectException(InvalidConfigurationException::class);

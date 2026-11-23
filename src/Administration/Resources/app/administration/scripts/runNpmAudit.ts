@@ -27,6 +27,5 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-rj75-hqrm-r3gf', // postcss-selector-parser quadratic parsing, moderate, devDep only; 7.x is overridden to 7.1.6, the 6.x copy used by stylelint 14 has no fix outside 7.x
         'https://github.com/advisories/GHSA-g2v6-rqmx-r4w6', // @vue/server-renderer attribute XSS, only affects server-side rendering, which the browser-only Administration never uses; the patched vue 3.5.43 breaks $refs to sw-select-result-list inside sw-select-base slots, so the update needs its own change, tracked in https://github.com/shopware/shopware/issues/21307
         'https://github.com/advisories/GHSA-gcqx-w48m-w2h4', // deepmerge mergeObject() prototype poisoning, low, devDep only (jest-config); no patched deepmerge release exists (4.3.1 is the latest)
-        'https://github.com/advisories/GHSA-fc5q-39xc-vjpf', // picomatch ReDoS via repeated extglobs, high, build tooling only (vite, vite plugins, ts-morph, jest, stylelint, sass); it never ships in the browser bundle and only matches developer-controlled glob patterns, no patched release exists yet (4.0.7 is the latest)
     ],
 });

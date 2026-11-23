@@ -85,7 +85,7 @@ sequenceDiagram
     participant Copy as Copy (staging.shop.example)
     participant App as App
     Prod->>Copy: Database copied
-    Note over Prod,Copy: Both hold shop-1 and prod-secret
+    Note over Prod,Copy: Both databases have ShopId shop-1 and prod-secret
     Copy->>App: Register shop-1 again, signed with prod-secret
     App-->>Copy: Issues staging-secret, prod-secret kept as previous
     Prod-xApp: After 60 seconds, requests signed with prod-secret are rejected

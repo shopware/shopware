@@ -651,7 +651,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $decodedPrimaryKey = [];
         foreach ($primaryKey as $fieldName => $fieldValue) {
-            $field = $definition->getField($fieldName);
+            $field = $definition->getField($fieldName) ?? $definition->getFields()->getByStorageName($fieldName);
             $decodedPrimaryKey[$fieldName] = $field ? $field->getSerializer()->decode($field, $fieldValue) : $fieldValue;
         }
 

@@ -399,6 +399,75 @@ class ProductAdminSearchIndexerTest extends TestCase
         });
     }
 
+    public function testGetUpdatedIdsLeavesTheVariantsOfLargeWrittenFamiliesToTheQueuedInheritanceUpdate(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn($variantIds);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($indexer, $parentId): void {
+            static::assertSame([$parentId], $indexer->getUpdatedIds($this->createProductWrittenEvent($parentId)));
+        });
+    }
+
+    public function testGetUpdatedIdsLoadsTheVariantsOfWrittenProductsAndProductsWithChangedDocumentsInOneQuery(): void
+    {
+        $writtenProductId = Uuid::randomHex();
+        $productWithDocumentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->with(
+                static::stringContains('parent_id IN (:ids)'),
+                static::callback(static fn (array $params): bool => $params['ids'] === Uuid::fromHexToBytesList([$writtenProductId, $productWithDocumentId]))
+            )
+            ->willReturn([$variantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = new EntityWrittenContainerEvent(
+            Context::createDefaultContext(),
+            new NestedEventCollection([
+                new EntityWrittenEvent('product_document', [
+                    new EntityWriteResult($documentId, [
+                        'id' => $documentId,
+                        'versionId' => Defaults::LIVE_VERSION,
+                        'productId' => $productWithDocumentId,
+                        'productVersionId' => Defaults::LIVE_VERSION,
+                    ], 'product_document', EntityWriteResult::OPERATION_INSERT),
+                ], Context::createDefaultContext()),
+                new EntityWrittenEvent('product', [
+                    new EntityWriteResult($writtenProductId, ['active' => false], 'product', EntityWriteResult::OPERATION_UPDATE),
+                    new EntityWriteResult($productWithDocumentId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                ], Context::createDefaultContext()),
+            ]),
+            []
+        );
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($indexer, $event, $writtenProductId, $productWithDocumentId, $variantId): void {
+            static::assertSame([$writtenProductId, $productWithDocumentId, $variantId], $indexer->getUpdatedIds($event));
+        });
+    }
+
     public function testGetUpdatedIdsDoesNotLoadVariantsWithoutTheAdvancedAdminSearch(): void
     {
         $productId = Uuid::randomHex();

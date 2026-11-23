@@ -107,12 +107,10 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             return $productIds;
         }
 
-        if ($productIds !== []) {
-            // variants index the values they inherit from their parent, e.g. price, active, visibilities and cover
-            $productIds = [...$productIds, ...$this->fetchVariantIds($productIds)];
-        }
+        $productIds = array_values(array_unique([...$productIds, ...$this->getProductIdsWithChangedDocuments($event)]));
 
-        return array_values(array_unique([...$productIds, ...$this->getProductIdsWithChangedDocuments($event)]));
+        // variants index the values they inherit from their parent, e.g. price, active, visibilities, cover and documents
+        return $this->addVariantIds($productIds);
     }
 
     public function getName(): string
@@ -563,24 +561,7 @@ SQL,
             $productIds = array_merge($productIds, $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME));
         }
 
-        $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));
-        if ($productIds === []) {
-            return [];
-        }
-
-        $variantIds = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND version_id = :versionId LIMIT ' . ProductIndexer::UPDATE_IDS_CHUNK_SIZE,
-            ['ids' => Uuid::fromHexToBytesList($productIds), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
-            ['ids' => ArrayParameterType::BINARY]
-        );
-        $variantIds = array_values(array_filter($variantIds, '\is_string'));
-
-        $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
-        if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
-            return $productIds;
-        }
-
-        return $familyIds;
+        return array_values(array_filter($productIds, '\is_string'));
     }
 
     /**
@@ -771,22 +752,34 @@ SQL,
     }
 
     /**
-     * @param list<string> $parentIds
+     * The variants of large families are left to the queued inheritance update of the product indexer,
+     * the ProductInheritanceSubscriber reindexes them from there.
+     *
+     * @param list<string> $productIds
      *
      * @return list<string>
      */
-    private function fetchVariantIds(array $parentIds): array
+    private function addVariantIds(array $productIds): array
     {
-        /** @var list<string> $variantIds */
+        if ($productIds === []) {
+            return [];
+        }
+
         $variantIds = $this->connection->fetchFirstColumn(
-            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND parent_version_id = :versionId AND version_id = :versionId',
+            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND parent_version_id = :versionId AND version_id = :versionId LIMIT ' . ProductIndexer::UPDATE_IDS_CHUNK_SIZE,
             [
-                'ids' => Uuid::fromHexToBytesList($parentIds),
+                'ids' => Uuid::fromHexToBytesList($productIds),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             ['ids' => ArrayParameterType::BINARY]
         );
+        $variantIds = array_values(array_filter($variantIds, '\is_string'));
 
-        return $variantIds;
+        $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
+        if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
+            return $productIds;
+        }
+
+        return $familyIds;
     }
 }

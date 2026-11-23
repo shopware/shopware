@@ -41,7 +41,9 @@ export default class OffCanvasCartPlugin extends Plugin {
 
     init() {
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this.client = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this.client = new HttpClient();
+        }
         this._requestQueue = Promise.resolve();
         this._registerOpenTriggerEvents();
     }

@@ -1,4 +1,5 @@
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
+import ListAttributionHelper from 'src/plugin/google-analytics/list-attribution.helper';
 import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 
 export default class ViewItemListEvent extends EventAwareAnalyticsEvent
@@ -41,6 +42,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        const listing = document.querySelector('.cms-element-product-listing-wrapper');
         const items = this.getListItems();
         if (items.length === 0) {
             return;
@@ -52,20 +54,23 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         this.pushEvent('view_item_list', {
             'currency': ProductPageHelper.getCurrency(),
             'value': value,
+            ...ListAttributionHelper.getListFromElement(listing),
             'items': items,
         });
     }
 
     getListItems() {
-        const productBoxes = document.querySelectorAll(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR);
+        // Scoped to the listing: a page can also render sliders and cross selling, whose products
+        // belong to their own lists and must not be reported as part of this one.
+        const listing = document.querySelector('.cms-element-product-listing-wrapper');
+        const productBoxes = listing?.querySelectorAll(ProductPageHelper.PRODUCT_ELEMENT_SELECTOR) ?? [];
         const lineItems = [];
 
-        if (!productBoxes) {
-            return lineItems;
-        }
-
-        // the breadcrumb of a category page is the path of its listing, not of a slider beside it
+        // the breadcrumb of a category page is the path of its listing, so it applies to every product reported here
         const categories = ProductPageHelper.getCategories();
+
+        // a paginated listing renders one page of a longer list, so the index counts across pages
+        const listStart = ListAttributionHelper.getListStart(listing);
 
         productBoxes.forEach(item => {
             if (!item.dataset.productInformation) {
@@ -89,7 +94,8 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_brand: productData.brand,
                 item_variant: productData.variant,
                 price: productData.price,
-                ...(ProductPageHelper.isInPageListing(item) ? categories : {}),
+                index: listStart + lineItems.length,
+                ...categories,
             });
         });
 

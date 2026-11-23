@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Event\SensitiveMail;
 use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\NotHookable;
@@ -21,6 +22,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('fundamentals@framework')]
 #[NotHookable]
+#[SensitiveMail]
 class UserRecoveryRequestEvent extends Event implements UserAware, MailAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'user.recovery.request';

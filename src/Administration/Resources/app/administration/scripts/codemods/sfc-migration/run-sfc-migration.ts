@@ -117,8 +117,9 @@ function describeExistingSfc(vuePath: string, name: string): string {
  * Ordinary writes publish only the validated Vue draft. Replacing the legacy entry point is a
  * separate explicit phase; Twig is never deleted.
  *
- * `--write` runs against a clean working tree (see `findDirtyPaths`), so `git checkout` undoes
- * everything a partial run left behind — nothing here needs its own transaction.
+ * `--write` runs against a clean working tree without untracked files (see `findDirtyPaths`), so
+ * `git checkout . && git clean -f` undoes everything a partial run left behind — nothing here needs
+ * its own transaction.
  */
 function writeComponent(input: {
     sfc: string;

@@ -127,6 +127,65 @@ class OrderRouteTest extends TestCase
     }
 
     /**
+     * @param array<string, mixed> $query
+     * @param array<string, mixed> $body
+     */
+    #[DataProvider('checkPromotionProvider')]
+    public function testCheckPromotion(array $query, array $body, bool $expectPaymentChangeable): void
+    {
+        $customer = new CustomerEntity();
+        $customer->setId(Uuid::randomHex());
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context
+            ->method('getCustomer')
+            ->willReturn($customer);
+
+        $orderRepository = static::createStub(EntityRepository::class);
+        $orderRepository
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                OrderDefinition::ENTITY_NAME,
+                1,
+                new OrderCollection([$order]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            ));
+
+        $route = new OrderRoute(
+            $orderRepository,
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            new EventDispatcher(),
+            static::createStub(AccountService::class),
+            new GuestAuthenticator(),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher())
+        );
+
+        $response = $route->load(new Request($query, $body), $context, new Criteria());
+
+        $expected = $expectPaymentChangeable ? [$order->getId() => true] : [];
+        static::assertSame($expected, $response->getPaymentsChangeable());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, array<string, mixed>, bool}>
+     */
+    public static function checkPromotionProvider(): iterable
+    {
+        yield 'not requested' => [[], [], false];
+        yield 'query parameter' => [['checkPromotion' => 'true'], [], true];
+        yield 'request body' => [[], ['checkPromotion' => true], true];
+        yield 'request body false' => [[], ['checkPromotion' => false], false];
+        yield 'query parameter wins over request body' => [['checkPromotion' => 'false'], ['checkPromotion' => true], false];
+    }
+
+    /**
      * @param ?class-string<\Throwable> $exception
      */
     #[DataProvider('customerDataProvider')]
@@ -142,7 +201,7 @@ class OrderRouteTest extends TestCase
      */
     #[DataProvider('legacyCustomerDataProvider')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testValidateGuestCustomerWithoutGuestAuthenticator(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false): void
+    public function testValidateGuestCustomerWithoutGuestAuthenticator(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false): void
     {
         $this->assertGuestOrderAccess($isGuest, $mail, $postalCode, $exception, $login, $credentialsInQuery);
     }
@@ -167,7 +226,7 @@ class OrderRouteTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - remove together with OrderRoute::checkGuestAuth()
      *
-     * @return iterable<string, array{?bool, ?string, ?string, ?class-string<\Throwable>, 4?: bool, 5?: bool}>
+     * @return iterable<string, array{?bool, mixed, mixed, ?class-string<\Throwable>, 4?: bool, 5?: bool}>
      */
     public static function legacyCustomerDataProvider(): iterable
     {
@@ -184,6 +243,9 @@ class OrderRouteTest extends TestCase
         yield 'valid guest with credentials in query' => [true, 'test@example.com', 'AA-345', null, false, true];
         yield 'wrong e-mail in query' => [true, 'false@example.com', 'AA-345', WrongGuestCredentialsException::class, false, true];
         yield 'no request e-mail in query' => [true, null, 'AA-345', GuestNotAuthenticatedException::class, false, true];
+        yield 'int postal code' => [true, 'test@example.com', 345, WrongGuestCredentialsException::class];
+        yield 'array postal code in query' => [true, 'test@example.com', ['AA-345'], WrongGuestCredentialsException::class, false, true];
+        yield 'bool e-mail' => [true, true, 'AA-345', WrongGuestCredentialsException::class];
     }
 
     #[DataProvider('deeplinkFilterProvider')]
@@ -332,7 +394,7 @@ class OrderRouteTest extends TestCase
     /**
      * @param ?class-string<\Throwable> $exception
      */
-    private function assertGuestOrderAccess(?bool $isGuest, ?string $mail, ?string $postalCode, ?string $exception, bool $login, bool $credentialsInQuery): void
+    private function assertGuestOrderAccess(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login, bool $credentialsInQuery): void
     {
         if ($exception !== null) {
             $this->expectException($exception);
@@ -396,10 +458,16 @@ class OrderRouteTest extends TestCase
             ->with($orderCustomer->getCustomerId())
             ->willReturn('newContextToken');
 
+        $rateLimiter = $this->createMock(RateLimiter::class);
+        $rateLimiter->expects($this->once())->method('ensureAccepted')
+            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1');
+        $rateLimiter->expects($exception === null ? $this->once() : $this->never())->method('reset')
+            ->with(RateLimiter::GUEST_LOGIN, 'deeplinkcode-127.0.0.1');
+
         $route = new OrderRoute(
             $orderRepository,
             static::createStub(EntityRepository::class),
-            static::createStub(RateLimiter::class),
+            $rateLimiter,
             $eventDispatcher,
             $accountService,
             new GuestAuthenticator(),
@@ -408,9 +476,9 @@ class OrderRouteTest extends TestCase
         );
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('deepLinkCode', 'deepLinkCode'));
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', "DEEPLINKCODE \u{00A0}\u{3000}"));
 
-        $request = new Request();
+        $request = new Request(server: ['REMOTE_ADDR' => '127.0.0.1']);
         $credentials = $credentialsInQuery ? $request->query : $request->request;
         $credentials->set('email', $mail);
         $credentials->set('zipcode', $postalCode);

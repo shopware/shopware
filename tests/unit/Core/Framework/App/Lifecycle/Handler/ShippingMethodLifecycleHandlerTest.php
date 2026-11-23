@@ -102,8 +102,7 @@ class ShippingMethodLifecycleHandlerTest extends TestCase
      */
     private function createShippingMethodRepositoryMock(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<ShippingMethodCollection> */
-        return new StaticEntityRepository([]);
+        return StaticEntityRepository::of(ShippingMethodCollection::class);
     }
 
     /**

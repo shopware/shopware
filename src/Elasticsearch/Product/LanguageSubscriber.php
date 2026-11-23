@@ -76,6 +76,7 @@ class LanguageSubscriber implements EventSubscriberInterface
                     foreach (IndexMappingUpdater::REINDEXABLE_MAPPING_ERRORS as $needle) {
                         if (str_contains($errorMessage, $needle)) {
                             $entitiesToReindex[] = $definition->getEntityDefinition()->getEntityName();
+                            $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
                             $exception = ElasticsearchProductException::cannotChangeFieldType($exception);
 
                             break;
@@ -87,10 +88,6 @@ class LanguageSubscriber implements EventSubscriberInterface
                     $this->elasticsearchHelper->logAndThrowException($exception);
                 }
             }
-        }
-
-        if ($entitiesToReindex !== []) {
-            $this->storage->set(SystemUpdateListener::CONFIG_KEY, \array_values(\array_unique($entitiesToReindex)));
         }
     }
 }

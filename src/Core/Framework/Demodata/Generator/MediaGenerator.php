@@ -232,29 +232,27 @@ class MediaGenerator implements DemodataGeneratorInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('entity', $entity));
-        $criteria->addAssociation('folder');
         $criteria->setLimit(1);
 
-        $defaultFolders = $this->defaultFolderRepository->search($criteria, $context->getContext());
-
-        if ($defaultFolders->getEntities()->count() <= 0) {
+        $defaultFolderId = $this->defaultFolderRepository->searchIds($criteria, $context->getContext())->firstId();
+        if ($defaultFolderId === null) {
             return $mediaFolderId;
         }
 
-        $defaultFolder = $defaultFolders->getEntities()->first();
-        if (!$defaultFolder) {
-            return $mediaFolderId;
-        }
+        $folderCriteria = new Criteria();
+        $folderCriteria->addFilter(new EqualsFilter('defaultFolderId', $defaultFolderId));
+        $folderCriteria->setLimit(1);
 
-        if ($defaultFolder->getFolder()) {
-            return $defaultFolder->getFolder()->getId();
+        $existingFolderId = $this->folderRepository->searchIds($folderCriteria, $context->getContext())->firstId();
+        if ($existingFolderId !== null) {
+            return $existingFolderId;
         }
 
         $mediaFolderId = Uuid::randomHex();
         $this->folderRepository->upsert([
             [
                 'id' => $mediaFolderId,
-                'defaultFolderId' => $defaultFolder->getId(),
+                'defaultFolderId' => $defaultFolderId,
                 'name' => $name,
                 'useParentConfiguration' => false,
                 'configuration' => $configuration,

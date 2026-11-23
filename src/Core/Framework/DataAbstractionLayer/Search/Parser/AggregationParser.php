@@ -201,7 +201,7 @@ class AggregationParser
         }
 
         if (!EntityDefinitionQueryHelper::isValidIdentifier($name)) {
-            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index);
+            $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation name should not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.'), '/aggregations/' . $index);
 
             return null;
         }
@@ -252,7 +252,7 @@ class AggregationParser
                 );
 
                 if ($invalidRangeKeys !== []) {
-                    $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a backtick, question mark, colon, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
+                    $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The range aggregation key should not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.'), '/aggregations/' . $index . '/' . $type . '/ranges');
 
                     return null;
                 }

@@ -4,7 +4,7 @@
 
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], searchIds = jest.fn(() => Promise.resolve({ total: 0, data: [] }))) {
     return mount(
         await wrapTestComponent('sw-settings-salutation-detail', {
             sync: true,
@@ -18,6 +18,7 @@ async function createWrapper(privileges = []) {
                 provide: {
                     repositoryFactory: {
                         create: () => ({
+                            searchIds,
                             create: () => {
                                 return {
                                     apiAlias: null,
@@ -151,6 +152,30 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-detail', () 
             appearance: 'light',
         });
     });
+
+    it.each([
+        { ids: ['other-salutation-id'], saveDisabled: true },
+        { ids: [], saveDisabled: false },
+    ])(
+        'should check the salutation key with a single uncounted id (taken: $saveDisabled)',
+        async ({ ids, saveDisabled }) => {
+            const searchIds = jest.fn(() => Promise.resolve({ total: ids.length, data: ids }));
+            const wrapper = await createWrapper(['salutation.editor'], searchIds);
+            await flushPromises();
+
+            await wrapper
+                .find('input[aria-label="sw-settings-salutation.detail.fieldSalutationKeyLabel"]')
+                .setValue('mr-taken');
+            await new Promise((resolve) => {
+                setTimeout(resolve, 600);
+            });
+            await flushPromises();
+
+            expect(searchIds).toHaveBeenCalledTimes(1);
+            expect(searchIds.mock.calls[0][0]).toEqual(expect.objectContaining({ limit: 1, totalCountMode: 0 }));
+            expect(Boolean(wrapper.find('.sw-settings-salutation-detail__save').attributes().disabled)).toBe(saveDisabled);
+        },
+    );
 
     it('should not be able to save a salutation if not have editor privilege', async () => {
         const wrapper = await createWrapper([]);

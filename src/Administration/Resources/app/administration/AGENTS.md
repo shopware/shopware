@@ -57,6 +57,8 @@ Jest                # Testing framework
   - Pinia store with spec: `src/app/store/tabs.store.ts`
 - Use the provided linting and formatting scripts (see below)
 - Existing ESLint violations live in `eslint-suppressions.json`, which may only shrink: fix every violation your change adds, see `technical-docs/11-code-quality/01-lint-gate.md`
+- `npm run lint:fallow` reports unused files, exports and dependencies.
+  Tag reported exports that extensions use with `@public`, see `technical-docs/11-code-quality/02-unused-code.md`
 
 ## Scripts
 Run the composer commands in the root of the repository. These commands are wrapper scripts around the NPM scripts.
@@ -66,6 +68,8 @@ In a Docker environment prepend `docker compose exec web ...`.
 # Linting
 composer eslint:admin # Run ESLint
 composer eslint:admin:fix # Run ESLint with --fix
+composer fallow:admin # Run Fallow
+composer fallow:admin:prune # Remove fixed entries from the Fallow baseline
 composer stylelint:admin # Run Stylelint
 composer stylelint:admin:fix # Run Stylelint with --fix
 

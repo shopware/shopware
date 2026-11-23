@@ -14,6 +14,7 @@ class DependencyInjectionException extends HttpException
     public const TAGGED_SERVICE_HAS_WRONG_TYPE = 'FRAMEWORK__TAGGED_SERVICE_HAS_WRONG_TYPE';
     public const PARAMETER_HAS_WRONG_TYPE = 'FRAMEWORK__PARAMETER_HAS_WRONG_TYPE';
     public const FEATURE_TAG_MISSING_FLAG = 'FRAMEWORK__FEATURE_TAG_MISSING_FLAG';
+    public const DUPLICATE_REVERSE_MANY_TO_MANY_ASSOCIATION = 'FRAMEWORK__DUPLICATE_REVERSE_MANY_TO_MANY_ASSOCIATION';
     private const MCP_DUPLICATE_TOOL_NAME = 'FRAMEWORK__MCP_DUPLICATE_TOOL_NAME';
     private const MCP_UNKNOWN_TOOL_DEPENDENCY = 'FRAMEWORK__MCP_UNKNOWN_TOOL_DEPENDENCY';
 
@@ -60,6 +61,16 @@ class DependencyInjectionException extends HttpException
             self::FEATURE_TAG_MISSING_FLAG,
             'Service "{{ serviceId }}" has tag "{{ tag }}" without the required "flag" attribute.',
             ['serviceId' => $serviceId, 'tag' => $tag],
+        );
+    }
+
+    public static function duplicateReverseManyToManyAssociation(string $propertyName, string $entityName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::DUPLICATE_REVERSE_MANY_TO_MANY_ASSOCIATION,
+            'Duplicate reverse many-to-many association "{{ propertyName }}" on entity "{{ entityName }}" with a different mapping. Each reversedBy property name can only be used once per target entity.',
+            ['propertyName' => $propertyName, 'entityName' => $entityName],
         );
     }
 

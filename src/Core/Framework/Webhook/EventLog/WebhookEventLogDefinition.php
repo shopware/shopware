@@ -31,6 +31,8 @@ class WebhookEventLogDefinition extends EntityDefinition
 
     final public const STATUS_SUCCESS = 'success';
 
+    final public const STATUS_NOT_PERMITTED = 'not_permitted';
+
     final public const ENTITY_NAME = 'webhook_event_log';
 
     public function getEntityName(): string

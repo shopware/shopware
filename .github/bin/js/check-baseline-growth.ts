@@ -1,5 +1,6 @@
 /**
- * Fails when the per-rule totals of an ESLint baseline (eslint-suppressions.json) grow compared with the base commit.
+ * Fails when the per-rule totals of an ESLint baseline (eslint-suppressions.json) or the per-category totals of a
+ * Fallow baseline (fallow-baseline.json) grow compared with the base commit.
  * See src/Administration/Resources/app/administration/technical-docs/11-code-quality/01-lint-gate.md.
  */
 
@@ -9,23 +10,37 @@ import { dirname, join } from 'node:path';
 import { parseArgs } from 'node:util';
 
 type Suppressions = Record<string, Record<string, { count: number }>>;
+type Baseline = Record<string, unknown>;
+
+const isFallow = (path: string): boolean => path.endsWith('fallow-baseline.json');
 
 const git = (...args: string[]): string =>
     execFileSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
 
-const readFromBase = (base: string, path: string): Suppressions => {
+const readFromBase = (base: string, path: string): Baseline => {
     try {
         git('cat-file', '-e', `${base}:${path}`);
     } catch {
         return {};
     }
 
-    return JSON.parse(git('show', `${base}:${path}`)) as Suppressions;
+    return JSON.parse(git('show', `${base}:${path}`)) as Baseline;
 };
 
-const totals = (suppressions: Suppressions): Record<string, number> => {
+const totals = (path: string, baseline: Baseline): Record<string, number> => {
     const result: Record<string, number> = {};
-    for (const rules of Object.values(suppressions)) {
+    if (isFallow(path)) {
+        // Each finding category is a top-level array, next to metadata such as `kind`
+        for (const [category, entries] of Object.entries(baseline)) {
+            if (Array.isArray(entries) && entries.length > 0) {
+                result[category] = entries.length;
+            }
+        }
+
+        return result;
+    }
+
+    for (const rules of Object.values(baseline as Suppressions)) {
         for (const [rule, { count }] of Object.entries(rules)) {
             result[rule] = (result[rule] ?? 0) + count;
         }
@@ -41,7 +56,7 @@ const { values, positionals: paths } = parseArgs({
 const { base, config: configs = [] } = values;
 
 if (!base || configs.length === 0 || paths.length === 0) {
-    process.stderr.write('usage: check-baseline-growth.ts --base <sha> --config <file>... <eslint-suppressions.json>...\n');
+    process.stderr.write('usage: check-baseline-growth.ts --base <sha> --config <file>... <baseline>...\n');
     process.exit(2);
 }
 
@@ -50,9 +65,9 @@ const configChanged = git('diff', '--name-only', base, '--', ...configs).trim() 
 const failures: string[] = [];
 
 for (const path of paths) {
-    const head: Suppressions = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
-    const baseTotals = totals(readFromBase(base, path));
-    const headTotals = totals(head);
+    const head: Baseline = existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : {};
+    const baseTotals = totals(path, readFromBase(base, path));
+    const headTotals = totals(path, head);
 
     console.log(path);
     for (const rule of [...new Set([...Object.keys(baseTotals), ...Object.keys(headTotals)])].sort()) {
@@ -66,8 +81,9 @@ for (const path of paths) {
         }
     }
 
-    // Entries of a deleted file would let a new violation of the same rule pass elsewhere
-    for (const file of Object.keys(head)) {
+    // Entries of a deleted file would let a new violation of the same rule pass elsewhere.
+    // `npm run lint:fallow` already fails on them for Fallow.
+    for (const file of isFallow(path) ? [] : Object.keys(head)) {
         if (!existsSync(join(dirname(path), file))) {
             failures.push(`${path}: ${file} no longer exists. Run \`npm run lint:fix\` to remove its entries.`);
         }

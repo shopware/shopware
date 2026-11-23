@@ -346,7 +346,7 @@ class AddressController extends StorefrontController
             [
                 ...$viewData->getVars(),
                 'redirectTo' => $request->query->get('redirectTo', 'frontend.checkout.confirm.page'),
-                'redirectParameters' => $request->query->get('redirectParameters'),
+                'redirectParameters' => $request->query->all()['redirectParameters'] ?? null,
             ],
         );
 

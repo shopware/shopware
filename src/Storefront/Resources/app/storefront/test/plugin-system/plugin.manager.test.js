@@ -1,6 +1,5 @@
 import PluginManager from 'src/plugin-system/plugin.manager';
 import Plugin from 'src/plugin-system/plugin.class';
-import Iterator from 'src/helper/iterator.helper';
 
 class FooPluginClass extends Plugin {
     init() {}
@@ -136,7 +135,7 @@ describe('Plugin manager', () => {
 
         expect(PluginManager.getPluginInstances('FooPluginTag').length).toBe(2);
 
-        Iterator.iterate(PluginManager.getPluginInstances('FooPluginTag'), (instance) => {
+        PluginManager.getPluginInstances('FooPluginTag').forEach((instance) => {
             expect(instance._initialized).toBe(true);
         });
 

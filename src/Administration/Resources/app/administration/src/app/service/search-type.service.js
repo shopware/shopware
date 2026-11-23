@@ -3,6 +3,8 @@
  * @sw-package inventory
  */
 
+import Criteria from 'src/core/data/criteria.data';
+
 /**
  *
  * @memberOf module:core/service/search-type
@@ -17,6 +19,7 @@ export default function createSearchTypeService() {
             entityName: 'product',
             placeholderSnippet: 'sw-product.general.placeholderSearchBar',
             listingRoute: 'sw.product.index',
+            criteria: (limit) => new Criteria(1, limit).addAssociation('options.group'),
         },
         category: {
             entityName: 'category',

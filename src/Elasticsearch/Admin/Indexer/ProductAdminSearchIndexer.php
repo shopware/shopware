@@ -569,10 +569,35 @@ SQL,
 
         $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
         if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
-            return $productIds;
+            return array_values(array_unique([...$productIds, ...$this->getWrittenVariantIds($event, $productIds)]));
         }
 
         return $familyIds;
+    }
+
+    /**
+     * @param list<string> $parentIds
+     *
+     * @return list<string>
+     */
+    private function getWrittenVariantIds(EntityWrittenContainerEvent $event, array $parentIds): array
+    {
+        $writtenIds = array_values(array_diff(array_filter($event->getPrimaryKeys(ProductDefinition::ENTITY_NAME), '\is_string'), $parentIds));
+        if ($writtenIds === []) {
+            return [];
+        }
+
+        $variantIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE id IN (:ids) AND parent_id IN (:parentIds) AND version_id = :versionId',
+            [
+                'ids' => Uuid::fromHexToBytesList($writtenIds),
+                'parentIds' => Uuid::fromHexToBytesList($parentIds),
+                'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ],
+            ['ids' => ArrayParameterType::BINARY, 'parentIds' => ArrayParameterType::BINARY]
+        );
+
+        return array_values(array_filter($variantIds, '\is_string'));
     }
 
     /**

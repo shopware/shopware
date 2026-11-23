@@ -108,7 +108,7 @@ class CheapestPriceUpdater
         }
 
         if ($variantIdsUpdated !== []) {
-            $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, ['product.seo-url']));
+            $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, ['product.seo-url', ProductIndexer::INHERITANCE_UPDATER]));
         }
     }
 

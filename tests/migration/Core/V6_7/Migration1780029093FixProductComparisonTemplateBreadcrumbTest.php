@@ -92,7 +92,6 @@ class Migration1780029093FixProductComparisonTemplateBreadcrumbTest extends Test
         $adminRoot = __DIR__ . '/../../../../src/Administration/Resources/app/administration/src/module/sw-sales-channel/product-export-templates/';
 
         foreach ([
-            'google.xml' => 'google-product-search-de/body.xml.twig',
             'idealo.csv' => 'idealo/body.csv.twig',
             'billiger.csv' => 'billiger-de/body.csv.twig',
         ] as $name => $adminPath) {

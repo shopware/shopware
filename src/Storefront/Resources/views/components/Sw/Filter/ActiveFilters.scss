@@ -3,8 +3,11 @@
     flex-flow: wrap;
     align-items: center;
     justify-content: start;
-    margin-top: 1rem;
     gap: 0.5rem;
+
+    &:has(> .sw-active-filter__item) {
+        margin-top: 1rem;
+    }
 }
 
 .sw-active-filter__item {

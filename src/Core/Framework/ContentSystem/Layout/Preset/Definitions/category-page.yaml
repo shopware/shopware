@@ -1,6 +1,6 @@
 name: "Category page - with sidebar"
 nameSnippet: "sw-experience-studio.presets.category-page.name"
-description: "Collection of components that make up the category page."
+description: "Category page with product listing and filters in a sidebar with additional navigation."
 descriptionSnippet: "sw-experience-studio.presets.category-page.description"
 icon: "regular-boxes"
 illustration: "preset-category-page"

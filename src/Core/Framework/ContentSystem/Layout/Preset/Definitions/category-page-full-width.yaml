@@ -1,6 +1,6 @@
 name: "Category page - full width"
 nameSnippet: "sw-experience-studio.presets.category-page-full-width.name"
-description: "A filter panel above a full-width product listing."
+description: "Full width category page with product listing and filters."
 descriptionSnippet: "sw-experience-studio.presets.category-page-full-width.description"
 icon: "regular-boxes"
 illustration: "preset-category-page-full-width"

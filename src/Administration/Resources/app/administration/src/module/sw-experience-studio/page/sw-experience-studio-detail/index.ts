@@ -34,7 +34,6 @@ import type {
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
     anchorLanguageId,
-    editingLanguageChain,
     getPropertyControlType,
     withLanguageEntry,
 } from 'src/module/sw-experience-studio/util/element-settings.util';
@@ -365,14 +364,12 @@ export default Shopware.Component.wrapComponentConfig({
             return this.frames.find((frame) => frame.id === this.activeFrameId)?.layoutId ?? null;
         },
 
-        activeLanguageChain(): readonly [string, ...string[]] {
-            const languageId =
-                this.frames.find((frame) => frame.id === this.activeFrameId)?.languageId ?? anchorLanguageId();
-            return editingLanguageChain(languageId, this.languageParents[languageId] ?? null);
+        activeLanguageId(): string {
+            return this.frames.find((frame) => frame.id === this.activeFrameId)?.languageId ?? anchorLanguageId();
         },
 
         activeLanguageName(): string {
-            const languageId = this.activeLanguageChain[0];
+            const languageId = this.activeLanguageId;
             return this.previewLanguageContext?.languageNames[languageId] ?? '';
         },
 
@@ -2339,7 +2336,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 const languageMap = withLanguageEntry(
                     location.elements[location.index].properties?.[propertyKey],
-                    this.activeLanguageChain[0],
+                    this.activeLanguageId,
                     value,
                 );
 

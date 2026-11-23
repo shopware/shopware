@@ -384,6 +384,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (
                 value === null &&
+                !property.translatable &&
                 (this.getControlType(property) === 'number' || this.getControlType(property) === 'responsive-number')
             ) {
                 return this.getResponsiveFallbackValue(property);

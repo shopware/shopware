@@ -256,7 +256,7 @@
                                 :key="activeFrameId"
                                 class="sw-experience-studio-detail__translation-language"
                                 :label="$t('sw-experience-studio.detail.toolbar.previewLanguage')"
-                                :model-value="activeLanguageChain[0]"
+                                :model-value="activeLanguageId"
                                 :options="previewLanguageOptions"
                                 :disabled="isLoading || !isPreviewLanguageContextReady"
                                 small
@@ -271,7 +271,7 @@
                         <sw-experience-studio-translation-settings
                             v-if="settingsPanelMode === 'translations'"
                             :fields="translationFields"
-                            :language-chain="activeLanguageChain"
+                            :language-id="activeLanguageId"
                             :language-name="activeLanguageName"
                             :allow-edit="allowSave && (!previewSalesChannelId || isPreviewLanguageContextReady)"
                             :is-loading-types="elementTypeStore.isLoading"
@@ -284,7 +284,7 @@
                         <sw-experience-studio-element-settings
                             v-else
                             :layout="layout"
-                            :language-chain="activeLanguageChain"
+                            :language-id="activeLanguageId"
                             :language-name="activeLanguageName"
                             :selected-element-id="selectedElementId"
                             :selected-element="selectedElement"

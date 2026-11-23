@@ -161,9 +161,9 @@ describe('multiple previews of one layout', () => {
             languageSelector().vm.$emit('update:value', germanLanguage, { parentId: parentLanguage });
             await flushPromises();
             await view.wrapper.get('[data-frame-id="first-preview"] .test-preview').trigger('click');
-            expect(
-                view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-chain'),
-            ).toBe([germanLanguage, parentLanguage, systemLanguage].join(','));
+            expect(view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-id')).toBe(
+                germanLanguage,
+            );
             expect(view.wrapper.get('sw-experience-studio-element-settings-stub').attributes('language-name')).toBe(
                 'German',
             );
@@ -186,9 +186,9 @@ describe('multiple previews of one layout', () => {
                     .findAllComponents({ name: 'test-preview' })
                     .map((preview) => preview.props('languageId') as string),
             ).toEqual([germanLanguage, systemLanguage]);
-            expect(
-                view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-chain'),
-            ).toBe(systemLanguage);
+            expect(view.wrapper.getComponent('sw-experience-studio-element-settings-stub').attributes('language-id')).toBe(
+                systemLanguage,
+            );
             expect(view.wrapper.get('sw-experience-studio-element-settings-stub').attributes('language-name')).toBe(
                 'English',
             );

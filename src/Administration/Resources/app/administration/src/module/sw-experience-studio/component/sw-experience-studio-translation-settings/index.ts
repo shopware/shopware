@@ -3,7 +3,7 @@ import type { ContentSystemViolation } from 'src/core/service/api/content-system
 import type { LayoutTranslationField } from '../../util/layout-translation.util';
 import type { SettingsFieldDefinition } from '../sw-experience-studio-settings-fields';
 import {
-    editingLanguageChain,
+    anchorLanguageId,
     getElementPropertyStorageKey,
     resolveTranslatableFieldValue,
 } from '../../util/element-settings.util';
@@ -27,9 +27,9 @@ export default Shopware.Component.wrapComponentConfig({
             type: Array as PropType<LayoutTranslationField[]>,
             required: true,
         },
-        languageChain: {
-            type: Array as PropType<readonly string[]>,
-            default: () => editingLanguageChain(),
+        languageId: {
+            type: String,
+            default: () => anchorLanguageId(),
         },
         languageName: {
             type: String,
@@ -115,11 +115,9 @@ export default Shopware.Component.wrapComponentConfig({
                 const value = resolveTranslatableFieldValue(
                     field.property,
                     group.element.properties?.[storageKey],
-                    this.languageChain,
+                    this.languageId,
                 );
-                if (value !== undefined) {
-                    values[field.key] = value;
-                }
+                values[field.key] = value;
             }
             return values;
         },

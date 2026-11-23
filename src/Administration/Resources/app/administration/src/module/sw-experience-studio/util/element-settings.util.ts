@@ -128,10 +128,9 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
 }
 
 /**
- * Resolves the value a field control shows for a translatable property: `undefined`
- * when the key is absent, so the declared default applies. A present language map
- * without a chain entry shows an empty string on a string property, since the map
- * records that the property was authored; other property types stay `undefined`.
+ * Reads only the selected language's stored entry for an editable field.
+ * A missing translation displays the control's empty value, without a declared
+ * default or an inherited translation. This projection never changes storage.
  *
  * @private
  * @sw-package discovery
@@ -139,15 +138,11 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
 export function resolveTranslatableFieldValue(
     property: ContentSystemElementTypeProperty,
     value: unknown,
-    chain: readonly string[],
-): string | number | boolean | undefined {
-    const entry = resolveTranslatableEntry(value, chain);
+    languageId = anchorLanguageId(),
+): string | number | boolean | null {
+    const entry = resolveTranslatableEntry(value, [languageId]);
 
-    if (entry === undefined && value !== undefined && propertyHasType(property, 'string')) {
-        return '';
-    }
-
-    return entry;
+    return getInitialPropertyValue({ ...property, default: null }, entry);
 }
 
 /**
@@ -328,25 +323,6 @@ export function getInitialPropertyValue(
  */
 export function anchorLanguageId(): string {
     return Shopware.Defaults.systemLanguageId;
-}
-
-/**
- * The languages a translatable property value resolves through, in serving order.
- *
- * Each frame resolves its selected language, its optional parent, then the system language.
- * The write path targets the chain head, so inherited values are written into the selected language.
- *
- * @private
- * @sw-package discovery
- */
-export function editingLanguageChain(
-    languageId = anchorLanguageId(),
-    parentLanguageId: string | null = null,
-): readonly [string, ...string[]] {
-    return [
-        languageId,
-        ...new Set([parentLanguageId, anchorLanguageId()].filter((id): id is string => Boolean(id) && id !== languageId)),
-    ];
 }
 
 function isLanguageMap(value: unknown): value is LanguageMap {

@@ -1,7 +1,6 @@
 import type { ContentSystemElementTypeProperty } from 'src/core/service/api/content-system-element-type.api.service';
 import {
     anchorLanguageId,
-    editingLanguageChain,
     getAdminUiHelpText,
     getAdminUiProps,
     getElementPropertyStorageKey,
@@ -671,35 +670,45 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
     });
 
     it('shows the entry of a present language map on a translatable string property', () => {
-        expect(resolveTranslatableFieldValue(stringProperty, { [ANCHOR_LANGUAGE_ID]: 'Hello' }, LANGUAGE_CHAIN)).toBe(
+        expect(resolveTranslatableFieldValue(stringProperty, { [ANCHOR_LANGUAGE_ID]: 'Hello' }, ANCHOR_LANGUAGE_ID)).toBe(
             'Hello',
         );
     });
 
-    it('shows an empty string for a present language map without a chain entry on a string property, not the default', () => {
+    it('shows an empty string instead of another language or the declared default', () => {
         expect(
             resolveTranslatableFieldValue(
                 { ...stringProperty, default: 'Default' },
-                { [ITALIAN_LANGUAGE_ID]: 'Ciao' },
-                LANGUAGE_CHAIN,
+                { [ANCHOR_LANGUAGE_ID]: 'Hello', [GERMAN_LANGUAGE_ID]: 'Hallo' },
+                FRENCH_LANGUAGE_ID,
             ),
         ).toBe('');
     });
 
-    it('leaves an absent key undefined so the declared default applies', () => {
-        expect(
-            resolveTranslatableFieldValue({ ...stringProperty, default: 'Default' }, undefined, LANGUAGE_CHAIN),
-        ).toBeUndefined();
+    it('shows an absent text property as blank without applying the declared default', () => {
+        expect(resolveTranslatableFieldValue({ ...stringProperty, default: 'Default' }, undefined, FRENCH_LANGUAGE_ID)).toBe(
+            '',
+        );
     });
 
-    it('leaves a present language map without a chain entry undefined on a non-string property', () => {
+    it('shows a missing numeric translation as null without applying the declared default', () => {
         expect(
             resolveTranslatableFieldValue(
                 { ...stringProperty, type: 'integer', default: 3 },
                 { [ITALIAN_LANGUAGE_ID]: 2 },
-                LANGUAGE_CHAIN,
+                FRENCH_LANGUAGE_ID,
             ),
-        ).toBeUndefined();
+        ).toBeNull();
+    });
+
+    it('shows a missing boolean translation as off without applying the declared default', () => {
+        expect(
+            resolveTranslatableFieldValue(
+                { ...stringProperty, type: 'boolean', default: true },
+                { [ANCHOR_LANGUAGE_ID]: true },
+                FRENCH_LANGUAGE_ID,
+            ),
+        ).toBe(false);
     });
 
     it.each([
@@ -762,10 +771,6 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
 
     it('exposes the anchor language id as the language a write targets', () => {
         expect(anchorLanguageId()).toBe(ANCHOR_LANGUAGE_ID);
-    });
-
-    it('builds the editing language chain from the anchor language', () => {
-        expect(editingLanguageChain()).toEqual([ANCHOR_LANGUAGE_ID]);
     });
 
     it.each([

@@ -70,7 +70,7 @@ async function createWrapper(languageName = 'English') {
                 },
             },
             languageName,
-            languageChain: ['english'],
+            languageId: 'english',
         },
         global: {
             provide: { repositoryFactory: {} },
@@ -104,15 +104,17 @@ describe('language indicators on translatable settings fields', () => {
         expect(wrapper.get<HTMLInputElement>('input[aria-label="Shared"]').element.value).toBe('Shared value');
     });
 
-    it('updates every pill with the editing language while values can fall back to another language', async () => {
+    it('updates the editing language and values without inheriting another language', async () => {
         wrapper = await createWrapper();
-        await wrapper.setProps({ languageName: 'German', languageChain: ['german', 'english'] });
+        expect(wrapper.get<HTMLInputElement>('input[aria-label="Title"]').element.value).toBe('Hello');
+        expect(wrapper.get('.editor-content').text()).toBe('<p>Fallback text</p>');
+        await wrapper.setProps({ languageName: 'German', languageId: 'german' });
 
         expect(
             wrapper.findAll('.sw-experience-studio-settings-fields__language-badge').map((badge) => badge.text()),
         ).toEqual(['German', 'German', 'German']);
         expect(wrapper.get<HTMLInputElement>('input[aria-label="Title"]').element.value).toBe('Hallo');
-        expect(wrapper.get('.editor-content').text()).toBe('<p>Fallback text</p>');
+        expect(wrapper.get('.editor-content').text()).toBe('');
         expect(wrapper.emitted('update-properties')).toBeUndefined();
     });
 

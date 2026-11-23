@@ -21,6 +21,7 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.
 Whitespace between HTML tags within custom snippets is now preserved; use Twig whitespace control in those snippets when the tags must be adjacent.
+
 ### JSON keys named extensions in DAL criteria
 
 DAL filters, sorting and aggregations preserve JSON keys named `extensions`, including paths such as `customFields.extensions.foo`.

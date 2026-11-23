@@ -95,7 +95,6 @@ use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Framework\Routing\NotFound\NotFoundSubscriber;
-use Shopware\Storefront\Framework\Routing\ProductListingPageOutOfRangeSubscriber;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\ResponseHeaderListener;
 use Shopware\Storefront\Framework\Routing\RobotsRouteScopeWhitelist;
@@ -420,9 +419,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MaintenanceModeResolver::class),
             service('event_dispatcher'),
         ])
-        ->tag('kernel.event_subscriber');
-
-    $services->set(ProductListingPageOutOfRangeSubscriber::class)
         ->tag('kernel.event_subscriber');
 
     $services->set(TemplateDataSubscriber::class)

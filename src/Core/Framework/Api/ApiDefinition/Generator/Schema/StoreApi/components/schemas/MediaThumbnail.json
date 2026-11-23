@@ -24,7 +24,7 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "mediaThumbnailSizeId": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "width": {
@@ -44,7 +44,7 @@
                         "type": "string"
                     },
                     "path": {
-                        "type": "string"
+                        "type": ["string", "null"]
                     },
                     "customFields": {
                         "type": ["object", "null"]

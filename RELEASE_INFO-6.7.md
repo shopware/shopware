@@ -977,6 +977,13 @@ CMS product pages return the same documents in the `documents` data of the descr
 `POST /api/_action/media/upload`, `POST /api/_action/media/upload_by_url` and `POST /api/_action/media/external-link` accept the optional fields `title` and `alt`.
 The new media is created with them, so a separate `PATCH /api/media/{id}` is no longer needed.
 
+### Store API media schema allows `null` where responses send it
+
+The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.
+`MediaThumbnail` also allows `null` for `mediaThumbnailSizeId` and `path`.
+The responses are unchanged.
+If you generate types from the schema, regenerate them and handle `null` for these fields.
+
 ### Order deliveries have a `position` field
 
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
@@ -2717,10 +2724,6 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 ### Store API payment, shipping and checkout gateway routes accept an `orderId`
 
 `/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
-
-### Store API media schema allows `null` where responses send it
-
-The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`. The responses are unchanged. If you generate types from the schema, regenerate them and handle `null` for these fields.
 
 ### New Store API route to add the products of an order to the cart
 

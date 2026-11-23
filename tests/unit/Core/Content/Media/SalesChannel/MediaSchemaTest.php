@@ -93,7 +93,11 @@ class MediaSchemaTest extends TestCase
             'id' => '01a130547b1c71ffa4050455ee97cd7d',
         ])];
 
-        yield 'media entry before its file is uploaded' => [[
+        yield 'uploaded media with a thumbnail without a thumbnail size' => [array_replace_recursive($uploaded, [
+            'thumbnails' => [['mediaThumbnailSizeId' => null]],
+        ])];
+
+        $withoutFile = [
             'translated' => ['alt' => null, 'title' => null, 'customFields' => []],
             'createdAt' => '2026-10-12T13:36:43.046+00:00',
             'updatedAt' => null,
@@ -115,7 +119,26 @@ class MediaSchemaTest extends TestCase
             'customFields' => null,
             'id' => '01a1305471f27268af38ae2c8369986c',
             'apiAlias' => 'media',
-        ]];
+        ];
+
+        yield 'media entry before its file is uploaded' => [$withoutFile];
+
+        yield 'media without a file and a thumbnail without a path' => [array_merge($withoutFile, [
+            'thumbnails' => [[
+                'translated' => [],
+                'createdAt' => '2026-10-12T13:36:43.046+00:00',
+                'updatedAt' => null,
+                'path' => null,
+                'width' => 400,
+                'height' => 300,
+                'url' => '',
+                'mediaId' => '01a1305471f27268af38ae2c8369986c',
+                'mediaThumbnailSizeId' => '01a130547a707305a7f40151990aab3e',
+                'customFields' => null,
+                'id' => '01a1305471f37b2c9d5e0a4c1f6e8b3d',
+                'apiAlias' => 'media_thumbnail',
+            ]],
+        ])];
     }
 
     private static function getSchemaValidator(): Validator

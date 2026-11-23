@@ -289,7 +289,7 @@ class ApiControllerVersionTest extends TestCase
         static::assertSame(1, $this->countVersionedProducts($id, $versionId), 'a denied discard must keep the draft');
     }
 
-    public function testDeleteVersionNeedsNoPrivilegeForTheChangeSet(): void
+    public function testDeleteVersionWithEntityAndVersionDeletePrivilege(): void
     {
         $id = $this->createProduct('live name');
         $versionId = $this->createVersion($id);

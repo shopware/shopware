@@ -9930,11 +9930,6 @@
       "count": 1
     }
   },
-  "src/module/sw-promotion-v2/component/sw-promotion-v2-cart-condition-form/sw-promotion-v2-cart-condition-form.spec.js": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
   "src/module/sw-promotion-v2/component/sw-promotion-v2-empty-state-hero/index.js": {
     "filename-rules/not-match": {
       "count": 1

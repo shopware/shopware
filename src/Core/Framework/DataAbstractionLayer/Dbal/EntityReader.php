@@ -994,6 +994,9 @@ class EntityReader implements EntityReaderInterface
             $orderBy = ' ORDER BY ' . implode(', ', $parts);
             $query->resetOrderBy();
         }
+
+        $limitQuery = clone $query;
+
         // order by is handled in group_concat
         // Order of IDs in criteria will determine result order, when no order by is given
         $fieldCriteria->resetSorting();
@@ -1006,7 +1009,7 @@ class EntityReader implements EntityReaderInterface
         $query->addGroupBy($root . '.' . $localColumn);
 
         if ($fieldCriteria->getLimit() !== null) {
-            $limitQuery = $this->buildManyToManyLimitQuery($association);
+            $limitQuery = $this->buildManyToManyLimitQuery($limitQuery, $root, $localColumn, $referenceColumn, $parts);
 
             $params = [
                 '#source_column#' => EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn()),
@@ -1026,8 +1029,6 @@ class EntityReader implements EntityReaderInterface
                 )
             );
             $query->setParameter('limit', $fieldCriteria->getLimit());
-
-            $this->connection->executeStatement('SET @n = 0, @c = null');
         }
 
         $mapping = $query->executeQuery()->fetchAllKeyValue();
@@ -1270,30 +1271,26 @@ class EntityReader implements EntityReaderInterface
         return $grouped;
     }
 
-    private function buildManyToManyLimitQuery(ManyToManyAssociationField $association): QueryBuilder
-    {
-        $table = EntityDefinitionQueryHelper::escape($association->getMappingDefinition()->getEntityName());
+    /**
+     * @param array<string> $orderByParts
+     */
+    private function buildManyToManyLimitQuery(
+        QueryBuilder $query,
+        string $table,
+        string $sourceColumn,
+        string $referenceColumn,
+        array $orderByParts
+    ): QueryBuilder {
+        $sourceAccessor = $table . '.' . $sourceColumn;
+        $referenceAccessor = $table . '.' . $referenceColumn;
 
-        $sourceColumn = EntityDefinitionQueryHelper::escape($association->getMappingLocalColumn());
-        $referenceColumn = EntityDefinitionQueryHelper::escape($association->getMappingReferenceColumn());
+        $windowOrderBy = implode(', ', [...$orderByParts, $referenceAccessor]);
 
-        $params = [
-            '#table#' => $table,
-            '#source_column#' => $sourceColumn,
-        ];
-
-        $query = new QueryBuilder($this->connection);
         $query->select(
-            str_replace(
-                array_keys($params),
-                array_values($params),
-                '@n:=IF(@c=#table#.#source_column#, @n+1, IF(@c:=#table#.#source_column#,1,1)) as id_count'
-            ),
-            $table . '.' . $referenceColumn,
-            $table . '.' . $sourceColumn,
+            "ROW_NUMBER() OVER (PARTITION BY {$sourceAccessor} ORDER BY {$windowOrderBy}) as id_count",
+            $referenceAccessor,
+            $sourceAccessor,
         );
-        $query->from($table, $table);
-        $query->orderBy($table . '.' . $sourceColumn);
 
         return $query;
     }

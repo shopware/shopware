@@ -2311,6 +2311,84 @@ class EntityReaderTest extends TestCase
         static::assertCount(3, $product2->getCategories());
     }
 
+    public function testLoadManyToManyWithPaginationRespectsSorting(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $products = [
+            [
+                'id' => $id1,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'test',
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'categories' => [
+                    ['name' => 'A'],
+                    ['name' => 'B'],
+                    ['name' => 'X'],
+                    ['name' => 'E'],
+                    ['name' => 'D'],
+                ],
+            ],
+            [
+                'id' => $id2,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 1,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'name' => 'test',
+                'tax' => ['taxRate' => 13, 'name' => 'green'],
+                'categories' => [
+                    ['name' => 'M'],
+                    ['name' => 'Z'],
+                    ['name' => 'K'],
+                    ['name' => 'L'],
+                ],
+            ],
+        ];
+
+        $this->productRepository->upsert($products, $context);
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name'))
+            ->setLimit(3);
+
+        $products = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $categories1 = $products->get($id1)?->getCategories();
+        $categories2 = $products->get($id2)?->getCategories();
+        static::assertNotNull($categories1);
+        static::assertNotNull($categories2);
+
+        static::assertSame(['A', 'B', 'D'], array_values($categories1->map(static fn (CategoryEntity $e) => $e->getName())));
+        static::assertSame(['K', 'L', 'M'], array_values($categories2->map(static fn (CategoryEntity $e) => $e->getName())));
+
+        $criteria = new Criteria([$id1, $id2]);
+        $criteria->getAssociation('categories')
+            ->addSorting(new FieldSorting('name', FieldSorting::DESCENDING))
+            ->setLimit(3);
+
+        $products = $this->productRepository
+            ->search($criteria, $context)
+            ->getEntities();
+
+        $categories1 = $products->get($id1)?->getCategories();
+        $categories2 = $products->get($id2)?->getCategories();
+        static::assertNotNull($categories1);
+        static::assertNotNull($categories2);
+
+        static::assertSame(['X', 'E', 'D'], array_values($categories1->map(static fn (CategoryEntity $e) => $e->getName())));
+        static::assertSame(['Z', 'M', 'L'], array_values($categories2->map(static fn (CategoryEntity $e) => $e->getName())));
+    }
+
     public function testReadSupportsConditions(): void
     {
         $id1 = Uuid::randomHex();

@@ -4916,6 +4916,7 @@
                 "sw_desktop",
                 "sw_desktop_content",
                 "sw_desktop_content_view",
+                "sw_desktop_floating_section",
                 "sw_desktop_sidebar"
             ]
         },
@@ -5493,6 +5494,14 @@
                 "sw_extension_file_upload_confirm_modal_footer_continue",
                 "sw_extension_file_upload_content",
                 "sw_extension_file_upload_form"
+            ]
+        },
+        "sw-extension-floating-section": {
+            "file": "app/component/extension-api/sw-extension-floating-section",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_extension_floating_section"
             ]
         },
         "sw-extension-icon": {
@@ -15490,10 +15499,19 @@
                 "sw_settings_webhook_list_grid",
                 "sw_settings_webhook_list_load_error",
                 "sw_settings_webhook_list_search_bar",
+                "sw_settings_webhook_list_secret_modal",
                 "sw_settings_webhook_list_sidebar",
                 "sw_settings_webhook_list_sidebar_filter",
                 "sw_settings_webhook_list_sidebar_filter_owner",
                 "sw_settings_webhook_list_smart_bar_header"
+            ]
+        },
+        "sw-settings-webhook-secret-modal": {
+            "file": "module/sw-settings-webhook/component/sw-settings-webhook-secret-modal",
+            "visibility": "private",
+            "extends": null,
+            "blocks": [
+                "sw_settings_webhook_secret_modal"
             ]
         },
         "sw-shortcut-overview": {

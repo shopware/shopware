@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder;
 use Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
@@ -250,7 +251,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             param('shopware.product_documents.allowed_extensions'),
             param('shopware.product_documents.max_file_size'),
-            param('shopware.filesystem.allowed_extensions'),
+            service(MediaFileExtensionListProvider::class),
         ]);
 
     $services->set(ProductDocumentValidator::class)
@@ -259,6 +260,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('media.repository'),
             service(ProductDocumentConfig::class),
             service('product_document.repository'),
+            service(Connection::class),
         ])
         ->tag('kernel.event_subscriber');
 

@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\Aggregate\ProductDocument;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentValidator;
@@ -49,6 +51,11 @@ class ProductDocumentValidatorTest extends TestCase
      * @var list<string>
      */
     private array $documentIds = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $usedFileIds = [];
 
     protected function setUp(): void
     {
@@ -101,6 +108,16 @@ class ProductDocumentValidatorTest extends TestCase
         // a file that broke a limit later doesn't block writes that keep it
         $this->storeFile(self::file(private: true));
         $this->translations = [$this->translation('manual', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file', storedFile: 'manual-file')];
+
+        static::assertSame([], $this->preValidate());
+    }
+
+    public function testAFileThatAnotherDocumentAlreadyUsesIsNotCheckedAgain(): void
+    {
+        // a copy, such as a duplicated product or a variant's own copy of its parent's documents
+        $this->storeFile(self::file(extension: 'xlsx', size: 1025));
+        $this->usedFileIds = [$this->ids->get('manual-file')];
+        $this->translations = [$this->translation('manual-copy', Defaults::LANGUAGE_SYSTEM, '/0', file: 'manual-file')];
 
         static::assertSame([], $this->preValidate());
     }
@@ -215,7 +232,13 @@ class ProductDocumentValidatorTest extends TestCase
             },
         ]);
 
-        return new ProductDocumentValidator($writeOutcome, $mediaRepository, new ProductDocumentConfig(new EventDispatcher(), ['pdf', 'docx'], 1024, ['pdf', 'docx']), $productDocumentRepository);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturnCallback(fn (): array => $this->usedFileIds);
+
+        $dispatcher = new EventDispatcher();
+        $config = new ProductDocumentConfig($dispatcher, ['pdf', 'docx'], 1024, new MediaFileExtensionListProvider($dispatcher, ['pdf', 'docx'], []));
+
+        return new ProductDocumentValidator($writeOutcome, $mediaRepository, $config, $productDocumentRepository, $connection);
     }
 
     private function translation(string $document, string $languageId, string $path, string $file, ?string $storedFile = null): OutcomeRow

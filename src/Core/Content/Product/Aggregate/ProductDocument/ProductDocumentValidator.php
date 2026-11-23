@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -48,6 +50,7 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         private readonly EntityRepository $mediaRepository,
         private readonly ProductDocumentConfig $config,
         private readonly EntityRepository $productDocumentRepository,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -111,6 +114,12 @@ final class ProductDocumentValidator implements EventSubscriberInterface
                 $translationsWithNewFile[] = [$translation, Uuid::fromBytesToHex($newMediaId)];
             }
         }
+
+        $usedFileIds = $this->loadUsedDocumentFileIds(array_column($translationsWithNewFile, 1));
+        $translationsWithNewFile = array_values(array_filter(
+            $translationsWithNewFile,
+            static fn (array $translationWithFile): bool => !isset($usedFileIds[$translationWithFile[1]]),
+        ));
 
         if ($translationsWithNewFile === []) {
             return;
@@ -206,6 +215,26 @@ final class ProductDocumentValidator implements EventSubscriberInterface
         $criteria->setLimit(1);
 
         return $this->productDocumentRepository->searchIds($criteria, $context)->firstId() !== null;
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return array<string, true>
+     */
+    private function loadUsedDocumentFileIds(array $mediaIds): array
+    {
+        if ($mediaIds === []) {
+            return [];
+        }
+
+        $usedFileIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(media_id)) FROM product_document_translation WHERE media_id IN (:mediaIds)',
+            ['mediaIds' => Uuid::fromHexToBytesList(array_values(array_unique($mediaIds)))],
+            ['mediaIds' => ArrayParameterType::BINARY],
+        );
+
+        return array_fill_keys(array_map(strval(...), $usedFileIds), true);
     }
 
     /**

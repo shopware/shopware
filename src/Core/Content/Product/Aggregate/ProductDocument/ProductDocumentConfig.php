@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 
+use Shopware\Core\Content\Media\Upload\MediaFileExtensionListProvider;
 use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -16,13 +17,12 @@ readonly class ProductDocumentConfig
     /**
      * @param list<string> $allowedExtensions
      * @param int $maxFileSize in bytes
-     * @param list<string> $publicMediaExtensions
      */
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
         private array $allowedExtensions,
         public int $maxFileSize,
-        private array $publicMediaExtensions,
+        private MediaFileExtensionListProvider $mediaFileExtensionListProvider,
     ) {
     }
 
@@ -34,7 +34,7 @@ readonly class ProductDocumentConfig
         $event = new ProductDocumentAllowedExtensionsEvent($this->allowedExtensions, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $publicMediaExtensions = array_flip(self::normalize($this->publicMediaExtensions));
+        $publicMediaExtensions = array_flip($this->mediaFileExtensionListProvider->getAllowedExtensions(false, $context));
 
         return array_values(array_filter(
             self::normalize($event->getAllowedExtensions()),

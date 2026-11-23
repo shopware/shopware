@@ -105,7 +105,8 @@ The copy only keeps secrets if it took over production. It can tell from the sho
 - After "Move shop permanently", staging has `https://staging.shop.example` stored, which is where it runs. It took over, so it keeps the secret.
 - A fresh copy still has production's `https://shop.example` stored. It never took over, so it keeps nothing.
 
-For each app, the copy keeps its current secret, and also the secret from any registration that did not finish, because the app may already use it.
+For each app, the copy keeps its current secret.
+If a registration broke off halfway, it also keeps the secret from that attempt, since the app may already expect it.
 
 In the example, the copy stores one row like this per app in its own database:
 

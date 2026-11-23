@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Content\Mail\Message\SendMailHandler;
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
@@ -24,6 +25,7 @@ use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
@@ -82,7 +84,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Translator::class),
         ]);
 
-    $services->set(MailGroupResolver::class);
+    $services->set(MailGroupResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     $services->set(MailMetricsInstrumentor::class)
         ->args([
@@ -107,6 +112,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('document.repository'),
             service('monolog.logger.business_events'),
             service(DocumentResolver::class),
+            service(DocumentMediaGuard::class),
         ]);
 
     $services->set(MailPayloadFactory::class);

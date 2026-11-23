@@ -6,6 +6,7 @@ use Monolog\Level;
 use Shopware\Core\Content\Flow\Dispatching\Action\FlowMailVariables;
 use Shopware\Core\Content\Flow\Dispatching\Aware\ScalarValuesAware;
 use Shopware\Core\Content\Mail\Service\AbstractMailFactory;
+use Shopware\Core\Content\Mail\Service\MailLogData;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -136,12 +137,17 @@ class MailSentEvent extends Event implements LogAware, ScalarValuesAware, FlowEv
 
     public function getLogData(): array
     {
-        return [
+        $data = [
             'eventName' => $this->eventName,
             'subject' => $this->subject,
             'recipients' => $this->recipients,
-            'contents' => $this->contents,
         ];
+
+        if (!MailLogData::isSensitive($this->data, ['eventName' => $this->eventName]) && ($this->message === null || !MailLogData::isSensitiveMessage($this->message))) {
+            $data['contents'] = $this->contents;
+        }
+
+        return $data;
     }
 
     public function getLogLevel(): Level

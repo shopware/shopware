@@ -40,6 +40,8 @@ export default Component.wrapComponentConfig({
 
     inject: ['repositoryFactory', 'stateStyleDataProviderService'],
 
+    emits: ['modal-close'],
+
     mixins: [Mixin.getByName('notification')],
 
     props: {
@@ -52,6 +54,10 @@ export default Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 

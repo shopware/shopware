@@ -4,6 +4,8 @@
  * @sw-package framework
  */
 
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
+
 const { Module, Application } = Shopware;
 const ModuleFactory = Module;
 const register = ModuleFactory.register;
@@ -11,6 +13,7 @@ const register = ModuleFactory.register;
 describe('core/factory/module.factory.js', () => {
     // We're clearing the modules registry to register the same module multiple times throughout the test suite
     beforeEach(async () => {
+        allowDeprecation('ModuleFactory.getModuleSnippets() is deprecated');
         const modules = ModuleFactory.getModuleRegistry();
         modules.clear();
     });
@@ -390,6 +393,9 @@ describe('core/factory/module.factory.js', () => {
                 },
             },
         });
+        expect(deprecations).toHaveTriggered('Module "sw-foo": the "snippets" property is deprecated');
+        expect(deprecations).toHaveTriggered('Module "sw-bar": the "snippets" property is deprecated');
+        expect(deprecations).toHaveTriggered('Module "sw-baz": the "snippets" property is deprecated');
     });
 
     it.activeFeatureFlags(['testFlag'])('should add settings item if feature flag is active', () => {

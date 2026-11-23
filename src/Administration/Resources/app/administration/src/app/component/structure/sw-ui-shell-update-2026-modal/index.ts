@@ -11,6 +11,7 @@ type UiShellUpdate2026Page = {
     id: string;
     headline: string;
     descriptionKey: string;
+    hintKey: string;
     pinnedSplit?: number;
     hasThemeSelect?: boolean;
     badge?: string;
@@ -93,11 +94,13 @@ export default Shopware.Component.wrapComponentConfig({
                     id: 'admin-navigation',
                     headline: this.$t('sw-ui-shell-update-2026-modal.pages.adminNavigation.headline'),
                     descriptionKey: 'sw-ui-shell-update-2026-modal.pages.adminNavigation.description',
+                    hintKey: 'sw-ui-shell-update-2026-modal.pages.adminNavigation.moduleColorsHint',
                 },
                 {
                     id: 'dark-mode',
                     headline: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.headline'),
                     descriptionKey: 'sw-ui-shell-update-2026-modal.pages.darkMode.description',
+                    hintKey: 'sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectHint',
                     pinnedSplit: 100,
                     hasThemeSelect: true,
                     badge: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.badge'),

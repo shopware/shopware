@@ -105,8 +105,8 @@
 
     <div class="cms-element-{{ element.type }}{% if displayMode == 'standard' and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
-            {% if config.verticalAlign.value %}
-                <div class="cms-element-alignment{% if verticalAlign == 'center' %} align-self-center{% elseif verticalAlign == 'flex-end' %} align-self-end{% else %} align-self-start{% endif %}">
+            {% if displayMode == 'standard' and verticalAlign %}
+                <div class="cms-element-alignment w-100{% if verticalAlign == 'center' %} align-self-center{% elseif verticalAlign == 'flex-end' %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
             {% set gallerySliderOptions = {
@@ -1010,7 +1010,7 @@
                 </div>
             {% endblock %}
 
-            {% if config.verticalAlign.value %}
+            {% if displayMode == 'standard' and verticalAlign %}
                 </div>
             {% endif %}
         {% endblock %}

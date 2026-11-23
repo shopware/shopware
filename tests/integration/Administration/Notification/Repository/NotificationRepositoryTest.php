@@ -76,8 +76,8 @@ class NotificationRepositoryTest extends TestCase
 
         $result = $this->notificationRepository->search(new Criteria([$id]), $this->context)->getEntities();
 
-        /** @var NotificationEntity $notification */
         $notification = $result->get($id);
+        static::assertInstanceOf(NotificationEntity::class, $notification);
         static::assertCount(1, $result);
         static::assertSame($data['status'], $notification->getStatus());
         static::assertSame($data['message'], $notification->getMessage());

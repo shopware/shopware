@@ -15,7 +15,6 @@ const { Application } = Shopware;
  * <sw-search-bar-item :item="{ type: 'customer', entity: [{ name: 'customer name', id: 'uuid' }]}">
  * </sw-search-bar-item>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -99,12 +98,20 @@ export default {
             return module.manifest;
         },
 
+        customItemRoute() {
+            const searchType = Object.values(this.searchTypes).find((type) => {
+                return type.entityName === this.type && typeof type.itemRoute === 'function';
+            });
+
+            return searchType ? searchType.itemRoute(this.item) : null;
+        },
+
         detailRoute() {
             return this.moduleManifest?.routes?.detail?.name;
         },
 
         displayValue() {
-            if (!this.moduleManifest.hasOwnProperty('entityDisplayProperty')) {
+            if (!this.moduleManifest?.hasOwnProperty('entityDisplayProperty')) {
                 return this.item.hasOwnProperty('name') ? this.item.name : this.item.id;
             }
 

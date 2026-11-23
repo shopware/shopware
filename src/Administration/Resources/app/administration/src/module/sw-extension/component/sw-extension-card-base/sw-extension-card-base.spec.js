@@ -174,7 +174,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
             },
         );
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
         expect(state).toHaveLength(0);
@@ -201,7 +201,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 },
             },
         );
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const state = wrapper.findAll('.sw-context-menu-item');
         expect(state).toHaveLength(1);
@@ -245,7 +245,7 @@ describe('src/module/sw-extension/component/sw-extension-card-base', () => {
                 },
             },
         );
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const state = wrapper.findAll('sw-context-menu-item-stub');
         expect(state).toHaveLength(0);

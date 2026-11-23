@@ -109,12 +109,12 @@ class CriteriaQueryBuilder
             $this->validateSortingDirection($sorting->getDirection());
 
             if ($sorting->getField() === Criteria::SCORE_FIELD) {
-                if (!$this->hasQueriesOrTerm($criteria)) {
+                if ($criteria->getQueries() === []) {
                     continue;
                 }
 
                 // Only add manual _score sorting if the query contains a _score calculation and selection (i.e. the
-                // criteria has a term or queries). Otherwise the SQL selection would fail because no _score field
+                // criteria has queries). Otherwise the SQL selection would fail because no _score field
                 // exists in any entity.
                 $query->addOrderBy(Criteria::SCORE_FIELD, $sorting->getDirection());
                 $query->addState(Criteria::SCORE_FIELD);
@@ -296,11 +296,6 @@ class CriteriaQueryBuilder
         }
 
         return false;
-    }
-
-    private function hasQueriesOrTerm(Criteria $criteria): bool
-    {
-        return $criteria->getQueries() !== [] || $criteria->getTerm();
     }
 
     private function validateSortingDirection(string $direction): void

@@ -2,8 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\CustomFieldXmlLoader;
@@ -17,6 +17,7 @@ class CustomFieldLifecycleHandler extends AbstractLifecycleHandler
 {
     public function __construct(
         private readonly CustomFieldSetPersister $customFieldSetPersister,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -32,17 +33,20 @@ class CustomFieldLifecycleHandler extends AbstractLifecycleHandler
 
     private function persist(AppPersistContext $context): void
     {
-        $customFields = null;
+        $customFields = $context->manifest->getCustomFields();
 
-        // Prefer Resources/config/custom-fields.xml file over inline manifest definition
+        // The preferred Resources/config/custom-fields.xml takes precedence over the inline manifest definition
         if ($context->appFilesystem->hasFile('Resources', 'config', 'custom-fields.xml')) {
+            if ($customFields !== null) {
+                $this->logger->warning(
+                    'App "{appName}" defines custom fields in both manifest.xml and Resources/config/custom-fields.xml. The inline definition in manifest.xml is ignored.',
+                    ['appName' => $context->app->getName()]
+                );
+            }
+
             $customFields = CustomFieldXmlLoader::load(
                 $context->appFilesystem->path('Resources', 'config', 'custom-fields.xml')
             );
-        } elseif ($context->manifest->getCustomFields() !== null) {
-            Feature::triggerDeprecationOrThrow('v6.8.0.0', 'Defining custom fields inline in manifest.xml is deprecated, use Resources/config/custom-fields.xml instead.');
-
-            $customFields = $context->manifest->getCustomFields();
         }
 
         $this->customFieldSetPersister->sync(

@@ -108,6 +108,18 @@ The deprecated `sw-empty-state` component was removed. Use `mt-empty-state` inst
 
 It has no default slot either, and `description` renders plain text instead of HTML. It is left-aligned by default, set `centered` to keep the previous layout. Overrides of the `sw_empty_state_*` Twig blocks no longer apply.
 
+The `sw-deprecation-rules/no-sw-empty-state-usage` ESLint rule of the Administration extension tooling migrates most usages automatically:
+
+```bash
+bin/console administration:check-extensions -- --only=MyPlugin --fix
+```
+
+It renames `title` to `headline` and `subline` to `description`, moves the `actions` slot to `button`, and turns plain text default slots and `icon` slots with a single `mt-icon` or `sw-icon` into props.
+If `icon` or `subline` is not set, it passes the module icon or description that `sw-empty-state` used as fallback.
+Usages with custom `icon` slot content, markup in the default slot, conditional `icon` or default slot templates or dynamic bindings are only reported and have to be migrated manually.
+Check the `TODO Codemod` comment the rule adds above each converted usage.
+It names removed props and bound values that no longer fall back to the module icon or description.
+
 ## Legacy document components removed
 
 The legacy document services and components in the Administration were removed:
@@ -116,6 +128,19 @@ The legacy document services and components in the Administration were removed:
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
 
 # Storefront
+
+## Refactor of providing cookies
+
+The `\Shopware\Storefront\Framework\Cookie\CookieProviderInterface` and all its implementations were removed.
+Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to register new cookie groups and cookie entries.
+The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
+Use `name` and `description` instead.
+
+## Removed `seo:repair:link-category-takeover` command
+
+The `seo:repair:link-category-takeover` command has been removed.
+It repaired categories whose SEO URL was taken over by a link category of the same name during category indexing in 6.7.
+Run it before upgrading if you have not done so yet, and remove it from your deployment scripts.
 
 ## Removed `category_url` and `category_linknewtab` Twig functions
 

@@ -1,0 +1,36 @@
+{
+  "persona": "architecture",
+  "tier": "balanced",
+  "pr": {
+    "number": null,
+    "head_sha": "synthetic-migrations-catch",
+    "title": "refactor(core): replace the product sorting locked flag with is_system",
+    "body": "Adds `product_sorting.is_system` with an index, copies the `locked` flag into it and removes the old column. The definition switches to the new field in a follow-up PR.",
+    "labels": [],
+    "author": "synthetic",
+    "author_association": "MEMBER",
+    "base_ref_name": "trunk",
+    "head_ref_name": "synthetic/migrations-catch",
+    "additions": 99,
+    "deletions": 0,
+    "changed_files": 3
+  },
+  "diff_path": "diff.patch",
+  "files": [
+    "src/Core/Migration/V6_7/Migration1791537247AddIsSystemToProductSorting.php",
+    "src/Core/Migration/V6_7/Migration1791537318RemoveLockedFromProductSorting.php",
+    "tests/migration/Core/V6_7/Migration1791537247AddIsSystemToProductSortingTest.php"
+  ],
+  "guides": [
+    "guides/migrations.md"
+  ],
+  "change_profile": {
+    "signals": [
+      "migration",
+      "php_src"
+    ],
+    "guides": [
+      "migrations"
+    ]
+  }
+}

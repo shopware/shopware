@@ -2,15 +2,13 @@
 
 namespace Shopware\Core\System\SalesChannel\Telemetry;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 
 /**
- * Maps a sales channel type id to a small, bounded label value, so the (plugin-extensible) set of
- * sales channel types does not blow up the metric label cardinality.
- *
- * Owns its bounded output set (closed map, `other` as default), so the consuming metric labels may use
- * `policy: open`. Known outputs: storefront, api, product_comparison, agentic_commerce, other.
+ * Resolves a sales channel type id (core ids: `Defaults::SALES_CHANNEL_TYPE_*`) to the `sales_channel_type`
+ * label value (see `metrics.mappings.sales_channel_type` in `telemetry.yaml`, extension and merge rules in
+ * `src/Core/Framework/Telemetry/README.md`).
  *
  * Shared resolver — used by the cart calculation and order placed collectors.
  *
@@ -23,18 +21,14 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('checkout')]
 class SalesChannelTypeResolver
 {
-    /**
-     * @var array<string, string>
-     */
-    private const TYPES = [
-        Defaults::SALES_CHANNEL_TYPE_STOREFRONT => 'storefront',
-        Defaults::SALES_CHANNEL_TYPE_API => 'api',
-        Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON => 'product_comparison',
-        Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE => 'agentic_commerce',
-    ];
+    final public const MAPPING = 'sales_channel_type';
+
+    public function __construct(private readonly LabelMappingRegistry $mappings)
+    {
+    }
 
     public function resolve(string $typeId): string
     {
-        return self::TYPES[$typeId] ?? 'other';
+        return $this->mappings->resolve(self::MAPPING, $typeId);
     }
 }

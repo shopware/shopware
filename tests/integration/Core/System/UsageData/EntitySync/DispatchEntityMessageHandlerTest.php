@@ -40,6 +40,11 @@ class DispatchEntityMessageHandlerTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var list<list<array<string, mixed>>>
+     */
+    private array $sentEntities = [];
+
     protected function setUp(): void
     {
         $client = $this->getMockHttpClient();
@@ -298,6 +303,81 @@ class DispatchEntityMessageHandlerTest extends TestCase
         $messageHandler($dispatchEntityMessage);
     }
 
+    public function testSendsOnlyTheRowMatchingAllColumnsOfACombinedPrimaryKey(): void
+    {
+        $ids = new IdsCollection();
+        $this->captureSentEntities();
+
+        $this->addProductDefinition();
+
+        $product = (new ProductBuilder($ids, 'test-product'))
+            ->name('Testing product')
+            ->price(100)
+            ->translation($this->getDeDeLanguageId(), 'name', 'Testprodukt')
+            ->build();
+        static::getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        $dispatchEntityMessage = new DispatchEntityMessage(
+            'product_translation',
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            [
+                [
+                    'product_id' => $ids->get('test-product'),
+                    'product_version_id' => Defaults::LIVE_VERSION,
+                    'language_id' => Defaults::LANGUAGE_SYSTEM,
+                ],
+            ]
+        );
+
+        $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler($dispatchEntityMessage);
+
+        static::assertCount(1, $this->sentEntities);
+        static::assertCount(1, $this->sentEntities[0]);
+        static::assertSame($ids->get('test-product'), $this->sentEntities[0][0]['productId']);
+        static::assertSame(Defaults::LANGUAGE_SYSTEM, $this->sentEntities[0][0]['languageId']);
+    }
+
+    public function testCreateOperationOnlySendsEntitiesNotUpdatedAfterTheCollectUntilDate(): void
+    {
+        $ids = new IdsCollection();
+        $this->captureSentEntities();
+
+        $this->addProductDefinition();
+
+        $this->createTestProduct($ids, 'never-updated-product');
+        $this->createTestProduct($ids, 'updated-later-product');
+
+        $this->connection->executeStatement(
+            'UPDATE `product` SET `updated_at` = NULL WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($ids->get('never-updated-product'))],
+        );
+        $this->connection->executeStatement(
+            'UPDATE `product` SET `updated_at` = :updatedAt WHERE `id` = :id',
+            [
+                'updatedAt' => (new \DateTimeImmutable())->add(new DateInterval('P1D'))->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'id' => Uuid::fromHexToBytes($ids->get('updated-later-product')),
+            ],
+        );
+
+        $dispatchEntityMessage = new DispatchEntityMessage(
+            'product',
+            Operation::CREATE,
+            new \DateTimeImmutable(),
+            [
+                ['id' => $ids->get('never-updated-product')],
+                ['id' => $ids->get('updated-later-product')],
+            ]
+        );
+
+        $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
+        $messageHandler($dispatchEntityMessage);
+
+        static::assertCount(1, $this->sentEntities);
+        static::assertSame([$ids->get('never-updated-product')], array_column($this->sentEntities[0], 'id'));
+    }
+
     public function testHandleDeletionOfEntities(): void
     {
         $firstEntity = $this->insertEntityDeletionEntry($this->idsCollection->get('product-entity-deletion-1'));
@@ -345,6 +425,27 @@ class DispatchEntityMessageHandlerTest extends TestCase
         // message handlers are inlined
         $messageHandler = static::getContainer()->get(DispatchEntityMessageHandler::class);
         $messageHandler($dispatchEntityMessage);
+    }
+
+    private function captureSentEntities(): void
+    {
+        $this->getMockHttpClient()->setResponseFactory(function (string $method, string $url, array $options): ResponseInterface {
+            if (\str_ends_with($url, '/killswitch')) {
+                return new MockResponse(json_encode(['killswitch' => false], \JSON_THROW_ON_ERROR));
+            }
+
+            $body = gzdecode($options['body']);
+            static::assertIsString($body);
+            $payload = json_decode($body, true, flags: \JSON_THROW_ON_ERROR);
+            static::assertIsArray($payload);
+            static::assertIsList($payload['entities']);
+
+            /** @var list<array<string, mixed>> $entities */
+            $entities = $payload['entities'];
+            $this->sentEntities[] = $entities;
+
+            return new MockResponse('', ['http_code' => 200]);
+        });
     }
 
     private function addProductDefinition(): void

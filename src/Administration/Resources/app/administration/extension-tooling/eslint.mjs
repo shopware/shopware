@@ -256,6 +256,7 @@ export function shopwareAdminExtension(options = {}) {
             rules: {
                 'sw-deprecation-rules/no-deprecated-components': templateDeprecationSeverity,
                 'sw-deprecation-rules/no-deprecated-component-usage': templateDeprecationSeverity,
+                'sw-deprecation-rules/no-sw-empty-state-usage': templateDeprecationSeverity,
             },
         },
         // typescript-eslint types `.vue` SFCs only partially — without the Vue
@@ -276,6 +277,27 @@ export function shopwareAdminExtension(options = {}) {
                 '@typescript-eslint/no-unsafe-call': 'off',
                 '@typescript-eslint/no-unsafe-member-access': 'off',
                 '@typescript-eslint/no-unsafe-return': 'off',
+            },
+        },
+        {
+            name: 'shopware/admin-extension/code-quality',
+            files: scope([...javascriptFilePatterns, ...typescriptFilePatterns, ...vueFilePatterns]),
+            rules: {
+                // Options follow eslint-config-airbnb-base, which the Administration used before ESLint 9.
+                'no-else-return': ['error', { allowElseIf: false }],
+                'no-useless-return': 'error',
+                'no-lonely-if': 'error',
+                'no-unneeded-ternary': ['error', { defaultAssignment: false }],
+            },
+        },
+        // Placed before the spec-files block, which switches these type-aware rules off again for untyped specs.
+        {
+            name: 'shopware/admin-extension/typed-code-quality',
+            files: scope([...typescriptFilePatterns, ...vueFilePatterns]),
+            rules: {
+                '@typescript-eslint/no-unnecessary-boolean-literal-compare': 'error',
+                '@typescript-eslint/no-unnecessary-template-expression': 'error',
+                '@typescript-eslint/no-unnecessary-type-conversion': 'error',
             },
         },
         ...(specFiles === 'typed' ? [] : [specFilesConfig]),

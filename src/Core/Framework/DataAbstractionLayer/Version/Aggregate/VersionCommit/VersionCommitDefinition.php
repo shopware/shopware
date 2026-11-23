@@ -3,7 +3,10 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -65,6 +68,11 @@ class VersionCommitDefinition extends EntityDefinition
     protected function getParentDefinitionClass(): ?string
     {
         return VersionDefinition::class;
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE, Context::USER_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection

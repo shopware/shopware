@@ -25,11 +25,13 @@ use Shopware\Core\Checkout\DocumentV2\Extension\DocumentRouteExtension;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -202,58 +204,32 @@ class DocumentRouteTest extends TestCase
         $route->download(self::DUMMY_DOCUMENT_ID, $request, $context);
     }
 
+    #[DataProvider('provideWrongGuestCredentials')]
     #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
-    public function testThrowExceptionWrongCredentialsForGuestAuthentication(): void
+    public function testThrowExceptionWrongCredentialsForGuestAuthentication(Request $request): void
     {
-        $billingAddress = new OrderAddressEntity();
-        $billingAddress->setId(Uuid::randomHex());
-        $billingAddress->setZipcode('zipcode');
+        $this->assertWrongGuestCredentials($request);
+    }
 
-        $customerId = Uuid::randomHex();
-        $customer = $this->createCustomer($customerId, true);
+    /**
+     * @deprecated tag:v6.8.0 - remove together with DocumentRoute::checkGuestAuth()
+     */
+    #[DataProvider('provideWrongGuestCredentials')]
+    #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK', 'v6.8.0.0'])]
+    public function testThrowExceptionWrongCredentialsForGuestAuthenticationWithoutGuestAuthenticator(Request $request): void
+    {
+        $this->assertWrongGuestCredentials($request);
+    }
 
-        $orderCustomer = new OrderCustomerEntity();
-        $orderCustomer->setId(Uuid::randomHex());
-        $orderCustomer->setCustomer($customer);
-        $orderCustomer->setCustomerId($customerId);
-        $orderCustomer->setEmail('email');
-
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
-        $order->setOrderCustomer($orderCustomer);
-        $order->setBillingAddress($billingAddress);
-
-        $document = $this->createDocument($order);
-
-        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
-            new DocumentCollection([$document]),
-        ], new DocumentDefinition());
-
-        $fileRenderersMock = new \ArrayIterator([
-            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
-        ]);
-
-        $route = new DocumentRoute(
-            static::createStub(DocumentGenerator::class),
-            $this->createDocumentReaderStub(),
-            $documentRepository,
-            static::createStub(RateLimiter::class),
-            new GuestAuthenticator(),
-            $fileRenderersMock,
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
-
-        $request = new Request([
-            'email' => 'email',
-            'zipcode' => 'not matching',
-        ]);
-
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        $this->expectExceptionObject(CustomerException::wrongGuestCredentials());
-
-        $route->download($document->getId(), $request, $context, 'deepLinkCode');
+    /**
+     * @return iterable<string, array{Request}>
+     */
+    public static function provideWrongGuestCredentials(): iterable
+    {
+        yield 'not matching zipcode' => [new Request(['email' => 'email', 'zipcode' => 'not matching'])];
+        yield 'int zipcode in body' => [new Request([], ['email' => 'email', 'zipcode' => 12345])];
+        yield 'array zipcode in query' => [new Request(['email' => 'email', 'zipcode' => ['zipcode']])];
+        yield 'bool email in body' => [new Request([], ['email' => true, 'zipcode' => 'zipcode'])];
     }
 
     #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
@@ -438,7 +414,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -512,7 +487,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -579,7 +553,6 @@ class DocumentRouteTest extends TestCase
 
         $document = $this->createDocument($order);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new DocumentCollection([$document]),
         ]);
@@ -1102,7 +1075,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
+            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver(), new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]]))),
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
@@ -1158,7 +1131,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver()),
+            new DocumentReader($documentRepository, $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver(), new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]]))),
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
@@ -1210,7 +1183,7 @@ class DocumentRouteTest extends TestCase
 
         $route = new DocumentRoute(
             static::createStub(DocumentGenerator::class),
-            new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]), new DocumentFileResolver()),
+            new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]), new DocumentFileResolver(), new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]]))),
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
@@ -1273,6 +1246,54 @@ class DocumentRouteTest extends TestCase
         static::assertSame($response, $route->download($documentId, $request, $context, $deepLinkCode, $fileType, $format));
     }
 
+    private function assertWrongGuestCredentials(Request $request): void
+    {
+        $billingAddress = new OrderAddressEntity();
+        $billingAddress->setId(Uuid::randomHex());
+        $billingAddress->setZipcode('zipcode');
+
+        $customerId = Uuid::randomHex();
+        $customer = $this->createCustomer($customerId, true);
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setId(Uuid::randomHex());
+        $orderCustomer->setCustomer($customer);
+        $orderCustomer->setCustomerId($customerId);
+        $orderCustomer->setEmail('email');
+
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+        $order->setOrderCustomer($orderCustomer);
+        $order->setBillingAddress($billingAddress);
+
+        $document = $this->createDocument($order);
+
+        $documentRepository = StaticEntityRepository::of(DocumentCollection::class, [
+            new DocumentCollection([$document]),
+        ], new DocumentDefinition());
+
+        $fileRenderersMock = new \ArrayIterator([
+            PdfRenderer::FILE_EXTENSION => static::createStub(AbstractDocumentTypeRenderer::class),
+        ]);
+
+        $route = new DocumentRoute(
+            static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
+            $documentRepository,
+            static::createStub(RateLimiter::class),
+            new GuestAuthenticator(),
+            $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn(null);
+
+        $this->expectExceptionObject(CustomerException::wrongGuestCredentials());
+
+        $route->download($document->getId(), $request, $context, 'deepLinkCode');
+    }
+
     private function createCustomer(string $customerId, bool $isGuest): CustomerEntity
     {
         $customer = new CustomerEntity();
@@ -1313,6 +1334,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
     }
 }

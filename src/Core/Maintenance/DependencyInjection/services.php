@@ -3,10 +3,9 @@
 namespace Shopware\Core\Maintenance\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
-use GuzzleHttp\Client;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
-use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\ShopIdChangeResolver\Resolver;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
@@ -32,7 +31,6 @@ use Shopware\Core\Maintenance\System\Command\SystemIsInstalledCommand;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
 use Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand;
 use Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Service\SetupDatabaseAdapter;
 use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
@@ -46,14 +44,10 @@ use Symfony\Component\Dotenv\Command\DotenvDumpCommand;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
-    $containerConfigurator->parameters()
-        ->set('env(APP_URL_CHECK_DISABLED)', 'false');
-
     $services = $containerConfigurator->services();
 
     $services->set(DatabaseConnectionFactory::class);
@@ -125,16 +119,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheClearer::class),
         ])
         ->tag('console.command');
-
-    $services->set(AppUrlVerifier::class)
-        ->args([
-            service('shopware.maintenance.client'),
-            service(Connection::class),
-            param('kernel.environment'),
-            env('APP_URL_CHECK_DISABLED')->bool(),
-        ]);
-
-    $services->set('shopware.maintenance.client', Client::class);
 
     $services->set(ShopConfigurator::class)
         ->args([
@@ -230,10 +214,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StagingAppHandler::class)
         ->args([
-            service(Connection::class),
-            service(ShopIdProvider::class),
+            service(Resolver::class),
         ])
-        ->tag('kernel.event_listener');
+        ->tag('kernel.event_listener', ['priority' => -100]);
 
     $services->set(StagingMailHandler::class)
         ->args([

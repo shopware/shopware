@@ -1,0 +1,11 @@
+diff --git a/coding-guidelines/core/adr.md b/coding-guidelines/core/adr.md
+index 1111111..2222222 100644
+--- a/coding-guidelines/core/adr.md
++++ b/coding-guidelines/core/adr.md
+@@ -1,4 +1,5 @@
+ # ADR
+ 
+-An ADR records one decision.
++An ADR records one decision and the context it was made in.
++Keep it short.
+ 

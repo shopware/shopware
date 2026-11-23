@@ -2,6 +2,7 @@
  * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const mailHeaderFooterMock = [
     {
@@ -112,6 +113,10 @@ const createWrapper = async (privileges = [], term = '') => {
 };
 
 describe('modules/sw-mail-template/component/sw-mail-header-footer-list', () => {
+    beforeEach(() => {
+        allowDeprecation('sw-mail-header-footer-list.assetFilter is deprecated');
+    });
+
     it('should not allow to duplicate without create permission', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

@@ -5,6 +5,7 @@
 import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import Criteria from './criteria.data';
 import type EntityHydrator from './entity-hydrator.data';
+import type { EntitySearchResponseData } from './entity-hydrator.data';
 import type ChangesetGenerator from './changeset-generator.data';
 import type ErrorResolver from './error-resolver.data';
 import type EntityFactory from './entity-factory.data';
@@ -149,10 +150,11 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         }
 
         return this.runCachedRead(cache, () => {
-            return this.httpClient.post(url, criteria.parse(), this.buildRequestConfig(headers)).then((response) => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
-            });
+            return this.httpClient
+                .post<EntitySearchResponseData>(url, criteria.parse(), this.buildRequestConfig(headers))
+                .then((response) => {
+                    return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
+                });
         });
     }
 
@@ -376,7 +378,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
                 this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
-                if ((data as { success: boolean }).success === false) {
+                if ((data as { success?: boolean }).success === false) {
                     throw data;
                 }
                 return Promise.resolve();
@@ -451,7 +453,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
     assign(id: EntityKey<EntityName>, context = Shopware.Context.api): Promise<HttpResponse> {
         const headers = this.buildHeaders(context);
 
-        return this.httpClient.post(`${this.route}`, { id }, this.buildRequestConfig(headers));
+        return this.httpClient.post(this.route, { id }, this.buildRequestConfig(headers));
     }
 
     /**
@@ -487,7 +489,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         if (criteria.getLimit() === null) {
             criteria.setLimit(50);
         }
-        criteria.setTotalCountMode(1);
+        criteria.setTotalCountMode(0);
 
         return this.searchIds(criteria, context).then((response) => {
             const ids = response.data;
@@ -536,7 +538,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
                 this.buildRequestConfig(headers),
             )
             .then(({ data }) => {
-                if ((data as { success: boolean }).success === false) {
+                if ((data as { success?: boolean }).success === false) {
                     throw data;
                 }
                 return Promise.resolve();
@@ -655,7 +657,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
         );
         const url = `/_action/version/${versionId}/${this.entityName.replace(/_/g, '-')}/${entityId}`;
 
-        return fetch(this.httpClient.getUri({ url, useAxiosV1: true }), {
+        return fetch(this.httpClient.getUri({ url }), {
             method: 'POST',
             headers,
             body: JSON.stringify({}),
@@ -678,7 +680,7 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
             Object.assign(changes, { id: entity.id });
 
             return this.httpClient
-                .post(`${this.route}`, changes, this.buildRequestConfig(headers))
+                .post(this.route, changes, this.buildRequestConfig(headers))
                 .catch((errorResponse: ErrorResponse) => {
                     const errors = errorResponse?.response?.data?.errors;
                     if (!errors) {
@@ -809,7 +811,6 @@ export default class Repository<EntityName extends keyof EntitySchema.EntityKeys
     private buildRequestConfig(headers: ReturnType<Repository<EntityName>['buildHeaders']>) {
         return {
             headers,
-            useAxiosV1: true,
         };
     }
 

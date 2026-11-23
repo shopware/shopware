@@ -30,10 +30,7 @@ import path from 'node:path';
 import { readRegistry } from '../../../../build/vite-plugins/virtual-shopware-modules/index';
 import {
     type ComposableCallback,
-    type ComposableCallbackKind,
     type ComposableDescriptor,
-    type ComposableMember,
-    type ComposableMemberKind,
     type ComposableProvidedProp,
     type ComposableScaffold,
 } from './types';
@@ -74,10 +71,7 @@ function scaffoldRunsUnread(descriptor: ComposableDescriptor): boolean {
 
 export {
     type ComposableCallback,
-    type ComposableCallbackKind,
     type ComposableDescriptor,
-    type ComposableMember,
-    type ComposableMemberKind,
     type ComposableProvidedProp,
     type ComposableScaffold,
     COMPOSABLE_DESCRIPTORS,

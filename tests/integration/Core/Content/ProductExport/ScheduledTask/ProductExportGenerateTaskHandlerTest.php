@@ -91,7 +91,6 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $exportId = $this->createTestEntity(null, 10, 'StaleTestexport.csv', true);
 
         // Simulate a stuck run: set is_running=1 and updated_at in the past
-        /** @var Connection $connection */
         $connection = static::getContainer()->get(Connection::class);
         $connection->executeStatement(
             'UPDATE `product_export` SET `is_running` = 1, `updated_at` = :updatedAt WHERE `id` = :id',

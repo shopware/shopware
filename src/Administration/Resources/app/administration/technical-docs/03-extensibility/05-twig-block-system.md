@@ -250,7 +250,7 @@ All of the above must use Vue equivalents instead:
 
 ## Current vs. Future State
 
-| Feature | Current (≤6.7) | Transitional (6.8+) | Future |
+| Feature | Current (≤6.8) | Transitional (6.9+) | Future |
 |---------|---------------|---------------------|--------|
 | Template files | `.html.twig` | `.html.twig` + SFCs | SFCs only |
 | Block system | TwigJS `{% block %}` | Both TwigJS + `<sw-block>` | `<sw-block>` only |

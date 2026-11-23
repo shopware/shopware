@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const $route = {
     meta: {
@@ -31,6 +32,7 @@ describe('components/base/sw-empty-state', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-empty-state" is deprecated');
         wrapper = await createWrapper();
     });
 
@@ -69,21 +71,12 @@ describe('components/base/sw-empty-state', () => {
 
 describe('components/base/sw-empty-state deprecation guard', () => {
     it('should report the deprecation while the 6.9 major is inactive', async () => {
-        // Spy on the guard instead of `console.warn`, which reports each usage site only once per test file
-        const deprecationSpy = jest.spyOn(Shopware.Feature, 'triggerDeprecationOrThrow');
-
         await createWrapper();
 
-        // `wrapTestComponent` appends `__wrapped` to the component name
-        expect(deprecationSpy).toHaveBeenCalledWith(
-            'V6_9_0_0',
-            expect.stringContaining(
-                'The component "sw-empty-state__wrapped" is deprecated and will be removed in Shopware v6.9.0.0.\n' +
-                    'Use "mt-empty-state" instead.',
-            ),
+        expect(deprecations).toHaveTriggered(
+            'The component "sw-empty-state" is deprecated and will be removed in Shopware v6.9.0.0.\n' +
+                'Use "mt-empty-state" instead.',
         );
-
-        deprecationSpy.mockRestore();
     });
 
     it.activeFeatureFlags(['v6.9.0.0'])('should throw once the 6.9 major is active', async () => {

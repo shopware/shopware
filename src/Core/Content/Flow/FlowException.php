@@ -22,6 +22,7 @@ class FlowException extends HttpException
     final public const FLOW_ACTION_STATE_MACHINE_NOT_FOUND = 'FLOW_ACTION_STATE_MACHINE_NOT_FOUND';
     final public const INVALID_SERIALIZER_FIELD = 'FLOW_INVALID_SERIALIZER_FIELD';
     final public const MISSING_REQUIRED_SEQUENCE_FIELD = 'CONTENT__FLOW_MISSING_REQUIRED_SEQUENCE_FIELD';
+    final public const SCALAR_VALUES_ALREADY_STORED = 'CONTENT__FLOW_SCALAR_VALUES_ALREADY_STORED';
 
     #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function customTriggerByNameNotFound(string $eventName): self|CustomTriggerByNameNotFoundException
@@ -102,6 +103,15 @@ class FlowException extends HttpException
             self::MISSING_REQUIRED_SEQUENCE_FIELD,
             'Required sequence field "{{ name }}" is missing.',
             ['name' => $requiredFieldName],
+        );
+    }
+
+    public static function scalarValuesAlreadyStored(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SCALAR_VALUES_ALREADY_STORED,
+            'Can not store generic values twice.',
         );
     }
 }

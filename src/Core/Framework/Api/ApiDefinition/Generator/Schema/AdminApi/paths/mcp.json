@@ -365,6 +365,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "toolsets",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated toolsets whose tools `tools\/list` advertises from the first request of the connection, for example `order,media`. `all` selects every toolset, and unknown names are ignored. It is part of the URL the client connects to, so it applies to every request of the session. `shopware-toolsets-list` reports these toolsets as enabled.",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "requestBody": {

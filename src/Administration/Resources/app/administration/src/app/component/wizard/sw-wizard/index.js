@@ -24,7 +24,6 @@ import template from './sw-wizard.html.twig';
  *     </sw-wizard-page>
  * </sw-wizard>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

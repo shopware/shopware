@@ -842,8 +842,10 @@ class CriteriaParser
         }
 
         if ($filter instanceof NotEqualsFilter && $filter->getValue() === null) {
-            return new ExistsQuery(
-                $this->buildAccessor($definition, $filter->getField(), $context)
+            return $this->createNestedQuery(
+                new ExistsQuery($this->buildAccessor($definition, $filter->getField(), $context)),
+                $definition,
+                $filter->getField()
             );
         }
 
@@ -1187,6 +1189,10 @@ class CriteriaParser
 
         if ($sorting instanceof CountSorting) {
             return new CountSort($accessor, $sorting->getDirection());
+        }
+
+        if ($field instanceof PriceField && preg_match('/^price\.c_[0-9a-f]{32}\.(gross|net)$/D', $accessor) === 1) {
+            return new FieldSort($accessor, $sorting->getDirection(), null, ['unmapped_type' => 'double']);
         }
 
         return new FieldSort($accessor, $sorting->getDirection());

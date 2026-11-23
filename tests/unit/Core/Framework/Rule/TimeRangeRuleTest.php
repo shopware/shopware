@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\TimeRangeRule;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -15,6 +17,23 @@ use Shopware\Core\Framework\Rule\TimeRangeRule;
 #[CoversClass(TimeRangeRule::class)]
 class TimeRangeRuleTest extends TestCase
 {
+    /**
+     * @param 'fromTime'|'toTime' $field
+     */
+    #[DataProvider('timeFieldProvider')]
+    public function testTimeWithATrailingNewlineIsRejected(string $field): void
+    {
+        $violations = Validation::createValidator()->validate("12:00\n", (new TimeRangeRule())->getConstraints()[$field]);
+
+        static::assertCount(1, $violations);
+    }
+
+    public static function timeFieldProvider(): \Generator
+    {
+        yield 'from time' => ['fromTime'];
+        yield 'to time' => ['toTime'];
+    }
+
     public function testIfOnSameDayInTimeRangeMatches(): void
     {
         $rule = new TimeRangeRule();

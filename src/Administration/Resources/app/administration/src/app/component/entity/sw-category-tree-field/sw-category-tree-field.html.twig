@@ -92,6 +92,7 @@
 
             {% block sw_category_tree_field_input_transition %}
             {% block sw_category_tree_field_input_results %}
+            {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
             <mt-floating-ui
                 v-if="isExpanded"
                 class="sw-category-tree-field__results_base sw-category-tree-field__results_popover"

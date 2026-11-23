@@ -9,6 +9,12 @@ The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for t
 The responses are unchanged.
 If you generate types from the schema, regenerate them and handle `null` for these fields.
 
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
 # 6.7.17.0
 
 ## Critical Fixes

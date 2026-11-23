@@ -115,9 +115,7 @@ In the example, the copy stores one row like this per app in its own database:
 | ShopId  | `shop-1`                                  |
 | App     | the app it belongs to; each app has its own secrets |
 | Secret  | `staging-secret`                          |
-| Expires | 72 hours after the ShopId change          |
-
-Shopware deletes kept secrets once they expire.
+| Expires | 72 hours after the ShopId change, then deleted |
 
 Production can also be recovered before the copy gets a new ShopId.
 The secret is then still in the copy's normal app data, and the copy prints it from there.

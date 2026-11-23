@@ -100,8 +100,10 @@ sequenceDiagram
 
 Getting a new ShopId or removing its apps is the last moment the copy still holds the secret production needs.
 
-A copy that took over keeps the secrets: "Move shop permanently" updated its fingerprints to the copy's own URL, so they match where it runs.
-A fresh copy still has production's fingerprints, which don't match where it runs, so it keeps nothing.
+The copy only keeps secrets if it took over production. It can tell from the shop URL it has stored as its own:
+
+- After "Move shop permanently", staging has `https://staging.shop.example` stored, which is where it runs. It took over, so it keeps the secret.
+- A fresh copy still has production's `https://shop.example` stored. It never took over, so it keeps nothing.
 
 For each app, the copy keeps its current secret, and also the secret from any registration that did not finish, because the app may already use it.
 

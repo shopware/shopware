@@ -67,7 +67,7 @@ That's why the [developer documentation](https://beta-developer.shopware.com/doc
    It only does this while its fingerprints still match.
 2. The shop operator takes them from the copy to production, and production registers again with them.
 3. The app protocol does not change: apps already accept a registration signed with their current secret.
-4. Every other case is a manual decision by the app operator.
+4. If the copy no longer has the secret (it was deleted, or more than 72 hours have passed), the app operator resets the registration by hand, as today.
 
 The process in short:
 

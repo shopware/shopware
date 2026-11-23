@@ -22,6 +22,12 @@ An override that calls `this.$super()` reports through the deprecated member its
 Once the major flag is active, building the component throws.
 Move the override to the replacement the deprecation names.
 
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
 # 6.7.17.0
 
 ## Critical Fixes

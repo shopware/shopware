@@ -82,7 +82,7 @@ import type { LegacyConditionCaseOptions } from '../../component/structure/sw-bl
 import useSystem from '../../composables/use-system';
 import useSession from '../../composables/use-session';
 
-const { Component, State, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { legacyIf, legacyElseIf, legacyElse } = useLegacyConditionContext();
 
 /**
@@ -170,7 +170,7 @@ export default class VueAdapter extends ViewAdapter {
         this.initPlugins();
         this.initDirectives();
 
-        const vuexRoot = State._store;
+        const vuexRoot = Shopware._state._store;
         const i18n = this.initLocales();
 
         // add router to View
@@ -374,7 +374,7 @@ export default class VueAdapter extends ViewAdapter {
 
         // initialize all module locales
         if (!Shopware.Feature.isActive('V6_8_0_0')) {
-            this.initModuleLocales();
+            Shopware.Feature.silence('V6_8_0_0', () => this.initModuleLocales());
         }
 
         // initialize all module routes
@@ -509,6 +509,11 @@ export default class VueAdapter extends ViewAdapter {
      * @deprecated tag:v6.8.0 - Will be removed. Module snippets are loaded by the initial snippets request.
      */
     initModuleLocales() {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'VueAdapter.initModuleLocales() is deprecated and will be removed. Module snippets are loaded by the initial snippets request.',
+        );
+
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 

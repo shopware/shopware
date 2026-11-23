@@ -102,7 +102,7 @@
         "league/flysystem-local": "^3.29.0",
         "league/flysystem-memory": "^3.10.3",
         "league/mime-type-detection": "^1.13.0",
-        "league/oauth2-server": "dev-chore/php86-support as 9.4.1",
+        "league/oauth2-server": "^9.5",
         "mcp/sdk": "^0.9.0",
         "meyfa/php-svg": "^0.16.1",
         "monolog/monolog": "^3.3.1",
@@ -236,10 +236,6 @@
         "league/flysystem-google-cloud-storage": "Required to use the Flysystem Google cloud driver (^3.10.3)"
     },
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/mitelg/oauth2-server"
-        },
         {
             "type": "path",
             "url": "custom/plugins/*",

@@ -167,6 +167,24 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).toContain('is--collapsed');
     });
 
+    it('renders the dropdown in mt-floating-ui only while it is expanded', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        const documentBody = new DOMWrapper(document.body);
+
+        expect(documentBody.find('.mt-floating-ui__content.sw-category-tree-field__results_popover').exists()).toBe(false);
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(documentBody.find('.mt-floating-ui__content.sw-category-tree-field__results_popover').exists()).toBe(true);
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(documentBody.find('.mt-floating-ui__content.sw-category-tree-field__results_popover').exists()).toBe(false);
+    });
+
     it('should not open the dropdown with the expand indicator when disabled', async () => {
         const wrapper = await createWrapper({ disabled: true });
         await flushPromises();

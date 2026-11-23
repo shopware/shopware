@@ -250,36 +250,13 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         );
     });
 
-    it('reads the guard of a minified member', async () => {
-        ComponentFactory.register('sw-minified', {
-            template: '<div></div>',
-            methods: {
-                oldMethod: new Function(
-                    'r,{foo:e}={}',
-                    'return Shopware.Feature.triggerDeprecationOrThrow("V6_8_0_0","oldMethod is \\"deprecated\\"."),e(r)',
-                ),
-            },
-        });
-        ComponentFactory.override('sw-minified', {
-            methods: {
-                oldMethod() {
-                    return 'overridden';
-                },
-            },
-        });
-
-        await ComponentFactory.build('sw-minified');
-
-        expect(deprecations).toHaveTriggered('The method is deprecated with: oldMethod is "deprecated".');
-    });
-
     it('does not take a guard behind a condition for the deprecation of the member', async () => {
         ComponentFactory.register('sw-conditional-guard', {
             template: '<div></div>',
             methods: {
                 method: new Function(
                     'legacy',
-                    'if(legacy)Shopware.Feature.triggerDeprecationOrThrow("V6_8_0_0","legacy is deprecated.");return 1',
+                    'if (legacy) {\n    Shopware.Feature.triggerDeprecationOrThrow("V6_8_0_0", "legacy is deprecated.");\n}\nreturn 1;',
                 ),
             },
         });
@@ -292,6 +269,28 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         });
 
         await ComponentFactory.build('sw-conditional-guard');
+
+        expect(deprecations.entries).toHaveLength(0);
+    });
+
+    it('does not report in production', async () => {
+        const nodeEnv = process.env.NODE_ENV;
+        process.env.NODE_ENV = 'production';
+
+        try {
+            registerComponentWithDeprecatedMembers('sw-production');
+            ComponentFactory.override('sw-production', {
+                methods: {
+                    oldMethod() {
+                        return 'overridden';
+                    },
+                },
+            });
+
+            await ComponentFactory.build('sw-production');
+        } finally {
+            process.env.NODE_ENV = nodeEnv;
+        }
 
         expect(deprecations.entries).toHaveLength(0);
     });

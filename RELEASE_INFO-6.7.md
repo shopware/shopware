@@ -4,7 +4,7 @@
 
 ### Overrides of deprecated component members report a deprecation
 
-A `Component.override()` that replaces a deprecated `computed` or method without calling `this.$super()` now triggers a deprecation when the component is built.
+A `Component.override()` that replaces a deprecated `computed` or method without calling `this.$super()` now triggers a deprecation when the component is built in a development build of the Administration.
 Before, only the deprecated member itself reported its use, which such an override never runs, so the extension was not told that its override stops working once the member is removed.
 
 ```js
@@ -19,7 +19,8 @@ Shopware.Component.override('sw-promotion-v2-conditions', {
 ```
 
 An override that calls `this.$super()` reports through the deprecated member itself, as before.
-Once the major flag is active, building the component throws.
+Once the major flag is active, building the component throws there.
+Production builds skip the check.
 Move the override to the replacement the deprecation names.
 
 ## App System

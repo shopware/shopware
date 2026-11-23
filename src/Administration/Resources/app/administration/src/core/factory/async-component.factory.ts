@@ -1254,22 +1254,26 @@ type MemberAccessor = 'get' | 'set' | null;
 type MemberFunction = (...args: never[]) => unknown;
 
 /**
- * Matches the leading guard at the start of a function body, also in its minified forms, where esbuild merges it
- * into the next statement, for example `return Shopware.Feature.triggerDeprecationOrThrow("V6_8_0_0","…"),this.x`.
+ * Matches the leading guard at the start of a function body, with its flag and its message when that is a string literal.
  */
 const LEADING_GUARD_PATTERN =
-    /^\s*(?:return\b\s*|(?:if|switch|while|for)\s*\()?[\w$.]+\.triggerDeprecationOrThrow\(\s*(['"`])(\w+)\1\s*(?:,\s*(['"`])((?:\\.|(?!\3)[^\\])*)\3\s*[,)])?/;
+    /^\s*[\w$.]+\.triggerDeprecationOrThrow\(\s*(['"`])(\w+)\1\s*(?:,\s*(['"`])((?:\\.|(?!\3)[^\\])*)\3\s*[,)])?/;
 
 /**
  * Reports every override of `componentName` that replaces a deprecated `computed` or method of `baseConfig` without
  * calling `this.$super()`. Only `$super` runs the member's own guard, so without this the extension never learns that
  * its override stops working once the member is removed.
+ * Development only: production builds drop it, and a throwing guard there would break the whole component.
  */
 function reportReplacedDeprecatedMembers(
     componentName: string,
     baseConfig: ComponentConfig,
     overrideConfigs: (ComponentConfig | boolean)[],
 ): void {
+    if (process.env.NODE_ENV === 'production') {
+        return;
+    }
+
     overrideConfigs.forEach((overrideConfig) => {
         if (typeof overrideConfig === 'boolean') {
             return;

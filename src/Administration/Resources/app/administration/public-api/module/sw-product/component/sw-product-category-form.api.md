@@ -12,10 +12,10 @@ component sw-product-category-form  public  js
 
 blocks
   sw_product_category_form
-    sw_product_category_form_category_field
+    sw_product_category_form_category_field  [after v-if]
       sw_product_category_form_categories_body
       sw_product_category_form_categories_title
-    sw_product_category_form_search_keyword_field
+    sw_product_category_form_search_keyword_field  [after v-if]
     sw_product_category_form_tags_field
     sw_product_category_form_visibility_body
     sw_product_category_form_visibility_field

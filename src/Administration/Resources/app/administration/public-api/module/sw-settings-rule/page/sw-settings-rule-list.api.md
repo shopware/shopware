@@ -16,11 +16,11 @@ blocks
     sw_settings_rule_index  [private]
       sw_settings_rule_list_content  [private]
         sw_settings_rule_list_content_card  [private]
-          sw_settings_rule_list_empty_message  [private]
+          sw_settings_rule_list_empty_message  [after v-if] [private]
           sw_settings_rule_list_grid  [private]
             sw_settings_rule_list_grid_column_tags  [private]
             sw_settings_rule_list_grid_columns_actions  [private]
-              sw_settings_rule_list_grid_columns_actions_duplicate  [private]
+              sw_settings_rule_list_grid_columns_actions_duplicate  [scope: item] [private]
         sw_settings_rule_list_sidebar  [private]
           sw_settings_rule_list_sidebar_filter  [private]
           sw_settings_rule_list_sidebar_refresh  [private]
@@ -31,4 +31,7 @@ blocks
         sw_settings_rule_list_smart_bar_header_title  [private]
           sw_settings_rule_list_smart_bar_header_title_amount  [private]
           sw_settings_rule_list_smart_bar_header_title_text  [private]
+
+crossings
+  v-if  sw_settings_rule_list_grid -> sw_settings_rule_list_empty_message  [private]
 ```

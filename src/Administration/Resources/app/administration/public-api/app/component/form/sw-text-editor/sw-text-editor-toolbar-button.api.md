@@ -13,15 +13,21 @@ component sw-text-editor-toolbar-button  private  js  [private]
 
 blocks
   sw_text_editor_toolbar_button  [private]
-    sw_text_editor_toolbar_button_child  [private]
-      sw_text_editor_toolbar_button_child_item  [private]
+    sw_text_editor_toolbar_button_child  [after v-if] [private]
+      sw_text_editor_toolbar_button_child_item  [scope: child, childIndex] [private]
       sw_text_editor_toolbar_button_child_search  [private]
       sw_text_editor_toolbar_button_child_search_empty  [private]
-    sw_text_editor_toolbar_button_color  [private]
+    sw_text_editor_toolbar_button_color  [after v-if] [private]
     sw_text_editor_toolbar_button_icon  [private]
-    sw_text_editor_toolbar_button_link_menu  [private]
-    sw_text_editor_toolbar_button_name  [private]
-    sw_text_editor_toolbar_button_slot  [private]
-    sw_text_editor_toolbar_button_table  [private]
+    sw_text_editor_toolbar_button_link_menu  [after v-if] [private]
+    sw_text_editor_toolbar_button_name  [after v-if] [private]
+    sw_text_editor_toolbar_button_slot  [after v-if] [private]
+    sw_text_editor_toolbar_button_table  [after v-if] [private]
       sw_text_editor_toolbar_button_table_menu_content  [private]
+
+crossings
+  v-if  sw_text_editor_toolbar_button_child -> sw_text_editor_toolbar_button_link_menu  [private]
+  v-if  sw_text_editor_toolbar_button_icon -> sw_text_editor_toolbar_button_name  [private]
+  v-if  sw_text_editor_toolbar_button_link_menu -> sw_text_editor_toolbar_button_table  [private]
+  v-if  sw_text_editor_toolbar_button_name -> sw_text_editor_toolbar_button_color  [private]
 ```

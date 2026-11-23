@@ -4,6 +4,8 @@
  * The public API of a source tree as data. The printers turn it into the snapshot files.
  */
 import { isTemplateSourceFile } from '../public-api-source-files';
+import { readStructure } from './block-structure';
+import type { Crossing } from './block-structure';
 import { listBlocks } from './block-tree';
 import type { TemplateBlock } from './block-tree';
 import { byCodePoint } from './code-point-order';
@@ -27,23 +29,36 @@ export interface SnapshotOptions {
  *
  * One registered component. `file` is the path of its snapshot files below `public-api/`, without extension.
  * `blocks` holds the blocks of the template it renders, with those it inherits along its extend chain and the
- * core overrides applied, limited to the flag states in which the whole chain is registered.
+ * core overrides applied, limited to the flag states in which the whole chain is registered. `crossings` holds
+ * the elements and `v-if` chains of that template that cross a block boundary.
  */
 export type ComponentUnit = Registration & {
     file: string;
     blocks: TemplateBlock[];
+    crossings: Crossing[];
 };
 
 /**
  * @private
  *
+ * A block of a template that no registered component and no core override uses.
+ */
+export interface UnusedBlock {
+    block: string;
+    file: string;
+}
+
+/**
+ * @private
+ *
  * `droppedBlocks` are blocks that an extend or override template declares and the runtime never renders. They
- * are in no component, although their template declares them.
+ * are in no component, although their template declares them. Neither are the `unusedBlocks`.
  */
 export interface Model {
     flags: FlagContext;
     components: ComponentUnit[];
     droppedBlocks: DroppedBlock[];
+    unusedBlocks: UnusedBlock[];
 }
 
 /**
@@ -98,24 +113,15 @@ function assertUniqueNames(registrations: Registration[], flags: FlagContext): v
     });
 }
 
-/**
- * The snapshot lists blocks per component, so the blocks of a template that no component uses would be missing
- * from it without anyone noticing.
- */
-function assertEveryTemplateIsUsed(
+function unusedBlocks(
     { registrations, overrides }: ComponentCalls,
     templates: ReadonlyMap<string, TemplateSource>,
-): void {
+): UnusedBlock[] {
     const used = new Set([...registrations.map(markupOf), ...overrides.map(({ template }) => template)]);
-    const missing = [...templates.values()]
-        .filter(({ file }) => !used.has(file))
-        .flatMap(({ file, tree }) => listBlocks(tree).map(({ name }) => `${name} in ${file}`));
 
-    if (missing.length > 0) {
-        throw new Error(
-            `These blocks belong to no registered component, so the snapshot would not list them:\n${missing.join('\n')}`,
-        );
-    }
+    return [...templates.values()]
+        .filter(({ file }) => !used.has(file))
+        .flatMap(({ file, tree }) => listBlocks(tree).map(({ name }) => ({ block: name, file })));
 }
 
 function assertEveryOverrideHasItsComponent({ registrations, overrides }: ComponentCalls): void {
@@ -167,10 +173,13 @@ function componentTemplates(
 }
 
 function componentUnit(registration: Registration, { tree, states }: ResolvedTemplate): ComponentUnit {
+    const { contexts, crossings } = readStructure(tree);
+
     return {
         ...registration,
         file: snapshotFile(registration.name, registration.source),
-        blocks: existingIn(states, listBlocks(tree)),
+        blocks: existingIn(states, listBlocks(tree, contexts)),
+        crossings: existingIn(states, crossings),
     };
 }
 
@@ -188,7 +197,6 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
     assertUniqueNames(registrations, flags);
     assertEveryOverrideHasItsComponent(calls);
     assertEveryOverrideCoversItsComponent(calls, flags);
-    assertEveryTemplateIsUsed(calls, templates);
 
     const resolved = resolveTemplates(componentTemplates(calls, templates));
     const components = registrations
@@ -198,5 +206,5 @@ export function buildModel(tree: SourceTree, options: SnapshotOptions): Model {
         .flatMap(({ dropped }) => dropped)
         .sort((a, b) => byCodePoint(a.file, b.file) || byCodePoint(a.block, b.block));
 
-    return { flags, components, droppedBlocks };
+    return { flags, components, droppedBlocks, unusedBlocks: unusedBlocks(calls, templates) };
 }

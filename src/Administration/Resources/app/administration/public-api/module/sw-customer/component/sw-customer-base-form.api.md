@@ -14,7 +14,7 @@ blocks
   sw_customer_base_form
     sw_customer_base_form_account_type_field
     sw_customer_base_form_birthday_field
-    sw_customer_base_form_customer_group_field
+    sw_customer_base_form_customer_group_field  [after v-if]
     sw_customer_base_form_customer_number_field
     sw_customer_base_form_email_field
     sw_customer_base_form_first_name_field

@@ -13,5 +13,8 @@ component sw-colorpicker  private  ts  [private]
 
 blocks
   sw_colorpicker  [private]
-  sw_colorpicker_deprecated  [private]
+  sw_colorpicker_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_colorpicker -> (root)  [private]
 ```

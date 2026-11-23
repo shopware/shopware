@@ -13,11 +13,11 @@ component sw-category-detail  public  js
 blocks
   sw_category
     sw_category_content
-      sw_category_content_discard_changes_modal
-      sw_category_content_empty
-      sw_category_content_entry_point_overwrite_modal
+      sw_category_content_discard_changes_modal  [after v-if]
+      sw_category_content_empty  [after v-if]
+      sw_category_content_entry_point_overwrite_modal  [after v-if]
       sw_category_content_view
-      sw_landing_page_content_view
+      sw_landing_page_content_view  [after v-if]
     sw_category_language_switch
     sw_category_search_bar
     sw_category_side_content
@@ -33,5 +33,5 @@ blocks
     sw_category_smart_bar_header
     sw_category_smart_bar_save
       sw_category_smart_bar_save_category
-      sw_category_smart_bar_save_landing_page
+      sw_category_smart_bar_save_landing_page  [after v-if]
 ```

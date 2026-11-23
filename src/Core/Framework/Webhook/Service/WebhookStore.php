@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @internal
@@ -29,16 +30,18 @@ class WebhookStore
 
     /**
      * @param list<string> $roleIds
+     *
+     * @return array<string, list<string>> the names of the webhooks using each role, keyed by role id, for used roles only
      */
-    public function removeDeletedRoles(array $roleIds): void
+    public function getWebhookNamesByRole(array $roleIds): array
     {
-        foreach ($roleIds as $roleId) {
-            $this->connection->executeStatement(
-                'UPDATE `webhook`
-                 SET `acl_role_ids` = JSON_REMOVE(`acl_role_ids`, JSON_UNQUOTE(JSON_SEARCH(`acl_role_ids`, \'one\', :roleId)))
-                 WHERE JSON_CONTAINS(`acl_role_ids`, JSON_QUOTE(:roleId))',
-                ['roleId' => $roleId],
-            );
+        $webhookNames = [];
+        foreach ($this->connection->fetchAllAssociative('SELECT `name`, `acl_role_ids` FROM `webhook` WHERE `acl_role_ids` IS NOT NULL ORDER BY `name`') as $webhook) {
+            foreach (array_intersect($roleIds, Json::decodeToList($webhook['acl_role_ids'])) as $roleId) {
+                $webhookNames[$roleId][] = $webhook['name'];
+            }
         }
+
+        return $webhookNames;
     }
 }

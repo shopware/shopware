@@ -19,16 +19,19 @@ blocks
       sw_settings_language_detail_cards_row
         sw_settings_language_detail_sales_channels
           sw_settings_language_detail_sales_channels_assigned
-          sw_settings_language_detail_sales_channels_empty
+          sw_settings_language_detail_sales_channels_empty  [after v-if]
         sw_settings_language_detail_snippet_updates
       sw_settings_language_detail_content_card
-        sw_settings_language_detail_content_alert_change_parent
+        sw_settings_language_detail_content_alert_change_parent  [after v-if]
         sw_settings_language_detail_content_field_iso_code
         sw_settings_language_detail_content_field_localeId
         sw_settings_language_detail_content_field_name
-        sw_settings_language_detail_content_field_parentId
+        sw_settings_language_detail_content_field_parentId  [after v-if]
       sw_settings_language_detail_content_language_info
       sw_settings_language_detail_created_banner
-      sw_settings_language_detail_custom_field_sets
+      sw_settings_language_detail_custom_field_sets  [after v-if]
     sw_settings_language_detail_header
+
+crossings
+  v-if  sw_settings_language_detail_sales_channels_assigned -> sw_settings_language_detail_sales_channels_empty
 ```

@@ -12,23 +12,26 @@ component sw-sales-channel-detail-products  public  js
 
 blocks
   sw_sales_channel_detail_products
-    sw_sales_channel_detail_products_assignment_modal
+    sw_sales_channel_detail_products_assignment_modal  [after v-if]
     sw_sales_channel_detail_products_empty_state
       sw_sales_channel_detail_products_empty_state_button
-      sw_sales_channel_detail_products_empty_state_image
+      sw_sales_channel_detail_products_empty_state_image  [after v-if]
     sw_sales_channel_detail_products_filled_state
       sw_sales_channel_detail_products_card_section
         sw_sales_channel_detail_products_card_section_primary
-          sw_sales_channel_detail_products_card_section_primary_empty_state
+          sw_sales_channel_detail_products_card_section_primary_empty_state  [after v-if]
             sw_sales_channel_detail_products_card_section_primary_image
           sw_sales_channel_detail_products_card_section_primary_filled_state
             sw_sales_channel_detail_products_listing_bulk
-            sw_sales_channel_detail_products_listing_column_active
-            sw_sales_channel_detail_products_listing_column_name
-            sw_sales_channel_detail_products_listing_delete_action
+            sw_sales_channel_detail_products_listing_column_active  [scope: item]
+            sw_sales_channel_detail_products_listing_column_name  [scope: item]
+            sw_sales_channel_detail_products_listing_delete_action  [scope: item]
             sw_sales_channel_detail_products_listing_pagination
-            sw_sales_channel_detail_products_listing_select_item_checkbox
+            sw_sales_channel_detail_products_listing_select_item_checkbox  [scope: isRecordSelectable, isSelected, item, itemIdentifierProperty, selectItem]
         sw_sales_channel_detail_products_card_section_secondary
           sw_sales_channel_detail_products_card_section_secondary_button
           sw_sales_channel_detail_products_card_section_secondary_input
+
+crossings
+  v-if  sw_sales_channel_detail_products_card_section_primary_filled_state -> sw_sales_channel_detail_products_card_section_primary_empty_state
 ```

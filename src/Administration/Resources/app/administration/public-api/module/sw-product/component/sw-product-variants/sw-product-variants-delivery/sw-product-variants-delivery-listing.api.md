@@ -16,12 +16,12 @@ blocks
       sw_product_variants_delivery_listing_config_expanded
         sw_product_variants_delivery_listing_config_expanded_group_list
           sw_product_variants_delivery_listing_config_expanded_group_list_items
-            sw_product_variants_delivery_listing_config_expanded_group_list_item
+            sw_product_variants_delivery_listing_config_expanded_group_list_item  [scope: group]
       sw_product_variants_delivery_listing_config_single
         sw_product_variants_delivery_listing_config_single_main_variant_explanation
         sw_product_variants_delivery_listing_config_single_main_variant_label
         sw_product_variants_delivery_listing_config_single_main_variant_select
-          sw_product_variants_results_list_result_label
+          sw_product_variants_results_list_result_label  [scope: index, item]
         sw_product_variants_delivery_variant_mode_selection
     sw_product_variants_delivery_listing_mode
       sw_product_variants_delivery_listing_mode_selection

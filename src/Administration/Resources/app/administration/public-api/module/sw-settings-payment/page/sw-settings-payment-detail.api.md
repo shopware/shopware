@@ -27,12 +27,12 @@ blocks
         sw_settings_payment_detail_content_field_position
         sw_settings_payment_detail_content_field_technical_name
       sw_settings_payment_detail_custom_field_sets
-      sw_settings_payment_detail_delete_modal
+      sw_settings_payment_detail_delete_modal  [after v-if]
         sw_settings_payment_detail_delete_modal_footer
           sw_settings_payment_detail_reset_modal_cancel
           sw_settings_payment_detail_reset_modal_confirm
         sw_settings_payment_detail_delete_modal_info
-      sw_settings_payment_detail_delete_payment_method
+      sw_settings_payment_detail_delete_payment_method  [after v-if]
       sw_settings_payment_detail_top_rule
         sw_settings_payment_detail_top_rule_select
     sw_settings_payment_detail_header

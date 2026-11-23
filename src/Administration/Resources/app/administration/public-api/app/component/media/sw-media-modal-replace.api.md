@@ -12,7 +12,7 @@ component sw-media-modal-replace  public  js
 
 blocks
   sw_media_modal_replace
-    sw_media_modal_replace_modal_footer
+    sw_media_modal_replace_modal_footer  [after v-if]
       sw_media_modal_replace_cancel_button
       sw_media_modal_replace_replace_button
 ```

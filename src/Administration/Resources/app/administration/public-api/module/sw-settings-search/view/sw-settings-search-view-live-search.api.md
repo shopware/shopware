@@ -12,5 +12,5 @@ component sw-settings-search-view-live-search  public  js
 
 blocks
   sw_settings_search_view_live_search
-    sw_settings_search_view_live_search_content_card
+    sw_settings_search_view_live_search_content_card  [after v-if]
 ```

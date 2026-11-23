@@ -12,7 +12,7 @@ component sw-payment-card  public  js
 
 blocks
   sw_payment_card
-    sw_payment_card_description
+    sw_payment_card_description  [after v-if]
     sw_payment_card_link
     sw_payment_card_preview
     sw_payment_card_toggle

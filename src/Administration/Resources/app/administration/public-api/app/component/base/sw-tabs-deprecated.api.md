@@ -14,7 +14,7 @@ component sw-tabs-deprecated  private  js  [private]
 blocks
   sw_tabs  [private]
     sw_tabs_arrow_left  [private]
-    sw_tabs_arrow_right  [private]
+    sw_tabs_arrow_right  [after v-if] [private]
     sw_tabs_content  [private]
       sw_tabs_content_slot  [private]
       sw_tabs_slider  [private]

@@ -13,13 +13,13 @@ component sw-integration-mcp-allowlist  public  js
 blocks
   sw_integration_mcp_allowlist
     sw_integration_mcp_allowlist_all_toggle
-    sw_integration_mcp_allowlist_empty
+    sw_integration_mcp_allowlist_empty  [after v-if]
     sw_integration_mcp_allowlist_sticky
       sw_integration_mcp_allowlist_admin_banner
-      sw_integration_mcp_allowlist_capability_suggestions
-      sw_integration_mcp_allowlist_coverage_warning
-      sw_integration_mcp_allowlist_denied_types
-      sw_integration_mcp_allowlist_no_selection_banner
-      sw_integration_mcp_allowlist_stale
+      sw_integration_mcp_allowlist_capability_suggestions  [after v-if]
+      sw_integration_mcp_allowlist_coverage_warning  [after v-if]
+      sw_integration_mcp_allowlist_denied_types  [after v-if]
+      sw_integration_mcp_allowlist_no_selection_banner  [after v-if]
+      sw_integration_mcp_allowlist_stale  [after v-if]
     sw_integration_mcp_allowlist_types
 ```

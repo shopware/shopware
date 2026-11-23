@@ -17,7 +17,7 @@ blocks
         sw_settings_language_add_modal_footer_add
         sw_settings_language_add_modal_footer_cancel
       sw_settings_language_add_modal_footer_create_custom
-    sw_settings_language_add_modal_hint
+    sw_settings_language_add_modal_hint  [after v-if]
     sw_settings_language_add_modal_select
     sw_settings_language_add_modal_selection_info
 ```

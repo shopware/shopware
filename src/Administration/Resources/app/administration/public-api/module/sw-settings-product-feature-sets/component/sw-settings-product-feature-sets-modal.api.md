@@ -12,21 +12,21 @@ component sw-settings-product-feature-sets-modal  public  js
 
 blocks
   sw_settings_product_feature_sets_modal
-    sw_settings_product_feature_sets_modal_custom_field_list
+    sw_settings_product_feature_sets_modal_custom_field_list  [after v-if]
       sw_settings_product_feature_sets_modal_custom_field_list_column_name
       sw_settings_product_feature_sets_modal_custom_field_list_column_type
       sw_settings_product_feature_sets_modal_custom_field_list_pagination
       sw_settings_product_feature_sets_modal_custom_field_list_toolbar
         sw_settings_product_feature_sets_modal_custom_field_list_toolbar_search
     sw_settings_product_feature_sets_modal_first_page
-    sw_settings_product_feature_sets_modal_footer
+    sw_settings_product_feature_sets_modal_footer  [after v-if]
       sw_settings_product_feature_sets_modal_footer_button_add
-      sw_settings_product_feature_sets_modal_footer_button_next
+      sw_settings_product_feature_sets_modal_footer_button_next  [after v-if]
       sw_settings_product_feature_sets_modal_footer_cancel
-    sw_settings_product_feature_sets_modal_product_information_list
+    sw_settings_product_feature_sets_modal_product_information_list  [after v-if]
       sw_settings_product_feature_sets_modal_product_information_list_toolbar
       sw_settings_product_feature_sets_modal_product_informationlist_column_property
-    sw_settings_product_feature_sets_modal_property_list
+    sw_settings_product_feature_sets_modal_property_list  [after v-if]
       sw_settings_product_feature_sets_modal_property_list_column_property
       sw_settings_product_feature_sets_modal_property_list_pagination
       sw_settings_product_feature_sets_modal_property_list_toolbar

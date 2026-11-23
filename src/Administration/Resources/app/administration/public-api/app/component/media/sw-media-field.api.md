@@ -12,7 +12,7 @@ component sw-media-field  public  js
 
 blocks
   sw_media_field
-    sw_media_field_input
+    sw_media_field_input  [after v-if]
       sw_media_field_preview
       sw_media_field_toggle_button
         sw_media_field_media_icon
@@ -21,8 +21,11 @@ blocks
             sw_media_field_action_bar_button_toggle
             sw_media_field_action_bar_button_unlink
           sw_media_field_media_list
-            sw_media_field_suggestion_preview
+            sw_media_field_suggestion_preview  [scope: suggestion]
           sw_media_field_search_field
           sw_media_field_upload_component
     sw_media_field_label
+
+crossings
+  v-if  sw_media_field_upload_component -> sw_media_field_media_popover
 ```

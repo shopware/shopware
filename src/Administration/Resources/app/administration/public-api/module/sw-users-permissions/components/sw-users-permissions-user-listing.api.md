@@ -12,24 +12,24 @@ component sw-users-permissions-user-listing  public  js
 
 blocks
   sw_settings_user_list
-    sw_settings_user_list_content
-      sw_settings_user_list_content_grid
+    sw_settings_user_list_content  [after v-if]
+      sw_settings_user_list_content_grid  [after v-if]
         sw_settings_user_list_column_email
-          sw_settings_user_list_column_email_content
+          sw_settings_user_list_column_email_content  [scope: item]
         sw_settings_user_list_column_status
         sw_settings_user_list_column_username
-          sw_settings_user_list_column_username_content
+          sw_settings_user_list_column_username_content  [scope: item]
         sw_settings_user_list_column_username_acl_roles
         sw_settings_user_list_column_username_preview
         sw_settings_user_list_content_grid_actions
-          sw_settings_user_list_actions_delete
-          sw_settings_user_list_actions_edit
-        sw_settings_user_list_delete_modal
-          sw_settings_user_list_delete_modal_confirm_delete_text
-          sw_settings_user_list_delete_modal_footer
-            sw_settings_user_list_delete_modal_cancel
-            sw_settings_user_list_delete_modal_confirm
-          sw_settings_user_list_delete_modal_input__confirm_password
+          sw_settings_user_list_actions_delete  [scope: item]
+          sw_settings_user_list_actions_edit  [scope: item]
+        sw_settings_user_list_delete_modal  [scope: item]
+          sw_settings_user_list_delete_modal_confirm_delete_text  [scope: item]
+          sw_settings_user_list_delete_modal_footer  [scope: item]
+            sw_settings_user_list_delete_modal_cancel  [scope: item]
+            sw_settings_user_list_delete_modal_confirm  [scope: item]
+          sw_settings_user_list_delete_modal_input__confirm_password  [scope: item]
         sw_settings_user_list_grid_pagination
     sw_settings_user_list_smart_bar_actions
       sw_settings_user_list_actions_create_user

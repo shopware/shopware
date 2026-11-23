@@ -13,6 +13,6 @@ component sw-sales-channel-detail-product-comparison-preview  public  js
 blocks
   sw_sales_channel_detail_product_comparison_preview
     sw_sales_channel_detail_product_comparison_preview_modal
-      sw_sales_channel_detail_product_comparison_preview_modal_content
+      sw_sales_channel_detail_product_comparison_preview_modal_content  [after v-if]
       sw_sales_channel_detail_product_comparison_preview_modal_errors
 ```

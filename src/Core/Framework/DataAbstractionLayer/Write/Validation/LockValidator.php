@@ -122,7 +122,7 @@ class LockValidator implements EventSubscriberInterface
                 ->where('`id` IN (:ids) AND `locked` = 1')
                 ->setParameter('ids', $primaryKeys, ArrayParameterType::BINARY)
                 ->executeQuery()
-                ->rowCount() > 0;
+                ->fetchOne() !== false;
         }
 
         return array_filter($locked);

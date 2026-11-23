@@ -285,12 +285,7 @@ SQL;
             return;
         }
 
-        $categoryIds = array_unique(array_merge(
-            $movedCategoryIds,
-            $this->fetchChildren($movedCategoryIds, $context->getVersionId())
-        ));
-
-        foreach (\array_chunk($this->fetchProductIds($categoryIds), self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
+        foreach (\array_chunk($this->fetchProductIds($movedCategoryIds), self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
             $message = new ProductIndexingMessage($chunk, null, $context);
             $message->setIndexer('product.indexer');
             $message->addSkip(
@@ -309,7 +304,8 @@ SQL;
     }
 
     /**
-     * Returns the products assigned to the given categories, including the variants inheriting that assignment.
+     * The denormalized tree of a product lists every ancestor of its categories, so it already
+     * resolves the descendants of the given categories and the variants inheriting an assignment.
      *
      * @param array<string> $categoryIds
      *
@@ -318,24 +314,11 @@ SQL;
     private function fetchProductIds(array $categoryIds): array
     {
         $sql = <<<'SQL'
-SELECT LOWER(HEX(mapping.product_id))
-FROM product_category mapping
-WHERE mapping.category_id IN (:categoryIds)
-  AND mapping.category_version_id = :version
-  AND mapping.product_version_id = :version
-
-UNION
-
-SELECT LOWER(HEX(variant.id))
-FROM product_category mapping
-INNER JOIN product variant
-    ON variant.parent_id = mapping.product_id
-    AND variant.parent_version_id = mapping.product_version_id
-    AND variant.version_id = mapping.product_version_id
-    AND variant.categories = variant.parent_id
-WHERE mapping.category_id IN (:categoryIds)
-  AND mapping.category_version_id = :version
-  AND mapping.product_version_id = :version
+SELECT DISTINCT LOWER(HEX(product_id))
+FROM product_category_tree
+WHERE category_id IN (:categoryIds)
+  AND category_version_id = :version
+  AND product_version_id = :version
 SQL;
 
         return $this->connection->fetchFirstColumn($sql, [

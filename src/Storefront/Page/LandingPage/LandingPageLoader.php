@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\MetaInformation;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -35,7 +36,6 @@ class LandingPageLoader
     public function load(Request $request, SalesChannelContext $context): LandingPage
     {
         $landingPageId = $request->attributes->get('landingPageId');
-
         if (!$landingPageId) {
             throw RoutingException::missingRequestParameter('landingPageId', '/landingPageId');
         }
@@ -57,35 +57,22 @@ class LandingPageLoader
         $page->setLandingPage($landingPage);
         $page->setNavigationId($landingPage->getId());
 
-        $this->loadMetaData($page);
+        $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
+        $metaDescription = $landingPage->getTranslation('metaDescription');
+        $metaKeywords = $landingPage->getTranslation('keywords');
+        $canonical = $this->seoUrlReplacer->generate(LandingPageSeoUrlRoute::ROUTE_NAME, ['landingPageId' => $landingPage->getId()]);
+
+        $metaInformation = new MetaInformation();
+        $metaInformation->setMetaTitle((string) $metaTitle);
+        $metaInformation->setMetaDescription((string) $metaDescription);
+        $metaInformation->setMetaKeywords((string) $metaKeywords);
+        $metaInformation->setCanonical($canonical);
+        $page->setMetaInformation($metaInformation);
 
         $this->eventDispatcher->dispatch(
             new LandingPageLoadedEvent($page, $context, $request)
         );
 
         return $page;
-    }
-
-    private function loadMetaData(LandingPage $page): void
-    {
-        $metaInformation = $page->getMetaInformation();
-
-        if ($metaInformation === null) {
-            return;
-        }
-
-        $landingPage = $page->getLandingPage();
-
-        \assert($landingPage !== null);
-
-        $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
-        $metaInformation->setMetaTitle((string) $metaTitle);
-
-        $metaInformation->setMetaDescription((string) $landingPage->getTranslation('metaDescription'));
-
-        $metaInformation->setMetaKeywords((string) $landingPage->getTranslation('keywords'));
-
-        $canonical = $this->seoUrlReplacer->generate(LandingPageSeoUrlRoute::ROUTE_NAME, ['landingPageId' => $landingPage->getId()]);
-        $metaInformation->setCanonical($canonical);
     }
 }

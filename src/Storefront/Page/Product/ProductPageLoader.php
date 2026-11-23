@@ -73,7 +73,6 @@ class ProductPageLoader
     public function load(Request $request, SalesChannelContext $context): ProductPage
     {
         $productId = $request->attributes->get('productId');
-
         if (!$productId) {
             throw RoutingException::missingRequestParameter('productId', '/productId');
         }
@@ -148,14 +147,11 @@ class ProductPageLoader
 
         foreach ($page->getConfiguratorSettings() as $group) {
             $groupOptions = $group->getOptions();
-
             if ($groupOptions === null) {
                 continue;
             }
-
             foreach ($optionIds as $optionId) {
                 $groupOption = $groupOptions->get($optionId);
-
                 if ($groupOption !== null) {
                     $options->add($groupOption);
                 }
@@ -169,32 +165,33 @@ class ProductPageLoader
     {
         $metaInformation = $page->getMetaInformation();
 
-        if ($metaInformation === null) {
+        if (!$metaInformation) {
             return;
         }
 
-        $product = $page->getProduct();
-
-        if ((string) $product->getTranslation('metaTitle') !== '') {
-            $metaInformation->setMetaTitle((string) $product->getTranslation('metaTitle'));
-        } else {
-            $metaTitleParts = [$product->getTranslation('name')];
-
-            foreach ($page->getSelectedOptions() as $option) {
-                $metaTitleParts[] = $option->getTranslation('name');
-            }
-
-            $metaTitleParts[] = $product->getProductNumber();
-            $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
-        }
-
-        $metaDescription = $product->getTranslation('metaDescription')
-            ?? $product->getTranslation('description');
+        $metaDescription = $page->getProduct()->getTranslation('metaDescription')
+            ?? $page->getProduct()->getTranslation('description');
         $metaInformation->setMetaDescription((string) $metaDescription);
 
-        $metaInformation->setMetaKeywords((string) $product->getTranslation('keywords'));
+        $metaInformation->setMetaKeywords((string) $page->getProduct()->getTranslation('keywords'));
 
-        $canonical = $this->seoUrlReplacer->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $product->getCanonicalProductId() ?? $product->getId()]);
+        if ((string) $page->getProduct()->getTranslation('metaTitle') !== '') {
+            $metaInformation->setMetaTitle((string) $page->getProduct()->getTranslation('metaTitle'));
+
+            return;
+        }
+
+        $metaTitleParts = [$page->getProduct()->getTranslation('name')];
+
+        foreach ($page->getSelectedOptions() as $option) {
+            $metaTitleParts[] = $option->getTranslation('name');
+        }
+
+        $metaTitleParts[] = $page->getProduct()->getProductNumber();
+
+        $metaInformation->setMetaTitle(implode(' | ', $metaTitleParts));
+
+        $canonical = $this->seoUrlReplacer->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $page->getProduct()->getCanonicalProductId() ?? $page->getProduct()->getId()]);
         $metaInformation->setCanonical($canonical);
     }
 

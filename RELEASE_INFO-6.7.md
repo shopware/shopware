@@ -1080,7 +1080,9 @@ Extensions have to be adjusted:
 - `.sw-popover__wrapper` around these popovers is replaced by `.mt-floating-ui__content`.
   Update styles and end-to-end selectors that matched the old wrapper.
 - The `--placement-*` modifier classes are gone.
-  `mt-floating-ui` flips the popover itself and marks the resolved side with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  `mt-floating-ui` flips the popover itself and marks the side that faces the anchor with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  A popover below its field or button carries `.mt-floating-ui--top`.
+  The context menu also has its resolved placement, such as `bottom-end`, in the `data-placement` attribute of `.mt-floating-ui__content`.
 - Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content` and on the `mt-floating-ui` element that stays inside the field.
   Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
 - The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.

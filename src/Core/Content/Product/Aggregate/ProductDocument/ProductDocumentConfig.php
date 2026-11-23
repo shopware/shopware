@@ -34,29 +34,9 @@ readonly class ProductDocumentConfig
         $event = new ProductDocumentAllowedExtensionsEvent($this->allowedExtensions, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $publicMediaExtensions = array_flip($this->mediaFileExtensionListProvider->getAllowedExtensions(false, $context));
-
-        return array_values(array_filter(
-            self::normalize($event->getAllowedExtensions()),
-            static fn (string $extension): bool => isset($publicMediaExtensions[$extension]),
-        ));
-    }
-
-    /**
-     * @param array<array-key, mixed> $extensions
-     *
-     * @return list<string>
-     */
-    private static function normalize(array $extensions): array
-    {
-        $normalized = [];
-        foreach ($extensions as $extension) {
-            $extension = mb_strtolower(ltrim(trim((string) $extension), '.'));
-            if ($extension !== '') {
-                $normalized[$extension] = true;
-            }
-        }
-
-        return array_map(strval(...), array_keys($normalized));
+        return array_map(strval(...), array_values(array_intersect(
+            $this->mediaFileExtensionListProvider->getAllowedExtensions(false, $context),
+            $event->getAllowedExtensions(),
+        )));
     }
 }

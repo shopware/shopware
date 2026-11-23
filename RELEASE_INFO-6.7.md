@@ -1,5 +1,15 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Search config cache is kept per language
+
+`CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.
+It also adds that tag to the HTTP cache of the current request.
+Writing or deleting a search config or a search config field invalidates that tag, and so does removing a custom field from the search or resetting the excluded terms in the Administration.
+Deleting the cache item `CachedSearchConfigLoader::CACHE_KEY` no longer clears the cached config.
+Invalidate the tag instead.
+
 ## App System
 
 ### Deprecated the old shop ID format
@@ -774,14 +784,6 @@ For extensions that already build positions holding part of a line item, this ch
 The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania, Romania and Slovakia to the current VAT rates, and adds a 5% rule for "Reduced rate 2" in Slovakia and Slovenia.
 Only rules of the default tax groups that still have their original rate and were never edited are changed.
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
-
-### Search config cache is kept per language
-
-`CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.
-It also adds that tag to the HTTP cache of the current request.
-Writing or deleting a search config or a search config field invalidates that tag, and so does removing a custom field from the search or resetting the excluded terms in the Administration.
-Deleting the cache item `CachedSearchConfigLoader::CACHE_KEY` no longer clears the cached config.
-Invalidate the tag instead.
 
 ## API
 

@@ -193,9 +193,9 @@ class ProductAdminSearchIndexerTest extends TestCase
     {
         $this->createDocument('manual', 'drill');
 
-        $event = static::getContainer()->get('product_document.repository')->delete([['id' => $this->ids->get('manual')]], $this->context);
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function (): void {
+            $event = static::getContainer()->get('product_document.repository')->delete([['id' => $this->ids->get('manual')]], $this->context);
 
-        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event): void {
             static::assertEqualsCanonicalizing(
                 array_values($this->ids->getList(['drill', 'drill.blue', 'drill.red'])),
                 $this->getIndexer()->getUpdatedIds($event)

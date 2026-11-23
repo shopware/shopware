@@ -250,7 +250,7 @@ class McpListenStreamTest extends TestCase
         $dsn = \sprintf('mysql:host=%s;port=%d;dbname=%s', $params['host'] ?? '127.0.0.1', $params['port'] ?? 3306, $params['dbname'] ?? '');
 
         return new PhpProcess(\sprintf(
-            '<?php fwrite(STDERR, "started " . microtime(true) . " dsn=" . %2$s . "\n"); usleep(%1$d); $pdo = new PDO(%2$s, %3$s, %4$s, [PDO::ATTR_TIMEOUT => 10, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); fwrite(STDERR, "connected " . microtime(true) . " connection_id=" . $pdo->query("SELECT CONNECTION_ID()")->fetchColumn() . "\n"); $pdo->exec("SET SESSION innodb_lock_wait_timeout = 20"); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); fwrite(STDERR, "inserted " . microtime(true) . "\n"); echo microtime(true);',
+            '<?php $err = fopen("php://stderr", "w"); fwrite($err, "started " . microtime(true) . " dsn=" . %2$s . "\n"); usleep(%1$d); $pdo = new PDO(%2$s, %3$s, %4$s, [PDO::ATTR_TIMEOUT => 10, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); fwrite($err, "connected " . microtime(true) . " connection_id=" . $pdo->query("SELECT CONNECTION_ID()")->fetchColumn() . "\n"); $pdo->exec("SET SESSION innodb_lock_wait_timeout = 20"); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); fwrite($err, "inserted " . microtime(true) . "\n"); echo microtime(true);',
             (int) (self::BUMP_AFTER * 1_000_000),
             var_export($dsn, true),
             var_export($params['user'] ?? 'root', true),

@@ -2,18 +2,13 @@
  * @sw-package discovery
  */
 
-type PrivilegeMappingEntry = {
-    key: string;
-    roles: Record<string, { privileges: string[] }>;
-};
-
-const addPrivilegeMappingEntry = jest.fn<void, [PrivilegeMappingEntry]>();
+const addPrivilegeMappingEntry = jest.fn();
 
 describe('src/module/sw-media/acl/index.js', () => {
     beforeEach(async () => {
         jest.resetModules();
         addPrivilegeMappingEntry.mockClear();
-        jest.spyOn(Shopware, 'Service').mockImplementation((() => ({ addPrivilegeMappingEntry })) as never);
+        jest.spyOn(Shopware, 'Service').mockImplementation(() => ({ addPrivilegeMappingEntry }));
 
         await import('./index');
     });

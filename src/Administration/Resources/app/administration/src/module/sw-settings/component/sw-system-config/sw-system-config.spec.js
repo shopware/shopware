@@ -1953,6 +1953,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         });
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should not call the inherited default getConfig implementation when it was not overridden',
         async () => {
@@ -1965,6 +1966,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')('should consider custom legacy getConfig overrides when loading the schema', async () => {
         numberOfTabs = 2;
 
@@ -1996,6 +1998,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.vm.schema[0].cards.map((card) => card.title?.['en-GB'])).toContain('Custom card via legacy override');
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should keep a card on its original tab when a new element is added to it via a legacy getConfig override',
         async () => {
@@ -2035,6 +2038,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should fall back to the schema when a legacy getConfig override resolves to a non-array value',
         async () => {
@@ -2059,6 +2063,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')('should mirror the schema into the deprecated config prop', async () => {
         numberOfTabs = 2;
 
@@ -2068,6 +2073,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.vm.config).toEqual(wrapper.vm.schema.flatMap((tab) => tab.cards));
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')('should keep existing tabs when the deprecated config prop is mutated', async () => {
         numberOfTabs = 2;
 
@@ -2105,6 +2111,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         ]);
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should remove a card from its original tab when it is removed from the deprecated config prop',
         async () => {
@@ -2126,6 +2133,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should keep existing tabs when a card is replaced immutably in the deprecated config prop',
         async () => {
@@ -2150,6 +2158,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should keep existing tabs when cards are reordered in the deprecated config prop',
         async () => {
@@ -2174,6 +2183,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should keep a newly added card in place across further edits via the deprecated config prop',
         async () => {
@@ -2208,6 +2218,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')('should change a card title on an existing tab via the deprecated config prop', async () => {
         numberOfTabs = 2;
 
@@ -2229,6 +2240,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(wrapper.find('.mt-card__title').text()).not.toBe('Custom card 1');
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should add an element to an existing card on an existing tab via the deprecated config prop',
         async () => {
@@ -2257,6 +2269,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')('should change an element on an existing card via the deprecated config prop', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -2274,6 +2287,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         expect(updatedTextField.config.label).toEqual({ 'en-GB': 'Renamed text field' });
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')('should mirror an added card on the schema prop into the deprecated config prop', async () => {
         numberOfTabs = 2;
 
@@ -2298,6 +2312,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         ]);
     });
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should mirror a changed card title on the schema prop into the deprecated config prop',
         async () => {
@@ -2315,6 +2330,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should mirror a removed card on the schema prop into the deprecated config prop',
         async () => {
@@ -2334,6 +2350,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should mirror an added element on the schema prop into the deprecated config prop',
         async () => {
@@ -2358,6 +2375,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should mirror a changed element on the schema prop into the deprecated config prop',
         async () => {
@@ -2371,6 +2389,7 @@ describe('src/module/sw-settings/component/sw-system-config/sw-system-config', (
         },
     );
 
+    // @deprecated tag:v6.8.0 - Test will be removed together with config data prop.
     it.deprecated('v6.8.0.0')(
         'should merge a legacy getConfig override without reporting its own deprecations',
         async () => {

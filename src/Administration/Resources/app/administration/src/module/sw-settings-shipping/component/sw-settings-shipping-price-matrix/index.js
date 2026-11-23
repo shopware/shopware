@@ -186,14 +186,6 @@ export default {
                 'sw-settings-shipping-price-matrix.shippingRuleFilterCriteria is deprecated and will be removed, use ruleFilterCriteria instead.',
             );
 
-            return this.calculationRuleFilterCriteria;
-        },
-
-        /**
-         * @private
-         * Rules selectable per price row; until 6.8 they also include rules of the legacy `shipping` type.
-         */
-        calculationRuleFilterCriteria() {
             if (Shopware.Feature.isActive('v6.8.0.0')) {
                 return this.ruleFilterCriteria;
             }
@@ -208,6 +200,18 @@ export default {
             );
 
             return criteria;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `shippingRuleFilterCriteria`, bind `ruleFilterCriteria` instead
+         */
+        shippingRuleFilterCriteriaDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return this.ruleFilterCriteria;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.shippingRuleFilterCriteria);
         },
 
         isRuleMatrix() {

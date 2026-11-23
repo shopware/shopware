@@ -2,6 +2,7 @@
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 async function createWrapper({ discount = { discountRules: [{ id: 'ruleId' }] }, privileges = ['promotion.editor'] } = {}) {
     return mount(await wrapTestComponent('sw-promotion-v2-settings-rule-selection', { sync: true }), {
@@ -15,7 +16,7 @@ async function createWrapper({ discount = { discountRules: [{ id: 'ruleId' }] },
                     template: '<p class="sw-promotion-v2-wizard-description"><slot /></p>',
                 },
                 'sw-select-rule-create': {
-                    props: { rules: Array, ruleScope: Array, localMode: Boolean, disabled: Boolean },
+                    props: { rules: Array, ruleScope: Array, localMode: Boolean, disabled: Boolean, ruleFilter: Object },
                     emits: ['update:rules'],
                     template: '<div class="sw-select-rule-create"></div>',
                 },
@@ -59,5 +60,43 @@ describe('src/module/sw-promotion-v2/component/discount/sw-promotion-v2-settings
         const wrapper = await createWrapper({ privileges: [] });
 
         expect(wrapper.getComponent('.sw-select-rule-create').props('disabled')).toBe(true);
+    });
+
+    describe('rule filter of the rule select', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-promotion-v2-settings-rule-selection');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the ruleCriteria computed.
+        it.deprecated('v6.8.0.0')('passes ruleCriteria to the rule select without reporting its deprecation', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.getComponent('.sw-select-rule-create').props('ruleFilter').sortings).toEqual([
+                expect.objectContaining({ field: 'name', order: 'ASC' }),
+            ]);
+            expect(deprecations).not.toHaveTriggered('sw-promotion-v2-settings-rule-selection.ruleCriteria is deprecated');
+        });
+
+        // @deprecated tag:v6.8.0 - The test will be removed with the ruleCriteria computed.
+        it.deprecated('v6.8.0.0')('passes an override of ruleCriteria to the rule select', async () => {
+            const overriddenCriteria = new Shopware.Data.Criteria(1, 5);
+            Shopware.Component.override('sw-promotion-v2-settings-rule-selection', {
+                computed: {
+                    ruleCriteria() {
+                        return overriddenCriteria;
+                    },
+                },
+            });
+
+            const wrapper = await createWrapper();
+
+            expect(wrapper.getComponent('.sw-select-rule-create').props('ruleFilter')).toBe(overriddenCriteria);
+        });
+
+        it.activeFeatureFlags(['v6.8.0.0'])('leaves the rule filter to the default of the rule select', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.getComponent('.sw-select-rule-create').props('ruleFilter')).toBeUndefined();
+        });
     });
 });

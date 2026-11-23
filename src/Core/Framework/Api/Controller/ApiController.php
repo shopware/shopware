@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Log\Package;
@@ -218,9 +219,14 @@ class ApiController extends AbstractController
             throw ApiException::definitionNotFound($e);
         }
 
-        $missing = $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_DELETE);
-        if ($missing) {
-            throw ApiException::missingPrivileges([$missing]);
+        // The change set below is removed without a privilege of its own, so the version privilege guards it.
+        // It is checked before the first write, because the entity delete checks nothing when the id has no row.
+        $missing = array_values(array_filter([
+            $this->validateAclPermissions($context, $entityDefinition, AclRoleDefinition::PRIVILEGE_DELETE),
+            $this->validateAclPermissions($context, $this->definitionRegistry->getByEntityName(VersionDefinition::ENTITY_NAME), AclRoleDefinition::PRIVILEGE_DELETE),
+        ]));
+        if ($missing !== []) {
+            throw ApiException::missingPrivileges($missing);
         }
 
         $versionContext = $context->createWithVersionId($versionId);
@@ -235,9 +241,12 @@ class ApiController extends AbstractController
         });
 
         // Drop the change set before the version, so a merge starting in between finds no commits to replay.
-        $this->deleteVersionCommits($versionId, $context);
+        // The change set is written in system scope, so removing it needs no privilege of its own either.
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($versionId): void {
+            $this->deleteVersionCommits($versionId, $context);
+        });
 
-        $versionRepository = $this->definitionRegistry->getRepository('version');
+        $versionRepository = $this->definitionRegistry->getRepository(VersionDefinition::ENTITY_NAME);
         $versionRepository->delete([['id' => $versionId]], $context);
 
         return new JsonResponse();

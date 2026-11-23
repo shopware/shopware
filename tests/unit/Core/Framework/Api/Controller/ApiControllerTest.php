@@ -230,7 +230,59 @@ class ApiControllerTest extends TestCase
         $controller->createVersion(new Request(), $this->createAdminApiContext([]), 'parent-entity', Uuid::randomHex());
     }
 
-    public function testDeleteVersionRequiresDeletePrivilegeBeforeAnythingIsRemoved(): void
+    public function testDeleteVersionDropsTheChangeSetInSystemScope(): void
+    {
+        $commitId = Uuid::randomHex();
+        $scopes = [];
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$scopes): EntityWrittenContainerEvent {
+                $scopes['entity'] = $context->getScope();
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $commitRepository = $this->createMock(EntityRepository::class);
+        $commitRepository->expects($this->once())->method('searchIds')
+            ->willReturnCallback(static fn (Criteria $criteria, Context $context): IdSearchResult => IdSearchResult::fromIds([$commitId], $criteria, $context));
+        $commitRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$scopes): EntityWrittenContainerEvent {
+                $scopes['commits'] = $context->getScope();
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $versionRepository = $this->createMock(EntityRepository::class);
+        $versionRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$scopes): EntityWrittenContainerEvent {
+                $scopes['version'] = $context->getScope();
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+        $container->set(VersionCommitDefinition::ENTITY_NAME . '.repository', $commitRepository);
+        $container->set(VersionDefinition::ENTITY_NAME . '.repository', $versionRepository);
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class, VersionDefinition::class, VersionCommitDefinition::class]);
+
+        $controller->deleteVersion($this->createAdminApiContext(['parent_entity:delete', 'version:delete']), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
+
+        static::assertSame([
+            'entity' => Context::CRUD_API_SCOPE,
+            'commits' => Context::SYSTEM_SCOPE,
+            'version' => Context::USER_SCOPE,
+        ], $scopes, 'only the change set may be removed without a privilege check');
+    }
+
+    /**
+     * @param list<string> $permissions
+     * @param list<string> $missingPrivileges
+     */
+    #[DataProvider('incompleteDiscardPrivilegesProvider')]
+    public function testDeleteVersionRequiresAllPrivilegesBeforeAnythingIsRemoved(array $permissions, array $missingPrivileges): void
     {
         $entityRepository = $this->createMock(EntityRepository::class);
         $entityRepository->expects($this->never())->method('delete');
@@ -248,9 +300,19 @@ class ApiControllerTest extends TestCase
 
         $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class, VersionDefinition::class, VersionCommitDefinition::class]);
 
-        $this->expectExceptionObject(ApiException::missingPrivileges(['parent_entity:delete']));
+        $this->expectExceptionObject(ApiException::missingPrivileges($missingPrivileges));
 
-        $controller->deleteVersion($this->createAdminApiContext(['parent_entity:read', 'version:delete']), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
+        $controller->deleteVersion($this->createAdminApiContext($permissions), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, list<string>}>
+     */
+    public static function incompleteDiscardPrivilegesProvider(): iterable
+    {
+        yield 'the entity must be deletable' => [['parent_entity:read', 'version:delete'], ['parent_entity:delete']];
+        yield 'the version must be deletable' => [['parent_entity:read', 'parent_entity:delete'], ['version:delete']];
+        yield 'every missing privilege is reported' => [['parent_entity:read'], ['parent_entity:delete', 'version:delete']];
     }
 
     public function testMergeVersionWithMissingPrivilegesDoesNotMerge(): void

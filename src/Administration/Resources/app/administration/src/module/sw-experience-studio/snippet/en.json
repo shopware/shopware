@@ -1149,8 +1149,7 @@
       "messageSaveError": "The content layout could not be saved.",
       "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
       "messageReloadError": "The content layout was saved but could not be reloaded.",
-      "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable.",
-      "draftDefaultName": "Draft"
+      "messageDiagnoseError": "The layout could not be checked. Diagnostic results are unavailable."
     },
     "presets": {
       "buy-box": {
@@ -1239,45 +1238,6 @@
       "row-span": {
         "label": "Row Span",
         "description": "How many grid rows the element spans."
-      }
-    },
-    "draftsModal": {
-      "title": "Drafts",
-      "titleWithName": "Drafts of \"{name}\"",
-      "columnName": "Name",
-      "columnUpdatedAt": "Last changed",
-      "columnBase": "Based on",
-      "deleteTitle": "Delete draft",
-      "deleteText": "All changes in this draft will be lost. The live layout is not affected. Continue anyway?",
-      "messageDeleted": "Draft deleted.",
-      "messageDeleteError": "The draft could not be deleted. Please try again.",
-      "emptyStateTitle": "No drafts",
-      "emptyStateSubline": "Save changes in the page builder to create a draft of this layout.",
-      "messageLoadError": "The drafts could not be loaded. Please try again."
-    },
-    "revisionsModal": {
-      "title": "History",
-      "columnCreatedAt": "Created at",
-      "columnAuthor": "Author",
-      "columnStatus": "Status",
-      "columnRevision": "Revision",
-      "badgeLive": "Live",
-      "actionPublish": "Publish",
-      "actionOpenAsDraft": "Open as draft",
-      "emptyStateTitle": "No history",
-      "emptyStateSubline": "Saved and published states of this layout appear here.",
-      "messageLoadError": "The history could not be loaded. Please try again.",
-      "messagePublished": "Revision published successfully.",
-      "messagePublishError": "The revision could not be published. Please try again.",
-      "messageOpenAsDraftError": "No draft could be created from this revision. Please try again.",
-      "publishModal": {
-        "title": "Publish revision",
-        "text": "This revision replaces the live layout. Unsaved changes in the editor are lost. Continue anyway?"
-      },
-      "messagePublishConflict": "The live layout was changed in the meantime. The history has been reloaded, check the current state before publishing.",
-      "openAsDraftModal": {
-        "title": "Open as draft",
-        "text": "The editor has unsaved changes. They are lost when you open this revision as a draft. Continue anyway?"
       }
     }
   }

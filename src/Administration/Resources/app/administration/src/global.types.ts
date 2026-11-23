@@ -20,7 +20,6 @@ import type CartStoreService from 'src/core/service/api/cart-store-api.api.servi
 import type CustomSnippetApiService from 'src/core/service/api/custom-snippet.api.service';
 import type MediaService from 'src/core/service/api/media.api.service';
 import type ContentSystemElementTypeApiService from 'src/core/service/api/content-system-element-type.api.service';
-import type ContentSystemLayoutRevisionApiService from 'src/core/service/api/content-system-layout-revision.api.service';
 import type ContentSystemLayoutPresetApiService from 'src/core/service/api/content-system-layout-preset.api.service';
 import type ContentSystemMappingCandidateApiService from 'src/core/service/api/content-system-mapping-candidate.api.service';
 import type LocaleFactory from 'src/core/factory/locale.factory';
@@ -265,7 +264,6 @@ declare global {
         cmsElementFavorites: cmsElementFavoritesService;
         cmsPageTypeService: CmsPageTypeService;
         cmsService: CmsService;
-        contentSystemLayoutRevisionService: ContentSystemLayoutRevisionApiService;
         contentSystemLayoutDraftMutationService: $TSFixMe;
         contentSystemEntityTypeService: $TSFixMe;
         contentSystemElementTypeService: ContentSystemElementTypeApiService;

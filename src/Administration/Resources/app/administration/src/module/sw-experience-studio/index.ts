@@ -135,24 +135,6 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
-    'sw-experience-studio-drafts-modal',
-    () => import('./component/sw-experience-studio-drafts-modal'),
-);
-
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register(
-    'sw-experience-studio-revisions-modal',
-    () => import('./component/sw-experience-studio-revisions-modal'),
-);
-
-/**
- * @private
- * @sw-package discovery
- */
-Shopware.Component.register(
     'sw-experience-studio-assignment-modal',
     () => import('./component/sw-experience-studio-assignment-modal'),
 );

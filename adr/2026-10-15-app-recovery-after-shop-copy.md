@@ -117,8 +117,6 @@ In the example, the copy stores one row like this per app in its own database:
 | Secret  | `staging-secret`                          |
 | Expires | 72 hours after the ShopId change          |
 
-Instead of a table only for this case, this work could add a general history of each app's secrets.
-
 Shopware deletes kept secrets once they expire.
 
 Production can also be recovered before the copy gets a new ShopId.

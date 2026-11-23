@@ -422,9 +422,11 @@ For `ProductReviewResult`:
 
 - 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
 
-### Product listings can include inactive and sold-out closeout products
+### New `ProductListingLoader::STATE_INCLUDE_INACTIVE` criteria state
 
-With the criteria state `ProductListingLoader::STATE_INCLUDE_INACTIVE`, `ProductListingLoader::load()` no longer hides sold-out closeout products and checks the products and the configured variants with the `ProductAvailableFilter` of the criteria.
+`ProductListingLoader` has a new criteria state `STATE_INCLUDE_INACTIVE`.
+Listings without this state are unchanged.
+With the state, `ProductListingLoader::load()` no longer hides sold-out closeout products and checks the products and the configured variants with the `ProductAvailableFilter` of the criteria.
 To include inactive products, add a `ProductAvailableFilter` without the active condition to the criteria.
 Each group then shows its configured variant or parent, even if the variant is inactive or a sold-out closeout product.
 

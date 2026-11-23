@@ -19,35 +19,6 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(ContentInlineMappingParseController::class)]
 class ContentInlineMappingParseControllerTest extends TestCase
 {
-    public function testEngineFailureDoesNotReturnASuccessfulPartialResponse(): void
-    {
-        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-        $payload = new ContentInlineMappingParseRequest('{{map:product.name}} {{map:' . str_repeat('x', 500) . '}}', 18);
-        $previousLimit = ini_get('pcre.backtrack_limit');
-        static::assertNotFalse($previousLimit);
-        static::assertNotFalse(ini_set('pcre.backtrack_limit', '100'));
-
-        try {
-            $this->expectExceptionObject(ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'));
-
-            $controller->parse($payload);
-        } finally {
-            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $expected
-     */
-    #[DataProvider('parseResponseProvider')]
-    public function testReturnsParsedTokensAndEchoesTheRevision(string $text, int $revision, array $expected): void
-    {
-        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-        $response = $controller->parse(new ContentInlineMappingParseRequest($text, $revision));
-        static::assertSame(200, $response->getStatusCode());
-        static::assertSame($expected, json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
-    }
-
     /**
      * @param array<string, mixed> $expected
      */

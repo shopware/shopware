@@ -35,8 +35,8 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
 
     public function testAcceptsSeveralFramesForTheSameLayout(): void
     {
-        $desktop = ['id' => str_repeat('c', 32), ...self::frame()];
-        $mobile = ['id' => str_repeat('d', 32), ...self::frame()];
+        $desktop = [...self::frame(), 'id' => str_repeat('c', 32)];
+        $mobile = [...self::frame(), 'id' => str_repeat('d', 32)];
         $desktop['languageId'] = str_repeat('e', 32);
         $mobile['languageId'] = str_repeat('f', 32);
         $mobile['viewport'] = 'mobile';
@@ -51,7 +51,7 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
 
     public function testRejectsTheSameFrameIdentityOnDifferentLayouts(): void
     {
-        $first = ['id' => str_repeat('c', 32), ...self::frame()];
+        $first = [...self::frame(), 'id' => str_repeat('c', 32)];
         $second = $first;
         $second['layoutId'] = str_repeat('d', 32);
         $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
@@ -62,15 +62,14 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
         ]));
     }
 
-    public function testRejectsAFrameIdentityCollidingWithALegacyFrame(): void
+    public function testRejectsAFrameWithoutItsOwnIdentity(): void
     {
-        $legacy = self::frame();
-        $frame = ['id' => $legacy['layoutId'], ...self::frame()];
-        $frame['layoutId'] = str_repeat('d', 32);
+        $frame = self::frame();
+        unset($frame['id']);
         $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
 
         static::assertCount(1, $validator->validateConfiguration([
-            'frames' => [$legacy, $frame], 'previewSalesChannelId' => null,
+            'frames' => [$frame], 'previewSalesChannelId' => null,
             'canvas' => ['panX' => 0, 'panY' => 0, 'zoom' => 1],
         ]));
     }
@@ -153,7 +152,7 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
         yield 'layout content cannot be embedded' => ['layout', []];
     }
 
-    public function testRejectsDuplicateLayoutsAndInvalidCamera(): void
+    public function testRejectsDuplicateFrameIdentitiesAndInvalidCamera(): void
     {
         $validator = new ContentWorkspaceWriteValidator(Validation::createValidator());
         $violations = $validator->validateConfiguration([
@@ -169,6 +168,7 @@ class ContentWorkspaceWriteValidatorTest extends TestCase
     private static function frame(): array
     {
         return [
+            'id' => str_repeat('c', 32),
             'layoutId' => str_repeat('a', 32), 'x' => -40, 'y' => 80, 'width' => 700, 'height' => 900,
             'viewport' => 'custom', 'previewEntityId' => str_repeat('b', 32),
         ];

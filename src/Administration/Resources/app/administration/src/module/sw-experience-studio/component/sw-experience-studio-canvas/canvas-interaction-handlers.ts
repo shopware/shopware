@@ -14,7 +14,7 @@ import {
 
 type CanvasInteractionContext = {
     $refs: Record<string, unknown>;
-    $emit: (event: 'frame-viewport-change' | 'viewport-change', ...args: unknown[]) => void;
+    $emit: (event: 'frame-viewport-change', ...args: unknown[]) => void;
     $t: (key: string) => string;
     frames: CanvasFrame[];
     visibleFrames: CanvasFrame[];
@@ -37,7 +37,7 @@ type CanvasInteractionContext = {
     activateFrame: (id: string) => void;
     syncActiveFrameState: () => void;
     getAvailableFrameX: (state: { x: number; y: number; width: number; height: number }) => number;
-    saveCanvasPosition: (manuallyPlaced?: boolean) => void;
+    saveCanvasPosition: () => void;
     startViewportTransition: () => void;
     startCanvasGesture: (event: PointerEvent, type: GestureType, direction?: ResizeDirection | null) => void;
     stopCanvasGesture: () => void;
@@ -155,8 +155,6 @@ export const canvasInteractionHandlers = {
         if (frameId) {
             this.activateFrame(frameId);
             this.$emit('frame-viewport-change', frameId, 'custom');
-        } else {
-            this.$emit('viewport-change', 'custom');
         }
         this.startCanvasGesture(event, 'resize', direction);
     },
@@ -281,7 +279,7 @@ export const canvasInteractionHandlers = {
         }
 
         if (gesture?.type === 'move' || gesture?.type === 'resize') {
-            this.saveCanvasPosition(gesture.type === 'move');
+            this.saveCanvasPosition();
         }
 
         this.canvasPointerMoveHandler = null;
@@ -414,7 +412,7 @@ export const canvasInteractionHandlers = {
         event.preventDefault();
         this.frameX = this.clampPosition(nextX);
         this.frameY = this.clampPosition(nextY);
-        this.saveCanvasPosition(true);
+        this.saveCanvasPosition();
     },
 
     resizeHandleLabel(this: CanvasInteractionContext, direction: ResizeDirection): string {

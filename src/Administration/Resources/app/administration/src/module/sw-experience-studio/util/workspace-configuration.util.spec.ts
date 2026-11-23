@@ -33,6 +33,7 @@ describe('workspace configuration serialization', () => {
 
     it('copies geometry and context while excluding layout content and editor state', () => {
         const frame = {
+            id: 'preview',
             layoutId: 'layout',
             x: -40,
             y: 10,
@@ -46,7 +47,7 @@ describe('workspace configuration serialization', () => {
         const configuration = { ...createWorkspaceConfiguration(), frames: [frame] };
         const snapshot = copyWorkspaceConfiguration(configuration);
         expect(snapshot.frames[0]).toEqual({
-            id: 'layout',
+            id: 'preview',
             layoutId: 'layout',
             x: -40,
             y: 10,

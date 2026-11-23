@@ -9,8 +9,10 @@ Admin API controllers for the content system. Store API rendering lives in `Sale
 - `ContentPreviewPayloadStore` - Holds a serialized `ContentPreviewRequest` envelope under a 32-character token in the application cache for five minutes, never in the database; both directions, with their faults: [docs/preview-url.md](docs/preview-url.md).
 - `ContentPreviewRequest` - Request body bound via `#[MapRequestPayload]` on the action parameter. Fields: [docs/preview-url.md](docs/preview-url.md#request). The `layout` stays raw and is decoded by `DraftLayoutDecoder` ([one decode path](../docs/principles/drafts-and-gates.md#draft-and-persisted-paths-decode-and-check-through-the-same-components)).
 - `ContentDiagnoseController` - Single `POST /api/_action/content-system/layout/diagnose` action. Decodes the draft layout via `DraftLayoutDecoder` (lenient: config defects are reported as `invalid_config` diagnostics, not request failures); never reads or writes the stored `content_layout` entity. Optionally binds `rootSource` via `Adapter/RootSourceRegistry::resolveGated()`, the same path the draft mutation routes use and distinct from the preview action's assignment-free `resolveWithoutLayout()`. It returns a `DiagnoseResponse`: per-element resolutions plus a well-formedness/resolvability report. No persistence, no rendering.
-- `ContentInlineMappingParseController` - `POST /api/_action/content-system/inline-mapping/parse`, ACL `content_layout:read`. Returns PHP-owned token spans with UTF-8 byte offsets, verbatim and canonical text, placement, and the echoed client revision. Malformed tokens have `canonicalToken: null`; valid unavailable sources retain canonical text. See the [wire schema](../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-inline-mapping-parse.json).
-  The companion `POST /api/_action/content-system/inline-mapping/parse-batch` parses up to 50 fields in request order, with independent revisions and input-size errors.
+- `ContentInlineMappingParseController` - `POST /api/_action/content-system/inline-mapping/parse-batch`, ACL `content_layout:read`.
+  Parses 1 to 50 fields in request order, with independent revisions and input-size errors.
+  Returns PHP-owned token spans with UTF-8 byte offsets, verbatim and canonical text, placement, and the echoed client revision.
+  Malformed tokens have `canonicalToken: null`; valid unavailable sources retain canonical text.
   See the [parser API reference](docs/inline-mapping-parse.md) and [batch wire schema](../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-inline-mapping-parse-batch.json).
 - `ContentDiagnoseRequest` - envelope DTO bound via `#[MapRequestPayload]` on the action parameter. The source selection and unbound-draft checks are documented under [mapping findings](docs/diagnose-response.md#mapping-findings).
 - `DraftLayoutDecoder` - Shared draft-layout decode (pre-decode `id`/`component` check plus `Layout/Codec/StoredElementCodec::decode()`) used by preview, diagnose, and mutation routes. `decode()` is strict (a malformed/config-defective element is a 400 `invalidLayoutStructure`); `decodeLintable()` is lenient (config defects become `invalid_config` violations, the rest survives) for the diagnose route.
@@ -25,7 +27,7 @@ Admin API controllers for the content system. Store API rendering lives in `Sale
 ## Endpoint Reference
 
 - [docs/workflow.md](docs/workflow.md) - How introspection, mutation, diagnose, and preview chain together while a client builds a layout.
-- [docs/inline-mapping-parse.md](docs/inline-mapping-parse.md) - Single-field and batch inline-token parsing, revisions, and error handling.
+- [docs/inline-mapping-parse.md](docs/inline-mapping-parse.md) - Inline-token parsing, revisions, and error handling.
 - [docs/draft-layout-decoder.md](docs/draft-layout-decoder.md) - The shared request draft-layout decode path used by the preview, diagnose, and both mutation routes.
 - [docs/preview-url.md](docs/preview-url.md) - The preview action that creates a short-lived, openable URL for a draft layout: route, request envelope, response, and error model.
 - [docs/diagnose.md](docs/diagnose.md) - The resolve-and-diagnose action: route, request envelope, and error model.

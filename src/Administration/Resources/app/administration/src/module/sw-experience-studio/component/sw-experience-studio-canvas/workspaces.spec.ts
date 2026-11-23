@@ -139,7 +139,7 @@ describe('canvas workspace restoration', () => {
         expect(wrapper.emitted('frame-viewport-change')).toContainEqual(['layout-a', 'custom']);
     });
 
-    it('restores exact frame geometry and camera without reading legacy positions or autosaving', async () => {
+    it('restores exact frame geometry and camera without autosaving', async () => {
         const configuration = createWorkspaceConfiguration();
         configuration.frames = [
             {
@@ -154,14 +154,9 @@ describe('canvas workspace restoration', () => {
             },
         ];
         configuration.canvas = { panX: 45, panY: -90, zoom: 0.75 };
-        localStorage.setItem(
-            'sw-experience-studio-canvas-position.user.layout-a',
-            JSON.stringify({ x: 999, y: 999, isManuallyPlaced: true }),
-        );
         wrapper = shallowMount(await wrapTestComponent('sw-experience-studio-canvas', { sync: true }), {
             props: {
                 workspaceConfiguration: configuration,
-                layoutId: 'layout-a',
                 frames: [
                     {
                         id: 'layout-a',

@@ -30,14 +30,6 @@ class ContentInlineMappingParseController
     ) {
     }
 
-    #[Route(path: '/api/_action/content-system/inline-mapping/parse', name: 'api.action.content_system.inline_mapping.parse', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
-    public function parse(
-        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
-        ContentInlineMappingParseRequest $payload,
-    ): JsonResponse {
-        return new JsonResponse($this->parseText($payload));
-    }
-
     #[Route(path: '/api/_action/content-system/inline-mapping/parse-batch', name: 'api.action.content_system.inline_mapping.parse_batch', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function parseBatch(
         #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]

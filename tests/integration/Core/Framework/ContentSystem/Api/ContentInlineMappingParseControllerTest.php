@@ -22,15 +22,14 @@ class ContentInlineMappingParseControllerTest extends TestCase
 
     public function testParsesAnInlineMappingToken(): void
     {
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
-            'text' => '{{map:category.description}}',
-            'revision' => 7,
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', [
+            'requests' => [['text' => '{{map:category.description}}', 'revision' => 7]],
         ]);
 
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame([
+        static::assertSame(['results' => [[
             'revision' => 7,
             'tokens' => [[
                 'path' => 'category.description',
@@ -40,20 +39,20 @@ class ContentInlineMappingParseControllerTest extends TestCase
                 'insideMarkup' => false,
                 'malformed' => false,
             ]],
-        ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        ]]], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testOnlyMalformedTokensHaveNoCanonicalText(): void
     {
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', ['requests' => [[
             'text' => '🙂 {{ map:product }} / {{map:AcmePlugin:unknown.title}} <a title="{{map:product.name}}">link</a>',
             'revision' => 8,
-        ]);
+        ]]]);
 
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame([
+        static::assertSame(['results' => [[
             'revision' => 8,
             'tokens' => [
                 [
@@ -81,7 +80,7 @@ class ContentInlineMappingParseControllerTest extends TestCase
                     'malformed' => false,
                 ],
             ],
-        ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        ]]], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testBatchPreservesIndependentResultsAndMatchesItsResponseSchema(): void

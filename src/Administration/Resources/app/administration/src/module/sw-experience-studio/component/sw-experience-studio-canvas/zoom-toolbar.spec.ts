@@ -18,6 +18,7 @@ async function createWrapper(frames: Frame[] = [], width = 1200, height = 800, a
             })),
             workspaceConfiguration: {
                 frames: frames.map(({ id, ...bounds }) => ({
+                    id: id,
                     layoutId: id,
                     ...bounds,
                     viewport: 'desktop',

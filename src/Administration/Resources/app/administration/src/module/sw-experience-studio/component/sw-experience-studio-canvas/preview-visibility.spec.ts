@@ -17,9 +17,27 @@ const preview = defineComponent({
 
 async function createWrapper() {
     const frames = [
-        { layoutId: 'first', x: 0, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
-        { layoutId: 'second', x: 1600, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
-        { layoutId: 'third', x: 3200, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
+        { id: 'first', layoutId: 'first', x: 0, y: 0, width: 500, height: 400, viewport: 'desktop', previewEntityId: null },
+        {
+            id: 'second',
+            layoutId: 'second',
+            x: 1600,
+            y: 0,
+            width: 500,
+            height: 400,
+            viewport: 'desktop',
+            previewEntityId: null,
+        },
+        {
+            id: 'third',
+            layoutId: 'third',
+            x: 3200,
+            y: 0,
+            width: 500,
+            height: 400,
+            viewport: 'desktop',
+            previewEntityId: null,
+        },
     ];
     const wrapper = mount((await wrapTestComponent('sw-experience-studio-canvas', { sync: true })) as Component, {
         props: {

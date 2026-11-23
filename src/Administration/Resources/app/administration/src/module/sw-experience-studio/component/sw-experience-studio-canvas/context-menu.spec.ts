@@ -4,8 +4,26 @@ import type { Component } from 'vue';
 async function createWrapper(withLayouts = true, preview = '') {
     const frames = withLayouts
         ? [
-              { layoutId: 'left', x: -800, y: 0, width: 400, height: 300, viewport: 'desktop', previewEntityId: null },
-              { layoutId: 'right', x: 800, y: 0, width: 400, height: 300, viewport: 'desktop', previewEntityId: null },
+              {
+                  id: 'left',
+                  layoutId: 'left',
+                  x: -800,
+                  y: 0,
+                  width: 400,
+                  height: 300,
+                  viewport: 'desktop',
+                  previewEntityId: null,
+              },
+              {
+                  id: 'right',
+                  layoutId: 'right',
+                  x: 800,
+                  y: 0,
+                  width: 400,
+                  height: 300,
+                  viewport: 'desktop',
+                  previewEntityId: null,
+              },
           ]
         : [];
     const wrapper = mount((await wrapTestComponent('sw-experience-studio-canvas', { sync: true })) as Component, {

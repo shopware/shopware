@@ -42,29 +42,21 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
         expect(result).toEqual([visibleFrame]);
     });
 
-    it('activates a changed layout without moving the canvas to its frame', () => {
+    it('activates a selected frame without moving the canvas to it', () => {
         const activateFrame = jest.fn();
         const fitCanvasToFrame = jest.fn();
         const vm = {
-            layoutId: 'layout-2',
-            frames: [],
-            frameStates: {
-                'layout-2': { x: 1200, y: 400, width: 1480, height: 640 },
-            },
             activateFrame,
             fitCanvasToFrame,
         };
 
-        watchers.layoutId.call(vm);
+        watchers.selectedFrameId.call(vm, 'layout-2');
 
         expect(activateFrame).toHaveBeenCalledWith('layout-2', false);
         expect(fitCanvasToFrame).not.toHaveBeenCalled();
     });
 
-    it('spreads legacy layouts that were all saved at the single-frame origin', () => {
-        localStorage.clear();
-        localStorage.setItem('sw-experience-studio-canvas-position.user-1.layout-1', JSON.stringify({ x: 0, y: 0 }));
-        localStorage.setItem('sw-experience-studio-canvas-position.user-1.layout-2', JSON.stringify({ x: 0, y: 0 }));
+    it('places newly opened frames next to one another', () => {
         const vm = {
             frames: [
                 { id: 'layout-1', viewport: 'desktop', isActive: true },
@@ -76,7 +68,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
             frameY: 0,
             frameWidth: 1480,
             frameHeight: 640,
-            getCurrentUserId: () => 'user-1',
             getDefaultFrameHeight: () => 640,
             activateFrame: methods.activateFrame,
             createFrameState: methods.createFrameState,
@@ -92,7 +83,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
     });
 
     it('places a newly opened layout 60px to the right of the active frame on the same row', () => {
-        localStorage.clear();
         const vm = {
             frames: [
                 { id: 'layout-active', viewport: 'desktop', isActive: true },
@@ -106,7 +96,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
             frameY: -300,
             frameWidth: 1480,
             frameHeight: 640,
-            getCurrentUserId: () => 'user-1',
             getDefaultFrameHeight: () => 640,
             activateFrame: methods.activateFrame,
             createFrameState: methods.createFrameState,
@@ -121,7 +110,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
     });
 
     it('places a newly opened layout after occupied space in the active frame row', () => {
-        localStorage.clear();
         const vm = {
             frames: [
                 { id: 'layout-active', viewport: 'desktop', isActive: true },
@@ -135,7 +123,6 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
             activeFrameId: 'layout-active',
             frameX: 0,
             frameY: 0,
-            getCurrentUserId: () => 'user-1',
             getDefaultFrameHeight: () => 640,
             activateFrame: methods.activateFrame,
             createFrameState: methods.createFrameState,
@@ -199,6 +186,9 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
     ] as const)('sets the %s viewport width preset', (viewport, width) => {
         const emit = jest.fn();
         const vm = {
+            activeFrameId: 'preview',
+            activateFrame: jest.fn(),
+            saveCanvasPosition: jest.fn(),
             frameWidth: 0,
             frameHeight: 0,
             canvasZoom: 0.75,
@@ -210,31 +200,36 @@ describe('module/sw-experience-studio/component/sw-experience-studio-canvas', ()
             $emit: emit,
         };
 
-        methods.onViewportChange.call(vm, viewport);
+        methods.onViewportChange.call(vm, viewport, 'preview');
 
         expect(vm.frameWidth).toBe(width);
         expect(vm.frameHeight).toBe(720);
         expect(vm.canvasZoom).toBe(0.75);
         expect(vm.canvasPanX).toBe(120);
         expect(vm.canvasPanY).toBe(-80);
-        expect(emit).toHaveBeenCalledWith('viewport-change', viewport);
+        expect(emit).toHaveBeenCalledWith('frame-viewport-change', 'preview', viewport);
     });
 
     it('marks manual frame resizing as a custom viewport', () => {
         const startCanvasGesture = jest.fn();
         const emit = jest.fn();
-        const event = { button: 0 } as PointerEvent;
+        const frame = document.createElement('section');
+        frame.dataset.frameId = 'preview';
+        const handle = document.createElement('button');
+        frame.appendChild(handle);
+        const event = { button: 0, currentTarget: handle } as unknown as PointerEvent;
 
         methods.onFrameResizeStart.call(
             {
                 $emit: emit,
+                activateFrame: jest.fn(),
                 startCanvasGesture,
             },
             event,
             'se',
         );
 
-        expect(emit).toHaveBeenCalledWith('viewport-change', 'custom');
+        expect(emit).toHaveBeenCalledWith('frame-viewport-change', 'preview', 'custom');
         expect(startCanvasGesture).toHaveBeenCalledWith(event, 'resize', 'se');
     });
 

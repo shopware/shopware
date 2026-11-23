@@ -25,4 +25,4 @@
 - Persisted mutation routes, the `content_layout:translate` privilege of `translate-element`, `expectedVersion` token, committed response: [persisted-mutation.md](docs/persisted-mutation.md#request)
 - Persisted mutation rejection conditions: [persisted-mutation-errors.md](docs/persisted-mutation-errors.md)
 - Shared draft-layout decode, style canonicalisation, element-local wiring codes: [draft-layout-decoder.md](docs/draft-layout-decoder.md)
-- Mapping catalogue and inline-token parser: [Mapping/README.md](../Mapping/README.md), [inline parser wire schema](../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-inline-mapping-parse.json)
+- Mapping catalogue and inline-token parser: [Mapping/README.md](../Mapping/README.md), [inline parser wire schema](../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-inline-mapping-parse-batch.json)

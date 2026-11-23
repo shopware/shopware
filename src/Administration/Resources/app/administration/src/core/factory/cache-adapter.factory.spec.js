@@ -641,4 +641,93 @@ describe('core/factory/cache-adapter.factory.js', () => {
         cacheAdapter(configMeRequest);
         expect(mockAdapter).toHaveBeenCalledTimes(3);
     });
+
+    it.each([
+        '/search/product-warehouse-group',
+        '/search/product-manufacturer',
+        '/search/property-group-option',
+        '/search/order-line-item',
+        '/search/customer-address',
+        '/search/product/1a2b3cd4/categories',
+    ])('should not serve a stale search for %s that only shares a prefix with an allowed url', async (url) => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
+        let total = 0;
+        const searchAdapter = jest.fn((config) => Promise.resolve({ request: config, total }));
+        const cacheAdapter = cacheAdapterFactory(searchAdapter, requestCaches);
+        const searchRequest = {
+            url,
+            method: 'post',
+            data: '{"page": 1, "limit": 25}',
+            baseURL: '/api',
+        };
+
+        const before = await cacheAdapter(searchRequest);
+        expect(before.total).toBe(0);
+
+        await cacheAdapter({ url: '/product-warehouse-group', method: 'post', data: '{}', baseURL: '/api' });
+        total = 1;
+
+        jest.advanceTimersByTime(500);
+
+        const after = await cacheAdapter(searchRequest);
+        expect(after.total).toBe(1);
+        expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        '/product',
+        'product',
+        '/product/1a2b3cd4/categories',
+        'app-system/action-button/run/1a2b3cd4',
+    ])('should not serve a stale allowed search after an entity is created with POST %s', async (createUrl) => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
+        let total = 0;
+        const searchAdapter = jest.fn((config) => Promise.resolve({ request: config, total }));
+        const cacheAdapter = cacheAdapterFactory(searchAdapter, requestCaches);
+        const searchRequest = { url: '/search/product', method: 'post', data: '{"page": 1}', baseURL: '/api' };
+
+        expect((await cacheAdapter(searchRequest)).total).toBe(0);
+
+        await cacheAdapter({ url: createUrl, method: 'post', data: '{}', baseURL: '/api' });
+        total = 1;
+        jest.advanceTimersByTime(500);
+
+        expect((await cacheAdapter(searchRequest)).total).toBe(1);
+        expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        '/search/product-manufacturer',
+        'search-ids/product',
+        '/_action/product/types',
+        '_info/config-me',
+    ])('should keep the cache when a reading POST %s is sent', async (url) => {
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+        const searchRequest = { url: '/search/product', method: 'post', data: '{"page": 1}', baseURL: '/api' };
+
+        await cacheAdapter(searchRequest);
+        await cacheAdapter({ url, method: 'post', data: '{}', baseURL: '/api' });
+
+        expect(Object.keys(requestCaches)).toContain(JSON.stringify(searchRequest));
+    });
+
+    it.each([
+        '/search/product',
+        'search/product',
+        '/search/order',
+        '_action/system-config',
+        '/_action/product/types',
+    ])('should keep caching the allowed url %s', async (url) => {
+        jest.spyOn(global.console, 'warn').mockImplementation();
+
+        const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
+        const request = { url, method: 'post', data: '{"page": 1, "limit": 25}', baseURL: '/api' };
+
+        await cacheAdapter(request);
+        await cacheAdapter(request);
+
+        expect(mockAdapter).toHaveBeenCalledTimes(1);
+    });
 });

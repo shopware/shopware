@@ -56,7 +56,8 @@ const requestCacheTimeout = 1500;
  */
 export default function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
-        const requestChangesData = ['delete', 'patch'].includes(config?.method);
+        const requestPath = config?.url?.replace(/^\//, '').split('?')[0] ?? '';
+        const requestChangesData = changesData(config?.method, requestPath);
         const shouldFlushCache = flushCacheUrls.includes(config?.url);
 
         // remove all caches when something gets changed
@@ -69,9 +70,7 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         }
 
         // ignore requests which are not in the allowedUrlList
-        const isNotInAllowList = !allowUrlList.some((url) =>
-            config?.url?.replace(/^\//, '').startsWith(url.replace(/^\//, '')),
-        );
+        const isNotInAllowList = !allowUrlList.some((url) => url.replace(/^\//, '') === requestPath);
 
         if (isNotInAllowList) {
             return originalAdapter(config);
@@ -111,6 +110,14 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         // return a clone of the created request from the request cache
         return cloneResponse(requestCaches[requestHash]);
     };
+}
+
+function changesData(method, requestPath) {
+    if (method === 'post') {
+        return !/^(_|search(-ids)?(\/|$))/.test(requestPath);
+    }
+
+    return ['delete', 'patch'].includes(method);
 }
 
 /**

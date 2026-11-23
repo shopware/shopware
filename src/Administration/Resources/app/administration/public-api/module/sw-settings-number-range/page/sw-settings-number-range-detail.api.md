@@ -17,7 +17,7 @@ blocks
       sw_settings_number_range_detail_actions_save
     sw_settings_number_range_detail_content
       sw_settings_number_range_detail_assignment_card
-        sw_sales_channel_detail_base_general_input_sales_channel
+        sw_sales_channel_detail_base_general_input_sales_channel  [after v-if]
         sw_sales_channel_detail_base_general_input_type
         sw_settings_number_range_detail_assignment_card_global_warning
         sw_settings_number_range_detail_content_global_product_warning
@@ -28,11 +28,11 @@ blocks
         sw_settings_number_range_detail_content_field_name
         sw_settings_number_range_detail_content_field_pattern
         sw_settings_number_range_detail_content_field_prefix
-        sw_settings_number_range_detail_content_field_preview
+        sw_settings_number_range_detail_content_field_preview  [after v-if]
         sw_settings_number_range_detail_content_field_start
         sw_settings_number_range_detail_content_field_suffix
         sw_settings_number_range_detail_content_global_warning
-        sw_settings_number_range_detail_content_pattern_collision_warning
+        sw_settings_number_range_detail_content_pattern_collision_warning  [after v-if]
       sw_settings_number_range_detail_custom_field_sets
       sw_settings_number_range_detail_language_info
     sw_settings_number_range_detail_header

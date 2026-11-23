@@ -16,7 +16,7 @@ blocks
     sw_flow_content  [private]
       sw_flow_detail_modal_extension  [private]
       sw_flow_leave_page_modal  [private]
-      sw_flow_tabs_content  [private]
+      sw_flow_tabs_content  [after v-if] [private]
       sw_flow_tabs_header  [private]
         sw_flow_tabs_header_builder  [until v6.8.0] [private]
         sw_flow_tabs_header_extension  [until v6.8.0] [private]

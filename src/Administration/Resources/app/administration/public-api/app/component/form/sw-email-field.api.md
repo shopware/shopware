@@ -13,5 +13,8 @@ component sw-email-field  private  ts  [private]
 
 blocks
   sw_email_field  [private]
-  sw_email_field_deprecated  [private]
+  sw_email_field_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_email_field -> (root)  [private]
 ```

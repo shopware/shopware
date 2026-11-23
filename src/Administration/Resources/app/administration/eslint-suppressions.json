@@ -3080,21 +3080,7 @@
     }
   },
   "src/app/plugin/shortcut.plugin.js": {
-    "@eslint-community/eslint-comments/require-description": {
-      "count": 1
-    },
-    "complexity": {
-      "count": 1
-    },
     "filename-rules/not-match": {
-      "count": 1
-    },
-    "max-lines-per-function": {
-      "count": 1
-    }
-  },
-  "src/app/plugin/shortcut.plugin.spec.js": {
-    "@eslint-community/eslint-comments/require-description": {
       "count": 1
     }
   },

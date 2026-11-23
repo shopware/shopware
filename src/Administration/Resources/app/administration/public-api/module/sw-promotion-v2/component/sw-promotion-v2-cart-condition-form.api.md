@@ -14,14 +14,14 @@ blocks
   sw_promotion_v2_cart_condition_form
     sw_promotion_v2_cart_condition_add_group_button
     sw_promotion_v2_cart_condition_form_rules_field
-    sw_promotion_v2_cart_condition_form_use_setgroups_field
+    sw_promotion_v2_cart_condition_form_use_setgroups_field  [after v-if]
     sw_promotion_v2_cart_condition_setgroup_card
-      sw_promotion_v2_cart_condition_setgroup_card_context_action
-        sw_promotion_v2_cart_condition_setgroup_card_context_action_delete
-        sw_promotion_v2_cart_condition_setgroup_card_context_action_duplicate
-      sw_promotion_v2_cart_condition_setgroup_card_title
-      sw_promotion_v2_cart_condition_setgroup_mode_field
-      sw_promotion_v2_cart_condition_setgroup_rules_field
-      sw_promotion_v2_cart_condition_setgroup_sorting_field
-      sw_promotion_v2_cart_condition_setgroup_value_field
+      sw_promotion_v2_cart_condition_setgroup_card_context_action  [scope: group, index]
+        sw_promotion_v2_cart_condition_setgroup_card_context_action_delete  [scope: group, index]
+        sw_promotion_v2_cart_condition_setgroup_card_context_action_duplicate  [scope: group, index]
+      sw_promotion_v2_cart_condition_setgroup_card_title  [scope: group, index]
+      sw_promotion_v2_cart_condition_setgroup_mode_field  [scope: group, index]
+      sw_promotion_v2_cart_condition_setgroup_rules_field  [scope: group, index]
+      sw_promotion_v2_cart_condition_setgroup_sorting_field  [scope: group, index]
+      sw_promotion_v2_cart_condition_setgroup_value_field  [scope: group, index]
 ```

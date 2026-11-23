@@ -19,13 +19,13 @@ blocks
         sw_settings_custom_field_set_list_grid
           sw_settings_custom_field_set_list_content_columns_pagination
           sw_settings_custom_field_set_list_grid_columns
-            sw_settings_custom_field_set_list_grid_column_actions
-            sw_settings_custom_field_set_list_grid_column_label
-            sw_settings_custom_field_set_list_grid_delete_modal
-              sw_settings_custom_field_set_list_grid_delete_modal_footer
-                sw_settings_custom_field_set_list_grid_delete_modal_cancel
-                sw_settings_custom_field_set_list_grid_delete_modal_delete
-              sw_settings_custom_field_set_list_grid_delete_modal_text
+            sw_settings_custom_field_set_list_grid_column_actions  [scope: item]
+            sw_settings_custom_field_set_list_grid_column_label  [scope: item]
+            sw_settings_custom_field_set_list_grid_delete_modal  [scope: item]
+              sw_settings_custom_field_set_list_grid_delete_modal_footer  [scope: item]
+                sw_settings_custom_field_set_list_grid_delete_modal_cancel  [scope: item]
+                sw_settings_custom_field_set_list_grid_delete_modal_delete  [scope: item]
+              sw_settings_custom_field_set_list_grid_delete_modal_text  [scope: item]
         sw_settings_custom_fields_set_list_empty_message
     sw_settings_custom_field_set_list_header
     sw_settings_custom_field_set_list_search_bar

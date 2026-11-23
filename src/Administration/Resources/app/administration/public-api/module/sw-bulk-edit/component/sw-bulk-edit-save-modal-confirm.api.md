@@ -13,6 +13,6 @@ component sw-bulk-edit-save-modal-confirm  public  js
 blocks
   sw_bulk_edit_save_modal_confirm
     sw_bulk_edit_save_modal_confirm_trigger_flows
-      sw_bulk_edit_save_modal_confirm_trigger_flows_alert
+      sw_bulk_edit_save_modal_confirm_trigger_flows_alert  [after v-if]
       sw_bulk_edit_save_modal_confirm_trigger_flows_switch
 ```

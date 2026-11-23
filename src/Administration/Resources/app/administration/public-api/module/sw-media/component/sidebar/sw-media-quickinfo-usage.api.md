@@ -12,10 +12,14 @@ component sw-media-quickinfo-usage  public  js
 
 blocks
   sw_media_quickinfo_usage
-    sw_media_quickinfo_usage_empty_state
-    sw_media_quickinfo_usage_list
+    sw_media_quickinfo_usage_empty_state  [after v-if]
+    sw_media_quickinfo_usage_list  [after v-if]
       sw_media_quickinfo_usage_item
-        sw_media_quickinfo_usage_item_icon
-        sw_media_quickinfo_usage_item_label
+        sw_media_quickinfo_usage_item_icon  [scope: usage]
+        sw_media_quickinfo_usage_item_label  [scope: usage]
     sw_media_quickinfo_usage_loader
+
+crossings
+  v-if  sw_media_quickinfo_usage_empty_state -> sw_media_quickinfo_usage_list
+  v-if  sw_media_quickinfo_usage_loader -> sw_media_quickinfo_usage_empty_state
 ```

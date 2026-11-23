@@ -17,13 +17,13 @@ blocks
       sw_cms_create_wizard_first_step_helptext
       sw_cms_create_wizard_page_type
         sw_cms_create_wizard_page_type_options
-    sw_cms_create_wizard_second_step
+    sw_cms_create_wizard_second_step  [after v-if]
       sw_cms_create_wizard_second_step_back
       sw_cms_create_wizard_second_step_helptext
       sw_cms_create_wizard_section
-    sw_cms_create_wizard_third_step
+    sw_cms_create_wizard_third_step  [after v-if]
       sw_cms_create_wizard_page_completion
-        sw_cms_create_wizard_page_completion_buttons
+        sw_cms_create_wizard_page_completion_buttons  [after v-if]
           sw_cms_create_wizard_page_completion_save_button
         sw_cms_create_wizard_page_name
       sw_cms_create_wizard_page_preview

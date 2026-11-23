@@ -15,7 +15,7 @@ blocks
   sw_text_editor_toolbar  [private]
     sw_text_editor_toolbar_buttons  [private]
       sw_text_editor_toolbar_buttons_left  [private]
-      sw_text_editor_toolbar_buttons_middle  [private]
-      sw_text_editor_toolbar_buttons_right  [private]
-      sw_text_editor_toolbar_slot  [private]
+      sw_text_editor_toolbar_buttons_middle  [after v-if] [private]
+      sw_text_editor_toolbar_buttons_right  [after v-if] [private]
+      sw_text_editor_toolbar_slot  [after v-if] [private]
 ```

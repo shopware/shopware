@@ -14,7 +14,7 @@ component sw-promotion-v2-empty-state-hero  private  js  [private]
 blocks
   sw_promotion_v2_empty_state_hero  [private]
     sw_promotion_v2_empty_state_hero_content  [private]
-      sw_promotion_v2_empty_state_hero_content_actions  [private]
+      sw_promotion_v2_empty_state_hero_content_actions  [after v-if] [private]
         sw_promotion_v2_empty_state_hero_slot_actions  [private]
       sw_promotion_v2_empty_state_hero_content_description  [private]
       sw_promotion_v2_empty_state_hero_content_title  [private]

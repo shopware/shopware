@@ -1,5 +1,11 @@
 # 6.7.18.0 (upcoming)
 
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
 # 6.7.17.0
 
 ## Critical Fixes

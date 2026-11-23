@@ -100,8 +100,22 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 ...$event->getPrimaryKeysWithPropertyChange($this->getEntity(), ['coverId']),
                 ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
                 ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
-                ...$this->getProductIdsWithChangedDocuments($event),
             ];
+
+            $inheritedChangeIds = $event->getPrimaryKeysWithPropertyChange($this->getEntity(), [
+                'active',
+                'manufacturerId',
+                'price',
+                'releaseDate',
+            ]);
+
+            foreach (array_merge($translations, $categories) as $pks) {
+                if (isset($pks['productId'])) {
+                    $inheritedChangeIds[] = $pks['productId'];
+                }
+            }
+
+            $productIds = array_merge($productIds, $this->getFamilyIds($event, [...$inheritedChangeIds, ...$this->getProductIdsWithChangedDocuments($event)]));
         }
 
         return array_values(array_unique(array_filter($productIds, '\is_string')));
@@ -541,7 +555,7 @@ SQL,
     }
 
     /**
-     * @return list<string>
+     * @return list<mixed>
      */
     private function getProductIdsWithChangedDocuments(EntityWrittenContainerEvent $event): array
     {
@@ -558,6 +572,16 @@ SQL,
             }
         }
 
+        return $productIds;
+    }
+
+    /**
+     * @param array<mixed> $productIds
+     *
+     * @return list<string>
+     */
+    private function getFamilyIds(EntityWrittenContainerEvent $event, array $productIds): array
+    {
         $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));
         if ($productIds === []) {
             return [];

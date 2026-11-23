@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Elasticsearch\Admin\Indexer;
 use Doctrine\DBAL\Connection;
 use OpenSearchDSL\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Elasticsearch\Admin\Indexer\ProductAdminSearchIndexer;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 
@@ -543,6 +545,151 @@ class ProductAdminSearchIndexerTest extends TestCase
         });
     }
 
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function inheritedChangeProvider(): iterable
+    {
+        yield 'active' => ['product', ['active' => false]];
+        yield 'manufacturer' => ['product', ['manufacturerId' => Uuid::randomHex()]];
+        yield 'price' => ['product', ['price' => []]];
+        yield 'release date' => ['product', ['releaseDate' => '2026-11-23 00:00:00.000']];
+        yield 'name' => ['product_translation', ['name' => 'Drill']];
+        yield 'custom search keywords' => ['product_translation', ['customSearchKeywords' => ['drill']]];
+        yield 'category' => ['product_category', ['categoryId' => Uuid::randomHex()]];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('inheritedChangeProvider')]
+    public function testGetUpdatedIdsContainsTheVariantsOfProductsWithChangedInheritedFields(string $entity, array $payload): void
+    {
+        $productId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$variantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $primaryKey = match ($entity) {
+            'product_translation' => ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'languageId' => Defaults::LANGUAGE_SYSTEM],
+            'product_category' => ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'categoryId' => Uuid::randomHex(), 'categoryVersionId' => Defaults::LIVE_VERSION],
+            default => $productId,
+        };
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent($entity, [
+                new EntityWriteResult($primaryKey, $payload, $entity, EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId, $variantId], $indexer->getUpdatedIds($event));
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function notInheritedChangeProvider(): iterable
+    {
+        yield 'product number' => ['product', ['productNumber' => 'SW1000']];
+        yield 'ean' => ['product', ['ean' => '4572324423421']];
+        yield 'manufacturer number' => ['product', ['manufacturerNumber' => 'M-100']];
+        yield 'stock' => ['product', ['stock' => 5]];
+        yield 'tag' => ['product_tag', ['tagId' => Uuid::randomHex()]];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('notInheritedChangeProvider')]
+    public function testGetUpdatedIdsDoesNotLoadVariantsForFieldsTheyDoNotInherit(string $entity, array $payload): void
+    {
+        $productId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $primaryKey = $entity === 'product_tag'
+            ? ['productId' => $productId, 'productVersionId' => Defaults::LIVE_VERSION, 'tagId' => Uuid::randomHex()]
+            : $productId;
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent($entity, [
+                new EntityWriteResult($primaryKey, $payload, $entity, EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsKeepsTheVariantsOfLargeFamiliesThatAreWrittenWithAnInheritedChange(): void
+    {
+        $productId = Uuid::randomHex();
+        $writtenVariantId = Uuid::randomHex();
+        $variantIds = array_map(static fn (): string => Uuid::randomHex(), range(1, ProductIndexer::UPDATE_IDS_CHUNK_SIZE - 1));
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturnOnConsecutiveCalls($variantIds, [$writtenVariantId]);
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, ['active' => false], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($writtenVariantId, ['weight' => 2.5], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId, $writtenVariantId], $indexer->getUpdatedIds($event));
+    }
+
+    #[DisabledFeatures(['ENABLE_OPENSEARCH_FOR_ADMIN_API'])]
+    public function testGetUpdatedIdsDoesNotLoadVariantsWithoutTheAdminOpenSearch(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchFirstColumn');
+
+        $indexer = new ProductAdminSearchIndexer(
+            $connection,
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, ['active' => false], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $indexer->getUpdatedIds($event));
+    }
+
     public function testGlobalCriteria(): void
     {
         $indexer = new ProductAdminSearchIndexer(
@@ -629,7 +776,7 @@ class ProductAdminSearchIndexerTest extends TestCase
     }
 
     /**
-     * @param list<EntityWrittenEvent<string>> $events
+     * @param list<EntityWrittenEvent<array<string, string>|string>> $events
      */
     private function createWrittenEvent(array $events): EntityWrittenContainerEvent
     {

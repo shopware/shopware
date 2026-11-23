@@ -216,6 +216,37 @@ class ProductAdminSearchIndexerTest extends TestCase
         });
     }
 
+    public function testDeactivatingTheParentUpdatesItsVariants(): void
+    {
+        $productRepository = static::getContainer()->get('product.repository');
+        $productRepository->update([['id' => $this->ids->get('drill.blue'), 'active' => null]], $this->context);
+
+        $event = $productRepository->update([['id' => $this->ids->get('drill'), 'active' => false]], $this->context);
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event): void {
+            static::assertEqualsCanonicalizing(
+                array_values($this->ids->getList(['drill', 'drill.blue', 'drill.red'])),
+                $this->getIndexer()->getUpdatedIds($event)
+            );
+
+            $documents = $this->getIndexer()->fetch($this->ids->getList(['drill.blue', 'drill.red']));
+
+            static::assertFalse($documents[$this->ids->get('drill.blue')]['active']);
+            static::assertTrue($documents[$this->ids->get('drill.red')]['active']);
+        });
+    }
+
+    public function testChangingTheProductNumberOfTheParentDoesNotUpdateItsVariants(): void
+    {
+        $event = static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('drill'), 'productNumber' => 'DRILL-2'],
+        ], $this->context);
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($event): void {
+            static::assertSame([$this->ids->get('drill')], $this->getIndexer()->getUpdatedIds($event));
+        });
+    }
+
     /**
      * @param \Closure(Context): EntityWrittenContainerEvent $write
      *

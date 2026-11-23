@@ -270,18 +270,49 @@ class StoredElementListFieldSerializerTest extends TestCase
     {
         $context = Context::createDefaultContext();
         $kvPair = new KeyValuePair('elements', [['id' => 'elem-1', 'component' => 'text', 'properties' => ['headline' => 'Hi']]], false);
+        $parameters = $this->parametersFor($context);
 
         $result = iterator_to_array(
-            $this->serializer()->encode($this->createField(), $this->existence(), $kvPair, $this->parametersFor($context))
+            $this->serializer()->encode($this->createField(), $this->existence(), $kvPair, $parameters)
         );
 
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
         static::assertInstanceOf(LayoutWriteContext::class, $memo);
         static::assertIsString($result['elements']);
 
-        $tree = $memo->treeFor($result['elements']);
+        $tree = $memo->treeFor($parameters->getContext(), $result['elements']);
         static::assertNotNull($tree);
         static::assertSame('Hi', $tree->roots[0]->property('headline')?->asString());
+    }
+
+    /**
+     * A write a listener starts on the caller's `Context` while another write is still in flight encodes into the
+     * same memo; the entries of the write in flight must survive it.
+     */
+    #[TestDox('keeps the entries of an earlier write when another write on the same context encodes a layout')]
+    public function testEncodeOfASecondWriteKeepsTheEntriesOfTheFirst(): void
+    {
+        $context = Context::createDefaultContext();
+        $first = $this->parametersFor($context);
+        $second = $this->parametersFor($context);
+
+        $encoded = iterator_to_array($this->serializer()->encode(
+            $this->createField(),
+            $this->existence(),
+            new KeyValuePair('elements', [['id' => 'elem-first', 'component' => 'text', 'properties' => []]], false),
+            $first
+        ));
+        iterator_to_array($this->serializer()->encode(
+            $this->createField(),
+            $this->existence(),
+            new KeyValuePair('elements', [['id' => 'elem-second', 'component' => 'text', 'properties' => []]], false),
+            $second
+        ));
+
+        $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
+        static::assertInstanceOf(LayoutWriteContext::class, $memo);
+        static::assertIsString($encoded['elements']);
+        static::assertSame('elem-first', $memo->treeFor($first->getContext(), $encoded['elements'])?->roots[0]->id);
     }
 
     #[TestDox('memoizes nothing for a null layout value')]

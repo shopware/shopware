@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,8 +30,9 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * the write `Context` ({@see LayoutWriteContext}) under the encoded value, so this gate judges the tree that is
  * about to be stored rather than a second decode of the same column. The gate only reads the memo and never
  * removes an entry, because the DAL dispatches the validation event again when it retries the write's
- * transaction, without encoding again: the retry finds the same trees and reaches the same verdict. Only the
- * memo this write opened is read: one left by an earlier write on the same `Context` counts as absent.
+ * transaction in the same `WriteContext`, without encoding again: the retry finds the same trees and reaches the
+ * same verdict. Only the entries of this write's `WriteContext` are read: the entries another write on the same
+ * `Context` left, a nested write a listener started included, count as absent.
  *
  * @internal
  *
@@ -65,9 +67,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         }
 
         $extension = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
-        $memo = $extension instanceof LayoutWriteContext && $extension->ownedBy($event->getWriteContext())
-            ? $extension
-            : null;
+        $memo = $extension instanceof LayoutWriteContext ? $extension : null;
 
         $rows = $this->writeOutcome->touchedRows(
             $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME),
@@ -81,7 +81,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
 
     private function validateRecord(PreWriteValidationEvent $event, OutcomeRow $row, Context $context, ?LayoutWriteContext $memo): void
     {
-        $tree = $this->resultingTree($memo, $row);
+        $tree = $this->resultingTree($memo, $event->getWriteContext(), $row);
         $setsRootSource = $row->payloadContainsAny(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
 
         if ($tree === null && !$setsRootSource) {
@@ -136,7 +136,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
      * rule on: re-decoding the column instead would silently gate a tree other than the one the serializer encoded
      * for storage, which is precisely the guarantee this gate exists to hold.
      */
-    private function resultingTree(?LayoutWriteContext $memo, OutcomeRow $row): ?StoredTree
+    private function resultingTree(?LayoutWriteContext $memo, WriteContext $write, OutcomeRow $row): ?StoredTree
     {
         $encoded = $row->getPayloadValue(ContentLayoutDefinition::LAYOUT_FIELD);
 
@@ -148,7 +148,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
             throw ContentSystemException::invalidFieldValueType(ContentLayoutDefinition::LAYOUT_FIELD, 'string', \get_debug_type($encoded));
         }
 
-        return $memo?->treeFor($encoded)
+        return $memo?->treeFor($write, $encoded)
             ?? throw ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, $row->path);
     }
 

@@ -123,9 +123,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
             ->willReturn(new DiagnosticsReport([new Violation(ViolationCode::UnresolvedRequired, 'el-resulting', 'target', 'unresolved')]));
 
         $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $memo = new LayoutWriteContext($write);
-        $memo->remember('[{"id":"el-resulting"}]', $resultingTree);
-        $memo->remember('[{"id":"el-first"}]', new StoredTree([new StoredElement('el-first', 'Sw:Block')]));
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-resulting"}]', $resultingTree);
+        $memo->remember($write, '[{"id":"el-first"}]', new StoredTree([new StoredElement('el-first', 'Sw:Block')]));
         $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
 
         $event = new PreWriteValidationEvent($write, [$create, $edit]);
@@ -253,7 +253,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
         // No memo entry exists for this command; the gate must not look for one, or it would fail hard.
         $command = $this->layoutCreate(['root_source' => 'product']);
         $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext($write));
+        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext());
 
         $event = new PreWriteValidationEvent($write, [$command]);
         $validator->preValidate($event);
@@ -304,9 +304,25 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
         $write = WriteContext::createFromContext(Context::createDefaultContext());
-        $memo = new LayoutWriteContext($write);
-        $memo->remember('[{"id":"el-other"}]', $this->tree());
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-other"}]', $this->tree());
         $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
+
+        $this->expectExceptionObject(
+            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
+        );
+
+        $validator->preValidate(new PreWriteValidationEvent($write, [$command]));
+    }
+
+    #[TestDox('fails hard when only another write on the same context memoized a tree for the layout value')]
+    public function testEntryOfAnotherWriteOnTheSameContextCountsAsAbsent(): void
+    {
+        $validator = $this->validator();
+
+        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
+        $otherWrite = $this->writeWithMemoFor([$command]);
+        $write = WriteContext::createFromContext($otherWrite->getContext());
 
         $this->expectExceptionObject(
             ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
@@ -464,7 +480,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
     /**
      * A write carrying what the layout field serializer would have left on its Context: a memoized tree for
-     * each layout value the commands write. The memo is owned by the returned WriteContext, so the event must
+     * each layout value the commands write. The entries belong to the returned WriteContext, so the event must
      * be built from this instance and not from a second one over the same Context.
      *
      * @param list<WriteCommand> $commands
@@ -472,7 +488,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
     private function writeWithMemoFor(array $commands): WriteContext
     {
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
-        $memo = new LayoutWriteContext($writeContext);
+        $memo = new LayoutWriteContext();
 
         foreach ($commands as $command) {
             $encoded = $command->getPayload()[ContentLayoutDefinition::LAYOUT_FIELD] ?? null;
@@ -481,7 +497,7 @@ class ContentLayoutWriteValidatorTest extends TestCase
                 continue;
             }
 
-            $memo->remember($encoded, $this->tree());
+            $memo->remember($writeContext, $encoded, $this->tree());
         }
 
         $writeContext->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);

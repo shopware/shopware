@@ -9,28 +9,28 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * The trees a layout write encoded for storage, carried on that write's `Context` from
+ * The trees layout writes encoded for storage, carried on the writes' `Context` from
  * {@see StoredElementListFieldSerializer::encode()} to {@see ContentLayoutWriteValidator}, so the gate judges the
- * tree the write produced instead of decoding the column for itself. It rides the `Context` under
+ * tree a write produced instead of decoding the column for itself. It rides the `Context` under
  * {@see EXTENSION_NAME}, the same extension seam `EntityIndexerRegistry::EXTENSION_INDEXER_SKIP` uses.
  *
- * Each tree is keyed by the exact column value the serializer yields for it. The validator looks a record up by
- * the column value the record holds after the batch, so the tree it judges is the tree behind the stored bytes,
- * whatever order the DAL runs one batch's writes of the same record in. Rows that yield the same value share one
- * entry, and either tree encodes to those bytes.
+ * Each tree is keyed by the write's `WriteContext` and then by the exact column value the serializer yields for
+ * it. The validator looks a record up by the column value the record holds after the batch, so the tree it judges
+ * is the tree behind the stored bytes, whatever order the DAL runs one batch's writes of the same record in. Rows
+ * of one write that yield the same value share one entry, and either tree encodes to those bytes.
  *
- * The memo also holds the trees of rows a later write of the same record overwrites; the validator never looks
- * those up. Nothing removes an entry: a lookup only reads, so when the DAL retries the write's transaction and
- * dispatches the validation event again without encoding again, the gate finds the same trees and reaches the
- * same verdict.
+ * The entries of a write also hold the trees of rows a later row of the same record overwrites; the validator
+ * never looks those up. Nothing removes an entry: a lookup only reads, so when the DAL retries the write's
+ * transaction in the same `WriteContext` and dispatches the validation event again without encoding again, the
+ * gate finds the same trees and reaches the same verdict.
  *
- * A memo belongs to the one write that opened it, retries included. The `Context` is the caller's and outlives
- * any single write, while the `WriteContext` is minted per repository call, so that instance identifies the
- * write: {@see ownedBy()}. The memo stays on the `Context` after its write, and the next write on the same
- * `Context` replaces it instead of reading it, so an entry of an earlier write is unreachable and the
- * accumulation ceiling is one write's rows rather than the `Context`'s whole lifetime. Nothing leaves the process
- * either way: `Context::__serialize()` enumerates its fields explicitly and omits extensions, so a memo never
- * rides a serialized `Context` into a queued message.
+ * Entries belong to their write. The `Context` is the caller's and outlives any single write, while the
+ * `WriteContext` is minted per repository call, so that instance identifies the write. A second write on the same
+ * `Context`, such as one a listener starts while the first write is still between command extraction and its
+ * validation event, keeps its entries apart and never touches the first write's. The entries are held weakly by
+ * their `WriteContext`, so they go away with it and do not accumulate over the `Context`'s lifetime. Nothing
+ * leaves the process either way: `Context::__serialize()` enumerates its fields explicitly and omits extensions,
+ * so a memo never rides a serialized `Context` into a queued message.
  *
  * @internal
  */
@@ -40,33 +40,27 @@ final class LayoutWriteContext extends Struct
     public const EXTENSION_NAME = 'content-system-layout-write';
 
     /**
-     * @var array<string, StoredTree>
+     * @var \WeakMap<WriteContext, array<string, StoredTree>>
      */
-    private array $trees = [];
+    private \WeakMap $trees;
 
-    public function __construct(private readonly WriteContext $owner)
+    public function __construct()
     {
+        $this->trees = new \WeakMap();
+    }
+
+    public function remember(WriteContext $write, string $encoded, StoredTree $tree): void
+    {
+        $trees = $this->trees[$write] ?? [];
+        $trees[$encoded] = $tree;
+        $this->trees[$write] = $trees;
     }
 
     /**
-     * Whether this memo was opened by the write now asking for it. A `Context` reused across writes carries at
-     * most one memo, so the answer decides between reading it and replacing it.
+     * The tree this write remembered for this column value, `null` when the write encoded no such value.
      */
-    public function ownedBy(WriteContext $writeContext): bool
+    public function treeFor(WriteContext $write, string $encoded): ?StoredTree
     {
-        return $this->owner === $writeContext;
-    }
-
-    public function remember(string $encoded, StoredTree $tree): void
-    {
-        $this->trees[$encoded] = $tree;
-    }
-
-    /**
-     * The tree remembered for this column value, `null` when the write encoded no such value.
-     */
-    public function treeFor(string $encoded): ?StoredTree
-    {
-        return $this->trees[$encoded] ?? null;
+        return ($this->trees[$write] ?? [])[$encoded] ?? null;
     }
 }

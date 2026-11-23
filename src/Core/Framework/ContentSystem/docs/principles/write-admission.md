@@ -36,7 +36,7 @@ In code:
 
 - Only `PreWriteValidationEvent` subscribers read `LayoutGate::SKIP_VALIDATION_STATE`.
 - `StoredElementListFieldSerializer` therefore still passes every tree through `LayoutWriteBoundary` and the `StoredTreeConstraints` descriptor.
-- `ContentLayoutWriteMemoLifetimeTest` pins that a DAL write under the skip state still records the tree it encodes in `LayoutWriteContext`. The same test pins that this record belongs to one write, retries included, and that the next write on the same `Context` replaces it.
+- `ContentLayoutWriteMemoLifetimeTest` pins that a DAL write under the skip state still records the tree it encodes in `LayoutWriteContext`. The same test pins that this record belongs to the `WriteContext` of its write, retries included. It also pins that a nested write on the same `Context` keeps its own record and leaves the outer write's record intact.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## Also true by construction

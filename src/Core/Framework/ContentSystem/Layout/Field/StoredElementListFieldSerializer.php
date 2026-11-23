@@ -258,8 +258,9 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Hands the tree to the write's {@see LayoutWriteContext}, creating it on the first layout row of the write
-     * and replacing one an earlier write left behind ({@see LayoutWriteContext::ownedBy()}).
+     * Hands the tree to the {@see LayoutWriteContext} of the write `Context`, under the write's own
+     * `WriteContext`. The memo is created on the first layout row any write encodes on that `Context` and is
+     * never replaced, so every write on the `Context` keeps its own entries.
      */
     private function memoize(WriteParameterBag $parameters, string $encoded, StoredTree $tree): void
     {
@@ -267,11 +268,11 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
         $context = $writeContext->getContext();
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
 
-        if (!$memo instanceof LayoutWriteContext || !$memo->ownedBy($writeContext)) {
-            $memo = new LayoutWriteContext($writeContext);
+        if (!$memo instanceof LayoutWriteContext) {
+            $memo = new LayoutWriteContext();
             $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
         }
 
-        $memo->remember($encoded, $tree);
+        $memo->remember($writeContext, $encoded, $tree);
     }
 }

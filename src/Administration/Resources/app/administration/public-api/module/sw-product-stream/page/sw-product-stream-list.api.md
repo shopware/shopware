@@ -16,13 +16,13 @@ blocks
     sw_manufacturer_list_language_switch  [private]
     sw_product_stream_list_content  [private]
       sw_product_stream_list_empty_state  [private]
-      sw_product_stream_list_grid  [private]
+      sw_product_stream_list_grid  [after v-if] [private]
         sw_product_stream_list_grid_bulk  [private]
         sw_product_stream_list_grid_colum_updated_at  [private]
         sw_product_stream_list_grid_column_invalid  [private]
         sw_product_stream_list_grid_delete_action  [private]
         sw_product_stream_list_grid_more_actions  [private]
-          sw_product_stream_list_grid_duplicate_action  [private]
+          sw_product_stream_list_grid_duplicate_action  [scope: item] [private]
     sw_product_stream_list_search_bar  [private]
     sw_product_stream_list_sidebar  [private]
       sw_product_stream_list_sidebar_refresh  [private]
@@ -32,4 +32,7 @@ blocks
       sw_product_stream_list_smart_bar_header_title  [private]
         sw_product_stream_list_smart_bar_header_amount  [private]
         sw_product_stream_list_smart_bar_header_title_text  [private]
+
+crossings
+  v-if  sw_product_stream_list_empty_state -> sw_product_stream_list_grid  [private]
 ```

@@ -12,5 +12,8 @@ component sw-extension-my-extensions-listing  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_extension_my_extensions_list_empty_state  [private]
+  sw_extension_my_extensions_list_empty_state  [after v-if] [private]
+
+crossings
+  v-if  sw_extension_my_extensions_list_empty_state -> (root)  [private]
 ```

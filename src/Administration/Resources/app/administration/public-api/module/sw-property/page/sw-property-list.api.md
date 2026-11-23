@@ -16,14 +16,14 @@ blocks
       sw_property_list_add_button
     sw_property_list_content
       sw_property_list_empty_state
-      sw_property_list_grid
+      sw_property_list_grid  [after v-if]
         sw_product_list_grid_action_modals
         sw_property_list_grid_columns_actions
-          sw_property_list_grid_columns_actions_delete
-          sw_property_list_grid_columns_actions_detail
+          sw_property_list_grid_columns_actions_delete  [scope: item]
+          sw_property_list_grid_columns_actions_detail  [scope: item]
         sw_property_list_grid_filterable
-          sw_property_list_grid_columns_filterable_content
-          sw_property_list_grid_columns_filterable_inline_edit
+          sw_property_list_grid_columns_filterable_content  [after v-if] [scope: isInlineEdit, item]
+          sw_property_list_grid_columns_filterable_inline_edit  [scope: isInlineEdit, item]
         sw_property_list_grid_options
     sw_property_list_language_switch
     sw_property_list_search_bar
@@ -33,4 +33,8 @@ blocks
       sw_property_list_smart_bar_header_title
         sw_property_list_smart_bar_header_title_amount
         sw_property_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_property_list_empty_state -> sw_property_list_grid
+  v-if  sw_property_list_grid_columns_filterable_inline_edit -> sw_property_list_grid_columns_filterable_content
 ```

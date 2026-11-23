@@ -13,4 +13,7 @@ component sw-datepicker  private  ts  [private]
 
 blocks
   sw_datepicker  [private]
+
+crossings
+  v-if  sw_datepicker -> (root)  [private]
 ```

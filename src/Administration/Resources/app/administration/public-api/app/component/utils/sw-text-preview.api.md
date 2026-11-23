@@ -13,7 +13,7 @@ component sw-text-preview  public  js
 blocks
   sw_text_preview
     sw_text_preview_expand_button
-    sw_text_preview_modal
+    sw_text_preview_modal  [after v-if]
       sw_text_preview_modal_content
       sw_text_preview_modal_footer
     sw_text_preview_shortened_content

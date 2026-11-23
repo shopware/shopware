@@ -13,6 +13,6 @@ component sw-media-list-selection-v2  public  js
 blocks
   sw_media_list_selection_v2
     sw_media_list_selection_v2_grid
-      sw_media_list_selection_v2_grid_items
+      sw_media_list_selection_v2_grid_items  [after v-if]
     sw_media_list_selection_v2_upload
 ```

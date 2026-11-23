@@ -13,7 +13,7 @@ component sw-card-deprecated  private  js  [private]
 
 blocks
   sw_card  [private]
-    sw_card_content  [private]
+    sw_card_content  [after v-if] [private]
       sw_card_loader  [private]
       sw_card_slot_context_menu_actions  [private]
       sw_card_slot_default  [private]
@@ -21,7 +21,7 @@ blocks
       sw_card_slot_grid  [private]
     sw_card_subtitle  [private]
     sw_card_title  [private]
-    sw_card_toolbar  [private]
+    sw_card_toolbar  [after v-if] [private]
       sw_card_toolbar_inner  [private]
         sw_card_slot_toolbar  [private]
 ```

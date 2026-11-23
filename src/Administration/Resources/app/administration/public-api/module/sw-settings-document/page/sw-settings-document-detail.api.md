@@ -16,30 +16,33 @@ blocks
       sw_settings_document_detail_actions_abort
       sw_settings_document_detail_actions_save
     sw_settings_document_detail_content
-      sw_settings_document_detail_assignment_card
+      sw_settings_document_detail_assignment_card  [after v-if]
         sw_document_detail_base_general_input_sales_channel
           sw_document_detail_base_general_input_sales_channel_label
           sw_document_detail_base_general_input_sales_channel_result_item
         sw_document_detail_base_general_input_type
       sw_settings_document_detail_company_card
         sw_settings_document_detail_company_form_field_renderer_content  [until v6.8.0]
-          sw_settings_document_detail_company_form_field_renderer  [until v6.8.0]
+          sw_settings_document_detail_company_form_field_renderer  [scope: formField] [until v6.8.0]
         sw_settings_document_detail_content_field_media  [until v6.8.0]
       sw_settings_document_detail_content_card
         sw_settings_document_detail_content_field_name
         sw_settings_document_detail_content_form_field_renderer_content
-          sw_settings_document_detail_content_form_field_renderer
-          sw_settings_document_detail_content_form_field_renderer_multi_select
-      sw_settings_document_detail_custom_field_sets
+          sw_settings_document_detail_content_form_field_renderer  [after v-if] [scope: formField, index]
+          sw_settings_document_detail_content_form_field_renderer_multi_select  [scope: formField, index]
+      sw_settings_document_detail_custom_field_sets  [after v-if]
       sw_settings_document_detail_displayed_content_card
-        sw_settings_document_detail_content_field_additional_note_delivery
-        sw_settings_document_detail_content_field_customer_vat_id
-        sw_settings_document_detail_content_field_display_company_address
-        sw_settings_document_detail_content_field_display_divergent_delivery_address
-        sw_settings_document_detail_content_field_display_return_address
+        sw_settings_document_detail_content_field_additional_note_delivery  [after v-if]
+        sw_settings_document_detail_content_field_customer_vat_id  [after v-if]
+        sw_settings_document_detail_content_field_display_company_address  [after v-if]
+        sw_settings_document_detail_content_field_display_divergent_delivery_address  [after v-if]
+        sw_settings_document_detail_content_field_display_return_address  [after v-if]
       sw_settings_document_detail_filename_card
         sw_settings_document_detail_content_field_file_name_prefix
         sw_settings_document_detail_content_field_file_name_suffix
         sw_settings_document_detail_filename_field_infixes
     sw_settings_document_detail_header
+
+crossings
+  v-if  sw_settings_document_detail_content_form_field_renderer_multi_select -> sw_settings_document_detail_content_form_field_renderer
 ```

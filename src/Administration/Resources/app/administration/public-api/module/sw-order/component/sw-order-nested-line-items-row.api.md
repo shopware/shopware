@@ -25,5 +25,5 @@ blocks
         sw_order_nested_line_items_row_content_total_price_content  [private]
       sw_order_nested_line_items_row_content_unit_price  [private]
         sw_order_nested_line_items_row_content_unit_price_content  [private]
-    sw_order_nested_line_items_row_nesting  [private]
+    sw_order_nested_line_items_row_nesting  [after v-if] [private]
 ```

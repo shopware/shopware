@@ -25,7 +25,7 @@ blocks
           sw_product_stream_filter_container  [private]
             sw_product_stream_filter_selects  [private]
               sw_product_stream_filter_fields  [private]
-                sw_product_stream_filter_field_select  [private]
+                sw_product_stream_filter_field_select  [scope: definition, index] [private]
       sw_condition_value_before_content  [inherited] [private]
       sw_condition_value_content  [replaced] [private]
         sw_product_stream_filter_value  [private]

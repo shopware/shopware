@@ -13,7 +13,7 @@ component sw-product-detail  public  js
 blocks
   sw_product_detail
     sw_product_detail_actions
-      sw_product_detail_actions_abort
+      sw_product_detail_actions_abort  [after v-if]
       sw_product_detail_actions_context_menu
         sw_product_detail_actions_context_menu_open_in_storefront
       sw_product_detail_actions_save
@@ -22,9 +22,9 @@ blocks
           sw_product_detail_actions_duplicate
     sw_product_detail_content
       sw_product_detail_content_clone_modal
-      sw_product_detail_content_language_info
-      sw_product_detail_content_open_in_storefront_modal
-      sw_product_detail_content_tabs
+      sw_product_detail_content_language_info  [after v-if]
+      sw_product_detail_content_open_in_storefront_modal  [after v-if]
+      sw_product_detail_content_tabs  [after v-if]
         sw_product_detail_content_mt_tabs  [from v6.8.0]
         sw_product_detail_content_tabs_additional  [until v6.8.0]
         sw_product_detail_content_tabs_advanced_prices  [until v6.8.0]
@@ -38,7 +38,7 @@ blocks
       sw_product_detail_content_top
       sw_product_detail_content_view
       sw_product_detail_inheritance_warning
-      sw_product_settings_mode
+      sw_product_settings_mode  [after v-if]
     sw_product_detail_header
     sw_product_detail_language_switch
     sw_product_detail_sidebar

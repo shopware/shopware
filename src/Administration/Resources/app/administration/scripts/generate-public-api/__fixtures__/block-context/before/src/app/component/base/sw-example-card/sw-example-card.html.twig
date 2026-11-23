@@ -24,7 +24,10 @@
         {% endblock %}
 
         {% block sw_example_card_header_label_default %}
-        <mt-badge class="sw-example-card__default-label">
+        <mt-badge
+            v-else
+            class="sw-example-card__default-label"
+        >
             {{ $t('sw-example-card.labelDefault') }}
         </mt-badge>
         {% endblock %}

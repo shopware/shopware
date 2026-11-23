@@ -17,7 +17,7 @@ blocks
       sw_promotion_v2_conditions_pre_conditions_prevent_combination
       sw_promotion_v2_conditions_pre_conditions_sales_channel_selection
     sw_promotion_v2_rule_conditions_card
-      sw_promotion_v2_rule_conditions_rule_select_cart_conditions
+      sw_promotion_v2_rule_conditions_rule_select_cart_conditions  [after v-if]
       sw_promotion_v2_rule_conditions_rule_select_customer
       sw_promotion_v2_rule_conditions_rule_select_order_conditions
 ```

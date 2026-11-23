@@ -13,4 +13,7 @@ component sw-textarea-field  private  ts  [private]
 
 blocks
   sw_textarea_field  [private]
+
+crossings
+  v-if  sw_textarea_field -> (root)  [private]
 ```

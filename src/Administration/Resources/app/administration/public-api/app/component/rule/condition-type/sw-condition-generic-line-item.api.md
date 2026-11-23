@@ -20,8 +20,8 @@ blocks
         sw_condition_base_field_delete_action  [inherited]
       sw_condition_base_field_condition  [inherited]
       sw_condition_value_before_content  [inherited]
-      sw_condition_value_content  [replaced]
+      sw_condition_value_content  [replaced] [after v-if]
         sw_condition_generic_field_operator
-        sw_condition_generic_fields
+        sw_condition_generic_fields  [after v-if]
     sw_condition_base_error  [inherited]
 ```

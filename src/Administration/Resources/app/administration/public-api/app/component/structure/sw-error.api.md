@@ -14,7 +14,7 @@ component sw-error  private  js  [private]
 blocks
   sw_error  [private]
     sw_error_contend  [private]
-      sw_error_link  [private]
+      sw_error_link  [after v-if] [private]
       sw_error_message  [private]
       sw_error_stack  [private]
       sw_error_status_code  [private]

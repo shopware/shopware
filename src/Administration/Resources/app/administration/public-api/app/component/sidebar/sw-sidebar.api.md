@@ -16,5 +16,5 @@ blocks
     sw_sidebar_content  [private]
     sw_sidebar_navigation  [private]
       sw_sidebar_navigation_list  [private]
-        sw_sidebar_navigation_item  [private]
+        sw_sidebar_navigation_item  [scope: index, item, section] [private]
 ```

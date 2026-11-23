@@ -15,5 +15,8 @@ blocks
   sw_sortable_list_container  [private]
     sw_sortable_list  [private]
       sw_sortable_list_item  [private]
-    sw_sortable_list_empty_state  [private]
+    sw_sortable_list_empty_state  [after v-if] [private]
+
+crossings
+  v-if  sw_sortable_list -> sw_sortable_list_empty_state  [private]
 ```

@@ -18,7 +18,7 @@ blocks
       sw_settings_rule_detail_base_content_card_field_description  [private]
       sw_settings_rule_detail_base_content_card_field_name  [private]
       sw_settings_rule_detail_base_content_card_field_priority  [private]
-      sw_settings_rule_detail_base_content_card_field_tags  [private]
+      sw_settings_rule_detail_base_content_card_field_tags  [after v-if] [private]
       sw_settings_rule_detail_base_content_card_field_type  [private]
     sw_settings_rule_detail_custom_field_sets  [private]
 ```

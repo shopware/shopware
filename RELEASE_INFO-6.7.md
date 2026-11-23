@@ -1,3 +1,15 @@
+# 6.7.18.0 (upcoming)
+
+## Core
+
+### Storefront search aggregations skip the score calculation
+
+When the product search runs on MySQL with OR logic, the listing aggregations of the search result no longer repeat the score calculation.
+For this, the search now only matches search keywords with a ranking above 0.
+Keywords from the search configuration with a ranking of 0 never added to the score, so the search results stay the same.
+Keyword rankings of 0 or below that a custom keyword analyzer writes no longer affect the search result.
+If the search configuration of the language has a field with a negative ranking, the search works as before.
+
 # 6.7.17.0 (upcoming)
 
 ## Critical Fixes
@@ -715,14 +727,6 @@ It throws `CHECKOUT__CART_DELIVERY_POSITION_INVALID_SPLIT_QUANTITY`, `CHECKOUT__
 
 `DeliveryPositionCollection::getWeight()` and `getVolume()` now count the position quantity instead of the line item quantity.
 For extensions that already build positions holding part of a line item, this changes weight and volume based shipping costs and the cart volume rule.
-
-### Storefront search aggregations skip the score calculation
-
-When the product search runs on MySQL with OR logic, the listing aggregations of the search result no longer repeat the score calculation.
-For this, the search now only matches search keywords with a ranking above 0.
-Keywords from the search configuration with a ranking of 0 never added to the score, so the search results stay the same.
-Keyword rankings of 0 or below that a custom keyword analyzer writes no longer affect the search result.
-If the search configuration of the language has a field with a negative ranking, the search works as before.
 
 ### Default tax rules use the current VAT rates
 

@@ -51,7 +51,6 @@ use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Core\System\Country\SalesChannel\CountryStateRoute;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\SalesChannel\CurrencyRoute;
-use Shopware\Core\System\CustomField\CustomFieldDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\Language\SalesChannel\LanguageRoute;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
@@ -98,10 +97,8 @@ class CacheInvalidationSubscriber
 
     public function invalidateSearchConfig(EntityWrittenContainerEvent $event): void
     {
-        // custom field writes can delete search config fields with plain SQL, see CustomFieldSearchableSubscriber
         if (!$event->getPrimaryKeys(ProductSearchConfigDefinition::ENTITY_NAME)
             && !$event->getPrimaryKeys(ProductSearchConfigFieldDefinition::ENTITY_NAME)
-            && !$event->getPrimaryKeys(CustomFieldDefinition::ENTITY_NAME)
         ) {
             return;
         }

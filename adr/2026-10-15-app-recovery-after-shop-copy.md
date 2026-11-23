@@ -126,11 +126,11 @@ Which secret that is depends on what happened on the copy:
 - If the copy never registered again, it still has production's secret, copied over with the database.
 - If the copy took over, it has the new secret the app generated then. It still has it after `reinstall-apps`, because it kept it for 72 hours.
 
-Both take `--all` instead of an app name.
+The command can recover all apps at once with `--all`, or a single app with `<app-name>`.
 
 On production, `app:secret:recover --finish` reads that JSON when it is pasted or piped in, never from the command line, so they stay out of the shell history.
 For each app, it registers again, signed with each secret in turn, newest first, and stops at the first one the app accepts.
-Production gets a new secret, and the copy's secret stops working after the 60-second grace period.
+Production gets a new secret, and the copy's secret stops working.
 
 Moving the secrets from the copy to production safely, for example through a password manager and not through chat or email, is the shop operator's job.
 

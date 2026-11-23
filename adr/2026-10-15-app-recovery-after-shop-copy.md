@@ -65,7 +65,7 @@ That's why the [developer documentation](https://beta-developer.shopware.com/doc
 ## Decision
 
 1. Before a shop gets a new ShopId, or removes its apps, it keeps the secrets its apps currently accept, for 72 hours.
-   It only does this while its fingerprints still match.
+   It only does this if it took over production.
 2. The shop operator takes them from the copy to production, and production registers again with them.
 3. The app protocol does not change: apps already accept a registration signed with their current secret.
 4. If the copy no longer has the secret (it was deleted, or more than 72 hours have passed), the app operator resets the registration by hand, as today.
@@ -187,7 +187,7 @@ Support for this in the app SDKs is not part of this decision.
   They start when the copy got a new ShopId or removed its apps.
   After it, or if the copy is destroyed first, only manual recovery is left.
 - **A copy that moves again keeps nothing.**
-  If the copy gets a different APP_URL or installation directory after the takeover and before it gets a new ShopId, its fingerprints no longer match and it keeps no secrets.
+  If the copy moves to another URL or directory after the takeover, its stored URL and directory no longer match where it runs, so it keeps no secrets.
   Production then needs manual recovery.
 - **Production is not told.**
   Neither Shopware nor the app tells production it was locked out.

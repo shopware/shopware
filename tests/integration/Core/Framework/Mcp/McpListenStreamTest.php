@@ -134,8 +134,18 @@ class McpListenStreamTest extends TestCase
             static::assertSame('no', $response->headers->get('X-Accel-Buffering'));
 
             $frames = self::sendAndTimeFrames($response, $bumper->start(...));
-            $bumper->wait();
-            static::assertTrue($bumper->isSuccessful(), $bumper->getErrorOutput());
+
+            // DIAGNOSTIC (do not merge): capture lock state while the bump process is still blocked.
+            $deadline = microtime(true) + 30;
+            while ($bumper->isRunning() && microtime(true) < $deadline) {
+                usleep(100_000);
+            }
+            if ($bumper->isRunning()) {
+                $diagnostics = self::lockDiagnostics($connection);
+                $bumper->stop(0);
+                static::fail("bump process still running after 30 s\n" . $diagnostics . "\n--- child stderr ---\n" . $bumper->getErrorOutput());
+            }
+            static::assertTrue($bumper->isSuccessful(), $bumper->getErrorOutput() . "\n" . self::lockDiagnostics($connection));
             $bumpedAt = (float) trim($bumper->getOutput());
         } finally {
             $connection->executeStatement('DELETE FROM `mcp_list_version`');
@@ -240,12 +250,44 @@ class McpListenStreamTest extends TestCase
         $dsn = \sprintf('mysql:host=%s;port=%d;dbname=%s', $params['host'] ?? '127.0.0.1', $params['port'] ?? 3306, $params['dbname'] ?? '');
 
         return new PhpProcess(\sprintf(
-            '<?php usleep(%d); $pdo = new PDO(%s, %s, %s); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); echo microtime(true);',
+            '<?php fwrite(STDERR, "started " . microtime(true) . " dsn=" . %2$s . "\n"); usleep(%1$d); $pdo = new PDO(%2$s, %3$s, %4$s, [PDO::ATTR_TIMEOUT => 10, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]); fwrite(STDERR, "connected " . microtime(true) . " connection_id=" . $pdo->query("SELECT CONNECTION_ID()")->fetchColumn() . "\n"); $pdo->exec("SET SESSION innodb_lock_wait_timeout = 20"); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); fwrite(STDERR, "inserted " . microtime(true) . "\n"); echo microtime(true);',
             (int) (self::BUMP_AFTER * 1_000_000),
             var_export($dsn, true),
             var_export($params['user'] ?? 'root', true),
             var_export($params['password'] ?? '', true),
         ));
+    }
+
+    /**
+     * DIAGNOSTIC (do not merge): who holds what on the shared test connection and in InnoDB.
+     */
+    private static function lockDiagnostics(Connection $connection): string
+    {
+        $out = \sprintf(
+            "test connection: connection_id=%s isTransactionActive=%s nestingLevel=%d autocommit=%s\n",
+            var_export($connection->fetchOne('SELECT CONNECTION_ID()'), true),
+            var_export($connection->isTransactionActive(), true),
+            $connection->getTransactionNestingLevel(),
+            var_export($connection->fetchOne('SELECT @@autocommit'), true),
+        );
+
+        $queries = [
+            'innodb_trx' => 'SELECT trx_mysql_thread_id, trx_state, trx_started, trx_rows_locked, trx_tables_locked, trx_query FROM information_schema.innodb_trx',
+            'data_lock_waits' => 'SELECT * FROM performance_schema.data_lock_waits',
+            'data_locks mcp_list_version' => 'SELECT l.ENGINE_TRANSACTION_ID, t.PROCESSLIST_ID, l.LOCK_TYPE, l.LOCK_MODE, l.LOCK_STATUS, l.LOCK_DATA FROM performance_schema.data_locks l LEFT JOIN performance_schema.threads t ON t.THREAD_ID = l.THREAD_ID WHERE l.OBJECT_NAME = \'mcp_list_version\'',
+            'metadata_locks mcp_list_version' => 'SELECT m.LOCK_TYPE, m.LOCK_DURATION, m.LOCK_STATUS, t.PROCESSLIST_ID FROM performance_schema.metadata_locks m LEFT JOIN performance_schema.threads t ON t.THREAD_ID = m.OWNER_THREAD_ID WHERE m.OBJECT_NAME = \'mcp_list_version\'',
+            'processlist' => 'SELECT ID, COMMAND, TIME, STATE, INFO FROM information_schema.processlist WHERE COMMAND != \'Sleep\' OR TIME > 5',
+        ];
+
+        foreach ($queries as $label => $sql) {
+            try {
+                $out .= '--- ' . $label . " ---\n" . json_encode($connection->fetchAllAssociative($sql), \JSON_PRETTY_PRINT) . "\n";
+            } catch (\Throwable $e) {
+                $out .= '--- ' . $label . ' failed: ' . $e->getMessage() . "\n";
+            }
+        }
+
+        return $out;
     }
 
     /**

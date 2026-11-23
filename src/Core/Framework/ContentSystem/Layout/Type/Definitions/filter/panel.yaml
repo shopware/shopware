@@ -74,7 +74,7 @@ properties:
         title: "Show Filters in Off-Canvas (MD)"
         titleSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.md.title"
         description: "Whether the filters open in an off-canvas on the medium breakpoint."
-        default: false
+        default: true
       lg:
         type: boolean
         title: "Show Filters in Off-Canvas (LG)"

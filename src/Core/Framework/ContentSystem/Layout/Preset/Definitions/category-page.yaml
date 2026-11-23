@@ -29,6 +29,13 @@ layout:
             mode: explicit
             columns: 1
             alignContent: start
+            margin:
+              xs: "0"
+              sm: "0"
+              md: "0"
+              lg: "0"
+              xl: "0"
+              xxl: "0"
           style:
             col-span:
               xs: 4
@@ -40,6 +47,8 @@ layout:
           slots:
             content:
               - component: Sw:Navigation:Tree
+                properties:
+                  displayType: collapse
                 style:
                   display:
                     xs: false

@@ -21,6 +21,8 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Zugferd\ZugferdDocument;
+use Shopware\Core\Checkout\DocumentV2\Template\Enum\TaxCategory;
+use Shopware\Core\Checkout\DocumentV2\Template\View\TaxExemptionView;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -872,7 +874,7 @@ class ZugferdDocumentTest extends TestCase
     public function testAnIntraCommunitySupplyStatesCategoryKOnEveryPositionAndOneExemptBreakdown(): void
     {
         $document = $this->createIntraCommunitySupplyDocument();
-        $document->withIntraCommunitySupply('FR12345678901', $this->createShippingAddress('75001'), 'DE123456789');
+        $document->withTaxExemption(new TaxExemptionView(TaxCategory::INTRA_COMMUNITY_SUPPLY, 'FR12345678901', $this->createShippingAddress('75001')));
         $this->addTaxFreePositions($document);
         $dom = $this->getDom($document);
 
@@ -895,7 +897,7 @@ class ZugferdDocumentTest extends TestCase
     public function testAnIntraCommunitySupplyNamesTheBuyerVatIdAndTheDeliveryAddress(): void
     {
         $document = $this->createIntraCommunitySupplyDocument();
-        $document->withIntraCommunitySupply('FR12345678901', $this->createShippingAddress('75001'), 'DE123456789');
+        $document->withTaxExemption(new TaxExemptionView(TaxCategory::INTRA_COMMUNITY_SUPPLY, 'FR12345678901', $this->createShippingAddress('75001')));
         $dom = $this->getDom($document);
 
         $buyerVatId = $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->item(0);
@@ -911,16 +913,10 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame('FR', self::nodeValue($shipTo, 'CountryID'));
     }
 
-    /**
-     * @param array{string|null, string|null, string|null} $data buyer VAT ID, zip code of the shipping address, seller VAT ID
-     */
-    #[DataProvider('incompleteIntraCommunitySupplyProvider')]
-    public function testAnIntraCommunitySupplyWithoutTheDataOfCategoryKKeepsTheRateBasedCategory(array $data): void
+    public function testWithoutATaxExemptionThePositionsKeepTheRateBasedCategory(): void
     {
-        [$buyerVatId, $zipcode, $sellerVatId] = $data;
-
         $document = $this->createIntraCommunitySupplyDocument();
-        $document->withIntraCommunitySupply($buyerVatId, $zipcode === null ? null : $this->createShippingAddress($zipcode), $sellerVatId);
+        $document->withTaxExemption(null);
         $this->addTaxFreePositions($document);
         $dom = $this->getDom($document);
 
@@ -931,15 +927,6 @@ class ZugferdDocumentTest extends TestCase
         static::assertSame(0, $dom->getElementsByTagName('ExemptionReasonCode')->length);
         static::assertSame(0, $dom->getElementsByTagName('BuyerTradeParty')->item(0)?->getElementsByTagName('SpecifiedTaxRegistration')->length);
         static::assertSame(0, $dom->getElementsByTagName('ShipToTradeParty')->length);
-    }
-
-    public static function incompleteIntraCommunitySupplyProvider(): \Generator
-    {
-        yield 'no intra-community delivery, so no buyer VAT ID' => [[null, '75001', 'DE123456789']];
-        yield 'no shipping address' => [['FR12345678901', null, 'DE123456789']];
-        yield 'a shipping address without zip code' => [['FR12345678901', '', 'DE123456789']];
-        yield 'no seller VAT ID in the document settings' => [['FR12345678901', '75001', null]];
-        yield 'an empty seller VAT ID in the document settings' => [['FR12345678901', '75001', '']];
     }
 
     public function testGetBuilderReturnsTheBuilderTheDocumentWritesTo(): void

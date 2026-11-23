@@ -151,6 +151,7 @@ async function createWrapper({ checkShopId = jest.fn(() => Promise.resolve()) } 
                 'sw-settings-services-grant-permissions-modal': true,
                 'sw-settings-usage-data-consent-modal': true,
                 'sw-settings-usage-data-consent-modal-data-provider': true,
+                'sw-extension-floating-section': true,
                 'sw-request-consent-modal': true,
             },
             provide: {
@@ -329,6 +330,13 @@ describe('src/app/component/structure/sw-desktop', () => {
 
         expect(wrapper.find('sw-app-shop-id-change-modal-stub').exists()).toBe(true);
         expect(wrapper.find('sw-app-wrong-app-url-modal-stub').exists()).toBe(false);
+    });
+
+    it('should render the floating section for extensions in the content area', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.find('.sw-desktop__content sw-extension-floating-section-stub').exists()).toBe(true);
     });
 
     it('should show the staging bar, when enabled', async () => {

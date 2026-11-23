@@ -38,9 +38,8 @@ flowchart LR
 When Shopware notices it runs at a new URL, it asks the shop operator in the Administration what to do.
 "Move shop permanently" keeps the ShopId and registers every app again.
 That is right when production really moves to a new server, and wrong on a copy, where it takes the ShopId from production.
-Shopware's app SDKs, the libraries most apps use to talk to shops, accept the previous secret only for a [60-second grace period](https://github.com/shopware/app-php-sdk/blob/976bd3a993619ac80482d630ca312020033552ad/src/Authentication/DualSignatureRequestVerifier.php#L20) after a change.
-`reinstall-apps` gives the copy a new ShopId and registers it with the app as a new shop with its own secret.
-`staging-secret` is then gone from the copy, while the app's `shop-1` record stays on `staging-secret`, so nobody can sign as `shop-1` any more.
+`reinstall-apps` then gives the copy a new ShopId, and the apps register it as a new shop.
+In doing so, the copy deletes the secret the apps now expect from production, so nobody can talk to the apps as production any more.
 
 Shop operators control their copies.
 Staging instructions and Shopware's copy detection, which compares the shop's fingerprints (APP_URL, installation path, sales channel domains) with the current ones, help but cannot guarantee that a copy leaves its ShopId before it does damage.

@@ -16,9 +16,9 @@ blocks
     sw_alert_inner  [private]
       sw_alert_actions  [private]
       sw_alert_body  [private]
-        sw_alert_message  [private]
+        sw_alert_message  [after v-if] [private]
           sw_alert_slot_default  [private]
         sw_alert_title  [private]
-      sw_alert_close  [private]
+      sw_alert_close  [after v-if] [private]
       sw_alert_icon  [private]
 ```

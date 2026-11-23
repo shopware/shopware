@@ -11,5 +11,5 @@ component sw-users-permissions-role-view-detailed  public  js
   template src/module/sw-users-permissions/view/sw-users-permissions-role-view-detailed/sw-users-permissions-role-view-detailed.html.twig
 
 blocks
-  sw_users_permissions_role_role_view_general_card_view_additional_permissions
+  sw_users_permissions_role_role_view_general_card_view_additional_permissions  [after v-if]
 ```

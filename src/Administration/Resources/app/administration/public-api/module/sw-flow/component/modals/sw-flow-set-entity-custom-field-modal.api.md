@@ -16,7 +16,7 @@ blocks
     sw_flow_set_entity_custom_field_modal_content  [private]
       sw_flow_set_entity_custom_field_modal_category  [private]
       sw_flow_set_entity_custom_field_modal_field_name  [private]
-      sw_flow_set_entity_custom_field_modal_field_value  [private]
+      sw_flow_set_entity_custom_field_modal_field_value  [after v-if] [private]
       sw_flow_set_entity_custom_field_modal_field_value_options  [private]
       sw_flow_tag_modal_to_field  [private]
     sw_flow_set_entity_custom_field_modal_custom  [private]

@@ -564,14 +564,14 @@
       "imagesFilter": {
         "label": "Images",
         "placeholder": "Select an image status...",
-        "textHasCriteria": "At least one product image assigned",
-        "textNoCriteria": "No product images assigned"
+        "textHasCriteria": "At least one image assigned",
+        "textNoCriteria": "No images assigned"
       },
       "documentsFilter": {
         "label": "Documents",
         "placeholder": "Select a document status...",
-        "textHasCriteria": "At least one product document assigned",
-        "textNoCriteria": "No product documents assigned"
+        "textHasCriteria": "At least one document assigned",
+        "textNoCriteria": "No documents assigned"
       },
       "releaseDateFilter": {
         "label": "Release date"

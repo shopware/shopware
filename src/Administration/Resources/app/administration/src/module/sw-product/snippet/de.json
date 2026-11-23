@@ -564,14 +564,14 @@
       "imagesFilter": {
         "label": "Bild",
         "placeholder": "Wähle einen Bildstatus ...",
-        "textHasCriteria": "Verfügt über mind. eine Produktbildzuordnung",
-        "textNoCriteria": "Keine Produktbilder zugeordnet"
+        "textHasCriteria": "Mind. ein Bild zugeordnet",
+        "textNoCriteria": "Keine Bilder zugeordnet"
       },
       "documentsFilter": {
         "label": "Dokumente",
         "placeholder": "Wähle einen Dokumentstatus ...",
-        "textHasCriteria": "Verfügt über mind. eine Produktdokumentzuordnung",
-        "textNoCriteria": "Keine Produktdokumente zugeordnet"
+        "textHasCriteria": "Mind. ein Dokument zugeordnet",
+        "textNoCriteria": "Keine Dokumente zugeordnet"
       },
       "releaseDateFilter": {
         "label": "Erscheinungsdatum"

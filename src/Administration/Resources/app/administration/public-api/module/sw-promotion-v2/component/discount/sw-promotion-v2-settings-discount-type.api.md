@@ -13,13 +13,13 @@ component sw-promotion-v2-settings-discount-type  public  js
 blocks
   sw_promotion_v2_settings_discount_type
     sw_promotion_v2_settings_discount_type_advanced_prices_link
-    sw_promotion_v2_settings_discount_type_advanced_prices_modal
+    sw_promotion_v2_settings_discount_type_advanced_prices_modal  [after v-if]
       sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer
         sw_promotion_v2_settings_discount_type_advanced_prices_modal_footer_button_close
       sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid
         sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_name
         sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price
-          sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price_suffix
+          sw_promotion_v2_settings_discount_type_advanced_prices_modal_grid_column_price_suffix  [scope: item]
     sw_promotion_v2_settings_discount_type_apply_discount_to
     sw_promotion_v2_settings_discount_type_max_discount_value
       sw_promotion_v2_settings_discount_type_max_discount_value_suffix

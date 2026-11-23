@@ -20,7 +20,7 @@ blocks
           sw_app_action_modal_close_button  [private]
             sw_app_action_modal_close_icon  [private]
       sw_app_action_modal_iframe  [private]
-    sw_app_action_modal_confirm  [private]
+    sw_app_action_modal_confirm  [after v-if] [private]
       sw_app_action_modal_confirm_footer  [private]
         sw_app_action_modal_confirm_checkbox  [private]
         sw_app_action_modal_confirm_footer_buttons  [private]

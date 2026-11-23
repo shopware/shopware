@@ -13,4 +13,7 @@ component sw-alert  private  ts  [private]
 
 blocks
   sw_alert  [private]
+
+crossings
+  v-if  sw_alert -> (root)  [private]
 ```

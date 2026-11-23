@@ -16,7 +16,7 @@ blocks
     sw_settings_search_search_index_description  [private]
       sw_settings_search_search_index_warning_bottom  [private]
       sw_settings_search_search_index_warning_top  [private]
-    sw_settings_search_search_index_rebuild_button  [private]
+    sw_settings_search_search_index_rebuild_button  [after v-if] [private]
       sw_settings_search_search_index_lastest_build  [private]
     sw_settings_search_search_index_rebuild_progress  [private]
       sw_settings_search_search_index_rebuild_progress_bar  [private]

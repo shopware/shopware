@@ -12,7 +12,7 @@ component sw-profile-index-search-preferences  public  js
 
 blocks
   sw_profile_index_search_preferences
-    sw_profile_index_search_preferences_search_behavior
+    sw_profile_index_search_preferences_search_behavior  [after v-if]
     sw_profile_index_search_preferences_searchable_elements
       sw_profile_index_search_preferences_searchable_elements_content
         sw_profile_index_search_preferences_searchable_elements_body

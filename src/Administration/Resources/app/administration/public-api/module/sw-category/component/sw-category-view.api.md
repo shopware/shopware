@@ -15,7 +15,7 @@ blocks
     sw_category_view_column_info
     sw_category_view_content
     sw_category_view_language_info
-    sw_category_view_tabs
+    sw_category_view_tabs  [after v-if]
       sw_category_view_mt_tabs  [from v6.8.0]
       sw_category_view_tabs_cms  [until v6.8.0]
       sw_category_view_tabs_general  [until v6.8.0]

@@ -16,7 +16,7 @@ blocks
     sw_settings_sso_user_create_access_key_modal_inner  [private]
       sw_settings_sso_user_create_access_key_modal_inner_field_access_key  [private]
       sw_settings_sso_user_create_access_key_modal_inner_field_secret_access_key_field  [private]
-      sw_settings_sso_user_create_access_key_modal_inner_footer  [private]
+      sw_settings_sso_user_create_access_key_modal_inner_footer  [after v-if] [private]
         sw_settings_sso_user_create_access_key_modal_inner_footer_cancel  [private]
         sw_settings_sso_user_create_access_key_modal_inner_footer_save  [private]
       sw_settings_sso_user_create_access_key_modal_inner_generate_new_key_button  [private]

@@ -13,10 +13,10 @@ component sw-customer-card  public  js
 blocks
   sw_customer_card
     sw_customer_card_header_right
-      sw_customer_card_action_customer_impersonation
-      sw_customer_card_convert_customer_modal
+      sw_customer_card_action_customer_impersonation  [after v-if]
+      sw_customer_card_convert_customer_modal  [after v-if]
       sw_customer_card_convert_guest
-      sw_customer_card_imitate_customer_modal
+      sw_customer_card_imitate_customer_modal  [after v-if]
     sw_customer_card_rows
       sw_customer_card_row_primary
         sw_customer_card_metadata_container
@@ -24,11 +24,11 @@ blocks
             sw_customer_card_actions
               sw_customer_card_slot_actions
             sw_customer_card_avatar
-            sw_customer_card_metadata_additional
+            sw_customer_card_metadata_additional  [after v-if]
               sw_customer_card_slot_metadata_additional
             sw_customer_card_metadata_customer_name
-              sw_customer_card_metadata_customer_email
-                sw_customer_card_metadata_customer_email_label
+              sw_customer_card_metadata_customer_email  [after v-if]
+                sw_customer_card_metadata_customer_email_label  [after v-if]
                 sw_customer_card_metadata_customer_name_editor
                   sw_customer_card_account_type_field
                   sw_customer_card_metadata_customer_name_editor_company
@@ -36,12 +36,15 @@ blocks
                   sw_customer_card_metadata_customer_name_editor_last_name
                   sw_customer_card_metadata_customer_name_editor_salutation
                   sw_customer_card_metadata_customer_name_editor_title
-              sw_customer_card_metadata_customer_email_editor
-              sw_customer_card_vat_ids
+              sw_customer_card_metadata_customer_email_editor  [after v-if]
+              sw_customer_card_vat_ids  [after v-if]
               sw_custsomer_card_metadata_customer_name_label
-            sw_customer_card_metadata_customer_tag
-            sw_customer_card_password
-            sw_customer_card_password_confirm
+            sw_customer_card_metadata_customer_tag  [after v-if]
+            sw_customer_card_password  [after v-if]
+            sw_customer_card_password_confirm  [after v-if]
       sw_customer_card_row_secondary
         sw_customer_card_slot_default
+
+crossings
+  <div>  sw_customer_card_metadata -> sw_customer_card_metadata_customer_email
 ```

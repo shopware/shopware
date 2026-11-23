@@ -12,10 +12,10 @@ component sw-product-detail-cross-selling  public  js
 
 blocks
   sw_product_detail_cross_selling
-    sw_product_detail_cross_selling_empty_state_card
+    sw_product_detail_cross_selling_empty_state_card  [after v-if]
       sw_product_detail_cross_selling_empty_state
         sw_product_detail_cross_selling_empty_state_actions
-        sw_product_detail_cross_selling_empty_state_actions_add
+        sw_product_detail_cross_selling_empty_state_actions_add  [after v-if]
         sw_product_detail_cross_selling_empty_state_content
           sw_product_detail_cross_selling_empty_state_content_child
             sw_product_detail_cross_selling_empty_state_content_child_inherited
@@ -26,11 +26,14 @@ blocks
         sw_product_detail_cross_selling_empty_state_inherit_switch
     sw_product_detail_cross_selling_items_wrapper
       sw_product_detail_cross_selling_add
-      sw_product_detail_cross_selling_items
+      sw_product_detail_cross_selling_items  [after v-if]
       sw_product_detail_cross_selling_restore_inheritance
     sw_product_detail_cross_selling_modal_restore_inheritance
       sw_product_detail_cross_selling_modal_restore_inheritance_footer
         sw_product_detail_cross_selling_modal_restore_inheritance_action_cancel
         sw_product_detail_cross_selling_modal_restore_inheritance_action_restore
       sw_product_detail_cross_selling_modal_restore_inheritance_text
+
+crossings
+  v-if  sw_product_detail_cross_selling_items_wrapper -> sw_product_detail_cross_selling_empty_state_card
 ```

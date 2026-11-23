@@ -28,7 +28,7 @@ blocks
           sw_order_detail_base_info_summary_entries
         sw_order_user_card_avatar
         sw_order_user_card_metadata
-          sw_order_user_card_metadata_tags
+          sw_order_user_card_metadata_tags  [after v-if]
           sw_order_user_card_metadata_user_name
       sw_order_user_card_slot_additional_actions
     sw_order_user_card_row_secondary
@@ -36,7 +36,7 @@ blocks
         sw_order_detail_base_secondary_info_order_overview_contents
           sw_order_detail_base_secondary_info_order_overview_left_column
             sw_order_detail_base_secondary_info_affiliate
-            sw_order_detail_base_secondary_info_delivery
+            sw_order_detail_base_secondary_info_delivery  [after v-if]
             sw_order_detail_base_secondary_info_order_overview_left_column_slot
             sw_order_detail_base_secondary_info_payment
             sw_order_detail_base_secondary_info_sales_channel
@@ -44,7 +44,7 @@ blocks
             sw_order_detail_base_secondary_info_campaign
             sw_order_detail_base_secondary_info_last_change
             sw_order_detail_base_secondary_info_order_language
-            sw_order_detail_base_secondary_info_order_overview_right_column_slot
+            sw_order_detail_base_secondary_info_order_overview_right_column_slot  [after v-if]
             sw_order_detail_base_secondary_info_tracking_codes
               sw_order_detail_base_secondary_info_tracking_codes_display
                 sw_order_detail_base_secondary_info_tracking_codes_display_content

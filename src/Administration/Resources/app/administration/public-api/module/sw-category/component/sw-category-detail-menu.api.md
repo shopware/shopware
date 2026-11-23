@@ -13,7 +13,7 @@ component sw-category-detail-menu  public  js
 blocks
   sw_category_detail_menu
     sw_category_detail_information_visible
-    sw_category_detail_menu_description
+    sw_category_detail_menu_description  [after v-if]
     sw_category_detail_menu_media
     sw_category_detail_menu_media_modal
 ```

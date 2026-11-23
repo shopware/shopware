@@ -19,5 +19,5 @@ blocks
         sw_product_feature_set_form_description_title
       sw_product_feature_set_form_form
         sw_product_feature_set_form_wrapper_input
-          sw_product_feature_set_form_input
+          sw_product_feature_set_form_input  [scope: currentValue, isInherited, updateCurrentValue]
 ```

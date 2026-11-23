@@ -21,7 +21,7 @@ blocks
       sw_customer_address_form_extension_slot
       sw_customer_address_form_first_name_field
       sw_customer_address_form_last_name_field
-      sw_customer_address_form_phone_number_field
+      sw_customer_address_form_phone_number_field  [after v-if]
       sw_customer_address_form_salutation_title_container
         sw_customer_address_form_salutation_field
         sw_customer_address_form_title_field

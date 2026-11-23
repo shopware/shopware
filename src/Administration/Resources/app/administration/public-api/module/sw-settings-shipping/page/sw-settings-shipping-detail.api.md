@@ -36,4 +36,8 @@ blocks
     sw_settings_shipping_detail_language_switch
     sw_settings_shipping_detail_sidebar
       sw_setting_shipping_detail_sidebar_media_item
+
+crossings
+  v-if  sw_settings_shipping_detail_price_matrices -> sw_settings_shipping_detail_content
+  v-if  sw_settings_shipping_detail_tax_cost -> sw_settings_shipping_detail_content
 ```

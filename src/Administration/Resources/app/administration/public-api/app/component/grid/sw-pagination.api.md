@@ -15,9 +15,12 @@ blocks
   sw_pagination  [private]
     sw_pagination_page_list  [private]
       sw_pagination_page_list_item  [private]
-        sw_pagination_page_list_item_button  [private]
-        sw_pagination_page_list_item_separator  [private]
+        sw_pagination_page_list_item_button  [scope: index, pageNum] [private]
+        sw_pagination_page_list_item_separator  [after v-if] [scope: index, pageNum] [private]
     sw_pagination_page_next  [private]
     sw_pagination_page_prev  [private]
     sw_pagination_per_page_selection  [private]
+
+crossings
+  v-if  sw_pagination_page_list_item_button -> sw_pagination_page_list_item_separator  [private]
 ```

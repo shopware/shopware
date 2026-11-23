@@ -19,7 +19,7 @@ blocks
       sw_landing_page_detail_base_information_tags
       sw_landing_page_detail_base_seo_form_sales_channel
     sw_landing_page_detail_base_seo
-      sw_landing_page_detail_base_seo_form
+      sw_landing_page_detail_base_seo_form  [after v-if]
         sw_landing_page_detail_base_seo_form_keywords
         sw_landing_page_detail_base_seo_form_meta_description
         sw_landing_page_detail_base_seo_form_meta_title

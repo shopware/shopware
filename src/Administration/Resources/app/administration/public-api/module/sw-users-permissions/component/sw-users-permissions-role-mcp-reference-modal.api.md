@@ -15,12 +15,15 @@ blocks
     sw_users_permissions_role_mcp_reference_modal_content
       sw_users_permissions_role_mcp_reference_modal_legend
       sw_users_permissions_role_mcp_reference_modal_loading
-      sw_users_permissions_role_mcp_reference_modal_rows
-        sw_users_permissions_role_mcp_reference_modal_empty
-        sw_users_permissions_role_mcp_reference_modal_row_chips
-        sw_users_permissions_role_mcp_reference_modal_row_grant
-        sw_users_permissions_role_mcp_reference_modal_row_label
+      sw_users_permissions_role_mcp_reference_modal_rows  [after v-if]
+        sw_users_permissions_role_mcp_reference_modal_empty  [after v-if]
+        sw_users_permissions_role_mcp_reference_modal_row_chips  [scope: row]
+        sw_users_permissions_role_mcp_reference_modal_row_grant  [scope: row]
+        sw_users_permissions_role_mcp_reference_modal_row_label  [scope: row]
       sw_users_permissions_role_mcp_reference_modal_save_reminder
-      sw_users_permissions_role_mcp_reference_modal_toolbar
-    sw_users_permissions_role_mcp_reference_modal_footer
+      sw_users_permissions_role_mcp_reference_modal_toolbar  [after v-if]
+    sw_users_permissions_role_mcp_reference_modal_footer  [after v-if]
+
+crossings
+  <div>  sw_users_permissions_role_mcp_reference_modal -> sw_users_permissions_role_mcp_reference_modal_content
 ```

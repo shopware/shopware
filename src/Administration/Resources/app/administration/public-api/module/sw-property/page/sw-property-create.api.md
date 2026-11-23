@@ -16,7 +16,7 @@ blocks
     sw_property_detail_content  [inherited]
       sw_property_detail_content_detail_base  [inherited]
       sw_property_detail_content_language_info  [replaced]
-      sw_property_detail_content_option_list  [replaced]
+      sw_property_detail_content_option_list  [replaced] [after v-if]
       sw_property_detail_custom_field_sets  [inherited]
     sw_property_detail_language_switch  [replaced]
     sw_property_detail_smart_bar_actions  [inherited]

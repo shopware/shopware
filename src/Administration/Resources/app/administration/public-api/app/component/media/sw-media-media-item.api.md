@@ -13,20 +13,20 @@ component sw-media-media-item  public  js
 blocks
   sw_media_media_item
     sw_media_media_item_context_menu
-      sw_media_media_item_additional_context_menu_slot
-      sw_media_media_item_context_group_quick_actions
-        sw_media_media_item_context_item_copy_item_link
-        sw_media_media_item_context_item_delete
-        sw_media_media_item_context_item_move
-        sw_media_media_item_context_item_remove_cover
-        sw_media_media_item_context_item_rename_item
-        sw_media_media_item_context_item_replace
-        sw_media_media_item_context_item_set_cover
-    sw_media_media_item_cover_modal
-    sw_media_media_item_delete_modal
+      sw_media_media_item_additional_context_menu_slot  [scope: allowDelete, allowEdit, item, startInlineEdit]
+      sw_media_media_item_context_group_quick_actions  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_copy_item_link  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_delete  [after v-if] [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_move  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_remove_cover  [after v-if] [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_rename_item  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_replace  [after v-if] [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_media_item_context_item_set_cover  [scope: allowDelete, allowEdit, item, startInlineEdit]
+    sw_media_media_item_cover_modal  [after v-if] [scope: allowDelete, allowEdit, item]
+    sw_media_media_item_delete_modal  [after v-if] [scope: allowDelete, allowEdit, item]
     sw_media_media_item_metadata
-    sw_media_media_item_modal_replace
-    sw_media_media_item_move_modal
+    sw_media_media_item_modal_replace  [scope: allowDelete, allowEdit, item]
+    sw_media_media_item_move_modal  [after v-if] [scope: allowDelete, allowEdit, item]
     sw_media_media_item_name_container
     sw_media_media_item_preview
 ```

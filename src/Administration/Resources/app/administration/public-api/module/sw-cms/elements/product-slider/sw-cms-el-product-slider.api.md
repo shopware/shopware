@@ -13,10 +13,10 @@ component sw-cms-el-product-slider  private  js  [private]
 
 blocks
   sw_cms_element_product_slider  [private]
-    sw_cms_element_product_slider_content  [private]
+    sw_cms_element_product_slider_content  [after v-if] [private]
       sw_cms_element_product_slider_arrow_left  [private]
       sw_cms_element_product_slider_arrow_right  [private]
-      sw_cms_element_product_slider_product_holder  [private]
+      sw_cms_element_product_slider_product_holder  [after v-if] [private]
         sw_cms_element_product_slider_demo_data  [private]
         sw_cms_element_product_slider_products  [private]
     sw_cms_element_product_slider_title  [private]

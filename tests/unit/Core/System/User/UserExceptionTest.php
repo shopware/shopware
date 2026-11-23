@@ -38,4 +38,22 @@ class UserExceptionTest extends TestCase
             'path' => 'user.email',
         ], $exception->getParameters());
     }
+
+    public function testUserChangeNotAllowed(): void
+    {
+        $exception = UserException::userChangeNotAllowed();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame(UserException::USER_CHANGE_NOT_ALLOWED, $exception->getErrorCode());
+        static::assertSame('A user and its access keys can only be changed or deleted by that user or an admin.', $exception->getMessage());
+    }
+
+    public function testAccessKeyUserNotChangeable(): void
+    {
+        $exception = UserException::accessKeyUserNotChangeable();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $exception->getErrorCode());
+        static::assertStringContainsString('is immutable and cannot be updated', (string) $exception->getViolations()->get(0)->getMessage());
+    }
 }

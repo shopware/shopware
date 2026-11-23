@@ -17,6 +17,7 @@
         <service id="Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator">
             <argument>%shopware.app_system.allow_unencrypted_traffic%</argument>
             <argument>%shopware.app_system.allowed_private_ip_addresses%</argument>
+            <argument key="$enableUrlValidation">%shopware.app_system.enable_url_validation%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Validation\WebhookUrlWriteValidator">

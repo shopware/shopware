@@ -34,7 +34,7 @@ class AuthController extends AbstractController
         $response = new Response();
 
         try {
-            $cacheKey = $request->request->getString('username') . '-' . $request->getClientIp();
+            $cacheKey = mb_strtolower(mb_trim($request->request->getString('username'))) . '-' . $request->getClientIp();
 
             $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
         } catch (RateLimitExceededException $exception) {

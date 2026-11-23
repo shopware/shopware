@@ -228,6 +228,7 @@ class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(new Configuration(), []);
 
+        static::assertTrue($config['app_system']['enable_url_validation']);
         static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
         static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
     }
@@ -237,12 +238,14 @@ class ConfigurationTest extends TestCase
         $config = (new Processor())->processConfiguration(new Configuration(), [
             [
                 'app_system' => [
+                    'enable_url_validation' => false,
                     'allow_unencrypted_traffic' => true,
                     'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
                 ],
             ],
         ]);
 
+        static::assertFalse($config['app_system']['enable_url_validation']);
         static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
         static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
     }
@@ -257,6 +260,22 @@ class ConfigurationTest extends TestCase
                     'allowed_private_ip_addresses' => ['not-an-ip'],
                 ],
             ],
+        ]);
+    }
+
+    public function testMediaAllowedProtocolsDefaultToAllSupportedProtocols(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
+
+        static::assertSame(['http', 'https', 'ftp'], $config['media']['allowed_protocols']);
+    }
+
+    public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp".'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['media' => ['allowed_protocols' => ['https', 'gopher']]],
         ]);
     }
 }

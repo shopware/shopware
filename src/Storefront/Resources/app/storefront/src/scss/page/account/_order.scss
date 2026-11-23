@@ -51,14 +51,12 @@
 
 .order-table-header,
 .order-item-header {
-    padding-top: $spacer-sm;
-    padding-bottom: $spacer-sm;
+    padding: $spacer-sm $order-grid-gutter-width;
+    overflow-wrap: anywhere;
 }
 
-.order-table-header,
-.order-item-header {
-    padding-left: $order-grid-gutter-width;
-    padding-right: $order-grid-gutter-width;
+.order-table-header-heading {
+    max-width: calc(100% - 3rem);
 }
 
 .order-table-header-heading,
@@ -69,6 +67,7 @@
 
 .order-table-header-order-status {
     font-weight: $font-weight-bold;
+    max-width: 100%;
 }
 
 .order-table-header-context-menu-content {
@@ -237,6 +236,11 @@
 }
 
 .order-item-status-badge {
+    box-sizing: border-box;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+
     /*
      * Set colors of the order status badge according to the order state.
      * The stylelint rule `selector-class-pattern` is disabled.
@@ -307,7 +311,9 @@
     }
 
     .order-table-header-label {
-        display: inline;
+        display: block;
+        float: left;
+        width: 100%;
     }
 
     .order-table-header-order-number {
@@ -321,7 +327,7 @@
     }
 
     .order-table-body-value {
-        width: 50%;
+        width: auto;
     }
 
     .order-table-header-order-status {

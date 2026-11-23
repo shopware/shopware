@@ -77,11 +77,14 @@
 
         <!--File Services-->
         <service id="Shopware\Core\Content\Media\File\FileService">
+            <argument>%shopware.media.allowed_protocols%</argument>
         </service>
 
         <service id="Shopware\Core\Content\Media\File\TrustedUrlResolver">
             <argument>null</argument>
             <argument>%shopware.media.enable_url_validation%</argument>
+            <argument type="collection"/>
+            <argument>%shopware.media.allowed_protocols%</argument>
 
             <tag name="kernel.reset" method="reset"/>
         </service>
@@ -357,6 +360,12 @@
         <service id="Shopware\Core\Content\Media\Subscriber\CustomFieldsUnusedMediaSubscriber">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

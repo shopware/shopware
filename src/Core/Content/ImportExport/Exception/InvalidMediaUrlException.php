@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\Exception;
 
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +12,7 @@ class InvalidMediaUrlException extends ShopwareHttpException
 {
     public function __construct(?string $url)
     {
-        parent::__construct('Invalid media url: {{ url }}', ['url' => $url ?? 'null']);
+        parent::__construct('Invalid media url: {{ url }}', ['url' => PathHelper::stripCredentials($url ?? 'null')]);
     }
 
     public function getStatusCode(): int

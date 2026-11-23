@@ -54,6 +54,32 @@ class AppSystemHttpMiddlewareTest extends TestCase
         static::assertSame('token=required', $redirect['request']->getUri()->getQuery());
     }
 
+    public function testPassesRequestThroughUntouchedWhenUrlValidationIsDisabled(): void
+    {
+        /** @var list<array{request: RequestInterface, options: array<string, mixed>}> $history */
+        $history = [];
+        $stack = HandlerStack::create(new MockHandler([new Response(200)]));
+        $stack->after(
+            'allow_redirects',
+            new AppSystemHttpMiddleware(new TrustedUrlResolver(static fn (): array => ['127.0.0.1']), false, false),
+            'app_system_http_security',
+        );
+        $stack->after('app_system_http_security', static function (callable $handler) use (&$history): callable {
+            return static function (RequestInterface $request, array $options) use (&$history, $handler): PromiseInterface {
+                $history[] = ['request' => $request, 'options' => $options];
+
+                return $handler($request, $options);
+            };
+        }, 'history');
+
+        $client = new Client(['handler' => $stack]);
+        $client->post('http://localhost:8000/webhook', ['proxy' => 'http://proxy.example.com:8080']);
+
+        static::assertCount(1, $history);
+        static::assertArrayNotHasKey('curl', $history[0]['options']);
+        static::assertSame('http://proxy.example.com:8080', $history[0]['options']['proxy']);
+    }
+
     public function testTrustedUrlResolverServiceCanBeCreated(): void
     {
         $container = new ContainerBuilder();

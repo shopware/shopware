@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -123,6 +125,10 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Removed with mail template sample updates.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('mailTemplateTypeProvider')]
     public function testUpdateMailTemplateType(MailTemplateTypeUpdateProvider $provider): void
     {
@@ -193,6 +199,25 @@ class SendMailActionTest extends TestCase
         $flow->setData(CustomerAware::CUSTOMER, $customer);
         $flow->setConfig($config);
 
+        $this->mailService->expects($this->once())->method('send')->with(
+            static::anything(),
+            $context,
+            static::callback(static function (array $data) use ($provider): bool {
+                if ($provider->sensitive) {
+                    static::assertTrue($data['sensitive']);
+                    static::assertSame('BODY-SECRET', $data[FlowMailVariables::RESET_URL]);
+                }
+
+                return true;
+            }),
+        );
+        if ($provider->sensitive) {
+            $flow->setData('sensitive', true);
+            $flow->setData(FlowMailVariables::RESET_URL, 'BODY-SECRET');
+            $this->mailTemplateTypeRepository->expects($this->never())->method('update');
+            $connection->expects($this->never())->method('fetchOne');
+        }
+
         $this->entitySearchResult->expects($this->once())
             ->method('first')
             ->willReturn($this->mailTemplate);
@@ -200,6 +225,12 @@ class SendMailActionTest extends TestCase
         $this->mailTemplateRepository->expects($this->once())
             ->method('search')
             ->willReturn($this->entitySearchResult);
+
+        if ($provider->sensitive) {
+            $action->handleFlow($flow);
+
+            return;
+        }
 
         if (!$provider->updateMailTemplateTypeParam) {
             $connection->expects($this->never())->method('fetchOne');
@@ -360,6 +391,46 @@ class SendMailActionTest extends TestCase
         $this->action->handleFlow($flow);
     }
 
+    public function testSendFailureDoesNotLogBodyOrExceptionContent(): void
+    {
+        $context = Context::createDefaultContext();
+        $templateId = Uuid::randomHex();
+        $this->mailTemplate->setId($templateId);
+        $this->mailTemplate->setTranslated([
+            'subject' => 'Recovery',
+            'contentHtml' => 'BODY-SECRET',
+            'contentPlain' => 'BODY-SECRET',
+        ]);
+        $this->mailTemplateRepository->method('search')->willReturn(new EntitySearchResult(
+            'mail_template',
+            1,
+            new MailTemplateCollection([$this->mailTemplate]),
+            null,
+            new Criteria(),
+            $context,
+        ));
+        $this->mailService->method('send')->willThrowException(new \RuntimeException('BODY-SECRET'));
+
+        $this->logger->expects($this->once())->method('error')->with(
+            'Could not send mail.',
+            static::callback(static function (array $data): bool {
+                static::assertSame('Recovery', $data['subject']);
+                static::assertSame(\RuntimeException::class, $data['exceptionClass']);
+                static::assertStringNotContainsString('BODY-SECRET', json_encode($data, \JSON_THROW_ON_ERROR));
+
+                return true;
+            }),
+        );
+
+        $flow = new StorableFlow('customer.recovery.request', $context);
+        $flow->setData('sensitive', true);
+        $flow->setConfig(['mailTemplateId' => $templateId, 'recipient' => ['type' => 'customer']]);
+        $flow->setData(MailAware::MAIL_STRUCT, new MailRecipientStruct(['customer@example.com' => 'Customer']));
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+
+        $this->action->handleFlow($flow);
+    }
+
     /**
      * @return iterable<string, array<MailTemplateTypeUpdateProvider>>
      */
@@ -391,6 +462,14 @@ class SendMailActionTest extends TestCase
             mailTemplateTypeId: Uuid::randomHex(),
             mailTemplateTypeTranslationExists: true,
             expectUpdateMailTemplateType: true
+        )];
+
+        yield 'sensitive mail is sent without persisting its sample data' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: Uuid::randomHex(),
+            mailTemplateTypeTranslationExists: true,
+            expectUpdateMailTemplateType: false,
+            sensitive: true,
         )];
     }
 
@@ -548,7 +627,8 @@ class MailTemplateTypeUpdateProvider
         public readonly bool $updateMailTemplateTypeParam,
         public readonly ?string $mailTemplateTypeId,
         public readonly bool $mailTemplateTypeTranslationExists,
-        public readonly bool $expectUpdateMailTemplateType
+        public readonly bool $expectUpdateMailTemplateType,
+        public readonly bool $sensitive = false,
     ) {
     }
 }

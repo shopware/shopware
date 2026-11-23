@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\CanNotFindParentStorageFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DecodeByHydratorException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundException;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldForeignKey
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\ParentFieldNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PrimaryKeyNotProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\PropertyNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\RuntimeFieldInCriteriaException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnsupportedCommandTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -103,6 +105,7 @@ class DataAbstractionLayerException extends HttpException
     public const PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND = 'FRAMEWORK__PRODUCT_SEARCH_CONFIGURATION_NOT_FOUND';
     public const DBAL_UNEXPECTED_ASSOCIATION_FIELD_CLASS = 'FRAMEWORK__DBAL_UNEXPECTED_ASSOCIATION_FIELD_CLASS';
     public const DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP = 'FRAMEWORK__DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP';
+    public const DBAL_INVALID_IDENTIFIER = 'FRAMEWORK__DBAL_INVALID_IDENTIFIER';
 
     public static function invalidSerializerField(string $expectedClass, Field $field): self
     {
@@ -557,7 +560,7 @@ class DataAbstractionLayerException extends HttpException
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::INVALID_AGGREGATION_NAME,
-            'Invalid aggregation name "{{ name }}", cannot contain question marks und colon.',
+            'Invalid aggregation name "{{ name }}". It must not contain a backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character.',
             ['name' => $name]
         );
     }
@@ -855,6 +858,16 @@ class DataAbstractionLayerException extends HttpException
         return new DefinitionNotFoundException($entity);
     }
 
+    public static function accessorNotAllowedInApiScope(string $accessor): ApiProtectionException
+    {
+        return new ApiProtectionException($accessor);
+    }
+
+    public static function runtimeFieldInCriteria(string $accessor): RuntimeFieldInCriteriaException
+    {
+        return new RuntimeFieldInCriteriaException($accessor);
+    }
+
     public static function entityRepositoryNotFound(string $entity): EntityRepositoryNotFoundException
     {
         return new EntityRepositoryNotFoundException($entity);
@@ -975,6 +988,23 @@ class DataAbstractionLayerException extends HttpException
             self::DBAL_EXPECTED_ASSOCIATION_FIELD_IN_FIRST_LEVEL_OF_JOIN_GROUP,
             'Expected association field in first level of join group, got "{{ fieldClass }}"',
             ['fieldClass' => $fieldClass]
+        );
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
+     */
+    public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new \InvalidArgumentException('Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier');
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DBAL_INVALID_IDENTIFIER,
+            'Backtick, quote, question mark, colon, semicolon, backslash, SQL comment marker, or control character not allowed in identifier "{{ identifier }}"',
+            ['identifier' => $identifier]
         );
     }
 }

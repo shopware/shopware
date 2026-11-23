@@ -28,7 +28,7 @@ const swProfileStateMock = {
     },
 };
 
-async function createWrapper() {
+async function createWrapper(stubs = {}) {
     return mount(
         await wrapTestComponent('sw-profile-index-search-preferences', {
             sync: true,
@@ -49,6 +49,7 @@ async function createWrapper() {
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'router-link': true,
+                    ...stubs,
                 },
 
                 provide: {
@@ -192,6 +193,61 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 }),
             ]),
         );
+    });
+
+    it('should toggle the checkbox whose label was clicked', async () => {
+        const wrapper = await createWrapper({
+            'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
+            'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
+            'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+            'sw-field-error': true,
+            'sw-help-text': true,
+            'sw-icon': true,
+            'sw-inheritance-switch': true,
+        });
+        await flushPromises();
+
+        await Shopware.State.commit('swProfile/setSearchPreferences', [
+            {
+                entityName: 'product',
+                _searchable: true,
+                fields: [
+                    { fieldName: 'name', _searchable: true, _score: 500, group: [] },
+                    { fieldName: 'productNumber', _searchable: true, _score: 500, group: [] },
+                ],
+            },
+            {
+                entityName: 'customer',
+                _searchable: true,
+                fields: [
+                    { fieldName: 'firstName', _searchable: true, _score: 500, group: [] },
+                    { fieldName: 'lastName', _searchable: true, _score: 500, group: [] },
+                ],
+            },
+        ]);
+        await flushPromises();
+
+        const checkboxes = wrapper.findAll(
+            '.sw-profile-index-search-preferences-searchable-elements__entity-container input[type="checkbox"]',
+        );
+        const ids = checkboxes.map((checkbox) => checkbox.attributes('id'));
+        const names = checkboxes.map((checkbox) => checkbox.attributes('name'));
+
+        expect(checkboxes).toHaveLength(6);
+        expect(new Set(ids).size).toBe(6);
+        expect(new Set(names).size).toBe(6);
+
+        await wrapper.find(`label[for="${checkboxes[2].attributes('id')}"]`).trigger('click');
+        await wrapper.find(`label[for="${checkboxes[5].attributes('id')}"]`).trigger('click');
+
+        expect(checkboxes.map((checkbox) => checkbox.element.checked)).toEqual([
+            true,
+            true,
+            false,
+            true,
+            true,
+            false,
+        ]);
     });
 
     it('should be able to deselect all', async () => {

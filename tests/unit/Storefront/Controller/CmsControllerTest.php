@@ -5,9 +5,11 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
+use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\SalesChannel\CmsRoute;
@@ -24,9 +26,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\System\Currency\CurrencyCollection;
+use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Controller\CmsController;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
+use Shopware\Storefront\Page\Page;
+use Shopware\Storefront\Pagelet\Footer\FooterPagelet;
+use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +55,8 @@ class CmsControllerTest extends TestCase
 
     private MockObject&ProductListingRoute $productListingRouteMock;
 
+    private MockObject&GenericPageLoaderInterface $genericPageLoaderMock;
+
     private CmsControllerTestClass $controller;
 
     protected function setUp(): void
@@ -52,6 +65,7 @@ class CmsControllerTest extends TestCase
         $this->cmsRouteMock = $this->createMock(CmsRoute::class);
         $this->categoryRouteMock = $this->createMock(CategoryRoute::class);
         $this->productListingRouteMock = $this->createMock(ProductListingRoute::class);
+        $this->genericPageLoaderMock = $this->createMock(GenericPageLoaderInterface::class);
 
         $this->controller = new CmsControllerTestClass(
             $this->cmsRouteMock,
@@ -60,7 +74,8 @@ class CmsControllerTest extends TestCase
             $this->createMock(ProductDetailRoute::class),
             $this->createMock(ProductReviewLoader::class),
             $this->createMock(FindProductVariantRoute::class),
-            $eventDispatcherMock
+            $eventDispatcherMock,
+            $this->genericPageLoaderMock
         );
     }
 
@@ -84,16 +99,46 @@ class CmsControllerTest extends TestCase
         static::assertEquals($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
     }
 
+    #[DisabledFeatures(['v6.7.0.0', 'cache_rework'])]
     public function testPageFullReturn(): void
     {
         $cmsRouteResponse = new CmsRouteResponse(new CmsPageEntity());
         $this->cmsRouteMock->method('load')->willReturn($cmsRouteResponse);
+
+        $header = new HeaderPagelet(
+            new Tree(null, []),
+            new LanguageCollection(),
+            new CurrencyCollection(),
+            new LanguageEntity(),
+            new CurrencyEntity(),
+            new CategoryCollection()
+        );
+        $footer = new FooterPagelet(null);
+        $genericPage = new Page();
+        $genericPage->setHeader($header);
+        $genericPage->setFooter($footer);
+        $this->genericPageLoaderMock->expects($this->once())->method('load')->willReturn($genericPage);
 
         $ids = new IdsCollection();
 
         $this->controller->pageFull($ids->get('page'), new Request(), $this->createMock(SalesChannelContext::class));
 
         static::assertEquals($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['page']['cmsPage']);
+        static::assertSame($header, $this->controller->renderStorefrontParameters['page']['header']);
+        static::assertSame($footer, $this->controller->renderStorefrontParameters['page']['footer']);
+    }
+
+    public function testPageFullReturnWithCacheRework(): void
+    {
+        $cmsRouteResponse = new CmsRouteResponse(new CmsPageEntity());
+        $this->cmsRouteMock->method('load')->willReturn($cmsRouteResponse);
+        $this->genericPageLoaderMock->expects($this->never())->method('load');
+
+        $ids = new IdsCollection();
+
+        $this->controller->pageFull($ids->get('page'), new Request(), $this->createMock(SalesChannelContext::class));
+
+        static::assertSame(['cmsPage' => $cmsRouteResponse->getCmsPage()], $this->controller->renderStorefrontParameters['page']);
     }
 
     public function testCategoryNoId(): void

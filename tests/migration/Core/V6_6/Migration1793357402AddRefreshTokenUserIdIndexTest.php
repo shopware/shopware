@@ -1,0 +1,48 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Migration\Core\V6_6;
+
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Migration\V6_3\Migration1583844433AddRefreshTokenTable;
+use Shopware\Core\Migration\V6_6\Migration1793357402AddRefreshTokenUserIdIndex;
+
+/**
+ * @internal
+ */
+#[Package('framework')]
+#[CoversClass(Migration1793357402AddRefreshTokenUserIdIndex::class)]
+class Migration1793357402AddRefreshTokenUserIdIndexTest extends TestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1793357402, (new Migration1793357402AddRefreshTokenUserIdIndex())->getCreationTimestamp());
+    }
+
+    public function testMigrationCreatesUserIdIndexAndIsIdempotent(): void
+    {
+        (new Migration1583844433AddRefreshTokenTable())->update($this->connection);
+        $schemaManager = $this->connection->createSchemaManager();
+        if (isset($schemaManager->listTableIndexes('refresh_token')['idx.refresh_token.user_id'])) {
+            $this->connection->executeStatement('DROP INDEX `idx.refresh_token.user_id` ON `refresh_token`');
+        }
+
+        $migration = new Migration1793357402AddRefreshTokenUserIdIndex();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $indexes = $schemaManager->listTableIndexes('refresh_token');
+        static::assertArrayHasKey('idx.refresh_token.user_id', $indexes);
+        static::assertSame(['user_id'], $indexes['idx.refresh_token.user_id']->getColumns());
+    }
+}

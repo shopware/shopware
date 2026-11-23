@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\AppContextFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
@@ -58,7 +59,7 @@ class TwigFieldVisibilityTest extends TestCase
             static::getContainer()->get(DefinitionInstanceRegistry::class),
             static::getContainer()->get(RequestCriteriaBuilder::class),
             static::getContainer()->get(AclCriteriaValidator::class),
-            Context::createDefaultContext()
+            AppContextFactory::forHookContext(Context::createDefaultContext())
         )]);
 
         static::assertTrue(Uuid::isValid(trim($result)));

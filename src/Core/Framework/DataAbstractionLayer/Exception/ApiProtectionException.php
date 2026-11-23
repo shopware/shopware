@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Exception;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 #[Package('framework')]
 class ApiProtectionException extends ShopwareHttpException
@@ -19,5 +20,10 @@ class ApiProtectionException extends ShopwareHttpException
     public function getErrorCode(): string
     {
         return 'FRAMEWORK__ACCESSOR_NOT_ALLOWED';
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_BAD_REQUEST;
     }
 }

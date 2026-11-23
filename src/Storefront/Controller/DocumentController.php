@@ -29,7 +29,8 @@ class DocumentController extends StorefrontController
      */
     public function __construct(
         private readonly AbstractDocumentRoute $documentRoute,
-        private readonly AbstractLogoutRoute $logoutRoute
+        private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly string $contentSecurityPolicy,
     ) {
     }
 
@@ -41,7 +42,13 @@ class DocumentController extends StorefrontController
 
         try {
             /** @phpstan-ignore-next-line This ignore should be removed when the deprecated method signature is updated */
-            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType);
+            $response = $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType);
+
+            if ($response->isSuccessful() && $response->headers->has('Content-Disposition')) {
+                $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy, false);
+            }
+
+            return $response;
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));

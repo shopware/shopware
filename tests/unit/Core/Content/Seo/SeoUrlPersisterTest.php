@@ -35,11 +35,12 @@ class SeoUrlPersisterTest extends TestCase
         $connection->method('createQueryBuilder')->willReturn($this->createMock(QueryBuilder::class));
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
 
+        $salesChannelId = Uuid::randomHex();
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
                 'foreignKey' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
                 'routeName' => 'test-route',
                 'pathInfo' => 'path1',
                 'seoPathInfo' => 'path1',
@@ -47,7 +48,7 @@ class SeoUrlPersisterTest extends TestCase
             [
                 'languageId' => Uuid::randomHex(),
                 'foreignKey' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
                 'routeName' => 'test-route',
                 'pathInfo' => 'path2',
                 'seoPathInfo' => 'path2',
@@ -267,11 +268,12 @@ class SeoUrlPersisterTest extends TestCase
         $connection->method('createQueryBuilder')->willReturn($this->createMock(QueryBuilder::class));
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
 
+        $salesChannelId = Uuid::randomHex();
         $seoUrls = [
             [
                 'languageId' => Uuid::randomHex(),
                 'foreignKey' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
                 'routeName' => 'test-route',
                 'pathInfo' => 'path1',
                 'seoPathInfo' => 'path1',
@@ -279,7 +281,7 @@ class SeoUrlPersisterTest extends TestCase
             [
                 'languageId' => Uuid::randomHex(),
                 'foreignKey' => Uuid::randomHex(),
-                'salesChannelId' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
                 'routeName' => 'test-route',
                 'pathInfo' => 'path2',
                 'seoPathInfo' => 'path2',

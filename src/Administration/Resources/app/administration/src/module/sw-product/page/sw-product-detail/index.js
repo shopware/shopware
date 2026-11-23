@@ -1409,7 +1409,7 @@ export default {
                 this.syncRepository
                     .save(this.product, this.productApiContext)
                     .then(saveDocumentVariants)
-                    .then((failedDocumentVariantOperations) => {
+                    .then(() => {
                         updateSeoUrls();
 
                         this.trackProductSaveEvents(productType, productIsNew, productWasActivated);
@@ -1424,8 +1424,6 @@ export default {
                             });
 
                         this.loadAll().then(() => {
-                            this.documentVariantOperations =
-                                failedDocumentVariantOperations ?? this.documentVariantOperations;
                             Shopware.Store.get('swProductDetail').setLoading(['product', false]);
 
                             resolve('success');
@@ -1440,27 +1438,22 @@ export default {
 
         /** @private */
         getDocumentVariantsSaver() {
-            const queuedOperations = this.documentVariantOperations;
-            const operations = Object.values(queuedOperations);
+            const operations = Object.values(this.documentVariantOperations);
             const productId = this.product.id;
             const { languageId } = this.productApiContext;
 
             return async () => {
                 if (!operations.length) {
-                    return null;
+                    return;
                 }
 
                 try {
                     await this.productDocumentVariantService.sync(productId, operations, false, languageId);
                     this.documentVariantOperations = {};
-
-                    return null;
                 } catch {
                     this.createNotificationError({
                         message: this.$t('sw-product.documentForm.errorSaveVariants'),
                     });
-
-                    return queuedOperations;
                 }
             };
         },

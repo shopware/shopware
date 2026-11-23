@@ -964,17 +964,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expect(wrapper.vm.abortOnLanguageChange()).toBe(false);
         });
 
-        it('keeps the queued operations after the reload when the variant update fails', async () => {
-            jest.spyOn(wrapper.vm.productRepository, 'hasChanges').mockReturnValue(true);
-            jest.spyOn(wrapper.vm.syncRepository, 'save').mockResolvedValue({});
-            sync.mockRejectedValue(new Error('Request failed'));
-
-            await wrapper.vm.saveProduct();
-            await flushPromises();
-
-            expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
-        });
-
         it('saves the product with the queued operations before it is duplicated', async () => {
             sync.mockImplementation(() => {
                 expect(wrapper.vm.cloning).toBe(false);
@@ -998,15 +987,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
             expect(sync).not.toHaveBeenCalled();
             expect(wrapper.vm.cloning).toBe(false);
             expect(Shopware.Store.get('swProductDetail').documentVariantOperations).toEqual({ 'document-id': operation });
-        });
-
-        it('does not duplicate the product when the variant update fails', async () => {
-            sync.mockRejectedValue(new Error('Request failed'));
-
-            await wrapper.vm.onDuplicate();
-            await flushPromises();
-
-            expect(wrapper.vm.cloning).toBe(false);
         });
 
         it('duplicates the product right away when no operation is queued', () => {

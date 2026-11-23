@@ -5,7 +5,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { fixtureTests } from './fixture-runner';
 import type { CaseOutput, ExpectedFailures, FixtureCase } from './fixture-runner';
 import type { Finding } from './findings';
-import type { Snapshot } from './snapshot';
+import type { SnapshotFiles } from './snapshot';
 
 const REPORT = [
     '# Component sw-example-card',
@@ -102,7 +102,6 @@ const FIXTURE: FixtureCase = {
     name: 'example',
     beforeRoot: '/fixtures/example/before',
     afterRoot: '/fixtures/example/after',
-    headVersion: '6.7',
     majorFlags: ['v6.8.0.0'],
     expected: EXPECTED,
 };
@@ -113,7 +112,7 @@ const NO_FAILURES: ExpectedFailures = { views: [], comparisons: [] };
  * The comparison `name` of the example case, against a generator and a break check that produce `output`.
  */
 function comparison(name: string, output: CaseOutput, expectedFailures = NO_FAILURES) {
-    const snapshots: Record<string, Snapshot> = {
+    const snapshots: Record<string, SnapshotFiles> = {
         [FIXTURE.beforeRoot]: { files: output.before },
         [FIXTURE.afterRoot]: { files: output.after },
     };
@@ -131,6 +130,7 @@ function comparison(name: string, output: CaseOutput, expectedFailures = NO_FAIL
 
 const VIEWS = [
     'block-tree',
+    'block-contract',
     'block-structure',
     'block-findings',
     'complete',
@@ -197,9 +197,23 @@ describe('fixtureTests', () => {
             ['block-tree', 'complete'],
         ],
         [
+            'the origin of a block in the report',
+            withFile('app/component/base/sw-example-card.api.md', '  sw_example_card\n', '  sw_example_card  [inherited]\n'),
+            ['block-tree', 'complete'],
+        ],
+        [
             'the parent in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "Block<'sw_example_card', ", 'Block<null, '),
-            ['block-tree', 'complete'],
+            ['block-contract', 'complete'],
+        ],
+        [
+            'the origin of a block in the contract',
+            withFile(
+                'app/component/base/sw-example-card.d.ts',
+                'sw_example_card: Block<null>;',
+                "sw_example_card: Block<null, 'inherited'>;",
+            ),
+            ['block-contract', 'complete'],
         ],
         [
             'the index',
@@ -219,7 +233,7 @@ describe('fixtureTests', () => {
         [
             'a scope in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "'scope:item'", "'afterIf'"),
-            ['block-structure', 'complete'],
+            ['block-contract', 'complete'],
         ],
         [
             'a crossing in the report',
@@ -229,7 +243,7 @@ describe('fixtureTests', () => {
         [
             'a crossing in the contract',
             withFile('app/component/base/sw-example-card.d.ts', "'div'", "'span'"),
-            ['block-structure', 'complete'],
+            ['block-contract', 'complete'],
         ],
         ['the rule of a finding', withBlockFinding({ rule: 'block_missing' }), ['block-findings', 'complete']],
         ['the group of a finding', withBlockFinding({ group: 'Info' }), ['block-findings', 'complete']],
@@ -249,7 +263,16 @@ describe('fixtureTests', () => {
             },
             ['block-findings', 'complete'],
         ],
-        ['a missing snapshot', { ...EXPECTED, before: {} }, ['block-tree', 'block-structure', 'complete']],
+        [
+            'a missing snapshot',
+            { ...EXPECTED, before: {} },
+            [
+                'block-tree',
+                'block-contract',
+                'block-structure',
+                'complete',
+            ],
+        ],
         [
             'the props in the report',
             withFile('app/component/base/sw-example-card.api.md', 'title?: string', 'title: string'),
@@ -305,7 +328,7 @@ describe('fixtureTests', () => {
             [FIXTURE.afterRoot, { majorFlags: ['v6.8.0.0'] }],
         ]);
         expect(classifyChanges).toHaveBeenCalledTimes(1);
-        expect(classifyChanges).toHaveBeenCalledWith({ files: FILES }, { files: FILES }, { headVersion: '6.7' });
+        expect(classifyChanges).toHaveBeenCalledWith({ files: FILES }, { files: FILES });
     });
 
     it.each([
@@ -318,15 +341,19 @@ describe('fixtureTests', () => {
             inBothSnapshots(withFile('index.json', '"blocks"', '"slots"')),
         ],
         [
+            'contract member blocks for the unit kind block-contract',
+            inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', 'blocks: {', 'slots: {')),
+        ],
+        [
             'report section block-context for the unit kind block-structure',
             inBothSnapshots(withFile('app/component/base/sw-example-card.api.md', '  [scope: item]', '')),
         ],
         [
-            'contract member blockContext for the unit kind block-structure',
+            'contract member blockContext for the unit kind block-contract',
             inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', ", 'scope:item'", '')),
         ],
         [
-            'contract member crossings for the unit kind block-structure',
+            'contract member crossings for the unit kind block-contract',
             inBothSnapshots(withFile('app/component/base/sw-example-card.d.ts', 'crossings:', 'refs:')),
         ],
         [

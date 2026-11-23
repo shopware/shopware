@@ -84,20 +84,17 @@ class Metadata extends XmlElement
 
     public function validateTranslations(): ?MissingTranslationError
     {
-        $missingTranslations = [];
         // used locales are valid, see Manifest::createFromXmlFile()
         $usedLocales = array_keys(array_merge($this->getDescription(), $this->getPrivacyPolicyExtensions()));
 
         // label is required in app_translation and must therefore be available in all languages
-        $diff = array_diff($usedLocales, array_keys($this->getLabel()));
+        $diff = array_values(array_diff($usedLocales, array_keys($this->getLabel())));
 
         if ($diff === []) {
             return null;
         }
 
-        $missingTranslations['label'] = $diff;
-
-        return new MissingTranslationError(self::class, $missingTranslations);
+        return new MissingTranslationError($diff);
     }
 
     /**

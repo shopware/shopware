@@ -48,12 +48,11 @@ class EntitySearchToolIntegrationTest extends TestCase
     public function testSearchCurrencyReturnsResults(): void
     {
         $output = ($this->tool)('currency');
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($data['success']);
-        static::assertNotCount(0, $data['data']);
-        static::assertGreaterThan(0, $data['_meta']['total']);
-        static::assertSame(1, $data['_meta']['page']);
+        static::assertFalse($output->isError());
+        static::assertNotCount(0, $output->data);
+        static::assertGreaterThan(0, $output->meta['total']);
+        static::assertSame(1, $output->meta['page']);
     }
 
     public function testSearchWithFilter(): void
@@ -64,11 +63,9 @@ class EntitySearchToolIntegrationTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(1, $data['_meta']['total']);
-        static::assertSame('EUR', $data['data'][0]['isoCode']);
+        static::assertFalse($output->isError());
+        static::assertSame(1, $output->meta['total']);
+        static::assertSame('EUR', $output->data[0]['isoCode']);
     }
 
     public function testSearchWithPagination(): void
@@ -78,12 +75,10 @@ class EntitySearchToolIntegrationTest extends TestCase
             'page' => 1,
         ], \JSON_THROW_ON_ERROR));
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(1, $data['_meta']['limit']);
-        static::assertSame(1, $data['_meta']['page']);
-        static::assertCount(1, $data['data']);
+        static::assertFalse($output->isError());
+        static::assertSame(1, $output->meta['limit']);
+        static::assertSame(1, $output->meta['page']);
+        static::assertCount(1, $output->data);
     }
 
     public function testSearchWithSorting(): void
@@ -94,12 +89,10 @@ class EntitySearchToolIntegrationTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertFalse($output->isError());
+        static::assertGreaterThan(0, $output->meta['total']);
 
-        static::assertTrue($data['success']);
-        static::assertGreaterThan(0, $data['_meta']['total']);
-
-        $isoCodes = array_column($data['data'], 'isoCode');
+        $isoCodes = array_column($output->data, 'isoCode');
         $sorted = $isoCodes;
         sort($sorted);
         static::assertSame($sorted, $isoCodes);
@@ -116,12 +109,10 @@ class EntitySearchToolIntegrationTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(1, $data['_meta']['total']);
-        static::assertArrayHasKey('locale', $data['data'][0]);
-        static::assertNotNull($data['data'][0]['locale']);
+        static::assertFalse($output->isError());
+        static::assertSame(1, $output->meta['total']);
+        static::assertArrayHasKey('locale', $output->data[0]);
+        static::assertNotNull($output->data[0]['locale']);
     }
 
     public function testSearchReturnsEmptyForNonExistentFilter(): void
@@ -132,10 +123,8 @@ class EntitySearchToolIntegrationTest extends TestCase
             ],
         ], \JSON_THROW_ON_ERROR));
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(0, $data['_meta']['total']);
-        static::assertCount(0, $data['data']);
+        static::assertFalse($output->isError());
+        static::assertSame(0, $output->meta['total']);
+        static::assertCount(0, $output->data);
     }
 }

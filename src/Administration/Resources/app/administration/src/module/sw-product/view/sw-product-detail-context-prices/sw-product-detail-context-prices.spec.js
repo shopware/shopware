@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const { EntityCollection } = Shopware.Data;
 
@@ -93,6 +94,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     let wrapper;
 
     beforeEach(() => {
+        allowDeprecation('sw-product-detail-context-prices.assetFilter is deprecated');
         Shopware.Store.get('swProductDetail').$reset();
 
         if (Shopware.Store.get('context')) {

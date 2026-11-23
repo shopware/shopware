@@ -603,6 +603,11 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Extension points for creating order documents
+
+- The new Twig block `sw_order_create_document_modal_type_specific_fields_additional` of `sw-order-create-document-modal` adds fields below the document type specific fields.
+- `sw-order-document-card` creates and previews documents of the document generation v2 through the new methods `createDocumentV2(params, referencedDocumentId)` and `previewDocumentV2(params, fileType)`, which extensions can override.
+
 ### Order viewers no longer receive delete privileges
 
 The `order.viewer` permission no longer grants `order:delete` or `version:delete`, and viewing an order no longer creates a working version.

@@ -385,6 +385,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             }
 
             foreach ($chunk as $pk) {
+                if ($versionField && $pk[$versionField->getPropertyName()] !== $parameters->getContext()->getContext()->getVersionId()) {
+                    continue;
+                }
+
                 if (!$primaryKeyBag->hasExistence($definition, $pk)) {
                     $primaryKeyBag->addExistenceState($definition, $pk, []);
                 }

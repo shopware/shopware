@@ -68,7 +68,7 @@ That's why the [developer documentation](https://beta-developer.shopware.com/doc
    It only does this if it took over production.
 2. The shop operator takes them from the copy to production, and production registers again with them.
 3. The app protocol does not change: apps already accept a registration signed with their current secret.
-4. If the copy no longer has the secret (it was deleted, or more than 72 hours have passed), the app operator resets the registration by hand, as today.
+4. If the copy no longer has the secret (it was deleted, or more than 72 hours have passed), the app operator checks with the shop operator which instance is the real shop and resets the registration by hand, as today.
 
 The process in short:
 
@@ -133,12 +133,6 @@ For each app, it registers again, signed with each secret in turn, newest first,
 Production gets a new secret, and the copy's secret stops working.
 
 Moving the secrets from the copy to production safely, for example through a password manager and not through chat or email, is the shop operator's job.
-
-### Manual recovery
-
-Every other case stays with the app operator, as today.
-They confirm with the shop operator which instance is the real shop, and reset the registration by hand.
-Support for this in the app SDKs is not part of this decision.
 
 ## Alternatives
 

@@ -167,4 +167,72 @@ describe('src/app/init/modals.init.ts', () => {
         expect(Shopware.Store.get('modals').modals[0].buttons[0].label).toBe('New Button');
         expect(Shopware.Store.get('modals').modals[0].buttons[1].label).toBe('Another Button');
     });
+
+    it('should tell the opener that close results are supported', async () => {
+        const modal = await ui.modal.open({ title: 'Result modal', locationId: 'result-modal' });
+
+        expect(modal.supportsResult).toBe(true);
+    });
+
+    it('should pass the result of uiModalClose to the opener', async () => {
+        const modal = await ui.modal.open({ title: 'Result modal', locationId: 'result-modal' });
+        const onClose = jest.fn();
+        modal.onClose(onClose);
+
+        await ui.modal.close({ locationId: 'result-modal', result: { saved: true } });
+        await flushPromises();
+
+        expect(onClose).toHaveBeenCalledWith({ reason: 'closed', data: { saved: true } });
+        await expect(modal.closed).resolves.toEqual({ reason: 'closed', data: { saved: true } });
+    });
+
+    it('should tell the opener when the user closes the modal', async () => {
+        const modal = await ui.modal.open({ title: 'Result modal', locationId: 'result-modal' });
+
+        Shopware.Store.get('modals').dismissModal(Shopware.Store.get('modals').modals[0]);
+
+        await expect(modal.closed).resolves.toEqual({ reason: 'dismissed' });
+    });
+
+    describe('uiModalGetProps', () => {
+        const extensionOrigin = 'http://localhost';
+
+        // jsdom reports an empty origin for postMessage; give the messages the origin a browser would.
+        const addOrigin = (event) => {
+            if (event.origin === '') {
+                event.stopImmediatePropagation();
+                window.dispatchEvent(new MessageEvent('message', { data: event.data, origin: extensionOrigin }));
+            }
+        };
+
+        beforeEach(() => {
+            window.addEventListener('message', addOrigin, true);
+            Shopware.Store.get('extensions').extensionsState = {};
+            Shopware.Store.get('extensions').addExtension({
+                name: 'jestapp',
+                baseUrl: `${extensionOrigin}/app`,
+                permissions: [],
+                version: '1.0.0',
+                type: 'app',
+                integrationId: '123',
+                active: true,
+            });
+            window.history.replaceState({}, '', '/?location-id=props-modal&sw-modal-props=1');
+        });
+
+        afterEach(() => {
+            window.removeEventListener('message', addOrigin, true);
+            window.history.replaceState({}, '', '/');
+        });
+
+        it('should return the props of the modal to its location', async () => {
+            await ui.modal.open({ title: 'Props modal', locationId: 'props-modal', props: { tab: 'tone' } });
+
+            await expect(ui.modal.getProps()).resolves.toEqual({ tab: 'tone' });
+        });
+
+        it('should return null when the modal of the location is not open', async () => {
+            await expect(ui.modal.getProps()).resolves.toBeNull();
+        });
+    });
 });

@@ -1024,6 +1024,14 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### Extension modals receive props and report how they closed
+
+Apps and plugins can pass `props` to `ui.modal.open()`; the modal location reads them with `ui.modal.getProps()` from the Meteor Admin SDK.
+The Administration now reports to the opener when a modal closes: `ui.modal.close({ locationId, result })` sends `{ reason: 'closed', data: result }`, and a close by the user (close button, overlay or Escape) sends `{ reason: 'dismissed' }`.
+Opening a modal with a `locationId` that is already open replaces that modal, and its opener receives `dismissed`.
+Closing a text modal with its close button now closes only that modal instead of every open text modal.
+Extensions detect the support through `supportsResult` on the handle that `ui.modal.open()` returns and keep their own fallback for older Shopware versions.
+
 ### The smart bar back button names its target
 
 The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.

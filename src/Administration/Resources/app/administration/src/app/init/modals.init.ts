@@ -22,6 +22,12 @@ export default function initializeModal(): void {
             baseUrl: extension.baseUrl,
             ...modalConfig,
         });
+
+        return { supportsResult: true as const };
+    });
+
+    Shopware.ExtensionAPI.handle('uiModalGetProps', ({ locationId }, { _event_ }) => {
+        return Shopware.Store.get('modals').getProps(locationId, _event_.origin);
     });
 
     Shopware.ExtensionAPI.handle('uiModalUpdate', (modalConfig, { _event_ }) => {
@@ -51,11 +57,11 @@ export default function initializeModal(): void {
         }
     });
 
-    Shopware.ExtensionAPI.handle('uiModalClose', ({ locationId }) => {
+    Shopware.ExtensionAPI.handle('uiModalClose', ({ locationId, result }) => {
         if (!locationId) {
-            Shopware.Store.get('modals').closeLastModalWithoutLocationId();
+            Shopware.Store.get('modals').closeLastModalWithoutLocationId(result);
         } else {
-            Shopware.Store.get('modals').closeModal(locationId);
+            Shopware.Store.get('modals').closeModal(locationId, result);
         }
     });
 }

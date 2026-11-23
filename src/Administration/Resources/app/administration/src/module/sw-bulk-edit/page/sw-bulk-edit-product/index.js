@@ -1359,19 +1359,22 @@ export default {
             }
         },
 
+        /**
+         * @private
+         */
         transformVariantPropertyChange(change) {
             // The selected options are the ones to add or to remove, depending on the change type.
             // When the field is left inherited the value is null and there is nothing to do.
             const selectedIds = Array.isArray(change.value) ? change.value.map((option) => option?.id).filter(Boolean) : [];
 
-            change.addedReferenceIds = change.type === 'add' ? selectedIds : [];
-            change.removedReferenceIds = change.type === 'remove' ? selectedIds : [];
-            change.inheritedReferenceIds = [];
+            change.addedPropertyIds = change.type === 'add' ? selectedIds : [];
+            change.removedPropertyIds = change.type === 'remove' ? selectedIds : [];
+            change.inheritedPropertyIds = [];
 
             if (this.parentProductFrozen) {
                 const parentProperties = JSON.parse(this.parentProductFrozen)?.properties;
 
-                change.inheritedReferenceIds = Array.isArray(parentProperties)
+                change.inheritedPropertyIds = Array.isArray(parentProperties)
                     ? parentProperties.map((option) => option.id)
                     : [];
             }

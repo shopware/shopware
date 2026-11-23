@@ -1823,12 +1823,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const propertyChange = await submitPropertiesChange(wrapper, option);
 
         expect(propertyChange.type).toBe(type);
-        expect(propertyChange.inheritedReferenceIds).toEqual(expected);
+        expect(propertyChange.inheritedPropertyIds).toEqual(expected);
     });
 
     it.each([
-        ['add', 2, { addedReferenceIds: ['option_new'], removedReferenceIds: [] }],
-        ['remove', 3, { addedReferenceIds: [], removedReferenceIds: ['option_new'] }],
+        ['add', 2, { addedPropertyIds: ['option_new'], removedPropertyIds: [] }],
+        ['remove', 3, { addedPropertyIds: [], removedPropertyIds: ['option_new'] }],
     ])('should send the selected properties as %s ids for variants', async (_, option, expected) => {
         const { EntityCollection } = Shopware.Data;
         Shopware.Store.get('swBulkEdit').selectedIds = ['variant_1'];
@@ -1866,9 +1866,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const propertyChange = await submitPropertiesChange(wrapper, option);
 
-        expect([...propertyChange.addedReferenceIds]).toEqual(expected.addedReferenceIds);
-        expect([...propertyChange.removedReferenceIds]).toEqual(expected.removedReferenceIds);
-        expect([...propertyChange.inheritedReferenceIds]).toEqual(['option_parent_1']);
+        expect([...propertyChange.addedPropertyIds]).toEqual(expected.addedPropertyIds);
+        expect([...propertyChange.removedPropertyIds]).toEqual(expected.removedPropertyIds);
+        expect([...propertyChange.inheritedPropertyIds]).toEqual(['option_parent_1']);
     });
 
     it('should save preference units', async () => {

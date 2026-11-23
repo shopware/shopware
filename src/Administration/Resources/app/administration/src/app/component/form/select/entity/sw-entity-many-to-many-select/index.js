@@ -103,6 +103,7 @@ export default {
             totalAssigned: 0,
             displayItemLimit: this.valueLimit,
             isAdvancedSelectionModalVisible: false,
+            latestRequestId: 0,
         };
     },
 
@@ -224,6 +225,7 @@ export default {
 
         sendSearchRequest() {
             this.isLoading = true;
+            const requestId = ++this.latestRequestId;
 
             if (this.criteria) {
                 this.searchCriteria.filters = this.criteria.filters;
@@ -232,6 +234,10 @@ export default {
             }
 
             return this.searchRepository.search(this.searchCriteria, Shopware.Context.api).then((searchResult) => {
+                if (requestId !== this.latestRequestId) {
+                    return searchResult;
+                }
+
                 if (searchResult.length <= 0) {
                     this.isLoading = false;
                     return searchResult;
@@ -243,15 +249,19 @@ export default {
                     return Promise.resolve(searchResult);
                 }
 
-                return this.findAssignedEntities(searchResult.getIds(), searchResult);
+                return this.findAssignedEntities(searchResult.getIds(), searchResult, requestId);
             });
         },
 
-        findAssignedEntities(ids, searchResult) {
+        findAssignedEntities(ids, searchResult, requestId) {
             const criteria = new Criteria(1, 25);
             criteria.setIds(ids);
 
             return this.repository.searchIds(criteria, this.entityCollection.context).then((assigned) => {
+                if (requestId !== this.latestRequestId) {
+                    return searchResult;
+                }
+
                 assigned.data.forEach((id) => {
                     if (!this.entityCollection.has(id)) {
                         this.entityCollection.add(searchResult.get(id));

@@ -108,4 +108,68 @@ describe('components/sw-entity-many-to-many-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         expect(checkAssociation).toHaveBeenCalled();
     });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-entity-many-to-many-select.
+    it.deprecated('v6.8.0.0')(
+        'should only display the result of the latest search when an older search responds later',
+        async () => {
+            const pendingSearches = [];
+            const wrapper = await createSelect({
+                props: {},
+                global: {
+                    provide: {
+                        repositoryFactory: {
+                            create: () => {
+                                return {
+                                    search: (criteria, context) => {
+                                        if (context !== Shopware.Context.api) {
+                                            return Promise.resolve(getCollection());
+                                        }
+
+                                        return new Promise((resolve) => {
+                                            pendingSearches.push(resolve);
+                                        });
+                                    },
+                                    searchIds: () => Promise.resolve({ data: [] }),
+                                };
+                            },
+                        },
+                    },
+                },
+            });
+            await flushPromises();
+            jest.useFakeTimers();
+
+            await wrapper.find('.sw-select__selection').trigger('click');
+            pendingSearches[0](getCollection());
+            await flushPromises();
+
+            await wrapper.find('input').setValue('older');
+            await wrapper.find('input').trigger('change');
+            jest.advanceTimersByTime(400);
+
+            await wrapper.find('input').setValue('newer');
+            await wrapper.find('input').trigger('change');
+            jest.advanceTimersByTime(400);
+
+            const olderEntity = { id: utils.createId(), name: 'older entry' };
+            const newerEntity = { id: utils.createId(), name: 'newer entry' };
+
+            pendingSearches[2](
+                new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), [newerEntity], 1, null),
+            );
+            await flushPromises();
+            pendingSearches[1](
+                new EntityCollection('/test-entity', 'testEntity', null, new Criteria(1, 25), [olderEntity], 1, null),
+            );
+            await flushPromises();
+
+            const results = wrapper.findAll('.sw-select-result-list__item-list li');
+            expect(results).toHaveLength(1);
+            expect(results.at(0).find('.sw-select-result__result-item-text').text()).toBe('newer entry');
+            expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(false);
+
+            jest.useRealTimers();
+        },
+    );
 });

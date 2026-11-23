@@ -1,44 +1,26 @@
 # Experience Studio workspaces
 
 A `content_workspace` stores the canvas setup independently of layout content.
-Several preview frames can reference the same `content_layout`.
-The Administration keeps one working draft, saved baseline, and undo history for each layout, shared by all its frames.
+Its `configuration` contains no layout content, unsaved drafts, or undo history.
 
-Translation editing uses the regular Experience Studio editor permissions.
-A dedicated translator role is deferred until a translation-only workflow is available.
+## Configuration
 
-## Frame identity and preview state
+| Key | Stored value |
+| --- | --- |
+| `frames` | List of preview frame configurations; may be empty. |
+| `previewSalesChannelId` | Preview sales channel UUID or `null`. |
+| `canvas` | Camera object containing the offsets `panX` and `panY`, and scale `zoom`. |
 
-Each entry in `configuration.frames` has its own UUID `id` and a `layoutId` referencing the shared layout.
-Frame IDs are unique within a workspace; layout IDs can repeat.
-The frame also stores its `x`, `y`, `width`, `height`, `viewport`, `previewEntityId`, and optional `languageId`.
-The workspace stores `previewSalesChannelId` and the canvas camera (`panX`, `panY`, and `zoom`).
+## Frame entries
 
-Frame configuration contains no layout content or unsaved editor history.
-Changing a viewport, preview entity, or language changes only that frame.
-The frame's toolbar selects its language without changing the Administration's global language.
-The selectable languages are the active languages assigned to the selected preview sales channel.
-New frames start in that channel's default language; additional previews inherit their source frame's language.
-Changing the preview sales channel keeps supported frame languages and switches unsupported choices to the channel's default language.
-The active frame's element settings show only the selected language's stored entries; missing text stays blank.
-Editing a translatable property writes only the selected language's entry, while the draft and undo history remain shared across previews.
-Selecting an already open layout in the layout picker opens another preview of its current working draft.
-Switching active frames clears the outgoing and incoming element selections, resets translation mode, and closes the settings panel, including when both previews share a layout.
-Returning to a frame keeps its settings closed until an element is selected or the translation action is invoked explicitly.
-Reselecting the already active frame or changing its language keeps the current settings open.
-Switching frames resets the settings sidebar width, with a wider default for rich-text editing.
-Sidebar widths are not retained per frame.
-Editing, undoing, saving, or discarding layout content affects every frame referencing that layout.
-Closing a frame keeps the draft and history while another frame references the layout.
-Closing its last frame uses the normal unsaved-change confirmation.
-Closing the active frame clears the layout and element selection, leaves the remaining frames inactive, and returns the sidebar to the layout overview.
+Each entry in `configuration.frames` contains:
 
-## Workspace restoration
-
-Every frame must carry an explicit, unique `id`; the Administration reads it without deriving an identity from `layoutId`.
-Frames without a language selection use the system language when it is available in the preview sales channel, otherwise that channel's default language.
-Restoring a workspace replaces deleted, inactive, or unassigned language references with the channel's default language and reports the missing reference.
-
-Restoring a workspace loads each distinct layout once and reconnects its frames to the shared draft.
-Frames referencing a deleted layout are skipped, and existing preview-reference recovery applies separately to each frame.
-Frames of a newly created layout are included in persisted workspace configuration only after the layout has been saved.
+| Key | Stored value |
+| --- | --- |
+| `id` | Required frame UUID, unique within the workspace. |
+| `layoutId` | Referenced `content_layout` UUID; several frames may reference the same layout. |
+| `x`, `y` | Frame position on the canvas. |
+| `width`, `height` | Frame dimensions in pixels. |
+| `viewport` | `mobile`, `tablet-landscape`, `desktop`, or `custom`. |
+| `previewEntityId` | Preview entity UUID or `null`. |
+| `languageId` | Optional language UUID. |

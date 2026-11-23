@@ -33,6 +33,22 @@ In code:
 - No test pins the entity rule.
 - See [introspection.md](../../Layout/Type/docs/introspection.md).
 
+## Translatable settings fields read and write only the selected language
+
+The editor displays a translatable property's stored entry for the active frame's selected language.
+Missing text translations stay blank without substituting another language's value or the declared default.
+Displaying a field never creates or updates an entry in the stored language map.
+Editing a translatable property writes only the selected language's entry and preserves every other language entry.
+
+Why: Showing inherited text in an editable field hides which languages have their own translation.
+
+In code:
+
+- `resolveTranslatableFieldValue()` projects the selected entry without applying a declared default.
+- `writeElementPropertyValue()` writes through `withLanguageEntry()` using the active frame's language id.
+- The `sw-experience-studio-element-settings` language spec, `sw-experience-studio-translation-settings` panel spec, and `translatable-property-write` spec pin these reads and writes.
+- Preview and Storefront rendering use [server language reduction](translation.md#language-reduction-happens-on-the-server-and-nothing-downstream-receives-a-language-map).
+
 ## One shared partial renders every element
 
 A type name is a component name. Every caller renders an element through `Slot.html.twig`. `ElementTypeNameResolver` builds a type name from the path of the type's declaration and from its source prefix. That type name is the component name that the partial renders. The administration renders no element, and its preview is the [storefront's render](preview.md#the-editors-preview-shows-what-the-storefront-renders) of the draft.

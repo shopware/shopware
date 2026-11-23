@@ -338,4 +338,41 @@ describe('components/sw-entity-multi-select', () => {
         await wrapper.find('.sw-select__select-indicator-clear').trigger('click');
         expect(wrapper.emitted('update:entityCollection')[0][0].total).toBeNull();
     });
+
+    it('should only display the result of the latest search when an older search responds later', async () => {
+        const pendingSearches = [];
+        const wrapper = await createWrapper({
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => {
+                            return {
+                                search: () =>
+                                    new Promise((resolve) => {
+                                        pendingSearches.push(resolve);
+                                    }),
+                            };
+                        },
+                    },
+                },
+            },
+        });
+
+        wrapper.vm.searchTerm = 'first';
+        wrapper.vm.search();
+        wrapper.vm.searchTerm = 'third';
+        wrapper.vm.search();
+
+        const newerResult = getPropertyCollection();
+        newerResult.remove(propertyFixture[0].id);
+        newerResult.remove(propertyFixture[1].id);
+
+        pendingSearches[1](newerResult);
+        await flushPromises();
+        pendingSearches[0](getPropertyCollection());
+        await flushPromises();
+
+        expect(wrapper.vm.resultCollection.getIds()).toEqual([propertyFixture[2].id]);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
 });

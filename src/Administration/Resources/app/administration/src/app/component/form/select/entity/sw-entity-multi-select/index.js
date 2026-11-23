@@ -163,6 +163,7 @@ export default {
             currentCollection: null,
             resultCollection: null,
             isAdvancedSelectionModalVisible: false,
+            latestRequestId: 0,
         };
     },
 
@@ -246,8 +247,13 @@ export default {
 
         loadData() {
             this.isLoading = true;
+            const requestId = ++this.latestRequestId;
 
             return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
+                if (requestId !== this.latestRequestId) {
+                    return result;
+                }
+
                 this.displaySearch(result);
 
                 this.isLoading = false;

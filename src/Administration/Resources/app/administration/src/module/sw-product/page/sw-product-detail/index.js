@@ -1409,7 +1409,7 @@ export default {
                 this.syncRepository
                     .save(this.product, this.productApiContext)
                     .then(saveDocumentVariants)
-                    .then(() => {
+                    .then((failedDocumentVariantOperations) => {
                         updateSeoUrls();
 
                         this.trackProductSaveEvents(productType, productIsNew, productWasActivated);
@@ -1424,6 +1424,8 @@ export default {
                             });
 
                         this.loadAll().then(() => {
+                            this.documentVariantOperations =
+                                failedDocumentVariantOperations ?? this.documentVariantOperations;
                             Shopware.Store.get('swProductDetail').setLoading(['product', false]);
 
                             resolve('success');
@@ -1438,22 +1440,27 @@ export default {
 
         /** @private */
         getDocumentVariantsSaver() {
-            const operations = Object.values(this.documentVariantOperations);
+            const queuedOperations = this.documentVariantOperations;
+            const operations = Object.values(queuedOperations);
             const productId = this.product.id;
             const { languageId } = this.productApiContext;
 
             return async () => {
                 if (!operations.length) {
-                    return;
+                    return null;
                 }
 
                 try {
                     await this.productDocumentVariantService.sync(productId, operations, false, languageId);
                     this.documentVariantOperations = {};
+
+                    return null;
                 } catch {
                     this.createNotificationError({
                         message: this.$t('sw-product.documentForm.errorSaveVariants'),
                     });
+
+                    return queuedOperations;
                 }
             };
         },
@@ -1515,7 +1522,14 @@ export default {
         },
 
         async onDuplicate() {
-            await this.getDocumentVariantsSaver()();
+            if (Object.keys(this.documentVariantOperations).length) {
+                await this.onSave();
+
+                if (Object.keys(this.documentVariantOperations).length) {
+                    return;
+                }
+            }
+
             this.cloning = true;
         },
 

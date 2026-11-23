@@ -2,19 +2,18 @@
 
 ## API
 
-### Store API returns the text of the legal guarantee notice
+### Legal guarantee notice text in the Store API
 
-`GET /store-api/legal-guarantee-notice` now also returns `text`: the notice's text as HTML, in the language of `svg`.
-The SVG is marked `aria-hidden`, so headless frontends should render `text` as its text alternative, for example visually hidden next to the SVG.
+`GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
+The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
 
 ## Storefront
 
-### The legal guarantee notice has a text alternative
+### Text alternative for the legal guarantee notice
 
-The legal guarantee notice SVGs are now hidden from assistive technology, and the new Twig filter `sw_legal_guarantee_notice_text` renders the notice's text in the language of the SVG.
-On the checkout confirm page and in the privacy notice modal, the notice link is labelled with the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
-The link is described by the notice text, which the new blocks `page_checkout_confirm_legal_guarantee_notice_inline_text`, `page_checkout_confirm_legal_guarantee_notice_modal_text` and `component_privacy_legal_guarantee_notice_modal_text` render visually hidden.
-If your theme overrides the notice link blocks, add the `aria-label` and `aria-describedby` attributes there as well.
+The notice SVGs are now `aria-hidden`, and the notice link is described by the notice's text, visually hidden and rendered by the new Twig filter `sw_legal_guarantee_notice_text`.
+The link's `aria-label` uses the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
+Theme overrides of the notice templates should keep the link's `aria-label` and `aria-describedby` and the hidden text.
 
 # 6.7.17.0
 

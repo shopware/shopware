@@ -1,4 +1,4 @@
-import type { buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
+import { MODAL_PROPS_QUERY_KEY, type buttonProps } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 import type { ModalItemEntry } from 'src/app/store/modals.store';
 import DOMPurify from 'dompurify';
 import template from './sw-modals-renderer.html.twig';
@@ -19,8 +19,23 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        closeModal(locationId: string) {
-            Shopware.Store.get('modals').closeModal(locationId);
+        dismissModal(modal: ModalItemEntry) {
+            Shopware.Store.get('modals').dismissModal(modal);
+        },
+
+        /**
+         * Marks a location opened with props, so `ui.modal.getProps()` in the extension only asks when there is
+         * something to get. The marker is added before the URL is signed.
+         */
+        locationSrc(modal: ModalItemEntry): string {
+            if (modal.props === undefined) {
+                return modal.baseUrl;
+            }
+
+            const url = new URL(modal.baseUrl, window.location.origin);
+            url.searchParams.set(MODAL_PROPS_QUERY_KEY, '1');
+
+            return url.toString();
         },
 
         buttonProps(button: buttonProps) {

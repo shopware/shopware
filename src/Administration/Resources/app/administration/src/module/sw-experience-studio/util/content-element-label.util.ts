@@ -9,7 +9,7 @@ import { resolveTranslatableEntry } from './element-settings.util';
 export function getContentElementLabel(
     element: ContentElementNode,
     declaredProperties: Record<string, ContentSystemElementTypeProperty> | undefined,
-    chain: readonly string[],
+    languageId: string,
     fallback?: string,
 ): string {
     const properties = element.properties ?? {};
@@ -21,7 +21,8 @@ export function getContentElementLabel(
 
     for (const key of nameKeys) {
         const value = properties[key];
-        const candidate = declaredProperties?.[key]?.translatable === true ? resolveTranslatableEntry(value, chain) : value;
+        const candidate =
+            declaredProperties?.[key]?.translatable === true ? resolveTranslatableEntry(value, [languageId]) : value;
 
         if (typeof candidate === 'string' && candidate.trim() !== '') {
             return candidate;

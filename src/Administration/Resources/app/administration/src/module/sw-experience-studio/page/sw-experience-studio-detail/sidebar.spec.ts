@@ -108,6 +108,7 @@ describe('Experience Studio sidebar navigation', () => {
             frames: layouts.map((layout) => ({
                 id: layout.id,
                 layoutId: layout.id,
+                languageId: 'a'.repeat(32),
                 selectedElementId: null,
                 viewport: 'desktop',
                 previewEntityId: null,
@@ -163,10 +164,12 @@ describe('Experience Studio sidebar navigation', () => {
         expect(entry.find('.sw-experience-studio-layout-tree__dirty-indicator').exists()).toBe(true);
     });
 
-    it('opens the page tree when selecting its layout label', async () => {
+    it('opens the page tree in the selected frame language when selecting its layout label', async () => {
         await wrapper.findAll('.sw-experience-studio-layout-tree__select')[1].trigger('click');
 
         expect(wrapper.get('.sw-experience-studio-sidebar-tree__header h3').text()).toBe('Summer collection');
+        const tree = wrapper.getComponent<ComponentPublicInstance>('.sw-experience-studio-sidebar-tree');
+        expect(tree.props()).toMatchObject({ languageId: 'a'.repeat(32) });
     });
 
     it('opens the close confirmation without selecting the layout row', async () => {

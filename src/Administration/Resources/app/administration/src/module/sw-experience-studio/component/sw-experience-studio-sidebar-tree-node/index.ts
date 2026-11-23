@@ -32,6 +32,10 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     props: {
+        languageId: {
+            type: String,
+            default: () => anchorLanguageId(),
+        },
         element: {
             type: Object as PropType<ContentElementNode>,
             required: true,
@@ -98,11 +102,16 @@ export default Shopware.Component.wrapComponentConfig({
             return Shopware.Store.get('experienceStudioElementType' as never) as ExperienceStudioElementTypeStore;
         },
 
+        typeLabel(): string | undefined {
+            const type = this.elementTypeStore.getByName(this.contentElement.component);
+
+            return type ? translateContentSystemText(type.labelSnippet, type.label, this.$te, this.$t) : undefined;
+        },
+
         label(): string {
             const type = this.elementTypeStore.getByName(this.contentElement.component);
-            const fallback = type ? translateContentSystemText(type.labelSnippet, type.label, this.$te, this.$t) : undefined;
 
-            return getContentElementLabel(this.contentElement, type?.properties, [anchorLanguageId()], fallback);
+            return getContentElementLabel(this.contentElement, type?.properties, this.languageId, this.typeLabel);
         },
 
         typeIcon(): string {

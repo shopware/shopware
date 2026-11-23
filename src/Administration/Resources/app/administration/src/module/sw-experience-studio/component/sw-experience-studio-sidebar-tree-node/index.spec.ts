@@ -20,7 +20,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         labelMock.mockReset();
     });
 
-    it('labels the node through the declared properties of its type, the system-language chain and the translated type label', () => {
+    it('labels the node using its selected language and the Administration type-label fallback', () => {
         labelMock.mockReturnValue('Headline');
         const contentElement = {
             id: 'element-1',
@@ -40,11 +40,11 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             computed.label.call({
                 contentElement,
                 elementTypeStore,
-                $te: (key: string) => key === 'element.text',
-                $t: () => 'Fließtext',
+                languageId: 'german',
+                typeLabel: 'Fließtext',
             }),
         ).toBe('Headline');
-        expect(labelMock).toHaveBeenCalledWith(contentElement, declaredProperties, [SYSTEM_LANGUAGE_ID], 'Fließtext');
+        expect(labelMock).toHaveBeenCalledWith(contentElement, declaredProperties, 'german', 'Fließtext');
     });
 
     it('labels the node without declared properties and type label when its type is not in the store', () => {
@@ -56,11 +56,22 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         computed.label.call({
             contentElement,
             elementTypeStore: { getByName: () => null },
-            $te: () => true,
-            $t: () => 'unused',
+            languageId: SYSTEM_LANGUAGE_ID,
+            typeLabel: undefined,
         });
 
-        expect(labelMock).toHaveBeenCalledWith(contentElement, undefined, [SYSTEM_LANGUAGE_ID], undefined);
+        expect(labelMock).toHaveBeenCalledWith(contentElement, undefined, SYSTEM_LANGUAGE_ID, undefined);
+    });
+
+    it('translates the element type label through Administration snippets', () => {
+        const label = computed.typeLabel.call({
+            contentElement: { component: 'Sw:Content:Text' },
+            elementTypeStore: { getByName: () => ({ label: 'Text', labelSnippet: 'element.text' }) },
+            $te: (key: string) => key === 'element.text',
+            $t: () => 'Fließtext',
+        });
+
+        expect(label).toBe('Fließtext');
     });
 
     it('prevents drag events from reaching the draggable ancestor through control buttons', async () => {

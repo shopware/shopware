@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\Service;
 
+use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToDeleteFile;
 use Psr\Clock\ClockInterface;
@@ -93,8 +94,17 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
     {
         $temporaryFilePath = $filePath . '.' . Uuid::randomHex() . '.tmp';
 
-        $this->fileSystem->write($temporaryFilePath, $content);
-        $this->fileSystem->move($temporaryFilePath, $filePath);
+        try {
+            $this->fileSystem->write($temporaryFilePath, $content);
+            $this->fileSystem->move($temporaryFilePath, $filePath);
+        } catch (FilesystemException $exception) {
+            try {
+                $this->fileSystem->delete($temporaryFilePath);
+            } catch (FilesystemException) {
+            }
+
+            throw $exception;
+        }
     }
 
     private function isCacheExpired(ProductExportEntity $productExport): bool

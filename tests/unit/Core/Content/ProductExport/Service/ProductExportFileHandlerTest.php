@@ -6,6 +6,8 @@ use League\Flysystem\DirectoryListing;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\UnableToMoveFile;
+use League\Flysystem\UnableToWriteFile;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -120,6 +122,43 @@ class ProductExportFileHandlerTest extends TestCase
         static::assertSame(['export/feed.xml'], $this->listFiles($inner));
     }
 
+    public function testFailedMoveRemovesTemporaryFileAndKeepsExistingFeed(): void
+    {
+        $inner = new Filesystem(new InMemoryFilesystemAdapter());
+        $inner->write('export/feed.xml', 'old');
+        $fileSystem = new FeedWatchingFilesystem($inner, 'export/feed.xml', failOn: 'move');
+
+        $handler = new ProductExportFileHandler($fileSystem, 'export', new FrozenClock());
+
+        $this->expectException(UnableToMoveFile::class);
+
+        try {
+            $handler->writeProductExportContent('new', 'export/feed.xml');
+        } finally {
+            static::assertSame('old', $inner->read('export/feed.xml'));
+            static::assertSame(['export/feed.xml'], $this->listFiles($inner));
+        }
+    }
+
+    public function testFailedWriteRemovesTemporaryFileAndKeepsExistingFeed(): void
+    {
+        $inner = new Filesystem(new InMemoryFilesystemAdapter());
+        $inner->write('export/feed.xml', 'old');
+        $inner->write('export/feed.xml.partial', 'body');
+        $fileSystem = new FeedWatchingFilesystem($inner, 'export/feed.xml', failOn: 'write');
+
+        $handler = new ProductExportFileHandler($fileSystem, 'export', new FrozenClock());
+
+        $this->expectException(UnableToWriteFile::class);
+
+        try {
+            $handler->finalizePartialProductExport('export/feed.xml.partial', 'export/feed.xml', '<h>', '</h>');
+        } finally {
+            static::assertSame('old', $inner->read('export/feed.xml'));
+            static::assertSame(['export/feed.xml'], $this->listFiles($inner));
+        }
+    }
+
     /**
      * @return list<string>
      */
@@ -184,7 +223,8 @@ class FeedWatchingFilesystem implements FilesystemOperator
 
     public function __construct(
         private readonly FilesystemOperator $inner,
-        private readonly string $feed
+        private readonly string $feed,
+        private readonly ?string $failOn = null,
     ) {
     }
 
@@ -244,6 +284,9 @@ class FeedWatchingFilesystem implements FilesystemOperator
     public function write(string $location, string $contents, array $config = []): void
     {
         $this->inner->write($location, $contents, $config);
+        if ($this->failOn === 'write') {
+            throw UnableToWriteFile::atLocation($location, 'simulated failure');
+        }
         $this->check('write ' . $location);
     }
 
@@ -286,6 +329,9 @@ class FeedWatchingFilesystem implements FilesystemOperator
      */
     public function move(string $source, string $destination, array $config = []): void
     {
+        if ($this->failOn === 'move') {
+            throw UnableToMoveFile::fromLocationTo($source, $destination);
+        }
         $this->inner->move($source, $destination, $config);
         $this->check('move ' . $source . ' -> ' . $destination);
     }

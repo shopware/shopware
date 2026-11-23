@@ -10,6 +10,12 @@ Keywords from the search configuration with a ranking of 0 never added to the sc
 Keyword rankings of 0 or below that a custom keyword analyzer writes no longer affect the search result.
 If the search configuration of the language has a field with a negative ranking, the search works as before.
 
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
 # 6.7.17.0
 
 ## Critical Fixes

@@ -175,6 +175,11 @@ export default Shopware.Component.wrapComponentConfig({
 
         /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                "sw-cms-layout-assignment-modal.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.",
+            );
+
             return Shopware.Filter.getByName('asset');
         },
 
@@ -327,7 +332,9 @@ export default Shopware.Component.wrapComponentConfig({
                         this.selectedShopPages[this.shopPageSalesChannelId!] = pages;
                     } else this.selectedShopPages[this.shopPageSalesChannelId!] = null;
 
-                    this.previousShopPages = cloneDeep(this.selectedShopPages);
+                    // Only set the baseline of the loaded scope, changes in other scopes must still be saved
+                    const loadedSalesChannelId = this.shopPageSalesChannelId as string;
+                    this.previousShopPages[loadedSalesChannelId] = cloneDeep(this.selectedShopPages[loadedSalesChannelId]);
                 })
                 .catch(() => {
                     this.createNotificationError({

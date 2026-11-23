@@ -45,7 +45,6 @@ describe('scripts/codemods/sfc-migration', () => {
                 expect.arrayContaining([
                     expect.stringContaining('inject'),
                     expect.stringContaining('metaInfo'),
-                    expect.stringContaining('shortcuts'),
                     expect.stringContaining('$device'),
                 ]),
             );
@@ -136,6 +135,29 @@ describe('scripts/codemods/sfc-migration', () => {
 
             expect(result.outcome).toBe('skipped');
             expect(result.reasons).toEqual(["binding 'routerLink' shadows a component tag the template renders"]);
+        });
+
+        it('refuses a binding named after the useShortcut() import the shortcuts option generates', async () => {
+            const jsSource = `
+                import template from './sw-shortcut-collision.html.twig';
+                export default {
+                    name: 'sw-shortcut-collision',
+                    template,
+                    shortcuts: { ESCAPE: 'useShortcut' },
+                    methods: { useShortcut() {} },
+                };
+            `;
+            const result = await convertComponent({
+                jsSource,
+                twigSource: '{% block sw_shortcut_collision %}<div />{% endblock %}',
+                componentName: 'sw-shortcut-collision',
+                vuePath: '/tmp/sw-shortcut-collision.vue',
+                lang: 'js',
+                templateImportRange: templateImportRange(jsSource),
+            });
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toEqual(["binding 'useShortcut' collides with a generated helper"]);
         });
 
         it('refuses a module binding that shadows the sw-block emitted by the template transform', async () => {

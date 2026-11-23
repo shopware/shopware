@@ -1,6 +1,6 @@
 import concurrently from 'concurrently';
 import { startDevelopmentProcesses } from './development-process-runner';
-import { getViteCommand } from './vite-toolchain';
+import { getViteCommand, isVite8ToolchainActive } from './vite-toolchain';
 
 jest.mock('concurrently', () => ({
     __esModule: true,
@@ -12,6 +12,7 @@ jest.mock('concurrently', () => ({
 
 jest.mock('./vite-toolchain', () => ({
     getViteCommand: jest.fn(() => 'vite'),
+    isVite8ToolchainActive: jest.fn(() => false),
 }));
 
 describe('development-process-runner', () => {
@@ -50,6 +51,23 @@ describe('development-process-runner', () => {
                     prefixColor: 'blue',
                 },
             ]),
+            expect.anything(),
+        );
+    });
+
+    it('serves the extensions from the Administration process with Vite 8', () => {
+        jest.mocked(isVite8ToolchainActive).mockReturnValueOnce(true);
+
+        startDevelopmentProcesses();
+
+        expect(concurrently).toHaveBeenLastCalledWith(
+            [
+                {
+                    command: 'vite',
+                    name: 'Administration',
+                    prefixColor: 'blue',
+                },
+            ],
             expect.anything(),
         );
     });

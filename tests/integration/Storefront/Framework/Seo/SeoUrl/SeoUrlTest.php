@@ -590,7 +590,6 @@ class SeoUrlTest extends TestCase
             static::assertInstanceOf(CategoryEntity::class, $category);
             static::assertSame($case['categoryId'], $category->getId());
 
-            /** @var SeoUrlCollection $seoUrls */
             $seoUrls = $category->getSeoUrls();
             static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
 

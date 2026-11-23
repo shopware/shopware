@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -84,6 +85,23 @@ class HeaderFooterAssignmentWriteValidatorTest extends TestCase
         }
 
         static::assertNull($this->footerRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
+    #[TestDox('persists a header assignment the batch binds to a footer layout and then rebinds to a header layout')]
+    public function testAcceptsHeaderAssignmentWhoseLastBindingMatchesRootSource(): void
+    {
+        $context = Context::createDefaultContext();
+        $footerLayoutId = $this->createLayout('footer', $context);
+        $headerLayoutId = $this->createLayout('header', $context);
+
+        $assignmentId = Uuid::randomHex();
+        $this->headerRepository()->upsert([
+            ['id' => $assignmentId, 'contentLayoutId' => $footerLayoutId],
+            ['id' => $assignmentId, 'contentLayoutId' => $headerLayoutId],
+        ], $context);
+
+        $criteria = (new Criteria([$assignmentId]))->addFilter(new EqualsFilter('contentLayoutId', $headerLayoutId));
+        static::assertSame($assignmentId, $this->headerRepository()->searchIds($criteria, $context)->firstId());
     }
 
     #[TestDox('bypasses the type-match when the write context carries the skip flag')]
@@ -168,7 +186,7 @@ class HeaderFooterAssignmentWriteValidatorTest extends TestCase
         $id = Uuid::randomHex();
         $this->layoutRepository()->create([[
             'id' => $id,
-            'name' => 'header-footer-gate-layout',
+            'name' => 'header-footer-gate-layout-' . $rootSource,
             'version' => '1.0.0',
             'rootSource' => $rootSource,
             'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE),

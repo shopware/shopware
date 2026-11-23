@@ -4,9 +4,11 @@ namespace Shopware\Storefront\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\ContentSection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Storefront\ContentSystem\FooterContentLayout\FooterContentLayoutDefinition;
@@ -16,7 +18,8 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * The Storefront header/footer assignment gate: a tree-blind type-match of the bound layout's immutable root
- * source against the section id (header / footer).
+ * source against the section id (header / footer), once per assignment record on the layout it binds after the
+ * batch.
  *
  * @internal
  */
@@ -32,6 +35,7 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
 
     public function __construct(
         private readonly LayoutRootSourceReader $rootSourceReader,
+        private readonly WriteOutcome $writeOutcome,
     ) {
     }
 
@@ -45,21 +49,34 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
 
     public function preValidate(PreWriteValidationEvent $event): void
     {
-        $context = $event->getContext();
-
-        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
+        if ($event->getContext()->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
             return;
         }
 
-        foreach ($event->getCommands() as $command) {
-            $section = self::SECTION_BY_ENTITY[$command->getEntityName()] ?? null;
+        $bindings = [];
+        foreach (self::SECTION_BY_ENTITY as $entityName => $section) {
+            foreach ($this->writeOutcome->resultingRows($event->getCommandsForEntity($entityName), [self::CONTENT_LAYOUT_ID]) as $row) {
+                $layoutId = $row->getResultingValue(self::CONTENT_LAYOUT_ID);
 
-            if ($section === null || !$command->hasField(self::CONTENT_LAYOUT_ID)) {
-                continue;
+                if (\is_string($layoutId)) {
+                    $bindings[] = ['row' => $row, 'layoutId' => $layoutId, 'section' => $section];
+                }
             }
+        }
 
-            $rootSource = $this->rootSourceReader->read($command->getPayload()[self::CONTENT_LAYOUT_ID], $event->getCommands(), $context);
+        if ($bindings === []) {
+            return;
+        }
 
+        $rootSources = $this->rootSourceReader->rootSources(
+            array_column($bindings, 'layoutId'),
+            $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME),
+        );
+
+        foreach ($bindings as ['row' => $row, 'layoutId' => $layoutId, 'section' => $section]) {
+            $rootSource = $rootSources[$layoutId] ?? null;
+
+            // A null root source means the layout is not loadable, which the FK constraint rejects anyway.
             if ($rootSource === null || $rootSource === $section) {
                 continue;
             }
@@ -68,7 +85,7 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
                 ContentSystemException::rootSourceAssignmentMismatchViolation($rootSource, $section, '/' . self::CONTENT_LAYOUT_ID),
             ]);
 
-            $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
+            $event->getExceptions()->add(new WriteConstraintViolationException($violations, $row->path));
         }
     }
 }

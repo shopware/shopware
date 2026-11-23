@@ -61,52 +61,30 @@ class LayoutWriteContextTest extends TestCase
     }
 
     /**
-     * One of the memo-lifetime cases: the serializer memoizes per row and the DAL keeps a command per row, so
-     * a batch that writes the same row twice must find both of its trees here, oldest first.
+     * One batch may write the same layout more than once; the tree it stores is the one remembered last.
      */
-    #[TestDox('hands back both trees in order when the same entity and primary key are remembered twice')]
-    public function testRememberingTheSameKeyTwiceHandsBothBackInOrder(): void
+    #[TestDox('hands back the tree remembered last when the same entity and primary key are remembered twice')]
+    public function testRememberingTheSameKeyTwiceKeepsTheLastTree(): void
     {
-        $first = $this->tree('el-1');
-        $second = $this->tree('el-2');
+        $last = $this->tree('el-2');
         $memo = $this->memo();
 
-        $memo->remember('content_layout', 'layout-1', $first);
-        $memo->remember('content_layout', 'layout-1', $second);
+        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
+        $memo->remember('content_layout', 'layout-1', $last);
 
-        static::assertSame([$first, $second], [
-            $memo->consume('content_layout', 'layout-1'),
-            $memo->consume('content_layout', 'layout-1'),
-        ]);
+        static::assertSame($last, $memo->consume('content_layout', 'layout-1'));
     }
 
-    #[TestDox('stays non-empty until both trees remembered under one key are consumed')]
-    public function testKeyRememberedTwiceIsEmptyOnlyAfterBothTreesAreConsumed(): void
+    #[TestDox('is empty after one read of a key that was remembered twice')]
+    public function testKeyRememberedTwiceIsEmptyAfterOneRead(): void
     {
         $memo = $this->memo();
         $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
         $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
-
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertFalse($memo->isEmpty());
 
         $memo->consume('content_layout', 'layout-1');
 
         static::assertTrue($memo->isEmpty());
-    }
-
-    #[TestDox('reports null on a third read of a key that was remembered twice')]
-    public function testThirdConsumeOfAKeyRememberedTwiceReturnsNull(): void
-    {
-        $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
-
-        $memo->consume('content_layout', 'layout-1');
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertNull($memo->consume('content_layout', 'layout-1'));
     }
 
     #[TestDox('matches an upper-case primary key against the lower-case one the command decodes')]

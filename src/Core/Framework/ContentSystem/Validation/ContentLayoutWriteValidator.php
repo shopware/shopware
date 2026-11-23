@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
@@ -20,10 +21,11 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * The single ordered content_layout write gate: well-formedness on the decoded tree, then membership of the
- * written root source in the registry, then resolvability of the tree against that source's root-ambient context,
+ * record's root source in the registry, then resolvability of the tree against that source's root-ambient context,
  * then admissibility of the tree's data mappings against that same source.
- * The per-step rationale — why membership is gated before resolvability, and why the edit path re-checks the
- * committed source — is inline in validateCommand().
+ * Each layout record gets one verdict, on its state after the whole batch: the last tree the batch writes for it,
+ * judged against its resulting root source, the created value or else the stored one.
+ * The per-step rationale is inline in validateRecord().
  *
  * The tree is not decoded here. The layout field serializer decoded it, admitted it through the write boundary
  * and left it on the write `Context` ({@see LayoutWriteContext}), so this gate judges the tree that is about to
@@ -63,143 +65,87 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
             ? $extension
             : null;
 
-        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
-            $this->drain($memo, $event->getCommands());
-
-            return;
-        }
-
         $layoutCommands = $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME);
-        $rootSources = $this->rootSourcesOf($layoutCommands);
 
-        foreach ($layoutCommands as $command) {
-            $this->validateCommand($event, $command, $context, $memo, $rootSources);
-        }
-    }
+        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
+            $this->drain($memo, $layoutCommands);
 
-    /**
-     * The root source of every layout this batch touches, keyed by hex id: the inserted value, else the stored one.
-     * Looked up once per event, and only when a command edits a layout without setting its root source.
-     *
-     * @param list<WriteCommand> $layoutCommands
-     *
-     * @return array<string, string>
-     */
-    private function rootSourcesOf(array $layoutCommands): array
-    {
-        $needsStoredSource = false;
-        foreach ($layoutCommands as $command) {
-            if ($command->hasField(ContentLayoutDefinition::LAYOUT_FIELD) && !$command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD)) {
-                $needsStoredSource = true;
-
-                break;
-            }
-        }
-
-        if (!$needsStoredSource) {
-            return [];
-        }
-
-        $rootSources = [];
-        foreach ($this->writeOutcome->touchedRows($layoutCommands, [ContentLayoutDefinition::ROOT_SOURCE_FIELD]) as $row) {
-            $rootSource = $row->getPayloadValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD) ?? $row->getStoredValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
-
-            if (\is_string($rootSource)) {
-                $rootSources[Uuid::fromBytesToHex($row->primaryKey['id'])] = $rootSource;
-            }
-        }
-
-        return $rootSources;
-    }
-
-    /**
-     * @param array<string, string> $rootSources
-     */
-    private function validateCommand(PreWriteValidationEvent $event, WriteCommand $command, Context $context, ?LayoutWriteContext $memo, array $rootSources): void
-    {
-        $touchesLayout = $command->hasField(ContentLayoutDefinition::LAYOUT_FIELD);
-        $setsRootSource = $command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
-
-        if (!$touchesLayout && !$setsRootSource) {
             return;
         }
 
-        $payload = $command->getPayload();
+        foreach ($this->writeOutcome->touchedRows($layoutCommands, [ContentLayoutDefinition::ROOT_SOURCE_FIELD]) as $row) {
+            $this->validateRecord($event, $row, $context, $memo);
+        }
+    }
+
+    private function validateRecord(PreWriteValidationEvent $event, OutcomeRow $row, Context $context, ?LayoutWriteContext $memo): void
+    {
+        $tree = $this->resultingTree($memo, $row);
+        $setsRootSource = $row->payloadContainsAny(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
+
+        if ($tree === null && !$setsRootSource) {
+            return;
+        }
+
+        $rootSource = $row->getResultingValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
         $violations = new ConstraintViolationList();
 
-        // Step 1: well-formedness on the decoded tree (only when the write touches the layout column).
-        $tree = $touchesLayout ? $this->consume($memo, $command) : null;
-
+        // Step 1: well-formedness on the decoded tree (only when the batch writes the layout column).
         if ($tree !== null) {
             $violations->addAll($this->violationMapper->toConstraintViolationList(
                 $this->gate->wellFormedness($tree->roots)->intrinsicErrors()
             ));
         }
 
-        // Step 2: membership of the written root source. On creation the row sets root_source; an unknown value is
-        // rejected here and step 3 is skipped, so resolve() is never handed an unregistered id.
-        if ($setsRootSource) {
-            $rootSource = $payload[ContentLayoutDefinition::ROOT_SOURCE_FIELD];
+        // Step 2: membership of the resulting root source, so resolve() is never handed an unregistered id. On a
+        // layout-only edit it is the stored source: one removed from the registry after the layout was written
+        // surfaces as the unknownRootSource 400 instead of the resolve() 500.
+        if (($setsRootSource || \is_string($rootSource)) && !$this->isRegistered($rootSource)) {
+            $violations->add($this->unknownRootSourceViolation($rootSource));
+            $this->collect($event, $row, $violations);
 
-            if (!\is_string($rootSource) || !\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
-                $violations->add($this->unknownRootSourceViolation($rootSource));
-                $this->collect($event, $command, $violations);
-
-                return;
-            }
+            return;
         }
 
-        // Step 3: resolvability against the declared root source (the create payload value, else the committed row
-        // read through WriteOutcome). On the create path membership was already gated in step 2; on a
-        // layout-only edit the committed source is gated here before resolve() — a source de-registered after the
-        // layout was written surfaces as the unknownRootSource 400 instead of the resolve() 500. After this,
-        // resolve() is never handed an unregistered id on either path.
+        // Step 3: resolvability against that root source. A record without one (a stored row that reads null) is
+        // left to the DAL's own checks.
         //
         // resolvability() re-runs the analysis; its intrinsic checks are root-context-independent, so it recomputes
         // step 1's intrinsic errors identically and we discard them, keeping only bindingErrors(). The redundant
         // intrinsic pass is deliberate, not a correctness guard: the three steps gate on independent conditions, and
-        // step 1 must run on its own for the writes that never reach here (the unknown-source early-return, or an edit
-        // whose committed source reads null), so folding intrinsic out of step 1 to reuse this report would entangle
-        // the three steps to spare one analyze() pass on a bounded admin write.
-        if ($tree !== null) {
-            $rootSource = $setsRootSource
-                ? $payload[ContentLayoutDefinition::ROOT_SOURCE_FIELD]
-                : $rootSources[$command->getDecodedPrimaryKey()['id'] ?? ''] ?? null;
+        // step 1 must run on its own for the records that never reach here (the unknown-source early-return, or an
+        // edit whose stored source reads null), so folding intrinsic out of step 1 to reuse this report would
+        // entangle the three steps to spare one analyze() pass on a bounded admin write.
+        if ($tree !== null && \is_string($rootSource)) {
+            $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context), $rootSource);
+            $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
 
-            if (\is_string($rootSource)) {
-                if (!$setsRootSource && !\in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true)) {
-                    $violations->add($this->unknownRootSourceViolation($rootSource));
-                    $this->collect($event, $command, $violations);
-
-                    return;
-                }
-
-                $report = $this->gate->resolvability($tree->roots, $this->rootSourceRegistry->resolve($rootSource, $context), $rootSource);
-                $violations->addAll($this->violationMapper->toConstraintViolationList($report->bindingErrors()));
-
-                // Step 4: admissibility of every stored data mapping against that same root source. It runs here
-                // rather than as generic mapping diagnostics so each rule retains its specific error code.
-                $violations->addAll($this->mappingValidator->validate($tree->roots, $rootSource));
-            }
+            // Step 4: admissibility of every stored data mapping against that same root source. It runs here
+            // rather than as generic mapping diagnostics so each rule retains its specific error code.
+            $violations->addAll($this->mappingValidator->validate($tree->roots, $rootSource));
         }
 
-        $this->collect($event, $command, $violations);
+        $this->collect($event, $row, $violations);
     }
 
     /**
-     * The tree this command's layout payload decoded to, taken out of the memo. Every command that writes the
-     * layout column put one there — the serializer memoizes before this event can fire, and a payload it could
-     * not decode aborted the write before any command existed. So an absent entry is a broken write path, not
-     * an input the gate could rule on: re-decoding the column instead would silently gate a tree other than the
-     * one the boundary produced, which is precisely the guarantee this gate exists to hold.
+     * The last tree the batch writes for this record, taken out of the memo. Every write of the layout column put
+     * one there: the serializer memoizes before this event can fire, and a payload it could not decode aborted the
+     * write before any command existed. So an absent entry is a broken write path, not an input the gate could
+     * rule on: re-decoding the column instead would silently gate a tree other than the one the boundary produced,
+     * which is precisely the guarantee this gate exists to hold.
      */
-    private function consume(?LayoutWriteContext $memo, WriteCommand $command): StoredTree
+    private function resultingTree(?LayoutWriteContext $memo, OutcomeRow $row): ?StoredTree
     {
-        $id = $command->getDecodedPrimaryKey()['id'] ?? null;
-        $tree = $memo === null || $id === null ? null : $memo->consume($command->getEntityName(), $id);
+        $tree = $memo?->consume(ContentLayoutDefinition::ENTITY_NAME, Uuid::fromBytesToHex($row->primaryKey['id']));
+
+        // Consumed either way: a tree written before the record's last delete is not one the batch stores.
+        if (!$row->payloadContainsAny(ContentLayoutDefinition::LAYOUT_FIELD)) {
+            return null;
+        }
 
         if ($tree === null) {
-            throw ContentSystemException::layoutWriteMemoMissing($command->getEntityName(), $command->getPath());
+            throw ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, $row->path);
         }
 
         return $tree;
@@ -209,31 +155,22 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
      * Consumes the memo entries of this event's layout commands without gating them, for the skip-state path.
      * The state suppresses the checks; it does not make the write's memoized trees somebody else's to clear.
      *
-     * @param list<WriteCommand> $commands
+     * @param list<WriteCommand> $layoutCommands
      */
-    private function drain(?LayoutWriteContext $memo, array $commands): void
+    private function drain(?LayoutWriteContext $memo, array $layoutCommands): void
     {
         if ($memo === null) {
             return;
         }
 
-        foreach ($commands as $command) {
-            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME) {
-                continue;
-            }
-
-            if (!$command->hasField(ContentLayoutDefinition::LAYOUT_FIELD)) {
-                continue;
-            }
-
-            $id = $command->getDecodedPrimaryKey()['id'] ?? null;
-
-            if ($id === null) {
-                continue;
-            }
-
-            $memo->consume($command->getEntityName(), $id);
+        foreach ($layoutCommands as $command) {
+            $memo->consume(ContentLayoutDefinition::ENTITY_NAME, $command->getDecodedPrimaryKey()['id']);
         }
+    }
+
+    private function isRegistered(mixed $rootSource): bool
+    {
+        return \is_string($rootSource) && \in_array($rootSource, $this->rootSourceRegistry->knownRootSources(), true);
     }
 
     private function unknownRootSourceViolation(mixed $rootSource): ConstraintViolation
@@ -252,12 +189,12 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         );
     }
 
-    private function collect(PreWriteValidationEvent $event, WriteCommand $command, ConstraintViolationList $violations): void
+    private function collect(PreWriteValidationEvent $event, OutcomeRow $row, ConstraintViolationList $violations): void
     {
         if ($violations->count() === 0) {
             return;
         }
 
-        $event->getExceptions()->add(new WriteConstraintViolationException($violations, $command->getPath()));
+        $event->getExceptions()->add(new WriteConstraintViolationException($violations, $row->path));
     }
 }

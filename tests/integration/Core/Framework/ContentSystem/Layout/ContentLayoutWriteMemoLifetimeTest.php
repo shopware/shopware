@@ -81,7 +81,7 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
 
     /**
      * The DAL keeps a command per written row rather than collapsing rows that share a primary key, so one
-     * batch carrying the same layout id twice reaches the gate twice and needs both of its memoized trees.
+     * batch carrying the same layout id twice memoizes two trees under one key, and the gate takes the last.
      */
     #[TestDox('leaves no memoized tree on the context after one batch writes the same layout id twice')]
     public function testBatchWritingOneLayoutIdTwiceEmptiesTheMemo(): void
@@ -99,8 +99,8 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
 
         $this->repository()->upsert([$this->layout('layout'), $edit], $context);
 
-        // The stored tree proves the second row really wrote the layout column, so the gate did see two
-        // layout-touching commands for this id and both of their memoized trees were drained.
+        // The stored tree proves the second row really wrote the layout column, so both rows memoized a tree
+        // under this id and the gate drained the key.
         $stored = $this->repository()->search(new Criteria([$this->ids->get('layout')]), $context)->getEntities()->first();
         static::assertNotNull($stored);
         static::assertSame([$this->ids->get('layout-second-element')], array_map(

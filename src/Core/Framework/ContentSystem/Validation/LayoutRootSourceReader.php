@@ -3,18 +3,15 @@
 namespace Shopware\Core\Framework\ContentSystem\Validation;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * Reads a content layout's immutable root source at write time: the in-flight write batch first (so an atomic
- * create-and-bind sees the layout's INSERT payload), then the committed row.
+ * Reads the immutable root source of content layouts at write time: a layout the batch writes from its state after
+ * the batch (so an atomic create-and-bind sees the inserted value), any other layout from the stored row.
  *
  * @internal
  *
@@ -24,71 +21,70 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class LayoutRootSourceReader
 {
     public function __construct(
-        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly WriteOutcome $writeOutcome,
+        private readonly RowLoader $rowLoader,
     ) {
     }
 
     /**
-     * @param list<WriteCommand> $commands the current write batch (from PreWriteValidationEvent)
+     * The root source of each layout, keyed by the id as passed. A layout the batch deletes, or one that is neither
+     * written nor stored, is left out.
+     *
+     * @param list<string> $layoutIds hex ids, or 16 binary bytes as in a foreign-key payload
+     * @param list<WriteCommand> $layoutCommands the batch's content_layout commands, empty outside a write
+     *
+     * @return array<string, string>
      */
-    public function read(mixed $contentLayoutId, array $commands, Context $context): ?string
+    public function rootSources(array $layoutIds, array $layoutCommands): array
     {
-        $layoutId = $this->normalizeId($contentLayoutId);
-
-        if ($layoutId === null) {
-            return null;
+        $bytesById = [];
+        foreach ($layoutIds as $layoutId) {
+            $bytesById[$layoutId] = \strlen($layoutId) === 16 ? $layoutId : Uuid::fromHexToBytes($layoutId);
         }
 
-        return $this->fromCommands($layoutId, $commands) ?? $this->fromStore($layoutId, $context);
-    }
+        $written = $this->writtenRootSources($layoutCommands);
+        $stored = $this->storedRootSources(array_values(array_diff(array_unique($bytesById), array_keys($written))));
 
-    private function normalizeId(mixed $contentLayoutId): ?string
-    {
-        if (!\is_string($contentLayoutId) || $contentLayoutId === '') {
-            return null;
+        $rootSources = [];
+        foreach ($bytesById as $layoutId => $bytes) {
+            $rootSource = $written[$bytes] ?? $stored[$bytes] ?? null;
+
+            if (\is_string($rootSource)) {
+                $rootSources[$layoutId] = $rootSource;
+            }
         }
 
-        // The 16-byte branch normalizes the binary FK payload the assignment validators pass, while the write
-        // validator already passes the decoded hex primary key. Same idiom as ProductStream's
-        // ProductStreamWriteResultHelper::normalizeStreamId (which additionally Uuid::isValid-guards) — consolidate
-        // into a shared Uuid helper, reconciling that guard difference, if a third copy appears.
-        return \strlen($contentLayoutId) === 16 ? Uuid::fromBytesToHex($contentLayoutId) : $contentLayoutId;
+        return $rootSources;
     }
 
     /**
-     * The root source of a layout written in the same batch. Returns null when the layout is not in the batch or
-     * the matching command does not set root_source (only an INSERT does, since the field is immutable), in which
-     * case the committed-store fallback decides.
+     * @param list<WriteCommand> $layoutCommands
      *
-     * @param list<WriteCommand> $commands
+     * @return array<string, mixed> keyed by binary id, null for a layout the batch deletes
      */
-    private function fromCommands(string $layoutId, array $commands): ?string
+    private function writtenRootSources(array $layoutCommands): array
     {
-        foreach ($commands as $command) {
-            if ($command->getEntityName() !== ContentLayoutDefinition::ENTITY_NAME || $command instanceof DeleteCommand) {
-                continue;
-            }
-
-            if (($command->getDecodedPrimaryKey()['id'] ?? null) !== $layoutId) {
-                continue;
-            }
-
-            if (!$command->hasField(ContentLayoutDefinition::ROOT_SOURCE_FIELD)) {
-                continue;
-            }
-
-            $value = $command->getPayload()[ContentLayoutDefinition::ROOT_SOURCE_FIELD];
-
-            return \is_string($value) ? $value : null;
+        $rootSources = [];
+        foreach ($this->writeOutcome->touchedRows($layoutCommands, [ContentLayoutDefinition::ROOT_SOURCE_FIELD]) as $row) {
+            $rootSources[$row->primaryKey['id']] = $row->getResultingValue(ContentLayoutDefinition::ROOT_SOURCE_FIELD);
         }
 
-        return null;
+        return $rootSources;
     }
 
-    private function fromStore(string $layoutId, Context $context): ?string
+    /**
+     * @param list<string> $layoutIds binary ids
+     *
+     * @return array<string, mixed> keyed by binary id
+     */
+    private function storedRootSources(array $layoutIds): array
     {
-        $layout = $this->definitionRegistry->getRepository(ContentLayoutDefinition::ENTITY_NAME)->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        $rows = $this->rowLoader->load(
+            ContentLayoutDefinition::ENTITY_NAME,
+            array_map(static fn (string $id): array => ['id' => $id], $layoutIds),
+            ['id', ContentLayoutDefinition::ROOT_SOURCE_FIELD],
+        );
 
-        return $layout instanceof ContentLayoutEntity ? $layout->getRootSource() : null;
+        return array_column($rows, ContentLayoutDefinition::ROOT_SOURCE_FIELD, 'id');
     }
 }

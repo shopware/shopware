@@ -26,10 +26,10 @@ use Shopware\Core\Framework\Log\Package;
 class ContentLayoutDefinitionTest extends TestCase
 {
     /**
-     * Regression: LayoutWriteContext's command-to-memo pairing depends on
-     * WriteCommandExtractor::createDataStack() never re-normalizing a content_layout row. The re-normalize
-     * happens on create only, because createDataStack() returns early for a row that already exists. See the
-     * LayoutWriteContext class docblock for the mechanism.
+     * Regression: the write gate finds a created layout's tree in LayoutWriteContext only while
+     * WriteCommandExtractor::createDataStack() never re-normalizes a content_layout row under a cloned write
+     * context. The re-normalize happens on create only, because createDataStack() returns early for a row that
+     * already exists. See the LayoutWriteContext class docblock for the mechanism.
      */
     #[TestDox('declares no entity defaults')]
     public function testHasNoDefaults(): void

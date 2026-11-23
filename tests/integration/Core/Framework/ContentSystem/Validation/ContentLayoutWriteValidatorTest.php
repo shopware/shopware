@@ -258,6 +258,22 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
     }
 
+    #[TestDox('persists a layout edited in the batch that creates it when its last tree resolves for the inserted root source')]
+    public function testAcceptsALayoutWhoseLastTreeInTheCreatingBatchResolves(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        $this->repository()->upsert([
+            $this->layout('category', TestElementTypeLoader::UNRESOLVABLE, $layoutId),
+            ['id' => $layoutId, 'layout' => $this->tree(TestElementTypeLoader::RESOLVABLE)],
+        ], $context);
+
+        $layout = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $layout);
+        static::assertSame(TestElementTypeLoader::RESOLVABLE, $layout->getLayout()[0]->component);
+    }
+
     /**
      * The anchor rule at the strict write. `unresolved_required` is a binding-scope error, so the resolvability
      * predicate rejects the row before it is stored. The authored map carries an entry under a key that is not

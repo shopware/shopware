@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -68,6 +69,24 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         }
 
         static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
+    }
+
+    #[TestDox('persists a category assignment the batch binds to a product layout and then rebinds to a category layout')]
+    public function testAcceptsAssignmentWhoseLastBindingMatchesRootSource(): void
+    {
+        $context = Context::createDefaultContext();
+        $categoryId = $this->createCategory($context);
+        $productLayoutId = $this->createLayout('product', $context, 'product-layout');
+        $categoryLayoutId = $this->createLayout('category', $context, 'category-layout');
+
+        $assignmentId = $this->ids->get('assignment');
+        $this->assignmentRepository()->upsert([
+            $this->assignment($assignmentId, $categoryId, $productLayoutId),
+            $this->assignment($assignmentId, $categoryId, $categoryLayoutId),
+        ], $context);
+
+        $criteria = (new Criteria([$assignmentId]))->addFilter(new EqualsFilter('contentLayoutId', $categoryLayoutId));
+        static::assertSame($assignmentId, $this->assignmentRepository()->searchIds($criteria, $context)->firstId());
     }
 
     #[TestDox('bypasses the type-match when the write context carries the skip flag')]
@@ -157,12 +176,12 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         return $id;
     }
 
-    private function createLayout(string $rootSource, Context $context): string
+    private function createLayout(string $rootSource, Context $context, string $key = 'layout'): string
     {
-        $id = $this->ids->get('layout');
+        $id = $this->ids->get($key);
         $this->layoutRepository()->create([[
             'id' => $id,
-            'name' => 'binding-gate-layout',
+            'name' => 'binding-gate-' . $key,
             'version' => '1.0.0',
             'rootSource' => $rootSource,
             'layout' => [

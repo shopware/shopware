@@ -7,7 +7,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\Log\Package;
@@ -53,7 +52,7 @@ class ContentLayoutDefaultValidator implements EventSubscriberInterface
             throw ContentSystemException::contentLayoutNotFound((string) json_encode($layoutId));
         }
 
-        $rootSource = $this->rootSourceReader->read($layoutId, [], Context::createDefaultContext());
+        $rootSource = $this->rootSourceReader->rootSources([$layoutId], [])[$layoutId] ?? null;
 
         if ($rootSource === null) {
             throw ContentSystemException::contentLayoutNotFound($layoutId);

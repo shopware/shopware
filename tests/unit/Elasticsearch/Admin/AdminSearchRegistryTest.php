@@ -199,9 +199,10 @@ class AdminSearchRegistryTest extends TestCase
         static::assertSame($this->indexer, $indexer);
     }
 
-    public function testIterateWithExistedAliasWillBeSwap(): void
+    public function testIterateSwapsAliasOfAFinishedIndexingRun(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
 
         $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
@@ -222,36 +223,81 @@ class AdminSearchRegistryTest extends TestCase
 
         $client->method('indices')->willReturn($indices);
 
-        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
-        $registry = new AdminSearchRegistry(
-            ['promotion' => $this->indexer],
-            static::createStub(Connection::class),
-            static::createStub(MessageBusInterface::class),
-            static::createStub(EventDispatcherInterface::class),
-            $client,
-            $searchHelper,
-            static::createStub(LoggerInterface::class),
-            [],
-            [],
-            'test',
-            new NativeClock()
-        );
+        // the messages were handled inline, so the run has no remaining documents and its index is promoted
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_67890'],
+        ]);
 
-        $registry->iterate(new AdminIndexingBehavior(false));
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->iterate(new AdminIndexingBehavior(true));
     }
 
-    public function testIterateSwapsRemainingAliasesWhenAnEarlierOneIsMissing(): void
+    public function testIterateLeavesTheAliasAloneWhileDocumentsAreStillPending(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
         $this->indexer->method('getEntity')->willReturn('promotion');
 
-        $secondIndexer = static::createStub(AbstractAdminIndexer::class);
-        $secondIndexer->method('getName')->willReturn('order-listing');
-        $secondIndexer->method('getEntity')->willReturn('order');
-
         $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
-        // only the second indexer already has an alias, so the first one takes the "alias is missing" branch
+        $indices->method('existsAlias')->willReturn(true);
+        $indices->expects($this->never())->method('delete');
+        $indices->expects($this->never())->method('putAlias');
+
+        $client->method('indices')->willReturn($indices);
+
+        // no row reports zero remaining documents, so AdminCreateAliasTask has to do the swap later
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->iterate(new AdminIndexingBehavior(false));
+    }
+
+    public function testSwapFinishedAliasesPromotesTheNewestOfSeveralFinishedIndices(): void
+    {
+        $client = static::createStub(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        $indices->method('existsAlias')->willReturn(true);
+        $indices
+            ->method('getAlias')
+            ->willReturn([
+                'sw-admin-promotion-listing_1000' => [
+                    'aliases' => [
+                        'sw-admin-promotion-listing' => [],
+                    ],
+                ],
+            ]);
+        $indices
+            ->expects($this->once())
+            ->method('putAlias')
+            ->with(['index' => 'sw-admin-promotion-listing_3000', 'name' => 'sw-admin-promotion-listing']);
+        $indices
+            ->expects($this->once())
+            ->method('delete')
+            ->with(['index' => 'sw-admin-promotion-listing_1000']);
+
+        $client->method('indices')->willReturn($indices);
+
+        // both runs finished before either was promoted; the rows arrive ordered by index name
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_2000'],
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_3000'],
+        ]);
+
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->swapFinishedAliases();
+    }
+
+    public function testSwapFinishedAliasesContinuesAfterAnAliasThatDoesNotExistYet(): void
+    {
+        $client = static::createStub(Client::class);
+        $indices = $this->createMock(IndicesNamespace::class);
+        // only the second alias exists, so the first one takes the "alias is missing" branch
         $indices
             ->method('existsAlias')
             ->willReturnCallback(static fn (array $arguments): bool => $arguments['name'] === 'sw-admin-order-listing');
@@ -271,22 +317,15 @@ class AdminSearchRegistryTest extends TestCase
 
         $client->method('indices')->willReturn($indices);
 
-        $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
-        $registry = new AdminSearchRegistry(
-            ['promotion' => $this->indexer, 'order' => $secondIndexer],
-            static::createStub(Connection::class),
-            static::createStub(MessageBusInterface::class),
-            static::createStub(EventDispatcherInterface::class),
-            $client,
-            $searchHelper,
-            static::createStub(LoggerInterface::class),
-            [],
-            [],
-            'test',
-            new NativeClock()
-        );
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_67890'],
+            ['alias' => 'sw-admin-order-listing', 'index' => 'sw-admin-order-listing_67890'],
+        ]);
 
-        $registry->iterate(new AdminIndexingBehavior(false));
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->swapFinishedAliases();
     }
 
     /**
@@ -300,14 +339,13 @@ class AdminSearchRegistryTest extends TestCase
         $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('existsAlias')
             ->with(['name' => 'sw-admin-promotion-listing']);
 
         $client->method('indices')->willReturn($indices);
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
 
         $searchHelper = new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger());
         $registry = new AdminSearchRegistry(
@@ -351,7 +389,7 @@ class AdminSearchRegistryTest extends TestCase
         $client = static::createStub(Client::class);
         $indices = $this->createMock(IndicesNamespace::class);
         $indices
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('existsAlias')
             ->with(['name' => 'sw-admin-promotion-listing']);
 
@@ -440,7 +478,9 @@ class AdminSearchRegistryTest extends TestCase
         }
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllKeyValue')->willReturn(['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345']);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_12345'],
+        ]);
 
         $searchHelper = new AdminElasticsearchHelper(true, $refreshIndices, 'sw-admin', 'test', true, new NullLogger());
         $queue = static::createStub(MessageBusInterface::class);
@@ -489,6 +529,142 @@ class AdminSearchRegistryTest extends TestCase
         ]), []));
     }
 
+    public function testInvokeCountsDownTheIndexingTaskOfAnIndexingRun(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([
+            'c1a28776116d4431a2208eb2960ec340' => ['id' => 'c1a28776116d4431a2208eb2960ec340', 'text' => 'a'],
+            'c1a28776116d4431a2208eb2960ec341' => ['id' => 'c1a28776116d4431a2208eb2960ec341', 'text' => 'b'],
+        ]);
+
+        $client = static::createStub(Client::class);
+        $client->method('bulk')->willReturn(['errors' => false, 'items' => []]);
+
+        $statements = [];
+        $connection = static::createStub(Connection::class);
+        $connection
+            ->method('executeStatement')
+            ->willReturnCallback(function (string $sql, array $params = []) use (&$statements): int {
+                $statements[] = $params;
+
+                return 1;
+            });
+
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->__invoke(new AdminSearchIndexingMessage(
+            'promotion',
+            'promotion-listing',
+            ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345'],
+            ['c1a28776116d4431a2208eb2960ec340', 'c1a28776116d4431a2208eb2960ec341'],
+            [],
+            true
+        ));
+
+        static::assertSame(
+            [['count' => 2, 'index' => 'sw-admin-promotion-listing_12345']],
+            $statements
+        );
+    }
+
+    public function testInvokeDoesNotCountDownForLiveUpdates(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([
+            'c1a28776116d4431a2208eb2960ec340' => ['id' => 'c1a28776116d4431a2208eb2960ec340', 'text' => 'a'],
+        ]);
+
+        $client = static::createStub(Client::class);
+        $client->method('bulk')->willReturn(['errors' => false, 'items' => []]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->__invoke(new AdminSearchIndexingMessage(
+            'promotion',
+            'promotion-listing',
+            ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345'],
+            ['c1a28776116d4431a2208eb2960ec340']
+        ));
+    }
+
+    public function testInvokeDoesNotCountDownWhenTheBulkFailed(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('fetch')->willReturn([
+            'c1a28776116d4431a2208eb2960ec340' => ['id' => 'c1a28776116d4431a2208eb2960ec340', 'text' => 'a'],
+        ]);
+
+        $client = static::createStub(Client::class);
+        $client->method('bulk')->willReturn([
+            'errors' => true,
+            'items' => [
+                ['index' => ['_index' => 'sw-admin-promotion-listing_12345', '_id' => 'c1a28776116d4431a2208eb2960ec340', 'status' => 400, 'error' => ['type' => 'mapper_parsing_exception', 'reason' => 'broken']]],
+            ],
+        ]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('executeStatement');
+
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $this->expectException(ElasticsearchException::class);
+
+        $registry->__invoke(new AdminSearchIndexingMessage(
+            'promotion',
+            'promotion-listing',
+            ['sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345'],
+            ['c1a28776116d4431a2208eb2960ec340'],
+            [],
+            true
+        ));
+    }
+
+    public function testRefreshWritesToBothTheLiveAndTheIndexBeingBuilt(): void
+    {
+        $this->indexer->method('getName')->willReturn('promotion-listing');
+        $this->indexer->method('getEntity')->willReturn('promotion');
+        $this->indexer->method('getUpdatedIds')->willReturn(['c1a28776116d4431a2208eb2960ec340']);
+        $this->indexer->method('fetch')->willReturn([
+            'c1a28776116d4431a2208eb2960ec340' => ['id' => 'c1a28776116d4431a2208eb2960ec340', 'text' => 'a'],
+        ]);
+
+        $written = [];
+        $client = $this->createMock(Client::class);
+        $client
+            ->expects($this->exactly(2))
+            ->method('bulk')
+            ->willReturnCallback(function (array $arguments) use (&$written): array {
+                $written[] = $arguments['index'];
+
+                return ['errors' => false, 'items' => []];
+            });
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_12345'],
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_67890'],
+        ]);
+
+        $registry = $this->createRegistry(['promotion' => $this->indexer], $client, $connection);
+
+        $registry->refresh(new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection([
+            new EntityWrittenEvent('promotion', [
+                new EntityWriteResult('c1a28776116d4431a2208eb2960ec340', [], 'promotion', EntityWriteResult::OPERATION_INSERT),
+            ], Context::createDefaultContext()),
+        ]), []));
+
+        static::assertSame(
+            ['sw-admin-promotion-listing_12345', 'sw-admin-promotion-listing_67890'],
+            $written
+        );
+    }
+
     public function testRefreshQueuesEveryAffectedIndexerForSalesChannelSources(): void
     {
         $this->indexer->method('getName')->willReturn('promotion-listing');
@@ -501,9 +677,9 @@ class AdminSearchRegistryTest extends TestCase
         $secondIndexer->method('getUpdatedIds')->willReturn(['a1a28776116d4431a2208eb2960ec341']);
 
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllKeyValue')->willReturn([
-            'sw-admin-promotion-listing' => 'sw-admin-promotion-listing_12345',
-            'sw-admin-order-listing' => 'sw-admin-order-listing_12345',
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['alias' => 'sw-admin-promotion-listing', 'index' => 'sw-admin-promotion-listing_12345'],
+            ['alias' => 'sw-admin-order-listing', 'index' => 'sw-admin-order-listing_12345'],
         ]);
 
         $dispatched = [];
@@ -834,5 +1010,25 @@ class AdminSearchRegistryTest extends TestCase
     {
         yield 'refresh indices' => [true];
         yield 'do not refresh indices' => [false];
+    }
+
+    /**
+     * @param array<string, AbstractAdminIndexer> $indexers
+     */
+    private function createRegistry(array $indexers, Client $client, Connection $connection): AdminSearchRegistry
+    {
+        return new AdminSearchRegistry(
+            $indexers,
+            $connection,
+            static::createStub(MessageBusInterface::class),
+            static::createStub(EventDispatcherInterface::class),
+            $client,
+            new AdminElasticsearchHelper(true, false, 'sw-admin', 'test', true, new NullLogger()),
+            static::createStub(LoggerInterface::class),
+            [],
+            [],
+            'test',
+            new NativeClock()
+        );
     }
 }

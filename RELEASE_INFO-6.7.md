@@ -15,6 +15,34 @@ If you generate types from the schema, regenerate them and handle `null` for the
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### Core popovers render with `mt-floating-ui` before 6.8
+
+`sw-context-button`, `sw-select-result-list`, `sw-multi-tag-select`, `sw-media-field` and `sw-condition-unit-menu` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+`sw-category-tree-field` renders its dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`.
+An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
+
+The popovers are still teleported to `<body>`, but the markup around them changed.
+Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around these popovers is replaced by `.mt-floating-ui__content`.
+  Update styles and end-to-end selectors that matched the old wrapper.
+- The `--placement-*` modifier classes are gone.
+  `mt-floating-ui` flips the popover itself and marks the side that faces the anchor with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  A popover below its field or button carries `.mt-floating-ui--top`.
+  The context menu also has its resolved placement, such as `bottom-end`, in the `data-placement` attribute of `.mt-floating-ui__content`.
+- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content` and on the `mt-floating-ui` element that stays inside the field.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
+- The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
+  The private `zIndex` prop of `sw-context-button` was removed.
+- The `sw-media-field` picker is mounted to `<body>` also inside a modal, instead of into the modal.
+- The `.sw-media-field__popover` class is removed.
+  `.sw-media-field__expanded-content` matches two elements: the wrapper inside the field and the picker.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the picker.
+- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
+
 # 6.7.17.0
 
 ## Critical Fixes
@@ -1090,32 +1118,6 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
-
-### Core popovers render with `mt-floating-ui` before 6.8
-
-`sw-context-button`, `sw-select-result-list`, `sw-multi-tag-select`, `sw-media-field` and `sw-condition-unit-menu` render their popovers with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
-`sw-category-tree-field` renders its dropdown with `mt-floating-ui` instead of `sw-popover-deprecated`.
-An open select dropdown now follows its field while the page scrolls, instead of staying where it was when it opened.
-
-The popovers are still teleported to `<body>`, but the markup around them changed.
-Extensions have to be adjusted:
-
-- `.sw-popover__wrapper` around these popovers is replaced by `.mt-floating-ui__content`.
-  Update styles and end-to-end selectors that matched the old wrapper.
-- The `--placement-*` modifier classes are gone.
-  `mt-floating-ui` flips the popover itself and marks the side that faces the anchor with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
-  A popover below its field or button carries `.mt-floating-ui--top`.
-  The context menu also has its resolved placement, such as `bottom-end`, in the `data-placement` attribute of `.mt-floating-ui__content`.
-- Classes passed via `popover-classes` on `sw-select-result-list` land on `.mt-floating-ui__content` and on the `mt-floating-ui` element that stays inside the field.
-  Scope a rule with `.mt-floating-ui__content` to keep it on the popover.
-- The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
-  The private `zIndex` prop of `sw-context-button` was removed.
-- The `sw-media-field` picker is mounted to `<body>` also inside a modal, instead of into the modal.
-- The `.sw-media-field__popover` class is removed.
-  `.sw-media-field__expanded-content` matches two elements: the wrapper inside the field and the picker.
-  Scope a rule with `.mt-floating-ui__content` to keep it on the picker.
-- `.sw-category-tree-field__results_base` and `.sw-category-tree-field__results_popover` each match two elements: the wrapper inside the field and the dropdown.
-  Scope a rule with `.mt-floating-ui__content` to keep it on the dropdown.
 
 ### Product list filters by product documents
 

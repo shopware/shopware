@@ -59,6 +59,7 @@ async function createWrapper(
                     template: `
                         <div class="sw-page">
                             <slot name="smart-bar-header"></slot>
+                            <slot name="language-switch"></slot>
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content"></slot>
                         </div>`,
@@ -126,12 +127,47 @@ async function createWrapper(
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
+    beforeEach(() => {
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+    });
+
     afterEach(() => {
         if (wrapper) {
             window.removeEventListener('pagehide', wrapper.vm.onPageHide);
         }
 
         Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should load the live order without writing or cleaning up a version for viewers', async () => {
+        global.activeAclRoles = ['order.viewer'];
+        const lineItem = {
+            id: 'lineItemId',
+            type: 'product',
+            productId: null,
+            referencedId: 'deletedProductId',
+            payload: {},
+        };
+        const repository = {
+            createVersion: jest.fn(),
+            get: jest.fn().mockResolvedValue({ lineItems: [lineItem] }),
+            save: jest.fn(),
+            deleteVersion: jest.fn(),
+            deleteVersionWithKeepalive: jest.fn(),
+        };
+        wrapper = await createWrapper({}, { orderRepository: repository });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith(expect.any(String), Shopware.Context.api, expect.anything());
+        expect(repository.createVersion).not.toHaveBeenCalled();
+        expect(repository.save).not.toHaveBeenCalled();
+        expect(lineItem.type).toBe('product');
+
+        window.dispatchEvent(new Event('pagehide'));
+        wrapper.unmount();
+
+        expect(repository.deleteVersion).not.toHaveBeenCalled();
+        expect(repository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
     });
 
     it('should select the displayed order for app action buttons', async () => {
@@ -917,6 +953,23 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(createNotificationErrorMock).toHaveBeenCalledWith({
             message: expect.stringContaining('failed'),
         });
+    });
+
+    it('should handle the events the order views and the language switch emit to the page', async () => {
+        wrapper = await createWrapper();
+        Shopware.Store.get('swOrderDetail').order = { orderNumber: 1 };
+        await flushPromises();
+
+        const routerView = wrapper.findComponent({ name: 'router-view' });
+        await routerView.vm.$emit('editing-change', true);
+        await routerView.vm.$emit('created-by-id-change', 'user-id');
+        await wrapper.findComponent({ name: 'sw-language-switch' }).vm.$emit('on-change', 'language-id');
+
+        expect(routerView.attributes('is-editing')).toBe('true');
+
+        await routerView.vm.$emit('loading-change', true);
+
+        expect(routerView.isVisible()).toBe(false);
     });
 });
 

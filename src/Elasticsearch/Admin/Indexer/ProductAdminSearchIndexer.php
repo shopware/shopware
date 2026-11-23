@@ -551,8 +551,11 @@ SQL,
             static fn (EntityWriteResult $result): array => $result->getPayload()
         ), 'productId');
 
-        if ($documentResults->only(EntityWriteResult::OPERATION_DELETE)->count() > 0) {
-            $productIds = array_merge($productIds, $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME));
+        foreach ($documentResults->only(EntityWriteResult::OPERATION_DELETE) as $result) {
+            $productId = $result->getChangeSet()?->getBefore('product_id');
+            if (\is_string($productId)) {
+                $productIds[] = Uuid::fromBytesToHex($productId);
+            }
         }
 
         $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));

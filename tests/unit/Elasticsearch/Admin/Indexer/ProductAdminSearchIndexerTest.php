@@ -222,6 +222,32 @@ class ProductAdminSearchIndexerTest extends TestCase
     public function testGetUpdatedIdsContainsTheProductsOfDeletedDocuments(): void
     {
         $productId = Uuid::randomHex();
+        $otherProductId = Uuid::randomHex();
+        $documentId = Uuid::randomHex();
+
+        $event = $this->createWrittenEvent([
+            new EntityWrittenEvent('product_document', [
+                new EntityWriteResult(
+                    $documentId,
+                    ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION],
+                    'product_document',
+                    EntityWriteResult::OPERATION_DELETE,
+                    null,
+                    new ChangeSet(['product_id' => Uuid::fromHexToBytes($productId)], [], true)
+                ),
+            ], Context::createDefaultContext()),
+            new EntityWrittenEvent('product', [
+                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($otherProductId, ['id' => $otherProductId, 'versionId' => Defaults::LIVE_VERSION], 'product', EntityWriteResult::OPERATION_UPDATE),
+            ], Context::createDefaultContext()),
+        ]);
+
+        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+    }
+
+    public function testGetUpdatedIdsIgnoresDeletedDocumentsWithoutChangeSet(): void
+    {
+        $productId = Uuid::randomHex();
         $documentId = Uuid::randomHex();
 
         $event = $this->createWrittenEvent([
@@ -229,11 +255,11 @@ class ProductAdminSearchIndexerTest extends TestCase
                 new EntityWriteResult($documentId, ['id' => $documentId, 'versionId' => Defaults::LIVE_VERSION], 'product_document', EntityWriteResult::OPERATION_DELETE),
             ], Context::createDefaultContext()),
             new EntityWrittenEvent('product', [
-                new EntityWriteResult($productId, [], 'product', EntityWriteResult::OPERATION_UPDATE),
+                new EntityWriteResult($productId, ['id' => $productId, 'versionId' => Defaults::LIVE_VERSION], 'product', EntityWriteResult::OPERATION_UPDATE),
             ], Context::createDefaultContext()),
         ]);
 
-        static::assertSame([$productId], $this->searchIndexer->getUpdatedIds($event));
+        static::assertSame([], $this->searchIndexer->getUpdatedIds($event));
     }
 
     public function testGetUpdatedIdsContainsTheVariantsOfProductsWithChangedDocuments(): void

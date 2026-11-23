@@ -44,6 +44,7 @@ use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Subscriber\ProductAdminSearchChangeSetSubscriber;
+use Shopware\Elasticsearch\Admin\Subscriber\ProductDocumentChangeSetSubscriber;
 use Shopware\Elasticsearch\Admin\Subscriber\ProductInheritanceSubscriber;
 use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
@@ -586,6 +587,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AdminSearchRegistry::class),
         ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductDocumentChangeSetSubscriber::class)
         ->tag('kernel.event_subscriber');
 
     $services->set(SystemInstallListener::class)

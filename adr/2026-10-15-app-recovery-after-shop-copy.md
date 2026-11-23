@@ -117,9 +117,6 @@ In the example, the copy stores one row like this per app in its own database:
 | Secret  | `staging-secret`                          |
 | Expires | 72 hours after the ShopId change, then deleted |
 
-Production can also be recovered before the copy gets a new ShopId.
-The secret is then still in the copy's normal app data, and the copy prints it from there.
-
 ### Handing it over
 
 On the copy, `app:secret:recover --list <app-name>` prints every secret the copy holds for that app, newest first, with their ShopId and expiry.

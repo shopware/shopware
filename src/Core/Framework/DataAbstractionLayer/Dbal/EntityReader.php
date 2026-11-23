@@ -1287,7 +1287,7 @@ class EntityReader implements EntityReaderInterface
         $windowOrderBy = implode(', ', [...$orderByParts, $referenceAccessor]);
 
         $query->select(
-            "ROW_NUMBER() OVER (PARTITION BY {$sourceAccessor} ORDER BY {$windowOrderBy}) as id_count",
+            "DENSE_RANK() OVER (PARTITION BY {$sourceAccessor} ORDER BY {$windowOrderBy}) as id_count",
             $referenceAccessor,
             $sourceAccessor,
         );

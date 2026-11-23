@@ -533,6 +533,14 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 ],
+                ['visibility' => [
+                    'path_match' => 'visibility_*',
+                    'match_mapping_type' => 'long',
+                    'mapping' => [
+                        'type' => 'integer',
+                    ],
+                ],
+                ],
                 [
                     'long_to_double' => [
                         'match_mapping_type' => 'long',
@@ -549,6 +557,50 @@ class ElasticsearchProductDefinitionTest extends TestCase
         }
 
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
+    }
+
+    public function testVisibilityOfSalesChannelMissingInMappingIsMappedAsIntegerByDynamicTemplate(): void
+    {
+        $existingSalesChannelId = Uuid::randomHex();
+        $newSalesChannelId = Uuid::randomHex();
+
+        $definition = new ElasticsearchProductDefinition(
+            static::createStub(ProductDefinition::class),
+            static::createStub(Connection::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([Defaults::LANGUAGE_SYSTEM => [$existingSalesChannelId]]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $mapping = $definition->getMapping(Context::createDefaultContext());
+
+        static::assertArrayNotHasKey('visibility_' . $newSalesChannelId, $mapping['properties']);
+
+        static::assertArrayHasKey('dynamic_templates', $mapping);
+        $templates = array_merge(...$mapping['dynamic_templates']);
+        $templateOrder = array_keys($templates);
+        static::assertArrayHasKey('visibility', $templates);
+        static::assertLessThan(
+            array_search('long_to_double', $templateOrder, true),
+            array_search('visibility', $templateOrder, true),
+            'The visibility template must be checked before long_to_double, the first matching template wins'
+        );
+
+        $visibilityTemplate = $templates['visibility'];
+        static::assertSame(
+            [
+                'path_match' => 'visibility_*',
+                'match_mapping_type' => 'long',
+                'mapping' => $mapping['properties']['visibility_' . $existingSalesChannelId],
+            ],
+            $visibilityTemplate
+        );
+        static::assertTrue(fnmatch($visibilityTemplate['path_match'], 'visibility_' . $newSalesChannelId));
+        static::assertFalse(fnmatch($visibilityTemplate['path_match'], 'visibilities.visibility'));
     }
 
     public function testMappingCustomFields(): void

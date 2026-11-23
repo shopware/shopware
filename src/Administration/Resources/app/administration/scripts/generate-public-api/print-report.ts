@@ -3,11 +3,12 @@
  *
  * Prints the `.api.md` report of a component: an outline for reviewers that merges both flag states.
  */
-import { byCodePoint } from './code-point-order';
-import { flagStateMarker } from './flag-states';
-import type { FlagContext } from './flag-states';
+import { flagStateMarker, mergeStates } from './flag-states';
+import type { FlagContext, FlagStates } from './flag-states';
 import type { ComponentUnit } from './model';
-import type { TemplateBlock } from './template-blocks';
+import { blockLabel, crossingSubject } from './block-structure';
+import type { Crossing } from './block-structure';
+import type { BlockContext, TemplateBlock } from './block-tree';
 
 /** @private */
 export const GENERATE_COMMAND = 'composer admin:generate-public-api';
@@ -29,26 +30,71 @@ function line(text: string, ...markers: (string | null)[]): Line {
     return { text, markers: markers.filter((marker) => marker !== null) };
 }
 
-function blockTree(unit: ComponentUnit, flags: FlagContext): Line[] {
-    const children = new Map<string | null, TemplateBlock[]>();
+/** A block under one parent as the report shows it. `markers` holds what follows its name, without its flag states. */
+interface PrintedBlock {
+    name: string;
+    parent: string | null;
+    markers: string[];
+    states: FlagStates;
+}
 
-    unit.blocks.forEach((block) => children.set(block.parent, [...(children.get(block.parent) ?? []), block]));
+function contextMarkers({ afterIf, scope }: BlockContext): string[] {
+    return [
+        ...(afterIf === null ? [] : ['after v-if']),
+        ...(scope.length === 0 ? [] : [`scope: ${scope.map(({ name }) => name).join(', ')}`]),
+    ];
+}
+
+/**
+ * The report shows that a block follows a `v-if` chain and which variables it can use, but not the conditions
+ * of the chain and where a variable comes from. Entries that differ in those only are one line.
+ */
+function printedBlocks(blocks: TemplateBlock[]): PrintedBlock[] {
+    return mergeStates(
+        blocks.map(({ name, parent, origin, context, states }) => ({
+            name,
+            parent,
+            markers: [
+                ...(origin === null ? [] : [origin]),
+                ...contextMarkers(context),
+            ],
+            states,
+        })),
+        ({ name, parent, markers }) => [name, parent ?? '', ...markers].join('\n'),
+    );
+}
+
+function blockTree(unit: ComponentUnit, flags: FlagContext): Line[] {
+    const children = new Map<string | null, PrintedBlock[]>();
+
+    printedBlocks(unit.blocks).forEach((block) =>
+        children.set(block.parent, [...(children.get(block.parent) ?? []), block]),
+    );
 
     const below = (parent: string | null, ancestors: readonly string[]): Line[] =>
-        (children.get(parent) ?? [])
-            .sort((a, b) => byCodePoint(a.name, b.name))
-            .flatMap(({ name, states }) => [
-                line(`${'  '.repeat(ancestors.length + 1)}${name}`, flagStateMarker(states, flags)),
-                // A block that sits inside itself would repeat forever.
-                ...(ancestors.includes(name)
-                    ? []
-                    : below(name, [
-                          ...ancestors,
-                          name,
-                      ])),
-            ]);
+        (children.get(parent) ?? []).flatMap(({ name, markers, states }) => [
+            line(`${'  '.repeat(ancestors.length + 1)}${name}`, ...markers, flagStateMarker(states, flags)),
+            // A block that sits inside itself would repeat forever.
+            ...(ancestors.includes(name)
+                ? []
+                : below(name, [
+                      ...ancestors,
+                      name,
+                  ])),
+        ]);
 
     return below(null, []);
+}
+
+function crossingLines(crossings: Crossing[], flags: FlagContext): Line[] {
+    return crossings.map((crossing) => {
+        const subject = crossing.kind === 'chain' ? crossingSubject(crossing) : `<${crossingSubject(crossing)}>`;
+
+        return line(
+            `  ${subject}  ${blockLabel(crossing.opens)} -> ${blockLabel(crossing.closes)}`,
+            flagStateMarker(crossing.states, flags),
+        );
+    });
 }
 
 function header(unit: ComponentUnit, flags: FlagContext): Line[] {
@@ -68,7 +114,10 @@ function header(unit: ComponentUnit, flags: FlagContext): Line[] {
  * belong to no element, so they carry none.
  */
 function outline(unit: ComponentUnit, flags: FlagContext): string[] {
-    const sections: Section[] = [{ heading: 'blocks', lines: blockTree(unit, flags) }];
+    const sections: Section[] = [
+        { heading: 'blocks', lines: blockTree(unit, flags) },
+        { heading: 'crossings', lines: crossingLines(unit.crossings, flags) },
+    ];
     const unitMarkers = unit.visibility === 'private' ? ['private'] : [];
     const print = ({ text, markers }: Line): string => {
         const shown = [

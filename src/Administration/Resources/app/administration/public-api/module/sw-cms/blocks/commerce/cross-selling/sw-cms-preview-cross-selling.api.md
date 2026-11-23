@@ -13,5 +13,5 @@ component sw-cms-preview-cross-selling  private  js  [private]
 
 blocks
   sw_cms_block_cross_selling_preview  [private]
-    sw_cms_block_cross_selling_preview_box  [private]
+    sw_cms_block_cross_selling_preview_box  [scope: block] [private]
 ```

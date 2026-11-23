@@ -15,5 +15,5 @@ blocks
     sw_settings_state_machine_state_list_detail
     sw_settings_state_machine_state_list_grid
       sw_settings_state_machine_state_list_grid_actions
-        sw_settings_state_machine_state_list_grid_actions_edit
+        sw_settings_state_machine_state_list_grid_actions_edit  [scope: item]
 ```

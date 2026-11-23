@@ -15,12 +15,12 @@ blocks
   sw_cms_element_product_box  [private]
     sw_cms_element_product_box_content  [private]
       sw_cms_element_product_box_badges  [private]
-      sw_cms_element_product_box_info  [private]
+      sw_cms_element_product_box_info  [after v-if] [private]
         sw_cms_element_product_box_actions  [private]
         sw_cms_element_product_box_description  [private]
         sw_cms_element_product_box_name  [private]
-        sw_cms_element_product_box_price_info  [private]
-          sw_cms_element_product_box_price  [private]
+        sw_cms_element_product_box_price_info  [after v-if] [private]
+          sw_cms_element_product_box_price  [after v-if] [private]
           sw_cms_element_product_box_price_unit  [private]
       sw_cms_element_product_box_info_skeleton  [private]
         sw_cms_element_product_box_actions_skeleton  [private]
@@ -28,4 +28,7 @@ blocks
         sw_cms_element_product_box_name_skeleton  [private]
         sw_cms_element_product_box_price_skeleton  [private]
       sw_cms_element_product_box_media  [private]
+
+crossings
+  v-if  sw_cms_element_product_box_info_skeleton -> sw_cms_element_product_box_info  [private]
 ```

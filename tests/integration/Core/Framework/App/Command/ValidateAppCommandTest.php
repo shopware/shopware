@@ -23,7 +23,19 @@ class ValidateAppCommandTest extends TestCase
         $commandTester->execute(['name' => 'withoutPermissions']);
 
         static::assertSame(0, $commandTester->getStatusCode());
-        static::assertStringContainsString('[OK]', $commandTester->getDisplay());
+        static::assertSame('✔ 1 app valid', trim($commandTester->getDisplay()));
+    }
+
+    public function testAppWithOnlyNoticesIsValid(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->execute(['name' => 'validationFailure']);
+
+        static::assertSame(0, $commandTester->getStatusCode());
+        static::assertSame(
+            "validationFailure\n  notice  Missing label translations: de-DE\n\n✔ 0 errors, 1 notice",
+            trim($commandTester->getDisplay())
+        );
     }
 
     public function testUsesAllAppFoldersFromAppDirIfMissingArgument(): void
@@ -31,9 +43,20 @@ class ValidateAppCommandTest extends TestCase
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
         $commandTester->execute([]);
 
+        $display = $commandTester->getDisplay();
+
         static::assertSame(1, $commandTester->getStatusCode());
-        static::assertStringContainsString('[ERROR] The app "validationFailure" is invalid', $commandTester->getDisplay());
-        static::assertStringContainsString('[ERROR] The app "validationFailures" is invalid', $commandTester->getDisplay());
+        static::assertStringContainsString(
+            "validationFailure\n  notice  Missing label translations: de-DE\n",
+            $display
+        );
+        static::assertStringContainsString(
+            "validationFailures\n"
+            . "  notice  Webhooks not hookable: hook4NotAllowed (tax.written)\n"
+            . "  error   Missing permissions: order:read, product:read\n",
+            $display
+        );
+        static::assertStringEndsWith("✖ 1 error, 2 notices (1 of 6 apps invalid)\n", $display);
     }
 
     private function createCommand(string $appFolder): ValidateAppCommand

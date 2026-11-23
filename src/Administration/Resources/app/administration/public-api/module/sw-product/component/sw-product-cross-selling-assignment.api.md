@@ -12,12 +12,12 @@ component sw-product-cross-selling-assignment  public  js
 
 blocks
   sw_product_cross_selling_assignment_container
-    sw_product_cross_selling_assignment_empty_state
+    sw_product_cross_selling_assignment_empty_state  [after v-if]
     sw_product_cross_selling_assignment_option_grid
-      sw_data_grid_columns_render_value
+      sw_data_grid_columns_render_value  [scope: item]
       sw_product_cross_selling_assignment_option_grid_column_position
     sw_product_cross_selling_assignment_select
       sw_product_cross_selling_assignment_select_result_item
-        sw_product_cross_selling_assignment_select_result_item_inner
-          sw_entity_single_select_base_results_list_result_label
+        sw_product_cross_selling_assignment_select_result_item_inner  [scope: index, item]
+          sw_entity_single_select_base_results_list_result_label  [scope: index, item]
 ```

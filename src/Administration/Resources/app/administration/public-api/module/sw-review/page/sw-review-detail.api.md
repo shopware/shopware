@@ -43,6 +43,6 @@ blocks
       sw_review_detail_basic_info_card_description_list
         sw_review_detail_description_list_language
         sw_review_detail_description_list_status
-      sw_review_detail_custom_field_sets
+      sw_review_detail_custom_field_sets  [after v-if]
     sw_review_detail_header
 ```

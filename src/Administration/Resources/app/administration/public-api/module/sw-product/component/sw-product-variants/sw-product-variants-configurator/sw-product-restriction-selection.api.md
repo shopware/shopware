@@ -17,7 +17,7 @@ blocks
         sw_product_restriction_selection_is_from
         sw_product_restriction_selection_select_group
       sw_product_restriction_selection_select_option_wrapper
-        sw_product_restriction_selection_context_button
+        sw_product_restriction_selection_context_button  [after v-if]
           sw_product_restriction_selection_context_button_items
         sw_product_restriction_selection_multi_select
     sw_product_restriction_selection_content_after

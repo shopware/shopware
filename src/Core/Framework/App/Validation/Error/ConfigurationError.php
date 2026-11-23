@@ -13,22 +13,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class ConfigurationError implements Error
 {
-    private readonly string $message;
-
     /**
      * @param list<string> $violations
      */
-    public function __construct(array $violations, private readonly string $appName)
-    {
-        $this->message = \sprintf(
-            "The following custom components are not allowed to be used in app configuration:\n- %s",
-            implode("\n- ", $violations)
-        );
+    public function __construct(
+        private readonly array $violations,
+        private readonly string $appName
+    ) {
     }
 
     public function getMessage(): string
     {
-        return $this->message;
+        return \sprintf('Custom components not allowed in app configuration: %s', implode(', ', $this->violations));
     }
 
     public function getErrorCode(): string
@@ -38,7 +34,7 @@ class ConfigurationError implements Error
 
     public function getParameters(): array
     {
-        return ['appName' => $this->appName, 'error' => $this->message];
+        return ['appName' => $this->appName, 'error' => $this->getMessage()];
     }
 
     public function getSeverity(): Severity

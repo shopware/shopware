@@ -73,6 +73,29 @@ class ElasticsearchIndexer
     }
 
     /**
+     * @param array<string> $entities
+     *
+     * @return \Generator<int, ElasticsearchIndexingMessage>
+     */
+    public function iterateMessages(array $entities = []): \Generator
+    {
+        $message = $this->iterate(null, $entities);
+
+        while ($message !== null) {
+            // Look ahead one batch so only the final message triggers indexing completion.
+            $nextMessage = $this->iterate($message->getOffset(), $entities);
+
+            if ($nextMessage === null) {
+                $message->markAsLastMessage();
+            }
+
+            yield $message;
+
+            $message = $nextMessage;
+        }
+    }
+
+    /**
      * @param array<string> $ids
      */
     public function updateIds(EntityDefinition $definition, array $ids): void

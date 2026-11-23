@@ -16,7 +16,7 @@ blocks
       sw_settings_state_machine_list_content_card
         sw_settings_state_machine_list_content_card_grid
           sw_settings_state_machine_list_content_card_grid_actions
-            sw_settings_state_machine_list_content_card_grid_actions_edit
+            sw_settings_state_machine_list_content_card_grid_actions_edit  [scope: item]
     sw_settings_state_machine_list_language_switch
     sw_settings_state_machine_list_smart_bar_header
       sw_settings_state_machine_list_smart_bar_header_title

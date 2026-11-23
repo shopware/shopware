@@ -10,4 +10,7 @@ component sw-cms-el-product-name  private  js  [private]
   registered src/module/sw-cms/elements/product-name/index.ts  [private]
   source src/module/sw-cms/elements/product-name/component/index.js  [private]
   visibility-source export  [private]
+
+blocks
+  sw_cms_element_text  [inherited] [private]
 ```

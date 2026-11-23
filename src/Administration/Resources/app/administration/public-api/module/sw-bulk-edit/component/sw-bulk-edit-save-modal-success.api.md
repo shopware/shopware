@@ -14,6 +14,6 @@ blocks
   sw_bulk_edit_save_modal_success
     sw_bulk_edit_save_modal_document_generation_errors
     sw_bulk_edit_save_modal_error_content
-    sw_bulk_edit_save_modal_success_download_document
+    sw_bulk_edit_save_modal_success_download_document  [after v-if]
     sw_bulk_edit_save_modal_success_icon
 ```

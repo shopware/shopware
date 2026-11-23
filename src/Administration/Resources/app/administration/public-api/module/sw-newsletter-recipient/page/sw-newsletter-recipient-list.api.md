@@ -33,19 +33,26 @@ blocks
         sw_newsletter_recipientlist_list_smart_bar_header_title_text
     sw_newsletter_recipientlist_list_content
       sw_newsletter_recipient_list_empty_state
-      sw_newsletter_recipientlist_list_content_card
-        sw_newsletter_recipientlist_list_grid
+      sw_newsletter_recipientlist_list_content_card  [after v-if]
+        sw_newsletter_recipientlist_list_grid  [after v-if]
           sw_newsletter_recipientlist_list_grid_created_at
           sw_newsletter_recipientlist_list_grid_email
           sw_newsletter_recipientlist_list_grid_name
-            sw_newsletter_recipientlist_list_grid_inline_edit_name
-              sw_newsletter_recipientlist_list_grid_inline_edit_first_name
-              sw_newsletter_recipientlist_list_grid_inline_edit_last_name
-            sw_newsletter_recipientlist_list_grid_name_link
+            sw_newsletter_recipientlist_list_grid_inline_edit_name  [scope: compact, isInlineEdit, item]
+              sw_newsletter_recipientlist_list_grid_inline_edit_first_name  [scope: compact, isInlineEdit, item]
+              sw_newsletter_recipientlist_list_grid_inline_edit_last_name  [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_name_link  [after v-if] [scope: compact, isInlineEdit, item]
           sw_newsletter_recipientlist_list_grid_status
-            sw_newsletter_recipientlist_list_grid_status_direct
-            sw_newsletter_recipientlist_list_grid_status_notSet
-            sw_newsletter_recipientlist_list_grid_status_optIn
-            sw_newsletter_recipientlist_list_grid_status_optOut
+            sw_newsletter_recipientlist_list_grid_status_direct  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_status_notSet  [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_status_optIn  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_newsletter_recipientlist_list_grid_status_optOut  [after v-if] [scope: compact, isInlineEdit, item]
           sw_newsletter_recipientlist_list_grid_updated_at
+
+crossings
+  v-if  sw_newsletter_recipient_list_empty_state -> sw_newsletter_recipientlist_list_grid
+  v-if  sw_newsletter_recipientlist_list_grid_inline_edit_name -> sw_newsletter_recipientlist_list_grid_name_link
+  v-if  sw_newsletter_recipientlist_list_grid_status_notSet -> sw_newsletter_recipientlist_list_grid_status_optIn
+  v-if  sw_newsletter_recipientlist_list_grid_status_optIn -> sw_newsletter_recipientlist_list_grid_status_optOut
+  v-if  sw_newsletter_recipientlist_list_grid_status_optOut -> sw_newsletter_recipientlist_list_grid_status_direct
 ```

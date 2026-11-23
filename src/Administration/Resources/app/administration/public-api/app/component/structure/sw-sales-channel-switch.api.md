@@ -19,5 +19,5 @@ blocks
         sw_sales_channel_switch_footer_button_revert  [private]
         sw_sales_channel_switch_footer_button_save  [private]
       sw_sales_channel_switch_message  [private]
-    sw_sales_channel_switch_select  [private]
+    sw_sales_channel_switch_select  [after v-if] [private]
 ```

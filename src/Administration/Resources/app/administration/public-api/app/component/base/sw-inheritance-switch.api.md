@@ -14,5 +14,8 @@ component sw-inheritance-switch  private  js  [private]
 blocks
   sw_inheritance_switch  [private]
     sw_inheritance_switch_inherit_icon  [private]
-    sw_inheritance_switch_uninherit_icon  [private]
+    sw_inheritance_switch_uninherit_icon  [after v-if] [private]
+
+crossings
+  v-if  sw_inheritance_switch_inherit_icon -> sw_inheritance_switch_uninherit_icon  [private]
 ```

@@ -19,17 +19,17 @@ blocks
       sw_settings_country_general_content_field_position
     sw_settings_country_general_options_card
       sw_settings_country_general_content_field_active
-      sw_settings_country_general_content_field_check_vat_id_format
+      sw_settings_country_general_content_field_check_vat_id_format  [after v-if]
       sw_settings_country_general_content_field_is_eu
       sw_settings_country_general_content_field_shipping_available
       sw_settings_country_general_content_field_tax_free
-      sw_settings_country_general_content_field_tax_free_companies
+      sw_settings_country_general_content_field_tax_free_companies  [after v-if]
       sw_settings_country_general_content_field_tax_free_from_companies
         sw_settings_country_general_content_field_tax_free_from_companies_value
       sw_settings_country_general_content_field_tax_free_from_customer
         sw_settings_country_general_content_field_tax_free_from_customer_value
       sw_settings_country_general_content_field_vat_id_required
       sw_settings_country_general_content_show_company_tax_free_currency_dependent_values
-      sw_settings_country_general_content_show_currency_dependent_modal
+      sw_settings_country_general_content_show_currency_dependent_modal  [after v-if]
       sw_settings_country_general_content_show_tax_free_currency_dependent_values
 ```

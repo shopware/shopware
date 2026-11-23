@@ -13,5 +13,8 @@ component sw-loader  private  js  [private]
 
 blocks
   sw_loader  [private]
-  sw_loader_deprecated  [private]
+  sw_loader_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_loader -> sw_loader_deprecated  [private]
 ```

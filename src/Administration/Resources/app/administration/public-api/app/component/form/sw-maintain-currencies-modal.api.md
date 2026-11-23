@@ -18,9 +18,9 @@ blocks
       sw_maintain_currencies_modal_footer_button_cancel  [private]
     sw_maintain_currencies_modal_grid  [private]
       sw_maintain_currencies_modal_grid_column_name  [private]
-        sw_maintain_currencies_modal_grid_column_name_inherit_field  [private]
-        sw_maintain_currencies_modal_grid_column_name_item_name  [private]
+        sw_maintain_currencies_modal_grid_column_name_inherit_field  [scope: item] [private]
+        sw_maintain_currencies_modal_grid_column_name_item_name  [after v-if] [scope: item] [private]
       sw_maintain_currencies_modal_grid_column_price  [private]
-        sw_maintain_currencies_modal_grid_column_price_field  [private]
+        sw_maintain_currencies_modal_grid_column_price_field  [scope: item] [private]
         sw_maintain_currencies_modal_grid_column_price_field_label  [private]
 ```

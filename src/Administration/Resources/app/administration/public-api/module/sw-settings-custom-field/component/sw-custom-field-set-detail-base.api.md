@@ -13,8 +13,8 @@ component sw-custom-field-set-detail-base  public  js
 blocks
   sw_settings_custom_field_set_detail_base
     sw_settings_custom_field_set_detail_base_entities
-    sw_settings_custom_field_set_detail_base_labels
-    sw_settings_custom_field_set_detail_base_multi_select
+    sw_settings_custom_field_set_detail_base_labels  [after v-if]
+    sw_settings_custom_field_set_detail_base_multi_select  [after v-if]
     sw_settings_custom_field_set_detail_base_position
     sw_settings_custom_field_set_detail_base_technical_name
     sw_settings_custom_field_set_detail_base_translated

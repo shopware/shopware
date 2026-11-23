@@ -19,6 +19,13 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
+        /**
+         * Kept for overrides of this component; the template dismisses the closed modal itself via `dismissModal`.
+         */
+        closeModal(locationId: string) {
+            Shopware.Store.get('modals').dismissModals((modal) => modal.locationId === locationId);
+        },
+
         dismissModal(modal: ModalItemEntry) {
             Shopware.Store.get('modals').dismissModal(modal);
         },

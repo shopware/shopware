@@ -24,7 +24,7 @@
     {% endblock %}
 
     {% block sw_context_button_menu %}
-    {# Mounted only while open: the deprecated sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
+    {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
     <mt-floating-ui
         v-if="showMenu"
         class="sw-context-button__menu-position sw-context-button__menu-popover"

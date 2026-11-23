@@ -111,8 +111,9 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
      * which is an internal fault. Both are remapped to a {@see WriteConstraintViolationException} carrying the
      * layout field's path, so the caller sees the same structured rejection the constraint pass produces.
      *
-     * The decoded tree is memoized on the write `Context` ({@see LayoutWriteContext}) under the exact value
-     * yielded for the column, so {@see PreWriteValidationEvent} gates the tree behind the bytes a record stores.
+     * The decoded tree is memoized on the write `Context` ({@see LayoutWriteContext}) under the write's
+     * `WriteContext` and the exact value yielded for the column, so {@see PreWriteValidationEvent} gates the tree
+     * behind the bytes a record stores.
      */
     public function encode(
         Field $field,

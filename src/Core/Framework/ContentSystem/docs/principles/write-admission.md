@@ -36,9 +36,9 @@ In code:
 
 - Only `PreWriteValidationEvent` subscribers read `LayoutGate::SKIP_VALIDATION_STATE`.
 - `StoredElementListFieldSerializer` therefore still passes every tree through `LayoutWriteBoundary` and the `StoredTreeConstraints` descriptor.
-- `ContentLayoutWriteMemoLifetimeTest` pins that a DAL write under the skip state still records the tree it encodes in `LayoutWriteContext`. The same test pins that this record belongs to the `WriteContext` of its write, retries included. It also pins that a nested write on the same `Context` keeps its own record and leaves the outer write's record intact.
+- `ContentLayoutWriteMemoLifetimeTest::testAWriteUnderTheSkipStateStillMemoizesTheTreeItEncodes` pins that a DAL write under the skip state still records the tree it encodes in `LayoutWriteContext`.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## Also true by construction
 
-- The [write gate](README.md#terms-that-are-easy-to-confuse) checks, per layout record, the tree the field serializer recorded in `LayoutWriteContext` for the value the record stores after the write. The write gate therefore checks the stored tree whatever order the DAL runs the writes in. The write gate only reads `LayoutWriteContext` and never decodes the column: [Layout/Field/README.md](../../Layout/Field/README.md)
+- The [write gate](README.md#terms-that-are-easy-to-confuse) checks the tree behind the layout value each record stores after the write, whatever order the DAL runs writes in: [Layout/Field/README.md](../../Layout/Field/README.md)

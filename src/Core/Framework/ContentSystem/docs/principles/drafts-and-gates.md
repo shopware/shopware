@@ -1,6 +1,6 @@
 # Drafts and gates
 
-A draft is rejected only when not well-formed. A layout write is rejected when the tree it leaves a layout with does not resolve.
+A draft is rejected only when not well-formed. A layout write is rejected when the tree it stores does not resolve.
 
 ## The module holds a draft to well-formedness
 
@@ -9,7 +9,7 @@ The module holds a layout write to resolvability. `ContentLayoutWriteValidator` 
 | Gate | Input | What it rejects | Where it runs |
 |---|---|---|---|
 | Gate on a draft | an unsaved draft | only a tree that is not well-formed | a draft route, which at most reports resolvability |
-| [Write gate](README.md#terms-that-are-easy-to-confuse) | the tree a `content_layout` write leaves a layout with | a tree that does not fully resolve against the layout's [root context](README.md#glossary), including a tree with an unfilled required property | `ContentLayoutWriteValidator`, on the write |
+| [Write gate](README.md#terms-that-are-easy-to-confuse) | the tree a `content_layout` write stores | a tree that does not fully resolve against the layout's [root context](README.md#glossary), including a tree with an unfilled required property | `ContentLayoutWriteValidator`, on the write |
 
 Why: A draft under construction is legitimately unresolved. A served layout with an unfilled required property always renders empty.
 

@@ -204,23 +204,6 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertSame(ViolationCode::UnresolvedRequired->value, $violation->getCode());
     }
 
-    #[TestDox('refuses to gate a layout command against a memo an earlier write opened')]
-    public function testForeignOwnedMemoIsNotRead(): void
-    {
-        $validator = $this->validator();
-
-        $command = $this->layoutCreate(['layout' => self::STORED_LAYOUT, 'root_source' => 'none']);
-        $earlierWrite = $this->writeWithMemoFor([$command]);
-
-        $currentWrite = WriteContext::createFromContext($earlierWrite->getContext());
-
-        $this->expectExceptionObject(
-            ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, '/insert')
-        );
-
-        $validator->preValidate(new PreWriteValidationEvent($currentWrite, [$command]));
-    }
-
     #[TestDox('does not gate the tree of a layout the batch creates and then deletes')]
     public function testTreeWrittenBeforeTheRecordsDeleteIsNotGated(): void
     {

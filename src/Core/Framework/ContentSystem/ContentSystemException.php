@@ -1538,11 +1538,11 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * The write validator found no tree in the write's memo for the layout value a record stores. The field
-     * serializer memoizes the tree behind every value it encodes for the layout column, keyed by that value,
-     * before the validation event fires, so the absence is a broken write-path invariant rather than a defect in
-     * the caller's payload: falling back to a second decode here would validate a tree other than the one being
-     * stored, and do it silently.
+     * The write validator found no tree among the write's memo entries for the layout value a record stores. The
+     * field serializer memoizes the tree behind every value it encodes for the layout column, keyed by the write's
+     * `WriteContext` and that value, before the validation event fires, so the absence is a broken write-path
+     * invariant rather than a defect in the caller's payload: falling back to a second decode here would validate
+     * a tree other than the one being stored, and do it silently.
      */
     public static function layoutWriteMemoMissing(string $entityName, string $writePath): self
     {

@@ -12,9 +12,9 @@ component sw-sales-channel-modal-grid  public  js
 
 blocks
   sw_sales_channel_modal_grid
-    sw_sales_channel_grid_columns
-      sw_sales_channel_grid_columns_actions
-      sw_sales_channel_grid_columns_content
-      sw_sales_channel_grid_columns_icon
-    sw_sales_channel_modal_grid_loader
+    sw_sales_channel_grid_columns  [scope: item]
+      sw_sales_channel_grid_columns_actions  [scope: item]
+      sw_sales_channel_grid_columns_content  [scope: item]
+      sw_sales_channel_grid_columns_icon  [scope: item]
+    sw_sales_channel_modal_grid_loader  [after v-if]
 ```

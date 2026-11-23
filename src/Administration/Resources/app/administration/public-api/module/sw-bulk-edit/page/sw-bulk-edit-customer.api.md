@@ -16,8 +16,8 @@ blocks
       sw_bulk_edit_customer_content_account_card
         sw_bulk_edit_customer_content_account_section
       sw_bulk_edit_customer_custom_field_card
-      sw_bulk_edit_customer_empty_state
-      sw_bulk_edit_customer_save_modal
+      sw_bulk_edit_customer_empty_state  [after v-if]
+      sw_bulk_edit_customer_save_modal  [after v-if]
       sw_bulk_edit_customer_tags_card
         sw_bulk_edit_customer_tags
     sw_bulk_edit_customer_content_language_switch

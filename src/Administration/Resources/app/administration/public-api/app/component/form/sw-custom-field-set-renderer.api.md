@@ -16,11 +16,14 @@ blocks
     sw_custom_field_set_renderer_card  [private]
       sw_custom_field_set_renderer_card_mt_tabs  [from v6.8.0] [private]
       sw_custom_field_set_renderer_card_mt_tabs_content  [from v6.8.0] [private]
-        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [from v6.8.0] [private]
+        sw_custom_field_set_renderer_card_mt_tabs_form_renderer  [scope: set] [from v6.8.0] [private]
       sw_custom_field_set_renderer_card_tabs  [until v6.8.0] [private]
       sw_custom_field_set_renderer_card_tabs_content  [until v6.8.0] [private]
-        sw_custom_field_set_renderer_card_form_renderer  [until v6.8.0] [private]
-    sw_custom_field_set_renderer_media  [private]
-      sw_custom_field_set_renderer_media_button_save  [private]
-      sw_custom_field_set_renderer_media_form_renderer  [private]
+        sw_custom_field_set_renderer_card_form_renderer  [scope: active, set] [until v6.8.0] [private]
+    sw_custom_field_set_renderer_media  [after v-if] [private]
+      sw_custom_field_set_renderer_media_button_save  [scope: set] [private]
+      sw_custom_field_set_renderer_media_form_renderer  [scope: customField, set] [private]
+
+crossings
+  v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media  [private]
 ```

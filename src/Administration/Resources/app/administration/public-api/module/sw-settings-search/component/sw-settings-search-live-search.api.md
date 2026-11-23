@@ -21,10 +21,14 @@ blocks
       sw_settings_search_view_live_search_show_example_link
     sw_settings_search_view_live_search_results
       sw_search_bar_results_empty_state
-      sw_settings_search_view_live_search_results_no_result
-      sw_settings_search_view_live_search_results_search_grid
+      sw_settings_search_view_live_search_results_no_result  [after v-if]
+      sw_settings_search_view_live_search_results_search_grid  [after v-if]
         sw_settings_search_view_live_search_results_search_grid_columns
           sw_settings_search_view_live_search_results_search_grid_name
           sw_settings_search_view_live_search_results_search_grid_score
     sw_settings_search_view_live_search_sales_channel
+
+crossings
+  v-if  sw_search_bar_results_empty_state -> sw_settings_search_view_live_search_results_search_grid
+  v-if  sw_settings_search_view_live_search_results_search_grid -> sw_settings_search_view_live_search_results_no_result
 ```

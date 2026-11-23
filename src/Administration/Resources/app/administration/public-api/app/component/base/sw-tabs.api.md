@@ -13,5 +13,8 @@ component sw-tabs  private  ts  [private]
 
 blocks
   sw_tabs  [private]
-  sw_tabs_deprecated  [private]
+  sw_tabs_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_tabs -> sw_tabs_deprecated  [private]
 ```

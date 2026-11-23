@@ -12,7 +12,7 @@ component sw-bulk-edit-order-documents-generate-credit-note  public  js
 
 blocks
   sw_bulk_edit_order_documents_generate_invoice  [inherited]
-    sw_bulk_edit_order_documents_generate_invoice_datepicker  [inherited]
+    sw_bulk_edit_order_documents_generate_invoice_datepicker  [inherited] [after v-if]
     sw_bulk_edit_order_documents_generate_invoice_file_formats  [inherited]
     sw_bulk_edit_order_documents_generate_invoice_placeholder  [inherited]
     sw_bulk_edit_order_documents_generate_invoice_textarea  [inherited]

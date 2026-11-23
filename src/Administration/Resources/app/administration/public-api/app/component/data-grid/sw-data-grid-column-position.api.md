@@ -13,7 +13,7 @@ component sw-data-grid-column-position  private  js  [private]
 
 blocks
   sw_data_grid_column_position  [private]
-    sw_data_grid_column_position_button_group  [private]
+    sw_data_grid_column_position_button_group  [after v-if] [private]
       sw_data_grid_column_position_button_down  [private]
         sw_data_grid_column_position_button_down_content  [private]
       sw_data_grid_column_position_button_up  [private]

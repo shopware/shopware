@@ -16,13 +16,17 @@ blocks
       sw_import_export_edit_profile_general_container_name
       sw_import_export_edit_profile_general_container_object_type
         sw_import_export_edit_profile_general_container_object_type_select
-          sw_import_export_edit_profile_general_container_object_type_select_result
-            sw_import_export_edit_profile_general_container_object_type_select_result_highlight
-            sw_import_export_edit_profile_general_container_object_type_select_result_text
+          sw_import_export_edit_profile_general_container_object_type_select_result  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+            sw_import_export_edit_profile_general_container_object_type_select_result_highlight  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+            sw_import_export_edit_profile_general_container_object_type_select_result_text  [after v-if] [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
       sw_import_export_edit_profile_general_container_technical_name
       sw_import_export_edit_profile_general_container_type
-        sw_import_export_edit_profile_general_container_type_result
-          sw_import_export_edit_profile_general_container_type_result_highlight
-          sw_import_export_edit_profile_general_container_type_result_text
+        sw_import_export_edit_profile_general_container_type_result  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+          sw_import_export_edit_profile_general_container_type_result_highlight  [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
+          sw_import_export_edit_profile_general_container_type_result_text  [after v-if] [scope: getKey, highlightSearchTerm, index, isSelected, item, labelProperty, searchTerm, setValue]
     sw_import_export_edit_profile_general_text
+
+crossings
+  v-if  sw_import_export_edit_profile_general_container_object_type_select_result_highlight -> sw_import_export_edit_profile_general_container_object_type_select_result_text
+  v-if  sw_import_export_edit_profile_general_container_type_result_highlight -> sw_import_export_edit_profile_general_container_type_result_text
 ```

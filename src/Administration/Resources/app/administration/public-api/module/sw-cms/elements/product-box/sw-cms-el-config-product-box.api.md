@@ -16,9 +16,9 @@ blocks
     sw_cms_element_product_box_config_displaymode_select  [private]
     sw_cms_element_product_box_config_layout_select  [private]
     sw_cms_element_product_box_config_product_select  [private]
-      sw_cms_element_product_box_config_product_select_result_item  [private]
-        sw_cms_element_product_box_config_product_select_result_item_inner  [private]
-          sw_entity_single_select_base_results_list_result_label  [private]
-      sw_cms_element_product_box_config_product_selection_label  [private]
+      sw_cms_element_product_box_config_product_select_result_item  [scope: isInherited] [private]
+        sw_cms_element_product_box_config_product_select_result_item_inner  [scope: index, isInherited, item] [private]
+          sw_entity_single_select_base_results_list_result_label  [scope: index, isInherited, item] [private]
+      sw_cms_element_product_box_config_product_selection_label  [scope: isInherited] [private]
     sw_cms_element_product_box_config_settings_vertical_align  [private]
 ```

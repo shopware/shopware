@@ -12,7 +12,7 @@ component sw-order-address-selection  public  js
 
 blocks
   sw_order_address_selection
-    sw_order_address_selection_entity_single_select
+    sw_order_address_selection_entity_single_select  [after v-if]
     sw_order_address_selection_modal
       sw_order_address_modal_actions
         sw_order_address_modal_action_close

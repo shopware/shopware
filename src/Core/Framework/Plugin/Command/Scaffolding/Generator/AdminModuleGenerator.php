@@ -22,7 +22,7 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     private const OPTION_DESCRIPTION_LONG = 'A custom Administration module is a self-contained feature area in Shopware’s admin interface, such as Products or Orders. It contains the screens, routes, components, and logic needed to manage that area.';
     private const CLI_QUESTION = 'Do you want to create an example admin module?';
 
-    private string $mainJsEntry = <<<'EOL'
+    private string $mainTsEntry = <<<'EOL'
     // Import admin module
     import './module/swag-example';
 
@@ -53,7 +53,7 @@ class AdminModuleGenerator implements ScaffoldingGenerator
         }
 
         $stubCollection->add($this->createModule());
-        $stubCollection->add($this->createMainJsEntry());
+        $stubCollection->add($this->createMainTsEntry());
         $adminStubs = $this->createAdminComponent();
         foreach ($adminStubs as $adminStub) {
             $stubCollection->add($adminStub);
@@ -67,8 +67,8 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     private function createModule(): Stub
     {
         return Stub::template(
-            'src/Resources/app/administration/src/module/swag-example/index.js',
-            self::STUB_DIRECTORY . '/js-module.stub'
+            'src/Resources/app/administration/src/module/swag-example/index.ts',
+            self::STUB_DIRECTORY . '/ts-module.stub'
         );
     }
 
@@ -79,7 +79,7 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     {
         return [
             Stub::template(
-                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/index.js',
+                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/index.ts',
                 self::STUB_DIRECTORY . '/admin-component-index.stub'
             ),
             Stub::template(
@@ -93,11 +93,11 @@ class AdminModuleGenerator implements ScaffoldingGenerator
         ];
     }
 
-    private function createMainJsEntry(): Stub
+    private function createMainTsEntry(): Stub
     {
         return Stub::raw(
-            'src/Resources/app/administration/src/main.js',
-            $this->mainJsEntry,
+            'src/Resources/app/administration/src/main.ts',
+            $this->mainTsEntry,
         );
     }
 

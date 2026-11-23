@@ -15,7 +15,7 @@ blocks
   sw_cms_element_image_slider  [private]
     sw_cms_element_image_slider_img  [private]
     sw_cms_element_image_slider_nav  [private]
-      sw_cms_element_image_slider_nav_arrows  [private]
+      sw_cms_element_image_slider_nav_arrows  [after v-if] [private]
       sw_cms_element_image_slider_nav_dots  [private]
     sw_cms_element_image_slider_nav_default  [private]
 ```

@@ -13,9 +13,12 @@ component sw-sales-channel-products-assignment-single-products  public  js
 blocks
   sw_sales_channel_products_assignment_single_products
     sw_sales_channel_products_assignment_single_products_primary
-      sw_sales_channel_products_assignment_single_products_primary_empty_state
+      sw_sales_channel_products_assignment_single_products_primary_empty_state  [after v-if]
       sw_sales_channel_products_assignment_single_products_primary_listing
         sw_sales_channel_products_assignment_single_products_primary_listing_pagination
     sw_sales_channel_products_assignment_single_products_secondary
       sw_sales_channel_products_assignment_single_products_search_field
+
+crossings
+  v-if  sw_sales_channel_products_assignment_single_products_primary_listing -> sw_sales_channel_products_assignment_single_products_primary_empty_state
 ```

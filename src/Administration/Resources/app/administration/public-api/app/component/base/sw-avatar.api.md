@@ -14,5 +14,5 @@ component sw-avatar  private  js  [private]
 blocks
   sw_avatar  [private]
     sw_avatar_slot_imageUrl  [private]
-    sw_avatar_slot_placeholder  [private]
+    sw_avatar_slot_placeholder  [after v-if] [private]
 ```

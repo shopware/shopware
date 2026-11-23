@@ -13,7 +13,7 @@ component sw-desktop  private  js  [private]
 
 blocks
   sw_desktop  [private]
-    sw_desktop_content  [private]
+    sw_desktop_content  [after v-if] [private]
       sw_desktop_content_view  [private]
-    sw_desktop_sidebar  [private]
+    sw_desktop_sidebar  [after v-if] [private]
 ```

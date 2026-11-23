@@ -15,9 +15,9 @@ blocks
   sw_product_image  [private]
     sw_product_image_context  [private]
       sw_product_image_context_cover_action  [private]
-      sw_product_image_context_delete_action  [private]
+      sw_product_image_context_delete_action  [after v-if] [private]
     sw_product_image_context_button  [private]
     sw_product_image_placeholder  [private]
     sw_product_image_preview  [private]
-      sw_product_image_preview_spatial_labels  [private]
+      sw_product_image_preview_spatial_labels  [after v-if] [private]
 ```

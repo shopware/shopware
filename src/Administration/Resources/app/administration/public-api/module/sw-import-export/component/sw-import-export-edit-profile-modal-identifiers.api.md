@@ -13,8 +13,11 @@ component sw-import-export-edit-profile-modal-identifiers  private  js  [private
 
 blocks
   sw_import_export_edit_profile_modal_identifiers  [private]
-    sw_import_export_edit_profile_modal_identifiers_empty_state  [private]
+    sw_import_export_edit_profile_modal_identifiers_empty_state  [after v-if] [private]
     sw_import_export_edit_profile_modal_identifiers_grid  [private]
       sw_import_export_edit_profile_modal_identifiers_grid_entity_name_column  [private]
       sw_import_export_edit_profile_modal_identifiers_grid_mapped_column  [private]
+
+crossings
+  v-if  sw_import_export_edit_profile_modal_identifiers_grid -> sw_import_export_edit_profile_modal_identifiers_empty_state  [private]
 ```

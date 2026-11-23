@@ -24,7 +24,7 @@ blocks
         sw_settings_currency_detail_content_field_symbol
         sw_settings_currency_detail_content_field_tax_free_from
       sw_settings_currency_detail_content_card_country_price_rounding
-        sw_settings_currency_detail_content_card_country_price_rounding_empty
+        sw_settings_currency_detail_content_card_country_price_rounding_empty  [after v-if]
         sw_settings_currency_detail_content_card_country_price_rounding_listing
           sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column
           sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column
@@ -38,7 +38,10 @@ blocks
           sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter
       sw_settings_currency_detail_content_card_price_rounding
       sw_settings_currency_detail_content_language_info
-      sw_settings_currency_detail_custom_field_sets
+      sw_settings_currency_detail_custom_field_sets  [after v-if]
     sw_settings_currency_detail_header
     sw_settings_currency_detail_language_switch
+
+crossings
+  v-if  sw_settings_currency_detail_content_card_country_price_rounding_listing -> sw_settings_currency_detail_content_card_country_price_rounding_empty
 ```

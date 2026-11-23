@@ -12,11 +12,11 @@ component sw-system-config  public  js
 
 blocks
   sw_system_config
-    sw_system_config_content_tab
-      sw_system_config_content_card
-        sw_system_config_content_card_group
-          sw_system_config_content_card_field
-        sw_system_config_content_compile_notice
-    sw_system_config_content_tabs
+    sw_system_config_content_tab  [scope: tab, tabIndex]
+      sw_system_config_content_card  [scope: config, tab, tabIndex]
+        sw_system_config_content_card_group  [scope: card, config, element, index, tab, tabIndex]
+          sw_system_config_content_card_field  [scope: card, config, element, index, tab, tabIndex]
+        sw_system_config_content_compile_notice  [scope: card, config, index, tab, tabIndex]
+    sw_system_config_content_tabs  [after v-if]
     sw_system_config_global_compile_notice
 ```

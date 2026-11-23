@@ -16,9 +16,9 @@ blocks
   sw_text_field  [replaced] [private]
     sw_email_field  [private]
       sw_email_field_copyable  [private]
-        sw_email_field_copyable_inner  [private]
+        sw_email_field_copyable_inner  [scope: disabled, identification] [private]
       sw_email_field_input  [private]
-        sw_email_field_input_inner  [private]
+        sw_email_field_input_inner  [scope: disabled, error, hasPrefix, hasSuffix, identification, removeFocusClass, setFocusClass, size] [private]
       sw_email_field_prefix  [private]
-        sw_email_field_prefix_inner  [private]
+        sw_email_field_prefix_inner  [scope: disabled, identification] [private]
 ```

@@ -13,5 +13,5 @@ component sw-radio-field  private  js  [private]
 
 blocks
   sw_radio_field  [private]
-    sw_radio_field_help_text  [private]
+    sw_radio_field_help_text  [scope: disabled, error, helpText, identification, index, option] [private]
 ```

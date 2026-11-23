@@ -17,7 +17,7 @@ blocks
       sw_settings_mailer_first_configuration
         sw_settings_mailer_first_configuration_description
         sw_settings_mailer_first_configuration_headline
-      sw_settings_mailer_headline_agent
+      sw_settings_mailer_headline_agent  [after v-if]
       sw_settings_mailer_smtp
         sw_settings_mailer_smtp_settings
     sw_settings_mailer_smart_bar_actions

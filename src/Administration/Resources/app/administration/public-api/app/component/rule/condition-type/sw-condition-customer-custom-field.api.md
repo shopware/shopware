@@ -22,8 +22,8 @@ blocks
       sw_condition_value_before_content  [inherited]
       sw_condition_value_content  [replaced]
         sw_condition_customer_custom_field_field
-          sw_condition_customer_custom_field_field_description
+          sw_condition_customer_custom_field_field_description  [scope: slotProps]
         sw_condition_customer_custom_field_operator
-        sw_condition_customer_custom_field_value
+        sw_condition_customer_custom_field_value  [after v-if]
     sw_condition_base_error  [inherited]
 ```

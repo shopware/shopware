@@ -15,7 +15,7 @@ blocks
   sw_modal  [private]
     sw_modal_element  [private]
       sw_modal_dialog  [private]
-        sw_modal_body  [private]
+        sw_modal_body  [after v-if] [private]
           sw_modal_loader  [private]
           sw_modal_slot_default  [private]
         sw_modal_footer  [private]

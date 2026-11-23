@@ -12,13 +12,13 @@ component sw-product-detail-variants  public  js
 
 blocks
   sw_product_detail_variants
-    sw_product_detail_variants_modal_delivery
+    sw_product_detail_variants_modal_delivery  [after v-if]
     sw_product_detail_variants_modal_variant_generation
     sw_product_detail_variants_sw_card_generated_variants
-      sw_product_detail_variants_sw_card_empty_state
+      sw_product_detail_variants_sw_card_empty_state  [after v-if]
         sw_product_properties_empty_state_button_property
-      sw_product_detail_variants_sw_card_empty_state_variant
+      sw_product_detail_variants_sw_card_empty_state_variant  [after v-if]
         sw_product_properties_empty_state_button
-      sw_product_detail_variants_sw_card_generated_variants_overview
-    sw_product_properties_add_properties_modal
+      sw_product_detail_variants_sw_card_generated_variants_overview  [after v-if]
+    sw_product_properties_add_properties_modal  [after v-if]
 ```

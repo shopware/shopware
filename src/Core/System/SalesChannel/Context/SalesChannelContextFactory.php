@@ -191,7 +191,12 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     private function getBillingTaxRules(BaseSalesChannelContext $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): ?TaxCollection
     {
         $billingAddress = $customer?->getActiveBillingAddress();
-        if ($billingAddress === null || $billingAddress->getId() === $shippingLocation->getAddress()?->getId()) {
+        $billingCountry = $billingAddress?->getCountry();
+        if ($billingAddress === null
+            || $billingCountry === null
+            || $billingAddress->getId() === $shippingLocation->getAddress()?->getId()
+            || !$this->intraCommunityTaxResolver->isTaxedByBillingCountry($customer, $billingCountry, $context->getSalesChannelId())
+        ) {
             return null;
         }
 

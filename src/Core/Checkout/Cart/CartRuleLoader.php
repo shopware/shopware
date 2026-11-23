@@ -146,16 +146,28 @@ class CartRuleLoader implements ResetInterface
         $salesChannelContext->setRuleIds($rules->getIds());
         $salesChannelContext->setAreaRuleIds($rules->getIdsByArea());
 
-        // start first cart calculation to have all objects enriched
-        $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
-
         // a cart of only digital products is taxed by the billing address
         $shippingTaxRules = $salesChannelContext->getTaxRules();
         $shippingTaxState = $salesChannelContext->getTaxState();
-        $taxCountry = $salesChannelContext->getShippingLocation()->getCountry();
-        $billingTaxRules = $this->isDigitalOnly($cart) ? $salesChannelContext->getBillingTaxRules() : null;
-        if ($billingTaxRules !== null) {
+        $billingTaxRules = $salesChannelContext->getBillingTaxRules();
+
+        // stored products already know their type, so their data context hash stays valid and they are not loaded again
+        $usesBillingTaxes = $billingTaxRules !== null && $this->isDigitalOnly($originalCart);
+        if ($usesBillingTaxes) {
             $salesChannelContext->assign(['taxRules' => $billingTaxRules]);
+        }
+
+        // start first cart calculation to have all objects enriched
+        $cart = $this->processor->process($originalCart, $salesChannelContext, $cartBehavior);
+
+        // new products know their type only after the first calculation
+        if ($billingTaxRules !== null && $this->isDigitalOnly($cart) !== $usesBillingTaxes) {
+            $usesBillingTaxes = !$usesBillingTaxes;
+            $salesChannelContext->assign(['taxRules' => $usesBillingTaxes ? $billingTaxRules : $shippingTaxRules]);
+        }
+
+        $taxCountry = $salesChannelContext->getShippingLocation()->getCountry();
+        if ($usesBillingTaxes) {
             $taxCountry = $salesChannelContext->getCustomer()?->getActiveBillingAddress()?->getCountry() ?? $taxCountry;
         }
 
@@ -194,7 +206,7 @@ class CartRuleLoader implements ResetInterface
         $cart = $this->validateTaxFree($salesChannelContext, $cart, $cartBehavior, $taxCountry);
 
         // product prices outside the cart keep the taxes of the shipping address
-        if ($billingTaxRules !== null) {
+        if ($usesBillingTaxes) {
             $salesChannelContext->assign(['taxRules' => $shippingTaxRules]);
             $salesChannelContext->setTaxState($shippingTaxState);
         }

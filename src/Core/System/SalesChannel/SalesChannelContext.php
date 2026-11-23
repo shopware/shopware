@@ -139,7 +139,7 @@ class SalesChannelContext extends Struct
 
     /**
      * The tax rules of the customer's billing address, which decide a cart whose products are all digital,
-     * or null when the billing address is the shipping address
+     * or null when the billing address is the shipping address or the intra-EU rules do not read it
      *
      * @internal
      */

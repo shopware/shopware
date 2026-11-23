@@ -84,6 +84,24 @@ class IntraCommunityTaxResolver implements ResetInterface
         return $this->hasSellerStateVatId($vatIds, $sellerState) ? $dispatchCountryId : $deliveryCountry->getId();
     }
 
+    /**
+     * @internal
+     *
+     * Digital products are not shipped, so a cart of only digital products reads the billing country instead
+     * opt-in like the intra EU exemption: a seller in the EU and a business customer billed in a member state
+     * with Tax-free (B2B) enabled.
+     */
+    public function isTaxedByBillingCountry(?CustomerEntity $customer, CountryEntity $billingCountry, string $salesChannelId): bool
+    {
+        if (!$this->appliesTo($customer, $billingCountry) || !$billingCountry->getIsEu()) {
+            return false;
+        }
+
+        return $this->vatIdPatternProvider->getMemberStateOfCountry(
+            $this->resolveDispatchCountryId($salesChannelId, $billingCountry, $customer, null)
+        ) !== null;
+    }
+
     public function isIntraCommunityDelivery(OrderEntity $order): bool
     {
         $customer = $order->getOrderCustomer()?->getCustomer();

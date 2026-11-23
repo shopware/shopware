@@ -113,7 +113,7 @@ class DigitalOnlyCartTaxTest extends TestCase
      * @param list<array{float, float}> $taxes
      */
     #[DataProvider('digitalOnlyCartProvider')]
-    public function testDigitalOnlyCartIsTaxedByTheBillingAddress(array $vatIds, string $billing, string $shipping, string $taxStatus, array $taxes, float $totalPrice): void
+    public function testDigitalOnlyCartIsTaxedByTheBillingAddressWithinTheOptIn(array $vatIds, string $billing, string $shipping, string $taxStatus, array $taxes, float $totalPrice): void
     {
         $this->loginCustomer($vatIds, $billing, $shipping);
 
@@ -129,30 +129,38 @@ class DigitalOnlyCartTaxTest extends TestCase
      */
     public static function digitalOnlyCartProvider(): iterable
     {
-        yield '1: foreign VAT ID billed outside the EU is exempt' => [[self::FOREIGN_VAT_ID], 'CH', 'DE', 'tax-free', [], 100.0];
+        yield '1: foreign VAT ID billed outside the EU pays the VAT of the shipping address' => [[self::FOREIGN_VAT_ID], 'CH', 'DE', 'net', [[19.0, 19.0]], 119.0];
         yield '2: foreign VAT ID billed in another member state is exempt' => [[self::FOREIGN_VAT_ID], 'FR', 'DE', 'tax-free', [], 100.0];
-        yield '3: foreign VAT ID billed in the seller country pays seller VAT' => [[self::FOREIGN_VAT_ID], 'DE', 'CH', 'net', [[19.0, 19.0]], 119.0];
-        yield '4: seller VAT ID billed outside the EU is exempt' => [[self::SELLER_VAT_ID], 'CH', 'DE', 'tax-free', [], 100.0];
+        yield '3: foreign VAT ID billed in the seller country without Tax-free (B2B) keeps the exempt shipping address' => [[self::FOREIGN_VAT_ID], 'DE', 'CH', 'tax-free', [], 100.0];
+        yield '4: seller VAT ID billed outside the EU pays the VAT of the shipping address' => [[self::SELLER_VAT_ID], 'CH', 'DE', 'net', [[19.0, 19.0]], 119.0];
         yield '5: seller VAT ID billed in another member state pays seller VAT' => [[self::SELLER_VAT_ID], 'FR', 'CH', 'net', [[19.0, 19.0]], 119.0];
-        yield '6: seller VAT ID billed in the seller country pays seller VAT' => [[self::SELLER_VAT_ID], 'DE', 'CH', 'net', [[19.0, 19.0]], 119.0];
-        yield '7: no VAT ID billed outside the EU is exempt' => [[], 'CH', 'DE', 'tax-free', [], 100.0];
+        yield '6: seller VAT ID billed in the seller country without Tax-free (B2B) keeps the exempt shipping address' => [[self::SELLER_VAT_ID], 'DE', 'CH', 'tax-free', [], 100.0];
+        yield '7: no VAT ID billed outside the EU pays the VAT of the shipping address' => [[], 'CH', 'DE', 'net', [[19.0, 19.0]], 119.0];
         yield '8: no VAT ID billed in another member state pays its VAT' => [[], 'FR', 'CH', 'net', [[20.0, 20.0]], 120.0];
-        yield '9: no VAT ID billed in the seller country pays seller VAT' => [[], 'DE', 'CH', 'net', [[19.0, 19.0]], 119.0];
+        yield '9: no VAT ID billed in the seller country without Tax-free (B2B) keeps the exempt shipping address' => [[], 'DE', 'CH', 'tax-free', [], 100.0];
         yield '10: malformed VAT ID billed in another member state pays its VAT' => [['DEINVALID'], 'FR', 'CH', 'net', [[20.0, 20.0]], 120.0];
     }
 
-    public function testBillingCountryWithoutTaxFreeSettingsPaysItsVat(): void
+    public function testMemberStateWithoutTaxFreeB2bKeepsTheShippingAddress(): void
     {
         static::getContainer()->get('country.repository')->update([
-            ['id' => $this->ids->get('CH'), 'customerTax' => self::TAXED, 'companyTax' => self::TAXED],
+            ['id' => $this->ids->get('FR'), 'companyTax' => self::TAXED],
         ], Context::createDefaultContext());
-        $this->loginCustomer([self::FOREIGN_VAT_ID], 'CH', 'DE');
+        $this->loginCustomer([], 'FR', 'DE');
 
         $price = $this->addToCart('e-book')['price'];
 
-        static::assertSame('net', $price['taxStatus']);
-        static::assertSame([[8.1, 8.1]], $this->getTaxes($price['calculatedTaxes']));
-        static::assertSame(108.1, (float) $price['totalPrice']);
+        static::assertSame([[19.0, 19.0]], $this->getTaxes($price['calculatedTaxes']));
+    }
+
+    public function testSellerOutsideTheEuKeepsTheShippingAddress(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)->set('core.basicInformation.sellerCountryId', $this->ids->get('CH'));
+        $this->loginCustomer([], 'FR', 'DE');
+
+        $price = $this->addToCart('e-book')['price'];
+
+        static::assertSame([[19.0, 19.0]], $this->getTaxes($price['calculatedTaxes']));
     }
 
     public function testBillingCountryStateRuleApplies(): void
@@ -178,14 +186,14 @@ class DigitalOnlyCartTaxTest extends TestCase
         static::assertSame(110.0, (float) $price['totalPrice']);
     }
 
-    public function testPrivateGuestInGrossGroupPaysBillingCountryVat(): void
+    public function testPrivateGuestKeepsTheShippingAddress(): void
     {
         $this->loginCustomer([], 'FR', 'DE', CustomerEntity::ACCOUNT_TYPE_PRIVATE, TestDefaults::FALLBACK_CUSTOMER_GROUP, guest: true);
 
         $price = $this->addToCart('e-book')['price'];
 
         static::assertSame('gross', $price['taxStatus']);
-        static::assertSame([20.0], $this->getTaxRates($price['calculatedTaxes']));
+        static::assertSame([19.0], $this->getTaxRates($price['calculatedTaxes']));
     }
 
     /**

@@ -414,7 +414,9 @@ For EU deliveries with *Tax-free (B2B)* enabled for the delivery country:
 *Tax-free (B2C)* is unaffected.
 
 Digital products are not physically shipped.
-A cart whose products are all digital (`product.type` is `digital`) is therefore decided by the billing address instead of the shipping address, with the same rules and country settings.
+For a cart whose products are all digital (`product.type` is `digital`), the rules above therefore read the billing address instead of the shipping address, if the shop owner's country is in the EU and a business customer's billing country is an EU member state with *Tax-free (B2B)* enabled.
+Such a cart is taxed with the tax rules and the *Tax-free (B2B)* setting of the billing country.
+All other carts keep the shipping address, also those of private customers.
 The order recalculation in the Administration decides such orders by the order's billing address.
 
 The setting applies right after the update.
@@ -427,8 +429,8 @@ Limitations:
 - The goods are assumed to leave from one country per sales channel.
   Warehouses in other countries are not covered.
 - A VAT ID of the shop owner's country wins over every other VAT ID of the customer, because an order does not record which VAT ID the customer used.
-- Digital products follow the same rules as goods.
-  The separate EU rules for them are not implemented yet.
+- Apart from the billing address, digital products follow the same rules as goods.
+  The separate EU rules for them, for example for private customers in other member states, are not implemented yet.
 - The ZUGFeRD and XRechnung XML of other tax-free orders, for example deliveries to third countries or orders of tax-free customer groups, keeps VAT category `Z`.
 - A cart with physical and digital products is decided by the shipping address.
 - Product prices outside the cart, for example in listings and on detail pages, use the shipping address for digital products as well.
@@ -454,7 +456,7 @@ For extension developers:
   - `ResolveVatIdsExtension` (`checkout.tax.resolve-vat-ids`) returns the VAT IDs that count, by default all VAT IDs of the customer, or the ones saved on the order for documents.
 
   Both carry the sales channel id, the delivery country, the customer and, for documents, the order.
-  Both events are also dispatched with the billing country as `deliveryCountry` when a business customer's billing address is not the shipping address.
+  Both events are also dispatched with the billing country as `deliveryCountry` when a business customer's billing address is not the shipping address and lies in an EU member state with *Tax-free (B2B)* enabled.
   Only a cart whose products are all digital uses that result.
   The tax rules are fixed when the sales channel context is built, before there is a cart, so the cart content cannot decide the dispatch country.
 - `AbstractDocumentRenderer::isAllowIntraCommunityDelivery()` and `isValidVat()` are deprecated and will be removed in 6.8.0.

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Tax\IntraCommunityTaxResolver;
@@ -59,7 +60,7 @@ class SalesChannelContextFactoryTest extends TestCase
 
     private const DEFAULT_CUSTOMER_GROUP_ID = 'default-customer-group-id';
 
-    private IntraCommunityTaxResolver $intraCommunityTaxResolver;
+    private IntraCommunityTaxResolver&Stub $intraCommunityTaxResolver;
 
     protected function setUp(): void
     {
@@ -669,21 +670,24 @@ class SalesChannelContextFactoryTest extends TestCase
      * @param array<string, mixed> $options
      */
     #[DataProvider('billingTaxRulesProvider')]
-    public function testBillingTaxRulesAreOnlyBuiltForABillingAddressThatIsNotTheShippingAddress(array $options, bool $withCustomer, bool $hasBillingTaxRules): void
+    public function testBillingTaxRulesAreOnlyBuiltForABillingAddressThatIsNotTheShippingAddress(array $options, bool $withCustomer, bool $isTaxedByBillingCountry, bool $hasBillingTaxRules): void
     {
+        $this->intraCommunityTaxResolver->method('isTaxedByBillingCountry')->willReturn($isTaxedByBillingCountry);
+
         $context = $this->createContext($options, $withCustomer);
 
         static::assertSame($hasBillingTaxRules, $context->getBillingTaxRules() !== null);
     }
 
     /**
-     * @return iterable<string, array{array<string, mixed>, bool, bool}>
+     * @return iterable<string, array{array<string, mixed>, bool, bool, bool}>
      */
     public static function billingTaxRulesProvider(): iterable
     {
-        yield 'billing address is not the shipping address' => [[], true, true];
-        yield 'billing address is the shipping address' => [[SalesChannelContextService::SHIPPING_ADDRESS_ID => self::CUSTOMER_BILLING_ADDRESS_ID], true, false];
-        yield 'no customer' => [[], false, false];
+        yield 'billing address is not the shipping address' => [[], true, true, true];
+        yield 'billing country outside the intra-EU rules' => [[], true, false, false];
+        yield 'billing address is the shipping address' => [[SalesChannelContextService::SHIPPING_ADDRESS_ID => self::CUSTOMER_BILLING_ADDRESS_ID], true, true, false];
+        yield 'no customer' => [[], false, true, false];
     }
 
     public function testProspectiveCustomerDefinesTheShippingLocationAndTheRuleCustomer(): void

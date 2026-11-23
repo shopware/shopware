@@ -275,7 +275,7 @@ class CartRuleLoaderTest extends TestCase
     }
 
     #[DataProvider('digitalOnlyCartProvider')]
-    public function testDigitalOnlyCartIsCalculatedWithTheBillingTaxes(LineItem $lineItem): void
+    public function testStoredDigitalOnlyCartIsCalculatedWithTheBillingTaxesFromTheFirstCalculation(LineItem $lineItem): void
     {
         $context = $this->createContextWithBillingTaxes();
         $shippingTaxRules = $context->getTaxRules();
@@ -284,10 +284,38 @@ class CartRuleLoaderTest extends TestCase
 
         $calculatedWith = $this->loadAndGetTaxRules($context, $cart);
 
-        static::assertSame($shippingTaxRules, $calculatedWith[0], 'the first calculation sets the product types');
-        static::assertSame($context->getBillingTaxRules(), array_last($calculatedWith));
+        static::assertNotContains($shippingTaxRules, $calculatedWith, 'a changed data context hash would load the products again');
         static::assertSame($shippingTaxRules, $context->getTaxRules(), 'product prices outside the cart keep the shipping taxes');
         static::assertSame(CartPrice::TAX_STATE_FREE, $context->getTaxState());
+    }
+
+    public function testNewDigitalProductIsCalculatedWithTheBillingTaxesOnceItsTypeIsKnown(): void
+    {
+        $context = $this->createContextWithBillingTaxes();
+        $shippingTaxRules = $context->getTaxRules();
+        $cart = new Cart('test');
+        $cart->add(new LineItem('e-book', LineItem::PRODUCT_LINE_ITEM_TYPE));
+
+        $calculatedWith = $this->loadAndGetTaxRules($context, $cart, ProductDefinition::TYPE_DIGITAL);
+
+        static::assertSame($shippingTaxRules, $calculatedWith[0], 'the first calculation sets the product type');
+        static::assertSame($context->getBillingTaxRules(), array_last($calculatedWith));
+        static::assertSame($shippingTaxRules, $context->getTaxRules());
+    }
+
+    public function testStoredProductThatIsNoLongerDigitalIsCalculatedWithTheShippingTaxes(): void
+    {
+        $context = $this->createContextWithBillingTaxes();
+        $shippingTaxRules = $context->getTaxRules();
+        $cart = new Cart('test');
+        $cart->add(self::createProduct('e-book', ProductDefinition::TYPE_DIGITAL));
+
+        $calculatedWith = $this->loadAndGetTaxRules($context, $cart, ProductDefinition::TYPE_PHYSICAL);
+
+        static::assertSame($context->getBillingTaxRules(), $calculatedWith[0]);
+        static::assertSame($shippingTaxRules, array_last($calculatedWith));
+        static::assertSame($shippingTaxRules, $context->getTaxRules());
+        static::assertSame(CartPrice::TAX_STATE_FREE, $context->getTaxState(), 'the shipping country decides the tax state');
     }
 
     /**
@@ -367,12 +395,19 @@ class CartRuleLoaderTest extends TestCase
     /**
      * @return list<TaxCollection> the tax rules of each calculation
      */
-    private function loadAndGetTaxRules(SalesChannelContext $context, Cart $cart): array
+    private function loadAndGetTaxRules(SalesChannelContext $context, Cart $cart, ?string $loadedProductType = null): array
     {
         $taxRules = [];
         $processor = static::createStub(Processor::class);
-        $processor->method('process')->willReturnCallback(static function (Cart $cart, SalesChannelContext $context) use (&$taxRules): Cart {
+        $processor->method('process')->willReturnCallback(static function (Cart $cart, SalesChannelContext $context) use (&$taxRules, $loadedProductType): Cart {
             $taxRules[] = $context->getTaxRules();
+
+            // like the product processor, each calculation sets the type of the loaded products
+            if ($loadedProductType !== null) {
+                foreach ($cart->getLineItems()->filterFlatByType(LineItem::PRODUCT_LINE_ITEM_TYPE) as $product) {
+                    $product->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, $loadedProductType);
+                }
+            }
 
             return $cart;
         });

@@ -41,6 +41,10 @@ export default {
             type: Array,
             required: false,
             default: () => ['all'],
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use `productType` prop instead.',
+            },
         },
 
         productType: {

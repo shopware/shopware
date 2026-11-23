@@ -1,12 +1,8 @@
-import template from '../sw-extension-permissions-details-modal/sw-extension-permissions-details-modal.html.twig';
-
 /**
  * @sw-package checkout
  * @private
  */
 export default {
-    template,
-
     mixins: ['sw-extension-error'],
 
     props: {

@@ -59,12 +59,11 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
         $salesChannelByLanguage = $this->salesChannelLanguageLoader->loadLanguages();
         $allSalesChannels = array_values(array_unique(array_merge(...array_values($salesChannelByLanguage))));
 
+        $visibilityField = ['type' => 'integer'];
         $visibilities = [];
 
         foreach ($allSalesChannels as $salesChannelId) {
-            $visibilities['visibility_' . $salesChannelId] = [
-                'type' => 'integer',
-            ];
+            $visibilities['visibility_' . $salesChannelId] = $visibilityField;
         }
 
         $debug = $this->environment === 'dev' || $this->environment === 'test';
@@ -167,6 +166,14 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'price_fields' => [
                         'path_match' => 'price.*.*',
                         'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    // a sales channel created after the last full index has no explicit field yet, it must not become a double
+                    'visibility' => [
+                        'path_match' => 'visibility_*',
+                        'match_mapping_type' => 'long',
+                        'mapping' => $visibilityField,
                     ],
                 ],
                 [
@@ -372,13 +379,18 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
             $languages[] = Defaults::LANGUAGE_SYSTEM;
         }
 
+        // visibilities are read in a subquery, a join next to the tags join would multiply the rows of a product (visibilities x tags) before grouping
         $baseSql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,
     p.available AS available,
     #tags#,
-    #visibilities#,
+    (
+        SELECT #visibilities#
+        FROM product_visibility
+        WHERE product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = p.version_id
+    ) AS visibilities,
     IFNULL(p.manufacturer_number, pp.manufacturer_number) AS manufacturerNumber,
     IFNULL(p.available_stock, pp.available_stock) AS availableStock,
     IFNULL(p.rating_average, pp.rating_average) AS ratingAverage,
@@ -416,7 +428,6 @@ SELECT
 
 FROM product p
     LEFT JOIN product pp ON(p.parent_id = pp.id AND pp.version_id = :liveVersionId)
-    LEFT JOIN product_visibility ON(product_visibility.product_id = p.visibilities AND product_visibility.product_version_id = p.version_id)
     LEFT JOIN product_tag ON (product_tag.product_id = p.tags AND product_tag.product_version_id = p.version_id)
     LEFT JOIN tag ON tag.id = product_tag.tag_id
 

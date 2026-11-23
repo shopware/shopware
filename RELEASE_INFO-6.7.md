@@ -1088,6 +1088,9 @@ Extensions have to be adjusted:
 - The popovers stack at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
   The private `zIndex` prop of `sw-context-button` was removed.
 - The `sw-media-field` picker is mounted to `<body>` also inside a modal, instead of into the modal.
+- The `.sw-media-field__popover` class is removed.
+  `.sw-media-field__expanded-content` matches two elements: the wrapper inside the field and the picker.
+  Scope a rule with `.mt-floating-ui__content` to keep it on the picker.
 
 ### Product list filters by product documents
 

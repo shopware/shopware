@@ -29,6 +29,7 @@
     {# Mounted only while open: the deprecated sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
     <mt-floating-ui
         v-if="showMenu && defaultUnit"
+        class="sw-condition-unit-menu__popover"
         :is-opened="true"
         :anchor-element="$refs.unitMenuButton"
         detached

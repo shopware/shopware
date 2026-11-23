@@ -232,5 +232,6 @@ describe('components/rule/sw-condition-unit-menu', () => {
             wrapper.get('button.sw-condition-unit-menu').element,
         );
         expect(wrapper.getComponent(floatingUiStub).props('isOpened')).toBe(true);
+        expect(wrapper.getComponent(floatingUiStub).classes()).toContain('sw-condition-unit-menu__popover');
     });
 });

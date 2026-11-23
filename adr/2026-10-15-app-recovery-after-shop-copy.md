@@ -18,6 +18,7 @@ A copy of the shop database inherits the ShopId and the secrets.
 If the copy registers its apps again under that ShopId, it takes over production (the live shop): the apps now only talk to the copy, and production can no longer communicate with them, without being told why.
 
 Running example: production, the live shop, runs at `https://shop.example` with the secret `prod-secret`, and its shop operator copies the database to a staging shop for testing at `https://staging.shop.example`.
+The app keeps a record for production under the ShopId `shop-1`.
 `staging-secret` is the secret the copy gets when it takes over; `new-prod-secret` is the one production gets back.
 
 ```mermaid

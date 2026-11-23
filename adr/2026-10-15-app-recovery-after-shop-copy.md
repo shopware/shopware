@@ -138,53 +138,50 @@ Moving the secrets from the copy to production safely, for example through a pas
 
 | Option | Why not |
 |:---|:---|
-| Accept the previous secret on its own | An old server left running after a move takes the ShopId back from the new server, because nothing shows that the current owner agreed. |
-| Accept any older secret the app recorded | The older the accepted secret, the more copies and backups hold it, and the app cannot see any of them. |
-| A recovery token: a short-lived note the copy signs with `staging-secret`, which production brings along with a registration signed with `prod-secret` | Every app must update its SDK before it helps, and it adds a new way for an app to accept an older secret. The tokens Shopware's Store API already gives apps are signed with the same secret and passed the app's checks for that note. |
-| A message (webhook) the copy sends the app when it gets a new ShopId | The app has to store each message, and its checks rest on URLs each instance reports about itself. A message sent again after the copy registers again may be signed with its new secret. |
-| Print `staging-secret` from the copy when needed, keep nothing | Only works if the shop operator runs it before the copy gets a new ShopId. After copy, takeover, `reinstall-apps`, `staging-secret` is already gone. |
-| Put the old ShopId in the new ShopId's registration | `uninstall-apps` and `system:setup:staging` never register again. A new field also breaks every deployed app: Shopware signs the whole registration URL, but the SDK checks the signature against [only three of its fields](https://github.com/shopware/app-php-sdk/blob/976bd3a993619ac80482d630ca312020033552ad/src/Authentication/RequestVerifier.php#L192-L199). |
-| Keep the shop identity outside the copied database | Can itself be copied, and does not repair a takeover that already happened. |
-| Store app data by ShopId and URL together | Changes storage and how legitimate moves work, and copies can share a URL. |
-| Recover with `app:secret:rotate --adopt-secrets` | Mixes two jobs in one command: replacing the shop's own secret, and registering with secrets handed over from another shop. |
-| Name the steps `--release` (on the copy) and `--claim` (on production) instead of `--start` and `--finish` | Open. They say that the registration changes hands, where `--start` and `--finish` only say the order. |
-| Manual recovery only | Every takeover needs support work. It stays as the fallback. |
-| **Keep `staging-secret` for 72 hours, hand it over, manual otherwise (chosen)** | |
+| Accept production's old secret | An old server still running after a real move has it too, and could take production's place back. |
+| Accept any older secret the app has on record | Every copy and backup has older secrets, and the app can't see who holds them. |
+| A recovery token: the copy signs a short note with its secret, and production sends it along when it registers | Every app would have to update its SDK first, and it adds a new way for an app to accept an old secret. Tokens apps already get from shops are signed the same way, so they could pass as a recovery token. |
+| The copy tells the app with a webhook when it gets a new ShopId | The app has to store every message and judge it by the URLs each shop reports about itself. |
+| Keep nothing, print the copy's secret when needed | Only works before the copy runs `reinstall-apps`. After that the secret is gone. |
+| The copy names production's ShopId when it registers as a new shop | `uninstall-apps` and `system:setup:staging` don't register at all. The extra field would also break every deployed app, because the SDK only checks [part of the signed request](https://github.com/shopware/app-php-sdk/blob/976bd3a993619ac80482d630ca312020033552ad/src/Authentication/RequestVerifier.php#L192-L199). |
+| Store the shop's identity outside the database | It can be copied too, and it can't undo a takeover that already happened. |
+| Store app data by ShopId and URL together | Changes how app data is stored and how real moves work, and copies can share a URL. |
+| Recover through `app:secret:rotate --adopt-secrets` | Mixes two jobs in one command: giving the shop a new secret, and registering with a secret from another shop. |
+| Name the commands `--release` (on the copy) and `--claim` (on production) | Still open. They say that the registration changes hands, where `--start` and `--finish` only say the order. |
+| Manual recovery only | Every takeover would need support work. It stays as the fallback. |
+| **Keep the copy's secret for 72 hours and hand it to production, manual otherwise (chosen)** | |
 
 ## Consequences
 
 ### Positive
 
-- A single takeover by a copy can be undone without support work, even after the copy changed its ShopId.
-- It works with every app today: no SDK update and no opt-in.
-- Apps gain no new way to accept a secret: recovery is a registration they already accept from the current owner.
-- The proof is the current secret, not URLs, so legitimate URL changes stay safe.
+- Production can get its apps back without support work, even after the copy ran `reinstall-apps`.
+- It works with every app today, without an SDK update.
+- Apps don't have to trust anything new: production registers with a secret the apps already accept.
+- It doesn't rely on URLs, so real moves to a new URL keep working as before.
 
 ### Negative
 
-- **A working secret stays on the copy after it gets a new ShopId.**
-  For up to 72 hours.
-- **The secret travels from the copy to production.**
-  Anyone who gets it on the way can take over `shop-1`, until production has registered again.
-- **The app still accepts `staging-secret` for 60 seconds after recovery.**
-  That is the SDK's grace period for a replaced secret.
-- **Recovery strands a copy that is still `shop-1`.**
-  Such a copy needs `reinstall-apps` before it can talk to the app again.
+- **The copy keeps a working secret for up to 72 hours after it gets a new ShopId.**
+- **The secret has to travel from the copy to production.**
+  Anyone who intercepts it can take over production's place at the apps, until production has registered again.
+- **The copy's secret still works for 60 seconds after recovery.**
+  The app SDKs accept a replaced secret for that long.
 
 ### Limitations
 
 - **72 hours.**
-  They start when the copy got a new ShopId or removed its apps.
-  After it, or if the copy is destroyed first, only manual recovery is left.
+  The copy keeps the secret for 72 hours after it gets a new ShopId or removes its apps.
+  After that, or if the copy is deleted first, only manual recovery is left.
 - **A copy that moves again keeps nothing.**
-  If the copy moves to another URL or directory after the takeover, its stored URL and directory no longer match where it runs, so it keeps no secrets.
+  If the copy moves to another URL or directory after the takeover, it can no longer tell that it took over, so it keeps no secrets.
   Production then needs manual recovery.
-- **Production is not told.**
-  Neither Shopware nor the app tells production it was locked out.
+- **Production isn't told.**
+  Nothing tells production it was locked out.
   Its shop operator has to notice and start the recovery.
-- **Takeovers are not prevented.**
-  A staging copy can still take over production's registration.
-  This design undoes one takeover afterwards.
+- **Takeovers aren't prevented.**
+  A staging copy can still take over production.
+  This only undoes the takeover afterwards.
 
 ## References
 

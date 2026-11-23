@@ -15,6 +15,24 @@ If you generate types from the schema, regenerate them and handle `null` for the
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Administration
+
+### Context menus render with `mt-floating-ui` before 6.8
+
+The menu of `sw-context-button` renders with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
+
+The menu is still teleported to `<body>`, but the markup around it changed.
+Extensions have to be adjusted:
+
+- `.sw-popover__wrapper` around the menu is replaced by `.mt-floating-ui__content`.
+  Update styles and end-to-end selectors that matched the old wrapper.
+- The `--placement-*` modifier classes are gone.
+  `mt-floating-ui` flips the menu itself and marks the side that faces the button with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
+  A menu below its button carries `.mt-floating-ui--top`.
+  The resolved placement, such as `bottom-end`, is in the `data-placement` attribute of `.mt-floating-ui__content`.
+- The menu stacks at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
+  The private `zIndex` prop of `sw-context-button` was removed.
+
 # 6.7.17.0
 
 ## Critical Fixes
@@ -1090,22 +1108,6 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
-
-### Context menus render with `mt-floating-ui` before 6.8
-
-The menu of `sw-context-button` renders with `mt-floating-ui` instead of the deprecated `sw-popover`, also while `V6_8_0_0` is off.
-
-The menu is still teleported to `<body>`, but the markup around it changed.
-Extensions have to be adjusted:
-
-- `.sw-popover__wrapper` around the menu is replaced by `.mt-floating-ui__content`.
-  Update styles and end-to-end selectors that matched the old wrapper.
-- The `--placement-*` modifier classes are gone.
-  `mt-floating-ui` flips the menu itself and marks the side that faces the button with `.mt-floating-ui--top`, `.mt-floating-ui--bottom` and so on.
-  A menu below its button carries `.mt-floating-ui--top`.
-  The resolved placement, such as `bottom-end`, is in the `data-placement` attribute of `.mt-floating-ui__content`.
-- The menu stacks at `$z-index-context-menu` (1100) through `.mt-floating-ui__content`.
-  The private `zIndex` prop of `sw-context-button` was removed.
 
 ### Product list filters by product documents
 

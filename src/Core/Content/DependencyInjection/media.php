@@ -37,6 +37,7 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteVali
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -97,6 +98,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -515,7 +517,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MediaFileExtensionWriteValidator::class)
         ->args([
             service(MediaFileExtensionListProvider::class),
-            service(Connection::class),
+            service(WriteOutcome::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(MediaPathWriteValidator::class)
+        ->args([
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 

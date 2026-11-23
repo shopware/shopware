@@ -7,8 +7,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 
 /**
+ * Resolver mechanics against a synthetic table; the shipped `entity_group` table is covered by
+ * {@see \Shopware\Tests\Integration\Core\Framework\Telemetry\ShippedLabelMappingsTest}.
+ *
  * @internal
  */
 #[Package('framework')]
@@ -18,29 +22,24 @@ class EntityGroupResolverTest extends TestCase
     #[DataProvider('entityProvider')]
     public function testResolve(string $entityName, string $expected): void
     {
-        static::assertSame($expected, (new EntityGroupResolver())->resolve($entityName));
+        $resolver = new EntityGroupResolver(new LabelMappingRegistry([
+            EntityGroupResolver::MAPPING => [
+                'product' => 'product',
+                'product_*' => 'product',
+                'main_category' => 'category',
+                'custom_entity' => 'system',
+            ],
+        ], 'other'));
+
+        static::assertSame($expected, $resolver->resolve($entityName));
     }
 
     public static function entityProvider(): \Generator
     {
-        // exact full-name lookup takes precedence over root-token mapping
-        yield 'main_category maps to category' => ['main_category', 'category'];
-        yield 'property_group maps to product' => ['property_group', 'product'];
-        yield 'property_group_option maps to product' => ['property_group_option', 'product'];
-
-        // root-token (part before first underscore) mapping
-        yield 'product_price falls back to product root' => ['product_price', 'product'];
-        yield 'newsletter_recipient maps to customer' => ['newsletter_recipient', 'customer'];
-        yield 'mail_template maps to content' => ['mail_template', 'content'];
-        yield 'landing_page maps to content' => ['landing_page', 'content'];
-        yield 'sales_channel maps to system' => ['sales_channel', 'system'];
-
-        // whole name used as root token when there is no underscore
-        yield 'product without suffix maps to product' => ['product', 'product'];
-
-        // unlisted roots fall through to other
-        yield 'unknown entity is other' => ['totally_unknown', 'other'];
-        yield 'unknown single-token entity is other' => ['unknown', 'other'];
-        yield 'plugin custom entity is other' => ['custom_entity_blog', 'other'];
+        yield 'exact entry' => ['product', 'product'];
+        yield 'prefix entry' => ['product_price', 'product'];
+        yield 'exact entry without a matching prefix' => ['main_category', 'category'];
+        yield 'exact entry does not act as prefix' => ['custom_entity_blog', 'other'];
+        yield 'unlisted entity is other' => ['totally_unknown', 'other'];
     }
 }

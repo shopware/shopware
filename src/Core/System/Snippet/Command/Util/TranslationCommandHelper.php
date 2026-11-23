@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet\Command\Util;
 
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -55,6 +56,18 @@ class TranslationCommandHelper
     public static function printMetadataLoadingFailed(OutputInterface $output, \Throwable $e): void
     {
         $output->writeln(\sprintf('<error>An error occurred while fetching metadata: "%s"</error>', $e->getMessage()));
+    }
+
+    public static function printDownloadedFromArchive(OutputInterface $output): void
+    {
+        $output->writeln('Downloaded the translations from the translation archive.');
+    }
+
+    public static function printArchiveUnavailable(OutputInterface $output, \Throwable $e): void
+    {
+        $cause = $e->getPrevious() !== null ? \sprintf(' (%s)', OutputFormatter::escape(trim($e->getPrevious()->getMessage()))) : '';
+
+        $output->writeln(\sprintf('<comment>%s%s. Downloading the translation files one by one.</comment>', $e->getMessage(), $cause));
     }
 
     public static function printNoTranslationsToUpdate(OutputInterface $output): void

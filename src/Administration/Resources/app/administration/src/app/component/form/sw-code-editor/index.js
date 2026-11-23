@@ -18,7 +18,6 @@ const utils = Shopware.Utils;
  * <sw-code-editor label="Description">
  * </sw-code-editor>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

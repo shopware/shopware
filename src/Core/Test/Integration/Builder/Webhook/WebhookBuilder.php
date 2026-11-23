@@ -4,6 +4,7 @@ namespace Shopware\Core\Test\Integration\Builder\Webhook;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -38,6 +39,7 @@ class WebhookBuilder
     private ?array $aclRoleIds = null;
 
     private function __construct(
+        private readonly ?IdentityType $ownerType = null,
         private readonly ?string $appId = null,
         private readonly ?string $ownerUserId = null,
         private readonly ?string $ownerIntegrationId = null,
@@ -47,17 +49,17 @@ class WebhookBuilder
 
     public static function ownedByUser(string $userId): self
     {
-        return new self(ownerUserId: $userId);
+        return new self(IdentityType::User, ownerUserId: $userId);
     }
 
     public static function ownedByIntegration(string $integrationId): self
     {
-        return new self(ownerIntegrationId: $integrationId);
+        return new self(IdentityType::Integration, ownerIntegrationId: $integrationId);
     }
 
     public static function ofApp(string $appId): self
     {
-        return new self(appId: $appId);
+        return new self(IdentityType::App, appId: $appId);
     }
 
     public static function withoutOwner(): self
@@ -124,6 +126,7 @@ class WebhookBuilder
             'app_id' => $this->appId !== null ? Uuid::fromHexToBytes($this->appId) : null,
             'owner_user_id' => $this->ownerUserId !== null ? Uuid::fromHexToBytes($this->ownerUserId) : null,
             'owner_integration_id' => $this->ownerIntegrationId !== null ? Uuid::fromHexToBytes($this->ownerIntegrationId) : null,
+            'owner_type' => $this->ownerType?->value,
             'active' => (int) $this->active,
             'error_count' => $this->errorCount,
             'acl_role_ids' => $this->aclRoleIds !== null ? json_encode($this->aclRoleIds, \JSON_THROW_ON_ERROR) : null,

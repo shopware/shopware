@@ -62,6 +62,7 @@ import type CustomEntityDefinitionService from './app/service/custom-entity-defi
 import type CmsPageTypeService from './module/sw-cms/service/cms-page-type.service';
 import type ProductStorefrontUrlApiService from './module/sw-product/service/product-storefront-url.api.service';
 import type ProductDocumentVariantService from './module/sw-product/service/product-document-variant.service';
+import type ProductDocumentApiService from './module/sw-product/service/product-document.api.service';
 import type StoreContextService from './core/service/api/store-context.api.service';
 import type OrderStateMachineApiService from './core/service/api/order-state-machine.api.service';
 import type cmsElementFavoritesService from './module/sw-cms/service/cms-element-favorites.service';
@@ -255,6 +256,7 @@ declare global {
         appCmsService: $TSFixMe;
         appModulesService: AppModulesService;
         productDocumentVariantService: ProductDocumentVariantService;
+        productDocumentApiService: ProductDocumentApiService;
         businessEventService: BusinessEventsApiService;
         cacheService: CacheService;
         cartStoreService: CartStoreService;

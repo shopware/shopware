@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductDocument;
 use Shopware\Core\Content\Product\Events\ProductDocumentAllowedExtensionsEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Symfony\Component\Mime\MimeTypes;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -40,6 +42,26 @@ readonly class ProductDocumentConfig
             self::normalize($event->getAllowedExtensions()),
             static fn (string $extension): bool => isset($publicMediaExtensions[$extension]),
         ));
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function getMimeTypesByExtension(Context $context): array
+    {
+        $mimeTypes = MimeTypes::getDefault();
+
+        $mimeTypesByExtension = [];
+        foreach ($this->getAllowedExtensions($context) as $extension) {
+            $mimeTypesByExtension[$extension] = array_values(array_unique($mimeTypes->getMimeTypes($extension)));
+        }
+
+        return $mimeTypesByExtension;
+    }
+
+    public function getMaxUploadFileSize(): int
+    {
+        return MemorySizeCalculator::getMaxUploadSize($this->maxFileSize);
     }
 
     /**

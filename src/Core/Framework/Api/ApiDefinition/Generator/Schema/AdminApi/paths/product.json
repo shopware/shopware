@@ -1,0 +1,59 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "\/_action\/product\/document-upload-settings": {
+            "get": {
+                "tags": [
+                    "Product Document"
+                ],
+                "summary": "Get the upload settings of product documents",
+                "description": "Returns the `shopware.product_documents` settings: allowed file types and file size.",
+                "operationId": "getProductDocumentUploadSettings",
+                "responses": {
+                    "200": {
+                        "description": "The upload settings of product documents.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "required": [
+                                        "allowedExtensions",
+                                        "allowedMimeTypesByExtension",
+                                        "maxFileSize"
+                                    ],
+                                    "properties": {
+                                        "allowedExtensions": {
+                                            "description": "File types a document can have, lower case.",
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "allowedMimeTypesByExtension": {
+                                            "description": "Known MIME types for each allowed extension.",
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "maxFileSize": {
+                                            "description": "Max upload size in bytes: the configured size, lowered by PHP's upload limits unless uploads are presigned.",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - the access token is missing or invalid."
+                    }
+                }
+            }
+        }
+    }
+}

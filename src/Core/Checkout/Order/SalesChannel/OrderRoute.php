@@ -6,6 +6,7 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\Event\OrderCriteriaEvent;
 use Shopware\Core\Checkout\Order\Extension\OrderRouteExtension;
@@ -282,7 +283,7 @@ class OrderRoute extends AbstractOrderRoute
             if ($billingZipCode === null
                 || !\is_string($email)
                 || !\is_string($zipcode)
-                || strtolower($email) !== strtolower($orderCustomer->getEmail())
+                || strtolower(EmailIdnConverter::encode($email)) !== strtolower(EmailIdnConverter::encode($orderCustomer->getEmail()))
                 || strtoupper($zipcode) !== strtoupper($billingZipCode)) {
                 throw OrderException::wrongGuestCredentials();
             }

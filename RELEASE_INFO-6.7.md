@@ -769,6 +769,10 @@ Shops that adjusted these rules themselves keep their rules, and should compare 
 
 ## API
 
+### Guest order lookup accepts internationalized email domains
+
+Guest order lookup through `GET /store-api/order` and the Storefront order page now accepts the original Unicode-domain email address used at checkout, alongside its ASCII domain form.
+
 ### Checkout draft route
 
 `GET /store-api/checkout/draft` returns the calculated cart together with the available shipping and payment methods and the stored address of a visitor without a customer.

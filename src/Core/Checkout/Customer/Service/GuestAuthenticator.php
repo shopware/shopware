@@ -32,7 +32,7 @@ class GuestAuthenticator
         if ($billingAddress === null
             || !\is_string($email)
             || !\is_string($zipcode)
-            || mb_strtolower($email) !== mb_strtolower($order->getOrderCustomer()?->getEmail() ?: '')
+            || mb_strtolower(EmailIdnConverter::encode($email)) !== mb_strtolower(EmailIdnConverter::encode($order->getOrderCustomer()?->getEmail() ?: ''))
             || mb_strtoupper($zipcode) !== mb_strtoupper($billingAddress->getZipcode() ?: '')) {
             throw CustomerException::wrongGuestCredentials();
         }

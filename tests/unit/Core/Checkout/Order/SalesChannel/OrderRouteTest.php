@@ -201,9 +201,9 @@ class OrderRouteTest extends TestCase
      */
     #[DataProvider('legacyCustomerDataProvider')]
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testValidateGuestCustomerWithoutGuestAuthenticator(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false): void
+    public function testValidateGuestCustomerWithoutGuestAuthenticator(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login = false, bool $credentialsInQuery = false, string $storedEmail = 'test@example.com'): void
     {
-        $this->assertGuestOrderAccess($isGuest, $mail, $postalCode, $exception, $login, $credentialsInQuery);
+        $this->assertGuestOrderAccess($isGuest, $mail, $postalCode, $exception, $login, $credentialsInQuery, $storedEmail);
     }
 
     /**
@@ -226,7 +226,7 @@ class OrderRouteTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - remove together with OrderRoute::checkGuestAuth()
      *
-     * @return iterable<string, array{?bool, mixed, mixed, ?class-string<\Throwable>, 4?: bool, 5?: bool}>
+     * @return iterable<string, array{?bool, mixed, mixed, ?class-string<\Throwable>, 4?: bool, 5?: bool, 6?: string}>
      */
     public static function legacyCustomerDataProvider(): iterable
     {
@@ -246,6 +246,8 @@ class OrderRouteTest extends TestCase
         yield 'int postal code' => [true, 'test@example.com', 345, WrongGuestCredentialsException::class];
         yield 'array postal code in query' => [true, 'test@example.com', ['AA-345'], WrongGuestCredentialsException::class, false, true];
         yield 'bool e-mail' => [true, true, 'AA-345', WrongGuestCredentialsException::class];
+        yield 'Unicode domain matches stored ASCII domain' => [true, 'test@exämple.com', 'AA-345', null, false, false, 'test@xn--exmple-cua.com'];
+        yield 'ASCII domain matches stored Unicode domain' => [true, 'test@xn--exmple-cua.com', 'AA-345', null, false, false, 'test@exämple.com'];
     }
 
     #[DataProvider('deeplinkFilterProvider')]
@@ -394,7 +396,7 @@ class OrderRouteTest extends TestCase
     /**
      * @param ?class-string<\Throwable> $exception
      */
-    private function assertGuestOrderAccess(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login, bool $credentialsInQuery): void
+    private function assertGuestOrderAccess(?bool $isGuest, mixed $mail, mixed $postalCode, ?string $exception, bool $login, bool $credentialsInQuery, string $storedEmail = 'test@example.com'): void
     {
         if ($exception !== null) {
             $this->expectException($exception);
@@ -402,7 +404,7 @@ class OrderRouteTest extends TestCase
 
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setId(Uuid::randomHex());
-        $orderCustomer->setEmail('test@example.com');
+        $orderCustomer->setEmail($storedEmail);
         $orderCustomer->setCustomerId(Uuid::randomHex());
 
         if ($isGuest !== null) {

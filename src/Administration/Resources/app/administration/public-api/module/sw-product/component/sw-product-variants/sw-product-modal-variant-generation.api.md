@@ -18,18 +18,22 @@ blocks
       sw_product_modal_variant_generation_footer_generate
     sw_product_modal_variant_generation_main
       sw_product_modal_variant_generation_main_configurator_prices
-      sw_product_modal_variant_generation_main_configurator_restrictions
+      sw_product_modal_variant_generation_main_configurator_restrictions  [after v-if]
       sw_product_modal_variant_generation_main_configurator_selection
     sw_product_modal_variant_generation_sidebar
       sw_product_modal_variant_generation_sidebar_descriptions
         sw_product_modal_variant_generation_sidebar_descriptions_options
           sw_product_modal_variant_generation_sidebar_add_only_selected
-        sw_product_modal_variant_generation_sidebar_descriptions_prices
-        sw_product_modal_variant_generation_sidebar_descriptions_restrictions
+        sw_product_modal_variant_generation_sidebar_descriptions_prices  [after v-if]
+        sw_product_modal_variant_generation_sidebar_descriptions_restrictions  [after v-if]
       sw_product_modal_variant_generation_sidebar_tabs
         sw_product_modal_variant_generation_sidebar_mt_tabs  [from v6.8.0]
         sw_product_modal_variant_generation_sidebar_tabs_items  [until v6.8.0]
           sw_product_modal_variant_generation_sidebar_tabs_item_options  [until v6.8.0]
           sw_product_modal_variant_generation_sidebar_tabs_item_prices  [until v6.8.0]
           sw_product_modal_variant_generation_sidebar_tabs_item_restrictions  [until v6.8.0]
+
+crossings
+  v-if  sw_product_modal_variant_generation_sidebar_descriptions_options -> sw_product_modal_variant_generation_sidebar_descriptions_restrictions
+  v-if  sw_product_modal_variant_generation_sidebar_descriptions_restrictions -> sw_product_modal_variant_generation_sidebar_descriptions_prices
 ```

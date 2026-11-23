@@ -16,6 +16,6 @@ blocks
       sw_product_detail_seo_general_content
     sw_product_detail_seo_urls
       sw_product_detail_seo_urls_content
-        sw_product_detail_seo_urls_content_seo_additional
-          sw_product_detail_seo_urls_content_seo_additional_edit
+        sw_product_detail_seo_urls_content_seo_additional  [scope: props]
+          sw_product_detail_seo_urls_content_seo_additional_edit  [scope: currentValue, isInherited, props]
 ```

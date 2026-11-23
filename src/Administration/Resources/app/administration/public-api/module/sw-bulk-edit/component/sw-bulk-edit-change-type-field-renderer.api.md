@@ -12,10 +12,10 @@ component sw-bulk-edit-change-type-field-renderer  public  js
 
 blocks
   sw_bulk_edit_change_type_field_renderer
-    sw_bulk_edit_change_type_field_renderer_container
-      sw_bulk_edit_change_type_field_renderer_change_field
-        sw_bulk_edit_change_type_field_renderer_change_field_subtitle
-        sw_bulk_edit_change_type_field_renderer_change_field_title
-      sw_bulk_edit_change_type_field_renderer_change_form_value_field
-      sw_bulk_edit_change_type_field_renderer_change_form_value_field_without_change_type
+    sw_bulk_edit_change_type_field_renderer_container  [scope: formField, index]
+      sw_bulk_edit_change_type_field_renderer_change_field  [scope: formField, index]
+        sw_bulk_edit_change_type_field_renderer_change_field_subtitle  [scope: formField, index]
+        sw_bulk_edit_change_type_field_renderer_change_field_title  [scope: formField, index]
+      sw_bulk_edit_change_type_field_renderer_change_form_value_field  [scope: formField, index]
+      sw_bulk_edit_change_type_field_renderer_change_form_value_field_without_change_type  [after v-if] [scope: formField, index]
 ```

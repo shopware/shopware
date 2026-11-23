@@ -13,5 +13,8 @@ component sw-popover  private  ts  [private]
 
 blocks
   sw_popover  [private]
-  sw_popover_deprecated  [private]
+  sw_popover_deprecated  [after v-if] [private]
+
+crossings
+  v-if  sw_popover -> sw_popover_deprecated  [private]
 ```

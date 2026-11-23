@@ -15,11 +15,11 @@ blocks
     sw_settings_logging_list_content
       sw_settings_logging_list_content_info_modal
       sw_settings_logging_list_content_listing
-        sw_settings_logging_list_column_context
-        sw_settings_logging_list_column_created_at
-        sw_settings_logging_list_column_level
-        sw_settings_logging_list_content_listing_actions
-          sw_settings_logging_list_content_listing_action_show_label
+        sw_settings_logging_list_column_context  [scope: item]
+        sw_settings_logging_list_column_created_at  [scope: item]
+        sw_settings_logging_list_column_level  [scope: item]
+        sw_settings_logging_list_content_listing_actions  [scope: item]
+          sw_settings_logging_list_content_listing_action_show_label  [scope: item]
         sw_settings_logging_list_content_listing_pagination
     sw_settings_logging_list_search_bar
     sw_settings_logging_list_sidebar

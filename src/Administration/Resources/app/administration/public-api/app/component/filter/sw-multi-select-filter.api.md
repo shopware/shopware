@@ -17,5 +17,5 @@ blocks
       sw_multi_select_filter_content_entity_select  [private]
         sw_multi_select_filter_content_slot_result_item  [private]
         sw_multi_select_filter_content_slot_selection_label_property  [private]
-      sw_multi_select_filter_content_option_select  [private]
+      sw_multi_select_filter_content_option_select  [after v-if] [private]
 ```

@@ -13,7 +13,7 @@ component sw-product-basic-form  public  js
 blocks
   sw_product_basic_form
     sw_product_basic_form_cover_image_description_hint
-    sw_product_basic_form_description_field
+    sw_product_basic_form_description_field  [after v-if]
     sw_product_basic_form_id_field
     sw_product_basic_form_manufacturer_field
     sw_product_basic_form_title_field

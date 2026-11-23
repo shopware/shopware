@@ -16,7 +16,7 @@ blocks
     sw_landing_page_view_language_info
     sw_landing_page_view_tabs
       sw_landing_page_view_mt_tabs  [from v6.8.0]
-      sw_landing_page_view_mt_tabs_permission_warning  [from v6.8.0]
+      sw_landing_page_view_mt_tabs_permission_warning  [after v-if] [from v6.8.0]
       sw_landing_page_view_tabs_cms  [until v6.8.0]
       sw_landing_page_view_tabs_general  [until v6.8.0]
 ```

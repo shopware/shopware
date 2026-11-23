@@ -12,12 +12,15 @@ component sw-landing-page-tree  public  js
 
 blocks
   sw_landing_page_tree
-    sw_landing_page_tree_action
+    sw_landing_page_tree_action  [after v-if]
     sw_landing_page_tree_inner
-      sw_landing_page_tree_items
-        sw_landing_page_tree_items_actions
-          sw_landing_page_tree_items_actions_delete
-          sw_landing_page_tree_items_actions_duplicate
-          sw_landing_page_tree_items_actions_edit
+      sw_landing_page_tree_items  [scope: checkItem, disableContextMenu, draggedItem, newElementId, onChangeRoute, sortable, translationContext, treeItems]
+        sw_landing_page_tree_items_actions  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
+          sw_landing_page_tree_items_actions_delete  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
+          sw_landing_page_tree_items_actions_duplicate  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
+          sw_landing_page_tree_items_actions_edit  [scope: checkItem, deleteElement, disableContextMenu, draggedItem, item, newElementId, onChangeRoute, onDuplicate, sortable, toolTip, translationContext, treeItems]
     sw_landing_page_tree_load_more
+
+crossings
+  v-if  sw_landing_page_tree_inner -> sw_landing_page_tree
 ```

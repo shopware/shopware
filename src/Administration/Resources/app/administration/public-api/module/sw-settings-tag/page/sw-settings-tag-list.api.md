@@ -16,30 +16,30 @@ blocks
       sw_settings_tag_list_content
         sw_settings_tag_list_content_card
           sw_settings_tag_list_detail_add_modal
-          sw_settings_tag_list_empty_state
+          sw_settings_tag_list_empty_state  [after v-if]
           sw_settings_tag_list_grid
             sw_settings_tag_list_grid_action_modals
-              sw_settings_tag_list_delete_modal
-                sw_settings_tag_list_delete_modal_confirm_delete_text
-                sw_settings_tag_list_delete_modal_footer
-                  sw_settings_tag_list_delete_modal_cancel
-                  sw_settings_tag_list_delete_modal_confirm
-              sw_settings_tag_list_detail_edit_modal
-              sw_settings_tag_list_duplicate_modal
-                sw_settings_tag_list_delete_modal_confirm_duplicate_input
-                sw_settings_tag_list_duplicate_modal_footer
-                  sw_settings_tag_list_duplicate_modal_cancel
-                  sw_settings_tag_list_duplicate_modal_confirm
+              sw_settings_tag_list_delete_modal  [scope: item]
+                sw_settings_tag_list_delete_modal_confirm_delete_text  [scope: item]
+                sw_settings_tag_list_delete_modal_footer  [scope: item]
+                  sw_settings_tag_list_delete_modal_cancel  [scope: item]
+                  sw_settings_tag_list_delete_modal_confirm  [scope: item]
+              sw_settings_tag_list_detail_edit_modal  [after v-if] [scope: item]
+              sw_settings_tag_list_duplicate_modal  [after v-if] [scope: item]
+                sw_settings_tag_list_delete_modal_confirm_duplicate_input  [scope: item]
+                sw_settings_tag_list_duplicate_modal_footer  [scope: item]
+                  sw_settings_tag_list_duplicate_modal_cancel  [scope: item]
+                  sw_settings_tag_list_duplicate_modal_confirm  [scope: item]
             sw_settings_tag_list_grid_bulk
             sw_settings_tag_list_grid_bulk_merge_modal
-              sw_settings_tag_list_merge_modal_confirm_name_input
-              sw_settings_tag_list_merge_modal_progress
+              sw_settings_tag_list_merge_modal_confirm_name_input  [scope: ids, selection]
+              sw_settings_tag_list_merge_modal_progress  [scope: ids, selection]
             sw_settings_tag_list_grid_column_assignments
             sw_settings_tag_list_grid_column_default_name
             sw_settings_tag_list_grid_columns_actions
-              sw_settings_tag_list_grid_columns_actions_delete
-              sw_settings_tag_list_grid_columns_actions_duplicate
-              sw_settings_tag_list_grid_columns_actions_edit
+              sw_settings_tag_list_grid_columns_actions_delete  [scope: item]
+              sw_settings_tag_list_grid_columns_actions_duplicate  [scope: item]
+              sw_settings_tag_list_grid_columns_actions_edit  [scope: item]
           sw_settings_tag_list_grid_toolbar_filter
             sw_settings_tag_list_grid_toolbar_filter_assignment
             sw_settings_tag_list_grid_toolbar_filter_divider
@@ -56,4 +56,7 @@ blocks
         sw_settings_tag_list_smart_bar_header_title
           sw_settings_tag_list_smart_bar_header_amount
           sw_settings_tag_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_settings_tag_list_grid -> sw_settings_tag_list_empty_state
 ```

@@ -15,7 +15,7 @@ blocks
     sw_plugin_box_container
       sw_plugin_box_container_button
       sw_plugin_box_container_plugin_data
-        sw_plugin_box_container_plugin_data_description
+        sw_plugin_box_container_plugin_data_description  [after v-if]
           sw_plugin_box_container_plugin_data_description_author
           sw_plugin_box_container_plugin_data_description_label
         sw_plugin_box_container_plugin_data_icon

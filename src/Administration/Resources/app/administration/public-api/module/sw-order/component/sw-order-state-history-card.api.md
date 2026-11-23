@@ -13,7 +13,7 @@ component sw-order-state-history-card  public  js
 blocks
   sw_order_state_history_card
     sw_order_state_change_card_modal
-    sw_order_state_history_card_container
+    sw_order_state_history_card_container  [after v-if]
       sw_order_state_history_card_delivery
       sw_order_state_history_card_order
       sw_order_state_history_card_transaction

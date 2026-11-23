@@ -13,5 +13,5 @@ component sw-media-sidebar  public  js
 blocks
   sw_media_sidebar
     sw_media_sidebar_headline
-    sw_media_sidebar_item_quickinfo_content
+    sw_media_sidebar_item_quickinfo_content  [after v-if]
 ```

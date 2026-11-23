@@ -17,15 +17,18 @@ blocks
         sw_promotion_v2_generate_codes_modal_code_amount
         sw_promotion_v2_generate_codes_modal_preview
       sw_promotion_v2_generate_codes_modal_container_pattern
-        sw_promotion_v2_generate_codes_modal_container_pattern_custom
+        sw_promotion_v2_generate_codes_modal_container_pattern_custom  [after v-if]
         sw_promotion_v2_generate_codes_modal_container_pattern_simple
           sw_promotion_v2_generate_codes_modal_prefix
           sw_promotion_v2_generate_codes_modal_replacement
           sw_promotion_v2_generate_codes_modal_suffix
       sw_promotion_v2_generate_codes_modal_custom_pattern_switch
-      sw_promotion_v2_generate_codes_modal_description
+      sw_promotion_v2_generate_codes_modal_description  [after v-if]
       sw_promotion_v2_generate_codes_modal_warning
     sw_promotion_v2_generate_codes_modal_footer
       sw_promotion_v2_generate_codes_modal_cancel
       sw_promotion_v2_generate_codes_modal_generate
+
+crossings
+  v-if  sw_promotion_v2_generate_codes_modal_container_pattern_simple -> sw_promotion_v2_generate_codes_modal_container_pattern_custom
 ```

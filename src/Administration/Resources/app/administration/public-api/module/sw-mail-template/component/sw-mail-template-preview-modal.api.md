@@ -12,6 +12,6 @@ component sw-mail-template-preview-modal  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_mail_template_detail_preview_modal_footer  [private]
+  sw_mail_template_detail_preview_modal_footer  [after v-if] [private]
     sw_mail_template_detail_preview_modal_footer_cancel  [private]
 ```

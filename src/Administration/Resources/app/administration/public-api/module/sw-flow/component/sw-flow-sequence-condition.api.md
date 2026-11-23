@@ -13,13 +13,13 @@ component sw-flow-sequence-condition  private  js  [private]
 
 blocks
   sw_flow_sequence_condition  [private]
-    sw_flow_sequence_condition_container  [private]
+    sw_flow_sequence_condition_container  [after v-if] [private]
       sw_flow_sequence_condition_card  [private]
         sw_flow_sequence_condition_content  [private]
           sw_flow_sequence_condition_content_custom  [private]
           sw_flow_sequence_condition_rule  [private]
             sw_flow_sequence_condition_rule_empty  [private]
-            sw_flow_sequence_condition_rule_info  [private]
+            sw_flow_sequence_condition_rule_info  [after v-if] [private]
               sw_flow_sequence_condition_rule_description  [private]
               sw_flow_sequence_condition_rule_header  [private]
                 sw_flow_sequence_condition_rule_context_button  [private]
@@ -36,7 +36,7 @@ blocks
       sw_flow_sequence_condition_help_text  [private]
         sw_flow_sequence_selector_help_text  [private]
         sw_flow_sequence_selector_title  [private]
-    sw_flow_sequence_condition_false_arrow  [private]
+    sw_flow_sequence_condition_false_arrow  [after v-if] [private]
       sw_flow_sequence_condition_false_arrow_icon  [private]
         sw_flow_sequence_condition_false_arrow_add_action  [private]
         sw_flow_sequence_condition_false_arrow_add_condition  [private]
@@ -53,4 +53,7 @@ blocks
       sw_flow_sequence_condition_true_arrow_label  [private]
       sw_flow_sequence_condition_true_arrow_line  [private]
       sw_flow_sequence_condition_true_arrow_oval  [private]
+
+crossings
+  v-if  sw_flow_sequence_condition_rule_empty -> sw_flow_sequence_condition_rule_info  [private]
 ```

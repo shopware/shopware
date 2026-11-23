@@ -12,68 +12,68 @@ component sw-sales-channel-detail-base  public  js
 
 blocks
   sw_sales_channel_detail_base
-    sw_sales_channel_detail_agentic_commerce_tracking
+    sw_sales_channel_detail_agentic_commerce_tracking  [after v-if]
     sw_sales_channel_detail_base_general
-      sw_sales_channel_detail_base_disabled_countries_warning
-      sw_sales_channel_detail_base_general_input_business_time_zone
-      sw_sales_channel_detail_base_general_input_countries
-      sw_sales_channel_detail_base_general_input_customer_group
+      sw_sales_channel_detail_base_disabled_countries_warning  [after v-if]
+      sw_sales_channel_detail_base_general_input_business_time_zone  [after v-if]
+      sw_sales_channel_detail_base_general_input_countries  [after v-if]
+      sw_sales_channel_detail_base_general_input_customer_group  [after v-if]
       sw_sales_channel_detail_base_general_input_favorite
-      sw_sales_channel_detail_base_general_input_footer_category
-      sw_sales_channel_detail_base_general_input_languages
-      sw_sales_channel_detail_base_general_input_name
+      sw_sales_channel_detail_base_general_input_footer_category  [after v-if]
+      sw_sales_channel_detail_base_general_input_languages  [after v-if]
+      sw_sales_channel_detail_base_general_input_name  [after v-if]
       sw_sales_channel_detail_base_general_input_navigation_category_container
         sw_sales_channel_detail_base_general_input_navigation_category
-        sw_sales_channel_detail_base_general_input_navigation_category_depth
+        sw_sales_channel_detail_base_general_input_navigation_category_depth  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_template
-      sw_sales_channel_detail_base_general_input_service_category
-      sw_sales_channel_detail_product_comparison_template_modal
+      sw_sales_channel_detail_base_general_input_service_category  [after v-if]
+      sw_sales_channel_detail_product_comparison_template_modal  [after v-if]
         sw_sales_channel_detail_product_comparison_template_modal_notification
-    sw_sales_channel_detail_base_general_input_product_comparison_settings
-      sw_sales_channel_detail_base_general_input_product_comparison_encoding
-      sw_sales_channel_detail_base_general_input_product_comparison_feed_label
-      sw_sales_channel_detail_base_general_input_product_comparison_file_format
+    sw_sales_channel_detail_base_general_input_product_comparison_settings  [after v-if]
+      sw_sales_channel_detail_base_general_input_product_comparison_encoding  [after v-if]
+      sw_sales_channel_detail_base_general_input_product_comparison_feed_label  [after v-if]
+      sw_sales_channel_detail_base_general_input_product_comparison_file_format  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_filename
       sw_sales_channel_detail_base_general_input_product_comparison_generate_by_cronjob
-      sw_sales_channel_detail_base_general_input_product_comparison_include_variants
+      sw_sales_channel_detail_base_general_input_product_comparison_include_variants  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_interval
       sw_sales_channel_detail_base_general_input_product_comparison_last_generation
-      sw_sales_channel_detail_base_general_input_product_comparison_product_stream
-    sw_sales_channel_detail_base_general_input_product_comparison_storefront
+      sw_sales_channel_detail_base_general_input_product_comparison_product_stream  [after v-if]
+    sw_sales_channel_detail_base_general_input_product_comparison_storefront  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain
       sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_currency
-      sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language
-      sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group
+      sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain_language  [after v-if]
+      sw_sales_channel_detail_base_general_input_product_comparison_storefront_sales_channel_customer_group  [after v-if]
       sw_sales_channel_detail_base_general_input_product_comparison_storefront_select
-    sw_sales_channel_detail_base_options_api
+    sw_sales_channel_detail_base_options_api  [after v-if]
       sw_sales_channel_detail_base_options_api_description
       sw_sales_channel_detail_base_options_input_access_key
-      sw_sales_channel_detail_base_options_input_generate_key
-      sw_sales_channel_detail_base_product_comparison_access_key
-        sw_sales_channel_detail_base_product_comparison_input_access_key
-        sw_sales_channel_detail_base_product_comparison_input_access_url
-        sw_sales_channel_detail_base_product_comparison_input_generate_key
-    sw_sales_channel_detail_base_options_delete
+      sw_sales_channel_detail_base_options_input_generate_key  [after v-if]
+      sw_sales_channel_detail_base_product_comparison_access_key  [after v-if]
+        sw_sales_channel_detail_base_product_comparison_input_access_key  [after v-if]
+        sw_sales_channel_detail_base_product_comparison_input_access_url  [after v-if]
+        sw_sales_channel_detail_base_product_comparison_input_generate_key  [after v-if]
+    sw_sales_channel_detail_base_options_delete  [after v-if]
       sw_sales_channel_detail_base_options_delete_button
       sw_sales_channel_detail_base_options_delete_modal
         sw_sales_channel_detail_options_delete_modal_confirmtext
         sw_sales_channel_detail_options_delete_modal_footer
           sw_sales_channel_detail_options_delete_modal_abort
           sw_sales_channel_detail_options_delete_modal_confirm
-    sw_sales_channel_detail_base_options_domains
-    sw_sales_channel_detail_base_options_hreflang
-    sw_sales_channel_detail_base_options_status
+    sw_sales_channel_detail_base_options_domains  [after v-if]
+    sw_sales_channel_detail_base_options_hreflang  [after v-if]
+    sw_sales_channel_detail_base_options_status  [after v-if]
       sw_sales_channel_detail_base_maintenance_input_active
       sw_sales_channel_detail_base_maintenance_ipwhitelist
       sw_sales_channel_detail_base_options_maintenance_header
       sw_sales_channel_detail_base_options_status_description
       sw_sales_channel_detail_base_settings_link
       sw_sales_channel_detail_base_status_input_active
-    sw_sales_channel_detail_custom_field_sets
-    sw_sales_channel_shipping_payment
+    sw_sales_channel_detail_custom_field_sets  [after v-if]
+    sw_sales_channel_shipping_payment  [after v-if]
       sw_sales_channel_detail_base_disabled_payments_methods_warning
-      sw_sales_channel_detail_base_disabled_shipping_methods_warning
-      sw_sales_channel_detail_base_general_input_currencies
-      sw_sales_channel_detail_base_general_input_payments_methods
-      sw_sales_channel_detail_base_general_input_shipping_methods
+      sw_sales_channel_detail_base_disabled_shipping_methods_warning  [after v-if]
+      sw_sales_channel_detail_base_general_input_currencies  [after v-if]
+      sw_sales_channel_detail_base_general_input_payments_methods  [after v-if]
+      sw_sales_channel_detail_base_general_input_shipping_methods  [after v-if]
 ```

@@ -21,5 +21,5 @@ blocks
     sw_settings_tax_rule_modal_form_second_row
       sw_settings_tax_rule_modal_additional_component
       sw_settings_tax_rule_modal_tax_active_from
-      sw_settings_tax_rule_modal_tax_rate
+      sw_settings_tax_rule_modal_tax_rate  [after v-if]
 ```

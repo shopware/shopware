@@ -14,7 +14,7 @@ component sw-flow-detail-general  private  js  [private]
 blocks
   sw_flow_detail_general  [private]
     sw_flow_detail_general_information  [private]
-      sw_flow_detail_general_information_active  [private]
+      sw_flow_detail_general_information_active  [after v-if] [private]
       sw_flow_detail_general_information_description  [private]
       sw_flow_detail_general_information_name  [private]
       sw_flow_detail_general_information_priority  [private]

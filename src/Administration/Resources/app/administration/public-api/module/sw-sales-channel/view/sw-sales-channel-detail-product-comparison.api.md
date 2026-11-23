@@ -15,7 +15,7 @@ blocks
     sw_sales_channel_detail_product_comparison
       sw_sales_channel_detail_product_comparison_actions
         sw_sales_channel_detail_product_comparison_actions_preview_button
-        sw_sales_channel_detail_product_comparison_actions_preview_component
+        sw_sales_channel_detail_product_comparison_actions_preview_component  [after v-if]
         sw_sales_channel_detail_product_comparison_actions_reset_button
         sw_sales_channel_detail_product_comparison_actions_test_button
       sw_sales_channel_detail_product_comparison_body

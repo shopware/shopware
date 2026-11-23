@@ -15,5 +15,8 @@ blocks
   sw_line_chart  [private]
     sw_line_chart_multiple  [private]
       sw_line_chart_multiple_chart  [private]
-    sw_line_chart_single  [private]
+    sw_line_chart_single  [after v-if] [private]
+
+crossings
+  v-if  sw_line_chart_multiple -> sw_line_chart_single  [private]
 ```

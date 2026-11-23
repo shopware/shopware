@@ -25,6 +25,7 @@ use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
@@ -121,15 +122,17 @@ class CheckoutController extends StorefrontController
         path: '/checkout/confirm',
         name: 'frontend.checkout.confirm.page',
         options: ['seo' => false],
-        defaults: ['XmlHttpRequest' => true, PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        defaults: [
+            'XmlHttpRequest' => true,
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => 'frontend.checkout.register.page',
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function confirmPage(Request $request, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
-        }
-
         if ($this->cartService->getCart($context->getToken(), $context)->getLineItems()->count() === 0) {
             return $this->redirectToRoute('frontend.checkout.cart.page');
         }
@@ -166,15 +169,15 @@ class CheckoutController extends StorefrontController
         path: '/checkout/finish',
         name: 'frontend.checkout.finish.page',
         options: ['seo' => false],
-        defaults: [PlatformRequest::ATTRIBUTE_NO_STORE => true],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_NO_STORE => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
         methods: [Request::METHOD_GET]
     )]
     public function finishPage(Request $request, SalesChannelContext $context, RequestDataBag $dataBag): Response
     {
-        if ($context->getCustomer() === null) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
-        }
-
         try {
             $page = $this->finishPageLoader->load($request, $context);
         } catch (OrderException $exception) {
@@ -213,14 +216,15 @@ class CheckoutController extends StorefrontController
         path: '/checkout/order',
         name: 'frontend.checkout.finish.order',
         options: ['seo' => false],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE => 'frontend.checkout.register.page',
+        ],
         methods: [Request::METHOD_POST]
     )]
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
     {
-        if (!$context->getCustomer()) {
-            return $this->redirectToRoute('frontend.checkout.register.page');
-        }
-
         try {
             $this->addAffiliateTracking($data, $request->getSession());
 

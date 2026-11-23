@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -24,11 +25,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
 use Shopware\Storefront\Controller\CheckoutController;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteDefaults;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage;
@@ -40,6 +43,7 @@ use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\CheckoutControllerStub;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -190,16 +194,22 @@ class CheckoutControllerTest extends TestCase
         static::assertSame($cart, $response->getObject());
     }
 
-    public function testConfirmPageNoCustomer(): void
+    #[DataProvider('loginRequiredRouteProvider')]
+    public function testCheckoutRouteRequiresLogin(string $routeName, ?string $expectedLoginRoute): void
     {
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
+        $route = (new AttributeRouteControllerLoader())->load(CheckoutController::class)->get($routeName);
 
-        $response = $this->controller->confirmPage(new Request(), $context);
+        static::assertNotNull($route);
+        static::assertTrue($route->getDefault(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED));
+        static::assertTrue($route->getDefault(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST));
+        static::assertSame($expectedLoginRoute, $route->getDefault(StorefrontRouteDefaults::ATTRIBUTE_LOGIN_ROUTE));
+    }
 
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('frontend.checkout.register.page', $response->getTargetUrl());
+    public static function loginRequiredRouteProvider(): \Generator
+    {
+        yield 'confirm page' => ['frontend.checkout.confirm.page', 'frontend.checkout.register.page'];
+        yield 'finish page' => ['frontend.checkout.finish.page', null];
+        yield 'order submission' => ['frontend.checkout.finish.order', 'frontend.checkout.register.page'];
     }
 
     public function testConfirmPageEmptyCart(): void
@@ -302,18 +312,6 @@ class CheckoutControllerTest extends TestCase
         static::assertSame('', $response->getContent());
     }
 
-    public function testFinishPageNoCustomer(): void
-    {
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        $response = $this->controller->finishPage(new Request(), $context, new RequestDataBag());
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('frontend.checkout.register.page', $response->getTargetUrl());
-    }
-
     public function testFinishPageOrderNotFound(): void
     {
         $context = static::createStub(SalesChannelContext::class);
@@ -395,18 +393,6 @@ class CheckoutControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertSame('', $response->getContent());
-    }
-
-    public function testOrderNoCustomer(): void
-    {
-        $context = static::createStub(SalesChannelContext::class);
-        $context->method('getCustomer')->willReturn(null);
-
-        $response = $this->controller->order(new RequestDataBag(), $context, new Request());
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-        static::assertSame('frontend.checkout.register.page', $response->getTargetUrl());
     }
 
     public function testOrder(): void

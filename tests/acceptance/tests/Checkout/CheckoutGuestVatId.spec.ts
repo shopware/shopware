@@ -43,7 +43,9 @@ test(
             await ShopCustomer.goesTo(StorefrontProductDetail.url(product));
             await ShopCustomer.attemptsTo(AddProductToCart(product));
             await ShopCustomer.presses(StorefrontProductDetail.offCanvasCartGoToCheckoutButton);
-            await StorefrontCheckoutRegister.page.waitForURL('**/checkout/register', { waitUntil: 'commit' });
+            await StorefrontCheckoutRegister.page.waitForURL((url) => url.pathname.endsWith('/checkout/register'), {
+                waitUntil: 'commit',
+            });
 
             await ShopCustomer.presses(StorefrontAccountLogin.accountTypeSelect);
             await StorefrontAccountLogin.accountTypeSelect.selectOption('Commercial');

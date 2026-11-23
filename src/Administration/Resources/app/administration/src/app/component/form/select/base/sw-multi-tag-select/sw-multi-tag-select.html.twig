@@ -48,6 +48,7 @@
 
     {% block sw_multi_tag_select_validation %}
     <template #results-list>
+        {# Mounted only while open: sw-modal moves its element to the body, which breaks a teleport inside it when the modal closes #}
         <div
             v-if="hasFocus"
             class="sw-multi-tag-select-validation sw-select-result-list"

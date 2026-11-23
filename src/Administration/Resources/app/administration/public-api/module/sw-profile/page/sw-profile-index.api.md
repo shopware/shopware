@@ -15,7 +15,7 @@ blocks
     sw_profile_index_actions
     sw_profile_index_content_confirm_password_modal
     sw_profile_index_headline
-    sw_profile_index_media_upload_actions_media_modal
+    sw_profile_index_media_upload_actions_media_modal  [after v-if]
     sw_profile_index_router_view
     sw_profile_index_smart_bar_back
     sw_profile_index_tabs

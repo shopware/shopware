@@ -12,13 +12,13 @@ component sw-promotion-v2-detail-base  public  js
 
 blocks
   sw_promotion_v2_detail_base
-    sw_promotion_detail_custom_field_sets
-    sw_promotion_v2_detail_base_codes_card
+    sw_promotion_detail_custom_field_sets  [after v-if]
+    sw_promotion_v2_detail_base_codes_card  [after v-if]
       sw_promotion_v2_detail_base_codes_select
       sw_promotion_v2_detail_base_codes_type_fixed
         sw_promotion_v2_detail_base_codes_type_fixed_code
         sw_promotion_v2_detail_base_codes_type_fixed_generate
-      sw_promotion_v2_detail_base_codes_type_individual
+      sw_promotion_v2_detail_base_codes_type_individual  [after v-if]
         sw_promotion_v2_detail_base_codes_type_individual_codes_behavior
     sw_promotion_v2_detail_base_general_card
       sw_promotion_v2_detail_base_general_active
@@ -29,4 +29,7 @@ blocks
       sw_promotion_v2_detail_base_general_valid_container
         sw_promotion_v2_detail_base_general_valid_from
         sw_promotion_v2_detail_base_general_valid_until
+
+crossings
+  v-if  sw_promotion_v2_detail_base_codes_type_fixed -> sw_promotion_v2_detail_base_codes_type_individual
 ```

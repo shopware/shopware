@@ -15,10 +15,10 @@ blocks
     sw_settings_search_excluded_search_terms_empty_state
       sw_settings_search_excluded_search_terms_empty_state_action
       sw_settings_search_excluded_search_terms_empty_state_image
-    sw_settings_search_excluded_search_terms_grid
+    sw_settings_search_excluded_search_terms_grid  [after v-if]
       sw_settings_search_excluded_search_terms_grid_list
-        sw_search_excliuded_terms_no_results
-        sw_search_excluded_terms_column_actions
+        sw_search_excliuded_terms_no_results  [after v-if]
+        sw_search_excluded_terms_column_actions  [scope: item]
         sw_search_excluded_terms_list_pagination
       sw_settings_search_excluded_search_terms_header_bar
         sw_settings_search_excluded_search_terms_actions

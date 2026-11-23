@@ -17,6 +17,6 @@ blocks
     sw_search_preferences_modal_button_save  [private]
     sw_search_preferences_modal_description  [private]
     sw_search_preferences_modal_grid  [private]
-      sw_search_preferences_modal_grid_column_active  [private]
-      sw_search_preferences_modal_grid_column_module_name  [private]
+      sw_search_preferences_modal_grid_column_active  [scope: item] [private]
+      sw_search_preferences_modal_grid_column_module_name  [scope: item] [private]
 ```

@@ -15,7 +15,7 @@ blocks
   sw_extension_rating_stars  [private]
     sw_extension_rating_stars_wrapper  [private]
       sw_extension_rating_stars_wrapper_stars  [private]
-        sw_extension_rating_stars_wrapper_stars_full_star  [private]
-        sw_extension_rating_stars_wrapper_stars_partial_star  [private]
-          sw_extension_rating_stars_wrapper_stars_partial_star_wrapper  [private]
+        sw_extension_rating_stars_wrapper_stars_full_star  [scope: key, ratingValue] [private]
+        sw_extension_rating_stars_wrapper_stars_partial_star  [scope: key, ratingValue] [private]
+          sw_extension_rating_stars_wrapper_stars_partial_star_wrapper  [scope: key, ratingValue] [private]
 ```

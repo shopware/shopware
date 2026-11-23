@@ -18,7 +18,7 @@ blocks
       sw_product_variants_configurator_prices_grid_wrapper
         sw_product_variants_configurator_prices_data_grid
           sw_product_variants_configurator_prices_actions
-            sw_product_variants_configurator_prices_actions_items
+            sw_product_variants_configurator_prices_actions_items  [scope: item]
           sw_product_variants_configurator_prices_column_currency
           sw_product_variants_configurator_prices_column_name
       sw_product_variants_configurator_prices_search

@@ -13,15 +13,15 @@ component sw-users-permissions-additional-permissions  public  js
 blocks
   sw_users_permissions_additional_permissions
     sw_users_permissions_additional_permissions_additional_privileges
-      sw_users_permissions_additional_permissions_additional_privileges_headline
-        sw_users_permissions_additional_permissions_additional_privileges_headline_content
-      sw_users_permissions_additional_permissions_additional_privileges_switches
-        sw_users_permissions_additional_permissions_additional_privileges_switches_content
-          sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch
+      sw_users_permissions_additional_permissions_additional_privileges_headline  [scope: privilege]
+        sw_users_permissions_additional_permissions_additional_privileges_headline_content  [scope: privilege]
+      sw_users_permissions_additional_permissions_additional_privileges_switches  [scope: privilege]
+        sw_users_permissions_additional_permissions_additional_privileges_switches_content  [scope: privilege]
+          sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch  [scope: privilege, roleName, value]
     sw_users_permissions_additional_permissions_app_privileges
-      sw_users_permissions_additional_permissions_app_privileges_headline
-        sw_users_permissions_additional_permissions_app_privileges_headline_content
-      sw_users_permissions_additional_permissions_app_privileges_switches
-        sw_users_permissions_additional_permissions_app_privileges_switches_content
-          sw_users_permissions_additional_permissions_app_privileges_switches_content_switch
+      sw_users_permissions_additional_permissions_app_privileges_headline  [scope: privilege]
+        sw_users_permissions_additional_permissions_app_privileges_headline_content  [scope: privilege]
+      sw_users_permissions_additional_permissions_app_privileges_switches  [scope: privilege]
+        sw_users_permissions_additional_permissions_app_privileges_switches_content  [scope: privilege]
+          sw_users_permissions_additional_permissions_app_privileges_switches_content_switch  [scope: key, privilege, roleName]
 ```

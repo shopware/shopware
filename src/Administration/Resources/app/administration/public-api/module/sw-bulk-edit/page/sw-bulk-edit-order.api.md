@@ -15,11 +15,11 @@ blocks
     sw_bulk_edit_order_content
       sw_bulk_edit_order_content_documents
         sw_bulk_edit_order_content_documents_content
-      sw_bulk_edit_order_content_order_status_card
+      sw_bulk_edit_order_content_order_status_card  [after v-if]
         sw_bulk_edit_order_content_order_status_section
       sw_bulk_edit_order_custom_field_card
-      sw_bulk_edit_order_empty_state
-      sw_bulk_edit_order_save_modal
+      sw_bulk_edit_order_empty_state  [after v-if]
+      sw_bulk_edit_order_save_modal  [after v-if]
       sw_bulk_edit_order_tags_card
         sw_bulk_edit_order_tags
     sw_bulk_edit_order_content_smart_bar_actions

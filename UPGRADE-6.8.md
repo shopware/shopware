@@ -1527,6 +1527,9 @@ Change the return type of `__invoke()` to `McpToolResult` and return `McpToolRes
 The counterparts are `successResult()`, `errorResult()`, `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
 App tools are not affected and keep their response format.
 
+The PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) moves from `core-rules.neon` to `rules.neon`.
+It reports a `#[McpTool]` method whose native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
+
 ## `MediaUploadService::validateExternalUrl()` deprecated
 
 Use the new `assertValidExternalUrl()` instance method instead:
@@ -3272,6 +3275,10 @@ State-based invalidation is not supported anymore.
 `Shopware\Core\Framework\App\Exception\AppCmsExtensionException` was removed.
 A missing CMS block file and a CMS block outside of the `cms/blocks` directory of the App are thrown as `Shopware\Core\Framework\App\AppException` instead.
 Catch `AppException` and check the error codes `FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING` and `FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY`.
+
+## Old shop ID format no longer read
+
+The system config key `core.app.shopId` is no longer read, read the shop ID from `core.app.shopIdV2` instead.
 
 </details>
 

@@ -16,22 +16,22 @@ blocks
       sw_settings_listing_content_card_view
         sw_settings_listing_content_card_view_default_sales_channel
         sw_settings_listing_content_card_view_options_card
-          sw_settings_listing_content_card_view_options_card_empty_state
+          sw_settings_listing_content_card_view_options_card_empty_state  [after v-if]
           sw_settings_listing_content_card_view_options_card_empty_state_icon
           sw_settings_listing_content_card_view_options_card_grid
             sw_settings_listing_content_card_view_options_card_grid_column_actions
-              sw_settings_listing_content_card_view_options_card_grid_column_actions_delete
-              sw_settings_listing_content_card_view_options_card_grid_column_actions_edit
+              sw_settings_listing_content_card_view_options_card_grid_column_actions_delete  [scope: item]
+              sw_settings_listing_content_card_view_options_card_grid_column_actions_edit  [scope: item]
             sw_settings_listing_content_card_view_options_card_grid_column_criteria
-              sw_settings_listing_content_card_view_options_card_grid_column_criteria_text
+              sw_settings_listing_content_card_view_options_card_grid_column_criteria_text  [scope: item]
             sw_settings_listing_content_card_view_options_card_grid_pagination
           sw_settings_listing_content_card_view_options_card_toolbar
             sw_settings_listing_content_card_view_options_card_toolbar_container
               sw_settings_listing_content_card_view_options_card_toolbar_add_product_option
               sw_settings_listing_content_card_view_options_card_toolbar_search_field
         sw_settings_listing_content_card_view_system_config
-          sw_settings_listing_content_card_view_system_config_default_search_result_sorting_select
-          sw_settings_listing_content_card_view_system_config_default_sorting_select
+          sw_settings_listing_content_card_view_system_config_default_search_result_sorting_select  [after v-if] [scope: config, index, inheritance, isNotDefaultSalesChannel]
+          sw_settings_listing_content_card_view_system_config_default_sorting_select  [scope: config, index, inheritance, isNotDefaultSalesChannel]
       sw_settings_listing_content_card_view_options_delete_modal
     sw_settings_listing_search_bar
     sw_settings_listing_smart_bar_actions
@@ -40,4 +40,7 @@ blocks
       sw_settings_listing_smart_bar_header_title
         sw_settings_listing_smart_bar_header_amount
         sw_settings_listing_smart_bar_header_title_text
+
+crossings
+  v-if  sw_settings_listing_content_card_view_options_card_grid -> sw_settings_listing_content_card_view_options_card_empty_state
 ```

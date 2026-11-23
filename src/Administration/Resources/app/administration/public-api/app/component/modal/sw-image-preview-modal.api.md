@@ -21,5 +21,5 @@ blocks
       sw_image_preview_modal_button_close  [private]
       sw_image_preview_modal_divider  [private]
       sw_image_preview_modal_image_slider  [private]
-      sw_image_preview_modal_thumbnail_slider  [private]
+      sw_image_preview_modal_thumbnail_slider  [after v-if] [private]
 ```

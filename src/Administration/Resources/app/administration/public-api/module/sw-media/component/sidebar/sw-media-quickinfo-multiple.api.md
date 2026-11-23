@@ -12,15 +12,15 @@ component sw-media-quickinfo-multiple  public  js
 
 blocks
   sw_media_quickinfo_multiple
-    sw_media_quickinfo_multiple_file_names
+    sw_media_quickinfo_multiple_file_names  [after v-if]
       sw_media_quickinfo_multiple_file_names_content
     sw_media_quickinfo_multiple_quickactions
       sw_media_quickinfo_multiple_quickactions_content
-        sw_media_quickinfo_folder_quickactions_dissolve
-        sw_media_quickinfo_multiple_quickactions_custom_action
+        sw_media_quickinfo_folder_quickactions_dissolve  [after v-if]
+        sw_media_quickinfo_multiple_quickactions_custom_action  [after v-if]
         sw_media_quickinfo_multiple_quickactions_delete
         sw_media_quickinfo_multiple_quickactions_move
-    sw_media_sidebar_folder_dissolve_modal
-    sw_media_sidebar_folder_move_modal
+    sw_media_sidebar_folder_dissolve_modal  [after v-if]
+    sw_media_sidebar_folder_move_modal  [after v-if]
     sw_media_sidebar_modal_delete
 ```

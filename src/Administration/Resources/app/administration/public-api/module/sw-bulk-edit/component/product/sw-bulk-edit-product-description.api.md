@@ -12,9 +12,9 @@ component sw-bulk-edit-product-description  public  js
 
 blocks
   sw_text_editor  [inherited]
-    sw_text_editor_box  [inherited]
-      sw_text_editor_box_content  [inherited]
-      sw_text_editor_box_table_toolbar  [inherited]
+    sw_text_editor_box  [inherited] [after v-if]
+      sw_text_editor_box_content  [inherited] [after v-if]
+      sw_text_editor_box_table_toolbar  [inherited] [after v-if]
       sw_text_editor_box_toolbar  [inherited]
       sw_text_editor_box_word_count  [inherited]
     sw_text_editor_label  [inherited]

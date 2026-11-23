@@ -13,4 +13,7 @@ component sw-text-field  private  ts  [private]
 
 blocks
   sw_text_field  [private]
+
+crossings
+  v-if  sw_text_field -> (root)  [private]
 ```

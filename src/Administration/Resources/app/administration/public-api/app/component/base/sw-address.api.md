@@ -13,6 +13,6 @@ component sw-address  private  ts  [private]
 
 blocks
   sw_address  [private]
-    sw_address_formatting  [private]
+    sw_address_formatting  [after v-if] [private]
     sw_address_headline  [private]
 ```

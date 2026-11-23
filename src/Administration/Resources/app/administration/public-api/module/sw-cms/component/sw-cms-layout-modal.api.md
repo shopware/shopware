@@ -14,11 +14,11 @@ component sw-cms-layout-modal  private  js  [private]
 blocks
   sw_cms_layout_modal  [private]
     sw_cms_layout_modal_content  [private]
-      sw_cms_layout_modal_content_container  [private]
+      sw_cms_layout_modal_content_container  [after v-if] [private]
         sw_cms_layout_modal_content_listing  [private]
-          sw_cms_layout_modal_content_listing_item  [private]
-            sw_cms_layout_modal_content_listing_item_checkbox  [private]
-            sw_cms_layout_modal_content_listing_item_inner  [private]
+          sw_cms_layout_modal_content_listing_item  [scope: cmsPage, index] [private]
+            sw_cms_layout_modal_content_listing_item_checkbox  [scope: cmsPage, index] [private]
+            sw_cms_layout_modal_content_listing_item_inner  [scope: cmsPage, index] [private]
           sw_cms_layout_modal_content_pagination  [private]
         sw_cms_list_listing_list_data_grid_column_created  [private]
         sw_cms_list_listing_list_data_grid_column_name  [private]
@@ -33,5 +33,10 @@ blocks
         sw_cms_layout_modal_header_sorting_select  [private]
         sw_cms_layout_modal_header_view_toggle  [private]
           sw_cms_layout_modal_header_view_toogle_grid  [private]
-          sw_cms_layout_modal_header_view_toogle_list  [private]
+          sw_cms_layout_modal_header_view_toogle_list  [after v-if] [private]
+
+crossings
+  <mt-radio-group-root>  sw_cms_layout_modal_content_container -> sw_cms_layout_modal_content_listing  [private]
+  <sw-container>  sw_cms_layout_modal_content_container -> sw_cms_layout_modal_content_listing  [private]
+  v-if  sw_cms_layout_modal_loader -> sw_cms_layout_modal_content_container  [private]
 ```

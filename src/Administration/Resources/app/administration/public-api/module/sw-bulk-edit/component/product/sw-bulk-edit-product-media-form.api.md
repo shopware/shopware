@@ -13,9 +13,9 @@ component sw-bulk-edit-product-media-form  public  js
 
 blocks
   sw_product_media_form  [inherited]
-    sw_product_media_form_grid  [inherited]
+    sw_product_media_form_grid  [inherited] [after v-if]
       sw_product_media_form_cover_preview  [replaced]
       sw_product_media_form_grid_items  [inherited]
-        sw_product_media_form_grid_item  [inherited]
+        sw_product_media_form_grid_item  [inherited] [scope: mediaItem]
     sw_product_media_form_upload  [inherited]
 ```

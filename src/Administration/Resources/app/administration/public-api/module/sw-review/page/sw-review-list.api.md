@@ -14,7 +14,7 @@ blocks
   sw_review_list
     sw_review_list_content
       sw_review_list_content
-      sw_review_list_content_list
+      sw_review_list_content_list  [after v-if]
         sw_review_list_content_list_comment
         sw_review_list_content_list_created_at
         sw_review_list_content_list_points
@@ -31,4 +31,7 @@ blocks
       sw_review_list_smart_bar_header_title
         sw_review_list_smart_bar_header_amount
         sw_review_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_review_list_empty_state -> sw_review_list_content_list
 ```

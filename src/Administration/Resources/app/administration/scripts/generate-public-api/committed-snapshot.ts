@@ -8,7 +8,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { loadFeatureConfig, majorFlagsOf } from '../feature-flags';
 import { generateSnapshot } from './snapshot';
-import type { Snapshot } from './snapshot';
+import type { Snapshot, SnapshotFiles } from './snapshot';
 
 /** @private */
 export const ADMINISTRATION_ROOT = path.resolve(__dirname, '../..');
@@ -34,7 +34,7 @@ function committedFiles(): string[] {
 }
 
 /** @private */
-export function readCommittedSnapshot(): Snapshot {
+export function readCommittedSnapshot(): SnapshotFiles {
     return {
         files: Object.fromEntries(
             committedFiles().map((file) => [
@@ -50,7 +50,7 @@ export function readCommittedSnapshot(): Snapshot {
  *
  * Writes the snapshot and removes the generated files it no longer contains.
  */
-export function writeCommittedSnapshot({ files }: Snapshot): void {
+export function writeCommittedSnapshot({ files }: SnapshotFiles): void {
     committedFiles()
         .filter((file) => !Object.hasOwn(files, file))
         .forEach((file) => fs.rmSync(path.join(SNAPSHOT_DIRECTORY, file)));

@@ -13,4 +13,7 @@ component sw-select-field  private  ts  [private]
 
 blocks
   sw_select_field  [private]
+
+crossings
+  v-if  sw_select_field -> (root)  [private]
 ```

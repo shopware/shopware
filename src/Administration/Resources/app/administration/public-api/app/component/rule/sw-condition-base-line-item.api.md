@@ -20,6 +20,6 @@ blocks
         sw_condition_base_field_delete_action  [inherited]
       sw_condition_base_field_condition  [inherited]
       sw_condition_value_before_content  [replaced]
-      sw_condition_value_content  [inherited]
+      sw_condition_value_content  [inherited] [after v-if]
     sw_condition_base_error  [inherited]
 ```

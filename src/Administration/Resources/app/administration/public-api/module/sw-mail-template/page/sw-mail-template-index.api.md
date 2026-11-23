@@ -13,7 +13,7 @@ component sw-mail-template-index  public  js
 blocks
   sw_mail_template_list
     sw_mail_template_list_content
-      sw_mail_template_list_content_card
+      sw_mail_template_list_content_card  [after v-if]
       sw_mail_template_list_router_view  [from v6.8.0]
       sw_mail_template_list_tabs  [from v6.8.0]
         sw_mail_template_list_mt_tabs  [from v6.8.0]

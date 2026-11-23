@@ -43,6 +43,9 @@
                             },
                             {
                                 "type": "string"
+                            },
+                            {
+                                "type": "null"
                             }
                         ]
                     },

@@ -928,7 +928,7 @@ Saving is not blocked.
 The Store API OpenAPI schema now lists fields that the responses already contain: the GARAN fields of `Product` (`guaranteeMonths`, `guaranteeConfirmed`, `guaranteeTermsMediaId`, `guaranteeTermsUrl` and `guaranteeTermsMedia`), `Document.typeName` and `SalesChannelDomain.isExternalStorefront`.
 The scalar fields are required, because every response carries them; the guarantee fields are `null` when unset.
 `guaranteeTermsMedia` stays optional like every other association.
-`Document.typeName` lists the type names Shopware ships and stays open for the types plugins and apps add.
+`Document.typeName` lists the type names Shopware ships, stays open for the types plugins and apps add, and is `null` for a document without a known type.
 If you generate types from the schema, regenerate them.
 
 ### Reset a SEO URL to its template

@@ -70,6 +70,31 @@ class RequestTransformerTest extends TestCase
         $requestTransformer->transform($originalRequest);
     }
 
+    #[DataProvider('salesChannelWellKnownProvider')]
+    public function testWellKnownPathsOutsideTheAdminApiDiscoveryRequireASalesChannel(string $requestUri): void
+    {
+        $decorated = static::createStub(RequestTransformerInterface::class);
+        $decorated->method('transform')->willReturnCallback(static fn ($request) => $request);
+
+        $domainLoader = $this->createMock(AbstractDomainLoader::class);
+        $domainLoader->expects($this->once())->method('loadDomains')->willReturn(new DomainCollection());
+
+        $requestTransformer = new RequestTransformer($decorated, static::createStub(AbstractSeoResolver::class), [ApiRouteScope::ID], $domainLoader);
+
+        static::expectException(SalesChannelMappingException::class);
+        $requestTransformer->transform(Request::create($requestUri));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function salesChannelWellKnownProvider(): iterable
+    {
+        yield 'root authorization server metadata of extensions' => ['http://shopware.com/.well-known/oauth-authorization-server'];
+        yield 'root protected resource metadata' => ['http://shopware.com/.well-known/oauth-protected-resource'];
+        yield 'protected resource metadata of another path' => ['http://shopware.com/.well-known/oauth-protected-resource/store-api/_mcp'];
+    }
+
     /**
      * @param array<string, string> $serverVars
      */
@@ -736,6 +761,16 @@ class RequestTransformerTest extends TestCase
         yield 'installer case' => [
             'registeredApiPrefixes' => [ApiRouteScope::ID],
             'requestUri' => 'http://shopware.com/installer',
+        ];
+
+        yield 'MCP protected resource metadata' => [
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
+            'requestUri' => 'http://shopware.com/.well-known/oauth-protected-resource/api/_mcp',
+        ];
+
+        yield 'Admin API authorization server metadata' => [
+            'registeredApiPrefixes' => [ApiRouteScope::ID],
+            'requestUri' => 'http://shopware.com/.well-known/oauth-authorization-server/api',
         ];
 
         yield '_fragment case' => [

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
@@ -26,15 +27,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\ClonePayloadBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -62,6 +68,9 @@ class VersionManager
         private readonly LockFactory $lockFactory,
         private readonly ClockInterface $clock,
         private readonly ClonePayloadBuilder $clonePayloadBuilder,
+        private readonly WriteCommandExtractor $writeCommandExtractor,
+        private readonly AclWriteValidator $aclWriteValidator,
+        private readonly LanguageLoaderInterface $languageLoader
     ) {
     }
 
@@ -250,6 +259,8 @@ class VersionManager
         $data = $this->clonePayloadBuilder->build($definition, $data, $id, $newId, $behavior->getOverwrites(), $context->getContext());
 
         $versionContext = $context->createWithVersionId($versionId);
+        $this->validateCloneOverwrites($definition, $data, $behavior->getOverwrites(), $versionContext);
+
         $result = null;
         $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);
@@ -261,6 +272,60 @@ class VersionManager
         }
 
         return $result;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $overwrites
+     */
+    private function validateCloneOverwrites(EntityDefinition $definition, array $data, array $overwrites, WriteContext $context): void
+    {
+        if ($overwrites === [] || $context->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+            return;
+        }
+
+        $validationContext = WriteContext::createFromContext(clone $context->getContext());
+        $validationContext->setLanguages($this->languageLoader->loadLanguages());
+        $queue = new WriteCommandQueue();
+        $parameters = new WriteParameterBag($definition, $validationContext, '/0', $queue);
+        $overwrites = $this->writeCommandExtractor->normalizeSingle($definition, array_replace(['id' => $data['id']], $overwrites), $parameters);
+        $validationContext->getExceptions()->tryToThrow();
+
+        // Normalize caller input first so generated IDs agree in both dry-run extractions.
+        $validationData = $this->clonePayloadBuilder->applyOverwrites($definition, $data, $overwrites);
+        // A: queue the complete candidate in system scope; copied protected fields are legitimate.
+        $validationContext->scope(Context::SYSTEM_SCOPE, function () use ($definition, $validationData, $parameters, $validationContext): void {
+            $validationContext->resetPaths();
+            $validationData = $this->writeCommandExtractor->normalizeSingle($definition, $validationData, $parameters);
+            $this->entityWriteGateway->prefetchExistences($parameters);
+            $this->writeCommandExtractor->extract($validationData, $parameters);
+        });
+        $validationContext->getExceptions()->tryToThrow();
+        $cloneCommands = $queue->getCommands();
+        $commandsByPath = [];
+        foreach ($cloneCommands as $entity => $entityCommands) {
+            foreach ($entityCommands as $command) {
+                $commandsByPath[$entity][$command->getPath()][] = $command;
+            }
+        }
+
+        // B: caller-only extraction checks field protection, using queued inserts for required copied fields.
+        $validationContext->resetPaths();
+        $this->writeCommandExtractor->extract($overwrites, $parameters);
+        $validationContext->getExceptions()->tryToThrow();
+
+        $commands = [];
+        foreach ($queue->getCommands() as $entity => $entityCommands) {
+            foreach (\array_slice($entityCommands, \count($cloneCommands[$entity] ?? [])) as $command) {
+                // Use A's actual operation at each caller path: root clone=create, existing tax=update.
+                foreach ($commandsByPath[$entity][$command->getPath()] ?? [$command] as $cloneCommand) {
+                    $commands[spl_object_id($cloneCommand)] = $cloneCommand;
+                }
+            }
+        }
+
+        $this->aclWriteValidator->preValidate(new PreWriteValidationEvent($validationContext, array_values($commands)));
+        // Discard this queue; the original writer performs the sole real write after validation.
     }
 
     /**

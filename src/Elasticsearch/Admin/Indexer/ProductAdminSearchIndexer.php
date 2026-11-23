@@ -9,10 +9,12 @@ use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
 use OpenSearchDSL\Query\TermLevel\TermQuery;
 use OpenSearchDSL\Search;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductDocument\ProductDocumentDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTag\ProductTagDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -98,6 +100,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 ...$event->getPrimaryKeysWithPropertyChange($this->getEntity(), ['coverId']),
                 ...$this->getWrittenProductIds($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
                 ...$this->getWrittenProductIds($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
+                ...$this->getProductIdsWithChangedDocuments($event),
             ];
         }
 
@@ -185,6 +188,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                 'name' => $languageFields,
             ]),
             'media' => ElasticsearchFieldBuilder::nested(),
+            'documents' => ElasticsearchFieldBuilder::nested(),
             'visibilities' => ElasticsearchFieldBuilder::nested([
                 'salesChannelId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
             ]),
@@ -316,12 +320,16 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         $visibilityIds = $this->collectHexColumnValues($baseRows, 'visibilitiesId');
         $visibilitiesByProductId = $this->fetchVisibilitiesByIds($visibilityIds, $versionId);
 
+        $documentOwnerIds = $this->collectHexColumnValues($baseRows, 'documentsId');
+        $documentsByProductId = $this->fetchDocumentsByProductIds($documentOwnerIds, $versionId);
+
         return $this->mapAdvancedRows(
             $baseRows,
             $translationsByProductId,
             $manufacturerById,
             $tagsByProductId,
-            $visibilitiesByProductId
+            $visibilitiesByProductId,
+            $documentsByProductId
         );
     }
 
@@ -346,6 +354,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
                    product.states as states,
                    LOWER(HEX(product.manufacturer)) AS manufacturerId,
                    LOWER(HEX(product.visibilities)) AS visibilitiesId,
+                   LOWER(HEX(product.documents)) AS documentsId,
                    IFNULL(product.category_ids, parent.category_ids) AS categoryIds,
                    product.stock as stock,
                    IFNULL(product.price, parent.price) AS priceRaw,
@@ -505,11 +514,74 @@ SQL,
     }
 
     /**
+     * @param list<string> $productIds
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetchDocumentsByProductIds(array $productIds, string $versionId): array
+    {
+        if ($productIds === []) {
+            return [];
+        }
+
+        $rows = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT LOWER(HEX(product_document.product_id)) as id,
+                   GROUP_CONCAT(LOWER(HEX(product_document.id)) ORDER BY NULL SEPARATOR ' ') as documentIds
+            FROM product_document
+            WHERE product_document.product_id IN (:ids)
+            AND product_document.product_version_id = :versionId
+            GROUP BY product_document.product_id, product_document.product_version_id
+SQL,
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'versionId' => $versionId],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return $this->indexRowsById($rows);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getProductIdsWithChangedDocuments(EntityWrittenContainerEvent $event): array
+    {
+        $documentResults = $event->getResults(ProductDocumentDefinition::ENTITY_NAME);
+
+        $productIds = array_column($documentResults->only(EntityWriteResult::OPERATION_INSERT)->map(
+            static fn (EntityWriteResult $result): array => $result->getPayload()
+        ), 'productId');
+
+        if ($documentResults->only(EntityWriteResult::OPERATION_DELETE)->count() > 0) {
+            $productIds = array_merge($productIds, $event->getPrimaryKeys(ProductDefinition::ENTITY_NAME));
+        }
+
+        $productIds = array_values(array_unique(array_filter($productIds, '\is_string')));
+        if ($productIds === []) {
+            return [];
+        }
+
+        $variantIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND version_id = :versionId LIMIT ' . ProductIndexer::UPDATE_IDS_CHUNK_SIZE,
+            ['ids' => Uuid::fromHexToBytesList($productIds), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        $variantIds = array_values(array_filter($variantIds, '\is_string'));
+
+        $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
+        if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
+            return $productIds;
+        }
+
+        return $familyIds;
+    }
+
+    /**
      * @param list<array<string, mixed>> $baseRows
      * @param array<string, array<string, mixed>> $translationsByProductId
      * @param array<string, array<string, mixed>> $manufacturerById
      * @param array<string, array<string, mixed>> $tagsByProductId
      * @param array<string, array<string, mixed>> $visibilitiesByProductId
+     * @param array<string, array<string, mixed>> $documentsByProductId
      *
      * @return array<string, array<string, mixed>>
      */
@@ -518,7 +590,8 @@ SQL,
         array $translationsByProductId,
         array $manufacturerById,
         array $tagsByProductId,
-        array $visibilitiesByProductId
+        array $visibilitiesByProductId,
+        array $documentsByProductId
     ): array {
         $mapped = [];
         foreach ($baseRows as $row) {
@@ -530,6 +603,8 @@ SQL,
             $parentId = \is_string($row['parentId'] ?? null) ? $row['parentId'] : null;
             $manufacturerId = \is_string($row['manufacturerId'] ?? null) ? $row['manufacturerId'] : null;
             $visibilitiesId = \is_string($row['visibilitiesId'] ?? null) ? $row['visibilitiesId'] : null;
+            $documentsId = \is_string($row['documentsId'] ?? null) ? $row['documentsId'] : null;
+            $documents = $documentsId !== null ? ($documentsByProductId[$documentsId] ?? []) : [];
 
             $ownTranslation = $translationsByProductId[$id] ?? null;
             $parentTranslation = $parentId !== null ? ($translationsByProductId[$parentId] ?? null) : null;
@@ -608,6 +683,7 @@ SQL,
                     return array_merge(['_count' => 1], $visibility);
                 }, $visibilities),
                 'media' => \is_string($row['mediaId'] ?? null) ? [['id' => $row['mediaId'], '_count' => 1]] : [],
+                'documents' => $this->parseTagIds($documents, 'documentIds'),
                 'tags' => $parsedTagIds,
                 'createdAt' => $this->formatDateTime($row, 'createdAt'),
                 'updatedAt' => $this->formatDateTime($row, 'updatedAt'),

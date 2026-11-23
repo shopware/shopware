@@ -1,0 +1,122 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProspectiveCustomerAddress": {
+                "type": "object",
+                "description": "The parts of an address that rules, tax rules and shipping costs read. Only `countryId` is required, so that an address can be sent while it is still being typed.",
+                "required": [
+                    "countryId"
+                ],
+                "properties": {
+                    "countryId": {
+                        "description": "Country of the address. It also becomes the country of the context.",
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryStateId": {
+                        "description": "Country state of the address, it has to belong to the country.",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "zipcode": {
+                        "description": "Zip code, validated with the zip code rules of the country.",
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 50
+                    },
+                    "city": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    },
+                    "street": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 255
+                    }
+                }
+            },
+            "ProspectiveCustomer": {
+                "type": "object",
+                "description": "The addresses a visitor without a customer has entered. Rules are matched as if the visitor registered as a new guest of the default customer group right now. Removed when a customer logs in or registers.",
+                "required": [
+                    "shippingAddress",
+                    "billingAddress",
+                    "apiAlias"
+                ],
+                "properties": {
+                    "shippingAddress": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                            },
+                            {
+                                "type": "object",
+                                "required": [
+                                    "countryStateId",
+                                    "zipcode",
+                                    "city",
+                                    "street",
+                                    "apiAlias"
+                                ],
+                                "properties": {
+                                    "apiAlias": {
+                                        "type": "string",
+                                        "const": "prospective_customer_address"
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "billingAddress": {
+                        "description": "`null` when the billing address is the shipping address.",
+                        "oneOf": [
+                            {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ProspectiveCustomerAddress"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "countryStateId",
+                                            "zipcode",
+                                            "city",
+                                            "street",
+                                            "apiAlias"
+                                        ],
+                                        "properties": {
+                                            "apiAlias": {
+                                                "type": "string",
+                                                "const": "prospective_customer_address"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "apiAlias": {
+                        "type": "string",
+                        "const": "prospective_customer"
+                    }
+                }
+            }
+        }
+    }
+}

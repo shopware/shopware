@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -53,7 +54,7 @@ class UserAccessKeyDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of user access key.'),
-            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required())->setDescription('Unique identity of user.'),
+            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required(), new Immutable())->setDescription('Unique identity of user.'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required())->setDescription('Access key to admin api.'),
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required())->setDescription('Secret key to admin api.'),
             (new DateTimeField('last_usage_at', 'lastUsageAt'))->setDescription('Parameter that indicates when the access key was last accessed.'),

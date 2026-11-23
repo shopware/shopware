@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPrincipal;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,41 @@ class McpToolResultPrincipalTest extends TestCase
         static::assertSame('admin:integration-id:user-id', McpToolResultPrincipal::fromRequest($this->adminRequest(new AdminApiSource('user-id', 'integration-id'))));
         static::assertSame('admin:integration-id:', McpToolResultPrincipal::fromRequest($this->adminRequest(new AdminApiSource(null, 'integration-id'))));
         static::assertSame('admin::user-id', McpToolResultPrincipal::fromRequest($this->adminRequest(new AdminApiSource('user-id'))));
+    }
+
+    public function testAnIntegrationActingForAUserKeepsThatUserInThePrincipal(): void
+    {
+        $delegatedUserId = Uuid::randomHex();
+
+        $request = $this->adminRequest(new AdminApiSource(null, 'integration-id'));
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, $delegatedUserId);
+
+        static::assertSame('admin:integration-id:' . $delegatedUserId, McpToolResultPrincipal::fromRequest($request));
+    }
+
+    public function testAnInvalidDelegatedUserHeaderIsIgnored(): void
+    {
+        $request = $this->adminRequest(new AdminApiSource(null, 'integration-id'));
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, 'not-a-user-id');
+
+        static::assertSame('admin:integration-id:', McpToolResultPrincipal::fromRequest($request));
+    }
+
+    public function testTheDelegatedUserHeaderIsIgnoredWhenTheCallerAuthenticatedAsAUser(): void
+    {
+        $request = $this->adminRequest(new AdminApiSource(null, 'integration-id'));
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID, Uuid::randomHex());
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, Uuid::randomHex());
+
+        static::assertSame('admin:integration-id:', McpToolResultPrincipal::fromRequest($request));
+    }
+
+    public function testTheSourceUserWinsOverTheDelegatedUserHeader(): void
+    {
+        $request = $this->adminRequest(new AdminApiSource('user-id', 'integration-id'));
+        $request->headers->set(PlatformRequest::HEADER_APP_USER_ID, Uuid::randomHex());
+
+        static::assertSame('admin:integration-id:user-id', McpToolResultPrincipal::fromRequest($request));
     }
 
     public function testTheSalesChannelAndContextTokenNameTheStorePrincipal(): void

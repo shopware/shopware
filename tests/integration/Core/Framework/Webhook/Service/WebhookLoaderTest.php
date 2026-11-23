@@ -223,21 +223,22 @@ class WebhookLoaderTest extends TestCase
         static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
     }
 
-    public function testWebhooksOwnedByAnAppsIntegrationAreOnlyLoadedWhileTheAppIsActive(): void
+    public function testAWebhookOwnedByAnAppsIntegrationIsLoadedWithTheApp(): void
     {
         $this->installApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
-        $integrationId = $this->connection->fetchOne('SELECT LOWER(HEX(integration_id)) FROM app WHERE name = :name', ['name' => 'minimal']);
-        static::assertIsString($integrationId);
-        WebhookBuilder::ownedByIntegration($integrationId)
+        $app = $this->connection->fetchAssociative('SELECT LOWER(HEX(id)) AS id, LOWER(HEX(integration_id)) AS integrationId, LOWER(HEX(acl_role_id)) AS aclRoleId FROM app WHERE name = :name', ['name' => 'minimal']);
+        static::assertIsArray($app);
+        WebhookBuilder::ownedByIntegration($app['integrationId'])
             ->id($this->ids->get('wh-1'))
             ->insert($this->connection);
-        $loader = static::getContainer()->get(WebhookLoader::class);
 
-        $this->connection->update('app', ['active' => 0], ['name' => 'minimal']);
-        static::assertSame([], $loader->getWebhooks());
+        $webhook = $this->loadWebhook();
 
-        $this->connection->update('app', ['active' => 1], ['name' => 'minimal']);
-        static::assertCount(1, $loader->getWebhooks());
+        // also loaded while the app is inactive, the AppEventPolicy decides about the delivery
+        static::assertFalse($webhook->appActive);
+        static::assertSame($app['id'], $webhook->appId);
+        static::assertSame('dont_tell', $webhook->appSecret);
+        static::assertEquals(new AclRoles(false, [$app['aclRoleId']]), $webhook->roles);
 
         $this->removeApp(__DIR__ . '/../../App/Manifest/_fixtures/minimal');
     }

@@ -1,4 +1,6 @@
 {% block component_line_item_image %}
+    {% set fallbackIcon = fallbackIcon ?? null %}
+
     {% set thumbnail %}
         {% if lineItem.cover.url and lineItem.cover.isSpatialObject() == false %}
             {% set attributes = {

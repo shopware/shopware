@@ -100,7 +100,7 @@ class ProductExportFileHandler implements ProductExportFileHandlerInterface
         } catch (FilesystemException $exception) {
             try {
                 $this->fileSystem->delete($temporaryFilePath);
-            } catch (FilesystemException) {
+            } catch (UnableToDeleteFile) {
             }
 
             throw $exception;

@@ -1,4 +1,6 @@
-# 6.7.17.0 (upcoming)
+# 6.7.18.0 (upcoming)
+
+# 6.7.17.0
 
 ## Critical Fixes
 

@@ -1,6 +1,6 @@
 {% block page_checkout_confirm_address_inner %}
     {# @var page \Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage #}
-    {% if page.order %}
+    {% if page.order ?? null %}
         {% set order = page.order %}
         {% set billingAddress = order.billingAddress %}
 
@@ -22,10 +22,10 @@
         {% endif %}
 
         {% set shipments = order.deliveries.shipments(order.primaryOrderDeliveryId) %}
-    {% else %}
+    {% elseif page.cart is defined %}
         {% set billingAddress = context.customer.activeBillingAddress %}
         {% set shippingAddress = context.customer.activeShippingAddress %}
-        {% set shipments = page.cart.deliveries.shipments %}
+        {% set shipments = page.cart.deliveries.shipments ?? null %}
     {% endif %}
 
     {% block page_checkout_confirm_address %}
@@ -37,7 +37,7 @@
                 {% if page.order is defined %}
                     {% set lineItems = page.order.lineItems %}
                 {% endif %}
-                {% if not page.isHideShippingAddress() %}
+                {% if not (page.isHideShippingAddress() ?? false) %}
                     <div class="col-sm-6 card-col confirm-shipping-address">
                         <div class="card checkout-card">
                             <div class="card-body">
@@ -106,7 +106,7 @@
 
                             {% block page_checkout_confirm_address_billing_data %}
                                 <div class="confirm-address-billing mb-3">
-                                    {% if billingAddress.id is same as(shippingAddress.id) and not page.isHideShippingAddress() and shipments|length <= 1 %}
+                                    {% if billingAddress.id is same as(shippingAddress.id) and not (page.isHideShippingAddress() ?? false) and shipments|length <= 1 %}
                                         {% block page_checkout_confirm_address_billing_data_equal %}
                                             <p>
                                                 {{ 'checkout.addressEqualText'|trans|sw_sanitize }}

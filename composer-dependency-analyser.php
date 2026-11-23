@@ -55,9 +55,6 @@ return $config
     /** Used in `setasign/fpdi` if available, see https://github.com/setasign/fpdi#installation-with-composer */
     ->ignoreErrorsOnPackage('setasign/tfpdf', [ErrorType::UNUSED_DEPENDENCY])
 
-    /** Has no classes, only used to avoid incompatible dependencies */
-    ->ignoreErrorsOnPackage('shopware/conflicts', [ErrorType::UNUSED_DEPENDENCY])
-
     /** Used by 3rd party libraries */
     ->ignoreErrorsOnExtensions(['ext-pdo_mysql', 'ext-sodium', 'ext-xml'], [ErrorType::UNUSED_DEPENDENCY])
 

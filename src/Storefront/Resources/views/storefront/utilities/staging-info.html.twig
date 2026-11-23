@@ -19,7 +19,7 @@
                     {% set quickViewUrl = adminBaseUrl ~ '/category/landingPage/' ~ app.request.attributes.get('landingPageId') %}
                 {% endif %}
 
-                {% if quickViewUrl %}
+                {% if quickViewUrl ?? null %}
                     {% sw_icon 'link' style { class : 'flex-shrink-0 ms-2 me-2'} %}
 
                     <p class="m-0 fw-bold">

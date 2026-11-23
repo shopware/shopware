@@ -1,4 +1,10 @@
 {% block component_product_box_price_info %}
+    {## template-contract ##}
+    {% types {
+        product: 'Shopware\\Core\\Content\\Product\\SalesChannel\\SalesChannelProductEntity',
+        context: 'Shopware\\Core\\System\\SalesChannel\\SalesChannelContext',
+    } %}
+
     {% set cheapest = product.calculatedCheapestPrice %}
 
     {% set real = product.calculatedPrice %}
@@ -12,7 +18,7 @@
     {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
 
     {% if displayParent %}
-        {% set displayFromVariants = displayParent and real.unitPrice !== cheapest.unitPrice %}
+        {% set displayFromVariants = real.unitPrice !== cheapest.unitPrice %}
         {% set real = cheapest %}
         {% set totalVariants = product.cheapestPriceContainer.value %}
         {% set hasDifferentPrice = totalVariants|filter(variant => variant.default != null)|length > 0 %}

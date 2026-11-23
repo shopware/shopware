@@ -20,7 +20,7 @@
 
             {% if cookieGroup.entries is not empty or snippetDescription %}
 
-                {% set cookieGroupName = (snippetName|default(''))|replace({'cookie.': '', ' ': '-'}) %}
+                {% set cookieGroupName = snippetName|replace({'cookie.': '', ' ': '-'}) %}
                 {% set cookieGroupId = 'offcanvas-cookie-entries-' ~ cookieGroupName|lower %}
 
                 {% block cookie_configuration_group_collapse_button %}

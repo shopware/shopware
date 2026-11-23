@@ -15,7 +15,7 @@
 
     {% set sidebar = (section.type ?? null) == 'sidebar' %}
 
-    {% set params = { slots: slot.id, 'no-aggregations': 1 } %}
+    {% set params = { slots: null, 'no-aggregations': 1 } %}
 
     {% block element_wishlist_listing_wrapper %}
         {% sw_include '@Storefront/storefront/component/wishlist/listing.html.twig' with {

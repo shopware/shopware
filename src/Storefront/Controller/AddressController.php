@@ -343,11 +343,11 @@ class AddressController extends StorefrontController
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/component/address/address-manager-modal.html.twig',
-            [
-                ...$viewData->getVars(),
+            // PHPStan 2.3.5 loses unknown getVars() keys during array unpacking.
+            array_merge($viewData->getVars(), [
                 'redirectTo' => $request->query->get('redirectTo', 'frontend.checkout.confirm.page'),
                 'redirectParameters' => $request->query->all()['redirectParameters'] ?? null,
-            ],
+            ]),
         );
 
         $response->headers->set('x-robots-tag', 'noindex');

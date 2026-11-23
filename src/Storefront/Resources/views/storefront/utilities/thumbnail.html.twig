@@ -1,6 +1,20 @@
 {# @sw-package framework #}
 
 {% block thumbnail_utility %}
+    {## template-contract ##}
+    {% types {
+        media: 'Shopware\\Core\\Content\\Media\\MediaEntity|Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity|null',
+        attributes?: 'array<mixed>',
+        sizes?: 'array<string, string>|null',
+        load?: 'bool|null',
+        loadOriginalImage?: 'bool|null',
+        autoColumnSizes?: 'bool|null',
+        columns?: 'int|float|numeric-string|null',
+        layout?: 'string|null',
+        context?: 'Shopware\\Core\\System\\SalesChannel\\SalesChannelContext',
+        themeId?: 'string|null',
+    } %}
+
     {# activate load per default. If it is not activated only a data-src is set instead of the src tag. #}
     {% if load is not defined %}
         {% set load = true %}
@@ -36,8 +50,8 @@
     {% endif %}
 
     {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
-    {% if media.thumbnails|length > 0 %}
-        {% if autoColumnSizes and columns and sizes is not defined %}
+    {% if (media.thumbnails ?? [])|length > 0 %}
+        {% if autoColumnSizes and (columns ?? null) and sizes is not defined %}
             {# set image size for every viewport #}
             {% set sizes = {
                 xs: (theme_config('breakpoint.sm') - 1) ~'px',
@@ -47,12 +61,8 @@
                 xl: ((theme_config('breakpoint.xxl') - 1) / columns)|round(0, 'ceil') ~'px'
             } %}
 
-            {% if sizes is not defined or sizes == null %}
-                {% set sizes = {} %}
-            {% endif %}
-
             {# set image size for largest viewport depending on the cms block sizing mode (boxed or full-width) #}
-            {% if layout == 'full-width' %}
+            {% if (layout ?? null) == 'full-width' %}
                 {% set container = 100 %}
                 {% set sizes = sizes|merge({ xxl: (container / columns)|round(0, 'ceil') ~'vw'}) %}
             {% else %}
@@ -62,6 +72,7 @@
         {% endif %}
 
         {% set thumbnails = media.thumbnails|sort|reverse %}
+        {% set sizes = sizes ?? {} %}
 
         {# generate srcset with all available thumbnails #}
         {% set srcsetValues = [] %}
@@ -84,7 +95,7 @@
         {% set sizeFallback = 100 %}
 
         {# set largest size depending on column count of cms block #}
-        {% if autoColumnSizes and columns %}
+        {% if autoColumnSizes and (columns ?? null) %}
             {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
         {% endif %}
 
@@ -100,7 +111,7 @@
         {% set sizesValues = [] %}
 
         {% for key, value in breakpoint|reverse %}
-            {% set sizesValues = sizesValues|merge(['(min-width: ' ~ value ~ 'px) ' ~ sizes[key]]) %}
+            {% set sizesValues = sizesValues|merge(['(min-width: ' ~ value ~ 'px) ' ~ (sizes[key] ?? '')]) %}
         {% endfor %}
 
         {% set sizesValues = sizesValues|merge([sizeFallback ~ 'vw']) %}
@@ -108,9 +119,9 @@
 
     {% block thumbnail_utility_img %}
         <img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}
-            {% if media.thumbnails|length > 0 %}
+            {% if (media.thumbnails ?? [])|length > 0 %}
                 {% if load %}srcset="{{ srcsetValues|join(', ') }}" {% else %}data-srcset="{{ srcsetValues|join(', ') }}" {% endif %}
-                {% if sizes['default'] %}
+                {% if sizes['default'] ?? null %}
                 sizes="{{ sizes['default'] }}"
                 {% elseif sizes|length > 0 %}
                 sizes="{{ sizesValues|join(', ') }}"

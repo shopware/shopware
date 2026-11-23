@@ -126,7 +126,7 @@
             {% block component_form_select_birthday_year %}
                 <div class="col-4">
                     {% block component_form_select_birthday_year_select %}
-                        {% set currentYear = 'now'|date('Y') %}
+                        {% set currentYear = 'now'|date('Y')|intval %}
                         {% set startYear = currentYear - 120 %}
 
                         <select class="form-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"

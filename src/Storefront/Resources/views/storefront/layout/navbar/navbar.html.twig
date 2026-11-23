@@ -74,8 +74,8 @@
                                                         {% sw_include '@Storefront/storefront/layout/navbar/content.html.twig' with {
                                                             themeIconConfig: themeIconConfig,
                                                             navigationTree: treeItem,
-                                                            level: level+1,
-                                                            page: page
+                                                            level: (level ?? 0) + 1,
+                                                            page: page ?? null
                                                         } only %}
                                                     </div>
                                                 {% endblock %}

@@ -24,6 +24,11 @@ final class ReturnNodeTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
+        // Whitespace after return cannot be rendered.
+        while ($stream->test(Token::TEXT_TYPE) && trim((string) $stream->getCurrent()->getValue()) === '') {
+            $stream->next();
+        }
+
         return new ReturnNode($nodes, [], $token->getLine());
     }
 

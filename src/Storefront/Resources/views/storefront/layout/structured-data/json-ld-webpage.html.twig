@@ -1,9 +1,9 @@
 {% block layout_structured_data_webpage %}
-    {% set metaInformation = page.metaInformation %}
+    {% set metaInformation = page.metaInformation ?? null %}
     {% set basicConfig = config('core.basicInformation') %}
     {% set maxLength = 255 %}
-    {% set metaDescription = metaInformation.metaDescription|striptags|trim|u.truncate(maxLength, '…') %}
-    {% set metaTitle = metaInformation.metaTitle|striptags|trim %}
+    {% set metaDescription = (metaInformation.metaDescription ?? '')|striptags|trim|u.truncate(maxLength, '…') %}
+    {% set metaTitle = (metaInformation.metaTitle ?? '')|striptags|trim %}
     {% set webPageType = jsonLdWebPageType is defined ? jsonLdWebPageType : 'WebPage' %}
     {% set pageUrl = (page.metaInformation.canonical is defined and page.metaInformation.canonical) ? page.metaInformation.canonical : app.request.uri %}
 
@@ -26,8 +26,9 @@
         }
     } %}
 
-    {% if metaInformation.copyrightYear %}
-        {% set webPageData = webPageData|merge({copyrightYear: metaInformation.copyrightYear|striptags}) %}
+    {% set copyrightYear = metaInformation.copyrightYear ?? null -%}
+    {% if copyrightYear %}
+        {% set webPageData = webPageData|merge({copyrightYear: copyrightYear|striptags}) %}
     {% endif %}
 
     {# Shop logo as the representative image for all pages (carried over from the old itemprop="image" meta tag) #}

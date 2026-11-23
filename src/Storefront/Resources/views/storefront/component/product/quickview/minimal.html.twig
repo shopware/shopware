@@ -13,9 +13,10 @@
                                 title: (page.product.cover.translated.title ?: '')
                             } %}
 
-                            {% if page.product.cover.media.getMediaType().getName() === 'VIDEO' %}
+                            {% set coverMedia = page.product.cover.media %}
+                            {% if coverMedia and coverMedia.getMediaType().getName() === 'VIDEO' %}
                                 {% sw_include '@Storefront/storefront/utilities/video.html.twig' with {
-                                    media: page.product.cover.media,
+                                    media: coverMedia,
                                     attributes: attributes
                                 } %}
                             {% else %}

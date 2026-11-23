@@ -1,5 +1,24 @@
 # 6.7.18.0 (upcoming)
 
+## Core
+
+### Generic CMS slot data
+
+`CmsSlotEntity` now accepts a PHPDoc type parameter, for example `CmsSlotEntity<ProductListingStruct>`, to describe the data exposed by `getData()` and accepted by `setData()`.
+The default remains `Struct` for existing annotations.
+Shopware's PHPStan setup infers data types for CMS slot lookups from registered resolver implementations.
+
+## Storefront
+
+### Address editor modal page type
+
+Passing a page other than `AddressListingPage` or its subclasses to `AddressEditorModalStruct::setPage()` was deprecated.
+Pass an `AddressListingPage` instance or `null` instead.
+Other page types still work with a deprecation warning while `v6.8.0.0` is disabled and throw when the flag is enabled.
+The struct's page property already declares `AddressListingPage|null` in PHPDoc for static analysis.
+In 6.8, the protected `$page` property, the return type of `getPage()` and the parameter of `setPage()` will be natively narrowed to `?AddressListingPage`.
+Extensions that redeclare the property or override the getter must prepare compatible declarations.
+
 # 6.7.17.0
 
 ## Critical Fixes

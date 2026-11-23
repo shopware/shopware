@@ -1,0 +1,7 @@
+services:
+    -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CmsElementReturnTypeExtension
+        arguments:
+            mappingFile: %currentWorkingDirectory%/var/cache/phpstan-cms/context.json
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension

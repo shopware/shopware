@@ -1,0 +1,5 @@
+services:
+    -
+        class: Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan\StructGetVarsReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension

@@ -8,7 +8,7 @@
         {% set videoUrl = 'https://www.youtube.com/embed/' %}
     {% endif %}
 
-    {% set locale = app.request.locale | split('-')[0] | default('en') %}
+    {% set locale = app.request.locale | split('-') | first | default('en') %}
 
     {# initialize with default values #}
     {% set queryParams = {
@@ -38,7 +38,7 @@
         {% set queryParams = queryParams | merge({ start: config.start.value }) %}
     {% endif %}
 
-    {% if config.end.value == not null %}
+    {% if config.end.value %}
         {% set queryParams = queryParams | merge({ end: config.end.value }) %}
     {% endif %}
 

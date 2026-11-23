@@ -94,7 +94,7 @@
                                         {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
                                             context: context,
                                             themeIconConfig: themeIconConfig,
-                                            breadcrumb: page.breadcrumb
+                                            breadcrumb: page.breadcrumb ?? null
                                         } only %}
                                     {% else %}
                                         {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {

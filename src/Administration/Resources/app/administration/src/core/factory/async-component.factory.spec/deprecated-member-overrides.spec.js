@@ -3,7 +3,7 @@
  */
 
 import deprecationBaseline from 'src/core/deprecation-baseline.json';
-import { deprecations } from 'test/_helper_/deprecations';
+import { deprecations, useProductionDeprecationGuard } from 'test/_helper_/deprecations';
 import { ComponentFactory, mount, setupComponentFactoryHooks } from './native-block-condition.fixtures';
 
 describe('core/factory/async-component.factory.ts - overrides of deprecated members', () => {
@@ -297,6 +297,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('throws once the major flag is active', async () => {
+        useProductionDeprecationGuard();
         registerComponentWithDeprecatedMembers('sw-active-major');
         ComponentFactory.override('sw-active-major', {
             methods: {
@@ -312,6 +313,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
     });
 
     it.activeFeatureFlags(['v6.8.0.0'])('logs an error instead of throwing for a baselined override', async () => {
+        useProductionDeprecationGuard();
         const error = jest.spyOn(console, 'error').mockImplementation(() => {});
         const message =
             'Component.override(\'sw-baselined-major\') replaces the deprecated method "oldMethod" without calling this.$super(), so the override stops working once "oldMethod" is removed with V6_8_0_0. The method is deprecated with: oldMethod is deprecated, use newMethod.';

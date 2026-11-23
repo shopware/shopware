@@ -25,6 +25,16 @@ import { ValidateLighthouseScore } from './ShopCustomer/Pagespeed/ValidateLighth
  */
 import { AcceptTechnicalRequiredCookies } from './ShopCustomer/Settings/AcceptTechnicalRequiredCookies';
 
+/**
+ * Product
+ */
+import { DownloadDocument } from './ShopCustomer/Product/DownloadDocument';
+
+/**
+ * Header
+ */
+import { SwitchStorefrontLanguage } from './ShopCustomer/Header/SwitchStorefrontLanguage';
+
 export const test = mergeTests(
     DownloadDigitalProductFromOrderAndExpectContentToBe,
     AddPromotionCodeToCart,
@@ -32,4 +42,6 @@ export const test = mergeTests(
     ValidateLighthouseScore,
     CheckVisibilityInHome,
     AcceptTechnicalRequiredCookies,
+    DownloadDocument,
+    SwitchStorefrontLanguage,
 );

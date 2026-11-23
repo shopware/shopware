@@ -1,11 +1,11 @@
 ---
-title: Give app registrations back after a shop copy took them over
+title: Recover app connections when a staging copy took over production
 date: 2026-10-15
 area: framework
 tags: [app-system, shop-id, registration, recovery]
 ---
 
-# Give app registrations back after a shop copy took them over
+# Recover app connections when a staging copy took over production
 
 ## Context
 
@@ -15,8 +15,8 @@ Each registration replaces the previous secret.
 The app's server, run by the app operator, keeps one record per ShopId with the current secret and the [previous one](https://github.com/shopware/app-php-sdk/blob/976bd3a993619ac80482d630ca312020033552ad/src/Registration/RegistrationService.php#L186-L189).
 
 A copy of the shop database inherits the ShopId and the secrets.
-If the copy registers apps again under that ShopId, it takes the shop over: the app switches to a new secret and the original shop is stranded.
-Once the app stops accepting the old secret, the original shop's requests are rejected and nothing tells it why.
+If the copy registers its apps again under that ShopId, it takes over production (the live shop): the apps now only talk to the copy, and production can no longer communicate with them.
+Once the app stops accepting the old secret, production's requests are rejected and nothing tells it why.
 
 Running example: production, the live shop, runs at `https://shop.example` with the secret `prod-secret`, and its shop operator copies the database to a staging shop for testing at `https://staging.shop.example`.
 `staging-secret` is the secret the copy gets when it takes over; `new-prod-secret` is the one production gets back.

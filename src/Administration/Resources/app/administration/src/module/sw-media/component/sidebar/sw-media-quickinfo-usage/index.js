@@ -191,7 +191,7 @@ export default {
                     foundInCategories,
                     foundInCmsPages,
                 ] = await Promise.all([
-                    this.productRepository.search(this.productUsageCriteria),
+                    this.productRepository.search(this.productUsageCriteria, { ...Shopware.Context.api, inheritance: true }),
                     this.landingPageRepository.search(this.slotConfigCriteria),
                     this.categoryRepository.search(this.slotConfigCriteria),
                     this.cmsPageRepository.search(this.cmsPageBlockConfigCriteria),

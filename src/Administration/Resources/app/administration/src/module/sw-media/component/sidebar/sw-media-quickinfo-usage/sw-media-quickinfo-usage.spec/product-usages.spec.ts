@@ -28,7 +28,7 @@ describe('sw-media-quickinfo-usage products', () => {
     let wrapper: VueWrapper;
     let reportedErrors: unknown[];
     const product = { id: 'product', translated: { name: 'Operating manual product' } };
-    const searchProducts = jest.fn<Promise<ProductResult>, [Criteria]>();
+    const searchProducts = jest.fn<Promise<ProductResult>, [Criteria, { inheritance?: boolean }?]>();
     type ProductResult = (typeof product)[] & { total?: number };
     let productRequests: ReturnType<Criteria['parse']>[];
     let otherRequests: { entity: string; criteria: ReturnType<Criteria['parse']> }[];
@@ -75,13 +75,13 @@ describe('sw-media-quickinfo-usage products', () => {
                 provide: {
                     repositoryFactory: {
                         create: (entity: string) => ({
-                            search: (criteria: Criteria) => {
+                            search: (criteria: Criteria, context?: { inheritance?: boolean }) => {
                                 if (entity !== 'product') {
                                     otherRequests.push({ entity, criteria: criteria.parse() });
                                     return Promise.resolve([]);
                                 }
                                 productRequests.push(criteria.parse());
-                                return searchProducts(criteria);
+                                return searchProducts(criteria, context);
                             },
                         }),
                     },
@@ -111,6 +111,12 @@ describe('sw-media-quickinfo-usage products', () => {
             params: { id: product.id },
         });
         expect(wrapper.text()).toContain(product.translated.name);
+    });
+
+    it('loads the products with inheritance, so variants show the name they inherit', async () => {
+        await createWrapper();
+
+        expect(searchProducts).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ inheritance: true }));
     });
 
     it('keeps product document filters out of category and landing page requests', async () => {

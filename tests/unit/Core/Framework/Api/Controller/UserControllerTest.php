@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ShopApiSource;
+use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\Controller\UserController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -64,6 +65,90 @@ class UserControllerTest extends TestCase
         $context = Context::createDefaultContext(new AdminApiSource(null));
 
         $controller->logout($context);
+    }
+
+    public function testMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        static::expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+
+        $controller->me($context, new Request(), static::createStub(ResponseFactoryInterface::class));
+    }
+
+    public function testStatusThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        static::expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+
+        $controller->status($context);
+    }
+
+    public function testUpdateMeThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        static::expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+        $request = Request::create('/', Request::METHOD_PATCH, ['password' => 'new-secret-value']);
+
+        $controller->updateMe($context, $request, static::createStub(ResponseFactoryInterface::class));
+    }
+
+    public function testLogoutThrowsWhenAuthenticatedAsIntegrationNamingUser(): void
+    {
+        static::expectExceptionObject(ApiException::userNotLoggedIn());
+
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex(), Uuid::randomHex()));
+
+        $controller->logout($context);
+    }
+
+    public function testDeleteUserDeniesIntegrationActingAsSelf(): void
+    {
+        static::expectExceptionObject(new PermissionDeniedException());
+
+        $userId = Uuid::randomHex();
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource($userId, Uuid::randomHex()));
+
+        $controller->deleteUser($userId, new Request(), $context, static::createStub(ResponseFactoryInterface::class));
+    }
+
+    public function testDeleteUserAllowsDirectlyAuthenticatedUserToDeleteThemselves(): void
+    {
+        $userId = Uuid::randomHex();
+        $context = Context::createDefaultContext(new AdminApiSource($userId));
+        $request = new Request();
+        $userDefinition = new UserDefinition();
+        $userRepository = StaticEntityRepository::of(UserCollection::class, [], $userDefinition);
+        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $response = new Response();
+        $responseFactory->expects($this->once())
+            ->method('createRedirectResponse')
+            ->with($userDefinition, $userId, $request, $context)
+            ->willReturn($response);
+
+        $controller = $this->createController(userRepository: $userRepository, userDefinition: $userDefinition);
+
+        static::assertSame($response, $controller->deleteUser($userId, $request, $context, $responseFactory));
+        static::assertSame([['id' => $userId]], $userRepository->deletes[0]);
+    }
+
+    public function testUpsertUserDeniesIntegrationSelfUpdateWithoutUserUpdatePrivilege(): void
+    {
+        static::expectExceptionObject(new PermissionDeniedException());
+
+        $userId = Uuid::randomHex();
+        $controller = $this->createController();
+        $context = Context::createDefaultContext(new AdminApiSource($userId, Uuid::randomHex()));
+        $request = Request::create('/', Request::METHOD_PATCH, ['password' => 'new-secret-value']);
+
+        $controller->upsertUser($userId, $request, $context, static::createStub(ResponseFactoryInterface::class));
     }
 
     public function testUpdateMeAllowsChangingTimezone(): void

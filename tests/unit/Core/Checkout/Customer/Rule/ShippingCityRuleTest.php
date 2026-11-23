@@ -6,11 +6,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\DeliveryRuleScope;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\CheckoutRuleScope;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Rule\ShippingCityRule;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedValueException;
@@ -108,5 +119,65 @@ class ShippingCityRuleTest extends TestCase
         yield 'operator_neq / not match / city' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / not match / city' => [Rule::OPERATOR_NEQ, false, 'kyln123'];
         yield 'operator_empty / match / city' => [Rule::OPERATOR_EMPTY, true, ' '];
+    }
+
+    public function testDeliveryScopeReadsTheCityOfTheDeliveryAddress(): void
+    {
+        $this->rule->assign(['cityName' => 'delivery city', 'operator' => Rule::OPERATOR_EQ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getShippingLocation')->willReturn(new ShippingLocation(new CountryEntity(), null, $this->createAddress('context city')));
+
+        $delivery = $this->createDelivery(new ShippingLocation(new CountryEntity(), null, $this->createAddress('delivery city')));
+
+        static::assertTrue($this->rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $context)));
+    }
+
+    public function testCartScopeStillReadsTheCityOfTheContextAddress(): void
+    {
+        $this->rule->assign(['cityName' => 'context city', 'operator' => Rule::OPERATOR_EQ]);
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getShippingLocation')->willReturn(new ShippingLocation(new CountryEntity(), null, $this->createAddress('context city')));
+
+        $delivery = $this->createDelivery(new ShippingLocation(new CountryEntity(), null, $this->createAddress('delivery city')));
+
+        static::assertTrue($this->rule->match(new CartRuleScope(new Cart('test'), $context)));
+        static::assertFalse($this->rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $context)));
+    }
+
+    public function testDeliveryScopeDoesNotFallBackToTheCustomerAddress(): void
+    {
+        $this->rule->assign(['cityName' => 'context city', 'operator' => Rule::OPERATOR_EQ]);
+
+        $customer = new CustomerEntity();
+        $customer->setActiveShippingAddress($this->createAddress('context city'));
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getCustomer')->willReturn($customer);
+        $context->method('getShippingLocation')->willReturn(ShippingLocation::createFromCountry(new CountryEntity()));
+
+        $delivery = $this->createDelivery(ShippingLocation::createFromCountry(new CountryEntity()));
+
+        static::assertTrue($this->rule->match(new CartRuleScope(new Cart('test'), $context)), 'The cart scope falls back to the customer address.');
+        static::assertFalse($this->rule->match(new DeliveryRuleScope($delivery, new Cart('test'), $context)), 'The delivery scope reads only the delivery location.');
+    }
+
+    private function createAddress(string $city): CustomerAddressEntity
+    {
+        $address = new CustomerAddressEntity();
+        $address->setCity($city);
+
+        return $address;
+    }
+
+    private function createDelivery(ShippingLocation $location): Delivery
+    {
+        return new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            $location,
+            new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
     }
 }

@@ -121,7 +121,11 @@ In the example, the copy stores one row like this per app in its own database:
 
 On the copy, `app:secret:recover --list <app-name>` prints every secret the copy holds for that app, newest first, with their ShopId and expiry.
 `app:secret:recover --start <app-name>` prints only the ones production needs, as JSON with the app name for each secret.
-If the copy kept secrets before it got a new ShopId, those are the kept ones; otherwise they are the secrets it currently uses.
+Which secret that is depends on what happened on the copy:
+
+- If the copy never registered again, it still has production's secret, copied over with the database.
+- If the copy took over, it has the new secret the app generated then. It still has it after `reinstall-apps`, because it kept it for 72 hours.
+
 Both take `--all` instead of an app name.
 
 On production, `app:secret:recover --finish` reads that JSON when it is pasted or piped in, never from the command line, so they stay out of the shell history.

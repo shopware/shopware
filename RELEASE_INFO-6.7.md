@@ -1,4 +1,21 @@
-# 6.7.17.0 (upcoming)
+# 6.7.18.0 (upcoming)
+
+## API
+
+### Store API media schema allows `null` where responses send it
+
+The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.
+`MediaThumbnail` also allows `null` for `mediaThumbnailSizeId` and `path`.
+The responses are unchanged.
+If you generate types from the schema, regenerate them and handle `null` for these fields.
+
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
+
+# 6.7.17.0
 
 ## Critical Fixes
 
@@ -16,6 +33,11 @@ For that, `ThemeService::updateTheme()` skips the compile when the context has t
 Classes overriding `updateTheme()` without calling the parent method should handle that state.
 
 ## Core
+
+### Address-format snippets use Twig whitespace control
+
+The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.
+Whitespace between HTML tags within custom snippets is now preserved; use Twig whitespace control in those snippets when the tags must be adjacent.
 
 ### JSON keys named extensions in DAL criteria
 

@@ -14,15 +14,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'ruleConditionDataProviderService',
-        'feature',
-    ],
+    inject: ['ruleConditionDataProviderService', 'feature'],
 
-    emits: [
-        'selection-submit',
-        'modal-close',
-    ],
+    emits: ['selection-submit', 'modal-close'],
 
     props: {
         ruleAwareGroupKey: {
@@ -209,28 +203,21 @@ export default {
 
         associationFilterOptions() {
             const associations = [];
-            Object.entries(this.getRuleDefinition.properties).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    if (value.type === 'association' && key !== 'conditions' && key !== 'tags') {
-                        associations.push({
-                            value: key,
-                            label: this.$t(`sw-settings-rule.filter.assignmentFilter.values.${key}`),
-                        });
-                    }
-                },
-            );
+            Object.entries(this.getRuleDefinition.properties).forEach(([key, value]) => {
+                if (value.type === 'association' && key !== 'conditions' && key !== 'tags') {
+                    associations.push({
+                        value: key,
+                        label: this.$t(`sw-settings-rule.filter.assignmentFilter.values.${key}`),
+                    });
+                }
+            });
             associations.sort((a, b) => a.label.localeCompare(b.label));
 
             return associations;
         },
 
         associations() {
-            const associations = [
-                'tags',
-            ];
+            const associations = ['tags'];
 
             associations.push('conditions');
 
@@ -266,6 +253,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-advanced-selection-rule.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },

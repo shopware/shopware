@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class InstallerRedirectHelper
 {
-    private const ALLOWED_PARAM_NAME_PATTERN = '/^[a-zA-Z0-9_\-]+$/';
+    private const ALLOWED_PARAM_NAME_PATTERN = '/^[a-zA-Z0-9_\-]+$/D';
 
     /**
      * @var array<string, string>
@@ -53,7 +53,8 @@ class InstallerRedirectHelper
             return;
         }
 
-        \parse_str($queryString, $params);
+        // Truncate everything after a null byte, which mimics the behaviour of `parse_str` before PHP 8.6
+        \parse_str(explode("\0", $queryString, 2)[0], $params);
 
         foreach ($params as $key => $value) {
             if (!\array_key_exists($key, $this->allowedParameterRegexp)) {
@@ -64,7 +65,7 @@ class InstallerRedirectHelper
                 continue;
             }
 
-            $parameterPattern = "/^{$this->allowedParameterRegexp[$key]}\$/";
+            $parameterPattern = "/^{$this->allowedParameterRegexp[$key]}\$/D";
 
             if (\is_array($value)) {
                 $value = reset($value);

@@ -35,6 +35,7 @@
                 storefrontEsEnable: false,
                 productStreamIndexingEnabled: true,
                 analyticsGatewayUrl: '<%- analyticsGatewayUrl %>',
+                hideUpdateModule: <%- hideUpdateModule %>,
             },
             apiContext: {
                 host: 'localhost',
@@ -44,5 +45,7 @@
             }
         });
     </script>
+
+    <script type="module" src="/src/index.ts"></script>
 </body>
 </html>

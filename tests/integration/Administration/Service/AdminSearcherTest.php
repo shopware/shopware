@@ -18,7 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -27,7 +28,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class AdminSearcherTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     /**
      * @var EntityRepository<ProductCollection>
@@ -76,26 +78,21 @@ class AdminSearcherTest extends TestCase
         $result = $this->searcher->search($queries, $this->context);
 
         static::assertCount(1, $result);
+        static::assertArrayHasKey('product', $result);
+        static::assertSame(1, $result['product']['total']);
 
-        static::assertNotEmpty($result['product']);
-
-        /** @var ProductCollection $products */
         $products = $result['product']['data'];
-        $first = $products->first();
-        $last = $products->last();
+        static::assertInstanceOf(ProductCollection::class, $products);
+        static::assertCount(1, $products);
 
-        static::assertInstanceOf(ProductEntity::class, $first);
-        static::assertInstanceOf(ProductEntity::class, $last);
+        $product = $products->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertSame($productId1, $product->getId());
 
-        /** @var ArrayEntity $firstSearchExtension */
-        $firstSearchExtension = $first->getExtension('search');
-        $firstScore = $firstSearchExtension->get('_score');
-
-        /** @var ArrayEntity $secondSearchExtension */
-        $secondSearchExtension = $first->getExtension('search');
-        $secondScore = $secondSearchExtension->get('_score');
-
-        static::assertSame($secondScore, $firstScore);
+        $searchExtension = $product->getExtension('search');
+        static::assertInstanceOf(ArrayEntity::class, $searchExtension);
+        // 500 for the manufacturer name plus 2500 for the product name, as the database sums it
+        static::assertSame('3000', $searchExtension->get('_score'));
     }
 
     public function testSearchWithoutReadPermission(): void
@@ -122,8 +119,8 @@ class AdminSearcherTest extends TestCase
 
         static::assertCount(2, $resultWithPermissions);
 
-        static::assertNotEmpty($resultWithPermissions['category']);
-        static::assertNotEmpty($resultWithPermissions['product']);
+        static::assertArrayHasKey('category', $resultWithPermissions);
+        static::assertArrayHasKey('product', $resultWithPermissions);
 
         $adminSource = new AdminApiSource($this->userId);
         $adminSource->setIsAdmin(false);
@@ -136,7 +133,7 @@ class AdminSearcherTest extends TestCase
         $resultWithoutPermissions = $this->searcher->search($queries, $this->context);
 
         static::assertCount(1, $resultWithoutPermissions);
-        static::assertNotEmpty($resultWithoutPermissions['category']);
+        static::assertArrayHasKey('category', $resultWithoutPermissions);
         static::assertArrayNotHasKey('product', $resultWithoutPermissions);
     }
 }

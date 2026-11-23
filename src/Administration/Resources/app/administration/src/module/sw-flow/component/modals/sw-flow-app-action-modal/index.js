@@ -15,15 +15,9 @@ export default {
 
     inject: ['acl'],
 
-    emits: [
-        'process-finish',
-        'modal-close',
-    ],
+    emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -75,15 +69,10 @@ export default {
                 return;
             }
 
-            Object.entries({ ...this.sequence.config }).forEach(
-                ([
-                    key,
-                    configValue,
-                ]) => {
-                    this.config[key] =
-                        typeof configValue === 'object' && configValue.value !== undefined ? configValue.value : configValue;
-                },
-            );
+            Object.entries({ ...this.sequence.config }).forEach(([key, configValue]) => {
+                this.config[key] =
+                    typeof configValue === 'object' && configValue.value !== undefined ? configValue.value : configValue;
+            });
         },
 
         onChange(event, field) {
@@ -158,31 +147,15 @@ export default {
                 return null;
             }
 
-            if (
-                [
-                    'int',
-                    'float',
-                ].includes(type)
-            ) {
+            if (['int', 'float'].includes(type)) {
                 return parseInt(value, 10);
             }
 
-            if (
-                [
-                    'bool',
-                    'checkbox',
-                ].includes(type)
-            ) {
+            if (['bool', 'checkbox'].includes(type)) {
                 return !!value;
             }
 
-            if (
-                [
-                    'date',
-                    'datetime',
-                    'time',
-                ].includes(type)
-            ) {
+            if (['date', 'datetime', 'time'].includes(type)) {
                 return null;
             }
 
@@ -212,12 +185,7 @@ export default {
                 return config;
             }
 
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(field.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(field.type)) {
                 config.componentName = `sw-${field.type}`;
                 config.options = field.options;
             }

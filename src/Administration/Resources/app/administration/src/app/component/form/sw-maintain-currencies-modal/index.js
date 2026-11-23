@@ -13,10 +13,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    emits: [
-        'update-prices',
-        'modal-close',
-    ],
+    emits: ['update-prices', 'modal-close'],
 
     props: {
         currencies: {
@@ -120,11 +117,7 @@ export default {
             Shopware.Service('repositoryFactory')
                 .create('currency')
                 .search(criteria, Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'currencies',
-                        Shopware.Context.api.languageId ?? 'default',
-                    ],
+                    cacheKey: ['shared-data', 'currencies', Shopware.Context.api.languageId ?? 'default'],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((currencies) => {

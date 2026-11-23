@@ -150,7 +150,7 @@
     },
     "previewModal": {
       "title": "Vorschau",
-      "empty": "Es wurden keine Produkte gefunden."
+      "empty": "Keine Produkte gefunden"
     }
   },
   "sw-privileges": {

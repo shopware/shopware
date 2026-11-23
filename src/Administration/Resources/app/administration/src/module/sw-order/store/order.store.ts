@@ -1,4 +1,4 @@
-import type { AxiosResponse } from 'axios';
+import type { HttpResponse } from 'src/core/factory/http-client.types';
 import type {
     CalculatedPrice,
     Cart,
@@ -27,10 +27,7 @@ function mergeEmptyAndExistingLineItems(emptyLineItems: LineItem[], lineItems: L
     // Reverse the lineItems so the newly added are at the top for better UX
     reverseLineItems(lineItems);
 
-    return [
-        ...emptyLineItems,
-        ...lineItems,
-    ];
+    return [...emptyLineItems, ...lineItems];
 }
 
 interface SwOrderState {
@@ -81,7 +78,7 @@ const swOrderStore = Shopware.Store.register({
                 id: '',
             } as Entity<'sales_channel'>,
             context: {
-                currencyId: '',
+                currencyId: '' as EntityKey<'currency'>,
                 languageIdChain: [],
             },
         },
@@ -169,10 +166,10 @@ const swOrderStore = Shopware.Store.register({
             this.setDefaultSalesChannel(customer?.salesChannel ?? null);
         },
 
-        createCart({ salesChannelId }: { salesChannelId: string }) {
+        createCart({ salesChannelId }: { salesChannelId: EntityKey<'sales_channel'> }) {
             return Service('cartStoreService')
                 .createCart(salesChannelId)
-                .then((response: AxiosResponse): string => {
+                .then((response: HttpResponse): string => {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     const token = response.data.token as string;
                     this.setCartToken(token);
@@ -181,27 +178,39 @@ const swOrderStore = Shopware.Store.register({
                 .then((contextToken) => {
                     return Service('contextStoreService')
                         .getSalesChannelContext(salesChannelId, contextToken)
-                        .then((response: AxiosResponse) => this.setContext(response.data as SalesChannelContext));
+                        .then((response: HttpResponse) => this.setContext(response.data as SalesChannelContext));
                 });
         },
 
-        getCart({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
-            if (`${contextToken}`.length !== 32) {
+        getCart({
+            salesChannelId,
+            contextToken,
+        }: {
+            salesChannelId: EntityKey<'sales_channel'>;
+            contextToken: string | null;
+        }) {
+            if (contextToken?.length !== 32) {
                 throw new Error('Invalid context token');
             }
 
             return Promise.all([
                 Service('cartStoreService')
                     .getCart(salesChannelId, contextToken)
-                    .then((response: AxiosResponse) => this.setCart(response.data as Cart)),
+                    .then((response: HttpResponse) => this.setCart(response.data as Cart)),
                 Service('contextStoreService')
                     .getSalesChannelContext(salesChannelId, contextToken)
-                    .then((response: AxiosResponse) => this.setContext(response.data as SalesChannelContext)),
+                    .then((response: HttpResponse) => this.setContext(response.data as SalesChannelContext)),
             ]);
         },
 
-        cancelCart({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
-            if (`${contextToken}`.length !== 32) {
+        cancelCart({
+            salesChannelId,
+            contextToken,
+        }: {
+            salesChannelId: EntityKey<'sales_channel'>;
+            contextToken: string | null;
+        }) {
+            if (contextToken?.length !== 32) {
                 throw new Error('Invalid context token');
             }
 
@@ -215,8 +224,8 @@ const swOrderStore = Shopware.Store.register({
             salesChannelId,
             contextToken,
         }: {
-            customerId: string;
-            salesChannelId: string;
+            customerId: EntityKey<'customer'>;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
         }) {
             return Service('contextStoreService').updateCustomerContext(customerId, salesChannelId, contextToken);
@@ -228,13 +237,13 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
         }: {
             context: ContextSwitchParameters;
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
         }) {
             return Service('contextStoreService').updateContext(context, salesChannelId, contextToken);
         },
 
-        getContext({ salesChannelId, contextToken }: { salesChannelId: string; contextToken: string }) {
+        getContext({ salesChannelId, contextToken }: { salesChannelId: EntityKey<'sales_channel'>; contextToken: string }) {
             return Service('contextStoreService').getSalesChannelContext(salesChannelId, contextToken);
         },
 
@@ -243,7 +252,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             sendMail,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             sendMail?: boolean;
         }) {
@@ -263,13 +272,13 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             lineItemKeys,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             lineItemKeys: string[];
         }) {
             return Service('cartStoreService')
                 .removeLineItems(salesChannelId, contextToken, lineItemKeys)
-                .then((response: AxiosResponse) => this.setCart(response.data as Cart));
+                .then((response: HttpResponse) => this.setCart(response.data as Cart));
         },
 
         saveLineItem({
@@ -277,13 +286,13 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             item,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             item: LineItem;
         }) {
             return Service('cartStoreService')
                 .saveLineItem(salesChannelId, contextToken, item)
-                .then((response: AxiosResponse) => this.setCart(response.data as Cart));
+                .then((response: HttpResponse) => this.setCart(response.data as Cart));
         },
 
         saveMultipleLineItems({
@@ -291,13 +300,13 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             items,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             items: LineItem[];
         }) {
             return Service('cartStoreService')
                 .addMultipleLineItems(salesChannelId, contextToken, items)
-                .then((response: AxiosResponse) => this.setCart(response.data as Cart));
+                .then((response: HttpResponse) => this.setCart(response.data as Cart));
         },
 
         addPromotionCode({
@@ -305,7 +314,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             code,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             code: string;
         }): Promise<void> {
@@ -319,7 +328,7 @@ const swOrderStore = Shopware.Store.register({
             contextToken,
             shippingCosts,
         }: {
-            salesChannelId: string;
+            salesChannelId: EntityKey<'sales_channel'>;
             contextToken: string;
             shippingCosts: CalculatedPrice;
         }) {
@@ -327,11 +336,11 @@ const swOrderStore = Shopware.Store.register({
                 Service('cartStoreService')
                     ?.modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    .then((response: AxiosResponse) => this.setCart(response.data.data as Cart))
+                    .then((response: HttpResponse) => this.setCart(response.data.data as Cart))
             );
         },
 
-        remindPayment({ orderTransactionId }: { orderTransactionId: string }) {
+        remindPayment({ orderTransactionId }: { orderTransactionId: EntityKey<'order_transaction'> }) {
             return Service('orderStateMachineService').transitionOrderTransactionState(orderTransactionId, 'remind');
         },
     },
@@ -346,8 +355,3 @@ export default swOrderStore;
  * @private
  */
 export type SwOrderStore = ReturnType<typeof swOrderStore>;
-
-/**
- * @private
- */
-export type { SwOrderState };

@@ -14,9 +14,7 @@ async function createWrapper(propsData = {}) {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('ruleContainer'),
-            ],
+            mixins: [Shopware.Mixin.getByName('ruleContainer')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -105,10 +103,7 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
         await wrapper.setProps({
             childAssociationField: 'childAssociationField',
             condition: {
-                childAssociationField: [
-                    {},
-                    {},
-                ],
+                childAssociationField: [{}, {}],
             },
         });
 
@@ -121,10 +116,7 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
         await wrapper.setProps({
             childAssociationField: 'childAssociationField',
             condition: {
-                childAssociationField: [
-                    {},
-                    {},
-                ],
+                childAssociationField: [{}, {}],
             },
         });
 

@@ -37,6 +37,7 @@ use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFileExtensionWriteVali
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderConfigurationIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaPathWriteValidator;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\File\FileContentValidationStrategy;
 use Shopware\Core\Content\Media\File\FileFetcher;
@@ -46,6 +47,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileService;
 use Shopware\Core\Content\Media\File\FileUrlValidator;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
+use Shopware\Core\Content\Media\File\GlbContentValidator;
 use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\File\WindowsStyleFileNameProvider;
@@ -96,6 +98,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -170,14 +174,32 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // endregion Message handlers
 
     // region File Services
-    $services->set(FileService::class);
+    $services->set(FileService::class)
+        ->args([
+            param('shopware.media.allowed_protocols'),
+        ]);
 
     $services->set(TrustedUrlResolver::class)
         ->args([
             null,
             param('shopware.media.enable_url_validation'),
+            [],
+            param('shopware.media.allowed_protocols'),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    // external media links accept only http and https, independent of shopware.media.allowed_protocols
+    $services->set('shopware.media.external_link.trusted_url_resolver', TrustedUrlResolver::class)
+        ->args([
+            null,
+            param('shopware.media.enable_url_validation'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set('shopware.media.external_link.url_validator', FileUrlValidator::class)
+        ->args([
+            service('shopware.media.external_link.trusted_url_resolver'),
+        ]);
 
     $services->set(FileFetcher::class)
         ->args([
@@ -188,6 +210,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.enable_url_upload_feature'),
             param('shopware.media.enable_url_validation'),
             param('shopware.media.url_upload_max_size'),
+            param('shopware.media.url_upload_timeout'),
         ]);
 
     $services->set(FileUrlValidatorInterface::class, FileUrlValidator::class)
@@ -206,6 +229,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.svg.allowed_attributes'),
             param('shopware.media.svg.allowed_reference_attributes'),
         ])
+        ->tag('shopware.media.file_content.validator');
+
+    $services->set(GlbContentValidator::class)
         ->tag('shopware.media.file_content.validator');
 
     $services->set(FileSaver::class)
@@ -434,9 +460,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.media.upload.http_client'),
             service('media_thumbnail.repository'),
             service('media_thumbnail_size.repository'),
-            service(FileUrlValidatorInterface::class),
-            service(TrustedUrlResolver::class),
+            service('shopware.media.external_link.url_validator'),
+            service('shopware.media.external_link.trusted_url_resolver'),
             param('shopware.media.enable_url_validation'),
+            param('shopware.media.external_link_timeout'),
         ]);
 
     $services->set(VideoCoverService::class)
@@ -490,7 +517,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(MediaFileExtensionWriteValidator::class)
         ->args([
             service(MediaFileExtensionListProvider::class),
-            service(Connection::class),
+            service(WriteOutcome::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(MediaPathWriteValidator::class)
+        ->args([
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -645,6 +678,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('media.repository'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
     // endregion Routes
 

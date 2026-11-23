@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapabil
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Schema\AbstractContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMap;
 use Shopware\Core\Framework\Log\Package;
@@ -30,6 +31,7 @@ class ElementResolver
         private readonly AbstractContentSystemDataLoaderMapResolver $mapResolver,
         private readonly DataLoaderConfigSerializerProvider $configSerializers,
         private readonly DataLoaderProvider $dataLoaderProvider,
+        private readonly MappingConsumers $mappingConsumers,
     ) {
     }
 
@@ -45,8 +47,10 @@ class ElementResolver
         }
 
         // A string $element carries no stored wiring by design: only a StoredElement instance has
-        // dataRequirements, so a type-name-only resolve never produces a Stored candidate.
+        // dataRequirements, so a type-name-only resolve never produces a Stored candidate. The same holds
+        // for mappings, which live on the element too.
         $storedRequirements = $element instanceof StoredElement ? $element->dataRequirements : [];
+        $mappedPaths = $element instanceof StoredElement ? $this->mappingConsumers->mappedPaths($element) : [];
 
         $resolutions = [];
 
@@ -61,18 +65,35 @@ class ElementResolver
                     required: $property->required(),
                     type: \is_string($declaredType) ? $declaredType : null,
                     default: $propertyType->default(),
+                    resolved: $this->mappedCandidate($mappedPaths[$key] ?? null),
                 );
 
                 continue;
             }
 
-            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context, $storedRequirements[$key] ?? null);
+            $resolutions[] = $this->resolveReference($key, $declaredType, $property->required(), $context, $storedRequirements[$key] ?? null, $mappedPaths[$key] ?? null);
         }
 
         return $resolutions;
     }
 
-    private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context, ?DataRequirement $storedRequirement): PropertyResolution
+    /**
+     * Reports an applied mapping as a selected Root source with its typed display name, without reading its value.
+     */
+    private function mappedCandidate(?string $path): ?ResolutionCandidate
+    {
+        if ($path === null) {
+            return null;
+        }
+
+        return new ResolutionCandidate(origin: CandidateOrigin::Root, contextKey: $path);
+    }
+
+    /**
+     * An applied mapping selects its source ahead of stored picker wiring and environment defaults. Keep
+     * ordinary context/loader offers in the menu; mapping alternatives come from the mapping catalogue.
+     */
+    private function resolveReference(string $key, string $fqcn, bool $required, ResolutionContext $context, ?DataRequirement $storedRequirement, ?string $mappedPath): PropertyResolution
     {
         $contextOffers = $this->contextCandidates($fqcn, $context);
         $loaders = $this->loaderCandidates($fqcn);
@@ -83,7 +104,7 @@ class ElementResolver
             kind: PropertyKind::Reference,
             required: $required,
             fqcn: $fqcn,
-            resolved: $stored ?? $this->pickDefault($contextOffers, $loaders),
+            resolved: $this->mappedCandidate($mappedPath) ?? $stored ?? $this->pickDefault($contextOffers, $loaders),
             candidates: [...$contextOffers, ...$loaders],
         );
     }

@@ -22,6 +22,6 @@ class MissingShopUrlExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame('ADMINISTRATION__MISSING_SHOP_URL', $exception->getErrorCode());
         static::assertSame('Failed to retrieve the shop url.', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 }

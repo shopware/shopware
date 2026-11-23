@@ -21,6 +21,8 @@ readonly class PresignedUploadPreparePayload
         public ?string $mediaFolderId = null,
         public bool $private = false,
         public ?string $mediaId = null,
+        #[Assert\PositiveOrZero]
+        public ?int $fileSize = null,
     ) {
     }
 }

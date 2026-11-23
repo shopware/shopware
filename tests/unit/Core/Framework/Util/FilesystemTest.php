@@ -65,13 +65,64 @@ class FilesystemTest extends TestCase
         static::assertTrue($fs->hasFile('folder/file2.php'));
     }
 
+    public function testPathsOutsideTheLocationAreNotAccessible(): void
+    {
+        $this->io->dumpFile($this->root . '/outside.txt', 'secret');
+        $this->io->mkdir($this->root . '/app');
+
+        $fs = new Filesystem($this->root . '/app');
+
+        static::assertFalse($fs->has('../outside.txt'));
+        static::assertFalse($fs->has('folder/../../outside.txt'));
+        static::assertFalse($fs->has('..', 'outside.txt'));
+        static::assertFalse($fs->hasFile('../outside.txt'));
+
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('../outside.txt', $this->root . '/app'));
+
+        $fs->read('../outside.txt');
+    }
+
+    public function testPathsOutsideTheLocationAreAccessibleWithoutRestriction(): void
+    {
+        $this->io->dumpFile($this->root . '/node_modules/package/index.scss', 'scss');
+        $this->io->mkdir($this->root . '/plugin');
+
+        $fs = new Filesystem($this->root . '/plugin', restrictToLocation: false);
+
+        static::assertTrue($fs->has('../node_modules/package/index.scss'));
+        static::assertSame('scss', $fs->read('../node_modules/package/index.scss'));
+    }
+
+    public function testNestedAndNormalizedPathsInsideTheLocationAreAccessible(): void
+    {
+        $this->io->dumpFile($this->root . '/app/Resources/config/icon.png', 'icon');
+
+        $fs = new Filesystem($this->root . '/app');
+
+        static::assertTrue($fs->hasFile('Resources/config/icon.png'));
+        static::assertTrue($fs->hasFile('Resources/./config/../config/icon.png'));
+        static::assertTrue($fs->hasFile('Resources/config/../../Resources/config/icon.png'));
+    }
+
+    public function testAbsolutePathsAreResolvedInsideTheLocation(): void
+    {
+        $this->io->dumpFile($this->root . '/outside.txt', 'secret');
+        $this->io->dumpFile($this->root . '/app/inside.txt', 'inside');
+
+        $fs = new Filesystem($this->root . '/app');
+
+        static::assertFalse($fs->has($this->root . '/outside.txt'));
+        static::assertTrue($fs->has('/inside.txt'));
+        static::assertSame('inside', $fs->read('/inside.txt'));
+    }
+
     public function testRealPathThrowsExceptionWhenFileDoesNotExist(): void
     {
-        static::expectException(UtilException::class);
-
         $fs = new Filesystem($this->root);
 
-        static::assertSame($this->root . '/file1.php', $fs->realpath('file1.php'));
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('file1.php', $this->root));
+
+        $fs->realpath('file1.php');
     }
 
     public function testRealPath(): void
@@ -99,9 +150,9 @@ class FilesystemTest extends TestCase
 
     public function testReadThrowsAnExceptionWhenFileDoesNotExist(): void
     {
-        static::expectException(UtilException::class);
-
         $fs = new Filesystem($this->root);
+
+        static::expectExceptionObject(UtilException::cannotFindFileInFilesystem('file.php', $this->root));
 
         $fs->read('file.php');
     }

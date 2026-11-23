@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -75,6 +76,32 @@ class ScriptStoreApiRouteTest extends TestCase
         static::assertArrayHasKey('foo', $response);
         static::assertSame('bar', $response['foo']);
         static::assertSame('store_api_simple_script_response', $response['apiAlias']);
+    }
+
+    public function testIncludesThatAreNotAnArrayAreRejected(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $this->browser->request('POST', '/store-api/script/simple-script', ['includes' => 'foo']);
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+    }
+
+    public function testIncludesOfTheCompressedCriteriaAreApplied(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $compressed = gzencode(json_encode(['includes' => ['store_api_simple_script_response' => ['apiAlias']]], \JSON_THROW_ON_ERROR));
+        static::assertNotFalse($compressed, 'Gzip compressing failed');
+
+        $this->browser->request('GET', '/store-api/script/simple-script', ['_criteria' => Base64::urlEncode($compressed)]);
+
+        $content = (string) $this->browser->getResponse()->getContent();
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $content);
+
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame('store_api_simple_script_response', $response['apiAlias']);
+        static::assertArrayNotHasKey('foo', $response, 'The includes of the compressed criteria are applied');
     }
 
     public function testRepositoryCall(): void
@@ -224,10 +251,8 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $traces = $this->getScriptTraces($this->browser->getContainer());
-        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that the response was cached, and thus the script was not called again
-        static::assertCount(1, $traces['store-api-cache-script::response']);
+        $this->assertCacheScriptExecutions(0, 1);
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
@@ -245,13 +270,8 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $traces = $this->getScriptTraces($this->browser->getContainer());
-        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that when the query param changes the script is executed again
-        // note: traces accumulate across requests as long as services are not
-        // reset between requests; the change enabling service resets has to
-        // adjust these counts to per-request semantics
-        static::assertCount(2, $traces['store-api-cache-script::response']);
+        $this->assertCacheScriptExecutions(1, 2);
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
@@ -287,10 +307,8 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $traces = $this->getScriptTraces($this->browser->getContainer());
-        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that the response was cached, and thus the script was not called again
-        static::assertCount(1, $traces['store-api-cache-script::response']);
+        $this->assertCacheScriptExecutions(0, 1);
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
@@ -308,10 +326,8 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $traces = $this->getScriptTraces($this->browser->getContainer());
-        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that when the cache tag was invalidated the script is executed again
-        static::assertCount(2, $traces['store-api-cache-script::response']);
+        $this->assertCacheScriptExecutions(1, 2);
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
@@ -347,10 +363,8 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $traces = $this->getScriptTraces($this->browser->getContainer());
-        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         // assert that the response was cached, and thus the script was not called again
-        static::assertCount(1, $traces['store-api-cache-script::response']);
+        $this->assertCacheScriptExecutions(0, 1);
 
         static::assertIsArray($response);
         static::assertArrayHasKey('apiAlias', $response);
@@ -367,14 +381,12 @@ class ScriptStoreApiRouteTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
 
-        $traces = $this->getScriptTraces($this->browser->getContainer());
-        static::assertArrayHasKey('store-api-cache-script::response', $traces);
         if (Feature::isActive('v6.8.0.0')) {
             // invalidation states were removed with v6.8.0.0, the response stays cached after login
-            static::assertCount(1, $traces['store-api-cache-script::response']);
+            $this->assertCacheScriptExecutions(0, 1);
         } else {
             // assert that when the invalidation state is present the response is not cached
-            static::assertCount(2, $traces['store-api-cache-script::response']);
+            $this->assertCacheScriptExecutions(1, 2);
         }
 
         static::assertIsArray($response);
@@ -400,5 +412,16 @@ class ScriptStoreApiRouteTest extends TestCase
             'apiAlias' => 'store_api_request_test_response',
             'foo' => 'bar',
         ], $content);
+    }
+
+    /**
+     * Without `LONGRUNNING_ENVIRONMENT` services are not reset between requests, so the traces of all requests accumulate.
+     */
+    private function assertCacheScriptExecutions(int $inLastRequest, int $inAllRequests): void
+    {
+        $traces = $this->getScriptTraces($this->browser->getContainer());
+        $expected = Feature::isActive('LONGRUNNING_ENVIRONMENT') ? $inLastRequest : $inAllRequests;
+
+        static::assertCount($expected, $traces['store-api-cache-script::response'] ?? []);
     }
 }

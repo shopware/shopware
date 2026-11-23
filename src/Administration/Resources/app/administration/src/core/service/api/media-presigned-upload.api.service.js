@@ -47,9 +47,17 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
-     * @returns {Promise<{mediaId: string, url: string, path: string, expiresAt: string, isDuplicate: boolean}>}
+     * @returns {Promise<{mediaId: EntityKey<'media'>, url: string, path: string, expiresAt: string, isDuplicate: boolean}>}
      */
-    prepareUpload({ fileName, extension, mimeType, mediaFolderId = null, isPrivate = false, mediaId = null }) {
+    prepareUpload({
+        fileName,
+        extension,
+        mimeType,
+        mediaFolderId = null,
+        isPrivate = false,
+        mediaId = null,
+        fileSize = null,
+    }) {
         return this.httpClient
             .post(
                 '/_action/media/presign-upload',
@@ -60,6 +68,7 @@ class MediaPresignedUploadApiService extends ApiService {
                     mediaFolderId,
                     private: isPrivate,
                     mediaId,
+                    fileSize,
                 }),
                 {
                     headers: this.getBasicHeaders(),
@@ -90,7 +99,7 @@ class MediaPresignedUploadApiService extends ApiService {
     }
 
     /**
-     * @returns {Promise<{mediaId: string}>}
+     * @returns {Promise<{mediaId: EntityKey<'media'>}>}
      */
     finalizeUpload(mediaId, { fileName, extension, mimeType, path, width = null, height = null }) {
         const body = { fileName, extension, mimeType, path };
@@ -165,14 +174,12 @@ class MediaPresignedUploadApiService extends ApiService {
                 let result = null;
 
                 try {
-                    const [
-                        prepareResult,
-                        dimensions,
-                    ] = await Promise.all([
+                    const [prepareResult, dimensions] = await Promise.all([
                         this.prepareUpload({
                             fileName,
                             extension,
                             mimeType,
+                            fileSize: fileHandle.size,
                             ...options,
                         }),
                         this.getImageDimensions(fileHandle),

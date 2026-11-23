@@ -145,11 +145,7 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
             logSpy.mockRestore();
         });
 
-        it.each([
-            '',
-            '0',
-            'false',
-        ])('treats ADMIN_EXTENSION_TOOLING=%j as disabled, mirroring Feature::isTrue', (value) => {
+        it.each(['', '0', 'false'])('treats ADMIN_EXTENSION_TOOLING=%j as disabled, mirroring Feature::isTrue', (value) => {
             process.env.ADMIN_EXTENSION_TOOLING = value;
 
             const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -166,10 +162,7 @@ describe('scripts/extensionTooling/setup runSetupCli', () => {
             logSpy.mockRestore();
         });
 
-        it.each([
-            '1',
-            'true',
-        ])('runs the full setup when ADMIN_EXTENSION_TOOLING=%j', (value) => {
+        it.each(['1', 'true'])('runs the full setup when ADMIN_EXTENSION_TOOLING=%j', (value) => {
             process.env.ADMIN_EXTENSION_TOOLING = value;
 
             const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});

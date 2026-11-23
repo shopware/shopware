@@ -30,7 +30,7 @@ class BCPlanningDeprecations
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-subscriber - Subscriber will be removed
+     * @deprecated tag:v6.8.0 - Subscriber will be removed
      */
     public function actualDeprecationIsAllowed(): void
     {

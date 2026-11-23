@@ -48,11 +48,13 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $context->app->getId()));
         $criteria->addFilter(new EqualsFilter('active', false));
 
-        $scriptIds = $this->scriptRepository->searchIds($criteria, $context->context)->getIds();
+        $scripts = $this->scriptRepository->searchIds($criteria, $context->context)->getPrimaryKeyData();
+        foreach ($scripts as &$script) {
+            $script['active'] = true;
+        }
+        unset($script);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => true], $scriptIds);
-
-        $this->scriptRepository->update($updateSet, $context->context);
+        $this->scriptRepository->update($scripts, $context->context);
     }
 
     public function deactivate(AppActivationContext $context): void
@@ -62,11 +64,13 @@ class ScriptLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appId', $context->app->getId()));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        $scriptIds = $this->scriptRepository->searchIds($criteria, $context->context)->getIds();
+        $scripts = $this->scriptRepository->searchIds($criteria, $context->context)->getPrimaryKeyData();
+        foreach ($scripts as &$script) {
+            $script['active'] = false;
+        }
+        unset($script);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => false], $scriptIds);
-
-        $this->scriptRepository->update($updateSet, $context->context);
+        $this->scriptRepository->update($scripts, $context->context);
     }
 
     /**

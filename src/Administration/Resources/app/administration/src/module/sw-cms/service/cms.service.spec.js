@@ -270,10 +270,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [
-                            '123',
-                            '567',
-                        ],
+                        value: ['123', '567'],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -285,17 +282,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             // search criteria gets optimized to only search the needed ids.
             const entityMedia2Criteria = new Shopware.Data.Criteria(1, 25);
-            entityMedia2Criteria.setIds([
-                '123',
-                '567',
-            ]);
+            entityMedia2Criteria.setIds(['123', '567']);
 
             expect(result).toEqual({
                 'entity-media-0': {
-                    value: [
-                        '123',
-                        '567',
-                    ],
+                    value: ['123', '567'],
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
@@ -347,10 +338,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [
-                            { mediaId: '123' },
-                            { mediaId: '567' },
-                        ],
+                        value: [{ mediaId: '123' }, { mediaId: '567' }],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -362,17 +350,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             // search criteria gets optimized to only search the needed ids.
             const entityMedia2Criteria = new Shopware.Data.Criteria(1, 25);
-            entityMedia2Criteria.setIds([
-                '123',
-                '567',
-            ]);
+            entityMedia2Criteria.setIds(['123', '567']);
 
             expect(result).toEqual({
                 'entity-media-0': {
-                    value: [
-                        '123',
-                        '567',
-                    ],
+                    value: ['123', '567'],
                     key: 'media',
                     name: 'media',
                     searchCriteria: entityMedia2Criteria,
@@ -530,10 +512,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
                 config: {
                     media: {
                         source: 'static',
-                        value: [
-                            '123',
-                            '567',
-                        ],
+                        value: ['123', '567'],
                         required: true,
                         entity: { name: 'media' },
                     },
@@ -729,10 +708,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const result = cmsService.getEntityMappingTypes('testTypeArrayAlreadyMapped');
             expect(result).toEqual({
                 entity: {
-                    testTypeArrayAlreadyMapped: [
-                        'testTypeArrayAlreadyMapped.id',
-                        'testTypeArrayAlreadyMapped.id.id',
-                    ],
+                    testTypeArrayAlreadyMapped: ['testTypeArrayAlreadyMapped.id', 'testTypeArrayAlreadyMapped.id.id'],
                 },
             });
         });
@@ -838,6 +814,68 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             });
         });
 
+        it('should load custom fields from all pages', async () => {
+            const createPage = (names, total) =>
+                new Shopware.Data.EntityCollection(
+                    '/custom-field',
+                    'custom_field',
+                    null,
+                    null,
+                    names.map((name) => ({ name, type: 'text', config: { customFieldType: 'text' } })),
+                    total,
+                    null,
+                );
+            const fieldNames = Array.from({ length: 205 }, (_, index) => `custom_field_${index}`);
+            const search = jest
+                .fn()
+                .mockResolvedValueOnce(createPage(fieldNames.slice(0, 100), 205))
+                .mockResolvedValueOnce(createPage(fieldNames.slice(100, 200), 205))
+                .mockResolvedValueOnce(createPage(fieldNames.slice(200), 205));
+            const createRepositorySpy = jest
+                .spyOn(Shopware.Service('repositoryFactory'), 'create')
+                .mockImplementation(() => ({ search }));
+
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('product', mappings);
+
+            expect(search).toHaveBeenCalledTimes(3);
+            expect(search.mock.calls.map(([criteria]) => criteria.page)).toEqual([1, 2, 3]);
+            search.mock.calls.forEach(([criteria]) => {
+                expect(criteria.limit).toBe(100);
+                expect(criteria.sortings).toEqual([{ field: 'name', order: 'ASC', naturalSorting: false }]);
+            });
+            expect(mappings.string).toEqual(fieldNames.map((name) => `product.customFields.${name}`));
+
+            createRepositorySpy.mockRestore();
+        });
+
+        it('should request only one page if all custom fields fit into it', async () => {
+            const search = jest
+                .fn()
+                .mockResolvedValueOnce(
+                    new Shopware.Data.EntityCollection(
+                        '/custom-field',
+                        'custom_field',
+                        null,
+                        null,
+                        [{ name: 'custom_text_field', type: 'text', config: { customFieldType: 'text' } }],
+                        1,
+                        null,
+                    ),
+                );
+            const createRepositorySpy = jest
+                .spyOn(Shopware.Service('repositoryFactory'), 'create')
+                .mockImplementation(() => ({ search }));
+
+            const mappings = {};
+            await cmsService.addCustomFieldsToMappingTypes('product', mappings);
+
+            expect(search).toHaveBeenCalledTimes(1);
+            expect(mappings.string).toEqual(['product.customFields.custom_text_field']);
+
+            createRepositorySpy.mockRestore();
+        });
+
         it('should not add custom fields if no fields are found for the entity', async () => {
             global.repositoryFactoryMock.responses.addResponse({
                 method: 'Post',
@@ -874,26 +912,11 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
 
             [
                 // Only test some values
-                [
-                    'app_payment_method',
-                    ['category.media.appPaymentMethods'],
-                ],
-                [
-                    'category',
-                    [
-                        'category.children',
-                        'category.media.categories',
-                        'category.productStream.categories',
-                    ],
-                ],
-            ].forEach(
-                ([
-                    entityName,
-                    paths,
-                ]) => {
-                    expect(result.entity[entityName]).toEqual(paths);
-                },
-            );
+                ['app_payment_method', ['category.media.appPaymentMethods']],
+                ['category', ['category.children', 'category.media.categories', 'category.productStream.categories']],
+            ].forEach(([entityName, paths]) => {
+                expect(result.entity[entityName]).toEqual(paths);
+            });
 
             [
                 // Only test some values
@@ -1148,10 +1171,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const blockName1 = 'block_1';
             const onLandingPageAndProduct = {
                 name: blockName1,
-                allowedPageTypes: [
-                    CMS.PAGE_TYPES.SHOP,
-                    CMS.PAGE_TYPES.LANDING,
-                ],
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
                 component: 'sw-cms-el-test',
                 config: {},
             };
@@ -1205,10 +1225,7 @@ describe('module/sw-cms/service/cms.service.spec.js', () => {
             const elementName1 = 'element_1';
             const onLandingPageAndProduct = {
                 name: elementName1,
-                allowedPageTypes: [
-                    CMS.PAGE_TYPES.SHOP,
-                    CMS.PAGE_TYPES.LANDING,
-                ],
+                allowedPageTypes: [CMS.PAGE_TYPES.SHOP, CMS.PAGE_TYPES.LANDING],
                 component: 'sw-cms-el-test',
                 config: {},
             };

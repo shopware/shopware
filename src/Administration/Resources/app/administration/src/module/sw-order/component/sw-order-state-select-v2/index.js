@@ -9,6 +9,8 @@ import template from './sw-order-state-select-v2.html.twig';
 export default {
     template,
 
+    inject: ['stateStyleDataProviderService'],
+
     emits: ['state-select'],
 
     props: {
@@ -23,10 +25,22 @@ export default {
             type: String,
             required: true,
         },
+        stateName: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, the select no longer has a rounded style
+         */
         roundedStyle: {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement, the select no longer has a rounded style.',
+            },
         },
         placeholder: {
             type: String,
@@ -38,15 +52,27 @@ export default {
             required: false,
             default: null,
         },
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, the state color is derived from `stateName`
+         */
         backgroundStyle: {
             type: String,
             required: false,
             default: '',
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement, the state color is derived from `stateName`.',
+            },
         },
         disabled: {
             type: Boolean,
             required: false,
             default: false,
+        },
+        small: {
+            type: Boolean,
+            required: false,
+            default: true,
         },
     },
     data() {
@@ -55,7 +81,15 @@ export default {
         };
     },
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         selectStyle() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-state-select-v2.selectStyle is deprecated and will be removed without replacement.',
+            );
+
             return `sw-order-state-select-v2__field${this.roundedStyle ? '--rounded' : ''}`;
         },
 
@@ -68,6 +102,14 @@ export default {
 
         selectable() {
             return !this.disabled && this.transitionOptions.length > 0;
+        },
+
+        currentStateOptionId() {
+            return this.transitionOptions.find((option) => option.stateName === this.stateName)?.id ?? null;
+        },
+
+        selectValue() {
+            return this.selectedActionName ?? this.currentStateOptionId;
         },
     },
     watch: {
@@ -85,6 +127,18 @@ export default {
             this.$nextTick(() => {
                 this.selectedActionName = null;
             });
+        },
+
+        onSelectValueChange(value) {
+            if (value === this.currentStateOptionId) {
+                return;
+            }
+
+            this.selectedActionName = value;
+        },
+
+        getStateVariant(stateName) {
+            return this.stateStyleDataProviderService.getStyle(`${this.stateType}.state`, stateName).meteorVariant;
         },
     },
 };

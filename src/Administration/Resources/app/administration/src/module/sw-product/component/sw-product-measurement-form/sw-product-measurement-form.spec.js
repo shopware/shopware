@@ -45,11 +45,7 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
-                        props: [
-                            'value',
-                            'hasParent',
-                            'inheritedValue',
-                        ],
+                        props: ['value', 'hasParent', 'inheritedValue'],
                     },
                     'mt-unit-field': {
                         template: `
@@ -78,10 +74,7 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                             </div>`,
                         props: {
                             modelValue: {
-                                type: [
-                                    String,
-                                    Number,
-                                ],
+                                type: [String, Number],
                                 required: true,
                             },
                             defaultUnit: {
@@ -101,7 +94,6 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
                     'i18n-t': {
                         template: '<div class="i18n-stub"><slot></slot></div>',
                     },
-                    'sw-internal-link': true,
                 },
                 provide: {
                     acl,
@@ -123,7 +115,7 @@ describe('src/module/sw-product/component/sw-product-measurement-form', () => {
         const unitSelect = lengthField.find('select');
 
         await unitSelect.setValue('cm');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.product.height).toBe(200);
         // eslint-disable-next-line jest/prefer-to-have-length

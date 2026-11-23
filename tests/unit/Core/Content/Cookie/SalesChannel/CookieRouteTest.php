@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\CookieException;
+use Shopware\Core\Content\Cookie\Extension\CookieRouteExtension;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
@@ -12,9 +14,11 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -22,7 +26,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 #[Package('discovery')]
 #[CoversClass(CookieRoute::class)]
-#[CoversClass(CookieRouteResponse::class)]
 class CookieRouteTest extends TestCase
 {
     public function testItThrowsDecorationPatternException(): void
@@ -30,7 +33,7 @@ class CookieRouteTest extends TestCase
         $this->expectExceptionObject(new DecorationPatternException(CookieRoute::class));
 
         $cookieProvider = static::createStub(CookieProvider::class);
-        (new CookieRoute($cookieProvider))->getDecorated();
+        (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))->getDecorated();
     }
 
     public function testGetCookieGroups(): void
@@ -45,7 +48,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')
             ->willReturn($expectedCookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
 
         $response1 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
         $response2 = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
@@ -53,7 +56,7 @@ class CookieRouteTest extends TestCase
         // Verify basic functionality
         static::assertSame($expectedCookieGroups, $response1->getCookieGroups());
         static::assertIsString($response1->getHash());
-        static::assertNotEmpty($response1->getHash());
+        static::assertNotSame('', $response1->getHash());
 
         // Verify hash consistency for same configuration
         static::assertSame($response1->getHash(), $response2->getHash());
@@ -83,8 +86,8 @@ class CookieRouteTest extends TestCase
         $cookieProvider2 = static::createStub(CookieProvider::class);
         $cookieProvider2->method('getCookieGroups')->willReturn($cookieGroups2);
 
-        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
+        $response1 = (new CookieRoute($cookieProvider1, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($cookieProvider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         static::assertNotSame($response1->getHash(), $response2->getHash());
     }
@@ -118,8 +121,8 @@ class CookieRouteTest extends TestCase
         $cookieProvider2 = static::createStub(CookieProvider::class);
         $cookieProvider2->method('getCookieGroups')->willReturn($collection2);
 
-        $response1 = (new CookieRoute($cookieProvider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($cookieProvider2))->getCookieGroups(new Request(), $salesChannelContext);
+        $response1 = (new CookieRoute($cookieProvider1, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($cookieProvider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         // Hash should be the same regardless of collection order thanks to internal sorting
         static::assertSame($response1->getHash(), $response2->getHash(), 'Hash should be the same regardless of collection order');
@@ -149,7 +152,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($originalGroups);
 
-        $response = (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext);
+        $response = (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
         $returnedGroups = $response->getCookieGroups();
 
         // Verify that the original order is preserved
@@ -226,8 +229,8 @@ class CookieRouteTest extends TestCase
         $extendedProvider = static::createStub(CookieProvider::class);
         $extendedProvider->method('getCookieGroups')->willReturn($extendedGroups);
 
-        $standardResponse = (new CookieRoute($standardProvider))->getCookieGroups(new Request(), $salesChannelContext);
-        $extendedResponse = (new CookieRoute($extendedProvider))->getCookieGroups(new Request(), $salesChannelContext);
+        $standardResponse = (new CookieRoute($standardProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $extendedResponse = (new CookieRoute($extendedProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         // Hash should be the same despite extended properties
         static::assertSame(
@@ -260,8 +263,8 @@ class CookieRouteTest extends TestCase
         $provider2 = static::createStub(CookieProvider::class);
         $provider2->method('getCookieGroups')->willReturn($groups2);
 
-        $response1 = (new CookieRoute($provider1))->getCookieGroups(new Request(), $salesChannelContext);
-        $response2 = (new CookieRoute($provider2))->getCookieGroups(new Request(), $salesChannelContext);
+        $response1 = (new CookieRoute($provider1, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
+        $response2 = (new CookieRoute($provider2, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext);
 
         // Hash should be different when defined properties change
         static::assertNotSame(
@@ -285,7 +288,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider->method('getCookieGroups')
             ->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
 
         $this->expectExceptionObject(
             CookieException::hashGenerationFailed('Cookie configuration processing failed: JSON is invalid')
@@ -310,7 +313,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
         $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
         // Verify that the hash entry value was updated to the generated hash
@@ -336,7 +339,7 @@ class CookieRouteTest extends TestCase
         $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
         $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
         // Verify that processing continues and hash is still set correctly
@@ -364,11 +367,230 @@ class CookieRouteTest extends TestCase
         $cookieProvider = static::createStub(CookieProvider::class);
         $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
 
-        $cookieRoute = new CookieRoute($cookieProvider);
+        $cookieRoute = new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher()));
         $response = $cookieRoute->getCookieGroups(new Request(), $salesChannelContext);
 
         // Verify only the required group's hash entry was updated (method returns early on required group)
         static::assertSame($response->getHash(), $requiredHashEntry->value);
         static::assertSame('old-hash-2', $secondHashEntry->value); // Should remain unchanged
+    }
+
+    public function testCookieHashesCoverEveryEntryAndDirectGroupCookie(): void
+    {
+        $response = $this->getCookieGroups($this->createCookieGroups());
+
+        static::assertSame(
+            ['analytics', 'cookie-config-hash', 'cookie-preference', 'youtube-video'],
+            array_keys($response->getCookieHashes())
+        );
+    }
+
+    public function testCookieHashesAreIndependentOfTheOrder(): void
+    {
+        $cookieGroups = $this->createCookieGroups();
+        $reversedGroups = [];
+        foreach (array_reverse($cookieGroups->getElements()) as $cookieGroup) {
+            $entries = $cookieGroup->getEntries();
+            if ($entries !== null) {
+                $cookieGroup->setEntries(new CookieEntryCollection(array_reverse($entries->getElements())));
+            }
+            $reversedGroups[] = $cookieGroup;
+        }
+
+        static::assertSame(
+            $this->getCookieGroups($this->createCookieGroups())->getCookieHashes(),
+            $this->getCookieGroups(new CookieGroupCollection($reversedGroups))->getCookieHashes()
+        );
+    }
+
+    public function testCookieHashOfTheConfigurationHashCookieIgnoresTheGeneratedHash(): void
+    {
+        $original = $this->getCookieGroups($this->createCookieGroups());
+
+        $changedGroups = $this->createCookieGroups();
+        self::getAnalyticsEntry($changedGroups)->name = 'Tracking';
+        $changed = $this->getCookieGroups($changedGroups);
+
+        static::assertNotSame($original->getHash(), $changed->getHash());
+        static::assertSame(
+            $original->getCookieHashes()[CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE],
+            $changed->getCookieHashes()[CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE]
+        );
+    }
+
+    /**
+     * @param \Closure(CookieGroupCollection): void $change
+     */
+    #[DataProvider('consentRelevantChangeProvider')]
+    public function testCookieHashChangesOnlyForTheAffectedCookie(string $cookie, \Closure $change): void
+    {
+        $original = $this->getCookieGroups($this->createCookieGroups())->getCookieHashes();
+
+        $changedGroups = $this->createCookieGroups();
+        $change($changedGroups);
+        $changed = $this->getCookieGroups($changedGroups)->getCookieHashes();
+
+        static::assertNotSame($original[$cookie], $changed[$cookie]);
+        unset($original[$cookie], $changed[$cookie]);
+        static::assertSame($original, $changed, 'Cookies not affected by the change must keep their hash');
+    }
+
+    public static function consentRelevantChangeProvider(): \Generator
+    {
+        yield 'moving an entry to another group' => ['analytics', static function (CookieGroupCollection $groups): void {
+            $groups->remove('statistics');
+            $marketing = new CookieGroup('marketing');
+            $marketing->name = 'Statistics';
+            $marketing->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+            $groups->add($marketing);
+        }];
+        yield 'making the group of an entry required' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->isRequired = true;
+        }];
+        yield 'renaming the group of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->name = 'Tracking';
+        }];
+        yield 'describing the group of an entry differently' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->description = 'Used for advertising';
+        }];
+        yield 'changing the value of the group of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->value = '2';
+        }];
+        yield 'changing the expiration of the group of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'statistics')->expiration = 365;
+        }];
+        yield 'renaming an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->name = 'Tracking';
+        }];
+        yield 'describing an entry differently' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->description = 'Used for advertising';
+        }];
+        yield 'changing the value of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->value = '2';
+        }];
+        yield 'changing the expiration of an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->expiration = 365;
+        }];
+        yield 'hiding an entry' => ['analytics', static function (CookieGroupCollection $groups): void {
+            self::getAnalyticsEntry($groups)->hidden = true;
+        }];
+        yield 'describing a direct group cookie differently' => ['youtube-video', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'comfort')->description = 'Plays videos';
+        }];
+        yield 'changing the expiration of a direct group cookie' => ['youtube-video', static function (CookieGroupCollection $groups): void {
+            self::getGroup($groups, 'comfort')->expiration = 365;
+        }];
+        yield 'listing an entry in a second group' => ['analytics', static function (CookieGroupCollection $groups): void {
+            $marketing = new CookieGroup('marketing');
+            $marketing->name = 'Marketing';
+            $marketing->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+            $groups->add($marketing);
+        }];
+    }
+
+    public function testCookieHashOfACookieInSeveralGroupsCoversEveryGroup(): void
+    {
+        $cookieGroups = $this->createCookieGroups();
+        $marketing = new CookieGroup('marketing');
+        $marketing->name = 'Marketing';
+        $marketing->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+        $cookieGroups->add($marketing);
+        $original = $this->getCookieGroups($cookieGroups)->getCookieHashes();
+
+        $marketing->description = 'Used for advertising';
+        $changed = $this->getCookieGroups($cookieGroups)->getCookieHashes();
+
+        static::assertNotSame($original['analytics'], $changed['analytics']);
+    }
+
+    public function testRemovingACookieKeepsTheHashesOfTheRemainingCookies(): void
+    {
+        $original = $this->getCookieGroups($this->createCookieGroups())->getCookieHashes();
+
+        $changedGroups = $this->createCookieGroups();
+        $changedGroups->remove('comfort');
+        $changed = $this->getCookieGroups($changedGroups)->getCookieHashes();
+
+        unset($original['youtube-video']);
+        static::assertSame($original, $changed);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $response = static::createStub(CookieRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cookie-route.get-cookie-groups.pre', static function (CookieRouteExtension $extension) use ($request, $salesChannelContext, $response): void {
+            static::assertSame(['request' => $request, 'salesChannelContext' => $salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CookieRoute(
+            static::createStub(CookieProvider::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->getCookieGroups($request, $salesChannelContext));
+    }
+
+    private function getCookieGroups(CookieGroupCollection $cookieGroups): CookieRouteResponse
+    {
+        $cookieProvider = static::createStub(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn($cookieGroups);
+
+        return (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))
+            ->getCookieGroups(new Request(), Generator::generateSalesChannelContext());
+    }
+
+    private function createCookieGroups(): CookieGroupCollection
+    {
+        $preference = new CookieEntry('cookie-preference');
+        $preference->value = '1';
+        $configHash = new CookieEntry(CookieProvider::COOKIE_ENTRY_CONFIG_HASH_COOKIE);
+        $required = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $required->isRequired = true;
+        $required->name = 'Technically required';
+        $required->setEntries(new CookieEntryCollection([$preference, $configHash]));
+
+        $statistics = new CookieGroup('statistics');
+        $statistics->name = 'Statistics';
+        $statistics->setEntries(new CookieEntryCollection([self::createAnalyticsEntry()]));
+
+        $comfort = new CookieGroup('comfort');
+        $comfort->name = 'YouTube video';
+        $comfort->value = '1';
+        $comfort->setCookie('youtube-video');
+
+        return new CookieGroupCollection([$required, $statistics, $comfort]);
+    }
+
+    private static function createAnalyticsEntry(): CookieEntry
+    {
+        $entry = new CookieEntry('analytics');
+        $entry->name = 'Google Analytics';
+        $entry->value = '1';
+        $entry->expiration = 30;
+
+        return $entry;
+    }
+
+    private static function getGroup(CookieGroupCollection $groups, string $technicalName): CookieGroup
+    {
+        $group = $groups->get($technicalName);
+        static::assertNotNull($group);
+
+        return $group;
+    }
+
+    private static function getAnalyticsEntry(CookieGroupCollection $groups): CookieEntry
+    {
+        $entry = self::getGroup($groups, 'statistics')->getEntries()?->get('analytics');
+        static::assertNotNull($entry);
+
+        return $entry;
     }
 }

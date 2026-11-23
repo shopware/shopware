@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Content\Breadcrumb\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Breadcrumb\Extension\BreadcrumbRouteExtension;
 use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRoute;
+use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRouteResponse;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -14,9 +16,11 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -142,11 +146,34 @@ class BreadcrumbRouteTest extends TestCase
         static::assertCount(0, $response->getBreadcrumbCollection());
     }
 
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $response = static::createStub(BreadcrumbRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('breadcrumb-route.load.pre', function (BreadcrumbRouteExtension $extension) use ($request, $response): void {
+            static::assertSame(['request' => $request, 'salesChannelContext' => $this->context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new BreadcrumbRoute(
+            static::createStub(CategoryBreadcrumbBuilder::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $this->context));
+    }
+
     private function createRoute(?CacheTagCollector $cacheTagCollector = null): BreadcrumbRoute
     {
         return new BreadcrumbRoute(
             $this->breadcrumbBuilder,
             $cacheTagCollector ?? $this->cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

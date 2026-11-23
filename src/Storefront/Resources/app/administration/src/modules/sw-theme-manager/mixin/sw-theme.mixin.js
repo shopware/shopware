@@ -5,11 +5,7 @@
 const { Mixin } = Shopware;
 
 Mixin.register('theme', {
-    inject: [
-        'repositoryFactory',
-        'themeService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'themeService', 'acl'],
 
     data() {
         return {

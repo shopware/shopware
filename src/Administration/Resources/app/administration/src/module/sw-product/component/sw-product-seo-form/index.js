@@ -3,6 +3,7 @@
  */
 
 import template from './sw-product-seo-form.html.twig';
+import './sw-product-seo-form.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -13,13 +14,9 @@ const createId = Shopware.Utils.createId;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
@@ -109,6 +106,16 @@ export default {
 
         isLoading() {
             return Shopware.Store.get('swProductDetail').isLoading;
+        },
+
+        recommendedMetaTitleLength() {
+            // matches the limit named in the meta title help text
+            return 56;
+        },
+
+        recommendedMetaDescriptionLength() {
+            // matches the limit named in the meta description help text
+            return 155;
         },
 
         mediaRepository() {
@@ -208,6 +215,14 @@ export default {
     },
 
     methods: {
+        getRecommendedLengthClass(value, max) {
+            return { 'is--exceeded': (value?.length ?? 0) > max };
+        },
+
+        getRecommendedLengthHint(value, max) {
+            return this.$t('sw-product.seoForm.recommendedLength', { count: value?.length ?? 0, max });
+        },
+
         fetchVariants() {
             return this.productRepository.search(this.variantCriteria).then((variants) => {
                 this.variants = variants;

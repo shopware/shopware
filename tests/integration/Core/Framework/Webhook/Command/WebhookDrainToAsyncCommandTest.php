@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\Command\WebhookDrainToAsyncCommand;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -28,6 +29,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -267,14 +269,10 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::randomBytes(),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     private function dispatchEventViaWebhookManager(): void
@@ -318,6 +316,7 @@ class WebhookDrainToAsyncCommandTest extends TestCase
             false,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 

@@ -91,11 +91,7 @@ async function createWrapper() {
     });
 }
 
-const MANAGED_FLAG_FIELDS = [
-    'company',
-    'countryStateId',
-    'zipcode',
-];
+const MANAGED_FLAG_FIELDS = ['company', 'countryStateId', 'zipcode'];
 
 describe('module/sw-customer/page/sw-customer-address-form', () => {
     let flagSnapshot = {};
@@ -104,10 +100,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         const definition = Shopware.EntityDefinition.get('customer_address');
 
         flagSnapshot = Object.fromEntries(
-            MANAGED_FLAG_FIELDS.map((field) => [
-                field,
-                definition.properties[field].flags.required,
-            ]),
+            MANAGED_FLAG_FIELDS.map((field) => [field, definition.properties[field].flags.required]),
         );
     });
 
@@ -318,10 +311,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         await flushPromises();
 
-        [
-            'zipcode',
-            'countryStateId',
-        ].forEach((field) => {
+        ['zipcode', 'countryStateId'].forEach((field) => {
             errorStore.addApiError({
                 expression: `customer_address.1.${field}`,
                 error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),

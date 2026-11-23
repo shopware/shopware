@@ -7,14 +7,19 @@ import { nextTick } from 'vue';
  * @sw-package checkout
  */
 
-async function createWrapper(order = {}, { routeName = 'sw.order.detail.general', routerPush = jest.fn() } = {}) {
+async function createWrapper(
+    order = {},
+    { routeName = 'sw.order.detail.general', routerPush = jest.fn(), orderService = {}, orderRepository = {} } = {},
+) {
     const repositoryFactoryMock = {
         search: () => Promise.resolve([]),
         hasChanges: () => false,
         deleteVersion: () => Promise.resolve([]),
+        deleteVersionWithKeepalive: () => Promise.resolve(),
         createVersion: () => Promise.resolve({ versionId: 'newVersionId' }),
         get: () => Promise.resolve(order),
         save: () => Promise.resolve({}),
+        ...orderRepository,
     };
 
     return mount(await wrapTestComponent('sw-order-detail', { sync: true }), {
@@ -54,6 +59,7 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
                     template: `
                         <div class="sw-page">
                             <slot name="smart-bar-header"></slot>
+                            <slot name="language-switch"></slot>
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content"></slot>
                         </div>`,
@@ -73,17 +79,12 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot></slot></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -114,7 +115,7 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
                 repositoryFactory: {
                     create: () => repositoryFactoryMock,
                 },
-                orderService: {},
+                orderService,
             },
         },
         props: {
@@ -126,17 +127,54 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
 describe('src/module/sw-order/page/sw-order-detail', () => {
     let wrapper;
 
+    beforeEach(() => {
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
+    });
+
     afterEach(() => {
+        if (wrapper) {
+            window.removeEventListener('pagehide', wrapper.vm.onPageHide);
+        }
+
         Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should load the live order without writing or cleaning up a version for viewers', async () => {
+        global.activeAclRoles = ['order.viewer'];
+        const lineItem = {
+            id: 'lineItemId',
+            type: 'product',
+            productId: null,
+            referencedId: 'deletedProductId',
+            payload: {},
+        };
+        const repository = {
+            createVersion: jest.fn(),
+            get: jest.fn().mockResolvedValue({ lineItems: [lineItem] }),
+            save: jest.fn(),
+            deleteVersion: jest.fn(),
+            deleteVersionWithKeepalive: jest.fn(),
+        };
+        wrapper = await createWrapper({}, { orderRepository: repository });
+        await flushPromises();
+
+        expect(repository.get).toHaveBeenCalledWith(expect.any(String), Shopware.Context.api, expect.anything());
+        expect(repository.createVersion).not.toHaveBeenCalled();
+        expect(repository.save).not.toHaveBeenCalled();
+        expect(lineItem.type).toBe('product');
+
+        window.dispatchEvent(new Event('pagehide'));
+        wrapper.unmount();
+
+        expect(repository.deleteVersion).not.toHaveBeenCalled();
+        expect(repository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
     });
 
     it('should select the displayed order for app action buttons', async () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            wrapper.vm.orderId,
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([wrapper.vm.orderId]);
     });
 
     it('should deselect the order for app action buttons when leaving the detail page while editing', async () => {
@@ -151,29 +189,81 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         // The leave page warning takes over, so the navigation is not continued yet
         expect(next).not.toHaveBeenCalled();
         expect(wrapper.vm.isDisplayingLeavePageWarning).toBe(true);
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            wrapper.vm.orderId,
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([wrapper.vm.orderId]);
 
         wrapper.unmount();
 
         expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
     });
 
-    it('should remove version id when beforeunload event is triggered', async () => {
+    it('should remove version id with a keepalive request when pagehide is triggered', async () => {
         wrapper = await createWrapper();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
 
         const oldVersionContext = wrapper.vm.versionContext;
 
-        window.dispatchEvent(new Event('beforeunload'));
+        window.dispatchEvent(new Event('pagehide'));
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).toHaveBeenCalledWith(
             wrapper.vm.orderId,
             oldVersionContext.versionId,
         );
+        expect(wrapper.vm.orderRepository.deleteVersion).not.toHaveBeenCalled();
         expect(wrapper.vm.versionContext).toBe(Shopware.Context.api);
         expect(wrapper.vm.hasNewVersionId).toBe(false);
+    });
+
+    it('should keep the version when the page is stored in the back-forward cache', async () => {
+        wrapper = await createWrapper();
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
+
+        const pageHideEvent = new Event('pagehide');
+        Object.defineProperty(pageHideEvent, 'persisted', { value: true });
+        window.dispatchEvent(pageHideEvent);
+
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
+        expect(wrapper.vm.hasNewVersionId).toBe(true);
+    });
+
+    it('should not discard the version while it is being merged', async () => {
+        const lineItem = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+
+        wrapper = await createWrapper({
+            versionId: 'orderVersionId',
+            lineItems: [lineItem],
+            deliveries: [],
+        });
+
+        await flushPromises();
+
+        let resolveMerge;
+        const merging = new Promise((resolve) => {
+            resolveMerge = resolve;
+        });
+
+        wrapper.vm.orderRepository.mergeVersion = jest.fn(() => merging);
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
+
+        const saving = wrapper.vm.onSaveEdits();
+        await flushPromises();
+
+        expect(wrapper.vm.orderRepository.mergeVersion).toHaveBeenCalledWith('orderVersionId');
+        expect(wrapper.vm.hasNewVersionId).toBe(false);
+
+        window.dispatchEvent(new Event('pagehide'));
+
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
+
+        resolveMerge();
+        await saving;
     });
 
     it('should not contain manual label', async () => {
@@ -301,10 +391,11 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await wrapper.vm.createNewVersionId();
         wrapper.vm.orderRepository.deleteVersion = jest.fn(() => Promise.resolve());
+        const oldVersionId = wrapper.vm.versionContext.versionId;
 
-        await wrapper.vm.beforeDestroyComponent();
+        wrapper.vm.beforeDestroyComponent();
 
-        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalled();
+        expect(wrapper.vm.orderRepository.deleteVersion).toHaveBeenCalledWith(wrapper.vm.orderId, oldVersionId);
     });
 
     it('should reset pending address selections when component gets destroyed', async () => {
@@ -316,7 +407,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             type: 'billing',
         });
 
-        await wrapper.vm.beforeDestroyComponent();
+        wrapper.vm.beforeDestroyComponent();
 
         expect(Shopware.Store.get('swOrderDetail').orderAddressIds).toEqual([]);
     });
@@ -365,6 +456,27 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(criteria.getAssociation('transactions').hasAssociation('stateMachineState')).toBe(true);
     });
 
+    it('should load the shipping method and shipping address of every delivery', async () => {
+        const get = jest.fn(() => Promise.resolve({}));
+        wrapper = await createWrapper({}, { orderRepository: { get } });
+        await flushPromises();
+
+        const deliveries = get.mock.calls[0][2].getAssociation('deliveries');
+
+        expect(deliveries.hasAssociation('shippingMethod')).toBe(true);
+        expect(deliveries.getAssociation('shippingOrderAddress').hasAssociation('country')).toBe(true);
+    });
+
+    it('should sort deliveries by shipping costs with a stable tiebreaker', async () => {
+        wrapper = await createWrapper();
+        const criteria = wrapper.vm.orderCriteria;
+
+        expect(criteria.getAssociation('deliveries').sortings).toEqual([
+            expect.objectContaining({ field: 'shippingCosts.unitPrice', order: 'DESC' }),
+            expect.objectContaining({ field: 'id', order: 'ASC' }),
+        ]);
+    });
+
     it('should convert product line items that are missing', async () => {
         const lineItemWithExistingProduct = {
             id: 'lineItemId',
@@ -386,11 +498,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         };
 
         wrapper = await createWrapper({
-            lineItems: [
-                lineItemWithMissingProduct,
-                lineItemWithExistingProduct,
-                previouslyConvertedLineItem,
-            ],
+            lineItems: [lineItemWithMissingProduct, lineItemWithExistingProduct, previouslyConvertedLineItem],
         });
         await flushPromises();
 
@@ -422,21 +530,20 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         const deliveryDiscount = {
             id: 'deliveryId2',
+            shippingCosts: { totalPrice: -4.99 },
         };
 
         const deliveries = [
             {
                 id: 'deliveryId',
+                shippingCosts: { totalPrice: 4.99 },
             },
             deliveryDiscount,
         ];
 
         wrapper = await createWrapper({
             primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [
-                lineItemWithExistingProduct,
-                promotionLineItem,
-            ],
+            lineItems: [lineItemWithExistingProduct, promotionLineItem],
             deliveries,
         });
 
@@ -472,21 +579,20 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         const deliveryDiscount = {
             id: 'deliveryId2',
+            shippingCosts: { totalPrice: -4.99 },
         };
 
         const deliveries = [
             {
                 id: 'deliveryId',
+                shippingCosts: { totalPrice: 4.99 },
             },
             deliveryDiscount,
         ];
 
         wrapper = await createWrapper({
             primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [
-                lineItemWithExistingProduct,
-                promotionLineItem,
-            ],
+            lineItems: [lineItemWithExistingProduct, promotionLineItem],
             deliveries,
         });
 
@@ -526,20 +632,19 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         const deliveryDiscount = {
             id: 'deliveryId2',
+            shippingCosts: { totalPrice: -4.99 },
         };
 
         const deliveries = [
             {
                 id: 'deliveryId',
+                shippingCosts: { totalPrice: 4.99 },
             },
             deliveryDiscount,
         ];
 
         wrapper = await createWrapper({
-            lineItems: [
-                lineItemWithExistingProduct,
-                promotionLineItem,
-            ],
+            lineItems: [lineItemWithExistingProduct, promotionLineItem],
             deliveries,
         });
 
@@ -606,6 +711,58 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             { 'sw-version-id': undefined },
         );
     });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'should update the shipping address of the shipment the selection belongs to',
+        async () => {
+            global.activeAclRoles = ['order.editor'];
+            const updateOrderAddresses = jest.fn(() => Promise.resolve());
+            wrapper = await createWrapper(
+                {
+                    id: 'order123',
+                    primaryOrderDeliveryId: 'primary-shipment',
+                    lineItems: [
+                        {
+                            id: 'lineItemId',
+                            type: 'product',
+                            referencedId: 'productId',
+                            productId: 'productId',
+                            payload: {},
+                        },
+                    ],
+                    deliveries: [
+                        { id: 'primary-shipment', shippingCosts: { totalPrice: 4.99 } },
+                        { id: 'second-shipment', shippingCosts: { totalPrice: 4.99 } },
+                    ],
+                },
+                { orderService: { updateOrderAddresses } },
+            );
+            await flushPromises();
+
+            Shopware.Store.get('swOrderDetail').setOrderAddressIds({
+                orderAddressId: 'orderAddress2',
+                customerAddressId: 'customerAddress2',
+                type: 'shipping',
+                edited: false,
+                deliveryId: 'second-shipment',
+            });
+            await wrapper.find('.sw-order-detail__smart-bar-save-button').trigger('click');
+            await flushPromises();
+
+            expect(updateOrderAddresses).toHaveBeenCalledWith(
+                expect.any(String),
+                [
+                    {
+                        customerAddressId: 'customerAddress2',
+                        type: 'shipping',
+                        deliveryId: 'second-shipment',
+                    },
+                ],
+                {},
+                { 'sw-version-id': undefined },
+            );
+        },
+    );
 
     it('should skip order address update', async () => {
         wrapper = await createWrapper();
@@ -729,4 +886,99 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         expect(afterSaveFn).toHaveBeenCalledTimes(1);
         expect(promiseResolved).toBe(true);
     });
+
+    it('should show the API error detail when onError receives an API error', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.onError({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            detail: 'The order total does not match the calculated total.',
+                        },
+                    ],
+                },
+            },
+        });
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageRecalculationError' + 'The order total does not match the calculated total.',
+        });
+    });
+
+    it('should show the plain snippet when onError receives an error without a response', async () => {
+        wrapper = await createWrapper();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+
+        wrapper.vm.onError(new Error('network down'));
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: 'sw-order.detail.messageRecalculationError',
+        });
+    });
+
+    it.each([
+        ['onSaveEdits', (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed'))))],
+        [
+            'onCancelEditing',
+            (vm) =>
+                (vm.orderRepository.deleteVersion = jest
+                    .fn()
+                    .mockResolvedValue([])
+                    .mockRejectedValueOnce(apiError('delete failed'))),
+        ],
+        [
+            'onRecalculateAndReload',
+            (vm) => (vm.orderService.recalculateOrder = jest.fn(() => Promise.reject(apiError('recalculate failed')))),
+        ],
+        ['saveAndReload', (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed'))))],
+    ])('should forward the real API error detail from %s to the notification', async (methodName, rejectWith) => {
+        wrapper = await createWrapper({
+            lineItems: [{ id: 'lineItem1' }],
+        });
+        await flushPromises();
+
+        const createNotificationErrorMock = jest.fn();
+        wrapper.vm.createNotificationError = createNotificationErrorMock;
+        rejectWith(wrapper.vm);
+
+        await wrapper.vm[methodName]();
+
+        expect(createNotificationErrorMock).toHaveBeenCalledWith({
+            message: expect.stringContaining('failed'),
+        });
+    });
+
+    it('should handle the events the order views and the language switch emit to the page', async () => {
+        wrapper = await createWrapper();
+        Shopware.Store.get('swOrderDetail').order = { orderNumber: 1 };
+        await flushPromises();
+
+        const routerView = wrapper.findComponent({ name: 'router-view' });
+        await routerView.vm.$emit('editing-change', true);
+        await routerView.vm.$emit('created-by-id-change', 'user-id');
+        await wrapper.findComponent({ name: 'sw-language-switch' }).vm.$emit('on-change', 'language-id');
+
+        expect(routerView.attributes('is-editing')).toBe('true');
+
+        await routerView.vm.$emit('loading-change', true);
+
+        expect(routerView.isVisible()).toBe(false);
+    });
 });
+
+function apiError(detail) {
+    return {
+        response: {
+            data: {
+                errors: [{ detail }],
+            },
+        },
+    };
+}

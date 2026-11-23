@@ -80,18 +80,23 @@ class RequestTransformer implements RequestTransformerInterface
         '/_fragment/',
         '/robots.txt',
         '/storybook/',
+        // OAuth discovery of the Admin API MCP endpoint, the root paths stay with the sales channel
+        '/.well-known/oauth-protected-resource/api/_mcp/',
+        '/.well-known/oauth-authorization-server/api/',
     ];
 
     /**
      * @internal
      *
      * @param array<string> $registeredApiPrefixes
+     * @param array<string> $apiContextRoutePrefixes
      */
     public function __construct(
         private readonly RequestTransformerInterface $decorated,
         private readonly AbstractSeoResolver $resolver,
         private readonly array $registeredApiPrefixes,
-        private readonly AbstractDomainLoader $domainLoader
+        private readonly AbstractDomainLoader $domainLoader,
+        private readonly array $apiContextRoutePrefixes = [],
     ) {
     }
 
@@ -137,6 +142,12 @@ class RequestTransformer implements RequestTransformerInterface
             $salesChannel->salesChannelId
         );
 
+        // Admin and Admin API routes can't be served with a sales channel context, e.g. shopware.de/de/admin,
+        // unless an SEO URL like "admin" resolved the path to a storefront route
+        if ($this->isApiContextRoute($resolved->pathInfo)) {
+            return $request;
+        }
+
         $currentRequestUri = $request->getRequestUri();
 
         /**
@@ -177,6 +188,7 @@ class RequestTransformer implements RequestTransformerInterface
         );
 
         $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
+        $this->mergeResolvedQueryParameters($transformedRequest, $resolved->pathInfo);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $transformedRequest->attributes->set(
@@ -273,6 +285,19 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         return true;
+    }
+
+    private function isApiContextRoute(string $pathInfo): bool
+    {
+        $pathInfo = '/' . trim($pathInfo, '/') . '/';
+
+        foreach ($this->apiContextRoutePrefixes as $prefix) {
+            if (str_starts_with($pathInfo, '/' . $prefix . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function findSalesChannel(Request $request): ?DomainStruct
@@ -373,6 +398,22 @@ class RequestTransformer implements RequestTransformerInterface
             pathInfo: $seoPathInfo,
             queryString: $queryString,
         ));
+    }
+
+    private function mergeResolvedQueryParameters(Request $request, string $resolvedPathInfo): void
+    {
+        $resolvedQuery = parse_url($resolvedPathInfo, \PHP_URL_QUERY);
+
+        if (!\is_string($resolvedQuery) || $resolvedQuery === '') {
+            return;
+        }
+
+        $resolvedParameters = [];
+        parse_str($resolvedQuery, $resolvedParameters);
+
+        foreach ($resolvedParameters as $key => $value) {
+            $request->query->set((string) $key, $value);
+        }
     }
 
     private function getSchemeAndHttpHost(Request $request): string

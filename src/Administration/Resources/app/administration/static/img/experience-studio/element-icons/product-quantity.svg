@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(-11.455 -6.774) scale(1.1146)">
+      <rect x="36" y="45" width="128" height="37" rx="5" fill="white" stroke="#adc8e7" />
+      <path d="M73 46v35m54-35v35" fill="none" stroke="#cfdef0" />
+      <path d="M48 64h13" stroke="#17265c" stroke-width="2" />
+      <path d="M105.93 72L94.80 72L94.80 70.39L100.61 64.10Q101.58 63.05 102.22 62.25Q102.87 61.45 103.20 60.73Q103.52 60.01 103.52 59.20L103.52 59.20Q103.52 58.29 103.09 57.62Q102.66 56.95 101.92 56.60Q101.18 56.24 100.24 56.24L100.24 56.24Q99.25 56.24 98.51 56.64Q97.78 57.05 97.38 57.78Q96.98 58.51 96.98 59.50L96.98 59.50L94.85 59.50Q94.85 57.95 95.57 56.78Q96.28 55.61 97.51 54.96Q98.74 54.30 100.30 54.30L100.30 54.30Q101.86 54.30 103.06 54.96Q104.26 55.61 104.95 56.71Q105.63 57.81 105.63 59.18L105.63 59.18Q105.63 60.13 105.29 61.03Q104.95 61.92 104.10 63.06Q103.24 64.20 101.70 65.84L101.70 65.84L97.88 69.90L97.88 70.04L105.93 70.04L105.93 72Z" fill="#17265c" stroke="none" />
+      <path d="M139 64h13m-6.5-6.5v13" fill="none" stroke="#1895ff" stroke-width="2" />
+    </g>
+  </g>
+</svg>

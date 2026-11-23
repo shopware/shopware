@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -31,9 +32,14 @@ interface LayoutMutation
 
     /**
      * @return list<string> element ids whose node the op built fresh; a replace keeps its target's id but
-     *                      still counts (node is re-scaffolded). Consumer mirroring wires only these ids.
+     *                      still counts (node is re-scaffolded). Copies are created too, without being fresh scaffolds.
      */
     public function created(): array;
+
+    /**
+     * @return list<string> element ids whose properties were freshly scaffolded and may receive declared defaults and consumer mirroring
+     */
+    public function freshlyScaffolded(): array;
 
     /**
      * @return list<StoredElement> subtrees detached by the op (e.g. replace dropping a slot's children),
@@ -55,4 +61,12 @@ interface LayoutMutation
      *                                    content is never silently lost
      */
     public function droppedProperties(): array;
+
+    /**
+     * The ACL privilege the caller must hold for {@see PersistedLayoutMutator} to run the repository write in
+     * {@see Context::SYSTEM_SCOPE}, or null to run the write on the caller's context unchanged. Only that write is
+     * scoped: the layout load before it and the diagnosis after it stay on the caller's context, and
+     * {@see MutationPipeline} persists nothing and never reads it.
+     */
+    public function writePrivilege(): ?string;
 }

@@ -48,13 +48,7 @@ async function createWrapper(customPropsData = {}) {
                     },
                 ],
                 currentPosition: 0,
-                addressFormat: [
-                    [
-                        'address/company',
-                        'symbol/dash',
-                        'address/department',
-                    ],
-                ],
+                addressFormat: [['address/company', 'symbol/dash', 'address/department']],
                 ...customPropsData,
             },
 
@@ -127,13 +121,7 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         await button.find('.sw-label__dismiss').trigger('click');
 
         expect(wrapper.emitted('change')).toBeTruthy();
-        expect(wrapper.emitted('change')[0]).toEqual([
-            0,
-            [
-                'symbol/dash',
-                'address/department',
-            ],
-        ]);
+        expect(wrapper.emitted('change')[0]).toEqual([0, ['symbol/dash', 'address/department']]);
     });
 
     it('should be able to add new snippet', async () => {
@@ -211,5 +199,25 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         treesItem = wrapper.find('.tree-items .sw-tree-item__children');
 
         expect(treesItem.findAll('.sw-tree-item')).toHaveLength(2);
+    });
+
+    it('should not pass the change events of the search field to the parent', async () => {
+        const onChange = jest.fn();
+        const wrapper = await createWrapper({ onChange });
+        await flushPromises();
+
+        await wrapper.get('.sw-settings-country-new-snippet-modal__input-field').trigger('change');
+
+        expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('should tell the parent once when the modal is closed', async () => {
+        const onModalClose = jest.fn();
+        const wrapper = await createWrapper({ onModalClose });
+        await flushPromises();
+
+        await wrapper.get('.sw-modal__close').trigger('click');
+
+        expect(onModalClose).toHaveBeenCalledTimes(1);
     });
 });

@@ -27,8 +27,13 @@
         {% endblock %}
     </template>
 
-    <template v-else>
-        <sw-tabs position-identifier="sw-settings-logging-entry-info">
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
+        <sw-tabs
+            position-identifier="sw-settings-logging-entry-info"
+        >
 
             {% block sw_settings_logging_entry_info_tab_items %}
             <sw-tabs-item
@@ -51,7 +56,7 @@
             </template>
 
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 
     {% block sw_settings_logging_entry_info_footer %}

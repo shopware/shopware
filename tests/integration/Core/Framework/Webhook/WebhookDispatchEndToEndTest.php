@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookSigningSecretResolver;
 use Shopware\Core\Framework\Webhook\WebhookFailureStrategy;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\Builder\Webhook\WebhookBuilder;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
@@ -276,6 +278,75 @@ class WebhookDispatchEndToEndTest extends TestCase
             hash_hmac('sha256', $body, 'old-secret'),
             $request->getHeaderLine('shopware-shop-signature')
         );
+    }
+
+    /**
+     * Steps:
+     * 1. Register a webhook without an app.
+     * 2. Dispatch the event so the message is queued.
+     * 3. Set the webhook's secret before the worker delivers.
+     * 4. Run the worker.
+     *
+     * Expected:
+     * - The outgoing request is signed with the webhook's secret, read when it is sent.
+     */
+    public function testWebhookWithoutAppIsSignedWithItsSecret(): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createBareWebhook($webhookId, 'bare-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/bare');
+
+        $this->appendNewResponse(new Response(200));
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        Feature::withFeatureEnabled('WEBHOOKS_REWORK', function () use ($manager, $event, $webhookId): void {
+            $manager->dispatch($event);
+            $this->connection->update('webhook', ['secret' => 'webhook-secret'], ['id' => Uuid::fromHexToBytes($webhookId)]);
+            $this->runWorker();
+        });
+
+        $request = $this->getLastRequest();
+        static::assertNotNull($request, 'Expected an HTTP request to be made');
+        static::assertSame(
+            hash_hmac('sha256', (string) $request->getBody(), 'webhook-secret'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
+    }
+
+    /**
+     * Steps:
+     * 1. Register a webhook without an app, with a secret.
+     * 2. Dispatch the event so the message is queued.
+     * 3. Delete the webhook before the worker delivers.
+     * 4. Run the worker.
+     *
+     * Expected:
+     * - Nothing is sent: there is no secret left to sign the delivery with.
+     * - The event is marked failed and its delivery row is removed.
+     */
+    #[DataProvider('flagStates')]
+    public function testQueuedDeliveryOfADeletedWebhookWithoutAppIsNotSent(bool $flagActive): void
+    {
+        $webhookId = Uuid::randomHex();
+        $this->createBareWebhook($webhookId, 'bare-webhook', CustomerBeforeLoginEvent::EVENT_NAME, 'https://example.com/bare');
+        $this->connection->update('webhook', ['secret' => 'webhook-secret'], ['id' => Uuid::fromHexToBytes($webhookId)]);
+
+        $manager = $this->getWebhookManager(isAdminWorkerEnabled: false);
+        $event = $this->createCustomerBeforeLoginEvent();
+
+        $this->withFlag($flagActive, function () use ($manager, $event, $webhookId): void {
+            $manager->dispatch($event);
+            $this->connection->delete('webhook', ['id' => Uuid::fromHexToBytes($webhookId)]);
+            $this->runWorker();
+        });
+
+        static::assertSame(0, $this->getRequestCount());
+        static::assertSame(
+            [WebhookEventLogDefinition::STATUS_FAILED],
+            $this->connection->fetchFirstColumn('SELECT delivery_status FROM webhook_event_log WHERE webhook_name = :name', ['name' => 'bare-webhook'])
+        );
+        static::assertSame(0, (int) $this->connection->fetchOne('SELECT COUNT(*) FROM webhook_delivery'));
     }
 
     /**
@@ -940,6 +1011,7 @@ class WebhookDispatchEndToEndTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             static::getContainer()->get(WebhookOutboxStore::class),
+            static::getContainer()->get(PolicyRegistry::class),
         );
     }
 
@@ -985,14 +1057,11 @@ class WebhookDispatchEndToEndTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     /**
@@ -1034,14 +1103,11 @@ class WebhookDispatchEndToEndTest extends TestCase
             'created_at' => $now,
         ]);
 
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'app_id' => $appId,
-            'created_at' => $now,
-        ]);
+        WebhookBuilder::ofApp(Uuid::fromBytesToHex($appId))
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
 
         return Uuid::fromBytesToHex($appId);
     }
@@ -1052,13 +1118,14 @@ class WebhookDispatchEndToEndTest extends TestCase
      */
     private function createBareWebhook(string $webhookId, string $name, string $eventName, string $url): void
     {
-        $this->connection->insert('webhook', [
-            'id' => Uuid::fromHexToBytes($webhookId),
-            'name' => $name,
-            'event_name' => $eventName,
-            'url' => $url,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        static::assertIsString($adminId);
+
+        WebhookBuilder::ownedByUser($adminId)
+            ->id($webhookId)
+            ->subscribe($eventName, $url)
+            ->name($name)
+            ->insert($this->connection);
     }
 
     private function createCustomerBeforeLoginEvent(): CustomerBeforeLoginEvent

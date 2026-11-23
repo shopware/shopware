@@ -1,5 +1,7 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
+import { editingLanguageChain } from '../../util/element-settings.util';
 import { getContentElementLabel } from '../../util/content-element-label.util';
+import { translateContentSystemText } from '../../util/content-system-translation.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
 import template from './sw-experience-studio-sidebar-tree-node.html.twig';
@@ -97,7 +99,10 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         label(): string {
-            return getContentElementLabel(this.contentElement);
+            const type = this.elementTypeStore.getByName(this.contentElement.component);
+            const fallback = type ? translateContentSystemText(type.labelSnippet, type.label, this.$te, this.$t) : undefined;
+
+            return getContentElementLabel(this.contentElement, type?.properties, editingLanguageChain(), fallback);
         },
 
         typeIcon(): string {

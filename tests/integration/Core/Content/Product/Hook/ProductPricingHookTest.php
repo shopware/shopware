@@ -89,7 +89,7 @@ class ProductPricingHookTest extends TestCase
         // allows easy debugging
         $traces = new ScriptTraces(new NativeClock());
 
-        $loader = $this->createMock(ScriptLoader::class);
+        $loader = static::createStub(ScriptLoader::class);
         $loader->method('get')->willReturn([
             new Script('foo', (string) \file_get_contents(__DIR__ . '/_fixtures/pricing-cases/product-pricing.twig'), new \DateTimeImmutable()),
         ]);
@@ -103,7 +103,7 @@ class ProductPricingHookTest extends TestCase
 
         $executor->execute($hook);
 
-        static::assertNotEmpty($traces->getTraces());
+        static::assertNotCount(0, $traces->getTraces());
         static::assertArrayHasKey('product-pricing', $traces->getTraces());
         static::assertSame(
             [

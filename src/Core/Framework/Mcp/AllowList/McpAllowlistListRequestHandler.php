@@ -19,6 +19,8 @@ use Mcp\Schema\Tool;
 use Mcp\Server\Handler\Request\RequestHandlerInterface;
 use Mcp\Server\Session\SessionInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
+use Shopware\Core\Framework\Mcp\McpRequestedToolsetResolver;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\McpToolsetSessionStorage;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,6 +59,7 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
         private readonly ?McpToolsetRegistry $toolsetRegistry = null,
         private readonly ?McpToolsetSessionStorage $toolsetSessionStorage = null,
         private readonly ?RequestStack $requestStack = null,
+        private readonly ?McpRequestedToolsetResolver $requestedToolsetResolver = null,
     ) {
     }
 
@@ -109,13 +112,20 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
      */
     private function visibleToolNames(McpAllowlist $allowlist): array
     {
-        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetToolsForSession());
+        $advertisedTools = array_merge($this->advertisedTools, $this->toolsetTools());
 
         if (!\in_array(self::TOOL_SEARCH, $advertisedTools, true)) {
             array_unshift($advertisedTools, self::TOOL_SEARCH);
         }
 
         $advertisedTools = array_values(array_unique($advertisedTools));
+
+        // The stateless era (2026-07-28) has no session to enable a toolset in, so the toolset session
+        // tools are not offered there. They are dropped before paginating, so a cursor stays valid
+        // within the era it was issued on.
+        if (McpProtocolEra::isStateless($this->requestStack?->getMainRequest())) {
+            $advertisedTools = array_values(array_diff($advertisedTools, McpProtocolEra::HIDDEN_ON_STATELESS_ERA));
+        }
 
         if ($allowlist->tools === null) {
             return $advertisedTools;
@@ -131,20 +141,41 @@ class McpAllowlistListRequestHandler implements RequestHandlerInterface
     }
 
     /**
+     * Toolsets pinned in the connect URL need no prior round trip, so they are already there on the
+     * first tools/list. Merged with the session's in one registry call to keep it at one catalogue
+     * read per tools/list.
+     *
      * @return list<string>
      */
-    private function toolsetToolsForSession(): array
+    private function toolsetTools(): array
     {
         if ($this->toolsetRegistry === null) {
             return [];
         }
 
-        $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
-        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
-            return $this->toolsetRegistry->advertisedTools([]);
+        return $this->toolsetRegistry->advertisedToolsForNames(array_merge(
+            $this->requestedToolsetResolver?->resolve() ?? [],
+            $this->sessionToolsets(),
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function sessionToolsets(): array
+    {
+        // The stateless era has no session, and the session binding of the stateful era does not
+        // check an Mcp-Session-Id sent on it, so a header there must not reach the session's toolsets.
+        if (McpProtocolEra::isStateless($this->requestStack?->getMainRequest())) {
+            return [];
         }
 
-        return $this->toolsetRegistry->advertisedTools($this->toolsetSessionStorage->enabledToolsets($sessionId));
+        $sessionId = $this->requestStack?->getCurrentRequest()?->headers->get('Mcp-Session-Id') ?? '';
+        if ($sessionId === '' || $this->toolsetSessionStorage === null) {
+            return [];
+        }
+
+        return $this->toolsetSessionStorage->enabledToolsets($sessionId);
     }
 
     /**

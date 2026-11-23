@@ -123,7 +123,11 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 }
 
 .mt-empty-state {
-    padding: 48px;
+    padding: var(--scale-size-48);
+
+    &:not(.mt-empty-state--left-aligned) {
+        margin-inline: auto;
+    }
 }
 
 /**

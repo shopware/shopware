@@ -10,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -143,27 +144,58 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
         $knownRootSources = $this->rootSourceRegistry->entityRootSources();
 
-        if (!$this->validateScopedMaps($id, $key, $config, $knownRootSources, $constraint)) {
+        if (!$this->validateScopedMaps($id, $key, $loader, $config, $knownRootSources, $constraint)) {
             return;
         }
 
-        foreach ($this->configBranches($config) as $branchConfig) {
+        $branches = RootSourceConfigMap::branches($config);
+
+        if ($branches === null) {
+            $this->context->buildViolation($constraint->resolvesEntryRootSourceSetsDifferMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ sets }}', $this->describeRootSourceSets($config))
+                ->atPath($this->path($id, 'resolves[' . $key . '].config'))
+                ->addViolation();
+
+            return;
+        }
+
+        foreach ($branches as $branchConfig) {
             $this->validateConfigBranch($id, $key, $loader, $branchConfig, $declaredType, $type, $constraint);
         }
     }
 
     /**
+     * A scoped map is admitted only on a Literal config key of a registered loader. Whether the
+     * scoped maps of one config name the same root sources is checked by the caller through
+     * {@see RootSourceConfigMap::branches()}, only once every scoped map passed here.
+     *
      * @param array<string, mixed> $config
      * @param list<string> $knownRootSources
      */
-    private function validateScopedMaps(string $id, string $key, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
+    private function validateScopedMaps(string $id, string $key, string $loader, array $config, array $knownRootSources, TypeConsistentBindingSpecification $constraint): bool
     {
         $valid = true;
 
         foreach ($config as $configKey => $value) {
+            $configKey = (string) $configKey;
             $map = RootSourceConfigMap::scopeMap($value);
 
             if ($map === null) {
+                if ($this->nestsScopedMap($value)) {
+                    $this->addConfigKeyViolation($constraint->resolvesEntryNestedRootSourceMapMessage, $id, $key, $configKey, []);
+
+                    $valid = false;
+                }
+
+                continue;
+            }
+
+            if (!$this->admitsScopedMap($loader, $configKey)) {
+                $this->addConfigKeyViolation($constraint->resolvesEntryRootSourceMapNotLiteralMessage, $id, $key, $configKey, ['{{ loader }}' => $loader]);
+
+                $valid = false;
+
                 continue;
             }
 
@@ -171,12 +203,7 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
                 continue;
             }
 
-            $this->context->buildViolation($constraint->resolvesEntryRootSourceMapMessage)
-                ->setParameter('{{ key }}', $key)
-                ->setParameter('{{ configKey }}', (string) $configKey)
-                ->setParameter('{{ rootSources }}', implode(', ', $knownRootSources))
-                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey))
-                ->addViolation();
+            $this->addConfigKeyViolation($constraint->resolvesEntryRootSourceMapMessage, $id, $key, $configKey, ['{{ rootSources }}' => implode(', ', $knownRootSources)]);
 
             $valid = false;
         }
@@ -185,37 +212,88 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
     }
 
     /**
-     * @param array<string, mixed> $config
-     *
-     * @return list<array<string, mixed>>
+     * @param array<string, string> $parameters the message parameters beyond `{{ key }}` and `{{ configKey }}`
      */
-    private function configBranches(array $config): array
+    private function addConfigKeyViolation(string $message, string $id, string $key, string $configKey, array $parameters): void
     {
-        $rootSources = [];
+        $builder = $this->context->buildViolation($message)
+            ->setParameter('{{ key }}', $key)
+            ->setParameter('{{ configKey }}', $configKey)
+            ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey));
 
-        foreach ($config as $value) {
+        foreach ($parameters as $name => $value) {
+            $builder->setParameter($name, $value);
+        }
+
+        $builder->addViolation();
+    }
+
+    /**
+     * Each scoped config key with the root sources its map names, sorted, as `key: a, b; other: a`.
+     *
+     * @param array<string, mixed> $config
+     */
+    private function describeRootSourceSets(array $config): string
+    {
+        $sets = [];
+
+        foreach ($config as $configKey => $value) {
             $map = RootSourceConfigMap::scopeMap($value);
 
             if ($map === null) {
                 continue;
             }
 
-            foreach (array_keys($map) as $rootSource) {
-                $rootSources[$rootSource] = true;
+            $rootSources = array_keys($map);
+            sort($rootSources);
+            $sets[] = $configKey . ': ' . implode(', ', $rootSources);
+        }
+
+        return implode('; ', $sets);
+    }
+
+    /**
+     * Whether a config value that is not itself a scoped map carries one at any depth. `ScopedConfigNormalizer`
+     * converts every `!scoped` tag, but only a direct config value is validated and collapsed.
+     */
+    private function nestsScopedMap(mixed $value): bool
+    {
+        if (!\is_array($value)) {
+            return false;
+        }
+
+        if (\array_key_exists(RootSourceConfigMap::MARKER, $value)) {
+            return true;
+        }
+
+        foreach ($value as $item) {
+            if ($this->nestsScopedMap($item)) {
+                return true;
             }
         }
 
-        if ($rootSources === []) {
-            return [$config];
+        return false;
+    }
+
+    /**
+     * Whether the config key is a Literal key of the loader. An unregistered loader admits it, because its kinds
+     * are unknown and `decodeConfig()` reports the loader itself.
+     */
+    private function admitsScopedMap(string $loader, string $configKey): bool
+    {
+        $specification = $this->mapResolver->resolve()->sourceToConfigSpecifications[$loader] ?? null;
+
+        if ($specification === null) {
+            return true;
         }
 
-        $branches = [];
-
-        foreach (array_keys($rootSources) as $rootSource) {
-            $branches[] = RootSourceConfigMap::collapse($config, (string) $rootSource);
+        foreach ($specification->keysOfKind(ConfigKeyKind::Literal) as $literalKey) {
+            if ($literalKey->name === $configKey) {
+                return true;
+            }
         }
 
-        return $branches;
+        return false;
     }
 
     /**
@@ -281,9 +359,11 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
     /**
      * Every config key of kind `propertyReference` (per the loader's config specification) whose configured value
      * is a string must name either an undeclared key (the resolvedBy storage key) or a declared primitive
-     * property of the declared type. A declared non-primitive property is a violation for every loader. Reaching
-     * this point means `decodeConfig()` and `resolveProducedType()` both succeeded, so the loader is a registered
-     * data loader and thus present in the map, so `configSpecificationFor()` cannot throw here.
+     * property of the declared type that can hold a value the key's `referencedType` admits
+     * ({@see ConfigKeySpecification::admitsDeclaredPrimitive()}). A declared non-primitive property is a violation
+     * for every loader. Reaching this point means `decodeConfig()` and
+     * `resolveProducedType()` both succeeded, so the loader is a registered data loader and thus present in the
+     * map, so `configSpecificationFor()` cannot throw here.
      *
      * @param array<string, mixed> $config
      */
@@ -304,15 +384,39 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
 
             $property = $type->properties()[$configured] ?? null;
 
-            if ($property === null || $property->type()->isPrimitive()) {
+            if ($property === null) {
                 continue;
             }
 
-            $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceNotPrimitiveMessage)
+            $path = $this->path($id, 'resolves[' . $key . '].config.' . $configKey->name);
+
+            if (!$property->type()->isPrimitive()) {
+                $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceNotPrimitiveMessage)
+                    ->setParameter('{{ configKey }}', $configKey->name)
+                    ->setParameter('{{ property }}', $configured)
+                    ->setParameter('{{ type }}', $type->name())
+                    ->atPath($path)
+                    ->addViolation();
+
+                continue;
+            }
+
+            $declared = $property->type()->type();
+
+            // The isPrimitive() gate above admits only a lone primitive type name.
+            \assert(\is_string($declared));
+
+            if ($configKey->admitsDeclaredPrimitive($declared)) {
+                continue;
+            }
+
+            $this->context->buildViolation($constraint->resolvesEntryPropertyReferenceCannotHoldReferencedTypeMessage)
                 ->setParameter('{{ configKey }}', $configKey->name)
                 ->setParameter('{{ property }}', $configured)
                 ->setParameter('{{ type }}', $type->name())
-                ->atPath($this->path($id, 'resolves[' . $key . '].config.' . $configKey->name))
+                ->setParameter('{{ referencedType }}', $configKey->referencedType)
+                ->setParameter('{{ declaredType }}', $property->type()->describe())
+                ->atPath($path)
                 ->addViolation();
         }
     }
@@ -402,6 +506,17 @@ final class TypeConsistentBindingSpecificationValidator extends ConstraintValida
         }
 
         $default = $entry['default'];
+
+        // A translatable property stores one value per language, so a null default could never seed an entry.
+        if ($default === null && $property->type()->translatable()) {
+            $this->context->buildViolation($constraint->inputsEntryNullDefaultOnTranslatableMessage)
+                ->setParameter('{{ key }}', $key)
+                ->setParameter('{{ type }}', $type->name())
+                ->atPath($this->path($id, 'inputs[' . $key . '].default'))
+                ->addViolation();
+
+            return;
+        }
 
         if ($default === null) {
             return;

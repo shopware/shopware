@@ -199,6 +199,14 @@ class UrlEncoderTest extends TestCase
         );
     }
 
+    public function testItKeepsEncodedPathSeparatorsInsideASegment(): void
+    {
+        static::assertSame(
+            'https://cdn.example.com/bucket/object%2Fid%20%C3%84.jpg',
+            UrlEncoder::encodeUrl('https://cdn.example.com/bucket/object%2Fid Ä.jpg')
+        );
+    }
+
     public function testItKeepsTheAuthorityUntouched(): void
     {
         static::assertSame(
@@ -228,6 +236,19 @@ class UrlEncoderTest extends TestCase
         static::assertSame(
             'media/foo/my%20file.jpg',
             UrlEncoder::encodePathSegments('media/foo/my file.jpg')
+        );
+    }
+
+    public function testEncodePathSegmentsTreatsPercentSignsAsLiteralStorageCharacters(): void
+    {
+        static::assertSame(
+            'media/ab/cd/50%2520off.jpg',
+            UrlEncoder::encodePathSegments('media/ab/cd/50%20off.jpg')
+        );
+
+        static::assertSame(
+            'media/ab/cd/50%252Foff.jpg',
+            UrlEncoder::encodePathSegments('media/ab/cd/50%2Foff.jpg')
         );
     }
 }

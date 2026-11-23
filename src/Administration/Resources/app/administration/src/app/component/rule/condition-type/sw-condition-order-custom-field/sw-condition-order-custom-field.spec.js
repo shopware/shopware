@@ -224,24 +224,24 @@ describe('components/rule/condition-type/sw-condition-order-custom-field', () =>
         expect(wrapper.vm.renderedFieldValue).toBe('test123');
     });
 
-    it.each([
-        { type: 'date' },
-        { type: 'datetime' },
-    ])('should render between-date when operator is between: $type', async ({ type }) => {
-        const testWrapper = await createWrapper({
-            condition: {
-                value: {
-                    operator: 'between',
-                    renderedField: { id: '1', type, config: { type, label: 'foo' } },
-                    renderedFieldValue: null,
+    it.each([{ type: 'date' }, { type: 'datetime' }])(
+        'should render between-date when operator is between: $type',
+        async ({ type }) => {
+            const testWrapper = await createWrapper({
+                condition: {
+                    value: {
+                        operator: 'between',
+                        renderedField: { id: '1', type, config: { type, label: 'foo' } },
+                        renderedFieldValue: null,
+                    },
                 },
-            },
-        });
-        await flushPromises();
+            });
+            await flushPromises();
 
-        expect(testWrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
-        expect(testWrapper.find('.sw-form-field-renderer').exists()).toBe(false);
-    });
+            expect(testWrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
+            expect(testWrapper.find('.sw-form-field-renderer').exists()).toBe(false);
+        },
+    );
 
     it('should not render between-date when operator is not between', async () => {
         const testWrapper = await createWrapper({

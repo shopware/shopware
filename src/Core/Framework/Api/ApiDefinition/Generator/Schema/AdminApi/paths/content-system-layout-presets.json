@@ -33,7 +33,11 @@
                           "name",
                           "description",
                           "icon",
-                          "payload"
+                          "illustration",
+                          "category",
+                          "priority",
+                          "payload",
+                          "defaultBindingRootSources"
                         ],
                         "properties": {
                           "id": {
@@ -53,12 +57,36 @@
                             ],
                             "description": "An optional longer description of the preset."
                           },
+                          "nameSnippet": {
+                            "type": "string",
+                            "description": "Optional Administration snippet key for the preset name."
+                          },
+                          "descriptionSnippet": {
+                            "type": "string",
+                            "description": "Optional Administration snippet key for the preset description."
+                          },
                           "icon": {
                             "type": [
                               "string",
                               "null"
                             ],
-                            "description": "An optional icon identifier for the preset."
+                            "description": "Optional Meteor icon name used in the tree and as the picker fallback."
+                          },
+                          "illustration": {
+                            "type": ["string", "null"],
+                            "description": "Optional SVG illustration filename without its extension, for example preset-media-and-text. Used in the picker independently of icon."
+                          },
+                          "category": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Optional category for grouping presets in the Experience Studio picker."
+                          },
+                          "priority": {
+                            "type": "integer",
+                            "default": 0,
+                            "description": "Preset picker priority within its category. Higher values appear first; defaults to 0 when omitted from the preset declaration."
                           },
                           "payload": {
                             "type": "array",
@@ -66,6 +94,16 @@
                             "items": {
                               "type": "object"
                             }
+                          },
+                          "defaultBindingRootSources": {
+                            "type": [
+                              "array",
+                              "null"
+                            ],
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "The root-source ids on which the default binding specifications applied automatically to the preset's elements on insert all resolve, nested presets included and keys a preset element already wires excluded. `null` when none of them places a root-source restriction. An empty array when no root source satisfies them all or an element's type has more than one default binding specification."
                           }
                         }
                       }

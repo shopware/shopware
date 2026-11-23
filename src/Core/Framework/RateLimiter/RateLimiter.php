@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -17,6 +18,10 @@ class RateLimiter
 
     final public const RESET_PASSWORD = 'reset_password';
 
+    final public const RESET_PASSWORD_USER = 'reset_password_user';
+
+    final public const RESET_PASSWORD_CLIENT = 'reset_password_client';
+
     final public const OAUTH = 'oauth';
 
     final public const OAUTH_USER = 'oauth_user';
@@ -24,6 +29,10 @@ class RateLimiter
     final public const OAUTH_CLIENT = 'oauth_client';
 
     final public const USER_RECOVERY = 'user_recovery';
+
+    final public const USER_RECOVERY_USER = 'user_recovery_user';
+
+    final public const USER_RECOVERY_CLIENT = 'user_recovery_client';
 
     final public const CONTACT_FORM = 'contact_form';
 
@@ -35,6 +44,8 @@ class RateLimiter
 
     final public const CART_ADD_LINE_ITEM = 'cart_add_line_item';
 
+    final public const PROMOTION_CODE = 'promotion_code';
+
     final public const MCP_ADMIN_API = 'mcp_admin_api';
 
     final public const MCP_STORE_API = 'mcp_store_api';
@@ -42,6 +53,8 @@ class RateLimiter
     final public const APP_SHOP_VERIFY = 'app_shop_verify';
 
     final public const IMPORT_EXPORT_FILE_DOWNLOAD = 'import_export_file_download';
+
+    final public const CHECKOUT_DRAFT = 'checkout_draft';
 
     /**
      * @var array<string, RateLimiterFactory>
@@ -60,9 +73,14 @@ class RateLimiter
         $factory?->create($key)->reset();
     }
 
-    public function ensureAccepted(string $route, string $key): void
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'salesChannelId', parameterType: '?string', defaultValue: null, description: 'Sales channel id used to resolve sales-channel scoped limits for the system_config policy. Callers passing it should also include it in the limiter key, as persisted buckets keep the limits they were created with.')]
+    public function ensureAccepted(string $route, string $key/* , ?string $salesChannelId = null */): void
     {
-        $limiter = $this->getFactory($route)->create($key)->consume();
+        /** @deprecated tag:v6.8.0 - Remove next line as $salesChannelId will become a part of method signature */
+        /** @var string|null $salesChannelId */
+        $salesChannelId = \func_get_args()[2] ?? null;
+
+        $limiter = $this->getFactory($route)->create($key, $salesChannelId)->consume();
 
         if (!$limiter->isAccepted()) {
             throw RateLimiterException::limitExceeded($limiter->getRetryAfter()->getTimestamp());

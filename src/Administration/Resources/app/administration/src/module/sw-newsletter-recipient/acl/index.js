@@ -21,30 +21,16 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'newsletter_recipient:update',
-                Shopware.Service('privileges').getPrivileges('media.creator'),
-            ],
-            dependencies: [
-                'newsletter_recipient.viewer',
-            ],
+            privileges: ['newsletter_recipient:update', Shopware.Service('privileges').getPrivileges('media.creator')],
+            dependencies: ['newsletter_recipient.viewer'],
         },
         creator: {
-            privileges: [
-                'newsletter_recipient:create',
-            ],
-            dependencies: [
-                'newsletter_recipient.viewer',
-                'newsletter_recipient.editor',
-            ],
+            privileges: ['newsletter_recipient:create'],
+            dependencies: ['newsletter_recipient.viewer', 'newsletter_recipient.editor'],
         },
         deleter: {
-            privileges: [
-                'newsletter_recipient:delete',
-            ],
-            dependencies: [
-                'newsletter_recipient.viewer',
-            ],
+            privileges: ['newsletter_recipient:delete'],
+            dependencies: ['newsletter_recipient.viewer'],
         },
     },
 });

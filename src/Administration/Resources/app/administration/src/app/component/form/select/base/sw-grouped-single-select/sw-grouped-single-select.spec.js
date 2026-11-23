@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 const createWrapper = async (customOptions = {}) => {
     const wrapper = mount(await wrapTestComponent('sw-grouped-single-select', { sync: true }), {
@@ -68,7 +68,7 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
     });
 
@@ -78,7 +78,7 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const listElements = wrapper.findAll('.sw-select-result-list__item-list li');
+        const listElements = new DOMWrapper(document.body).findAll('.sw-select-result-list__item-list li');
 
         expect(listElements.at(0).text()).toBe('Group 1');
         expect(listElements.at(1).text()).toBe('Entry 1');
@@ -93,10 +93,10 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeFalsy();
     });
 
@@ -106,10 +106,10 @@ describe('components/sw-grouped-single-select', () => {
         await wrapper.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-grouped-single-select__group-separator').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-grouped-single-select__group-separator').trigger('click');
         await flushPromises();
 
-        const resultList = wrapper.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.exists()).toBe(true);
     });
 });

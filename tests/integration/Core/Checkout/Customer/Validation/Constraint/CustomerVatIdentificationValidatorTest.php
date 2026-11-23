@@ -196,6 +196,12 @@ class CustomerVatIdentificationValidatorTest extends TestCase
             ['AADE1234567', '123456789', 'DE12345678', 'DEC123456789', '123456789DE', 'DE123456789'],
         ];
 
+        yield 'valid vat with trailing newline' => [
+            'DE',
+            1,
+            ["DE123456789\n"],
+        ];
+
         yield 'invalid vat with Austria' => [
             'AT',
             3,

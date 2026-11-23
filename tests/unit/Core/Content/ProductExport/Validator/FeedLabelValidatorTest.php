@@ -130,6 +130,7 @@ class FeedLabelValidatorTest extends TestCase
         yield 'contains slash' => ['EU/DE'];
         yield 'contains umlaut' => ['SOMMERAKTIÖN'];
         yield 'exceeds max length' => ['ABCDEFGHIJ12345678901'];
+        yield 'trailing newline' => ["SUMMER\n"];
     }
 
     #[DataProvider('invalidValueProvider')]

@@ -48,9 +48,7 @@ Shopware.Service('cmsService').registerCmsElement({
             deliveryTime: {
                 name: '1-3 days',
             },
-            price: [
-                { gross: 0.0 },
-            ],
+            price: [{ gross: 0.0 }],
         },
     },
     collect: Shopware.Service('cmsService').getCollectFunction(),

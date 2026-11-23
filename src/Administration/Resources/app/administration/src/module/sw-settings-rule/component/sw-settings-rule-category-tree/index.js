@@ -64,9 +64,7 @@ export default {
         categoriesCollection: {
             handler() {
                 if (this.categoriesCollection.entity && !this.isComponentReady && !this.isFetching) {
-                    Promise.all([
-                        this.getTreeItems(),
-                    ]).then(() => {
+                    Promise.all([this.getTreeItems()]).then(() => {
                         this.isComponentReady = true;
                     });
                 }

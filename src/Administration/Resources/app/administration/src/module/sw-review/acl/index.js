@@ -22,29 +22,16 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
             dependencies: [],
         },
         editor: {
-            privileges: [
-                'product_review:update',
-            ],
-            dependencies: [
-                'review.viewer',
-            ],
+            privileges: ['product_review:update'],
+            dependencies: ['review.viewer'],
         },
         creator: {
-            privileges: [
-                'product_review:create',
-            ],
-            dependencies: [
-                'review.viewer',
-                'review.editor',
-            ],
+            privileges: ['product_review:create'],
+            dependencies: ['review.viewer', 'review.editor'],
         },
         deleter: {
-            privileges: [
-                'product_review:delete',
-            ],
-            dependencies: [
-                'review.viewer',
-            ],
+            privileges: ['product_review:delete'],
+            dependencies: ['review.viewer'],
         },
     },
 });

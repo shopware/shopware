@@ -12,25 +12,16 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'process-start',
-        'process-start-dryrun',
-    ],
+    emits: ['process-start', 'process-start-dryrun'],
 
     props: {
         activityType: {
             type: String,
             required: false,
             default: 'import',
-            validValues: [
-                'import',
-                'export',
-            ],
+            validValues: ['import', 'export'],
             validator(value) {
-                return [
-                    'import',
-                    'export',
-                ].includes(value);
+                return ['import', 'export'].includes(value);
             },
         },
 

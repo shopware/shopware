@@ -12,16 +12,9 @@ const { Context, Utils } = Shopware;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['feature', 'repositoryFactory', 'mediaService'],
 
-    emits: [
-        'modal-close',
-        'media-modal-selection-change',
-    ],
+    emits: ['modal-close', 'media-modal-selection-change'],
 
     props: {
         isOpen: {
@@ -45,16 +38,10 @@ export default {
         defaultTab: {
             type: String,
             required: false,
-            validValues: [
-                'upload',
-                'library',
-            ],
+            validValues: ['upload', 'library'],
             default: 'library',
             validator(value) {
-                return [
-                    'upload',
-                    'library',
-                ].includes(value);
+                return ['upload', 'library'].includes(value);
             },
         },
 
@@ -68,6 +55,25 @@ export default {
             type: String,
             required: false,
             default: 'image/*',
+        },
+
+        /**
+         * Additional tabs of an app (`{ label, locationId }`), rendered after the built-in ones.
+         * Their location selects with `ui.mediaModal.select()`.
+         */
+        extensionTabs: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+
+        /**
+         * Base URL of the app the extension tabs belong to.
+         */
+        extensionBaseUrl: {
+            type: String,
+            required: false,
+            default: null,
         },
     },
 
@@ -100,7 +106,19 @@ export default {
                         this.resetSelection();
                     },
                 },
+                ...this.extensionTabs.map((tab) => {
+                    return {
+                        label: this.$t(tab.label),
+                        name: this.getExtensionTabName(tab),
+                    };
+                }),
             ];
+        },
+
+        activeExtensionTab() {
+            return this.extensionTabs.find((tab) => {
+                return this.getExtensionTabName(tab) === this.activeTab;
+            });
         },
 
         mediaRepository() {
@@ -218,9 +236,13 @@ export default {
         onActiveTabChanged(activeTab) {
             this.activeTab = activeTab;
 
-            if (activeTab === this.tabNameUpload) {
+            if (activeTab === this.tabNameUpload || this.activeExtensionTab) {
                 this.resetSelection();
             }
+        },
+
+        getExtensionTabName(tab) {
+            return `extension-${tab.locationId}`;
         },
 
         refreshList() {

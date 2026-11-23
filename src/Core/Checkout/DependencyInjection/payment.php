@@ -41,6 +41,8 @@ use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -66,7 +68,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(PaymentMethodValidator::class)
         ->args([
-            service(Connection::class),
+            service(WriteOutcome::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -126,7 +128,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.jwt_config'),
             service(Connection::class),
             service(ClockInterface::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(PaymentTokenRegisteredValidator::class)
         ->args([
@@ -162,7 +165,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(OrderTransactionStateHandler::class),
         ])
-        ->tag('shopware.payment.method');
+        ->tag('shopware.payment.method')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(CashPayment::class)
         ->args([
@@ -225,6 +229,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(ScriptExecutor::class),
             service(RuleIdMatcher::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(HandlePaymentMethodRoute::class)
@@ -234,6 +239,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataValidator::class),
             service(SalesChannelContextService::class),
             service('currency.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(PaymentMethodTechnicalNameFkResolver::class)

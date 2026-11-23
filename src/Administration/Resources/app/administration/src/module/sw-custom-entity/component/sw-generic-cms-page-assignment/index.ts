@@ -18,14 +18,13 @@ interface CmsSlotOverrides {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'cmsPageTypeService',
-    ],
+    inject: ['repositoryFactory', 'cmsPageTypeService'],
+
+    emits: ['update:cms-page-id', 'create-layout', 'update:slot-overrides'],
 
     props: {
         cmsPageId: {
-            type: String as PropType<string | null>,
+            type: String as unknown as PropType<EntityKey<'cms_page'> | null>,
             required: false,
             default: null,
         },
@@ -118,7 +117,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.showLayoutSelection = false;
         },
 
-        onLayoutSelect(selectedLayoutId: string | null): void {
+        onLayoutSelect(selectedLayoutId: EntityKey<'cms_page'> | null): void {
             this.$emit('update:cms-page-id', selectedLayoutId);
         },
 

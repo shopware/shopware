@@ -15,6 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\RenderingSpecificationResolver;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\Api\ContentDiagnoseController;
+use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentLayoutRevisionController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewController;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\UnknownRequestFieldExceptionListener;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
@@ -36,6 +38,7 @@ use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindi
 use Shopware\Core\Framework\ContentSystem\Cache\CacheFinalizer;
 use Shopware\Core\Framework\ContentSystem\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\ContentSystem\Cache\EntityCacheTagResolver;
+use Shopware\Core\Framework\ContentSystem\Cache\MappedMediaCacheInvalidator;
 use Shopware\Core\Framework\ContentSystem\ContentPipeline;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\RootContextMapper;
@@ -69,13 +72,16 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\ContentSystemLayoutProvisioner;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Validation\ContentSystemLayoutPresetValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
@@ -90,9 +96,20 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeS
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingExpander;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingInterpolator;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingRuntimeResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\ContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
+use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\ContentSystem\Output\ElementTreePruner;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDataPageEncoder;
 use Shopware\Core\Framework\ContentSystem\Output\Encoder\ContentDecomposedPageEncoder;
@@ -125,9 +142,13 @@ use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutDefaultValidat
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
+use Shopware\Core\Framework\ContentSystem\Validation\StoredMappingValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceWriteValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
+use Shopware\Core\System\Language\LanguageLoader;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -153,14 +174,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentLayoutDefinition::class)
         ->tag('shopware.entity.definition');
 
+    $services->set(ContentWorkspaceDefinition::class)->tag('shopware.entity.definition');
+    $services->set(ContentWorkspaceWriteValidator::class)
+        ->args([service(ValidatorInterface::class)])
+        ->tag('kernel.event_subscriber');
+
     // Scaffolding Services
     $services->set(VirtualRootWrapper::class);
     $services->set(StoredTreePreparer::class)
         ->args([
+            service(ContentSystemElementTypeRegistry::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(DataLoaderProvider::class),
+            service(InlineMappingTokenParser::class),
         ]);
 
     // Output Services
@@ -279,6 +307,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Cache Services
     $services->set(EntityCacheTagResolver::class);
 
+    $services->set(MappedMediaCacheInvalidator::class)
+        ->args([service(CacheInvalidator::class)])
+        ->tag('kernel.event_subscriber');
+
     $services->set(CacheFinalizer::class)
         ->args([
             service(CacheTagCollector::class),
@@ -336,6 +368,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContextDistributor::class),
             service(ContextPathResolver::class),
+            service(MappingRuntimeResolver::class),
         ]);
 
     $services->set(RenderedTreeFactory::class)
@@ -348,6 +381,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementDataResolver::class),
             service(ContextDeliveryResolver::class),
             service(RenderedTreeFactory::class),
+            service(InlineMappingExpander::class),
+            service(MappingConsumers::class),
             service(ContextPathResolver::class),
         ]);
 
@@ -396,7 +431,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Rendering Specification Factory
-    $services->set(RenderingSpecificationFactory::class);
+    $services->set(RenderingSpecificationFactory::class)
+        ->args([
+            param('shopware.http_cache.ignored_url_parameters'),
+        ]);
 
     // Section Resolvers
     $services->set(RenderingSpecificationResolver::class)
@@ -504,26 +542,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DraftLayoutDecoder::class),
             service(StoredElementCodec::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     $services->set(LayoutPresetSpecificationSerializer::class);
+
+    $services->set(ContentSystemLayoutPresetValidator::class);
 
     $services->set(LayoutPresetNameResolver::class);
 
     $services->set(YamlLayoutPresetLoader::class)
         ->args([
             service(LayoutPresetSpecificationSerializer::class),
-            service(LayoutPresetPayloadCompiler::class),
             service('validator'),
             service(LayoutPresetNameResolver::class),
         ])
         ->arg('$directories', [])
         ->tag('content_system.layout_preset_loader');
 
+    $services->set(ContentSystemLayoutPresetAppLoader::class)
+        ->args([
+            service(YamlLayoutPresetLoader::class),
+            service(DatabaseLayoutPresetLoader::class),
+            service(ContentSystemLayoutPresetValidator::class),
+        ]);
+
     $services->set(DatabaseLayoutPresetLoader::class)
         ->args([
             service(LayoutPresetSpecificationSerializer::class),
-            service(LayoutPresetPayloadCompiler::class),
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
@@ -533,6 +579,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentSystemLayoutPresetRegistry::class)
         ->args([
             tagged_iterator('content_system.layout_preset_loader'),
+            service(LayoutPresetPayloadCompiler::class),
+            service(ContentSystemLayoutPresetValidator::class),
+            service('logger'),
         ]);
 
     $services->set(CachedContentSystemLayoutPresetRegistry::class)
@@ -656,6 +705,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(BindingApplicator::class)
         ->args([
             service(DataLoaderConfigSerializerProvider::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     // What an element type stores (as opposed to its hydrated properties): the storageSchema introspection fold
@@ -663,6 +713,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemBindingSpecificationRegistry::class),
             service(DataLoaderProvider::class),
+        ]);
+
+    // Default binding root sources: the picker introspection fold
+    $services->set(DefaultBindingRootSources::class)
+        ->args([
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(RootSourceRegistry::class),
         ]);
 
     // Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution
@@ -690,6 +747,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementResolver::class),
             service(ProviderDeliveryKeyResolver::class),
             service(ContextPathResolver::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(ElementResolver::class)
@@ -698,6 +756,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemDataLoaderMapResolver::class),
             service(DataLoaderConfigSerializerProvider::class),
             service(DataLoaderProvider::class),
+            service(MappingConsumers::class),
         ]);
 
     $services->set(RootContextMapper::class)
@@ -715,6 +774,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DataLoaderConfigSerializerProvider::class),
             service(ContentSystemStyleOptionRegistry::class),
             service(ContextPathResolver::class),
+            service(LanguageLoader::class),
+            service(MappingConsumers::class),
+            service(StoredMappingInspector::class),
         ]);
 
     $services->set(LayoutGate::class)
@@ -730,6 +792,71 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
         ]);
 
+    // Data-mapping catalogue: one authority behind both the introspection endpoint and the write gate below
+    $services->set(MappingTypeCompatibility::class);
+
+    // Shared mapping-vs-mirrored-wiring test.
+    $services->set(MappingConsumers::class);
+
+    $services->set(PropertyMappingMutationFactory::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(StoredMappingInspector::class),
+        ]);
+
+    $services->set(ContentSystemMappingCandidateRegistry::class)
+        ->args([
+            tagged_iterator('content_system.mapping_candidate_provider'),
+            service('logger'),
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
+    $services->alias(AbstractContentSystemMappingCandidateRegistry::class, ContentSystemMappingCandidateRegistry::class)->public();
+
+    // Inline mapping: the `{{map:path}}` tokens an author embeds in an inlineMappable string property. The parser
+    // is the single source of truth for the syntax and is shared by the render path and the write gate, so the
+    // text one admits and the other resolves cannot drift.
+    $services->set(InlineMappingTokenParser::class);
+
+    $services->set(ContentInlineMappingParseController::class)
+        ->public()
+        ->args([
+            service(InlineMappingTokenParser::class),
+        ]);
+
+    $services->set(MappingRuntimeResolver::class)
+        ->args([
+            service(AbstractContentSystemMappingCandidateRegistry::class),
+            service(StoredMappingInspector::class),
+        ]);
+
+    $services->set(InlineMappingInterpolator::class)
+        ->args([
+            service(MappingRuntimeResolver::class),
+        ]);
+
+    $services->set(InlineMappingExpander::class)
+        ->args([
+            service(StoredMappingInspector::class),
+            service(InlineMappingTokenParser::class),
+            service(InlineMappingInterpolator::class),
+        ]);
+
+    // The mapping admissibility rules themselves, shared by the two surfaces that report them: the write
+    // gate below (per-rule error codes) and LayoutDiagnostics above (one invalid_mapping violation)
+    $services->set(StoredMappingInspector::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(AbstractContentSystemMappingCandidateRegistry::class),
+            service(MappingTypeCompatibility::class),
+            service(MappingConsumers::class),
+            service(InlineMappingTokenParser::class),
+        ]);
+
+    $services->set(StoredMappingValidator::class)
+        ->args([
+            service(StoredMappingInspector::class),
+        ]);
+
     // Resolvability gate (DAL PreWriteValidationEvent)
     $services->set(ContentLayoutWriteValidator::class)
         ->args([
@@ -737,6 +864,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ViolationConstraintMapper::class),
             service(RootSourceRegistry::class),
             service(LayoutRootSourceReader::class),
+            service(StoredMappingValidator::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -794,7 +922,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ContentPreviewPayloadStore::class)
         ->args([
-            service('cache.system'),
+            service('cache.content_system_preview'),
             service('validator'),
         ]);
 
@@ -813,6 +941,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(LayoutDiagnostics::class),
             service(ContextConsumerMirror::class),
+            service(DefaultMappingSeeder::class),
+        ]);
+    $services->set(DefaultMappingSeeder::class)
+        ->args([
+            service(ContentSystemElementTypeRegistry::class),
+            service(StoredMappingInspector::class),
         ]);
 
     // Layout Mutation Actions (Admin API)
@@ -827,6 +961,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
             service(ContentSystemLayoutPresetRegistry::class),
+            service(PropertyMappingMutationFactory::class),
+            service(StoredMappingInspector::class),
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)
@@ -836,6 +972,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('content_layout.repository'),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
+            service(DefaultMappingSeeder::class),
+        ]);
+
+    // Layout provisioning from presets (default layouts on install and update)
+    $services->set(ContentSystemLayoutProvisioner::class)
+        ->args([
+            service(ContentSystemLayoutPresetRegistry::class),
+            service(DraftLayoutDecoder::class),
+            service(MutationPipeline::class),
+            service(ContentSystemElementTypeRegistry::class),
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(BindingApplicator::class),
+            service(RootSourceRegistry::class),
+            service(StoredElementCodec::class),
+            service('content_layout.repository'),
+            service(DefinitionInstanceRegistry::class),
         ]);
 
     // Persisted Layout Mutation Actions (Admin API)
@@ -848,6 +1000,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DraftLayoutDecoder::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+            service(PropertyMappingMutationFactory::class),
+            service(StoredMappingInspector::class),
         ]);
 
     // Layout revision graph (drafts as branches, publish moves the published pointer)

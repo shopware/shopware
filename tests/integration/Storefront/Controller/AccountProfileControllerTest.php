@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -214,6 +215,133 @@ class AccountProfileControllerTest extends TestCase
         static::assertCount(0, $crawler->filter('label[for="vatIds"] .form-required-label'));
     }
 
+    public function testStoredBusinessAccountTypeIsPreselectedEvenWithoutCustomerCompany(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomerWithAccountType(
+            $context,
+            accountType: CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            company: null,
+            addressCompany: 'shopware AG',
+        );
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        $crawler = $browser->request('GET', '/account/profile');
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $businessOption = \sprintf('select[name="accountType"] option[value="%s"][selected]', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $privateOption = \sprintf('select[name="accountType"] option[value="%s"][selected]', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        static::assertCount(1, $crawler->filter($businessOption));
+        static::assertCount(0, $crawler->filter($privateOption));
+    }
+
+    public function testStoredPrivateAccountTypeIsPreselectedEvenWithCustomerCompany(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomerWithAccountType(
+            $context,
+            accountType: CustomerEntity::ACCOUNT_TYPE_PRIVATE,
+            company: 'shopware AG',
+            addressCompany: null,
+        );
+
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.loginRegistration.showAccountTypeSelection', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        $crawler = $browser->request('GET', '/account/profile');
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $businessOption = \sprintf('select[name="accountType"] option[value="%s"][selected]', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $privateOption = \sprintf('select[name="accountType"] option[value="%s"][selected]', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
+        static::assertCount(1, $crawler->filter($privateOption));
+        static::assertCount(0, $crawler->filter($businessOption));
+    }
+
+    public function testGuestsSaveTheirVatIdInTheProfileAndReturnToCheckout(): void
+    {
+        $browser = $this->registerBusinessGuest('guest@example.com');
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/account/profile?redirectTo=frontend.checkout.confirm.page');
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode());
+
+        $browser->request('POST', $_SERVER['APP_URL'] . '/account/profile', [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'shopware AG',
+            'vatIds' => ['DE123456789'],
+            'redirectTo' => 'frontend.checkout.confirm.page',
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertTrue($response->isRedirect('/checkout/confirm'), (string) $response->getContent());
+        static::assertSame(['DE123456789'], $this->getCustomerByEmail('guest@example.com')->getVatIds());
+    }
+
+    public function testGuestsCannotChangeCredentials(): void
+    {
+        $browser = $this->registerBusinessGuest('guest@example.com');
+
+        $browser->request('POST', $_SERVER['APP_URL'] . '/account/profile/email', [
+            'email' => [
+                'email' => 'changed@example.com',
+                'emailConfirmation' => 'changed@example.com',
+                'password' => '',
+            ],
+        ]);
+
+        $response = $browser->getResponse();
+        static::assertTrue($response->isRedirect(), (string) $response->getContent());
+        static::assertStringContainsString('/account/login', (string) $response->headers->get('Location'));
+        static::assertSame('guest@example.com', $this->getCustomerByEmail('guest@example.com')->getEmail());
+    }
+
+    private function registerBusinessGuest(string $email): KernelBrowser
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request('POST', $_SERVER['APP_URL'] . '/account/register', [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'company' => 'shopware AG',
+            'email' => $email,
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'billingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'countryId' => $this->getValidCountryId(),
+                'street' => 'Musterstraße 1',
+                'zipcode' => '12345',
+                'city' => 'Schöppingen',
+            ],
+        ]);
+
+        static::assertTrue($this->getCustomerByEmail($email)->getGuest());
+
+        return $browser;
+    }
+
+    private function getCustomerByEmail(string $email): CustomerEntity
+    {
+        /** @var EntityRepository<CustomerCollection> $repo */
+        $repo = static::getContainer()->get('customer.repository');
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('email', $email));
+
+        $customer = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($customer);
+
+        return $customer;
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -295,6 +423,48 @@ class AccountProfileControllerTest extends TestCase
             'defaultBillingAddressId' => $addressId,
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => 'business.customer@test.com',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
+        ];
+
+        /** @var EntityRepository<CustomerCollection> $repo */
+        $repo = static::getContainer()->get('customer.repository');
+        $repo->create([$customer], $context);
+
+        $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
+
+        static::assertNotNull($customer);
+
+        return $customer;
+    }
+
+    private function createCustomerWithAccountType(Context $context, string $accountType, ?string $company, ?string $addressCompany): CustomerEntity
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'accountType' => $accountType,
+            'company' => $company,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
+                'company' => $addressCompany,
+                'salutationId' => $this->getValidSalutationId(),
+                'country' => ['name' => 'Germany'],
+            ],
+            'defaultBillingAddressId' => $addressId,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'account.type.customer@test.com',
             'password' => TestDefaults::HASHED_PASSWORD,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',

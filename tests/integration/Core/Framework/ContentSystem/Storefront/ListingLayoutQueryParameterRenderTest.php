@@ -68,15 +68,15 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
      * A fresh container carries a fresh `TwigAppVariable`, so this class's render is the first `app.request`
      * read of a memo the harness never resets. Before the transaction hook, so no open transaction is dropped.
      */
-    public static function setUpBeforeClass(): void
-    {
-        parent::setUpBeforeClass();
-
-        KernelLifecycleManager::bootKernel();
-    }
+    private static bool $kernelBooted = false;
 
     protected function setUp(): void
     {
+        if (!self::$kernelBooted) {
+            KernelLifecycleManager::bootKernel();
+            self::$kernelBooted = true;
+        }
+
         parent::setUp();
 
         $this->ids = new IdsCollection();

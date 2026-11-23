@@ -124,6 +124,11 @@ if (Shopware.Feature.isActive('MY_FEATURE')) {
 ## Modern Alternatives
 
 While the global object remains for compatibility, newer patterns include:
+- **`shopware:*` modules**: `import { createId } from 'shopware:utils'` reaches the same global object
+  through ordinary named imports. See [`shopware:*` Modules](04-virtual-modules.md).
+- **Composables instead of mixins** (experimental): `import { useListing } from 'shopware:composables'`
+  or `Shopware.Composables.useListing()`, called in `setup()` only. The list lives in
+  `src/app/composables/index.ts`.
 - **Composition API**: `useContext()`, service injection via composables
 - **Direct Imports**: Import specific services/factories directly
 - **Dependency Injection**: Use the underlying BottleJS container

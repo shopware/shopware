@@ -8,10 +8,13 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyCollection;
@@ -64,10 +67,15 @@ class UserEntity extends Entity
 
     protected ?UserConfigCollection $configs = null;
 
+    protected ?WebhookCollection $webhooks = null;
+
     protected ?StateMachineHistoryCollection $stateMachineHistoryEntries = null;
 
     protected ?ImportExportLogCollection $importExportLogEntries = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryUser association was removed.
+     */
     protected ?UserRecoveryEntity $recoveryUser = null;
 
     /**
@@ -84,6 +92,8 @@ class UserEntity extends Entity
     protected ?CustomerCollection $createdCustomers = null;
 
     protected ?CustomerCollection $updatedCustomers = null;
+
+    protected ?ContentWorkspaceCollection $createdContentWorkspaces = null;
 
     protected string $timeZone;
 
@@ -245,13 +255,23 @@ class UserEntity extends Entity
         $this->configs = $configs;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryUser association was removed.
+     */
     public function getRecoveryUser(): ?UserRecoveryEntity
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The recoveryUser association was removed.');
+
         return $this->recoveryUser;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - The recoveryUser association was removed.
+     */
     public function setRecoveryUser(UserRecoveryEntity $recoveryUser): void
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The recoveryUser association was removed.');
+
         $this->recoveryUser = $recoveryUser;
     }
 
@@ -359,6 +379,16 @@ class UserEntity extends Entity
         $this->updatedCustomers = $updatedCustomers;
     }
 
+    public function getCreatedContentWorkspaces(): ?ContentWorkspaceCollection
+    {
+        return $this->createdContentWorkspaces;
+    }
+
+    public function setCreatedContentWorkspaces(ContentWorkspaceCollection $createdContentWorkspaces): void
+    {
+        $this->createdContentWorkspaces = $createdContentWorkspaces;
+    }
+
     public function getLastUpdatedPasswordAt(): ?\DateTimeInterface
     {
         return $this->lastUpdatedPasswordAt;
@@ -377,5 +407,23 @@ class UserEntity extends Entity
     public function setTimeZone(string $timeZone): void
     {
         $this->timeZone = $timeZone;
+    }
+
+    /**
+     * @internal
+     */
+    public function getWebhooks(): ?WebhookCollection
+    {
+        $this->checkIfPropertyAccessIsAllowed('webhooks');
+
+        return $this->webhooks;
+    }
+
+    /**
+     * @internal
+     */
+    public function setWebhooks(WebhookCollection $webhooks): void
+    {
+        $this->webhooks = $webhooks;
     }
 }

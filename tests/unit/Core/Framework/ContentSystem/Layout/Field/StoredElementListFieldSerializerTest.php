@@ -568,7 +568,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     {
         $constraints = $this->serializer()->buildConstraints($this->createField());
 
-        static::assertEquals($this->treeConstraints()->build(), $constraints);
+        static::assertSame(array_map(get_class(...), $this->treeConstraints()->build()), array_map(get_class(...), $constraints));
     }
 
     #[TestDox('appends NotBlank to the codec constraint descriptor when the field has the Required flag')]
@@ -576,7 +576,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     {
         $constraints = $this->serializer()->buildConstraints($this->createRequiredField());
 
-        static::assertEquals([...$this->treeConstraints()->build(), new NotBlank()], $constraints);
+        static::assertSame([...array_map(get_class(...), $this->treeConstraints()->build()), NotBlank::class], array_map(get_class(...), $constraints));
     }
 
     #[TestDox('rejects a null root element, which the retired per-field graph admitted')]

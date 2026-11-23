@@ -63,13 +63,36 @@ class CustomFieldSetTest extends TestCase
         static::assertSame([], $existingFields);
     }
 
+    public function testToEntityArrayAddsTranslationsForTheDefaultLocale(): void
+    {
+        $customFieldSet = $this->getCustomFieldSetFromManifest();
+
+        $existingRelations = [];
+        $existingFields = [];
+
+        $payload = $customFieldSet->toEntityArray('app-id', $existingRelations, $existingFields, defaultLocale: 'de-AT');
+
+        static::assertSame(
+            [
+                'label' => [
+                    'en-GB' => 'Custom field test',
+                    'de-DE' => 'Zusatzfeld Test',
+                    'de-AT' => 'Zusatzfeld Test',
+                ],
+                'translated' => true,
+            ],
+            $payload['config']
+        );
+        static::assertSame(['en-GB' => 'Test', 'de-AT' => 'Test'], $payload['customFields'][0]['config']['label']);
+    }
+
     private function getCustomFieldSetFromManifest(): CustomFieldSet
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../../../Framework/App/Manifest/_fixtures/test/manifest.xml');
         $customFields = $manifest->getCustomFields();
         static::assertNotNull($customFields);
         $sets = $customFields->getCustomFieldSets();
-        static::assertNotEmpty($sets);
+        static::assertNotCount(0, $sets);
 
         return $sets[0];
     }

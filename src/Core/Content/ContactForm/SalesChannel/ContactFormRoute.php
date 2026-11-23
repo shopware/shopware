@@ -5,9 +5,11 @@ namespace Shopware\Core\Content\ContactForm\SalesChannel;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
+use Shopware\Core\Content\ContactForm\Extension\ContactFormRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -41,6 +43,7 @@ class ContactFormRoute extends AbstractContactFormRoute
         private readonly RequestStack $requestStack,
         private readonly RateLimiter $rateLimiter,
         private readonly CmsFormSlotConfigResolver $cmsFormSlotConfigResolver,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -51,6 +54,15 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     #[Route(path: '/store-api/contact-form', name: 'store-api.contact.form', methods: ['POST'])]
     public function load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ContactFormRouteExtension::NAME,
+            extension: new ContactFormRouteExtension($data, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(RequestDataBag $data, SalesChannelContext $context): ContactFormRouteResponse
     {
         EmailIdnConverter::encodeDataBag($data);
 

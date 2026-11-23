@@ -74,7 +74,8 @@
                 role="button"
                 tabindex="0"
                 @click="onSettingsButtonClick"
-                @keydown.enter="onSelectElement(element.name)"
+                @keydown.enter="onSettingsButtonClick"
+                @keydown.space.prevent="onSettingsButtonClick"
             >
                 <mt-icon
                     name="regular-cog"
@@ -90,7 +91,8 @@
                 role="button"
                 tabindex="0"
                 @click="onElementButtonClick"
-                @keydown.enter="onSelectElement(element.name)"
+                @keydown.enter="onElementButtonClick"
+                @keydown.space.prevent="onElementButtonClick"
             >
                 <mt-icon
                     name="regular-repeat"
@@ -182,6 +184,7 @@
                                         tabindex="0"
                                         @click="onSelectElement(element)"
                                         @keydown.enter="onSelectElement(element)"
+                                        @keydown.space.prevent="onSelectElement(element)"
                                     >
                                         <mt-icon
                                             name="regular-repeat"
@@ -197,6 +200,7 @@
                                         tabindex="0"
                                         @click="onToggleElementFavorite(element.name)"
                                         @keydown.enter="onToggleElementFavorite(element.name)"
+                                        @keydown.space.prevent="onToggleElementFavorite(element.name)"
                                         @mouseenter="toggleHoverElement(element, true)"
                                         @mouseleave="toggleHoverElement(element, false)"
                                         @focusin="toggleHoverElement(element, true)"

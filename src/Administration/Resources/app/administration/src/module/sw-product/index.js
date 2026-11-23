@@ -4,6 +4,7 @@
 
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
+import ProductStorefrontUrlApiService from './service/product-storefront-url.api.service';
 
 const { Module } = Shopware;
 
@@ -17,6 +18,10 @@ Shopware.Component.register(
 Shopware.Component.register('sw-product-feature-set-form', () => import('./component/sw-product-feature-set-form'));
 Shopware.Component.register('sw-product-category-form', () => import('./component/sw-product-category-form'));
 Shopware.Component.register('sw-product-clone-modal', () => import('./component/sw-product-clone-modal'));
+Shopware.Component.register(
+    'sw-product-open-in-storefront-modal',
+    () => import('./component/sw-product-open-in-storefront-modal'),
+);
 Shopware.Component.register(
     'sw-product-modal-variant-generation',
     () => import('./component/sw-product-variants/sw-product-modal-variant-generation'),
@@ -112,6 +117,13 @@ Shopware.Component.register('sw-product-detail-cross-selling', () => import('./v
 Shopware.Component.register('sw-product-detail-reviews', () => import('./view/sw-product-detail-reviews'));
 Shopware.Component.register('sw-product-list', () => import('./page/sw-product-list'));
 Shopware.Component.register('sw-product-detail', () => import('./page/sw-product-detail'));
+Shopware.Service().register('productStorefrontUrlApiService', () => {
+    return new ProductStorefrontUrlApiService(
+        Shopware.Application.getContainer('init').httpClient,
+        Shopware.Service().get('loginService'),
+        Shopware.Service().get('repositoryFactory'),
+    );
+});
 /* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -122,7 +134,7 @@ Module.register('sw-product', {
     description: 'sw-product.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
+    color: 'var(--sw-color-module-green-default)',
     icon: 'regular-products',
     favicon: 'icon-module-products.svg',
     entity: 'product',
@@ -151,9 +163,7 @@ Module.register('sw-product', {
                     };
 
                     if (!Shopware.Feature.isActive('v6.8.0.0')) {
-                        props.creationStates = route.query.creationStates ?? [
-                            'is-physical',
-                        ];
+                        props.creationStates = route.query.creationStates ?? ['is-physical'];
                     }
 
                     return props;
@@ -265,15 +275,15 @@ Module.register('sw-product', {
     navigation: [
         {
             id: 'sw-catalogue',
-            label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
-            color: '#57D9A3',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
+            color: 'var(--sw-color-module-green-default)',
             icon: 'regular-products',
             position: 20,
         },
         {
             id: 'sw-product',
-            label: 'sw-product.general.mainMenuItemGeneral',
-            color: '#57D9A3',
+            label: 'sw-product.general.mainMenuItemOverview',
+            color: 'var(--sw-color-module-green-default)',
             path: 'sw.product.index',
             icon: 'regular-products',
             parent: 'sw-catalogue',

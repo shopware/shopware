@@ -5,10 +5,13 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -113,15 +116,93 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertSame($expectedMessage, $violations[0]['message']);
     }
 
-    #[TestDox('resolves the root source from the rootSource field and returns a resolvability verdict')]
-    public function testDiagnoseWithRootSource(): void
+    /**
+     * `Sw:Content:Text` rather than `registeredComponent()`: the rule keys off a property whose declared type
+     * carries `translatable: true`, and `text` is the shipped one. The map also carries the anchor entry, so
+     * the reported key is the dangling one rather than the only one there is.
+     */
+    #[TestDox('reports a translatable entry keyed by a non-existent language as a dangling_language warning')]
+    public function testDiagnoseReportsADanglingLanguageEntry(): void
     {
+        $elementId = $this->ids->get('element');
+        $danglingLanguageId = $this->ids->get('dangling-language');
+
+        $body = $this->diagnose(['layout' => [[
+            'id' => $elementId,
+            'component' => 'Sw:Content:Text',
+            'properties' => ['text' => [
+                Defaults::LANGUAGE_SYSTEM => 'Anchor copy',
+                $danglingLanguageId => 'Copy for a language that does not exist',
+            ]],
+        ]]]);
+
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'dangling_language',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame($elementId, $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('intrinsic', $violations[0]['scope']);
+        static::assertSame('warning', $violations[0]['severity']);
+        static::assertStringContainsString($danglingLanguageId, $violations[0]['message']);
+        // A warning gates nothing: the layout stays well-formed with the entry sitting unread.
+        static::assertTrue($body['diagnostics']['wellFormed']);
+    }
+
+    /**
+     * The anchor rule on a REQUIRED translatable property, which no shipped type declares — every shipped
+     * translatable property is optional, so the subject is {@see TestElementTypeLoader::TRANSLATABLE_REQUIRED}.
+     * The map carries an entry, so a satisfaction rule reading "the key is present and non-null" would report
+     * nothing; only the anchor key satisfies. `unresolved_required` is binding scope, so the `rootSource` is
+     * what makes the route run the check at all.
+     *
+     * The entry's key names no `language` row, which also earns a `dangling_language` warning. Nothing here
+     * reads it: a warning gates nothing, and this filter selects on the code.
+     */
+    #[TestDox('reports a required translatable property whose map carries no anchor entry as unresolved_required')]
+    public function testDiagnoseReportsAMissingAnchorOnARequiredTranslatableProperty(): void
+    {
+        $elementId = $this->ids->get('element');
+
         $body = $this->diagnose([
-            'layout' => [$this->element($this->registeredComponent())],
             'rootSource' => 'product',
+            'layout' => [[
+                'id' => $elementId,
+                'component' => TestElementTypeLoader::TRANSLATABLE_REQUIRED,
+                'properties' => ['label' => [$this->ids->get('other-language') => 'Label copy']],
+            ]],
         ]);
 
-        static::assertArrayHasKey('resolvable', $body['diagnostics']);
+        $violations = array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === 'unresolved_required',
+        ));
+
+        static::assertCount(1, $violations);
+        static::assertSame($elementId, $violations[0]['elementId']);
+        static::assertSame('label', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame('error', $violations[0]['severity']);
+        static::assertSame('Required property "label" has no value.', $violations[0]['message']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    #[TestDox('reports no unresolved_required for a required translatable property whose map carries the anchor entry')]
+    public function testDiagnoseAcceptsAnAnchorEntryOnARequiredTranslatableProperty(): void
+    {
+        $body = $this->diagnose([
+            'rootSource' => 'product',
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => TestElementTypeLoader::TRANSLATABLE_REQUIRED,
+                'properties' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Label copy']],
+            ]],
+        ]);
+
+        static::assertSame([], array_column($body['diagnostics']['violations'], 'code'));
+        static::assertTrue($body['diagnostics']['resolvable']);
     }
 
     #[TestDox('serves a root-ambient candidate as origin root with a null provider element id at every depth, beside the ancestor-provided parent candidate')]
@@ -199,12 +280,16 @@ class ContentDiagnoseControllerTest extends TestCase
         static::assertContains(ContentSystemException::UNKNOWN_ROOT_SOURCE, array_column($body['errors'], 'code'));
     }
 
+    /**
+     * @param array<string, mixed> $unknownFields
+     */
+    #[DataProvider('unknownRequestFields')]
     #[TestDox('rejects an unknown request field with a 400 and the unknownRequestField code')]
-    public function testDiagnoseRejectsUnknownRequestField(): void
+    public function testDiagnoseRejectsUnknownRequestField(array $unknownFields): void
     {
         $this->getBrowser()->jsonRequest('POST', self::DIAGNOSE_URL, [
             'layout' => [$this->element($this->registeredComponent())],
-            'entityType' => 'product',
+            ...$unknownFields,
         ]);
         $response = $this->getBrowser()->getResponse();
 
@@ -212,6 +297,21 @@ class ContentDiagnoseControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unknownRequestFields(): iterable
+    {
+        yield 'entity context belongs to preview' => [['entityType' => 'product']];
+        yield 'runtime context is no longer supported' => [[
+            'runtimeContext' => [
+                'entityType' => 'product',
+                'entityId' => 'product-id',
+                'salesChannelId' => 'sales-channel-id',
+            ],
+        ]];
     }
 
     /**
@@ -246,6 +346,153 @@ class ContentDiagnoseControllerTest extends TestCase
             ],
             'Context key "product" has both redistribute:true and explicit providesContext. Use one or the other.',
         ];
+    }
+
+    public function testDiagnoseReportsMalformedInlineTokenWithoutAborting(): void
+    {
+        $element = $this->element('Sw:Content:Text');
+        $element['properties'] = ['text' => [Defaults::LANGUAGE_SYSTEM => 'Hello {{map:product}}']];
+
+        $body = $this->diagnose(['layout' => [$element], 'rootSource' => 'product']);
+
+        $violations = $this->violationsWithCode($body, 'invalid_mapping');
+        static::assertCount(1, $violations);
+        static::assertSame($element['id'], $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertTrue($body['diagnostics']['wellFormed']);
+    }
+
+    /**
+     * The gap this closes end-to-end: `Sw:Media:Gallery.mediaItems` declares a `MediaCollection`, and
+     * `category.media` is a single `MediaEntity`, so the catalogue can prove the mapping wrong. Before, the
+     * write gate proved it and the diagnose route said nothing — the author saw no error and an element that
+     * rendered nothing, and only found out on save.
+     */
+    #[TestDox('reports a type-incompatible mapping as an invalid_mapping violation keyed on the mapped property')]
+    public function testDiagnoseReportsAnInadmissibleMapping(): void
+    {
+        $body = $this->diagnose([
+            'rootSource' => 'category',
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => 'Sw:Media:Gallery',
+                'properties' => [],
+                'acceptsContext' => [
+                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('category.media')->jsonSerialize()],
+                ],
+            ]],
+        ]);
+
+        $violations = $this->violationsWithCode($body, 'invalid_mapping');
+
+        static::assertCount(1, $violations);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame('error', $violations[0]['severity']);
+        static::assertSame($this->ids->get('element'), $violations[0]['elementId']);
+        static::assertSame('mediaItems', $violations[0]['key']);
+        // Binding-scope, so the layout is still well-formed and only resolvability fails: the tree is fine in
+        // isolation and wrong only against this particular bound source's catalogue.
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    /**
+     * The reason the source is a separate input rather than something the analysis derives: without it there is
+     * no catalogue to judge against, and guessing one would report a legal mapping as broken.
+     *
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('unboundRootSourceProvider')]
+    #[TestDox('leaves the same mapping unjudged when the request names no root source')]
+    public function testDiagnoseLeavesAMappingUnjudgedWithoutARootSource(array $rootSourcePayload): void
+    {
+        $body = $this->diagnose([
+            ...$rootSourcePayload,
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => 'Sw:Media:Gallery',
+                'properties' => [],
+                'acceptsContext' => [
+                    'mediaItems' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('category.media')->jsonSerialize()],
+                ],
+            ]],
+        ]);
+
+        static::assertSame([], $this->violationsWithCode($body, 'invalid_mapping'));
+    }
+
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[DataProvider('unboundRootSourceProvider')]
+    public function testDiagnoseReportsThatInlineTokensRequireARootSource(array $rootSourcePayload): void
+    {
+        $element = $this->element('Sw:Content:Text');
+        $element['properties'] = ['text' => [Defaults::LANGUAGE_SYSTEM => 'Hello {{map:product.name}}']];
+
+        $body = $this->diagnose(['layout' => [$element], ...$rootSourcePayload]);
+
+        $violations = $this->violationsWithCode($body, 'invalid_mapping');
+        static::assertCount(1, $violations);
+        static::assertSame($element['id'], $violations[0]['elementId']);
+        static::assertSame('text', $violations[0]['key']);
+        static::assertSame('binding', $violations[0]['scope']);
+        static::assertSame(
+            ContentSystemException::inlineMappingFaultInLanguageEntry(
+                ContentSystemException::inlineMappingRequiresRootSource('product.name', 'text'),
+                Defaults::LANGUAGE_SYSTEM,
+            )->getMessage(),
+            $violations[0]['message'],
+        );
+        static::assertTrue($body['diagnostics']['wellFormed']);
+        static::assertFalse($body['diagnostics']['resolvable']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function unboundRootSourceProvider(): iterable
+    {
+        yield 'omitted source' => [[]];
+        yield 'null source' => [['rootSource' => null]];
+        yield 'empty source' => [['rootSource' => '']];
+    }
+
+    #[TestDox('admits a mapping the bound root source catalogues')]
+    public function testDiagnoseAdmitsACataloguedMapping(): void
+    {
+        $body = $this->diagnose([
+            'rootSource' => 'category',
+            'layout' => [[
+                'id' => $this->ids->get('element'),
+                'component' => 'Sw:Media:Image',
+                'properties' => [],
+                'dataRequirements' => [
+                    'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'acceptsContext' => [
+                    'media' => ['type' => 'single', 'required' => false, 'scope' => 'root', 'source' => MappingSourceReference::fromRootPath('category.media')->jsonSerialize()],
+                ],
+            ]],
+        ]);
+
+        static::assertSame([], $this->violationsWithCode($body, 'invalid_mapping'));
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function violationsWithCode(array $body, string $code): array
+    {
+        static::assertIsArray($body['diagnostics']['violations']);
+
+        return array_values(array_filter(
+            $body['diagnostics']['violations'],
+            static fn (array $violation): bool => $violation['code'] === $code,
+        ));
     }
 
     /**

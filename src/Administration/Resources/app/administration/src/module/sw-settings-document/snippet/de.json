@@ -115,7 +115,10 @@
       "placeholderPaymentDueDate": "Fälligkeit eingeben ..."
     },
     "errors": {
-      "invalidDueDateFormat": "Datums-Modifier ist nicht gültig."
+      "invalidDueDateFormat": "Datums-Modifier ist nicht gültig.",
+      "duplicateFilenameInfix": "Erzeugt denselben Dateinamen wie {formats}.",
+      "duplicateFilenameInfixInSalesChannelConfig": "Erzeugt in der Verkaufskanal-Konfiguration {configs} denselben Dateinamen wie {formats}.",
+      "duplicateFilenameInfixInherited": "Das geerbte Infix \"{infix}\" erzeugt denselben Dateinamen wie {formats}."
     }
   },
   "sw-privileges": {

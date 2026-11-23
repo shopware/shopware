@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
@@ -56,8 +57,8 @@ class SnippetFileCollectionTest extends TestCase
 
         static::assertSame('en-GB', $result_en_GB[0]->getIso());
         static::assertSame('de-DE', $result_de_DE[0]->getIso());
-        static::assertEmpty($result_empty);
-        static::assertEmpty($result_empty_two);
+        static::assertCount(0, $result_empty);
+        static::assertCount(0, $result_empty_two);
     }
 
     public function testGetBaseFileByIsoExpectException(): void
@@ -113,7 +114,7 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback('de-AT');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackFallsBackToCanonicalForm(): void
@@ -145,7 +146,7 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback('da-GL');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackReturnsEmptyForUnknownLocale(): void
@@ -154,7 +155,17 @@ class SnippetFileCollectionTest extends TestCase
 
         $result = $collection->getSnippetFilesWithLocaleFallback('fr-FR');
 
-        static::assertEmpty($result);
+        static::assertCount(0, $result);
+    }
+
+    public function testGetSnippetFilesWithLocaleFallbackRejectsTrailingNewline(): void
+    {
+        $collection = new SnippetFileCollection();
+        $collection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true, 'SwagPlugin'));
+
+        $result = $collection->getSnippetFilesWithLocaleFallback("de-AT\n");
+
+        static::assertSame([], $result);
     }
 
     public function testGetSnippetFilesWithLocaleFallbackCombinesBothPriorityLevels(): void
@@ -242,6 +253,61 @@ class SnippetFileCollectionTest extends TestCase
         static::assertTrue($collection->hasFileForPath($existingFile->getPath()));
         static::assertFalse($collection->hasFileForPath(__FILE__));
         static::assertFalse($collection->hasFileForPath('/does/not/exist.json'));
+    }
+
+    public function testHasFileForPathTracksFilesAddedAfterFirstLookup(): void
+    {
+        $firstFile = new MockSnippetFile('storefront.de', 'de-DE');
+        $secondFile = new MockSnippetFile('storefront.en', 'en-GB');
+        $collection = new SnippetFileCollection();
+
+        static::assertFalse($collection->hasFileForPath($firstFile->getPath()));
+
+        $collection->add($firstFile);
+        static::assertTrue($collection->hasFileForPath($firstFile->getPath()));
+        static::assertFalse($collection->hasFileForPath($secondFile->getPath()));
+
+        $collection->add($secondFile);
+        static::assertTrue($collection->hasFileForPath($firstFile->getPath()));
+        static::assertTrue($collection->hasFileForPath($secondFile->getPath()));
+    }
+
+    public function testHasFileForPathDoesNotResolvePreviouslyIndexedFilesAfterAdd(): void
+    {
+        $firstFile = $this->createMock(AbstractSnippetFile::class);
+        $firstFile->expects($this->once())->method('getPath')->willReturn(__FILE__);
+        $secondFile = new MockSnippetFile('storefront.de', 'de-DE');
+        $collection = new SnippetFileCollection();
+        $collection->add($firstFile);
+
+        static::assertTrue($collection->hasFileForPath(__FILE__));
+
+        $collection->add($secondFile);
+
+        static::assertTrue($collection->hasFileForPath($secondFile->getPath()));
+    }
+
+    public function testHasFileForPathRebuildsAfterReplacementRemovalAndClear(): void
+    {
+        $firstFile = new MockSnippetFile('storefront.de', 'de-DE');
+        $secondFile = new MockSnippetFile('storefront.en', 'en-GB');
+        $collection = new SnippetFileCollection();
+        $collection->set('file', $firstFile);
+
+        static::assertTrue($collection->hasFileForPath($firstFile->getPath()));
+
+        $collection->set('file', $secondFile);
+        static::assertFalse($collection->hasFileForPath($firstFile->getPath()));
+        static::assertTrue($collection->hasFileForPath($secondFile->getPath()));
+
+        $collection->remove('file');
+        static::assertFalse($collection->hasFileForPath($secondFile->getPath()));
+
+        $collection->add($firstFile);
+        static::assertTrue($collection->hasFileForPath($firstFile->getPath()));
+
+        $collection->clear();
+        static::assertFalse($collection->hasFileForPath($firstFile->getPath()));
     }
 
     public function testGetApiAlias(): void

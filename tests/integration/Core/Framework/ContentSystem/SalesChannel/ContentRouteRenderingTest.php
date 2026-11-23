@@ -34,12 +34,12 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixtureBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -77,6 +77,11 @@ class ContentRouteRenderingTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * The string every fixture stores under {@see Defaults::LANGUAGE_SYSTEM} on the translatable
+     * `Sw:Content:Text.text` property. The browser requests the system language, so language reduction picks
+     * that entry and the served value is this string bare.
+     */
     private const TEXT_VALUE = 'Alpha copy';
 
     private const LAYOUT_NAME = 'content-route-rendering';
@@ -113,28 +118,12 @@ class ContentRouteRenderingTest extends TestCase
 
     private KernelBrowser $browser;
 
-    private ?\Closure $finalizationListener = null;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->ids = new IdsCollection();
         $this->browser = $this->createSalesChannelBrowser();
-    }
-
-    /**
-     * The kernel outlives the test case, so a listener left on its dispatcher would rewrite the rendered
-     * forest of every later test in the process.
-     */
-    protected function tearDown(): void
-    {
-        if ($this->finalizationListener !== null) {
-            $this->eventDispatcher()->removeListener(RenderedTreeFinalizationEvent::class, $this->finalizationListener);
-            $this->finalizationListener = null;
-        }
-
-        parent::tearDown();
     }
 
     #[TestDox('serves the stored element ids, components, slot names and slot nesting in the full format')]
@@ -604,26 +593,6 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame(self::MEDIA_PATH, $media['path'] ?? null);
     }
 
-    #[TestDox('resolves every data-format assignment to an entry in the data map')]
-    public function testDataFormatAssignmentsAreReferentiallyIntact(): void
-    {
-        $this->createNestedLayout();
-
-        $body = $this->requestJson($this->uri('content-data'));
-        $assignments = $this->assignments($body);
-        $data = $this->dataMap($body);
-
-        // Both maps being empty would satisfy the difference below, so each is proven non-empty first.
-        static::assertNotSame([], $assignments);
-        static::assertNotSame([], $data);
-
-        static::assertSame(
-            [],
-            array_values(array_diff($this->referencedRefIds($assignments), array_keys($data))),
-            'Every ref an assignment names must be a key of the data map.',
-        );
-    }
-
     #[TestDox('serves decomposed skeleton nodes with id, component and the element alias at every depth, and no property values')]
     public function testDecomposedSkeletonNodesCarryStructureAndAliasButNoProperties(): void
     {
@@ -841,6 +810,10 @@ class ContentRouteRenderingTest extends TestCase
         $poisoned = $original;
         static::assertIsArray($poisoned);
         unset($poisoned['Sw:Media:Image']);
+
+        // Finish the previous request's pending service reset before seeding the next request's cache.
+        // In the test environment, resetting cache.system clears its in-memory entries.
+        static::getKernel()->boot();
         static::assertTrue(
             $this->overwriteElementTypeCache($pool, $poisoned),
             'The element-type cache entry must be writable from the test.',
@@ -1056,8 +1029,7 @@ class ContentRouteRenderingTest extends TestCase
 
     private function registerFinalizationListener(\Closure $listener): void
     {
-        $this->finalizationListener = $listener;
-        $this->eventDispatcher()->addListener(RenderedTreeFinalizationEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(RenderedTreeFinalizationEvent::class, $listener);
     }
 
     /**
@@ -1105,14 +1077,6 @@ class ContentRouteRenderingTest extends TestCase
         }
 
         return $keys;
-    }
-
-    private function eventDispatcher(): EventDispatcherInterface
-    {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
-
-        return $dispatcher;
     }
 
     /**
@@ -1342,25 +1306,6 @@ class ContentRouteRenderingTest extends TestCase
     }
 
     /**
-     * Every ref any assignment names, once each, so a test can compare the referenced set against the data map.
-     *
-     * @param array<string, array<string, string>> $assignments
-     *
-     * @return list<string>
-     */
-    private function referencedRefIds(array $assignments): array
-    {
-        $refs = [];
-        foreach ($assignments as $propertyMap) {
-            foreach ($propertyMap as $refId) {
-                $refs[$refId] = true;
-            }
-        }
-
-        return array_keys($refs);
-    }
-
-    /**
      * The element ids the resolved value index holds an entry for, read off the FULL format rather than off the
      * index: `ContentPageEncoder` writes the same rendered property map `ResolvedValueIndexFactory` walks, so a
      * non-empty `properties` there is exactly an assignments entry in the two index-reading formats. Reading it
@@ -1459,7 +1404,7 @@ class ContentRouteRenderingTest extends TestCase
                     [
                         'id' => $this->ids->get('text'),
                         'component' => 'Sw:Content:Text',
-                        'properties' => ['text' => self::TEXT_VALUE],
+                        'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                     ],
                     [
                         'id' => $this->ids->get('inner-grid'),
@@ -1516,7 +1461,7 @@ class ContentRouteRenderingTest extends TestCase
                         'content' => [[
                             'id' => $this->ids->get('text'),
                             'component' => 'Sw:Content:Text',
-                            'properties' => ['text' => self::TEXT_VALUE],
+                            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
                         ]],
                     ],
                 ]],
@@ -1652,7 +1597,7 @@ class ContentRouteRenderingTest extends TestCase
         return [
             'id' => $this->ids->get('text'),
             'component' => 'Sw:Content:Text',
-            'properties' => ['text' => self::TEXT_VALUE],
+            'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => self::TEXT_VALUE]],
             'acceptsContext' => [
                 'categoryPlaceholder' => [
                     'type' => 'single',

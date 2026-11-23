@@ -492,10 +492,7 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         const template = componentOptions
             ? findTemplateBinding(file, componentOptions, parsed.ast)
             : { binding: null, diagnostics: [] };
-        const diagnostics = [
-            ...extracted.diagnostics,
-            ...template.diagnostics,
-        ];
+        const diagnostics = [...extracted.diagnostics, ...template.diagnostics];
 
         index.diagnostics.push(...diagnostics);
         index.registrationsByFile.set(file, extracted.registrations);
@@ -529,10 +526,7 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         }
     }
 
-    for (const [
-        dir,
-        registrations,
-    ] of index.registrationsByDir) {
+    for (const [dir, registrations] of index.registrationsByDir) {
         if (registrations.length > 1) {
             index.diagnostics.push({
                 file: registrations[0].file,
@@ -543,10 +537,7 @@ function collectComponentSourceIndex(scanRoot: string, options: ComponentSourceI
         }
     }
 
-    for (const [
-        name,
-        dirs,
-    ] of dirsByName) {
+    for (const [name, dirs] of dirsByName) {
         if (dirs.size > 1) {
             index.duplicateNames.add(name);
         }

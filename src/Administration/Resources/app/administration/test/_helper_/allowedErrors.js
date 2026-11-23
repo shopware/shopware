@@ -17,26 +17,12 @@ export const sendTimeoutExpired = {
     method: 'error',
 };
 
-export const deprecatedTabComponent = {
+/**
+ * Pre-major deprecation warnings, silenced because the suite runs both sides of a feature flag.
+ */
+export const deprecationWarning = {
+    msg: '[Deprecation]',
     method: 'warn',
-    msgCheck: (_, msg1) => {
-        if (typeof msg1 !== 'string') {
-            return false;
-        }
-
-        return msg1.includes('The old usage of "sw-tabs" is deprecated');
-    },
-};
-
-export const deprecatedPopoverComponent = {
-    method: 'warn',
-    msgCheck: (_, msg1) => {
-        if (typeof msg1 !== 'string') {
-            return false;
-        }
-
-        return msg1.includes('The old usage of "sw-popover" is deprecated');
-    },
 };
 
 // Vue 3 component resolution warnings for non-registered components in tests.

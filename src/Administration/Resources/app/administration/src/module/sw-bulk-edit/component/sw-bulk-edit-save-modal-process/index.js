@@ -22,9 +22,7 @@ export default {
         },
     },
 
-    mixins: [
-        Shopware.Mixin.getByName('notification'),
-    ],
+    mixins: [Shopware.Mixin.getByName('notification')],
 
     emits: [
         'changes-apply',
@@ -171,22 +169,10 @@ export default {
             const creditNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'credit_note');
             const deliveryNoteDocuments = this.createDocumentPayload.filter((item) => item.type === 'delivery_note');
             const documentGroups = [
-                [
-                    'invoice',
-                    invoiceDocuments,
-                ],
-                [
-                    'storno',
-                    stornoDocuments,
-                ],
-                [
-                    'credit_note',
-                    creditNoteDocuments,
-                ],
-                [
-                    'delivery_note',
-                    deliveryNoteDocuments,
-                ],
+                ['invoice', invoiceDocuments],
+                ['storno', stornoDocuments],
+                ['credit_note', creditNoteDocuments],
+                ['delivery_note', deliveryNoteDocuments],
             ];
 
             let totalRequested = 0;
@@ -194,10 +180,7 @@ export default {
             let totalSkipped = 0;
             const failedItems = [];
 
-            for (const [
-                documentType,
-                documents,
-            ] of documentGroups) {
+            for (const [documentType, documents] of documentGroups) {
                 if (documents.length <= 0) {
                     continue;
                 }
@@ -227,6 +210,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         async createDocument(documentType, payload) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-bulk-edit-save-modal-process.createDocument() is deprecated. Removed with document generation v1.',
+            );
+
             if (this.feature.isActive('DOCUMENT_GENERATION_REWORK')) {
                 return this.createDocumentV2(documentType, payload);
             }
@@ -336,6 +324,11 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         getDocumentGenerationResult(response, documentType, requested) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-bulk-edit-save-modal-process.getDocumentGenerationResult() is deprecated. Removed with document generation v1.',
+            );
+
             const generatedDocuments = response?.data?.data;
 
             if (!Array.isArray(generatedDocuments)) {
@@ -357,21 +350,21 @@ export default {
          * @deprecated tag:v6.9.0 - Removed with document generation v1.
          */
         getFailedDocumentGenerationItems(errors, documentType) {
-            return Object.entries(errors).map(
-                ([
-                    orderId,
-                    orderErrors,
-                ]) => {
-                    const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
-
-                    return {
-                        orderId,
-                        documentType,
-                        errorCode: error?.code,
-                        detail: error?.detail,
-                    };
-                },
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_9_0_0',
+                'sw-bulk-edit-save-modal-process.getFailedDocumentGenerationItems() is deprecated. Removed with document generation v1.',
             );
+
+            return Object.entries(errors).map(([orderId, orderErrors]) => {
+                const error = Array.isArray(orderErrors) ? orderErrors[0] : orderErrors;
+
+                return {
+                    orderId,
+                    documentType,
+                    errorCode: error?.code,
+                    detail: error?.detail,
+                };
+            });
         },
 
         async deleteDocuments() {

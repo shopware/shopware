@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\MetaInformation;
@@ -38,7 +39,8 @@ class AccountOrderPageLoader
         private readonly GenericPageLoaderInterface $genericLoader,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
-        private readonly AbstractTranslator $translator
+        private readonly AbstractTranslator $translator,
+        private readonly OrderProductAvailabilityResolver $productAvailabilityResolver
     ) {
     }
 
@@ -106,13 +108,16 @@ class AccountOrderPageLoader
         $responseStruct = $this->orderRoute
             ->load($event->getStoreApiRequest(), $context, $criteria);
 
-        return $responseStruct->getOrders();
+        $orders = $responseStruct->getOrders();
+
+        $this->productAvailabilityResolver->addAvailability($orders->getEntities(), $context);
+
+        return $orders;
     }
 
     private function createCriteria(Request $request): Criteria
     {
-        $page = RequestParamHelper::get($request, 'p');
-        $page = $page ? (int) $page : 1;
+        $page = max((int) RequestParamHelper::get($request, 'p'), 1);
 
         $criteria = (new Criteria())
             ->addSorting(new FieldSorting('order.createdAt', FieldSorting::DESCENDING))
@@ -121,6 +126,10 @@ class AccountOrderPageLoader
             ->addAssociation('primaryOrderDelivery.shippingMethod')
             ->addAssociation('primaryOrderDelivery.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingOrderAddress.salutation')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState')
+            ->addAssociation('deliveries.stateMachineState')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
@@ -139,8 +148,7 @@ class AccountOrderPageLoader
         if (!Feature::isActive('v6.8.0.0')) {
             $criteria
                 ->addAssociation('transactions.paymentMethod')
-                ->addAssociation('transactions.stateMachineState')
-                ->addAssociation('deliveries.stateMachineState');
+                ->addAssociation('transactions.stateMachineState');
 
             $criteria
                 ->getAssociation('transactions')

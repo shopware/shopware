@@ -28,7 +28,7 @@ const STYLE_FIELD_ORDER = [
  * @private
  * @sw-package discovery
  */
-export const STYLE_BREAKPOINTS = [
+const STYLE_BREAKPOINTS = [
     'xs',
     'sm',
     'md',
@@ -41,7 +41,7 @@ export const STYLE_BREAKPOINTS = [
  * @private
  * @sw-package discovery
  */
-export function isBreakpointMapValue(value: unknown): value is Record<string, unknown> {
+function isBreakpointMapValue(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
@@ -138,11 +138,18 @@ export function styleOptionToElementProperty(
                   'object',
               ]
             : option.type,
+        contextTypes: ['single'],
         translatable: false,
         enum: option.enum,
         default: option.default,
         required: false,
+        // A style option is presentation, not content: there is nothing to map.
+        mappable: false,
+        inlineMappable: false,
+        defaultMapping: null,
         title: typeof adminUI.label === 'string' && adminUI.label.length > 0 ? adminUI.label : key,
+        titleSnippet: typeof adminUI.labelSnippet === 'string' ? adminUI.labelSnippet : undefined,
+        descriptionSnippet: typeof adminUI.descriptionSnippet === 'string' ? adminUI.descriptionSnippet : undefined,
         description: typeof adminUI.description === 'string' ? adminUI.description : '',
         adminUI: {
             ...adminUI,

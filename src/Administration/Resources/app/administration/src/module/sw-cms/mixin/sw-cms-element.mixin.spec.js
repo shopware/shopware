@@ -216,7 +216,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
         });
     });
 
-    it('should not apply system language slotConfig without explicit parent language', async () => {
+    it('should apply system default language slotConfig without an explicit parent language', async () => {
         Shopware.Store.get('swProductDetail').product = {
             translations: [
                 {
@@ -237,7 +237,7 @@ describe('module/sw-cms/mixin/sw-cms-element.mixin.ts', () => {
 
         const wrapper = await createWrapper(defaultElement, 'sw.product.detail');
 
-        expect(wrapper.vm.element.config.content.value).not.toBe('system override');
+        expect(wrapper.vm.element.config.content.value).toBe('system override');
     });
 
     it('should not mutate the base CMS config when the element has no own translation', async () => {

@@ -46,9 +46,7 @@ export default {
 
     emits: ['save-edits'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         order: {
@@ -143,12 +141,7 @@ export default {
         transaction() {
             if (!Shopware.Feature.isActive('v6.8.0.0')) {
                 for (let i = 0; i < this.order.transactions.length; i += 1) {
-                    if (
-                        ![
-                            'cancelled',
-                            'failed',
-                        ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                    ) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                         return this.order.transactions[i];
                     }
                 }
@@ -175,6 +168,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-general-info.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -187,10 +185,7 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
-                Store.get('swOrderDetail').setLoading([
-                    'states',
-                    false,
-                ]);
+                Store.get('swOrderDetail').setLoading(['states', false]);
             }
         },
 
@@ -279,7 +274,15 @@ export default {
             return options;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
         backgroundStyle(stateType) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-general-info.backgroundStyle() is deprecated and will be removed without replacement. `sw-order-state-select-v2` derives the state color from `stateName`.',
+            );
+
             let technicalName;
 
             switch (stateType) {
@@ -300,14 +303,9 @@ export default {
         },
 
         getTransitionOptions() {
-            Store.get('swOrderDetail').setLoading([
-                'states',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['states', true]);
 
-            const statePromises = [
-                this.stateMachineService.getState('order', this.order.id),
-            ];
+            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
 
             if (this.transaction) {
                 statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
@@ -317,10 +315,7 @@ export default {
                 statePromises.push(this.stateMachineService.getState('order_delivery', this.delivery.id));
             }
 
-            return Promise.all([
-                this.getAllStates(),
-                ...statePromises,
-            ])
+            return Promise.all([this.getAllStates(), ...statePromises])
                 .then((data) => {
                     const allStates = data[0];
                     const orderState = data[1];
@@ -352,10 +347,7 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'states',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['states', false]);
                 });
         },
 
@@ -388,18 +380,12 @@ export default {
             this.currentStateType = null;
             this.showModal = false;
 
-            Store.get('swOrderDetail').setLoading([
-                'states',
-                false,
-            ]);
+            Store.get('swOrderDetail').setLoading(['states', false]);
         },
 
         onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
-            Store.get('swOrderDetail').setLoading([
-                'states',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['states', true]);
 
             let transition = null;
 
@@ -449,10 +435,7 @@ export default {
                         this.createStateChangeErrorNotification(error);
                     })
                     .finally(() => {
-                        Store.get('swOrderDetail').setLoading([
-                            'states',
-                            false,
-                        ]);
+                        Store.get('swOrderDetail').setLoading(['states', false]);
                     });
             }
 

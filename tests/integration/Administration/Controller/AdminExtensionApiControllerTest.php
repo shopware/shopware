@@ -144,6 +144,7 @@ class AdminExtensionApiControllerTest extends TestCase
         }
 
         if (!($appName === self::EXISTING_APP_NAME)) {
+            $this->executor->expects($this->never())->method('execute');
             $this->expectExceptionObject(AppException::appNotFoundByName($appName));
 
             $this->adminExtensionApiController->runAction($requestDataBag, $this->context);
@@ -153,6 +154,7 @@ class AdminExtensionApiControllerTest extends TestCase
 
         if ($hosts === []) {
             static::assertIsString($targetUrl);
+            $this->executor->expects($this->never())->method('execute');
             $this->expectExceptionObject(AppException::hostNotAllowed($targetUrl, $appName));
         } else {
             $this->executor->expects($this->once())->method('execute')->with(static::callback(static fn (AppAction $action) => $action->getTargetUrl() === $targetUrl))->willReturn(new Response());
@@ -188,6 +190,9 @@ class AdminExtensionApiControllerTest extends TestCase
     #[DataProvider('providerSignUri')]
     public function testSignUri(RequestDataBag $requestDataBag, bool $expectAppNotFoundError): void
     {
+        // signing a uri never runs an action button
+        $this->executor->expects($this->never())->method(static::anything());
+
         $this->appRepository->create([
             [
                 'name' => self::EXISTING_APP_NAME,

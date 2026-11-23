@@ -31,11 +31,7 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('or', [
-                    Criteria.equals('id', Defaults.defaultSalutationId),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('id', Defaults.defaultSalutationId)]));
 
             return criteria;
         },
@@ -55,6 +51,16 @@ export default {
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            if (this.customer?.salesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannels.id', this.customer.salesChannelId));
+            }
+
+            return criteria;
         },
     },
 

@@ -1,5 +1,6 @@
 import template from './sw-order-detail-details.html.twig';
 import './sw-order-detail-details.scss';
+import { getShipments } from '../../order-delivery.helper';
 
 /**
  * @sw-package checkout
@@ -8,6 +9,16 @@ import './sw-order-detail-details.scss';
 const { Component, Store, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
+
+// Debounced apart from the deprecated `onShippingChargeEdited`, so its guard fires at the call instead of 800ms later.
+const saveShippingCharge = Utils.debounce(function saveShippingCharge(amount) {
+    if (amount >= 0) {
+        this.delivery.shippingCosts.unitPrice = amount;
+        this.delivery.shippingCosts.totalPrice = amount;
+    }
+
+    this.saveAndRecalculate();
+}, 800);
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -50,6 +61,10 @@ export default {
             from: 'repositoryFactory',
             default: null,
         },
+        customFieldDataProviderService: {
+            from: 'customFieldDataProviderService',
+            default: null,
+        },
     },
 
     emits: [
@@ -72,6 +87,10 @@ export default {
             type: Boolean,
             required: false,
             default: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Will be removed without replacement.',
+            },
         },
     },
 
@@ -84,7 +103,14 @@ export default {
 
     computed: {
         /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
-        isLoading: () => Store.get('swOrderDetail').isLoading,
+        isLoading() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.isLoading is deprecated. Use loading.order instead.',
+            );
+
+            return Store.get('swOrderDetail').isLoading;
+        },
 
         order: () => Store.get('swOrderDetail').order,
 
@@ -102,14 +128,13 @@ export default {
             return this.order.primaryOrderDelivery;
         },
 
+        shipments() {
+            return getShipments(this.order);
+        },
+
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                ) {
+                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                     return this.order.transactions[i];
                 }
             }
@@ -121,11 +146,23 @@ export default {
             return this.order.primaryOrderTransaction;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
 
@@ -152,6 +189,11 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, will not be used anymore.
         currency() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.currency is deprecated and will be removed, will not be used anymore.',
+            );
+
             return this.order.currency;
         },
 
@@ -171,16 +213,25 @@ export default {
         },
 
         selectedShippingAddressId() {
-            const currentAddress = this.orderAddressIds.find((item) => item.type === 'shipping');
-            return currentAddress?.customerAddressId || this.shippingAddress.id;
+            return this.getSelectedShippingAddressId(this.delivery);
         },
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         shippingCosts: {
             get() {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail-details.shippingCosts is deprecated. Change shipping cost on order general view instead.',
+                );
+
                 return this.delivery?.shippingCosts.totalPrice || 0.0;
             },
             set(value) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    'sw-order-detail-details.shippingCosts is deprecated. Change shipping cost on order general view instead.',
+                );
+
                 this.onShippingChargeEdited(value);
             },
         },
@@ -194,21 +245,21 @@ export default {
         createdComponent() {
             this.loadingChange(true);
 
-            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
+            this.customFieldDataProviderService.getCustomFieldSets('order', false, null).then((result) => {
                 this.customFieldSets = result;
                 this.loadingChange(false);
             });
         },
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
-        onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
-            if (amount >= 0) {
-                this.delivery.shippingCosts.unitPrice = amount;
-                this.delivery.shippingCosts.totalPrice = amount;
-            }
+        onShippingChargeEdited(amount) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.onShippingChargeEdited() is deprecated. Change shipping cost on order general view instead.',
+            );
 
-            this.saveAndRecalculate();
-        }, 800),
+            saveShippingCharge.call(this, amount);
+        },
 
         loadingChange(loading) {
             if (this.swOrderDetailOnLoadingChange) {
@@ -262,25 +313,47 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed without replacement
          */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-detail-details.updateLoading() is deprecated. Will be removed without replacement.',
+            );
+
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
-        validateTrackingCode(searchTerm) {
+        validateTrackingCode(searchTerm, delivery = this.delivery) {
             const trackingCode = searchTerm.trim();
 
             if (trackingCode.length <= 0) {
                 return false;
             }
 
-            const isExist = this.delivery?.trackingCodes?.find((code) => code === trackingCode);
+            const isExist = delivery?.trackingCodes?.find((code) => code === trackingCode);
             return !isExist;
+        },
+
+        shipmentCardTitle(index) {
+            if (this.shipments.length === 1) {
+                return this.$t('sw-order.detailsTab.labelDeliveryCard');
+            }
+
+            return this.$t('sw-order.detailDeliveries.cardTitleItems', { count: index + 1 });
+        },
+
+        getSelectedShippingAddressId(delivery) {
+            const currentAddress = this.orderAddressIds.find(
+                (item) => item.type === 'shipping' && (item.deliveryId ?? this.delivery?.id) === delivery.id,
+            );
+
+            return currentAddress?.customerAddressId || delivery.shippingOrderAddress.id;
         },
 
         onChangeOrderAddress(value) {
             Store.get('swOrderDetail').setOrderAddressIds(value);
+        },
+
+        onChangeShipmentAddress(delivery, value) {
+            this.onChangeOrderAddress({ ...value, deliveryId: delivery.id });
         },
     },
 };

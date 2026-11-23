@@ -66,10 +66,7 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElseIf('test', true, defaultCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                    caseResult(true),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(true)],
                 shimExtensionCases: [],
                 nativeExtensionCases: [],
                 keepShimResultsForNextReservation: false,
@@ -80,10 +77,7 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
 
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                    caseResult(true),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(true)],
                 shimExtensionCases: [],
                 nativeExtensionCases: [],
                 keepShimResultsForNextReservation: false,
@@ -96,10 +90,7 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElse('test', defaultCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                    caseResult(true),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(true)],
                 shimExtensionCases: [],
                 nativeExtensionCases: [],
                 keepShimResultsForNextReservation: false,
@@ -115,15 +106,9 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElse('test', nativeCase(0))).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                ],
-                shimExtensionCases: [
-                    undefined,
-                ],
-                nativeExtensionCases: [
-                    caseResult(false),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }],
+                shimExtensionCases: [undefined],
+                nativeExtensionCases: [caseResult(false)],
                 keepShimResultsForNextReservation: false,
             },
         });
@@ -132,15 +117,9 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
 
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                ],
-                shimExtensionCases: [
-                    undefined,
-                ],
-                nativeExtensionCases: [
-                    caseResult(false),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }],
+                shimExtensionCases: [undefined],
+                nativeExtensionCases: [caseResult(false)],
                 keepShimResultsForNextReservation: false,
             },
         });
@@ -250,13 +229,8 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElse('test', shimCase(1))).toBe(true);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                ],
-                shimExtensionCases: [
-                    caseResult(false),
-                    caseResult(true),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }],
+                shimExtensionCases: [caseResult(false), caseResult(true)],
                 nativeExtensionCases: [],
                 keepShimResultsForNextReservation: true,
             },
@@ -274,17 +248,9 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElse('test', nativeCase(0))).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                    caseResult(false),
-                ],
-                shimExtensionCases: [
-                    caseResult(true),
-                    caseResult(false),
-                ],
-                nativeExtensionCases: [
-                    caseResult(false),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }, caseResult(false)],
+                shimExtensionCases: [caseResult(true), caseResult(false)],
+                nativeExtensionCases: [caseResult(false)],
                 keepShimResultsForNextReservation: true,
             },
         });
@@ -300,15 +266,9 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         expect(legacyElse('test', nativeCase(0))).toBe(false);
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                ],
-                shimExtensionCases: [
-                    caseResult(true),
-                ],
-                nativeExtensionCases: [
-                    caseResult(false),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }],
+                shimExtensionCases: [caseResult(true)],
+                nativeExtensionCases: [caseResult(false)],
                 keepShimResultsForNextReservation: true,
             },
         });
@@ -343,12 +303,8 @@ describe('app/component/structure/sw-block-override/shim/legacy-condition-contex
         reserveLegacyConditionCases('test', { caseStartIndex: 0, caseCount: 1 });
         expect(legacyConditionContext).toStrictEqual({
             test: {
-                defaultSlotCases: [
-                    { result: false, isStartingCondition: true },
-                ],
-                shimExtensionCases: [
-                    caseResult(true),
-                ],
+                defaultSlotCases: [{ result: false, isStartingCondition: true }],
+                shimExtensionCases: [caseResult(true)],
                 nativeExtensionCases: [],
                 keepShimResultsForNextReservation: true,
             },

@@ -9,15 +9,10 @@ const { Criteria } = Shopware.Data;
  * @private
  * @sw-package after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'feature', 'repositoryFactory'],
 
     data(): {
         isLoading: boolean;
@@ -53,7 +48,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         flowCriteria(): CriteriaType {
-            return new Criteria(1, null);
+            return new Criteria(1, 1);
         },
 
         flowTabs(): Array<{ label: string; name: string; onClick: () => void }> {

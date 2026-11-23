@@ -3,6 +3,27 @@ import sidebarTreeComponent from './index';
 describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree', () => {
     const methods = (sidebarTreeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
         .methods;
+    const computed = (sidebarTreeComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> })
+        .computed;
+
+    it('uses the active layout name for the tree header', () => {
+        const vm = {
+            layout: { name: 'Basic Listing' },
+        };
+
+        expect(computed.panelTitle.call(vm)).toBe('Basic Listing');
+    });
+
+    it('falls back to the structure label when no layout name is available', () => {
+        const translate = jest.fn().mockReturnValue('Structure');
+        const vm = {
+            layout: null,
+            $t: translate,
+        };
+
+        expect(computed.panelTitle.call(vm)).toBe('Structure');
+        expect(translate).toHaveBeenCalledWith('sw-experience-studio.detail.sidebarTree.title');
+    });
 
     it('emits move payload when element is dropped in root area', () => {
         const $emit = jest.fn();

@@ -14,10 +14,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'grid-channel-add',
-        'grid-detail-open',
-    ],
+    emits: ['grid-channel-add', 'grid-detail-open'],
 
     props: {
         productStreamsExist: {
@@ -83,6 +80,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerceSalesChannelType(salesChannelTypeId) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-modal-grid.isAgenticCommerceSalesChannelType() is deprecated. Will be removed.',
+            );
+
             return salesChannelTypeId === Defaults.agenticCommerceTypeId;
         },
 
@@ -113,6 +115,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         showAgenticCommerceType() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-modal-grid.showAgenticCommerceType() is deprecated. Will be removed.',
+            );
+
             return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
         },
     },

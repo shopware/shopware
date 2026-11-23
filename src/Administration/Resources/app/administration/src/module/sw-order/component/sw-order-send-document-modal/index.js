@@ -35,19 +35,11 @@ export const DOCUMENT_MAIL_TEMPLATE_MAPPING = {
 export default {
     template,
 
-    inject: [
-        'mailService',
-        'repositoryFactory',
-    ],
+    inject: ['mailService', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'document-sent',
-    ],
+    emits: ['modal-close', 'document-sent'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         document: {
@@ -115,6 +107,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-send-document-modal.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },

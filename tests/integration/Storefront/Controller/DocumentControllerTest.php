@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
@@ -23,6 +22,7 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
@@ -91,7 +91,7 @@ class DocumentControllerTest extends TestCase
 
         $paymentMethod = $this->getAvailablePaymentMethod();
 
-        $customerId = $this->createCustomer($paymentMethod->getId());
+        $customerId = $this->createCustomer();
         $shippingMethod = $this->getAvailableShippingMethod();
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
@@ -220,7 +220,8 @@ class DocumentControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertNotEmpty($response->getContent());
+        static::assertNotFalse($response->getContent());
+        static::assertNotSame('', $response->getContent());
 
         $documentEntity = $this->documentRepository->search(new Criteria([$document->getId()]), $context)->getEntities()->first();
         static::assertNotNull($documentEntity);
@@ -452,7 +453,7 @@ class DocumentControllerTest extends TestCase
         return static::getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
     }
 
-    private function createCustomer(string $paymentMethodId): string
+    private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();

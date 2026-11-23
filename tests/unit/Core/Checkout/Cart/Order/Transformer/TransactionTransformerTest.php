@@ -4,6 +4,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Order\Transformer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\Transformer\TransactionTransformer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -32,6 +34,37 @@ class TransactionTransformerTest extends TestCase
         static::assertSame($transaction->getAmount(), $data['amount']);
         static::assertSame('state', $data['stateId']);
         static::assertSame($transaction->getValidationStruct()?->jsonSerialize(), $data['validationData']);
+    }
+
+    public function testTransformLeavesStateAndValidationDataOfAnOrderTransaction(): void
+    {
+        $amount = new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $transaction = new Transaction($amount, 'test');
+        $transaction->setValidationStruct(new ArrayStruct());
+        $transaction->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-transaction-id'));
+
+        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
+
+        static::assertSame([
+            'id' => 'order-transaction-id',
+            'paymentMethodId' => 'test',
+            'amount' => $amount,
+            'payload' => [],
+        ], $data);
+    }
+
+    public function testTransformCarriesThePayloadForNewAndExistingTransactions(): void
+    {
+        $transaction = new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'test');
+        $transaction->setPayload(['psp' => 'reference-1']);
+
+        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
+        static::assertSame(['psp' => 'reference-1'], $data['payload']);
+
+        $transaction->addExtension(OrderConverter::ORIGINAL_ID, new IdStruct('order-transaction-id'));
+
+        $data = TransactionTransformer::transform($transaction, 'state', Context::createDefaultContext());
+        static::assertSame(['psp' => 'reference-1'], $data['payload']);
     }
 
     public function testTransformCollection(): void

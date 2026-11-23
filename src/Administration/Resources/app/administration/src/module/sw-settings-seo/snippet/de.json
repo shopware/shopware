@@ -42,7 +42,7 @@
     "titleCard": "SEO-URLs",
     "labelSalesChannelSelect": "Verkaufskanal",
     "labelSeoPathInfo": "SEO-Pfad",
-    "textEmptySeoUrls": "Es sind noch keine SEO-URLs vorhanden.",
+    "textEmptySeoUrls": "Noch keine SEO-URLs",
     "textSeoUrlsNotSupported": "Für diesen Verkaufskanaltyp ist die Angabe von SEO-URLs nicht möglich.",
     "errorInvalidCharacters": "Der SEO-Pfad enthält Zeichen, die in URLs nicht erlaubt sind (zum Beispiel #, \\ oder ein einzelnes %).",
     "labelMainCategory": "Hauptkategorie",

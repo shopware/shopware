@@ -72,7 +72,7 @@ class ContentTreePreparationEvent implements ShopwareSalesChannelEvent
     /**
      * The `list<StoredElement>` the signature can only promise in a docblock. A listener that hands the
      * rendered model back instead reaches the preparation steps: the FULL path dies on the parameter type of a
-     * closure inside {@see StoredTreePreparer}, and the SKELETON path walks on to read `contextDefinitions` off
+     * `resolvePlaceholders()` in {@see StoredTreePreparer}, and the SKELETON path walks on to read `contextDefinitions` off
      * an element that declares none, so what gets reported names a core internal rather than the listener that
      * caused it. Depth needs no walk: every {@see StoredElement} refuses a foreign slot child, so a list of
      * stored roots is a stored forest.

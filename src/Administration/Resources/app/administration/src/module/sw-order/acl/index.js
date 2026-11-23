@@ -22,7 +22,6 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'order:read',
-                    'order:delete',
                     'order_address:read',
                     'sales_channel:read',
                     'sales_channel_domain:read',
@@ -57,7 +56,6 @@ Shopware.Service('privileges')
                     'user_config:update',
                     'customer:read',
                     'customer_address:read',
-                    'version:delete',
                     'media_default_folder:read',
                 ],
                 dependencies: [],
@@ -69,6 +67,8 @@ Shopware.Service('privileges')
                     'document:update',
                     'document:create',
                     'order:update',
+                    'order:delete',
+                    'version:delete',
                     'order_customer:update',
                     'order_tag:update',
                     'order_tag:create',
@@ -88,9 +88,7 @@ Shopware.Service('privileges')
                     'order_address:create',
                     'number_range:read',
                 ],
-                dependencies: [
-                    'order.viewer',
-                ],
+                dependencies: ['order.viewer'],
             },
             creator: {
                 privileges: [
@@ -105,18 +103,11 @@ Shopware.Service('privileges')
                     'customer:update',
                     'api_proxy_switch-customer',
                 ],
-                dependencies: [
-                    'order.viewer',
-                    'order.editor',
-                ],
+                dependencies: ['order.viewer', 'order.editor'],
             },
             deleter: {
-                privileges: [
-                    'order:delete',
-                ],
-                dependencies: [
-                    'order.viewer',
-                ],
+                privileges: ['order:delete'],
+                dependencies: ['order.viewer'],
             },
         },
     })
@@ -126,35 +117,20 @@ Shopware.Service('privileges')
         key: 'order_refund',
         roles: {
             viewer: {
-                privileges: [
-                    'order_transaction_capture_refund:read',
-                ],
+                privileges: ['order_transaction_capture_refund:read'],
                 dependencies: [],
             },
             editor: {
-                privileges: [
-                    'order_transaction_capture_refund:update',
-                ],
-                dependencies: [
-                    'order_refund.viewer',
-                ],
+                privileges: ['order_transaction_capture_refund:update'],
+                dependencies: ['order_refund.viewer'],
             },
             creator: {
-                privileges: [
-                    'order_transaction_capture_refund:create',
-                ],
-                dependencies: [
-                    'order_refund.viewer',
-                    'order_refund.editor',
-                ],
+                privileges: ['order_transaction_capture_refund:create'],
+                dependencies: ['order_refund.viewer', 'order_refund.editor'],
             },
             deleter: {
-                privileges: [
-                    'order_transaction_capture_refund:delete',
-                ],
-                dependencies: [
-                    'order_refund.viewer',
-                ],
+                privileges: ['order_transaction_capture_refund:delete'],
+                dependencies: ['order_refund.viewer'],
             },
         },
     });

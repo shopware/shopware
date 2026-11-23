@@ -58,7 +58,7 @@ class ChangePasswordRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $this->contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($this->contextToken);
+        static::assertNotSame('', $this->contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->contextToken);
     }
@@ -116,7 +116,7 @@ class ChangePasswordRouteTest extends TestCase
         static::assertArrayNotHasKey('errors', $responseContent);
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser
             ->request(
@@ -134,7 +134,7 @@ class ChangePasswordRouteTest extends TestCase
         static::assertArrayNotHasKey('errors', $responseContent);
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testContextTokenIsReplacedAfterChangingPassword(): void
@@ -153,17 +153,17 @@ class ChangePasswordRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $oldContextExists = static::getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken, $this->ids->get('sales-channel'));
 
-        static::assertEmpty($oldContextExists);
+        static::assertCount(0, $oldContextExists);
 
         // Token is replaced
         static::assertNotSame($this->contextToken, $contextToken);
 
         $newContextExists = static::getContainer()->get(SalesChannelContextPersister::class)->load($contextToken, $this->ids->get('sales-channel'), $this->customerId);
 
-        static::assertNotEmpty($newContextExists);
+        static::assertNotCount(0, $newContextExists);
     }
 }

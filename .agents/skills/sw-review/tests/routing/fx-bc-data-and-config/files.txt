@@ -1,0 +1,2 @@
+src/Core/Checkout/Customer/Aggregate/CustomerAddress/CustomerAddressDefinition.php
+src/Core/Migration/V6_7/Migration1791538877MakeCustomerAddressPhoneNumberRequired.php

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(-0.529 -0.540) scale(1.0053)">
+      <rect x="29" y="27" width="142" height="12" rx="3" fill="url(#wash)" stroke="#b4cbe6" />
+      <path d="M35 33h54" fill="none" stroke="#1895ff" stroke-width="2.5" />
+      <path d="m157 31 3 3 3-3" fill="none" stroke="#1895ff" />
+      <path d="M39.35 61.28L32.04 61.28L32.04 58.81L38.42 48.72L42.35 48.72L42.35 58.76L44.26 58.76L44.26 61.28L42.35 61.28L42.35 64L39.35 64L39.35 61.28ZM35.19 58.76L39.41 58.76L39.41 52.17L39.29 52.17L35.19 58.64L35.19 58.76ZM48.00 64.19L48.00 64.19Q47.25 64.19 46.74 63.69Q46.23 63.18 46.23 62.43L46.23 62.43Q46.23 61.68 46.74 61.18Q47.25 60.68 48.00 60.68L48.00 60.68Q48.75 60.68 49.26 61.18Q49.77 61.68 49.77 62.43L49.77 62.43Q49.77 63.18 49.26 63.69Q48.75 64.19 48.00 64.19ZM57.74 64.21L57.74 64.21Q56.03 64.21 54.71 63.64Q53.38 63.08 52.63 62.10Q51.88 61.13 51.88 59.90L51.88 59.90Q51.88 58.94 52.31 58.14Q52.75 57.33 53.49 56.80Q54.24 56.26 55.17 56.10L55.17 56.10L55.17 56.01Q53.95 55.76 53.19 54.81Q52.43 53.87 52.43 52.62L52.43 52.62Q52.43 51.44 53.12 50.51Q53.80 49.58 55.00 49.05Q56.20 48.52 57.74 48.52L57.74 48.52Q59.27 48.52 60.47 49.05Q61.68 49.58 62.37 50.51Q63.06 51.44 63.06 52.62L63.06 52.62Q63.06 53.87 62.29 54.81Q61.53 55.76 60.34 56.01L60.34 56.01L60.34 56.10Q61.25 56.26 61.99 56.80Q62.74 57.33 63.18 58.14Q63.62 58.94 63.62 59.90L63.62 59.90Q63.62 61.13 62.86 62.10Q62.11 63.08 60.78 63.64Q59.45 64.21 57.74 64.21ZM57.74 61.89L57.74 61.89Q58.53 61.89 59.12 61.61Q59.70 61.32 60.03 60.82Q60.36 60.31 60.36 59.65L60.36 59.65Q60.36 58.98 60.02 58.46Q59.68 57.94 59.09 57.64Q58.50 57.33 57.74 57.33L57.74 57.33Q56.98 57.33 56.39 57.63Q55.80 57.93 55.47 58.45Q55.13 58.97 55.13 59.65L55.13 59.65Q55.13 60.31 55.45 60.81Q55.77 61.31 56.37 61.60Q56.96 61.89 57.74 61.89ZM57.74 55.04L57.74 55.04Q58.40 55.04 58.91 54.77Q59.41 54.50 59.71 54.03Q60.00 53.56 60.00 52.96L60.00 52.96Q60.00 52.34 59.71 51.88Q59.42 51.42 58.92 51.16Q58.41 50.91 57.74 50.91L57.74 50.91Q57.08 50.91 56.57 51.16Q56.06 51.42 55.77 51.88Q55.49 52.34 55.49 52.96L55.49 52.96Q55.49 53.56 55.77 54.03Q56.06 54.50 56.57 54.77Q57.09 55.04 57.74 55.04Z" fill="#17265c" stroke="none" />
+      <g transform="translate(30 69) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(39 69) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(48 69) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(57 69) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(66 69) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <path d="M31 85h37" fill="none" stroke="#e2ecf7" stroke-width="3" />
+      <path d="M31 85h34" fill="none" stroke="#1895ff" stroke-width="3" />
+      <path d="M31 92h37" fill="none" stroke="#e2ecf7" stroke-width="3" />
+      <path d="M31 92h26" fill="none" stroke="#1895ff" stroke-width="3" />
+      <path d="M31 99h37" fill="none" stroke="#e2ecf7" stroke-width="3" />
+      <path d="M31 99h17" fill="none" stroke="#a1cfff" stroke-width="3" />
+      <path d="M81 47v54" fill="none" stroke="#d8e5f4" />
+      <g transform="translate(91 48) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(100 48) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(109 48) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(118 48) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <g transform="translate(127 48) scale(0.292)">
+        <path d="m12 1 3.4 7 7.6 1.1-5.5 5.4 1.3 7.5-6.8-3.5L5.2 22l1.3-7.5L1 9.1 7.6 8Z" fill="#1895ff" stroke="#1895ff" />
+      </g>
+      <path d="M91 62h75" fill="none" stroke="#a7b8cf" stroke-width="2.5" />
+      <path d="M91 70h59" fill="none" stroke="#c4d5e8" stroke-width="2.5" />
+      <rect x="90" y="79" width="79" height="14" rx="2" fill="white" stroke="#b4cbe6" />
+      <path d="M96 86h53" fill="none" stroke="#c4d5e8" stroke-width="2.5" />
+      <rect x="141" y="98" width="28" height="4" rx="2" fill="#1895ff" stroke="none" />
+    </g>
+  </g>
+</svg>

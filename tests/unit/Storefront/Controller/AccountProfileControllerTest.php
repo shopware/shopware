@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\AccountProfileController;
 use Shopware\Storefront\Controller\StorefrontController;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
+use Shopware\Storefront\Page\Account\Profile\AccountProfilePage;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Shopware\Tests\Unit\Storefront\Controller\Stub\AccountProfileControllerStub;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,23 +32,99 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(AccountProfileController::class)]
 class AccountProfileControllerTest extends TestCase
 {
+    private AccountProfilePageLoader&Stub $profilePageLoader;
+
+    private AbstractChangeCustomerProfileRoute&Stub $changeCustomerProfileRoute;
+
     private ChangePasswordRoute&Stub $changePasswordRoute;
 
     private AccountProfileControllerStub $controller;
 
     protected function setUp(): void
     {
+        $this->profilePageLoader = static::createStub(AccountProfilePageLoader::class);
+        $this->changeCustomerProfileRoute = static::createStub(AbstractChangeCustomerProfileRoute::class);
         $this->changePasswordRoute = static::createStub(ChangePasswordRoute::class);
 
         $this->controller = new AccountProfileControllerStub(
             static::createStub(AccountOverviewPageLoader::class),
-            static::createStub(AccountProfilePageLoader::class),
-            static::createStub(AbstractChangeCustomerProfileRoute::class),
+            $this->profilePageLoader,
+            $this->changeCustomerProfileRoute,
             $this->changePasswordRoute,
             static::createStub(AbstractChangeEmailRoute::class),
             static::createStub(AbstractDeleteCustomerRoute::class),
             static::createStub(LoggerInterface::class),
         );
+    }
+
+    public function testProfileOverviewKeepsTheRedirectTarget(): void
+    {
+        $this->controller->profileOverview(
+            new Request(['redirectTo' => 'frontend.checkout.confirm.page']),
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame('@Storefront/storefront/page/account/profile/index.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame('frontend.checkout.confirm.page', $this->controller->recorder()->renderStorefrontParameters['redirectTo']);
+    }
+
+    public function testProfileOverviewRendersSubmittedProfileData(): void
+    {
+        $this->profilePageLoader->method('load')->willReturn(new AccountProfilePage());
+        $submittedData = new RequestDataBag(['accountType' => 'business', 'company' => 'Shopware AG']);
+
+        $request = new Request();
+        $request->attributes->set('profileFormData', $submittedData);
+
+        $this->controller->profileOverview($request, static::createStub(SalesChannelContext::class));
+
+        static::assertSame('@Storefront/storefront/page/account/profile/index.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame($submittedData, $this->controller->recorder()->renderStorefrontParameters['profileFormData']);
+    }
+
+    public function testSaveProfileWithDefaultRedirect(): void
+    {
+        $this->controller->saveProfile(
+            new RequestDataBag(),
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity(),
+            new Request()
+        );
+
+        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->recorder()->redirected);
+        static::assertSame(['account.profileUpdateSuccess'], $this->controller->recorder()->flashBag[StorefrontController::SUCCESS]);
+    }
+
+    public function testSaveProfileReturnsToTheRedirectTarget(): void
+    {
+        $this->controller->saveProfile(
+            new RequestDataBag(),
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity(),
+            new Request([], ['redirectTo' => 'frontend.checkout.confirm.page'])
+        );
+
+        static::assertArrayHasKey('frontend.checkout.confirm.page', $this->controller->recorder()->redirected);
+    }
+
+    public function testSaveProfileWithConstraintViolationForwardsSubmittedData(): void
+    {
+        $this->changeCustomerProfileRoute->method('change')->willThrowException(
+            new ConstraintViolationException(new ConstraintViolationList(), [])
+        );
+        $submittedData = new RequestDataBag(['accountType' => 'business', 'company' => 'Shopware AG', 'vatIds' => ['DE123']]);
+
+        $this->controller->saveProfile(
+            $submittedData,
+            static::createStub(SalesChannelContext::class),
+            new CustomerEntity(),
+            new Request([], ['redirectTo' => 'frontend.checkout.confirm.page'])
+        );
+
+        static::assertSame('frontend.account.profile.page', $this->controller->recorder()->forwardToRoute);
+        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->recorder()->forwardToRouteAttributes['formViolations']);
+        static::assertSame($submittedData, $this->controller->recorder()->forwardToRouteAttributes['profileFormData']);
+        static::assertSame([], $this->controller->recorder()->redirected);
     }
 
     public function testSavePasswordWithMissingPasswordParam(): void
@@ -75,10 +152,10 @@ class AccountProfileControllerTest extends TestCase
             new Request()
         );
 
-        static::assertSame('frontend.account.profile.page', $this->controller->forwardToRoute);
-        static::assertTrue($this->controller->forwardToRouteAttributes['passwordFormViolation']);
-        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->forwardToRouteAttributes['formViolations']);
-        static::assertSame(['account.passwordChangeNoSuccess'], $this->controller->flashBag[StorefrontController::DANGER]);
+        static::assertSame('frontend.account.profile.page', $this->controller->recorder()->forwardToRoute);
+        static::assertTrue($this->controller->recorder()->forwardToRouteAttributes['passwordFormViolation']);
+        static::assertInstanceOf(ConstraintViolationException::class, $this->controller->recorder()->forwardToRouteAttributes['formViolations']);
+        static::assertSame(['account.passwordChangeNoSuccess'], $this->controller->recorder()->flashBag[StorefrontController::DANGER]);
     }
 
     public function testSavePasswordWithDefaultRedirect(): void
@@ -90,8 +167,8 @@ class AccountProfileControllerTest extends TestCase
             new Request()
         );
 
-        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->redirected);
-        static::assertSame(['account.passwordChangeSuccess'], $this->controller->flashBag[StorefrontController::SUCCESS]);
+        static::assertArrayHasKey('frontend.account.profile.page', $this->controller->recorder()->redirected);
+        static::assertSame(['account.passwordChangeSuccess'], $this->controller->recorder()->flashBag[StorefrontController::SUCCESS]);
     }
 
     public function testSavePasswordWithCustomRedirect(): void
@@ -103,7 +180,7 @@ class AccountProfileControllerTest extends TestCase
             new Request([], ['redirectTo' => 'frontend.home.page'])
         );
 
-        static::assertArrayHasKey('frontend.home.page', $this->controller->redirected);
+        static::assertArrayHasKey('frontend.home.page', $this->controller->recorder()->redirected);
     }
 
     public function testSavePasswordWithForwardToParam(): void
@@ -115,7 +192,7 @@ class AccountProfileControllerTest extends TestCase
             new Request([], ['forwardTo' => 'frontend.account.home.page'])
         );
 
-        static::assertSame('frontend.account.home.page', $this->controller->forwardToRoute);
+        static::assertSame('frontend.account.home.page', $this->controller->recorder()->forwardToRoute);
     }
 
     private function passwordDataBag(): RequestDataBag

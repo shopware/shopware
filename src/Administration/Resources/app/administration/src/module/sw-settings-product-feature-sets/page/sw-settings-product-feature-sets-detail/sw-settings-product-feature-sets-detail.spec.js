@@ -84,9 +84,7 @@ const detailPage = async (additionalOptions = {}, privileges = []) => {
                     id: null,
                     name: null,
                     description: null,
-                    features: [
-                        {},
-                    ],
+                    features: [{}],
                 },
             },
         },
@@ -99,10 +97,6 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     beforeEach(async () => {
         wrapper = await detailPage();
         await flushPromises();
-    });
-
-    it('should be able to instantiate', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('has the correct class', async () => {
@@ -133,9 +127,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
                 id: '1a2b3c',
                 name: null,
                 description: null,
-                features: [
-                    {},
-                ],
+                features: [{}],
             },
         });
 
@@ -153,18 +145,14 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should have all fields enabled when user has acl rights', async () => {
-        wrapper = await detailPage({}, [
-            'product_feature_sets.editor',
-        ]);
+        wrapper = await detailPage({}, ['product_feature_sets.editor']);
 
         await wrapper.setData({
             productFeatureSet: {
                 id: '1a2b3c',
                 name: null,
                 description: null,
-                features: [
-                    {},
-                ],
+                features: [{}],
             },
         });
 

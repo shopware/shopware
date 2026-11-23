@@ -63,7 +63,7 @@ class ProductCrossSellingSerializerTest extends TestCase
 
         $serialized = iterator_to_array($serializer->serialize(new Config([], [], []), $productCrossSellingDefinition, $crossSelling));
 
-        static::assertNotEmpty($serialized);
+        static::assertNotCount(0, $serialized);
 
         $assignedProducts = $crossSelling->getAssignedProducts();
         static::assertNotNull($assignedProducts);

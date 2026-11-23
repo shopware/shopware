@@ -38,6 +38,11 @@ class FooterSpecificationSource extends AbstractSpecificationSource
         return true;
     }
 
+    public function rootSource(): string
+    {
+        return 'footer';
+    }
+
     public function resolveLayoutId(string $path, Request $request, SalesChannelContext $context): string
     {
         return $this->resolveAssignment($context)->getContentLayoutId();
@@ -45,11 +50,9 @@ class FooterSpecificationSource extends AbstractSpecificationSource
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
     {
-        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
-
         return new SpecificationData(
             dataRequirements: [],
-            placeholderValues: PlaceholderValues::from($scalarParameters),
+            placeholderValues: PlaceholderValues::from([]),
         );
     }
 

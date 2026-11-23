@@ -33,18 +33,10 @@ class AppLoader
         return [...$this->loadFromAppDir(), ...$this->loadFromComposer()];
     }
 
-    public function deleteApp(string $technicalName): void
+    public function deleteApp(Manifest $manifest): void
     {
-        $apps = $this->load();
-
-        if (!isset($apps[$technicalName])) {
-            return;
-        }
-
-        $manifest = $apps[$technicalName];
-
         if ($manifest->isManagedByComposer()) {
-            throw AppException::cannotDeleteManaged($technicalName);
+            throw AppException::cannotDeleteManaged($manifest->getMetadata()->getName());
         }
 
         (new Filesystem())->remove($manifest->getPath());

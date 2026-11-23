@@ -1,11 +1,67 @@
 import { mount } from '@vue/test-utils';
 import sidebarTreeNodeComponent from './index';
+import { getContentElementLabel } from '../../util/content-element-label.util';
+
+jest.mock('../../util/content-element-label.util', () => ({
+    getContentElementLabel: jest.fn(),
+}));
+
+const SYSTEM_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
 describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node', () => {
     const computed = (sidebarTreeNodeComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> })
         .computed;
     const methods = (sidebarTreeNodeComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> })
         .methods;
+
+    const labelMock = getContentElementLabel as jest.Mock;
+
+    beforeEach(() => {
+        labelMock.mockReset();
+    });
+
+    it('labels the node through the declared properties of its type, the system-language chain and the translated type label', () => {
+        labelMock.mockReturnValue('Headline');
+        const contentElement = {
+            id: 'element-1',
+            component: 'Sw:Content:Text',
+        };
+        const declaredProperties = {
+            title: { translatable: true },
+        };
+        const elementTypeStore = {
+            getByName: (name: string) =>
+                name === 'Sw:Content:Text'
+                    ? { properties: declaredProperties, label: 'Text', labelSnippet: 'element.text' }
+                    : null,
+        };
+
+        expect(
+            computed.label.call({
+                contentElement,
+                elementTypeStore,
+                $te: (key: string) => key === 'element.text',
+                $t: () => 'Fließtext',
+            }),
+        ).toBe('Headline');
+        expect(labelMock).toHaveBeenCalledWith(contentElement, declaredProperties, [SYSTEM_LANGUAGE_ID], 'Fließtext');
+    });
+
+    it('labels the node without declared properties and type label when its type is not in the store', () => {
+        const contentElement = {
+            id: 'element-1',
+            component: 'Sw:Content:Unknown',
+        };
+
+        computed.label.call({
+            contentElement,
+            elementTypeStore: { getByName: () => null },
+            $te: () => true,
+            $t: () => 'unused',
+        });
+
+        expect(labelMock).toHaveBeenCalledWith(contentElement, undefined, [SYSTEM_LANGUAGE_ID], undefined);
+    });
 
     it('prevents drag events from reaching the draggable ancestor through control buttons', async () => {
         const dragListener = jest.fn();
@@ -96,6 +152,15 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         expect(computed.typeIcon.call(vm)).toBe('regular-align-left');
     });
 
+    it('uses the declared Meteor icon independently of the illustration', () => {
+        const vm = {
+            contentElement: { component: 'Sw:Product:Manufacturer' },
+            elementTypeStore: { getByName: () => ({ icon: 'regular-star', illustration: 'product-manufacturer' }) },
+        };
+
+        expect(computed.typeIcon.call(vm)).toBe('regular-star');
+    });
+
     it('falls back to generic icon when no type icon exists', () => {
         const vm = {
             contentElement: {
@@ -104,6 +169,7 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
             elementTypeStore: {
                 getByName: jest.fn().mockReturnValue({
                     icon: null,
+                    illustration: 'product-manufacturer',
                 }),
             },
         };

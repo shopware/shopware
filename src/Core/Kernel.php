@@ -27,10 +27,10 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
@@ -129,11 +129,21 @@ class Kernel extends HttpKernel
         return $this->projectDir;
     }
 
-    public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
+    /**
+     * Boots first so that plugins are initialized before the container is built.
+     * With `LONGRUNNING_ENVIRONMENT` Symfony's `http_cache` service is not public, so `parent::handle()`
+     * can be used, which resets the services between requests.
+     */
+    public function handle(Request $request, int $type = self::MAIN_REQUEST, bool $catch = true): Response
     {
         $this->boot();
 
-        return $this->getHttpKernel()->handle($request, $type, $catch);
+        // @deprecated tag:v6.8.0 - always delegate to `parent::handle()`
+        if (!Feature::isActive('LONGRUNNING_ENVIRONMENT') || $this->getContainer()->has('http_cache')) {
+            return $this->getHttpKernel()->handle($request, $type, $catch);
+        }
+
+        return parent::handle($request, $type, $catch);
     }
 
     public function boot(): void
@@ -323,12 +333,46 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
+
+        // The feature registry is initialized after the container cache is selected.
+        /** @var list<string>|null $majorVersionFlagNames */
+        static $majorVersionFlagNames = null;
+        if ($majorVersionFlagNames === null) {
+            /** @var array{shopware: array{feature: array{flags: list<array{name: string}>}}} $config */
+            $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
+            $majorVersionFlagNames = [];
+            foreach ($config['shopware']['feature']['flags'] as $flag) {
+                if (!Feature::isMajorVersionFlag($flag['name'])) {
+                    continue;
+                }
+
+                $majorVersionFlagNames[] = Feature::normalizeName($flag['name']);
+            }
+        }
+
+        $majorFeatureFlags = [];
+        foreach ($majorVersionFlagNames as $name) {
+            if (!EnvironmentHelper::hasVariable($name) && !EnvironmentHelper::hasVariable(strtolower($name))) {
+                continue;
+            }
+
+            $value = EnvironmentHelper::hasVariable($name)
+                ? EnvironmentHelper::getVariable($name)
+                : EnvironmentHelper::getVariable(strtolower($name));
+            $value = (string) $value;
+            $majorFeatureFlags[$name] = (bool) $value && $value !== 'false';
+        }
+
+        ksort($majorFeatureFlags);
 
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
             $plugins,
+            (string) EnvironmentHelper::getVariable('FEATURE_ALL', ''),
+            $majorFeatureFlags,
         ]);
     }
 

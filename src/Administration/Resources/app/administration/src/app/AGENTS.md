@@ -33,33 +33,63 @@ import SwProductList from './page';
 - **`init/`**: Boot sequence (See AGENTS.md)
 - **`component/`**: Global UI components (See AGENTS.md)
 - **`store/`**: Pinia stores (See AGENTS.md)
-- **`composables/`**: Vue 3 hooks (use-context, use-session, use-system)
+- **`composables/`**: Vue 3 hooks (use-context, use-session, use-system). Mixin replacements listed in `composables/index.ts` are public as `Shopware.Composables` and `shopware:composables`
 - **`mixin/`**: Legacy shared logic (prefer composables)
 - **`assets/scss/`**: Global styles, variables, mixins
 - **`snippet/`**: Translations (de.json, en.json)
 
 ## Component Development
 
+New components are TypeScript, wrapped in `wrapComponentConfig()` and use composables instead of mixins.
+The complete reference with spec is `src/app/component/media/sw-media-folder-thumbnail/`.
+
 ```ts
-export default {
+import type RepositoryType from 'src/core/data/repository.data';
+import useNotification from 'src/app/composables/use-notification';
+import template from './sw-product-name-card.html.twig';
+
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+
+export default Shopware.Component.wrapComponentConfig({
+  template,
+
   inject: ['repositoryFactory', 'acl'],
-  mixins: [Mixin.getByName('notification')],
+
+  props: {
+    productId: {
+      type: String,
+      required: true,
+    },
+  },
+
+  data(): { product: Entity<'product'> | null } {
+    return {
+      product: null,
+    };
+  },
 
   computed: {
-    repository() {
+    productRepository(): RepositoryType<'product'> {
       return this.repositoryFactory.create('product');
     },
-    ...mapPropertyErrors('product', ['name'])
+
+    ...mapPropertyErrors('product', ['name']),
   },
 
   methods: {
-    async save() {
-      await this.repository.save(this.entity, Shopware.Context.api);
-      this.entity = await this.repository.get(this.entity.id, Shopware.Context.api);
-      this.createNotificationSuccess({ message: this.$t('saved') });
-    }
-  }
-};
+    async save(): Promise<void> {
+      if (!this.product) {
+        return;
+      }
+
+      await this.productRepository.save(this.product, Shopware.Context.api);
+      useNotification().createNotificationSuccess({
+        message: this.$t('sw-product.detail.messageSaveSuccess', { name: this.product.name }),
+      });
+      this.product = await this.productRepository.get(this.productId, Shopware.Context.api);
+    },
+  },
+});
 ```
 
 ## Template Patterns (TwigJS)

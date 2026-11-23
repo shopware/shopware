@@ -22,15 +22,9 @@ const { fileReader, EventBus } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    emits: [
-        'click',
-        'media-preview-play',
-    ],
+    emits: ['click', 'media-preview-play'],
 
     placeholderThumbnailsBasePath: '/administration/administration/static/img/media-preview/',
 

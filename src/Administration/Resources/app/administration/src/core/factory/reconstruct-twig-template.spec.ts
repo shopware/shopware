@@ -41,93 +41,72 @@ function unknownLogicToken(): TestToken {
 describe('core/factory/reconstruct-twig-template.ts', () => {
     describe('unit: reconstructInnerTemplate with manual token shapes', () => {
         it('returns an empty string for an empty token array', () => {
-            expect(reconstructInnerTemplate([])).toBe('');
+            expect(reconstructInnerTemplate('sw-test', [])).toBe('');
         });
 
         it('passes raw HTML tokens through verbatim', () => {
             const tokens = [rawToken('<div class="foo"></div>')];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<div class="foo"></div>');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('<div class="foo"></div>');
         });
 
         it('concatenates multiple raw tokens in order', () => {
-            const tokens = [
-                rawToken('<div>'),
-                rawToken('<span>'),
-                rawToken('</span></div>'),
-            ];
+            const tokens = [rawToken('<div>'), rawToken('<span>'), rawToken('</span></div>')];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<div><span></span></div>');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('<div><span></span></div>');
         });
 
         it('replaces a parent token with the <sw-block-parent /> placeholder', () => {
             const tokens = [parentToken()];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<sw-block-parent />');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('<sw-block-parent />');
         });
 
         it('correctly places <sw-block-parent /> between surrounding raw HTML', () => {
-            const tokens = [
-                rawToken('<div class="before">'),
-                parentToken(),
-                rawToken('</div>'),
-            ];
+            const tokens = [rawToken('<div class="before">'), parentToken(), rawToken('</div>')];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"><sw-block-parent /></div>');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('<div class="before"><sw-block-parent /></div>');
         });
 
         it('wraps a nested {% block %} token in <sw-block> preserving the block name', () => {
-            const tokens = [
-                blockToken('outer_block', [
-                    blockToken('inner_block', [rawToken('<div class="inner"></div>')]),
-                ]),
-            ];
+            const tokens = [blockToken('outer_block', [blockToken('inner_block', [rawToken('<div class="inner"></div>')])])];
 
-            expect(reconstructInnerTemplate(tokens)).toBe(
-                '<sw-block name="outer_block"><sw-block name="inner_block"><div class="inner"></div></sw-block></sw-block>',
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe(
+                '<sw-block name="outer_block" sw-internal-component-name="sw-test"><sw-block name="inner_block" sw-internal-component-name="sw-test"><div class="inner"></div></sw-block></sw-block>',
             );
         });
 
         it('wraps a nested block in <sw-block> when it contains a parent token', () => {
-            const tokens = [
-                blockToken('nested_with_parent', [
-                    parentToken(),
-                    rawToken('<div class="extra"></div>'),
-                ]),
-            ];
+            const tokens = [blockToken('nested_with_parent', [parentToken(), rawToken('<div class="extra"></div>')])];
 
-            expect(reconstructInnerTemplate(tokens)).toBe(
-                '<sw-block name="nested_with_parent"><sw-block-parent /><div class="extra"></div></sw-block>',
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe(
+                '<sw-block name="nested_with_parent" sw-internal-component-name="sw-test"><sw-block-parent /><div class="extra"></div></sw-block>',
             );
         });
 
         it('collapses unknown Twig logic tokens (if, for, …) to an empty string', () => {
             const tokens = [unknownLogicToken()];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('');
         });
 
         it('preserves raw tokens before and after an unknown logic token', () => {
-            const tokens = [
-                rawToken('<div class="before">'),
-                unknownLogicToken(),
-                rawToken('</div>'),
-            ];
+            const tokens = [rawToken('<div class="before">'), unknownLogicToken(), rawToken('</div>')];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('<div class="before"></div>');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('<div class="before"></div>');
         });
 
         it('handles a raw token with an undefined value by treating it as an empty string', () => {
             const tokens = [{ type: 'raw' as const }];
 
-            expect(reconstructInnerTemplate(tokens)).toBe('');
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe('');
         });
 
         it('preserves Vue template syntax ({{ }}, v-if, :class) inside raw tokens verbatim', () => {
             const template = '<div :class="{ active: isActive }" v-if="show">{{ label }}</div>';
             const tokens = [rawToken(template)];
 
-            expect(reconstructInnerTemplate(tokens)).toBe(template);
+            expect(reconstructInnerTemplate('sw-test', tokens)).toBe(template);
         });
     });
 });
@@ -136,19 +115,19 @@ describe('integration: reconstructInnerTemplate with real TwigJS parser output',
     it('returns an empty string for an empty twig template', () => {
         const compiled = Twig.twig({ data: '', rethrow: true });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe('');
+        expect(reconstructInnerTemplate('sw-test', compiled.tokens as TwigToken[])).toBe('');
     });
 
     it('passes raw HTML through verbatim', () => {
         const compiled = Twig.twig({ data: '<div class="foo"></div>', rethrow: true });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe('<div class="foo"></div>');
+        expect(reconstructInnerTemplate('sw-test', compiled.tokens as TwigToken[])).toBe('<div class="foo"></div>');
     });
 
     it('replaces {% parent %} with <sw-block-parent /> before surrounding HTML', () => {
         const compiled = Twig.twig({ data: '{% parent %}<div class="after"></div>', rethrow: true });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
+        expect(reconstructInnerTemplate('sw-test', compiled.tokens as TwigToken[])).toBe(
             '<sw-block-parent /><div class="after"></div>',
         );
     });
@@ -156,7 +135,7 @@ describe('integration: reconstructInnerTemplate with real TwigJS parser output',
     it('replaces {% parent %} with <sw-block-parent /> after surrounding HTML', () => {
         const compiled = Twig.twig({ data: '<div class="before"></div>{% parent %}', rethrow: true });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
+        expect(reconstructInnerTemplate('sw-test', compiled.tokens as TwigToken[])).toBe(
             '<div class="before"></div><sw-block-parent />',
         );
     });
@@ -167,8 +146,8 @@ describe('integration: reconstructInnerTemplate with real TwigJS parser output',
             rethrow: true,
         });
 
-        expect(reconstructInnerTemplate(compiled.tokens as TwigToken[])).toBe(
-            '<sw-block name="inner"><sw-block-parent /><div class="extra"></div></sw-block>',
+        expect(reconstructInnerTemplate('sw-test', compiled.tokens as TwigToken[])).toBe(
+            '<sw-block name="inner" sw-internal-component-name="sw-test"><sw-block-parent /><div class="extra"></div></sw-block>',
         );
     });
 });

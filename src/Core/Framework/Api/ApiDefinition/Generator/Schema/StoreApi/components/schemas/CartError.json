@@ -15,9 +15,13 @@
                         "description": "* `0` - notice,\n* `10` - warning,\n* `20` - error"
                     },
                     "message": { "type": "string" },
-                    "messageKey": { "type": "string" }
+                    "messageKey": { "type": "string" },
+                    "block": {
+                        "type": "boolean",
+                        "description": "Whether the error blocks the order from being placed."
+                    }
                 },
-                "required": ["key", "level", "message", "messageKey"]
+                "required": ["key", "level", "message", "messageKey", "block"]
             }
         }
     }

@@ -6,10 +6,7 @@ import EntityCollection from 'src/core/data/entity-collection.data';
  * @sw-package after-sales
  */
 
-const fieldClasses = [
-    '.sw-flow-tag-modal__to-field',
-    '.sw-flow-tag-modal__tags-field',
-];
+const fieldClasses = ['.sw-flow-tag-modal__to-field', '.sw-flow-tag-modal__tags-field'];
 
 function getTagCollection(collection = []) {
     return new EntityCollection('/tag', 'tag', null, { isShopwareContext: true }, collection, collection.length, null);
@@ -74,10 +71,7 @@ async function createWrapper() {
                         template: '<div class="sw-popover"><slot></slot></div>',
                     },
                     'sw-select-result': {
-                        props: [
-                            'item',
-                            'index',
-                        ],
+                        props: ['item', 'index'],
                         template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -193,10 +187,7 @@ describe('module/sw-flow/component/sw-flow-tag-modal', () => {
 
         expect(wrapper.vm.entityOptions).toHaveLength(2);
         wrapper.vm.entityOptions.forEach((option) => {
-            expect([
-                'Order',
-                'Customer',
-            ]).toContain(option.label);
+            expect(['Order', 'Customer']).toContain(option.label);
         });
     });
 

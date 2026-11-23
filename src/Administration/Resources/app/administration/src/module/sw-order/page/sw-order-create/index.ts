@@ -16,14 +16,9 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         isLoading: boolean;
@@ -31,8 +26,8 @@ export default Shopware.Component.wrapComponentConfig({
         showInvalidCodeModal: boolean;
         showRemindPaymentModal: boolean;
         remindPaymentModalLoading: boolean;
-        orderId: string | null;
-        orderTransaction: { id: string; paymentMethodId: string } | null;
+        orderId: EntityKey<'order'> | null;
+        orderTransaction: { id: EntityKey<'order_transaction'>; paymentMethodId: EntityKey<'payment_method'> } | null;
         paymentMethodName: string;
     } {
         return {
@@ -64,6 +59,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed, use orderValidateErrorMessage() instead.
          */
         isSaveOrderValid(): boolean {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-create.isSaveOrderValid is deprecated. Use orderValidateErrorMessage() instead.',
+            );
+
             return (this.customer &&
                 this.cart.token &&
                 this.cart.lineItems.length &&
@@ -139,7 +139,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isSaveSuccessful = false;
             Shopware.Store.get('context').api.languageId =
-                localStorage.getItem('sw-admin-current-language') || Shopware.Defaults.systemLanguageId;
+                (localStorage.getItem('sw-admin-current-language') as EntityKey<'language'>) ||
+                Shopware.Defaults.systemLanguageId;
             void this.$router.push({
                 name: 'sw.order.detail',
                 params: { id: this.orderId },
@@ -165,8 +166,11 @@ export default Shopware.Component.wrapComponentConfig({
                     contextToken: this.cart.token,
                 })) as {
                     data: {
-                        id: string;
-                        transactions: Array<{ id: string; paymentMethodId: string }>;
+                        id: EntityKey<'order'>;
+                        transactions: Array<{
+                            id: EntityKey<'order_transaction'>;
+                            paymentMethodId: EntityKey<'payment_method'>;
+                        }>;
                     };
                 };
 

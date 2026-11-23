@@ -11,14 +11,9 @@ const { Context } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'save-media',
-        'modal-close',
-    ],
+    emits: ['save-media', 'modal-close'],
 
     props: {
         initialFolderId: {

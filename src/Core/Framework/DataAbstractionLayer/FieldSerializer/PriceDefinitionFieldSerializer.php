@@ -8,20 +8,25 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\UnknownConditionRule;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Framework\Validation\Constraint\Uuid;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
+use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -43,6 +48,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         parent::__construct($validator, $compositeHandler);
     }
 
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [DataAbstractionLayerException::class], description: 'Invalid price definition types use the DAL domain exception instead of InvalidPriceFieldTypeException.')]
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -54,7 +60,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
         if (\is_array($value)) {
             if (!\array_key_exists('type', $value)) {
-                throw new InvalidPriceFieldTypeException('none');
+                throw DataAbstractionLayerException::invalidPriceFieldType('none');
             }
 
             switch ($value['type']) {
@@ -64,13 +70,8 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         QuantityPriceDefinition::getConstraints(),
                         $parameters->getPath()
                     );
-                    if (!\array_key_exists('taxRules', $value)) {
-                        break;
-                    }
 
-                    foreach ($value['taxRules'] as $key => $taxRule) {
-                        $this->validateProperties($taxRule, TaxRule::getConstraints(), $parameters->getPath() . '/taxRules/' . $key);
-                    }
+                    $this->validateEntries($value['taxRules'], TaxRule::getConstraints(), $parameters->getPath() . '/taxRules');
 
                     break;
                 case AbsolutePriceDefinition::TYPE:
@@ -85,7 +86,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                        throw DataAbstractionLayerException::invalidWriteConstraintViolation($violations, $parameters->getPath());
                     }
 
                     break;
@@ -95,13 +96,16 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                         CurrencyPriceDefinition::getConstraints(),
                         $parameters->getPath()
                     );
+
+                    $this->validateEntries($value['price'], $this->getCurrencyPriceConstraints(), $parameters->getPath() . '/price');
+
                     if (!\array_key_exists('filter', $value) || $value['filter'] === null) {
                         break;
                     }
 
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                        throw DataAbstractionLayerException::invalidWriteConstraintViolation($violations, $parameters->getPath());
                     }
 
                     break;
@@ -117,12 +121,12 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                        throw DataAbstractionLayerException::invalidWriteConstraintViolation($violations, $parameters->getPath());
                     }
 
                     break;
                 default:
-                    throw new InvalidPriceFieldTypeException($value['type']);
+                    throw DataAbstractionLayerException::invalidPriceFieldType($value['type']);
             }
 
             unset($value['extensions']);
@@ -133,6 +137,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [DataAbstractionLayerException::class], description: 'Invalid price definition types use the DAL domain exception instead of InvalidPriceFieldTypeException.')]
     public function decode(Field $field, mixed $value): ?PriceDefinitionInterface
     {
         if ($value === null) {
@@ -145,14 +150,15 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         }
 
         if (!\array_key_exists('type', $decoded)) {
-            throw new InvalidPriceFieldTypeException('none');
+            throw DataAbstractionLayerException::invalidPriceFieldType('none');
         }
 
         switch ($decoded['type']) {
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($decoded);
             case AbsolutePriceDefinition::TYPE:
-                return new AbsolutePriceDefinition($decoded['price'], $this->decodeFilter($decoded));
+                // `Type('numeric')` accepts numeric strings on write
+                return new AbsolutePriceDefinition((float) $decoded['price'], $this->decodeFilter($decoded));
             case CurrencyPriceDefinition::TYPE:
                 $collection = new PriceCollection();
                 foreach ($decoded['price'] as $price) {
@@ -161,10 +167,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
                 return new CurrencyPriceDefinition($collection, $this->decodeFilter($decoded));
             case PercentagePriceDefinition::TYPE:
-                return new PercentagePriceDefinition($decoded['percentage'], $this->decodeFilter($decoded));
+                return new PercentagePriceDefinition((float) $decoded['percentage'], $this->decodeFilter($decoded));
         }
 
-        throw new InvalidPriceFieldTypeException($decoded['type']);
+        throw DataAbstractionLayerException::invalidPriceFieldType($decoded['type']);
     }
 
     /**
@@ -179,6 +185,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $this->decodeRule($decoded['filter']);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function validateRules(array $data, string $basePath): ConstraintViolationList
     {
         $violationList = new ConstraintViolationList();
@@ -224,6 +233,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $violationList;
     }
 
+    /**
+     * @param array<string, mixed> $rule
+     */
     private function decodeRule(array $rule): Rule
     {
         if (!$this->ruleConditionRegistry->has($rule['_name'])) {
@@ -247,6 +259,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $object;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, list<Constraint>> $constraints
+     */
     private function validateProperties(array $data, array $constraints, string $path): void
     {
         foreach ($constraints as $key => $constraint) {
@@ -260,6 +276,40 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         }
     }
 
+    /**
+     * Validates each entry of a list inside the price definition, so that `decode()` can read all of them again.
+     *
+     * @param array<array-key, mixed> $entries
+     * @param array<string, list<Constraint>> $constraints
+     */
+    private function validateEntries(array $entries, array $constraints, string $path): void
+    {
+        foreach ($entries as $key => $entry) {
+            $this->validate([new Type('array')], new KeyValuePair((string) $key, $entry, true), $path);
+
+            /** @var array<string, mixed> $entry */
+            $this->validateProperties($entry, $constraints, $path . '/' . $key);
+        }
+    }
+
+    /**
+     * Only the properties that `decode()` reads, so further properties of a serialized `Price` stay allowed.
+     *
+     * @return array<string, list<Constraint>>
+     */
+    private function getCurrencyPriceConstraints(): array
+    {
+        return [
+            'currencyId' => [new NotBlank(), new Uuid()],
+            'net' => [new NotNull(), new Type('numeric')],
+            'gross' => [new NotNull(), new Type('numeric')],
+            'linked' => [new NotNull(), new Type('bool')],
+        ];
+    }
+
+    /**
+     * @param array<string, string> $parameters
+     */
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
@@ -275,6 +325,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         );
     }
 
+    /**
+     * @param array<string, list<Constraint>> $fieldValidations
+     * @param array<string, mixed> $payload
+     */
     private function validateConsistence(string $basePath, array $fieldValidations, array $payload): ConstraintViolationList
     {
         $list = new ConstraintViolationList();

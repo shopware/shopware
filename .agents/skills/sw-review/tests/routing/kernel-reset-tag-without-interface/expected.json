@@ -1,0 +1,20 @@
+{
+  "$comment": "A real change added the kernel.reset tag to a memoising service without implementing ResetInterface; review asked for both. A tag-only DI change must reach the DI guide through the kernel.reset anchor. Test files changed, so the tests guide loads too.",
+  "signals": [
+    "fork_pr",
+    "external",
+    "php_src",
+    "tests_changed"
+  ],
+  "not_signals": [
+    "di",
+    "migration",
+    "storefront_ui"
+  ],
+  "guides": [
+    "platform-scope",
+    "bc-php",
+    "di-and-extension-points",
+    "tests-for-behavior-change"
+  ]
+}

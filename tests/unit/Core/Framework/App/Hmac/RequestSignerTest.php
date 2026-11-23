@@ -75,7 +75,7 @@ class RequestSignerTest extends TestCase
         $response = new Response(200, $responseHeaders, $body);
 
         static::assertTrue($post->isResponseAuthentic($response, $this->authSecret));
-        static::assertNotEmpty($response->getBody()->getContents());
+        static::assertNotSame('', $response->getBody()->getContents());
     }
 
     public function testIsResponseAuthenticRequiredWithoutHeader(): void

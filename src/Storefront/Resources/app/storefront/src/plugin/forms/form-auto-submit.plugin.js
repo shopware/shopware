@@ -61,7 +61,9 @@ export default class FormAutoSubmitPlugin extends Plugin {
         }
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
-        this._client = new HttpClient();
+        if (!window.Feature.isActive('v6.8.0.0')) {
+            this._client = new HttpClient();
+        }
 
         if (this.options.useAjax) {
             if (!this.options.ajaxContainerSelector) {
@@ -97,24 +99,23 @@ export default class FormAutoSubmitPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        if (this.options.useAjax) {
-            const onSubmit =
-                this.options.delayChangeEvent ?
-                    Debouncer.debounce(this._onSubmit.bind(this), this.options.delayChangeEvent) :
-                    this._onSubmit.bind(this);
+        const onChange = this.options.useAjax ? this._onSubmit.bind(this) : this._onChange.bind(this);
+        if (this.options.delayChangeEvent) {
+            const delayedChange = Debouncer.debounce(onChange, this.options.delayChangeEvent);
+            this._form.addEventListener('change', (event) => {
+                if (event.detail?.submitImmediately) {
+                    delayedChange.flush(event);
+                    return;
+                }
 
-            this._form.removeEventListener('change', onSubmit);
-            this._form.addEventListener('change', onSubmit);
+                delayedChange(event);
+            });
         } else {
-            const onChange =
-                this.options.delayChangeEvent ?
-                    Debouncer.debounce(this._onChange.bind(this), this.options.delayChangeEvent) :
-                    this._onChange.bind(this);
-
-            this._form.removeEventListener('change', onChange);
             this._form.addEventListener('change', onChange);
+        }
 
-            // // Remove the loading indicator before leaving the page to not cache it in back/forward-cache.
+        if (!this.options.useAjax) {
+            // Remove the loading indicator before leaving the page to not cache it in back/forward-cache.
             window.addEventListener('pagehide', () => {
                 PageLoadingIndicatorUtil.remove();
             });

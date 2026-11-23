@@ -12,9 +12,7 @@ const TRANSLATE_WITH_FALLBACK_DESCRIPTOR: ComposableDescriptor = {
         source: 'src/app/composables/use-translate-with-fallback',
         name: 'useTranslateWithFallback',
     },
-    members: methodMembers([
-        'tWithFallback',
-    ]),
+    members: methodMembers(['tWithFallback']),
 };
 
 export default TRANSLATE_WITH_FALLBACK_DESCRIPTOR;

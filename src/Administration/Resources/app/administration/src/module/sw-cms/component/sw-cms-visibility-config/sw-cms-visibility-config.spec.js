@@ -58,18 +58,9 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         await wrapper.get('#sw-cms-visibility-config-desktop').setChecked(true);
 
         expect(wrapper.emitted()['visibility-change']).toStrictEqual([
-            [
-                'mobile',
-                false,
-            ],
-            [
-                'tablet',
-                false,
-            ],
-            [
-                'desktop',
-                false,
-            ],
+            ['mobile', false],
+            ['tablet', false],
+            ['desktop', false],
         ]);
     });
 });

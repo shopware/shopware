@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidForeignKeyReferenceException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -120,7 +122,47 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
+    }
+
+    public function testDeletingAProductAndThenItsCoverReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'cover-product'))->price(100)->cover('cover-media')->build(),
+        ], Context::createDefaultContext());
+
+        $result = $this->service->sync([
+            new SyncOperation('delete-product', 'product', SyncOperation::ACTION_DELETE, [['id' => $ids->get('cover-product')]]),
+            new SyncOperation('delete-cover', 'product_media', SyncOperation::ACTION_DELETE, [['id' => $ids->get('cover-media')]]),
+        ], Context::createDefaultContext(), new SyncBehavior());
+
+        static::assertSame([$ids->get('cover-product')], $result->getDeleted()['product'] ?? []);
+        static::assertArrayNotHasKey('product', $result->getData());
+    }
+
+    public function testDeletingAProductAndThenItsPriceReportsTheProductAsDeleted(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'priced-product'))->price(100)->prices('price-rule', 50)->build(),
+        ], Context::createDefaultContext());
+
+        $priceId = $this->connection->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_price WHERE product_id = :productId',
+            ['productId' => Uuid::fromHexToBytes($ids->get('priced-product'))]
+        );
+        static::assertIsString($priceId);
+
+        $result = $this->service->sync([
+            new SyncOperation('delete-product', 'product', SyncOperation::ACTION_DELETE, [['id' => $ids->get('priced-product')]]),
+            new SyncOperation('delete-price', 'product_price', SyncOperation::ACTION_DELETE, [['id' => $priceId]]),
+        ], Context::createDefaultContext(), new SyncBehavior());
+
+        static::assertSame([$ids->get('priced-product')], $result->getDeleted()['product'] ?? []);
+        static::assertArrayNotHasKey('product', $result->getData());
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void
@@ -175,8 +217,6 @@ class SyncServiceTest extends TestCase
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $createListener = $this->createMock(CallableClass::class);
 
         $createListener->expects($this->once())
@@ -187,10 +227,10 @@ class SyncServiceTest extends TestCase
         $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
 
-        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $createListener);
-        $this->addEventListener($dispatcher, 'tax.deleted', $deleteListener);
-        $this->addEventListener($dispatcher, 'country.deleted', $deleteListener);
-        $this->addEventListener($dispatcher, 'country_translation.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWrittenContainerEvent::class, $createListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('tax.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('country.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('country_translation.deleted', $deleteListener);
 
         $operations = [
             new SyncOperation('manufacturers', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
@@ -221,28 +261,26 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testSingleOperationParameter(): void
     {
         $ids = new IdsCollection();
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->once())
             ->method('__invoke');
 
-        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWrittenContainerEvent::class, $listener);
 
         $operations = [
             new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
@@ -295,6 +333,33 @@ class SyncServiceTest extends TestCase
         /** @var WriteConstraintViolationException $first */
         static::assertInstanceOf(WriteConstraintViolationException::class, $first);
         static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
+    }
+
+    public function testInvalidProductCategoryReferenceIsReportedWithAFieldSpecificWriteError(): void
+    {
+        $ids = new IdsCollection();
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'product'))->price(100)->build(),
+        ], Context::createDefaultContext());
+
+        $operation = new SyncOperation('mapping', 'product_category', SyncOperation::ACTION_UPSERT, [[
+            'productId' => $ids->get('product'),
+            'categoryId' => Uuid::randomHex(),
+        ]]);
+
+        $exception = null;
+        try {
+            $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior());
+        } catch (InvalidForeignKeyReferenceException $exception) {
+        }
+
+        static::assertInstanceOf(InvalidForeignKeyReferenceException::class, $exception, 'The invalid reference should be reported as a write error.');
+        $error = $exception->getErrors()->current();
+        static::assertSame(InvalidForeignKeyReferenceException::ERROR_CODE, $error['code']);
+        static::assertSame('/categoryId', $error['source']['pointer']);
+        static::assertStringContainsString('product_category', (string) $error['detail']);
+        static::assertStringContainsString('category', (string) $error['detail']);
+        static::assertStringContainsString('Integrity constraint violation: 1452', (string) $error['detail']);
     }
 
     public function testDeleteWithWildCards(): void

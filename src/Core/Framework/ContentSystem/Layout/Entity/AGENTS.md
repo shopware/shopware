@@ -1,16 +1,8 @@
-> Conceptual overview and design rationale live in the parent directory's
-> [README.md](../README.md). The references and constraints below cover most code
-> changes; read the README when you need the mental model.
+## Constraints
 
-## Source Code References
+- Keep `root_source` `Required` and `Immutable` on `ContentLayoutDefinition`: a layout holds one root source, and rejects an assignment to another kind. Check: can the field change after creation, or one layout serve two root sources? [stored-model.md](../../docs/principles/stored-model.md)
 
-- `ContentLayoutEntity` - Layout template entity
-- `ContentLayoutDefinition` - Layout DAL definition; `ENTITY_NAME = 'content_layout'`, `LAYOUT_FIELD = 'layout'`, `ROOT_SOURCE_FIELD = 'root_source'`; fields: `id`, `name` (string, 255), `version` (string, 20), `layout` (`StoredElementListField`, required), `root_source` (`StringField('root_source', 'rootSource')`, ApiAware + Required + Immutable — the layout's single declared root source: an entity type, a section, or `none`); product / category / landing-page assignment associations carry `RestrictDelete` — with the header and footer associations the Storefront contributes, that is all five, so a bound layout cannot be deleted: the DAL throws `RestrictDeleteViolationException` before any SQL runs, backed by `ON DELETE RESTRICT` on each `content_layout_id` foreign key. This is DAL machinery rather than a content-system gate, so `SKIP_VALIDATION_STATE` does not bypass it; the sibling `sales_channel_id` and `domain_id` keys stay `ON DELETE CASCADE`, so deleting a channel or domain removes the assignment while the layout survives
-- `ContentLayoutCollection` - Layout collection
+## Where to look
 
-## Quick Reference
-
-- Repository: `content_layout.repository`
-- ID generation: `Uuid::randomHex()`
-- Serialization: Automatic via custom field serializers in `Field/`
-- Package: `#[Package('framework')]`
+- The layout repository, id generation and how the layout column serializes: [README.md](../README.md#subdirectories)
+- The layout column's field and serializer: [Field/README.md](../Field/README.md#key-classes)

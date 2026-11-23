@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
@@ -86,6 +86,24 @@ class MailerTransportDecoratorTest extends TestCase
 
         static::assertSame('foo', $attachments[0]->getBody());
         static::assertSame('bar', $attachments[1]->getBody());
+    }
+
+    public function testMailerTransportDecoratorSkipsExternalUrlAttachments(): void
+    {
+        $mail = new Mail();
+        $envelope = static::createStub(Envelope::class);
+        $mail->addAttachmentUrl('https://cdn.example.com/../../victim.txt');
+        $mail->addAttachmentUrl('foo');
+
+        $this->filesystem->write('victim.txt', 'confidential');
+        $this->filesystem->write('foo', 'foo');
+
+        $this->decorated->expects($this->once())->method('send')->with($mail, $envelope);
+
+        $this->decorator->send($mail, $envelope);
+        $attachments = $mail->getAttachments();
+        static::assertCount(1, $attachments);
+        static::assertSame('foo', $attachments[0]->getBody());
     }
 
     public function testMailerTransportDecoratorWithBuildAttachments(): void

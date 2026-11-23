@@ -2,6 +2,17 @@
 
 Reference spec: [Model Context Protocol server specification 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/server)
 
+Shopware serves the handshake era by default.
+`shopware.mcp.protocol_era.admin` and `shopware.mcp.protocol_era.store_api` switch an endpoint to `auto`, which also serves the stateless 2026-07-28 revision from the same URL, and the client picks.
+`McpServerBuilderCompilerPass` applies the setting; `legacy` keeps `Builder::withoutModernEra()`.
+What each feature does without a session is decided in `adr/2026-09-24-mcp-stateless-era-degradation-policy.md` and covered by `McpDualEraConformanceTest`.
+On the stateless era `tools/list` does not advertise `shopware-toolset-enable` and `shopware-toolsets-list`, because there is no session to keep a toolset in; a direct call answers `isError`, and the `server/discover` instructions and `shopware-tool-search` point to `?toolsets=` instead.
+No request state key is configured, because no Shopware handler asks the client for input more than once; the rules are in "Request state on the stateless era" of `AGENTS.md`, the key itself is planned in #22081.
+On the stateless revision, `subscriptions/listen` carries `notifications/{tools,resources,prompts}/list_changed` on the Admin API endpoint, from the list versions in `mcp_list_version` (`McpListVersionsNotificationBus`).
+`server/discover` of the Admin API endpoint announces `listChanged`; the Store API endpoint does not, because its lists only change per session.
+A listen stream lasts 25 seconds and holds one PHP worker for that time.
+`notifications/resources/updated` is not published.
+
 This doc is the compact matrix for one question:
 
 - what the MCP server spec allows
@@ -24,12 +35,12 @@ The intent is clarity, not false certainty. Where the current state is not verif
 
 | Spec surface | What the spec allows | Shopware today | Confidence | Follow-up |
 |---|---|---|---|---|
-| Tools | `tools/list`, `tools/call`, optional `notifications/tools/list_changed`, paginated `tools/list`, metadata like `title`, `description`, `icons`, `inputSchema`, optional `outputSchema` | Core tools and extension tools exist; `tools/list` and `tools/call` clearly exist; names, descriptions, and input schemas are documented | clear | Audit whether `listChanged` is advertised/emitted and whether Shopware should start using `title`, `icons`, and `outputSchema` |
-| Tool results | `content[]`, optional `structuredContent`, optional `isError`, optional `_meta` | Current helpers are text-first and often serialize a Shopware-local JSON envelope such as `{\"success\": true, \"data\": ...}` | clear | Review `McpToolResponse` and related helpers against spec-native `content[]`, `structuredContent`, `isError`, and `outputSchema` |
+| Tools | `tools/list`, `tools/call`, optional `notifications/tools/list_changed`, paginated `tools/list`, metadata like `title`, `description`, `icons`, `inputSchema`, optional `outputSchema` | Core tools and extension tools exist; `tools/list` and `tools/call` clearly exist; names, descriptions, and input schemas are documented; every core tool declares the behaviour annotations `readOnlyHint`, `destructiveHint`, `idempotentHint` and `openWorldHint` (rules and table in `Tool/AGENTS.md`) | clear | Audit whether `listChanged` is advertised/emitted and whether Shopware should start using `title`, `icons`, and `outputSchema`; app tools declare no annotations yet (#22045) |
+| Tool results | `content[]`, optional `structuredContent`, optional `isError`, optional `_meta` | `McpToolResultRenderer` sends `structuredContent`, `isError` with a stable error code, and `_meta`. The negotiated revision picks the format (`McpToolResultCapabilities`): since 2025-06-18 the text blocks are the plain data, the summary and `{\"_meta\": …}`, and `structuredContent` carries the same metadata for the model under the reserved key `_meta` (not for tools with an `outputSchema`); before 2025-06-18 the only text block is the deprecated legacy `{\"success\": …}` envelope. Results above 200 KB rendered (text plus `structuredContent`, about 100 KB of data) are stored and linked with `resource_link` (2025-06-18 and later), signed for the calling principal. The stored content is the plain data since 2025-06-18 and the legacy envelope before | clear | `outputSchema` per tool; core tools return `McpToolResult` directly and the legacy string is deprecated (#21306) |
 | Prompts | `prompts/list`, `prompts/get`, optional `notifications/prompts/list_changed`, paginated `prompts/list`, metadata like `title`, `description`, `icons`, prompt arguments | Core `shopware-context` prompt exists; app-backed prompts exist | clear | Audit pagination, `listChanged`, and whether prompt metadata should use more spec fields |
 | Resources | `resources/list`, `resources/read`, `resources/templates/list`, optional `resources/subscribe`, optional `resources/unsubscribe`, optional `notifications/resources/updated`, optional `notifications/resources/list_changed`, paginated list operations | Small fixed set of reference resources exists; app-backed resources exist; resources are treated as read-only reference data | partial | Audit `resources/templates/list`, subscriptions, update notifications, metadata fields, and real pagination behavior |
 | Utilities: Completion | `completion/complete` for prompt arguments and URI template arguments | Support is not documented clearly enough yet | unknown | Audit `symfony/mcp-bundle` and SDK support, then decide whether Shopware should expose domain-specific completions like entity names or state-machine actions |
-| Utilities: Logging | Declared `logging` capability, `logging/setLevel`, `notifications/message` with RFC 5424-style levels | Shopware has an `mcp` Monolog channel, but that is not yet a documented MCP logging utility story | partial | Decide whether Shopware wants real MCP logging utility support; keep product metrics on telemetry, not on log parsing |
+| Utilities: Logging | Declared `logging` capability, `logging/setLevel`, `notifications/message` with RFC 5424-style levels | Shopware has an `mcp` Monolog channel, which is a support tool, not the protocol utility | not planned | Deprecated upstream by SEP-2577 (earliest removal 2027-07-28). Do not build it; keep product metrics on telemetry, not on log parsing |
 | Utilities: Pagination | Opaque cursor pagination on `tools/list`, `prompts/list`, `resources/list`, `resources/templates/list` | Shopware already uses application-level pagination inside some tool payloads, but MCP list pagination is not documented clearly | partial | Verify which MCP list endpoints are actually paginated and align capability advertising and response objects |
 | Initialize capability advertisement | `initialize` should only advertise what the server actually supports | Current docs do not pin this down clearly enough | unknown | Audit actual advertised capabilities vs implementation and keep that check in CI or release verification |
 
@@ -41,15 +52,16 @@ These are not “server feature rows” in the spec navigation, but Shopware sti
 |---|---|---|---|
 | Transport | Streamable HTTP at `/api/_mcp` via `symfony/mcp-bundle` and `McpServerController` | clear | Keep docs aligned with the actual bundle behavior after upgrades |
 | Session lifecycle and JSON-RPC routing | Delegated to `symfony/mcp-bundle` / MCP PHP SDK | partial | Document the exact boundary between bundle behavior and Shopware-specific additions |
-| Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules | clear | Keep docs and tests aligned with the real enforcement path |
+| Cache hints (SEP-2549) | `ttlMs` and `cacheScope` on `server/discover`, the list methods and `resources/read`, sent by mcp/sdk 0.9 on 2026-07-28 only; handshake answers carry none. Everything is `private`, because the allowlist and `?toolsets=` shape the lists per caller. Default `ttlMs: 0`; `server/discover` and the four list methods 60 seconds; reference resources one hour (entities, state machines, business events, flow actions) or 60 seconds (currencies, languages, sales channels) through `McpResourceCacheHint`; stored tool results, app resources and `shopware://extensions` 0. Configured in `servers.<name>.cache` of `packages/mcp.php` | clear | Revisit the TTLs once stateless clients report how they use them |
+| Auth and authorization | Shopware adds Admin API auth bridge, ACL, rate limiting, feature flag, app HMAC execution, and MCP tool registration rules. OAuth per the MCP authorization spec on `/api/_mcp`: `401` with `WWW-Authenticate` pointing to the protected resource metadata (RFC 9728), authorization server metadata (RFC 8414), PKCE `S256`, and tokens bound to the MCP resource (RFC 8707). Clients are registered by the operator in `shopware.api.oauth_clients`; see `## Authentication` in `AGENTS.md` | clear | Client ID metadata documents or dynamic client registration (#22047); keep docs and tests aligned with the real enforcement path |
 
 ## Client-side spec areas that are not server features here
 
 | Spec area | Why it is out of scope for `/api/_mcp` |
 |---|---|
-| Client roots | Implemented by MCP clients, not the Shopware server |
-| Client sampling | The client or model provider handles this, not the Shopware server |
-| Client elicitation | Client-side interactive UX, not a shop server feature |
+| Client roots | Implemented by MCP clients, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
+| Client sampling | The client or model provider handles this, not the Shopware server; also deprecated upstream by SEP-2577 (earliest removal 2027-07-28) |
+| Client elicitation | The form is client-side UX. URL elicitation as a confirmation path for destructive tools is planned in #19972, with a stored confirmation record instead of request state |
 
 ## Response model review
 
@@ -57,9 +69,9 @@ This is the highest-value alignment topic because it affects every tool.
 
 | Current Shopware pattern | MCP-native alternative | Why it matters | Decision needed |
 |---|---|---|---|
-| Tool returns a `string` and often serializes `{\"success\": true, \"data\": ..., \"_meta\": ...}` | `content[]` plus optional `structuredContent` and optional `isError` | The current helper is practical, but it is not the same as the protocol’s native result model | Decide whether the current envelope is transitional or long-term |
+| Tool returns a `string` and often serializes `{\"success\": true, \"data\": ..., \"_meta\": ...}` | `content[]` plus optional `structuredContent` and optional `isError` | The current helper is practical, but it is not the same as the protocol’s native result model | Decided: transitional, see `adr/2026-09-24-mcp-tool-result-envelope.md`. The renderer maps it: clients since 2025-06-18 get the MCP format, older ones the envelope, which is deprecated and kept for them |
 | No `outputSchema` usage in current docs | Tool definition can advertise `outputSchema` | Better machine-readable contracts for clients and for docs | Decide whether to start adding `outputSchema` for stable tools |
-| Business errors often encoded inside the JSON envelope | MCP-native result can mark `isError`, while transport-level failures stay JSON-RPC errors | Cleaner distinction between expected tool errors and protocol failures | Define a consistent error-mapping rule |
+| Business errors often encoded inside the JSON envelope | MCP-native result can mark `isError`, while transport-level failures stay JSON-RPC errors | Cleaner distinction between expected tool errors and protocol failures | Done: a failed call sets `isError` with a code from `McpToolError` (`invalid_arguments`, `missing_privilege`, `not_found`, `tool_error`); protocol failures stay JSON-RPC errors |
 
 ## Observability split
 
@@ -69,7 +81,7 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 |---|---|---|
 | Central adoption metrics across installations | Shopware telemetry abstraction with OpenTelemetry-capable transports | Product and platform need centralized, comparable metrics |
 | Request-level support and debugging | Structured logs on the `mcp` channel | Logs are still useful for correlation and support trails |
-| MCP protocol logging utility | Optional later capability | Only add it if we actually need MCP `logging/setLevel` and `notifications/message` as protocol features |
+| MCP protocol logging utility | Dropped | SEP-2577 deprecated Logging in mcp/sdk 0.8 before Shopware ever adopted it. The question is closed: do not add `logging/setLevel` or `notifications/message` |
 
 ## Recommended next checks
 
@@ -77,6 +89,6 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 |---|---|---|
 | 1 | Audit actual `initialize` capability advertisement | No over-promising in capability flags |
 | 2 | Audit `tools/list`, `prompts/list`, `resources/list`, and `resources/templates/list` for pagination behavior | Honest docs and capability claims |
-| 3 | Decide whether Shopware wants real MCP logging utility support or only telemetry plus support logs | Clear logging story |
-| 4 | Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema` | Cleaner tool result contract |
+| 3 | ~~Decide whether Shopware wants real MCP logging utility support~~ — answered by SEP-2577: telemetry plus support logs, no protocol logging | Clear logging story |
+| 4 | ~~Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema`~~ Done for `content[]`, `structuredContent` and `isError`; `outputSchema` follows with #17516 | Cleaner tool result contract |
 | 5 | Mirror the final matrix into official docs on `developer.shopware.com/docs` | One canonical public explanation |

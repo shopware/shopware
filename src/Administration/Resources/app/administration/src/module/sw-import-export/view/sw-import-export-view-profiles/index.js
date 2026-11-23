@@ -13,15 +13,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'importExport',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'importExport', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -48,10 +42,7 @@ export default {
         },
 
         profileCriteria() {
-            return new Criteria(1, 25)
-                .setTerm(this.searchTerm)
-                .addAssociation('importExportLogs')
-                .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            return new Criteria(1, 25).setTerm(this.searchTerm).addSorting(Criteria.sort(this.sortBy, this.sortDirection));
         },
 
         profilesColumns() {
@@ -70,18 +61,6 @@ export default {
                     allowResize: true,
                 },
             ];
-        },
-
-        isNotSystemLanguage() {
-            return Shopware.Context.api.systemLanguageId !== Shopware.Context.api.languageId;
-        },
-
-        createTooltip() {
-            return {
-                showDelay: 300,
-                message: this.$t('sw-import-export.profile.addNewProfileTooltipLanguage'),
-                disabled: !this.isNotSystemLanguage,
-            };
         },
     },
 

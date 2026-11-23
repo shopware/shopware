@@ -4,13 +4,14 @@ namespace Shopware\Core\System\User\Recovery;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\TrustedOriginUrlGenerator;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -23,9 +24,6 @@ use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\System\User\UserException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 #[Package('fundamentals@framework')]
@@ -51,20 +49,19 @@ class UserRecoveryService
 
     public function generateUserRecovery(string $userEmail, Context $context): void
     {
-        $user = $this->getUserByEmail($userEmail, $context);
+        $userId = $this->getUserIdByEmail($userEmail, $context);
 
-        if (!$user) {
+        if ($userId === null) {
             return;
         }
-
-        $userId = $user->getId();
 
         $userIdCriteria = new Criteria();
         $userIdCriteria->addFilter(new EqualsFilter('userId', $userId));
         $userIdCriteria->addAssociation('user');
 
-        if ($existingRecovery = $this->getUserRecovery($userIdCriteria, $context)) {
-            $this->deleteRecoveryForUser($existingRecovery, $context);
+        $existingRecoveryId = $this->userRecoveryRepo->searchIds($userIdCriteria, $context)->firstId();
+        if ($existingRecoveryId !== null) {
+            $this->userRecoveryRepo->delete([['id' => $existingRecoveryId]], $context);
         }
 
         $recoveryData = [
@@ -82,17 +79,14 @@ class UserRecoveryService
 
         $hash = $recovery->getHash();
 
-        if (Request::getTrustedHosts() === []) {
-            // The router takes the host from the incoming request, which Symfony only validates against
-            // configured trusted hosts. Without them the host can't be trusted, because it's client provided, therefore we fall back to use the APP_URL
-            $url = $this->buildAdministrationUrlFromAppUrl();
-        } else {
-            try {
-                $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            } catch (RouteNotFoundException) {
-                // fallback if admin bundle is not installed, the url should work once the bundle is installed
-                $url = $this->buildAdministrationUrlFromAppUrl();
+        try {
+            $url = TrustedOriginUrlGenerator::generateAdministrationUrl($this->router);
+        } catch (RoutingException $e) {
+            if ($e->getErrorCode() !== RoutingException::INVALID_APP_URL) {
+                throw $e;
             }
+
+            throw UserException::invalidAppUrl((string) $e->getParameter('appUrl'));
         }
 
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
@@ -166,7 +160,7 @@ class UserRecoveryService
         return $user?->getUser();
     }
 
-    private function getUserByEmail(string $userEmail, Context $context): ?UserEntity
+    private function getUserIdByEmail(string $userEmail, Context $context): ?string
     {
         $criteria = new Criteria();
 
@@ -174,7 +168,7 @@ class UserRecoveryService
             new EqualsFilter('email', $userEmail)
         );
 
-        return $this->userRepo->search($criteria, $context)->getEntities()->first();
+        return $this->userRepo->searchIds($criteria, $context)->firstId();
     }
 
     private function getUserRecovery(Criteria $criteria, Context $context): ?UserRecoveryEntity
@@ -189,19 +183,6 @@ class UserRecoveryService
         ];
 
         $this->userRecoveryRepo->delete([$recoveryData], $context);
-    }
-
-    private function buildAdministrationUrlFromAppUrl(): string
-    {
-        $appUrl = rtrim((string) EnvironmentHelper::getVariable('APP_URL', ''), '/');
-
-        if (!filter_var($appUrl, \FILTER_VALIDATE_URL) || !\in_array(parse_url($appUrl, \PHP_URL_SCHEME), ['http', 'https'], true)) {
-            throw UserException::invalidAppUrl($appUrl);
-        }
-
-        $pathName = trim((string) EnvironmentHelper::getVariable('SHOPWARE_ADMINISTRATION_PATH_NAME', 'admin'), '/');
-
-        return $appUrl . '/' . $pathName;
     }
 
     /**

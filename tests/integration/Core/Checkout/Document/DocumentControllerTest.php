@@ -181,7 +181,7 @@ class DocumentControllerTest extends TestCase
 
         static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
         $endpoint = \sprintf('/api/_action/order/%s/%s/document/invoice/preview', $orderId, 'wrong deep link code');
@@ -189,7 +189,7 @@ class DocumentControllerTest extends TestCase
 
         static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_NOT_FOUND);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('DOCUMENT__GENERATION_ERROR', $response['errors'][0]['code']);
 
         $deepLinkCode = $order->getDeepLinkCode();
@@ -224,7 +224,7 @@ class DocumentControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getBrowser()->getResponse()->getStatusCode());
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(
@@ -279,13 +279,13 @@ class DocumentControllerTest extends TestCase
         static::assertArrayHasKey('data', $response);
 
         $data = $response['data'];
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
         static::assertCount(2, $data);
 
         $documentIds = $this->getDocumentIds($data);
         $documents = $this->getDocumentByDocumentIds($documentIds);
 
-        static::assertNotEmpty($documents);
+        static::assertNotCount(0, $documents);
         static::assertCount(2, $documents);
     }
 
@@ -337,7 +337,7 @@ class DocumentControllerTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
@@ -437,7 +437,7 @@ class DocumentControllerTest extends TestCase
 
         static::assertSame($this->getBrowser()->getResponse()->getStatusCode(), Response::HTTP_FORBIDDEN);
         $response = json_decode((string) $this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame($response['errors'][0]['code'], 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
 
         TestUser::createNewTestUser(

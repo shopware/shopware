@@ -10,9 +10,7 @@ describe('scripts/extensionTooling/report renderCheckReport', () => {
             vendor: true,
             technicalNames: Array.from({ length: 36 }, (_, index) => `module-${index}`),
         });
-        const output = report([
-            extension(commercial, { typescript: run('unmanaged'), eslint: run('unmanaged') }),
-        ]);
+        const output = report([extension(commercial, { typescript: run('unmanaged'), eslint: run('unmanaged') })]);
 
         expect(output).toContain('SwagCommercial');
         expect(output).toContain('(36 modules)');

@@ -6,8 +6,31 @@ General styling for cms sections
 
 .cms-section {
     &.bg-image {
+        position: relative;
         background-repeat: no-repeat;
         background-position: 50%;
+    }
+
+    .cms-section-background {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+
+        object-fit: none;
+
+        &.media-mode--contain {
+            object-fit: contain;
+        }
+
+        &.media-mode--cover {
+            object-fit: cover;
+        }
+    }
+
+    .cms-section-default,
+    .cms-section-sidebar {
+        position: relative;
     }
 
     .boxed {
@@ -15,6 +38,10 @@ General styling for cms sections
         // Mixin make-container() only provides the padding but no max-widths. Keep alias .boxed.
         // stylelint-disable-next-line scss/at-extend-no-missing-placeholder
         @extend .container;
+    }
+
+    &:has(.full-width) {
+        overflow-x: clip;
     }
 
     .full-width {

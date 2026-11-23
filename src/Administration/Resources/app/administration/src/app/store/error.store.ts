@@ -8,7 +8,6 @@ const utils = Shopware.Utils;
 /**
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type ErrorStore = ReturnType<typeof errorStore>;
 
 /**
@@ -168,7 +167,7 @@ const errorStore = Shopware.Store.register({
         },
 
         getSystemConfigApiError() {
-            return (entityName: string, saleChannelId: string, key: string) => {
+            return (entityName: string, saleChannelId: EntityKey<'sales_channel'>, key: string) => {
                 const errors = this.getErrorsForEntity(entityName, saleChannelId);
 
                 if (errors === null) {

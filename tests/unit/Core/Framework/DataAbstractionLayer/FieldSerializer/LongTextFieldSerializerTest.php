@@ -150,6 +150,8 @@ class LongTextFieldSerializerTest extends TestCase
         yield 'empty string is passed through with allow empty flag' => ['', '', false, [new AllowEmptyString()]];
         yield 'empty string is allowed with required and allow empty flags' => ['', '', false, [new Required(), new AllowEmptyString()]];
         yield 'HTML content is sanitized' => ['<script></script>test12-B', 'test12-B', false, [new Required(), new AllowHtml()]];
+        yield 'a "<" that does not start a tag survives on a plain text field' => ['I <3 Kisses', 'I <3 Kisses', false, [new Required()]];
+        yield 'a "<" that does not start a tag survives across line breaks' => ["line one\nI <3 line two", "line one\nI <3 line two", false, [new Required()]];
     }
 
     public function testDecodeThrowExceptionOnWrongField(): void

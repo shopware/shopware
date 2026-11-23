@@ -5,8 +5,7 @@ namespace Shopware\Core\Service\Subscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLoginEvent;
 use Shopware\Core\Framework\Store\Event\ShopwareAccountLogoutEvent;
-use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\Requirement\ShopwareAccountRequirement;
+use Shopware\Core\Service\ServiceLifecycle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -16,23 +15,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 readonly class ShopwareAccountSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private LifecycleManager $lifecycleManager,
+        private ServiceLifecycle $serviceLifecycle,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            ShopwareAccountLoginEvent::class => 'syncAccountRequirement',
-            ShopwareAccountLogoutEvent::class => 'syncAccountRequirement',
+            ShopwareAccountLoginEvent::class => 'reevaluateServices',
+            ShopwareAccountLogoutEvent::class => 'reevaluateServices',
         ];
     }
 
-    public function syncAccountRequirement(ShopwareAccountLoginEvent|ShopwareAccountLogoutEvent $event): void
+    public function reevaluateServices(ShopwareAccountLoginEvent|ShopwareAccountLogoutEvent $event): void
     {
-        $this->lifecycleManager->reevaluateRequirement(
-            ShopwareAccountRequirement::NAME,
-            $event->getContext()
-        );
+        $this->serviceLifecycle->reevaluateInstalled($event->getContext());
     }
 }

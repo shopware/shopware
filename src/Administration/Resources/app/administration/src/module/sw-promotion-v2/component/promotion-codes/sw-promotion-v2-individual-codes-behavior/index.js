@@ -10,20 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'promotionCodeApiService',
-    ],
+    inject: ['acl', 'repositoryFactory', 'promotionCodeApiService'],
 
-    emits: [
-        'delete-finish',
-        'generate-finish',
-    ],
+    emits: ['delete-finish', 'generate-finish'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         promotion: {
@@ -90,7 +81,13 @@ export default {
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                "sw-promotion-v2-individual-codes-behavior.assetFilter is deprecated. Use Shopware.Filter.getByName('asset') instead.",
+            );
+
             return Shopware.Filter.getByName('asset');
         },
 
@@ -98,6 +95,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-promotion-v2-individual-codes-behavior.dateFilter is deprecated. Will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },

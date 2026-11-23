@@ -149,10 +149,7 @@ async function createWrapper(repositoryMock, measurementUnits = {}, privileges =
                                 {{ option.label }}
                             </option>
                         </select>`,
-                    props: [
-                        'modelValue',
-                        'options',
-                    ],
+                    props: ['modelValue', 'options'],
                 },
                 'sw-highlight-text': true,
             },

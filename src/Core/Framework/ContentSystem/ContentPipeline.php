@@ -65,7 +65,7 @@ class ContentPipeline
         );
         $this->eventDispatcher->dispatch($preparationEvent);
 
-        $preparation = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode);
+        $preparation = $this->storedTreePreparer->prepare($preparationEvent->tree(), $specification, $mode, $salesChannelContext);
         $scaffolding = $preparation->scaffolding;
 
         $this->rejectRepeatedStoredId($preparation->prePruneForest);
@@ -80,6 +80,8 @@ class ContentPipeline
             $cacheContext,
             $specification->dataRequirements,
             $this->virtualRootOf($preparation->prePruneForest),
+            $specification->rootSource,
+            $preparation->inlineMappings,
         );
 
         $renderedTree = $this->unwrapVirtualRoot($lowered->tree, $scaffolding);

@@ -13,19 +13,19 @@
 
     .sw-theme-list__actions {
         display: grid;
-        grid-template-columns: auto 380px 36px;
-        grid-column-gap: 20px;
+        grid-template-columns: auto 380px max-content;
+        grid-column-gap: var(--scale-size-8);
         align-items: center;
         align-content: center;
-        margin-bottom: 28px;
+        margin-bottom: var(--scale-size-32);
 
         @media screen and (max-width: 700px) {
-            grid-template-columns: auto 36px;
+            grid-template-columns: auto max-content;
         }
 
         h3 {
-            font-size: 28px;
-            font-weight: normal;
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
             margin: 0;
         }
     }
@@ -35,42 +35,6 @@
 
         @media screen and (max-width: 700px) {
             display: none;
-        }
-
-        .sw-field.sw-field--select {
-            margin-bottom: 0;
-
-            select {
-                padding: 6px 12px;
-            }
-
-            &.sw-field--select-aside {
-                grid-column-gap: 10px;
-            }
-
-            .sw-field--select__options {
-                top: calc(50% - 12px);
-
-                .sw-icon {
-                    margin-bottom: 0;
-                }
-            }
-        }
-    }
-
-    .sw-theme-list__actions-mode {
-        height: 36px;
-        line-height: 33px;
-        text-align: center;
-        color: $color-darkgray-200;
-        border: 1px solid $color-gray-300;
-        border-radius: 4px;
-        background: $color-white;
-        cursor: pointer;
-
-        &:hover {
-            color: $color-shopware-brand-500;
-            border-color: $color-shopware-brand-500;
         }
     }
 

@@ -62,12 +62,9 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-payment/component/sw-settings-payment-sorting-modal', () => {
     it('should save reordered methods', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
-        wrapper.vm.sortedPaymentMethods = [
-            wrapper.vm.sortedPaymentMethods[1],
-            wrapper.vm.sortedPaymentMethods[0],
-        ];
+        wrapper.vm.sortedPaymentMethods = [wrapper.vm.sortedPaymentMethods[1], wrapper.vm.sortedPaymentMethods[0]];
 
         wrapper.vm.paymentMethodRepository.saveAll = jest.fn(() => Promise.resolve());
 

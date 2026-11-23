@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\ChangeEmailRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -28,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -51,7 +54,8 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         private readonly EntityRepository $customerRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly DataValidator $validator,
-        private readonly EntityRepository $customerRecoveryRepository
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -68,6 +72,15 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
+        return $this->extensions->publish(
+            name: ChangeEmailRouteExtension::NAME,
+            extension: new ChangeEmailRouteExtension($requestDataBag, $context, $customer),
+            function: $this->_change(...),
+        );
+    }
+
+    private function _change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
+    {
         EmailIdnConverter::encodeDataBag($requestDataBag);
         EmailIdnConverter::encodeDataBag($requestDataBag, 'emailConfirmation');
 
@@ -81,9 +94,9 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         $this->customerRepository->update([$customerData], $context->getContext());
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $customer->getId()));
-        $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getIds();
+        $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getPrimaryKeyData();
         if ($ids !== []) {
-            $this->customerRecoveryRepository->delete(array_map(static fn ($id) => ['id' => $id], $ids), $context->getContext());
+            $this->customerRecoveryRepository->delete($ids, $context->getContext());
         }
 
         return new SuccessResponse();
@@ -96,6 +109,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         $validation
             ->add(
                 'email',
+                new NotBlank(),
                 new Email(),
                 new EqualTo(propertyPath: 'emailConfirmation'),
                 new CustomerEmailUnique(salesChannelContext: $context)
@@ -122,11 +136,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validations = $validation->getProperties();
 
-        if (!\array_key_exists($field, $validations)) {
-            return;
-        }
-
-        $fieldValidations = $validations[$field];
+        $fieldValidations = $validations[$field] ?? [];
 
         $equalityValidation = null;
 

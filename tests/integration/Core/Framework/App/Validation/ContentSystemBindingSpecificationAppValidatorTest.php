@@ -30,10 +30,9 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
+        static::assertCount(1, $errors);
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
-        static::assertSame('manifest-invalid-binding-specification-schema', $error->getMessageKey());
         static::assertStringContainsString('resolves entry "media"', $error->getMessage());
         static::assertStringContainsString(
             'not assignable to the declared property type "Shopware\Core\Content\Media\MediaEntity"',
@@ -51,7 +50,7 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(0, $errors->getElements());
+        static::assertCount(0, $errors);
     }
 
     #[TestDox('rejects an inline binding that declares an explicit type, through the real app manifest validation flow')]
@@ -64,8 +63,8 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
+        static::assertCount(1, $errors);
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
         static::assertStringContainsString('must not declare "type"', $error->getMessage());
     }
@@ -80,10 +79,9 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
+        static::assertCount(1, $errors);
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
-        static::assertSame('manifest-invalid-binding-specification-schema', $error->getMessageKey());
         static::assertStringContainsString(
             'Cannot canonicalize binding specification "binding-specification-resolvedby-unregistered:StubReference"',
             $error->getMessage(),

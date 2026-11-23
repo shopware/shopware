@@ -86,7 +86,7 @@ class WebhookClientTest extends TestCase
         $stack->push($historyMiddleware);
 
         $client = new WebhookClient(
-            new Client(['handler' => $stack]),
+            $this->createGuzzle($stack),
             new NativeClock(),
         );
 
@@ -119,7 +119,7 @@ class WebhookClientTest extends TestCase
         );
         $stack->push($historyMiddleware);
 
-        $client = new WebhookClient(new Client(['handler' => $stack]), new NativeClock());
+        $client = new WebhookClient($this->createGuzzle($stack), new NativeClock());
 
         $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
 
@@ -151,7 +151,7 @@ class WebhookClientTest extends TestCase
         );
         $stack->push(Middleware::history($history));
 
-        $result = (new WebhookClient(new Client(['handler' => $stack]), new NativeClock()))->send($this->createWebhookRequest());
+        $result = (new WebhookClient($this->createGuzzle($stack), new NativeClock()))->send($this->createWebhookRequest());
 
         static::assertFalse($result->successful());
         static::assertNotNull($result->errorMessage);
@@ -180,7 +180,7 @@ class WebhookClientTest extends TestCase
         );
         $stack->push($historyMiddleware);
 
-        $client = new WebhookClient(new Client(['handler' => $stack]), new NativeClock());
+        $client = new WebhookClient($this->createGuzzle($stack), new NativeClock());
 
         $result = $client->send($this->createWebhookRequest(url: 'https://example.com/webhook'));
 
@@ -242,7 +242,7 @@ class WebhookClientTest extends TestCase
         $handlerStack = HandlerStack::create($mockHandler);
         $handlerStack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
-        $guzzle = new Client(['handler' => $handlerStack]);
+        $guzzle = $this->createGuzzle($handlerStack);
         $client = new WebhookClient($guzzle, new NativeClock());
 
         $requests = [
@@ -299,7 +299,7 @@ class WebhookClientTest extends TestCase
         $handlerStack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
         $handlerStack->push($historyMiddleware);
 
-        $client = new WebhookClient(new Client(['handler' => $handlerStack]), new NativeClock());
+        $client = new WebhookClient($this->createGuzzle($handlerStack), new NativeClock());
 
         $results = $client->sendBatch([
             'hook1' => $this->createWebhookRequest(url: 'https://example.com/hook1'),
@@ -463,7 +463,7 @@ class WebhookClientTest extends TestCase
     {
         $stack = HandlerStack::create($mockHandler);
         $stack->push(new AuthMiddleware('6.7.0', static::createStub(AppLocaleProvider::class)));
-        $guzzle = new Client(['handler' => $stack]);
+        $guzzle = $this->createGuzzle($stack);
 
         $stack->after(
             'allow_redirects',
@@ -472,6 +472,11 @@ class WebhookClientTest extends TestCase
         );
 
         return new WebhookClient($guzzle, new NativeClock());
+    }
+
+    private function createGuzzle(HandlerStack $stack): Client
+    {
+        return new Client(['handler' => $stack, 'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS]);
     }
 
     /**

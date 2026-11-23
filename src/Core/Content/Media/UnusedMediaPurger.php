@@ -16,9 +16,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInUnusedMediaS
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
@@ -62,7 +66,7 @@ class UnusedMediaPurger
 
         $context = Context::createDefaultContext();
 
-        $criteria = $this->createFilterForNotUsedMedia($folderEntity);
+        $criteria = $this->createCandidateCriteria($folderEntity);
         $criteria->addSorting(new FieldSorting('media.createdAt', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
 
@@ -71,6 +75,7 @@ class UnusedMediaPurger
             $criteria->setOffset($offset);
 
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
+            $ids = $this->filterOutUsedMedia($ids, $context);
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $ids = $this->dispatchEvent($ids, $context);
 
@@ -81,6 +86,7 @@ class UnusedMediaPurger
         $iterator = new RepositoryIterator($this->mediaRepo, $context, $criteria);
         while (($ids = $iterator->fetchIds()) !== null) {
             /** @phpstan-ignore argument.type (we can't narrow down argument type to list<string> in while loop) */
+            $ids = $this->filterOutUsedMedia($ids, $context);
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $unusedIds = $this->dispatchEvent($ids, $context);
 
@@ -104,12 +110,16 @@ class UnusedMediaPurger
         $context = Context::createDefaultContext();
 
         $totalMedia = $this->getTotal(new Criteria(), $context);
-        $totalCandidates = $this->getTotal($this->createFilterForNotUsedMedia($folderEntity), $context);
+
+        $candidateCriteria = $this->createCandidateCriteria($folderEntity);
+        $totalCandidates = $folderEntity === null
+            ? $totalMedia
+            : $this->getTotal($candidateCriteria, $context);
 
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
         $totalDeleted = 0;
-        foreach ($this->getUnusedMediaIds($context, $limit, $offset, $folderEntity) as $idBatch) {
+        foreach ($this->getUnusedMediaIds($context, $limit, $offset, $candidateCriteria) as $idBatch) {
             $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays, $context);
 
             if ($idBatch !== []) {
@@ -143,10 +153,12 @@ class UnusedMediaPurger
 
     private function getTotal(Criteria $criteria, Context $context): int
     {
-        $criteria->setLimit(1);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria = clone $criteria;
+        $criteria->addAggregation(new CountAggregation('media-count', 'id'));
 
-        return $this->mediaRepo->search($criteria, $context)->getTotal();
+        $aggregation = $this->mediaRepo->aggregate($criteria, $context)->get('media-count');
+
+        return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }
 
     /**
@@ -160,11 +172,19 @@ class UnusedMediaPurger
             return $mediaIds;
         }
 
-        $maxUploadedAt = $this->clock->now()->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)));
-        $rangeFilter = new RangeFilter('uploadedAt', ['lt' => $maxUploadedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $gracePeriodStart = $this->clock->now()
+            ->sub(new \DateInterval(\sprintf('P%dD', $gracePeriodDays)))
+            ->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
         $criteria = new Criteria($mediaIds);
-        $criteria->addFilter($rangeFilter);
+        // a media without a file has no upload date, so its creation date counts
+        $criteria->addFilter(new OrFilter([
+            new RangeFilter('uploadedAt', ['lt' => $gracePeriodStart]),
+            new AndFilter([
+                new EqualsFilter('uploadedAt', null),
+                new RangeFilter('createdAt', ['lt' => $gracePeriodStart]),
+            ]),
+        ]));
 
         return $this->mediaRepo->searchIds($criteria, $context)->getIds();
     }
@@ -172,9 +192,9 @@ class UnusedMediaPurger
     /**
      * @return \Generator<int, list<string>>
      */
-    private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
+    private function getUnusedMediaIds(Context $context, int $limit, ?int $offset, Criteria $candidateCriteria): \Generator
     {
-        $criteria = $this->createFilterForNotUsedMedia($folderEntity);
+        $criteria = clone $candidateCriteria;
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
 
@@ -184,7 +204,7 @@ class UnusedMediaPurger
 
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
-            return yield $this->dispatchEvent($ids, $context);
+            return yield $this->dispatchEvent($this->filterOutUsedMedia($ids, $context), $context);
         }
 
         // Use last ID instead of offset for cursor-based pagination, which allows deletion of records between batches
@@ -201,7 +221,7 @@ class UnusedMediaPurger
             }
 
             $lastId = end($ids);
-            $unusedIds = $this->dispatchEvent($ids, $context);
+            $unusedIds = $this->dispatchEvent($this->filterOutUsedMedia($ids, $context), $context);
 
             yield $unusedIds;
         }
@@ -238,10 +258,66 @@ class UnusedMediaPurger
         return $this->isInsideTopLevelDomain($domain, $definition->getParentDefinition());
     }
 
-    private function createFilterForNotUsedMedia(?string $folderEntity = null): Criteria
+    private function createCandidateCriteria(?string $folderEntity = null): Criteria
     {
         $criteria = new Criteria();
 
+        if ($folderEntity === null) {
+            return $criteria;
+        }
+
+        $rootMediaFolderId = $this->connection->fetchOne(
+            <<<'SQL'
+            SELECT HEX(media_folder.id) FROM media_default_folder
+            INNER JOIN media_folder ON (media_default_folder.id = media_folder.default_folder_id)
+            WHERE entity = :entity
+            SQL,
+            ['entity' => $folderEntity]
+        );
+
+        if (!$rootMediaFolderId) {
+            throw MediaException::defaultMediaFolderWithEntityNotFound($folderEntity);
+        }
+
+        /** @var array<string, array{id: string, parent_id: string}> $folders */
+        $folders = $this->connection->fetchAllAssociativeIndexed(
+            'SELECT HEX(id), HEX(id) as id, HEX(parent_id) as parent_id, name FROM media_folder WHERE id != :id',
+            ['id' => $rootMediaFolderId],
+        );
+
+        $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
+
+        $criteria->addFilter(new EqualsAnyFilter('media.mediaFolderId', $ids));
+
+        return $criteria;
+    }
+
+    /**
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function filterOutUsedMedia(array $mediaIds, Context $context): array
+    {
+        foreach ($this->getUsageFilters() as $filter) {
+            if ($mediaIds === []) {
+                break;
+            }
+
+            $criteria = new Criteria($mediaIds);
+            $criteria->addFilter($filter);
+
+            $mediaIds = $this->mediaRepo->searchIds($criteria, $context)->getIds();
+        }
+
+        return $mediaIds;
+    }
+
+    /**
+     * @return \Generator<EqualsFilter>
+     */
+    private function getUsageFilters(): \Generator
+    {
         foreach ($this->mediaRepo->getDefinition()->getFields() as $field) {
             if (!$field instanceof AssociationField) {
                 continue;
@@ -271,40 +347,8 @@ class UnusedMediaPurger
                 continue;
             }
 
-            $criteria->addFilter(
-                new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null)
-            );
+            yield new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null);
         }
-
-        if ($folderEntity) {
-            $rootMediaFolderId = $this->connection->fetchOne(
-                <<<'SQL'
-                SELECT HEX(media_folder.id) FROM media_default_folder
-                INNER JOIN media_folder ON (media_default_folder.id = media_folder.default_folder_id)
-                WHERE entity = :entity
-                SQL,
-                ['entity' => $folderEntity]
-            )
-            ;
-
-            if (!$rootMediaFolderId) {
-                throw MediaException::defaultMediaFolderWithEntityNotFound($folderEntity);
-            }
-
-            /** @var array<string, array{id: string, parent_id: string}> $folders */
-            $folders = $this->connection->fetchAllAssociativeIndexed(
-                'SELECT HEX(id), HEX(id) as id, HEX(parent_id) as parent_id, name FROM media_folder WHERE id != :id',
-                ['id' => $rootMediaFolderId],
-            );
-
-            $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
-
-            $criteria->addFilter(
-                new EqualsAnyFilter('media.mediaFolder.id', $ids)
-            );
-        }
-
-        return $criteria;
     }
 
     /**

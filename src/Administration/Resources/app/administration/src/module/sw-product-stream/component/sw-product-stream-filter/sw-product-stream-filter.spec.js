@@ -88,36 +88,12 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
     });
 
     it.each([
-        [
-            'true',
-            'sw-context-button-stub',
-            'product_stream.viewer',
-        ],
-        [
-            undefined,
-            'sw-context-button-stub',
-            'product_stream.viewer, product_stream.editor',
-        ],
-        [
-            'true',
-            'sw-product-stream-value-stub',
-            'product_stream.viewer',
-        ],
-        [
-            undefined,
-            'sw-product-stream-value-stub',
-            'product_stream.viewer, product_stream.editor',
-        ],
-        [
-            'true',
-            'sw-product-stream-field-select-stub',
-            'product_stream.viewer',
-        ],
-        [
-            undefined,
-            'sw-product-stream-field-select-stub',
-            'product_stream.viewer, product_stream.editor',
-        ],
+        ['true', 'sw-context-button-stub', 'product_stream.viewer'],
+        [undefined, 'sw-context-button-stub', 'product_stream.viewer, product_stream.editor'],
+        ['true', 'sw-product-stream-value-stub', 'product_stream.viewer'],
+        [undefined, 'sw-product-stream-value-stub', 'product_stream.viewer, product_stream.editor'],
+        ['true', 'sw-product-stream-field-select-stub', 'product_stream.viewer'],
+        [undefined, 'sw-product-stream-field-select-stub', 'product_stream.viewer, product_stream.editor'],
     ])("should have %p as disabled state on '%s' when having %s role", async (state, element, role) => {
         const roles = role.split(', ');
 
@@ -135,14 +111,14 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 field: 'customFields.test',
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fields).toEqual(['customFields.test']);
     });
 
     it('should return true if input is custom field', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.isCustomField('customFields.test')).toBe(true);
     });
@@ -155,7 +131,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 field: 'json.test',
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.fields).toEqual(['json.test']);
     });
@@ -171,7 +147,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.updateFields({ field: 'cheapestPrice.percentage', index: 0 });
 
@@ -189,7 +165,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.changeType({ type: 'equals', parameters: null });
 
@@ -207,7 +183,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.changeType({ type: 'range', parameters: { gte: null, lte: null } });
 
@@ -225,7 +201,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
                 parameters: null,
             },
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.updateFields({ field: 'cheapestPrice', index: 0 });
 

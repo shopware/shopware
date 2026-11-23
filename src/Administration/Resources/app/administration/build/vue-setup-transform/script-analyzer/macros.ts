@@ -10,11 +10,14 @@
  */
 
 import type { CallExpression, Node as BabelNode, ObjectExpression } from '@babel/types';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
+import { ShopwareSetupTransformError, type ShopwareSetupErrorPosition } from '../utils/transform-error';
 import { absoluteRange } from './utils';
 
 type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
 type ShopwareSetupEntryType = 'public' | 'override';
+
+/** Keeps the property range until the analyzer has validated its binding. */
+type StaticObjectMarkerEntry = { name: string; position: ShopwareSetupErrorPosition };
 
 const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
 
@@ -26,6 +29,17 @@ const SHOPWARE_SETUP_INTERNAL_PREFIX = '__swSetup';
 // override-local state is filed under. One per override module, so the name can be fixed - the Symbol
 // value, not the name, is what makes it unique across overrides.
 const OVERRIDE_NAMESPACE_BINDING = '__swSetupNamespace';
+
+// Slot-scope binding an override's `<sw-block extends>` content receives: the base component's data
+// scope, which every forwarded reference in that content is rewritten to read through. One name for the
+// whole object rather than a destructure, so a template write reaches the real ref instead of a local.
+const OVERRIDE_SCOPE_BINDING = '__swSetupScope';
+
+// Module-root accessor that resolves an override file's own state - its entry under the `__swOverride`
+// namespace - out of the slot scope. The path through it (`__swSetupOverrideScope(__swSetupScope).x`)
+// carries no `]`, so it also fits a dynamic directive argument (`@[eventName]`), which Vue's tokenizer
+// ends at the first closing bracket.
+const OVERRIDE_SCOPE_ACCESSOR = '__swSetupOverrideScope';
 
 /**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
@@ -53,7 +67,7 @@ function extractStaticObjectMarker(
     scriptOffset: number,
     macroName: ShopwareSetupMacroName,
     entryType: ShopwareSetupEntryType,
-): string[] {
+): StaticObjectMarkerEntry[] {
     const publicObject = assertSingleArgument(callNode, scriptOffset, macroName);
     const seenKeys = new Set<string>();
 
@@ -99,7 +113,7 @@ function extractStaticObjectMarker(
 
         seenKeys.add(localName);
 
-        return localName;
+        return { name: localName, position: absoluteRange(property, scriptOffset) };
     });
 }
 
@@ -125,7 +139,10 @@ function isWithDefaultsCall(node: BabelNode): node is CallExpression {
 export {
     type ShopwareSetupEntryType,
     type ShopwareSetupMacroName,
+    type StaticObjectMarkerEntry,
     OVERRIDE_NAMESPACE_BINDING,
+    OVERRIDE_SCOPE_ACCESSOR,
+    OVERRIDE_SCOPE_BINDING,
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     extractStaticObjectMarker,

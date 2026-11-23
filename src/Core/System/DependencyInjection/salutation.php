@@ -4,6 +4,7 @@ namespace Shopware\Core\System\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationDefinition;
 use Shopware\Core\System\Salutation\Api\SalutationKeyFkResolver;
@@ -32,6 +33,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.salutation.repository'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(AbstractSalutationsSorter::class, SalutationSorter::class);

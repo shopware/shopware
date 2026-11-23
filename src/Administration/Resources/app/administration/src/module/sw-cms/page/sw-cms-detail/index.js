@@ -21,6 +21,7 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'mediaDefaultFolderService',
         'entityFactory',
         'entityHydrator',
         'loginService',
@@ -32,11 +33,7 @@ export default {
         'cmsPageTypeService',
     ],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-state'), Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -148,7 +145,13 @@ export default {
             return this.repositoryFactory.create('cms_slot');
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use mediaDefaultFolderService.getDefaultFolderId() instead. */
         defaultFolderRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-detail.defaultFolderRepository is deprecated. Use mediaDefaultFolderService.getDefaultFolderId() instead.',
+            );
+
             return this.repositoryFactory.create('media_default_folder');
         },
 
@@ -161,9 +164,7 @@ export default {
         },
 
         cmsStageClasses() {
-            return [
-                `is--${this.currentDeviceView}`,
-            ];
+            return [`is--${this.currentDeviceView}`];
         },
 
         cmsPageTypeSettings() {
@@ -337,9 +338,7 @@ export default {
             if (this.$route.params.id) {
                 this.pageId = this.$route.params.id.toLowerCase();
                 this.isLoading = true;
-                Shopware.Store.get('shopwareApps').selectedIds = [
-                    this.pageId,
-                ];
+                Shopware.Store.get('shopwareApps').selectedIds = [this.pageId];
 
                 this.loadPage(this.pageId);
             }
@@ -361,29 +360,16 @@ export default {
          * @deprecated tag:v6.8.0 - Replaced by "resetRelatedStores" method
          */
         resetCmsPageState() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-cms-detail.resetCmsPageState() is deprecated. Replaced by "resetRelatedStores" method.',
+            );
+
             this.cmsPageState.resetCmsPageState();
         },
 
         getDefaultFolderId() {
-            const criteria = new Criteria(1, 1);
-            criteria.addAssociation('folder');
-            criteria.addFilter(Criteria.equals('entity', this.cmsPageState.pageEntityName));
-
-            return this.defaultFolderRepository
-                .search(criteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        this.cmsPageState.pageEntityName,
-                    ],
-                })
-                .then((searchResult) => {
-                    const defaultFolder = searchResult.first();
-                    if (defaultFolder.folder?.id) {
-                        return defaultFolder.folder.id;
-                    }
-
-                    return null;
-                });
+            return this.mediaDefaultFolderService.getDefaultFolderId(this.cmsPageState.pageEntityName);
         },
 
         async loadPage(pageId) {
@@ -1200,13 +1186,7 @@ export default {
             const productListId = response['core.cms.default_product_cms_page'];
             const isLiveVersion = this.page.versionId === Shopware.Context.api.liveVersionId;
 
-            if (
-                isLiveVersion &&
-                [
-                    productDetailId,
-                    productListId,
-                ].includes(this.pageId)
-            ) {
+            if (isLiveVersion && [productDetailId, productListId].includes(this.pageId)) {
                 this.isDefaultLayout = true;
             }
         },
@@ -1245,11 +1225,7 @@ export default {
         },
 
         resetRelatedStores() {
-            const stores = [
-                'cmsPage',
-                'swCategoryDetail',
-                'swProductDetail',
-            ];
+            const stores = ['cmsPage', 'swCategoryDetail', 'swProductDetail'];
 
             stores.forEach((name) => {
                 try {

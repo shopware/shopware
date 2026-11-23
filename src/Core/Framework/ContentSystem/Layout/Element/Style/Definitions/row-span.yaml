@@ -5,7 +5,9 @@ range:
 adminUI:
   component: "number"
   label: "Row Span"
+  labelSnippet: "sw-experience-studio.styles.row-span.label"
   description: "How many grid rows the element spans."
+  descriptionSnippet: "sw-experience-studio.styles.row-span.description"
   props:
     min: 1
     max: 12

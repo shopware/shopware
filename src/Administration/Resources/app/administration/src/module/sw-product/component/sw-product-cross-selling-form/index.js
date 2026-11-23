@@ -13,10 +13,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'productStreamConditionService',
-    ],
+    inject: ['repositoryFactory', 'productStreamConditionService'],
 
     provide() {
         return {
@@ -24,9 +21,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         crossSelling: {
@@ -57,11 +52,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('crossSelling', [
-            'name',
-            'type',
-            'position',
-        ]),
+        ...mapPropertyErrors('crossSelling', ['name', 'type', 'position']),
 
         product() {
             return Shopware.Store.get('swProductDetail').product;
@@ -75,6 +66,11 @@ export default {
          * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
          */
         productCrossSellingRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-cross-selling-form.productCrossSellingRepository is deprecated. Unused, will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('product_cross_selling');
         },
 
@@ -104,6 +100,11 @@ export default {
          * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
          */
         crossSellingAssigmentRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-cross-selling-form.crossSellingAssigmentRepository is deprecated. Unused, will be removed without replacement.',
+            );
+
             return this.repositoryFactory.create('product_cross_selling_assigned_products');
         },
 
@@ -165,6 +166,11 @@ export default {
          * @deprecated tag:v6.8.0 - Unused, will be removed without replacement
          */
         disablePositioning() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-cross-selling-form.disablePositioning is deprecated. Unused, will be removed without replacement.',
+            );
+
             return !!this.term || this.sortBy !== 'position';
         },
 
@@ -269,10 +275,7 @@ export default {
         },
 
         onSortingChanged(value) {
-            [
-                this.crossSelling.sortBy,
-                this.crossSelling.sortDirection,
-            ] = value.split(':');
+            [this.crossSelling.sortBy, this.crossSelling.sortDirection] = value.split(':');
         },
 
         onTypeChanged(value) {

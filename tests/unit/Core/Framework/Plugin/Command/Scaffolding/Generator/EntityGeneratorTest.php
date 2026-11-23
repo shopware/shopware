@@ -9,9 +9,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -25,192 +26,129 @@ class EntityGeneratorTest extends TestCase
     {
         $generator = new EntityGenerator(new MockClock());
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertSame(EntityGenerator::OPTION_NAME, $option->getName());
+        static::assertNotSame('', $option->getDescription());
+        static::assertSame('Custom Entities', $generator->getCommandOptionTitle());
+        static::assertNotSame('', $generator->getCommandOptionDescriptionLong());
     }
 
     /**
-     * @param array<int, string>|null $expectedEntities
+     * @param list<string> $expectedEntities
      */
-    #[DataProvider('addScaffoldConfigProvider')]
-    #[DataProvider('provideEntities')]
-    #[DataProvider('provideEmptyEntities')]
-    public function testAddScaffoldConfig(
-        mixed $getOptionResponse,
-        bool $confirmResponse,
-        mixed $entitiesAnswerInput,
-        bool $expectedHasOption,
-        ?array $expectedEntities = []
-    ): void {
+    #[DataProvider('cliEntitiesProvider')]
+    public function testParsesEntitiesFromTheCliOption(string $entities, array $expectedEntities): void
+    {
         $configuration = $this->getConfig();
 
         $input = static::createStub(InputInterface::class);
-        $input->method('getOption')->willReturn($getOptionResponse);
+        $input->method('getOption')->willReturn($entities);
 
-        $io = static::createStub(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
-        $io->method('ask')->willReturn($entitiesAnswerInput);
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            $input,
+            static::createStub(OutputInterface::class),
+        );
 
-        (new EntityGenerator(new MockClock()))
-            ->addScaffoldConfig($configuration, $input, $io);
-
-        static::assertSame($expectedHasOption, $configuration->hasOption(EntityGenerator::OPTION_NAME));
         static::assertSame($expectedEntities, $configuration->getOption(EntityGenerator::OPTION_NAME));
     }
 
-    public static function addScaffoldConfigProvider(): \Generator
-    {
-        yield 'with command option and with confirm' => [
-            'getOptionResponse' => 'TestEntity,TestEntity2',
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
-        ];
-
-        yield 'with command option and without confirm' => [
-            'getOptionResponse' => 'TestEntity,TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
-        ];
-
-        yield 'without command option and with confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => 'TestEntity,TestEntity2',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
-        ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => 'TestEntity,TestEntity2',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
-    }
-
-    public static function provideEntities(): \Generator
+    public static function cliEntitiesProvider(): \Generator
     {
         yield 'single entity' => [
-            'getOptionResponse' => 'TestEntity',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-            ],
+            'entities' => 'TestEntity',
+            'expectedEntities' => ['TestEntity'],
         ];
 
-        yield 'multiple entities with comma' => [
-            'getOptionResponse' => 'TestEntity,TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
+        yield 'several entities separated by commas' => [
+            'entities' => 'TestEntity,TestEntity2',
+            'expectedEntities' => ['TestEntity', 'TestEntity2'],
         ];
 
-        yield 'multiple entities with comma and spaces' => [
-            'getOptionResponse' => 'TestEntity, TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
+        yield 'spaces around names are ignored' => [
+            'entities' => 'TestEntity, TestEntity2',
+            'expectedEntities' => ['TestEntity', 'TestEntity2'],
         ];
 
-        yield 'multiple entities with comma and spaces and backslash' => [
-            'getOptionResponse' => 'TestEntity, \TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
+        yield 'backslashes around names are ignored' => [
+            'entities' => 'TestEntity, \TestEntity2',
+            'expectedEntities' => ['TestEntity', 'TestEntity2'],
         ];
 
-        yield 'multiple entities with comma and spaces and backslash and quotes and double quotes' => [
-            'getOptionResponse' => 'TestEntity, \TestEntity2, "TestEntity3", \'TestEntity4\'',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-                'TestEntity3',
-                'TestEntity4',
-            ],
+        yield 'quotes around names are ignored' => [
+            'entities' => 'TestEntity, \TestEntity2, "TestEntity3", \'TestEntity4\'',
+            'expectedEntities' => ['TestEntity', 'TestEntity2', 'TestEntity3', 'TestEntity4'],
         ];
     }
 
-    public static function provideEmptyEntities(): \Generator
+    public function testSkipsEntitiesWhenTheUserDeclines(): void
     {
-        yield 'empty string' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        $configuration = $this->getConfig();
 
-        yield 'null' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => null,
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: false, answer: 'n'),
+            ScaffoldConsole::output(),
+        );
 
-        yield 'only comma' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ',,,,',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
+    }
 
-        yield 'only comma and spaces' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ', , , ,',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+    public function testStoresEntitiesWhenTheUserProvidesThem(): void
+    {
+        $configuration = $this->getConfig();
 
-        yield 'only comma and backslash' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ',\,\,\,',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: false, answer: "y\nTestEntity, TestEntity2"),
+            ScaffoldConsole::output(),
+        );
 
-        yield 'only comma and quotes' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ',"",\'\'',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        static::assertSame(
+            ['TestEntity', 'TestEntity2'],
+            $configuration->getOption(EntityGenerator::OPTION_NAME),
+        );
+    }
+
+    #[DataProvider('emptyEntityAnswerProvider')]
+    public function testSkipsEntitiesWhenTheAnswerIsEmpty(string $answer): void
+    {
+        $configuration = $this->getConfig();
+
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: false, answer: "y\n" . $answer),
+            ScaffoldConsole::output(),
+        );
+
+        static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
+    }
+
+    public static function emptyEntityAnswerProvider(): \Generator
+    {
+        yield 'empty answer' => ['answer' => ''];
+
+        yield 'only commas' => ['answer' => ',,,,'];
+
+        yield 'commas and spaces' => ['answer' => ', , , ,'];
+
+        yield 'commas and backslashes' => ['answer' => ',\\,\\,\\,'];
+
+        yield 'commas and quotes' => ['answer' => ',"",\'\''];
+    }
+
+    public function testAddScaffoldConfigRejectsOutputThatIsNotAConsole(): void
+    {
+        $input = static::createStub(InputInterface::class);
+        $input->method('getOption')->willReturn(false);
+
+        $this->expectExceptionObject(PluginException::consoleOutputRequired());
+
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $this->getConfig(),
+            $input,
+            static::createStub(OutputInterface::class),
+        );
     }
 
     /**
@@ -229,6 +167,59 @@ class EntityGeneratorTest extends TestCase
         foreach ($expected as $stub) {
             static::assertTrue($stubs->has($stub));
         }
+    }
+
+    public function testGeneratesAttributeStyleEntity(): void
+    {
+        $stubs = new StubCollection();
+
+        (new EntityGenerator(new MockClock(new \DateTimeImmutable('1988-01-01 00:00:00'))))
+            ->generateStubs(
+                self::getConfig([EntityGenerator::OPTION_NAME => ['Test']]),
+                $stubs,
+            );
+
+        static::assertFalse($stubs->has('src/Core/Content/Test/TestDefinition.php'));
+
+        $expectedEntity = <<<'PHP'
+<?php declare(strict_types=1);
+
+namespace MyNamespace\Core\Content\Test;
+
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+
+#[Entity('test', collectionClass: TestCollection::class)]
+class TestEntity extends EntityStruct
+{
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID, api: ['admin-api' => true, 'store-api' => false])]
+    public string $id;
+
+    #[Field(type: FieldType::STRING, api: ['admin-api' => true, 'store-api' => false])]
+    public ?string $name = null;
+
+    #[Field(type: FieldType::STRING, api: ['admin-api' => true, 'store-api' => false])]
+    public ?string $description = null;
+
+    #[Field(type: FieldType::BOOL, api: ['admin-api' => true, 'store-api' => false])]
+    public ?bool $active = null;
+}
+
+PHP;
+
+        $expectedServices = <<<'PHP'
+
+    $services->set(\MyNamespace\Core\Content\Test\TestEntity::class)
+        ->tag('shopware.entity');
+
+PHP;
+
+        static::assertSame($expectedEntity, $stubs->get('src/Core/Content/Test/TestEntity.php')?->getContent());
+        static::assertSame($expectedServices, $stubs->get('src/Resources/config/services.php')?->getContent());
     }
 
     public function testDoesNotGenerateMigrationWhenEntityMigrationAlreadyExists(): void
@@ -255,7 +246,8 @@ class EntityGeneratorTest extends TestCase
                     $stubs,
                 );
 
-            static::assertCount(4, $stubs);
+            static::assertCount(3, $stubs);
+            static::assertCount(3, $stubs);
             static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
             static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));
         } finally {
@@ -293,7 +285,6 @@ class EntityGeneratorTest extends TestCase
                 'src/Resources/config/services.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTestTable.php',
                 'src/Core/Content/Test/TestEntity.php',
-                'src/Core/Content/Test/TestDefinition.php',
                 'src/Core/Content/Test/TestCollection.php',
             ],
         ];
@@ -305,10 +296,8 @@ class EntityGeneratorTest extends TestCase
                 'src/Migration/Migration' . $timeStamp . 'CreateTest1Table.php',
                 'src/Migration/Migration' . $timeStamp . 'CreateTest2Table.php',
                 'src/Core/Content/Test1/Test1Entity.php',
-                'src/Core/Content/Test1/Test1Definition.php',
                 'src/Core/Content/Test1/Test1Collection.php',
                 'src/Core/Content/Test2/Test2Entity.php',
-                'src/Core/Content/Test2/Test2Definition.php',
                 'src/Core/Content/Test2/Test2Collection.php',
             ],
         ];

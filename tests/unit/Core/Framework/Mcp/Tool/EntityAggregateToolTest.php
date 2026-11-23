@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\AvgResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
@@ -20,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 
 /**
@@ -41,12 +45,10 @@ class EntityAggregateToolTest extends TestCase
         [$tool] = $this->createTool($context, $result);
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertArrayHasKey('aggregations', $data['data']);
-        static::assertSame(42, $data['data']['aggregations']['total']['count']);
-        static::assertArrayNotHasKey('_meta', $data);
+        static::assertFalse($output->isError());
+        static::assertArrayHasKey('aggregations', $output->data);
+        static::assertSame(42, $output->data['aggregations']['total']['count']);
+        static::assertSame([], $output->meta);
     }
 
     public function testMultipleAggregationTypesAreSerializedCorrectly(): void
@@ -62,11 +64,9 @@ class EntityAggregateToolTest extends TestCase
         [$tool] = $this->createTool($context, $result);
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"},{"type":"avg","name":"avgValue","field":"amountTotal"}]');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertTrue($data['success']);
-        static::assertSame(100, $data['data']['aggregations']['total']['count']);
-        static::assertSame(99.5, $data['data']['aggregations']['avgValue']['avg']);
+        static::assertFalse($output->isError());
+        static::assertSame(100, $output->data['aggregations']['total']['count']);
+        static::assertSame(99.5, $output->data['aggregations']['avgValue']['avg']);
     }
 
     public function testAggregationResultHasNoNameOrExtensionsKeys(): void
@@ -81,11 +81,9 @@ class EntityAggregateToolTest extends TestCase
         [$tool] = $this->createTool($context, $result);
         $output = ($tool)('order', '[{"type":"avg","name":"myAvg","field":"amountTotal"}]');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertArrayNotHasKey('name', $data['data']['aggregations']['myAvg']);
-        static::assertArrayNotHasKey('extensions', $data['data']['aggregations']['myAvg']);
-        static::assertArrayNotHasKey('apiAlias', $data['data']['aggregations']['myAvg']);
+        static::assertArrayNotHasKey('name', $output->data['aggregations']['myAvg']);
+        static::assertArrayNotHasKey('extensions', $output->data['aggregations']['myAvg']);
+        static::assertArrayNotHasKey('apiAlias', $output->data['aggregations']['myAvg']);
     }
 
     public function testCriteriaBuilderReceivesAggregationsAndSearchUsesLimitZero(): void
@@ -215,10 +213,11 @@ class EntityAggregateToolTest extends TestCase
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
-        $data = json_decode(($tool)('unknown_entity', '[]'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = ($tool)('unknown_entity', '[]');
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('unknown_entity', $data['error']);
+        static::assertTrue($data->isError());
+        static::assertStringContainsString('unknown_entity', $data->error->message);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $data->error->code);
     }
 
     public function testReturnsErrorForNonListAggregations(): void
@@ -236,10 +235,8 @@ class EntityAggregateToolTest extends TestCase
         $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '{"type":"count"}');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('aggregations must be a JSON array', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('aggregations must be a JSON array', $output->error->message);
     }
 
     public function testMalformedFiltersJsonReturnsError(): void
@@ -257,11 +254,9 @@ class EntityAggregateToolTest extends TestCase
         $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]', 'not-json');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Invalid JSON', $data['error']);
-        static::assertStringContainsString('filters', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Invalid JSON', $output->error->message);
+        static::assertStringContainsString('filters', $output->error->message);
     }
 
     public function testMalformedAggregationsJsonReturnsError(): void
@@ -279,11 +274,9 @@ class EntityAggregateToolTest extends TestCase
         $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', 'not-json');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Invalid JSON', $data['error']);
-        static::assertStringContainsString('aggregations', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Invalid JSON', $output->error->message);
+        static::assertStringContainsString('aggregations', $output->error->message);
     }
 
     public function testDeniesAccessWithoutReadPermission(): void
@@ -302,10 +295,8 @@ class EntityAggregateToolTest extends TestCase
         $tool = new EntityAggregateTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('order', '[{"type":"count","name":"total","field":"id"}]');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('order:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('order:read', $output->error->message);
     }
 
     public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
@@ -338,19 +329,67 @@ class EntityAggregateToolTest extends TestCase
         $tool = new EntityAggregateTool($registry, $criteriaBuilder, $contextProvider, $criteriaValidator);
         $output = ($tool)('order', '[{"type":"terms","name":"emails","field":"orderCustomer.email"}]');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Missing privilege:', $output->error->message);
+        static::assertStringContainsString('order_customer:read', $output->error->message);
+    }
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Missing privilege:', $data['error']);
-        static::assertStringContainsString('order_customer:read', $data['error']);
+    #[TestDox('A rejected aggregation is answered with the parser pointer and detail instead of escaping to the SDK\'s generic error')]
+    public function testAnAggregationTheEntityCannotExpressIsAnsweredWithTheParserDetail(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        $exception = new SearchRequestException();
+        $exception->add(
+            new InvalidAggregationQueryException('The aggregation should contain a "field".'),
+            '/aggregations/0/avg/field'
+        );
+
+        [$tool] = $this->createTool($context, $result, $exception);
+        $output = ($tool)('order', '[{"type":"avg","name":"c"}]');
+
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('/aggregations/0/avg/field', $output->error->message);
+        static::assertStringContainsString('The aggregation should contain a "field".', $output->error->message);
+    }
+
+    public function testAnUnknownAggregationTypeIsAnsweredRatherThanPropagated(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        [$tool] = $this->createTool(
+            $context,
+            $result,
+            new InvalidAggregationQueryException('The aggregation type "nonsense" used as key does not exist.')
+        );
+        $output = ($tool)('order', '[{"type":"nonsense","name":"c","field":"id"}]');
+
+        static::assertTrue($output->isError());
+        static::assertSame('The aggregation type "nonsense" used as key does not exist.', $output->error->message);
+    }
+
+    #[TestDox('Only criteria-parsing exceptions are answered; any other throwable is a bug and still propagates')]
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        $context = Context::createDefaultContext();
+        $result = new EntitySearchResult('order', 0, new EntityCollection(), new AggregationResultCollection(), new Criteria(), $context);
+
+        [$tool] = $this->createTool($context, $result, new \RuntimeException('bug, not bad input'));
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('order', '[{"type":"count","name":"c","field":"id"}]');
     }
 
     /**
      * @param EntitySearchResult<*> $result
+     * @param \Throwable|null $criteriaError thrown by the stubbed RequestCriteriaBuilder when set
      *
      * @return array{EntityAggregateTool, EntityRepository<*>}
      */
-    private function createTool(Context $context, EntitySearchResult $result): array
+    private function createTool(Context $context, EntitySearchResult $result, ?\Throwable $criteriaError = null): array
     {
         $definition = static::createStub(EntityDefinition::class);
 
@@ -363,7 +402,11 @@ class EntityAggregateToolTest extends TestCase
         $registry->method('getRepository')->willReturn($repository);
 
         $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
-        $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        if ($criteriaError !== null) {
+            $criteriaBuilder->method('fromArray')->willThrowException($criteriaError);
+        } else {
+            $criteriaBuilder->method('fromArray')->willReturn(new Criteria());
+        }
 
         $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn($context);

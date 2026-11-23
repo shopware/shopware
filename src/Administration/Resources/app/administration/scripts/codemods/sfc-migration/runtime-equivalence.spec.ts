@@ -5,6 +5,7 @@
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { ref } from 'vue';
 import type { VueWrapper } from '@vue/test-utils';
+import shortcutPlugin from 'src/app/plugin/shortcut.plugin';
 import {
     CLASS_THIS_FIXTURE,
     CREATED_ASYNC_FIXTURE,
@@ -24,6 +25,8 @@ import {
     PROP_INJECT_DATA_FIXTURE,
     ROUTE_WATCH_FIXTURE,
     SAFE_WATCH_FIXTURE,
+    SHORTCUT_FIXTURE,
+    SHORTCUT_QUOTED_KEY_FIXTURE,
     SIBLING_DATA_FIXTURE,
 } from './runtime-equivalence-fixtures';
 import {
@@ -45,10 +48,7 @@ function vmOf(wrapper: { vm: unknown }): Vm {
 }
 
 function expectConservative(outcome: string): void {
-    expect([
-        'partial',
-        'skipped',
-    ]).toContain(outcome);
+    expect(['partial', 'skipped']).toContain(outcome);
 }
 
 describe('SFC migration runtime equivalence', () => {
@@ -94,16 +94,15 @@ describe('SFC migration runtime equivalence', () => {
         }
     });
 
-    it.each([
-        PARAMETERIZED_DATA_FIXTURE,
-        SIBLING_DATA_FIXTURE,
-        DATA_DEPENDENCY_FIXTURE,
-    ])('keeps unsafe data initialization conservative: %s', async (fixture) => {
-        const result = await convertFixture(fixture);
+    it.each([PARAMETERIZED_DATA_FIXTURE, SIBLING_DATA_FIXTURE, DATA_DEPENDENCY_FIXTURE])(
+        'keeps unsafe data initialization conservative: %s',
+        async (fixture) => {
+            const result = await convertFixture(fixture);
 
-        expect(result.outcome).toBeDefined();
-        expectConservative(result.outcome);
-    });
+            expect(result.outcome).toBeDefined();
+            expectConservative(result.outcome);
+        },
+    );
 
     it('compares prop/inject data reads when the implementation supports them', async () => {
         const pair = await runEquivalentOrConservative(
@@ -122,10 +121,7 @@ describe('SFC migration runtime equivalence', () => {
         }
     });
 
-    it.each([
-        1,
-        ref(1),
-    ])('compares primitive and Ref injection reads/writes or downgrades them', async (provided) => {
+    it.each([1, ref(1)])('compares primitive and Ref injection reads/writes or downgrades them', async (provided) => {
         const pair = await runEquivalentOrConservative(
             INJECTION_FIXTURE,
             (original, generated) => {
@@ -180,6 +176,46 @@ describe('SFC migration runtime equivalence', () => {
         expectConservative(result.outcome);
     });
 
+    it('fires shortcuts the same way through useShortcut()', async () => {
+        const result = await convertFixture(SHORTCUT_FIXTURE);
+
+        expect(result.outcome).toBe('full');
+
+        const press = (key: string): void => {
+            document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+        };
+
+        const trace = async (wrapper: VueWrapper): Promise<unknown[]> => {
+            const probe = setProbe();
+
+            press('f');
+            press('Escape');
+            vmOf(wrapper).enabled = true;
+            await flushPromises();
+            press('Escape');
+            wrapper.unmount();
+            press('f');
+
+            return probe.events;
+        };
+
+        // Only the Options API side needs the plugin that reads the `shortcuts` option.
+        const original = await trace(mountOriginal(SHORTCUT_FIXTURE, { plugins: [shortcutPlugin as never] }));
+        const generated = await trace(mountGenerated(SHORTCUT_FIXTURE, result));
+
+        // `active()` gates ESCAPE until it flips, and nothing fires after unmount.
+        expect(original).toEqual(['focus', 'esc']);
+        expect(generated).toEqual(original);
+    });
+
+    it('escapes a shortcut key that would break a single-quoted emit', async () => {
+        const result = await convertFixture(SHORTCUT_QUOTED_KEY_FIXTURE);
+
+        // A raw single-quote splice would make prettier reject the output and downgrade the outcome.
+        expect(result.outcome).toBe('full');
+        expect(result.sfc).toContain("a'b");
+    });
+
     it('does not confuse class-local this with component this', async () => {
         const pair = await runEquivalentOrConservative(CLASS_THIS_FIXTURE, (original, generated) => {
             expect((vmOf(generated).readClassField as () => unknown)()).toBe(
@@ -202,14 +238,8 @@ describe('SFC migration runtime equivalence', () => {
             return;
         }
 
-        const [
-            firstOriginal,
-            secondOriginal,
-        ] = mountOriginalPair(MODULE_IDENTITY_FIXTURE);
-        const [
-            firstGenerated,
-            secondGenerated,
-        ] = mountGeneratedPair(MODULE_IDENTITY_FIXTURE, result);
+        const [firstOriginal, secondOriginal] = mountOriginalPair(MODULE_IDENTITY_FIXTURE);
+        const [firstGenerated, secondGenerated] = mountGeneratedPair(MODULE_IDENTITY_FIXTURE, result);
 
         expect((vmOf(firstGenerated).getShared as () => unknown)()).toBe(
             (vmOf(secondGenerated).getShared as () => unknown)(),
@@ -225,14 +255,8 @@ describe('SFC migration runtime equivalence', () => {
             return;
         }
 
-        const [
-            firstOriginal,
-            secondOriginal,
-        ] = mountOriginalPair(MODULE_BINDING_FIXTURE);
-        const [
-            firstGenerated,
-            secondGenerated,
-        ] = mountGeneratedPair(MODULE_BINDING_FIXTURE, result);
+        const [firstOriginal, secondOriginal] = mountOriginalPair(MODULE_BINDING_FIXTURE);
+        const [firstGenerated, secondGenerated] = mountGeneratedPair(MODULE_BINDING_FIXTURE, result);
         const read = (wrapper: VueWrapper): { pattern: RegExp; getter: number; missing: number } =>
             (vmOf(wrapper).readModule as () => { pattern: RegExp; getter: number; missing: number })();
         const generatedFirst = read(firstGenerated);
@@ -255,10 +279,7 @@ describe('SFC migration runtime equivalence', () => {
     });
 
     it('runs synchronous and asynchronous created hooks exactly once', async () => {
-        for (const fixture of [
-            CREATED_ONCE_FIXTURE,
-            CREATED_ASYNC_FIXTURE,
-        ]) {
+        for (const fixture of [CREATED_ONCE_FIXTURE, CREATED_ASYNC_FIXTURE]) {
             const originalProbe = setProbe();
             mountOriginal(fixture);
             await flushPromises();
@@ -302,10 +323,7 @@ describe('SFC migration runtime equivalence', () => {
     it('records synchronous created throws and asynchronous rejections without forcing execution', async () => {
         const outcomes: string[] = [];
 
-        for (const fixture of [
-            CREATED_THROW_FIXTURE,
-            CREATED_REJECT_FIXTURE,
-        ]) {
+        for (const fixture of [CREATED_THROW_FIXTURE, CREATED_REJECT_FIXTURE]) {
             const result = await convertFixture(fixture);
 
             expect(result.outcome).toBeDefined();
@@ -318,10 +336,7 @@ describe('SFC migration runtime equivalence', () => {
             expect(result.sfc === null).toBe(result.outcome === 'skipped');
         }
 
-        expect(outcomes).toEqual([
-            'full',
-            'full',
-        ]);
+        expect(outcomes).toEqual(['full', 'full']);
     });
 
     it('runs the generated $dataScope path through the real setup transform without touching disk', async () => {
@@ -346,14 +361,7 @@ describe('SFC migration runtime equivalence', () => {
             mounted = wrapper.exists();
         }
 
-        expect(
-            result.outcome === 'full'
-                ? mounted
-                : [
-                      'partial',
-                      'skipped',
-                  ].includes(result.outcome),
-        ).toBe(true);
+        expect(result.outcome === 'full' ? mounted : ['partial', 'skipped'].includes(result.outcome)).toBe(true);
     });
 
     it('keeps the runtime harness compatible with router-backed callers', async () => {

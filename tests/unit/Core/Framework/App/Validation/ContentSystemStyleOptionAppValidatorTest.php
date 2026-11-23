@@ -28,7 +28,7 @@ class ContentSystemStyleOptionAppValidatorTest extends TestCase
 
         $errors = $validator->validate($this->buildManifest('/app/path', 'TestApp'), Context::createDefaultContext());
 
-        static::assertCount(0, $errors->getElements());
+        static::assertCount(0, $errors);
     }
 
     #[TestDox('returns a schema error when the style options directory is invalid')]
@@ -41,15 +41,14 @@ class ContentSystemStyleOptionAppValidatorTest extends TestCase
         $validator = new ContentSystemStyleOptionAppValidator($loader);
         $errors = $validator->validate($this->buildManifest('/app/path', 'TestApp'), Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
+        static::assertCount(1, $errors);
 
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemStyleOptionSchemaError::class, $error);
         static::assertSame(
             'Invalid style option schema in "/app/path/Resources/content-system/style-options": Failed to load style option from "broken.yaml": Invalid YAML syntax',
             $error->getMessage()
         );
-        static::assertSame('manifest-invalid-style-option-schema', $error->getMessageKey());
     }
 
     #[TestDox('propagates non-content-system exceptions without catching them')]

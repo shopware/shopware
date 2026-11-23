@@ -36,7 +36,7 @@ describe('src/app/state/session.store.js', () => {
                     ],
                 },
             ],
-        } as EntitySchema.user);
+        } as Entity<'user'>);
 
         expect(sessionStore.userPrivileges).toContain('system.core_update');
         expect(sessionStore.userPrivileges).toContain('system:core:update');
@@ -68,10 +68,7 @@ describe('src/app/state/session.store.js', () => {
         Shopware.Service = jest.fn().mockImplementation(() => ({
             isLoggedIn: jest.fn().mockReturnValue(false),
         }));
-        useSystem().locales.value = [
-            'en-GB',
-            'de-DE',
-        ];
+        useSystem().locales.value = ['en-GB', 'de-DE'];
 
         sessionStore.languageId = '123';
         sessionStore.currentLocale = 'en-GB';

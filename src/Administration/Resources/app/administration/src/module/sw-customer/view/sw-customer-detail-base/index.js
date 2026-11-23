@@ -10,7 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        // @deprecated tag:v6.8.0 - Only used by customFieldSetRepository; will be removed with it.
+        'repositoryFactory',
+        'customFieldDataProviderService',
+    ],
 
     props: {
         customer: {
@@ -38,15 +42,27 @@ export default {
     },
 
     computed: {
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-detail-base.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-customer-detail-base.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
-            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },
@@ -58,7 +74,7 @@ export default {
 
     methods: {
         createdComponent() {
-            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
+            this.customFieldDataProviderService.getCustomFieldSets('customer').then((customFieldSets) => {
                 this.customerCustomFieldSets = customFieldSets;
             });
         },

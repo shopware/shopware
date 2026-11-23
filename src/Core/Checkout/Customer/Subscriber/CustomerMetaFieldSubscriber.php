@@ -106,7 +106,8 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         }
 
         $select = '
-            SELECT `order_customer`.customer_id as id,
+            SELECT LOWER(HEX(`order_customer`.customer_id)) as customer_id,
+                   `order_customer`.customer_id as id,
                    COUNT(`order`.id) as order_count,
                    ROUND(SUM(`order`.amount_total / `order`.currency_factor), 2) as order_total_amount,
                    MAX(`order`.order_date_time) as last_order_date
@@ -127,18 +128,20 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             GROUP BY `order_customer`.customer_id
         ';
 
-        $data = $this->connection->fetchAllAssociative($select, $parameters, $types);
-
-        if ($data === []) {
-            foreach ($customerIds as $customerId) {
-                $data[] = [
-                    'id' => Uuid::fromHexToBytes($customerId),
-                    'order_count' => 0,
-                    'order_total_amount' => 0,
-                    'last_order_date' => null,
-                ];
-            }
+        $data = [];
+        foreach ($customerIds as $customerId) {
+            $data[$customerId] = [
+                'id' => Uuid::fromHexToBytes($customerId),
+                'order_count' => 0,
+                'order_total_amount' => 0,
+                'last_order_date' => null,
+            ];
         }
+
+        // indexed by the hex customer id (first column), matching the keys of the reset values above
+        $aggregated = $this->connection->fetchAllAssociativeIndexed($select, $parameters, $types);
+
+        $data = array_replace($data, $aggregated);
 
         $update = new RetryableQuery(
             $this->connection,

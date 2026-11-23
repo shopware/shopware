@@ -14,6 +14,6 @@ class SalesChannelNewsletterRecipientDefinition extends NewsletterRecipientDefin
 {
     public function processCriteria(Criteria $criteria, SalesChannelContext $context): void
     {
-        $criteria->addFilter(new EqualsFilter('salesChannel.id', $context->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()));
     }
 }

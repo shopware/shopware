@@ -31,9 +31,7 @@ interface AuditVulnerability {
     via: Array<AuditVia | string>;
     isDirect: boolean;
     effects: string[];
-    fixAvailable:
-        | boolean
-        | FixAvailable;
+    fixAvailable: boolean | FixAvailable;
 }
 
 interface AuditResult {
@@ -48,9 +46,7 @@ interface RootAdvisory {
     packageName: string;
     range: string;
     affectedPackages: string[];
-    fixAvailable:
-        | false
-        | FixAvailable;
+    fixAvailable: false | FixAvailable;
 }
 
 interface AuditExecutionResult {
@@ -80,26 +76,80 @@ function extractCVEs(via: AuditVia): string[] {
     return [];
 }
 
-function fetchAuditReport(): AuditResult {
-    let auditRaw = '';
+/** The advisories endpoint 503s often enough to redden the nightly on its own. */
+export const AUDIT_RETRY_DELAYS_MS = [3_000, 10_000, 30_000];
 
+/** The report was unobtainable, as opposed to obtained and full of vulnerabilities. Only this is worth retrying. */
+export class UnusableAuditReportError extends Error {}
+
+export function parseAuditReport(auditRaw: string): AuditResult {
+    let parsed: unknown;
     try {
-        auditRaw = execSync('npm audit --json', { encoding: 'utf8' });
-    } catch (err: unknown) {
-        const execErr = err as { stdout?: Buffer | string; message?: string };
-        if (execErr.stdout) {
-            auditRaw = execErr.stdout.toString();
-        } else {
-            throw new Error(`Error running npm audit: ${execErr.message ?? String(err)}`);
+        parsed = JSON.parse(auditRaw);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        throw new UnusableAuditReportError(`failed to parse npm audit JSON: ${message}`);
+    }
+
+    // npm reports registry problems as a JSON payload that has no "vulnerabilities" section.
+    const report = parsed as { vulnerabilities?: unknown; error?: { summary?: string; detail?: string } };
+    if (!report.vulnerabilities || typeof report.vulnerabilities !== 'object') {
+        const summary = report.error?.summary?.trim();
+        const detail = report.error?.detail?.trim();
+        const reason = [summary, detail].filter(Boolean).join(' - ') || 'no "vulnerabilities" section in the report';
+        throw new UnusableAuditReportError(reason);
+    }
+
+    return report as AuditResult;
+}
+
+export function fetchAuditReportWithRetry(
+    runAudit: () => string,
+    sleep: (ms: number) => void,
+    delaysMs: readonly number[] = AUDIT_RETRY_DELAYS_MS,
+    warn: (message: string) => void = console.warn,
+): AuditResult {
+    let lastReason = '';
+
+    for (let attempt = 0; attempt <= delaysMs.length; attempt++) {
+        try {
+            return parseAuditReport(runAudit());
+        } catch (err) {
+            if (!(err instanceof UnusableAuditReportError)) {
+                throw err;
+            }
+            lastReason = err.message;
+            const delay = delaysMs[attempt];
+            if (delay === undefined) {
+                break;
+            }
+            warn(`npm audit did not return a usable report (${lastReason}); retrying in ${delay / 1_000}s`);
+            sleep(delay);
         }
     }
 
+    throw new Error(`npm audit did not return a usable report after ${delaysMs.length + 1} attempts: ${lastReason}`);
+}
+
+function runNpmAuditCommand(): string {
     try {
-        return JSON.parse(auditRaw) as AuditResult;
-    } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        throw new Error(`Failed to parse npm audit JSON: ${message}`);
+        return execSync('npm audit --json', { encoding: 'utf8' });
+    } catch (err: unknown) {
+        const execErr = err as { stdout?: Buffer | string; message?: string };
+        // npm exits non-zero whenever it finds vulnerabilities, so stdout is the normal path here.
+        if (execErr.stdout) {
+            return execErr.stdout.toString();
+        }
+        throw new Error(`Error running npm audit: ${execErr.message ?? String(err)}`, { cause: err });
     }
+}
+
+function sleepSync(ms: number): void {
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function fetchAuditReport(): AuditResult {
+    return fetchAuditReportWithRetry(runNpmAuditCommand, sleepSync);
 }
 
 function isIgnored(via: AuditVia, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): boolean {
@@ -178,7 +228,7 @@ function printUnusedIgnores(
     }
 }
 
-function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): void {
+export function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVEs: Set<string>): void {
     for (const pkgName in audit.vulnerabilities) {
         const pkg = audit.vulnerabilities[pkgName];
         if (!pkg) continue;
@@ -193,34 +243,32 @@ function filterIgnored(audit: AuditResult, ignoredGHSAs: Set<string>, ignoredCVE
         }
     }
 
+    // Grow the vulnerable set from the remaining advisories instead of pruning empty packages,
+    // because packages can reference each other (e.g. vue <-> @vue/server-renderer) and a cycle never empties.
+    const vulnerable = new Set<string>();
     let changed = true;
     while (changed) {
         changed = false;
         for (const pkgName in audit.vulnerabilities) {
             const pkg = audit.vulnerabilities[pkgName];
-            if (!pkg) continue;
+            if (!pkg || !Array.isArray(pkg.via) || vulnerable.has(pkgName)) continue;
 
-            if (Array.isArray(pkg.via) && pkg.via.length > 0) {
-                pkg.via = pkg.via.filter((v) => {
-                    if (typeof v === 'string') {
-                        const refPkg = audit.vulnerabilities[v];
-                        return refPkg && Array.isArray(refPkg.via) && refPkg.via.length > 0;
-                    }
-                    return true;
-                });
-                if (pkg.via.length === 0) {
-                    changed = true;
-                }
+            if (pkg.via.some((v) => typeof v === 'object' || vulnerable.has(v))) {
+                vulnerable.add(pkgName);
+                changed = true;
             }
         }
     }
+
+    for (const pkgName in audit.vulnerabilities) {
+        const pkg = audit.vulnerabilities[pkgName];
+        if (!pkg || !Array.isArray(pkg.via)) continue;
+
+        pkg.via = pkg.via.filter((v) => typeof v === 'object' || vulnerable.has(v));
+    }
 }
 
-function collectAffectedPackages(
-    pkgName: string,
-    audit: AuditResult,
-    visited: Set<string>,
-): void {
+function collectAffectedPackages(pkgName: string, audit: AuditResult, visited: Set<string>): void {
     if (visited.has(pkgName)) return;
     visited.add(pkgName);
 
@@ -289,7 +337,9 @@ function printAdvisories(advisories: RootAdvisory[], totalPackages: number): voi
             console.error(`  URL: ${adv.url}`);
         }
         if (adv.fixAvailable) {
-            console.error(`  Fix: update ${adv.fixAvailable.name} to ${adv.fixAvailable.version}${adv.fixAvailable.isSemVerMajor ? ' (semver major)' : ''}`);
+            console.error(
+                `  Fix: update ${adv.fixAvailable.name} to ${adv.fixAvailable.version}${adv.fixAvailable.isSemVerMajor ? ' (semver major)' : ''}`,
+            );
         }
         if (adv.affectedPackages.length > 0) {
             console.error(`  Affected: ${adv.affectedPackages.join(', ')} (${adv.affectedPackages.length} transitive)`);
@@ -312,7 +362,9 @@ function printSuggestions(advisories: RootAdvisory[]): void {
             if (seen.has(key)) continue;
             seen.add(key);
             const fix = adv.fixAvailable as { name: string; version: string; isSemVerMajor: boolean };
-            console.error(`  "overrides": { "${fix.name}": "${fix.version}" }${fix.isSemVerMajor ? '  // semver major — test thoroughly' : ''}`);
+            console.error(
+                `  "overrides": { "${fix.name}": "${fix.version}" }${fix.isSemVerMajor ? '  // semver major — test thoroughly' : ''}`,
+            );
         }
         console.error('');
     }
@@ -360,9 +412,7 @@ function writeAuditResult(result: AuditExecutionResult): void {
  * Exits with code 1 when unignored vulnerabilities remain.
  */
 export function runNpmAudit(options: NpmAuditOptions = {}): void {
-    const ignoredGHSAs = new Set(
-        (options.ignoredGHSAs ?? []).map((entry) => extractGHSA(entry) ?? entry),
-    );
+    const ignoredGHSAs = new Set((options.ignoredGHSAs ?? []).map((entry) => extractGHSA(entry) ?? entry));
     const ignoredCVEs = new Set(options.ignoredCVEs ?? []);
     const totalIgnored = ignoredGHSAs.size + ignoredCVEs.size;
     const packageName = getAuditPackageName();
@@ -374,9 +424,7 @@ export function runNpmAudit(options: NpmAuditOptions = {}): void {
         filterIgnored(audit, ignoredGHSAs, ignoredCVEs);
         printUnusedIgnores(presentIdentifiers, ignoredGHSAs, ignoredCVEs);
 
-        const remaining = Object.values(audit.vulnerabilities).filter(
-            (pkg) => Array.isArray(pkg.via) && pkg.via.length > 0,
-        );
+        const remaining = Object.values(audit.vulnerabilities).filter((pkg) => Array.isArray(pkg.via) && pkg.via.length > 0);
 
         // Only remaining vulnerabilities block the pipeline. Advisories are
         // printed for visibility but intentionally do not cause a failure, so

@@ -5,16 +5,16 @@ import type { QuickViewSettings } from '@shopware-ag/dive/quickview';
 import { mount } from '@vue/test-utils';
 
 // Mock QuickView from @shopware-ag/dive/quickview
-const mockQuickViewDispose = jest.fn();
+const mockQuickViewDisposeAsync = jest.fn();
 const mockQuickView = jest.fn().mockResolvedValue({
-    dispose: mockQuickViewDispose,
+    disposeAsync: mockQuickViewDisposeAsync,
 });
 jest.mock('@shopware-ag/dive/quickview', () => ({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     QuickView: (...args: QuickViewSettings[]) => mockQuickView(...args),
 }));
 
-const createMediaEntity = (overrides: Partial<EntitySchema.Entity<'media'>> = {}) => {
+const createMediaEntity = (overrides: Partial<Entity<'media'>> = {}) => {
     return {
         getEntityName: () => 'media',
         id: 'test-media-id',
@@ -49,7 +49,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockQuickView.mockResolvedValue({
-            dispose: mockQuickViewDispose,
+            disposeAsync: mockQuickViewDisposeAsync,
         });
     });
 
@@ -92,16 +92,6 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises();
 
             expect(mockQuickView).toHaveBeenCalled();
-        });
-
-        it('should handle missing canvas element gracefully', async () => {
-            const wrapper = await createWrapper();
-            // Manually set canvas to null to simulate missing element
-            await wrapper.setData({ canvas: null });
-            await flushPromises();
-
-            // Component should still exist and not crash
-            expect(wrapper.exists()).toBe(true);
         });
     });
 
@@ -235,7 +225,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises();
 
             const newMediaEntity = createMediaEntity({
-                id: 'new-media-id',
+                id: 'new-media-id' as EntityKey<'media'>,
                 url: 'https://example.com/new-model.glb',
             });
 
@@ -253,7 +243,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
             const initialCallCount = mockQuickView.mock.calls.length;
 
             const newMediaEntity = createMediaEntity({
-                id: 'new-media-id',
+                id: 'new-media-id' as EntityKey<'media'>,
                 url: 'https://example.com/new-model.glb',
             });
 
@@ -305,7 +295,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
     describe('Integration Scenarios', () => {
         it('should complete full initialization flow', async () => {
             const mediaEntity = createMediaEntity({
-                id: 'integration-test-id',
+                id: 'integration-test-id' as EntityKey<'media'>,
                 url: 'https://example.com/integration-model.glb',
             });
             const wrapper = await createWrapper({
@@ -327,7 +317,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
 
         it('should handle media update flow correctly', async () => {
             const mediaEntity = createMediaEntity({
-                id: 'update-test-id',
+                id: 'update-test-id' as EntityKey<'media'>,
                 url: 'https://example.com/original-model.glb',
             });
 
@@ -367,12 +357,12 @@ describe('src/app/component/media/sw-model-viewer', () => {
             await flushPromises();
 
             // Simulate media update event
-            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'update-test-id');
+            Shopware.Utils.EventBus.emit('sw-media-library-item-updated', 'update-test-id' as EntityKey<'media'>);
             await flushPromises();
 
             // Verify modelEntity was updated with new URL from API
             expect(wrapper.vm.modelEntity).toBeTruthy();
-            const updatedEntity = wrapper.vm.modelEntity as EntitySchema.Entity<'media'>;
+            const updatedEntity = wrapper.vm.modelEntity as Entity<'media'>;
             expect(updatedEntity?.url).toBe('https://example.com/updated-model.glb');
         });
     });

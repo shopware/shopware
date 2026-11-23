@@ -11,9 +11,9 @@ const { Component, Mixin } = Shopware;
 export default Component.wrapComponentConfig({
     template,
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    emits: ['element-update'],
+
+    mixins: [Mixin.getByName('cms-element')],
 
     props: {
         elementData: {

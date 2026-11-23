@@ -1,14 +1,11 @@
+import './store/experience-studio-workspace.store';
 import defaultSearchConfiguration from './default-search-configuration';
 
 import './acl';
 import './store/experience-studio-editor.store';
 import './store/experience-studio-element-type.store';
+import './store/experience-studio-mapping-candidate.store';
 import './store/experience-studio-style-option.store';
-
-/**
- * @private
- */
-Shopware.Component.register('sw-experience-studio-list', () => import('./page/sw-experience-studio-list'));
 
 /**
  * @private
@@ -20,17 +17,22 @@ Shopware.Component.register('sw-experience-studio-detail', () => import('./page/
  * @private
  * @sw-package discovery
  */
-Shopware.Component.extend(
-    'sw-experience-studio-create',
-    'sw-experience-studio-detail',
-    () => import('./page/sw-experience-studio-create'),
+Shopware.Component.register('sw-experience-studio-toolbar', () => import('./component/sw-experience-studio-toolbar'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-layout-picker',
+    () => import('./component/sw-experience-studio-layout-picker'),
 );
 
 /**
  * @private
  * @sw-package discovery
  */
-Shopware.Component.register('sw-experience-studio-toolbar', () => import('./component/sw-experience-studio-toolbar'));
+Shopware.Component.register('sw-experience-studio-canvas', () => import('./component/sw-experience-studio-canvas'));
 
 /**
  * @private
@@ -106,6 +108,24 @@ Shopware.Component.register(
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-mapping-modal',
+    () => import('./component/sw-experience-studio-mapping-modal'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
+    'sw-experience-studio-inline-text-field',
+    () => import('./component/sw-experience-studio-inline-text-field'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-create-wizard',
     () => import('./component/sw-experience-studio-create-wizard'),
 );
@@ -141,7 +161,18 @@ Shopware.Component.register(
  * @private
  * @sw-package discovery
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register(
+    'sw-experience-studio-workspace-picker',
+    () => import('./component/sw-experience-studio-workspace-picker'),
+);
+
+/** @private @sw-package discovery */
+Shopware.Component.register(
+    'sw-experience-studio-workspace-switcher',
+    () => import('./component/sw-experience-studio-workspace-switcher'),
+);
+
+/** @private @sw-package discovery */
 Shopware.Module.register('sw-experience-studio', {
     type: 'core',
     name: 'experience-studio',
@@ -154,11 +185,16 @@ Shopware.Module.register('sw-experience-studio', {
 
     routes: {
         index: {
-            component: 'sw-experience-studio-list',
+            component: 'sw-experience-studio-detail',
             path: 'index',
             meta: {
                 privilege: 'experience_studio.viewer',
             },
+        },
+        workspace: {
+            component: 'sw-experience-studio-detail',
+            path: 'workspace/:workspaceId',
+            meta: { privilege: 'experience_studio.viewer' },
         },
         detail: {
             component: 'sw-experience-studio-detail',
@@ -166,14 +202,6 @@ Shopware.Module.register('sw-experience-studio', {
             meta: {
                 parentPath: 'sw.experience.studio.index',
                 privilege: 'experience_studio.viewer',
-            },
-        },
-        create: {
-            component: 'sw-experience-studio-create',
-            path: 'create/:id?',
-            meta: {
-                parentPath: 'sw.experience.studio.index',
-                privilege: 'experience_studio.creator',
             },
         },
     },

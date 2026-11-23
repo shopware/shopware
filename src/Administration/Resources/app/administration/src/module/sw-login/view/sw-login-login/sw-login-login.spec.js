@@ -145,7 +145,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
 
         // advance the timer to make the warning disappear
         jest.advanceTimersByTime(1001);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-alert').exists()).toBe(false);
     });
@@ -238,9 +238,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         const { wrapper } = await createWrapper(true);
 
         expect(wrapper.emitted('config-loaded')).toEqual([
-            [
-                { useDefault: true, ssoProviders: [], url: 'https://sso.test' },
-            ],
+            [{ useDefault: true, ssoProviders: [], url: 'https://sso.test' }],
         ]);
     });
 
@@ -338,5 +336,7 @@ describe('module/sw-login/view/sw-login-login/sw-login-login.spec.js', () => {
         await flushPromises();
 
         expect(navigateToSpy).toHaveBeenCalledWith('https://sso.test');
+        expect(sessionStorage.getItem('sw-sso-session')).toBe('true');
+        expect(sessionStorage.getItem('sw-sso-restore-previous-route')).toBe('true');
     });
 });

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -27,8 +27,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(GoodsPriceRule::class)]
 class GoodsPriceRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testRuleWithExactPriceMatch(): void
     {
         $rule = (new GoodsPriceRule())->assign(['amount' => 270.0, 'operator' => Rule::OPERATOR_EQ]);
@@ -268,6 +266,6 @@ class GoodsPriceRuleTest extends TestCase
 
     private function createLineItemWithPrice(float $amount): LineItem
     {
-        return $this->createLineItem()->setPrice(new CalculatedPrice($amount, $amount, new CalculatedTaxCollection(), new TaxRuleCollection()));
+        return CartRuleFixture::createLineItem()->setPrice(new CalculatedPrice($amount, $amount, new CalculatedTaxCollection(), new TaxRuleCollection()));
     }
 }

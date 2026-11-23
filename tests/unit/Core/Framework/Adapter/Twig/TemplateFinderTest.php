@@ -110,6 +110,49 @@ class TemplateFinderTest extends TestCase
         $this->finder->find('', true);
     }
 
+    public function testFindMemoizesResultForRepeatedArguments(): void
+    {
+        // The namespace hierarchy (and thus the twig cache) is resolved once; the memoized second
+        // find() call must not repeat it. getScopes is only reached for a FilesystemCache (not here).
+        $this->hierarchyBuilder->expects($this->once())->method('buildHierarchy')->willReturn(['SwagTheme' => true, 'Framework' => true]);
+        $this->twig->expects($this->once())->method('getCache');
+        $this->templateScopeDetector->expects($this->never())->method('getScopes');
+
+        $existsCalls = 0;
+        $this->loader->method('exists')->willReturnCallback(static function (string $template) use (&$existsCalls): bool {
+            ++$existsCalls;
+
+            return $template === '@SwagTheme/documents/invoice.html.twig';
+        });
+
+        $first = $this->finder->find('@Framework/documents/invoice.html.twig');
+        $callsAfterFirst = $existsCalls;
+
+        $second = $this->finder->find('@Framework/documents/invoice.html.twig');
+
+        static::assertSame('@SwagTheme/documents/invoice.html.twig', $first);
+        static::assertSame($first, $second);
+        // the second call is served from the per-request cache, so the loader is not consulted again
+        static::assertSame($callsAfterFirst, $existsCalls);
+    }
+
+    public function testResetClearsTheResultCache(): void
+    {
+        // buildHierarchy (and the twig cache resolution) is only reached when neither the result cache
+        // nor the namespace hierarchy is populated; expecting it exactly twice proves reset() cleared both.
+        $this->hierarchyBuilder->expects($this->exactly(2))->method('buildHierarchy')->willReturn(['SwagTheme' => true, 'Framework' => true]);
+        $this->twig->expects($this->exactly(2))->method('getCache');
+        $this->templateScopeDetector->expects($this->never())->method('getScopes');
+        $this->loader->method('exists')->willReturnCallback(static fn (string $template): bool => $template === '@SwagTheme/documents/invoice.html.twig');
+
+        $first = $this->finder->find('@Framework/documents/invoice.html.twig');
+        $this->finder->reset();
+        $second = $this->finder->find('@Framework/documents/invoice.html.twig');
+
+        static::assertSame('@SwagTheme/documents/invoice.html.twig', $first);
+        static::assertSame($first, $second);
+    }
+
     /**
      * @return iterable<string, array<int, string>>
      */

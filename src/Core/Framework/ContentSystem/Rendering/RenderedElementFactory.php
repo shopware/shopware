@@ -11,6 +11,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSy
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueOrigin;
 use Shopware\Core\Framework\ContentSystem\Output\Index\ValueProvenance;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
@@ -34,12 +35,16 @@ use Shopware\Core\Framework\Log\Package;
  *
  * "Delivered" means delivered: a consumer key the element declares but which no ancestor fulfilled is not
  * a member, so it does not appear at all rather than appearing as null. An explicit null on a rendered
- * property means a resolution ran and found nothing, and it has exactly two producers: a loader's
- * {@see ContentDataLoaderResult::notFound()},
- * and a context delivery that resolved to nothing (an under-supplied distribution strategy handing an
- * unmatched consumer null, or an optional dotted consumer key whose value cannot be traversed). Neither
- * authoring nor non-delivery is among them — an authored null and an undelivered consumer key are both
- * absent. Keeping present-null and key-absent apart is the point of the distinction.
+ * property can come from a loader's {@see ContentDataLoaderResult::notFound()}, an under-supplied distribution
+ * strategy, an optional ordinary dotted-root consumer whose path cannot be traversed, or a mapping resolving
+ * an explicit null. Neither authoring nor non-delivery is among them — an authored null and an
+ * undelivered consumer key are both absent. Keeping present-null and key-absent apart is the point of the
+ * distinction.
+ *
+ * A consumer carrying a typed source — a data mapping — replaces the target property's authored and
+ * loader-resolved value when it resolves to a value, including an explicit null. A missing or empty mapping
+ * may use the authored or loader-resolved value instead. Invalid mappings remain omitted; provider errors
+ * propagate before minting.
  *
  * The same reading applies to a declared key with no stored value: the member carries "the stored value
  * under that key", so a declared reference property nothing filled is absent rather than null. An authored
@@ -83,6 +88,7 @@ final readonly class RenderedElementFactory
      * @param array<string, mixed> $deliveredContext keyed by the key context was delivered under
      * @param list<string> $distributionReferencedKeys stored keys a parent's distribution config names
      * @param array<string, list<RenderedElement>> $slots already-minted children
+     * @param list<string> $mappingFallbackKeys mapped destinations whose missing or empty source permits fallback
      */
     public function create(
         StoredElement $stored,
@@ -90,14 +96,30 @@ final readonly class RenderedElementFactory
         array $deliveredContext,
         array $distributionReferencedKeys,
         array $slots,
+        array $mappingFallbackKeys,
     ): ElementMintResult {
         $storedProperties = $stored->properties();
         $declaredProperties = $this->declaredProperties($stored->component);
         $properties = [];
         $provenance = [];
 
+        $mappingConsumers = new MappingConsumers();
+        $mappedPropertyKeys = [];
+        $omittedMappingKeys = [];
+        foreach ($stored->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
+            if (!$mappingConsumers->isMapping($consumer)) {
+                continue;
+            }
+
+            $key = (string) $consumerKey;
+            $mappedPropertyKeys[] = $key;
+            if (!\array_key_exists($key, $deliveredContext) && !\in_array($key, $mappingFallbackKeys, true)) {
+                $omittedMappingKeys[$key] = true;
+            }
+        }
+
         foreach ($distributionReferencedKeys as $key) {
-            if ($this->isDeclaredReference($declaredProperties, $key)) {
+            if (isset($omittedMappingKeys[$key]) || $this->isDeclaredReference($declaredProperties, $key)) {
                 continue;
             }
 
@@ -108,6 +130,10 @@ final readonly class RenderedElementFactory
         }
 
         foreach ($this->declaredAuthoredKeys($declaredProperties) as $key) {
+            if (isset($omittedMappingKeys[$key])) {
+                continue;
+            }
+
             if ($this->carriesAValue($storedProperties, $key)) {
                 $properties[$key] = $storedProperties[$key]->jsonSerialize();
                 $provenance[$key] = new ValueProvenance(ValueOrigin::DeclaredAuthored);
@@ -115,7 +141,15 @@ final readonly class RenderedElementFactory
         }
 
         foreach (array_keys($stored->dataRequirements) as $key) {
+            if (\in_array($key, $mappedPropertyKeys, true) && !\in_array($key, $mappingFallbackKeys, true)) {
+                continue;
+            }
+
             if (\array_key_exists($key, $resolvedLoaderValues)) {
+                if (\in_array($key, $mappingFallbackKeys, true) && $resolvedLoaderValues[$key]->value === null) {
+                    continue;
+                }
+
                 $properties[$key] = $resolvedLoaderValues[$key]->value;
                 $provenance[$key] = new ValueProvenance(
                     ValueOrigin::LoaderResolved,

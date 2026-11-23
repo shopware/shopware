@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Content\Product\SalesChannel\Detail;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -11,11 +12,13 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -67,6 +70,95 @@ class ProductDetailRouteTest extends TestCase
         static::assertArrayHasKey('product', $response);
     }
 
+    public function testSeoCategoryIsUnchangedWhenRequestingMainCategories(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = $this->ids->get('sales-channel');
+        $salesChannel = static::getContainer()->get('sales_channel.repository')
+            ->search(new Criteria([$salesChannelId]), $context)->getEntities()->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        $categoryId = $this->ids->create('main-category');
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+            'name' => 'Main category',
+            'active' => true,
+            'seoUrls' => [[
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'frontend.navigation.page',
+                'pathInfo' => '/navigation/' . $categoryId,
+                'seoPathInfo' => 'main-category/',
+                'isCanonical' => true,
+                'isModified' => true,
+            ]],
+        ]], $context);
+        static::getContainer()->get('product.repository')->update([[
+            'id' => $this->ids->get('product'),
+            'categories' => [['id' => $categoryId]],
+            'mainCategories' => [['categoryId' => $categoryId, 'salesChannelId' => $salesChannelId]],
+        ]], $context);
+
+        $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+        $this->browser->request('POST', $this->getUrl($this->ids->get('product')));
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        $withoutAssociation = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame($categoryId, $withoutAssociation['product']['seoCategory']['id']);
+        static::assertSame('Main category', $withoutAssociation['product']['seoCategory']['translated']['name']);
+        static::assertCount(1, $withoutAssociation['product']['seoCategory']['seoUrls']);
+        static::assertSame('main-category/', $withoutAssociation['product']['seoCategory']['seoUrls'][0]['seoPathInfo']);
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('product')), [
+            'associations' => ['mainCategories' => []],
+        ]);
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        $withAssociation = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $withAssociation['product']['mainCategories']);
+        static::assertSame($withoutAssociation['product']['seoCategory'], $withAssociation['product']['seoCategory']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function nonVisibleAssociationPayloadProvider(): iterable
+    {
+        yield 'requested association' => [['associations' => ['searchKeywords' => []]]];
+        yield 'partial field selection' => [['fields' => ['searchKeywords.keyword']]];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('nonVisibleAssociationPayloadProvider')]
+    public function testStoreApiReadWithNonVisibleAssociations(array $payload): void
+    {
+        $url = $this->getUrl($this->ids->get('product'));
+        $this->browser->request('POST', $url);
+
+        $baseline = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($baseline, true));
+
+        $this->browser->request('POST', $url, $payload);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+            static::assertArrayNotHasKey('product', $response);
+
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertSame($baseline['product'], $response['product']);
+        static::assertArrayNotHasKey('searchKeywords', $response['product']);
+    }
+
     public function testLoadProductWithMeasurementSystem(): void
     {
         $product = (new ProductBuilder($this->ids, 'measurement-system-product'))
@@ -99,7 +191,6 @@ class ProductDetailRouteTest extends TestCase
 
         // measurements is calculated in the response
         static::assertArrayHasKey('measurements', $response['product']);
-        static::assertNotEmpty($response['product']['measurements']);
         static::assertSame([
             'width' => [
                 'value' => 50,
@@ -154,7 +245,6 @@ class ProductDetailRouteTest extends TestCase
 
         // measurements is calculated in the response
         static::assertArrayHasKey('measurements', $response['product']);
-        static::assertNotEmpty($response['product']['measurements']);
         static::assertSame([
             'width' => [
                 'value' => 1.97,
@@ -244,6 +334,68 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame('variant-2', $response['product']['productNumber']);
     }
 
+    /**
+     * @param array<string, mixed> $variantListingConfig
+     */
+    #[DataProvider('variantListingConfigProvider')]
+    public function testLoadParentReturnsNotFoundWhenAllVariantsAreInactive(array $variantListingConfig): void
+    {
+        $this->createVariantProducts($variantListingConfig);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('variant-1'), 'active' => false],
+            ['id' => $this->ids->get('variant-2'), 'active' => false],
+            ['id' => $this->ids->get('variant-3'), 'active' => false],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function variantListingConfigProvider(): iterable
+    {
+        yield 'display parent' => [['displayParent' => true]];
+        yield 'without variant listing config' => [[]];
+    }
+
+    public function testLoadParentReturnsNotFoundWhenAllVariantsAreHiddenCloseouts(): void
+    {
+        static::getContainer()->get(SystemConfigService::class)
+            ->set('core.listing.hideCloseoutProductsWhenOutOfStock', true);
+
+        $this->createVariantProducts(['displayParent' => true]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('variant-2'), 'stock' => 0],
+            ['id' => $this->ids->get('variant-3'), 'stock' => 0],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testLoadParentResolvesRemainingActiveVariant(): void
+    {
+        $this->createVariantProducts(['displayParent' => true]);
+
+        static::getContainer()->get('product.repository')->update([
+            ['id' => $this->ids->get('variant-1'), 'active' => false],
+            ['id' => $this->ids->get('variant-2'), 'active' => false],
+        ], Context::createDefaultContext());
+
+        $this->browser->request('POST', $this->getUrl($this->ids->get('variants')));
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+        static::assertSame('variant-3', $response['product']['productNumber']);
+    }
+
     public function testIncludes(): void
     {
         $this->browser->request(
@@ -291,7 +443,47 @@ class ProductDetailRouteTest extends TestCase
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
         static::assertArrayHasKey('manufacturer', $response['product']);
-        static::assertNotEmpty($response['product']['manufacturer']);
+        static::assertIsArray($response['product']['manufacturer']);
+        static::assertNotCount(0, $response['product']['manufacturer']);
+    }
+
+    public function testProtectedReviewCustomerAssociationCannotBeExposedThroughIncludes(): void
+    {
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('product')),
+            [
+                'associations' => [
+                    'productReviews' => [
+                        'associations' => [
+                            'customer' => [
+                                'associations' => [
+                                    'defaultBillingAddress' => [],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                'includes' => [
+                    'product_review' => ['id', 'customer.id'],
+                ],
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+            static::assertArrayNotHasKey('product', $response);
+            static::assertSame('FRAMEWORK__ACCESSOR_NOT_ALLOWED', $response['errors'][0]['code']);
+
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode());
+        foreach ($response['product']['productReviews'] as $review) {
+            static::assertArrayNotHasKey('customer', $review);
+        }
     }
 
     public function testIncludeForCustomFields(): void

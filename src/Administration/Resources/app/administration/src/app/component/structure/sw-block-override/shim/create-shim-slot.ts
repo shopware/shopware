@@ -55,11 +55,7 @@ type DataScopeWithAppContext = DataScope & {
 type LegacyBlockHelper = (...args: unknown[]) => unknown;
 
 const warnedBlocks = new Set<string>();
-const allowedLegacyBlockHelperKeys = new Set<string>([
-    '$swLegacyBlockIf',
-    '$swLegacyBlockElseIf',
-    '$swLegacyBlockElse',
-]);
+const allowedLegacyBlockHelperKeys = new Set<string>(['$swLegacyBlockIf', '$swLegacyBlockElseIf', '$swLegacyBlockElse']);
 
 /**
  * Resolves an allowlisted legacy helper from the data scope or the owning app's global properties.
@@ -136,6 +132,7 @@ function isInternalKey(key: string | symbol): boolean {
 export function createShimSlot(entry: BlockEntry, blockName: string): Slot {
     if (!warnedBlocks.has(blockName)) {
         warnedBlocks.add(blockName);
+        // eslint-disable-next-line sw-deprecation-rules/no-manual-deprecation-notices -- the legacy Twig override shim has no announced removal version to guard with
         console.warn(
             `[Shopware Deprecation] Block "${blockName}" in component "${entry.componentName}" ` +
                 `uses a legacy Twig override. ` +

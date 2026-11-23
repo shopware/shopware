@@ -3,6 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 import { DOCUMENT_TYPES } from '../../order.types';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const orderFixture = {
     id: 'order1',
@@ -153,6 +154,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
     let wrapper;
 
     beforeEach(async () => {
+        allowDeprecation('The component "sw-order-document-settings-credit-note-modal" is deprecated');
         wrapper = await createWrapper();
         await flushPromises();
     });
@@ -294,11 +296,7 @@ describe('sw-order-document-settings-credit-note-modal', () => {
         await wrapper.vm.createdComponent();
 
         // Filtered and sorted
-        expect(wrapper.vm.invoiceNumbers).toEqual([
-            'INVOICE_001',
-            'INVOICE_002',
-            'INVOICE_003',
-        ]);
+        expect(wrapper.vm.invoiceNumbers).toEqual(['INVOICE_001', 'INVOICE_002', 'INVOICE_003']);
     });
 
     it('should emit loading-document onCreateDocument', async () => {

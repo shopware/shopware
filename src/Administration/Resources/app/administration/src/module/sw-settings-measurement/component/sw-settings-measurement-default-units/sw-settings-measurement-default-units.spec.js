@@ -140,10 +140,7 @@ const createWrapper = async (privileges = []) => {
                                 {{ option.label }}
                             </option>
                         </select>`,
-                        props: [
-                            'modelValue',
-                            'options',
-                        ],
+                        props: ['modelValue', 'options'],
                     },
                     'sw-highlight-text': true,
                     'i18n-t': {
@@ -170,11 +167,6 @@ const createWrapper = async (privileges = []) => {
 };
 
 describe('src/module/sw-settings-measurement/component/sw-settings-measurement-default-units', () => {
-    it('should be a Vue component', async () => {
-        const wrapper = await createWrapper(['measurement.editor']);
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the component properly', async () => {
         const wrapper = await createWrapper(['measurement.editor']);
 

@@ -19,9 +19,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         rule: {
@@ -51,10 +49,7 @@ export default {
             shippingMethods: null,
             paymentMethods: null,
             promotions: null,
-            associationSteps: [
-                5,
-                10,
-            ],
+            associationSteps: [5, 10],
             associationEntities: null,
             deleteModal: false,
             deleteEntity: null,
@@ -236,7 +231,7 @@ export default {
 
             this.isLoading = true;
             return item.repository
-                .search(criteria, api)
+                .searchIds(criteria, api)
                 .then((notAssignedDataResult) => {
                     return Promise.resolve(notAssignedDataResult.total);
                 })

@@ -48,6 +48,10 @@ class LineItemOfManufacturerRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('manufacturerId', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }
@@ -84,10 +88,6 @@ class LineItemOfManufacturerRule extends Rule
      */
     private function matchesOneOfManufacturers(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         $manufacturerId = (string) $lineItem->getPayloadValue('manufacturerId');
         $manufacturerArray = ($manufacturerId === '') ? [] : [$manufacturerId];
 

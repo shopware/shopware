@@ -12,9 +12,7 @@ const productMock = {
     deliveryTime: {
         name: '1-3 days',
     },
-    price: [
-        { gross: 100 },
-    ],
+    price: [{ gross: 100 }],
 };
 
 async function createWrapper({ featureActive = false } = {}) {
@@ -177,7 +175,7 @@ describe('module/sw-cms/elements/buy-box/config', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'options');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('options');
         expect(wrapper.find('sw-entity-single-select-stub').exists()).toBe(false);

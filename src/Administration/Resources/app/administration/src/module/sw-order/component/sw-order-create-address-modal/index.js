@@ -11,19 +11,17 @@ const { Criteria } = Shopware.Data;
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    emits: [
-        'set-customer-address',
-        'close-modal',
-    ],
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed, is not used anymore.',
+    },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    emits: ['set-customer-address', 'close-modal'],
+
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         customer: {

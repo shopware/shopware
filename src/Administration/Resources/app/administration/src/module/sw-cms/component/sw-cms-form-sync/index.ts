@@ -21,10 +21,7 @@ type FieldConfig = {
 export default Shopware.Component.wrapComponentConfig({
     template: '<slot />',
     inject: ['cmsService'],
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state'), Shopware.Mixin.getByName('cms-element')],
     props: {
         element: {
             type: Object as PropType<RuntimeSlot>,

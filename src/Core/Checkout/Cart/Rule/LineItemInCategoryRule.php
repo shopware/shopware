@@ -44,6 +44,10 @@ class LineItemInCategoryRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('categoryIds', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }
@@ -71,7 +75,10 @@ class LineItemInCategoryRule extends Rule
     {
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
-            ->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true);
+            ->entitySelectField('categoryIds', CategoryDefinition::ENTITY_NAME, true, [
+                'descriptionProperty' => 'breadcrumb',
+                'descriptionFormatter' => 'breadcrumb',
+            ]);
     }
 
     /**
@@ -80,10 +87,6 @@ class LineItemInCategoryRule extends Rule
      */
     private function matchesOneOfCategory(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         return RuleComparison::uuids($lineItem->getPayloadValue('categoryIds'), $this->categoryIds, $this->operator);
     }
 }

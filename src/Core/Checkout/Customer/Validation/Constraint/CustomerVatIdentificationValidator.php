@@ -39,7 +39,8 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
         }
 
         foreach ($vatIds as $vatId) {
-            if (!preg_match($vatIdPattern, (string) $vatId)) {
+            // the stored pattern is wrapped so an alternation inside it stays anchored on both sides
+            if (!preg_match('/^(?:' . $vatIdPattern . ')$/D', (string) $vatId)) {
                 $this->context->buildViolation($constraint->getMessage())
                     ->setParameter('{{ vatId }}', $this->formatValue($vatId))
                     ->setCode(CustomerVatIdentification::VAT_ID_FORMAT_NOT_CORRECT)
@@ -71,6 +72,6 @@ class CustomerVatIdentificationValidator extends ConstraintValidator
             return null;
         }
 
-        return '/^' . $pattern . '$/';
+        return $pattern;
     }
 }

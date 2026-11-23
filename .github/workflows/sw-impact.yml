@@ -43,7 +43,7 @@ jobs:
     continue-on-error: true
     timeout-minutes: 15
     env:
-      SW_IMPACT_ARCHIVE_URL: https://github.com/shopware/sw-impact/releases/download/v0.3.0/sw-impact-x86_64-unknown-linux-gnu.tar.gz
+      SW_IMPACT_ARCHIVE_URL: https://github.com/shopwareLabs/sw-impact/releases/download/v0.3.0/sw-impact-x86_64-unknown-linux-gnu.tar.gz
 
     steps:
       - name: Define sw-impact paths
@@ -102,7 +102,7 @@ jobs:
             echo
             echo "Each reported break should be treated as an exploratory signal for a human to investigate further and either resolve or intentionally accept."
             echo
-            echo "For more information, see https://github.com/shopware/sw-impact ."
+            echo "For more information, see https://github.com/shopwareLabs/sw-impact ."
             echo
             echo "False positives should be reported as issues in that repository."
           } >> "$GITHUB_STEP_SUMMARY"

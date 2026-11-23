@@ -16,6 +16,7 @@ use Shopware\Core\Test\Stub\Framework\BundleFixture;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\DependencyInjection\ServicesResetterInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -43,14 +44,7 @@ class AdministrationReadinessCheckTest extends TestCase
         $this->kernel = static::createStub(KernelInterface::class);
         $this->viteFileAccessor = static::createStub(ViteFileAccessorDecorator::class);
         $this->filesystem = static::createStub(Filesystem::class);
-
-        $this->check = new AdministrationReadinessCheck(
-            $this->router,
-            $this->kernel,
-            $this->viteFileAccessor,
-            $this->filesystem,
-            new NativeClock()
-        );
+        $this->check = $this->createCheck(static::createStub(ServicesResetterInterface::class));
     }
 
     public function testName(): void
@@ -187,5 +181,47 @@ class AdministrationReadinessCheckTest extends TestCase
         static::assertFalse($this->check->allowedToRunIn(SystemCheckExecutionContext::RECURRENT));
         static::assertFalse($this->check->allowedToRunIn(SystemCheckExecutionContext::WEB));
         static::assertFalse($this->check->allowedToRunIn(SystemCheckExecutionContext::CLI));
+    }
+
+    public function testRunResetsServicesBeforeAndAfterTheRequest(): void
+    {
+        $resets = 0;
+        $resetter = static::createMock(ServicesResetterInterface::class);
+        $resetter->expects($this->exactly(2))->method('reset')->willReturnCallback(static function () use (&$resets): void {
+            ++$resets;
+        });
+        $this->kernel->method('handle')->willReturnCallback(static function () use (&$resets): Response {
+            static::assertSame(1, $resets);
+
+            return new Response('<script type="module" src="/app.js"></script>');
+        });
+        $this->kernel->method('getBundles')->willReturn([]);
+
+        static::assertTrue($this->createCheck($resetter)->run()->healthy);
+        static::assertSame(2, $resets);
+    }
+
+    public function testRunResetsServicesWhenTheRequestThrows(): void
+    {
+        $exception = new \RuntimeException('Rendering failed');
+        $resetter = static::createMock(ServicesResetterInterface::class);
+        $resetter->expects($this->exactly(2))->method('reset');
+        $this->kernel->method('handle')->willThrowException($exception);
+
+        $this->expectExceptionObject($exception);
+
+        $this->createCheck($resetter)->run();
+    }
+
+    private function createCheck(ServicesResetterInterface $servicesResetter): AdministrationReadinessCheck
+    {
+        return new AdministrationReadinessCheck(
+            $this->router,
+            $this->kernel,
+            $this->viteFileAccessor,
+            $this->filesystem,
+            new NativeClock(),
+            $servicesResetter
+        );
     }
 }

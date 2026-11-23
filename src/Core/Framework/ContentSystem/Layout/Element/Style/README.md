@@ -1,6 +1,6 @@
 # Style
 
-Universal style option system. A defined set of presentation attributes (alignment, span, spacing, display) settable on **every** content element regardless of its type, served through the Store API and extensible by plugins and apps. Each option is per-breakpoint by default; an option opts out with `breakpointAware: false` to take a single flat scalar value instead. It mirrors the element type system (`Layout/Type/`) one directory at a time, varying only the subject: an option is a declarative specification, discovered from core, bundles, plugins, and apps, aggregated by one cache-decorated registry that both validation and introspection read.
+Universal style option system. A defined set of presentation attributes (alignment, span, spacing, display) settable on **every** content element regardless of its type, served through the Store API and extensible by plugins and apps. Each option is per-breakpoint by default; an option opts out with `breakpointAware: false` to take a single flat scalar value instead. It mirrors the element type system (`Layout/Type/`) one directory at a time, varying only the subject. An option is a declarative specification, discovered from core, bundles, plugins, and apps, aggregated by one cache-decorated registry that both validation and introspection read.
 
 ## Guides
 
@@ -11,9 +11,14 @@ Universal style option system. A defined set of presentation attributes (alignme
 - [docs/custom-options.md](docs/custom-options.md) - The plugin- and app-facing authoring guide.
 - [docs/option-yaml.md](docs/option-yaml.md) - The flat declaration file format and the breakpoint key set.
 
+## Shared surfaces
+
+- `YamlStyleOptionLoader::loadDtosFromDirectory()` is reused by the app persister to read a directory's declaration files.
+- `StyleOptionSpecificationSerializer::normalize()` output is what the app persister stores in the `schema` column, so `kind` survives install and reload.
+
 ## Subdirectories
 
-- **Definitions/** - Core YAML option definitions (5 files): `display` (boolean), `align-self` / `justify-self` (string enum), `col-span` / `row-span` (integer range)
+- **Definitions/** - Core YAML option definitions: `display` (boolean), `align-self` / `justify-self` (string enum), `col-span` / `row-span` (integer range)
 - **Loader/** - Option loading: `AbstractContentSystemStyleOptionLoader` (base), `YamlStyleOptionLoader` (filesystem), `DatabaseStyleOptionLoader` (app options in prod), `StyleOptionSourceDirectory` (source directory VO), `ResolvedStyleOptionSpecificationDto` (loading-to-spec bridge)
 - **Registry/** - `AbstractContentSystemStyleOptionRegistry` (decoration pattern contract), `ContentSystemStyleOptionRegistry` (stateless aggregator), `CachedContentSystemStyleOptionRegistry` (cross-request cache decorator)
 - **Serialization/** - `StyleOptionSpecificationSerializer` (YAML/array ↔ DTO)

@@ -12,7 +12,6 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-script :condition="condition" :level="0"></sw-condition-script>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
     inheritAttrs: false,
@@ -44,12 +43,7 @@ export default {
                             };
                         }
 
-                        if (
-                            [
-                                'sw-entity-multi-id-select',
-                                'sw-multi-select',
-                            ].includes(config.componentName)
-                        ) {
+                        if (['sw-entity-multi-id-select', 'sw-multi-select'].includes(config.componentName)) {
                             return this.condition.value[name] || [];
                         }
 

@@ -4,90 +4,22 @@ import detailComponent from './index';
 
 describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
-    const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
 
-    it('offers layout assignments only for saved product and category layouts', () => {
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'product' })).toBe(true);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'category' })).toBe(true);
-        expect(computed.canManageAssignments.call({ isCreateMode: true, layoutRootSource: 'category' })).toBe(false);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'landing_page' })).toBe(false);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: null })).toBe(false);
-    });
-
-    it('starts inline session for text elements', () => {
-        const vm = {
-            selectedElementId: null as string | null,
-            inlineEditSession: null,
-            findElementById: jest.fn().mockReturnValue({
-                id: 'element-1',
-                component: 'content:text',
-                properties: { text: '<p>Initial</p>' },
-            }),
-            isTextElement: jest.fn().mockReturnValue(true),
-            getElementTextValue: jest.fn().mockReturnValue('<p>Initial</p>'),
-        };
-
-        methods.onInlineEditStart.call(vm, {
-            elementId: 'element-1',
-        });
-
-        expect(vm.selectedElementId).toBe('element-1');
-        expect(vm.inlineEditSession).toEqual({
-            elementId: 'element-1',
-            originalValue: '<p>Initial</p>',
-            draftValue: '<p>Initial</p>',
-            isEditing: true,
-        });
-    });
-
-    it('commits inline session only when value changed', () => {
-        const applyLayoutMutation = jest.fn();
-        const clearInlineEditSession = jest.fn();
-        const vm = {
-            inlineEditSession: {
-                elementId: 'element-1',
-                originalValue: '<p>Before</p>',
-                draftValue: '<p>After</p>',
-                isEditing: true,
-            },
-            clearInlineEditSession,
-            applyLayoutMutation,
-        };
-
-        methods.onInlineEditCommit.call(vm, {
-            elementId: 'element-1',
-            value: '<p>Before</p>',
-        });
-        expect(applyLayoutMutation).not.toHaveBeenCalled();
-
-        vm.inlineEditSession = {
-            elementId: 'element-1',
-            originalValue: '<p>Before</p>',
-            draftValue: '<p>After</p>',
-            isEditing: true,
-        };
-
-        methods.onInlineEditCommit.call(vm, {
-            elementId: 'element-1',
-            value: '<p>After</p>',
-        });
-        expect(applyLayoutMutation).toHaveBeenCalledTimes(1);
-    });
-
-    it('clears inline session on cancel for matching element', () => {
-        const clearInlineEditSession = jest.fn();
-        const vm = {
-            inlineEditSession: {
-                elementId: 'element-1',
-                originalValue: '<p>Before</p>',
-                draftValue: '<p>Before</p>',
-                isEditing: true,
-            },
-            clearInlineEditSession,
-        };
-
-        methods.onInlineEditCancel.call(vm, { elementId: 'element-1' });
-        expect(clearInlineEditSession).toHaveBeenCalledTimes(1);
+    const mutationResponse = (
+        layout: ContentElementNode[],
+        affectedElementIds: string[] = [],
+    ): ContentLayoutDraftMutationResponse => ({
+        layout,
+        resolutions: {},
+        diagnostics: {
+            wellFormed: true,
+            resolvable: true,
+            violations: [],
+        },
+        affectedElementIds,
+        orphaned: [],
+        droppedWiring: [],
+        droppedProperties: {},
     });
 
     it('uses layout rootSource for draft mutation payloads', () => {
@@ -110,6 +42,73 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
 
         expect(methods.resolveMutationRootSource.call(vm)).toBeNull();
+    });
+
+    it('stores violations returned by draft diagnosis', async () => {
+        const violation = {
+            code: 'invalid_mapping',
+            scope: 'binding',
+            severity: 'error',
+            elementId: 'element-1',
+            key: 'text',
+            message: 'Invalid mapping',
+            candidates: [],
+        };
+        const diagnose = jest.fn().mockResolvedValue({
+            resolutions: {},
+            diagnostics: {
+                wellFormed: true,
+                resolvable: false,
+                violations: [violation],
+            },
+        });
+        const vm = {
+            layout: {
+                layout: [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            },
+            diagnostics: [],
+            diagnoseRequestSequence: 0,
+            latestDiagnoseRequestId: 0,
+            draftMutationService: () => ({ diagnose }),
+            getLayoutRootSource: () => 'category',
+        };
+
+        await methods.diagnoseLayout.call(vm);
+
+        expect(diagnose).toHaveBeenCalledWith({
+            layout: [{ id: 'element-1', component: 'Sw:Content:Text' }],
+            rootSource: 'category',
+        });
+        expect(vm.diagnostics).toEqual([violation]);
+    });
+
+    it('debounces diagnoses while the layout is changing', async () => {
+        jest.useFakeTimers();
+        const diagnose = jest.fn().mockResolvedValue({ diagnostics: { violations: [] } });
+        const vm = {
+            layout: { layout: [] },
+            diagnostics: [],
+            diagnoseRequestSequence: 0,
+            latestDiagnoseRequestId: 0,
+            diagnoseTimeoutId: null as number | null,
+            draftMutationService: () => ({ diagnose }),
+            getLayoutRootSource: () => 'category',
+            diagnoseLayout() {
+                return methods.diagnoseLayout.call(this);
+            },
+        };
+
+        methods.scheduleDiagnoseLayout.call(vm);
+        jest.advanceTimersByTime(200);
+        methods.scheduleDiagnoseLayout.call(vm);
+        jest.advanceTimersByTime(799);
+        expect(diagnose).not.toHaveBeenCalled();
+
+        jest.advanceTimersByTime(1);
+        await flushPromises();
+
+        expect(diagnose).toHaveBeenCalledTimes(1);
+        jest.useRealTimers();
     });
 
     it('creates draft mutation payload from typed layout elements and rootSource', () => {
@@ -218,7 +217,6 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
 
         expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
             'move',
-            [{ id: 'element-1', component: 'Sw:Content:Text' }],
             {
                 elementId: 'element-1',
                 newParentId: 'parent-1',
@@ -229,145 +227,50 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         );
     });
 
-    it('records history and applies latest successful draft mutation response', async () => {
-        const pushToHistory = jest.fn();
-        const respondedElement: ContentElementNode = {
-            id: 'element-2',
-            component: 'Sw:Content:Text',
-        };
+    it.each([
+        [
+            'map-property',
+            { type: 'root', id: 'category', path: 'name' },
+        ],
+        [
+            'unmap-property',
+            null,
+        ],
+    ] as const)('changes an element mapping via the %s draft mutation', async (operation, source) => {
+        const executeStructuralDraftMutation = jest.fn().mockResolvedValue(undefined);
+        const layout = [{ id: 'element-1', component: 'Sw:Content:Text' }];
         const vm = {
-            layout: {
-                layout: [] as ContentElementNode[],
-            },
-            allowSave: true,
-            mutationRequestSequence: 0,
-            latestMutationRequestId: 0,
-            isLoading: false,
-            selectedElementId: 'element-1',
-            editorStore: {
-                pushToHistory,
-            },
-            requestDraftMutation: jest.fn().mockResolvedValue({
-                layout: [respondedElement],
-                resolutions: {},
-                diagnostics: {
-                    wellFormed: true,
-                    resolvable: true,
-                    violations: [],
-                },
-                affectedElementIds: ['element-2'],
-                orphaned: [],
-                droppedWiring: [],
-                droppedProperties: {},
-            }),
+            layout: { layout },
+            executeStructuralDraftMutation,
+            resolveMutationRootSource: jest.fn().mockReturnValue('category'),
             notifyMutationError: jest.fn(),
-            extractMutationErrorCodes: jest.fn().mockReturnValue([]),
         };
-        const previousLayout: ContentElementNode[] = [
-            {
-                id: 'element-1',
-                component: 'Sw:Content:Text',
-            },
-        ];
 
-        await methods.executeStructuralDraftMutation.call(
-            vm,
-            'insert',
-            previousLayout,
-            { type: 'Sw:Content:Text' },
-            (response: ContentLayoutDraftMutationResponse) => response.affectedElementIds[0] ?? null,
-        );
-
-        expect(vm.requestDraftMutation).toHaveBeenCalledWith('insert', previousLayout, { type: 'Sw:Content:Text' });
-        expect(pushToHistory).toHaveBeenCalledWith(previousLayout, 'element-1');
-        expect(vm.selectedElementId).toBe('element-2');
-        expect(vm.layout.layout).toEqual([respondedElement]);
-        expect(vm.isLoading).toBe(false);
-    });
-
-    it('ignores stale mutation responses by request id', async () => {
-        let resolveFirstRequest!: (response: ContentLayoutDraftMutationResponse) => void;
-        const newerElement: ContentElementNode = { id: 'newer', component: 'Sw:Content:Text' };
-        const vm = {
-            layout: {
-                layout: [] as ContentElementNode[],
-            },
-            allowSave: true,
-            mutationRequestSequence: 0,
-            latestMutationRequestId: 0,
-            isLoading: false,
-            selectedElementId: 'element-1',
-            editorStore: {
-                pushToHistory: jest.fn(),
-            },
-            requestDraftMutation: jest
-                .fn()
-                .mockImplementationOnce(
-                    () =>
-                        new Promise((resolve: (response: ContentLayoutDraftMutationResponse) => void) => {
-                            resolveFirstRequest = resolve;
-                        }),
-                )
-                .mockResolvedValueOnce({
-                    layout: [newerElement],
-                    resolutions: {},
-                    diagnostics: { wellFormed: true, resolvable: true, violations: [] },
-                    affectedElementIds: ['newer'],
-                    orphaned: [],
-                    droppedWiring: [],
-                    droppedProperties: {},
-                }),
-            notifyMutationError: jest.fn(),
-            extractMutationErrorCodes: jest.fn().mockReturnValue([]),
-        };
-        const firstCall = methods.executeStructuralDraftMutation.call(
-            vm,
-            'insert',
-            [{ id: 'first', component: 'Sw:Content:Text' }],
-            { type: 'Sw:Content:Text' },
-            () => 'first',
-        );
-        const secondCall = methods.executeStructuralDraftMutation.call(
-            vm,
-            'insert',
-            [{ id: 'second', component: 'Sw:Content:Text' }],
-            { type: 'Sw:Content:Text' },
-            (response: ContentLayoutDraftMutationResponse) => response.affectedElementIds[0] ?? null,
-        );
-
-        await secondCall;
-        resolveFirstRequest({
-            layout: [{ id: 'stale', component: 'Sw:Content:Text' }],
-            resolutions: {},
-            diagnostics: { wellFormed: true, resolvable: true, violations: [] },
-            affectedElementIds: ['stale'],
-            orphaned: [],
-            droppedWiring: [],
-            droppedProperties: {},
+        await methods.onElementMappingChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'text',
+            source,
+            contextType: 'single',
         });
-        await firstCall;
 
-        expect(vm.layout.layout).toEqual([newerElement]);
+        expect(executeStructuralDraftMutation).toHaveBeenCalledWith(
+            operation,
+            {
+                elementId: 'element-1',
+                propertyKey: 'text',
+                ...(source === null ? {} : { source }),
+            },
+            expect.any(Function),
+        );
     });
 
     it('calls move mutation endpoint for move operations', async () => {
-        const moveElement = jest.fn().mockResolvedValue({
-            layout: [],
-            resolutions: {},
-            diagnostics: {
-                wellFormed: true,
-                resolvable: true,
-                violations: [],
-            },
-            affectedElementIds: [],
-            orphaned: [],
-            droppedWiring: [],
-            droppedProperties: {},
-        });
+        const moveElement = jest.fn().mockResolvedValue(mutationResponse([]));
         const vm = {
             draftMutationService: () => ({
                 moveElement,
             }),
+            resolveMutationRootSource: () => null,
             createDraftMutationPayload: jest.fn().mockReturnValue({
                 layout: [],
                 rootSource: 'category',

@@ -40,7 +40,7 @@ class Migration1778573083ConvertCategoryNameBlockToDedicatedElementTest extends 
             'SELECT id, type FROM cms_block WHERE name = "Category name"'
         );
 
-        static::assertNotEmpty($blocks);
+        static::assertNotCount(0, $blocks);
         foreach ($blocks as $block) {
             static::assertSame('category-heading', $block['type']);
 
@@ -103,7 +103,7 @@ class Migration1778573083ConvertCategoryNameBlockToDedicatedElementTest extends 
             'SELECT type FROM cms_block WHERE name = "Category name"'
         );
 
-        static::assertNotEmpty($blocks);
+        static::assertNotCount(0, $blocks);
         foreach ($blocks as $block) {
             static::assertSame('category-heading', $block['type']);
         }

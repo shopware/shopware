@@ -2,19 +2,18 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Aggregates every binding-specification violation of one manifest into a single error, because
- * {@see ErrorCollection} keys errors by their message key; a second error of the same class would
- * silently replace the first (same convention as {@see MissingPermissionError}).
+ * Aggregates every binding-specification violation of one manifest into a single error.
  *
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ContentSystemBindingSpecificationSchemaError extends Error
+class ContentSystemBindingSpecificationSchemaError implements Error
 {
-    private const KEY = 'manifest-invalid-binding-specification-schema';
+    private readonly string $message;
 
     /**
      * @param list<string> $violations
@@ -25,12 +24,25 @@ class ContentSystemBindingSpecificationSchemaError extends Error
             "The following content-system binding specifications are invalid:\n- %s",
             implode("\n- ", $violations)
         );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
     }
 }

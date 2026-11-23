@@ -1,0 +1,50 @@
+{# ludtwig-ignore-file #}
+{# @sw-package framework #}
+{# @internal #}
+
+{#
+    Bootstrap badge. Renders a short label, or, with `dot`, an empty status indicator.
+    Bootstrap hides empty badges, so a dot keeps its size without content.
+#}
+
+{% props
+    variant = 'primary',
+    text = null,
+    pill = false,
+    dot = false,
+    slots = [],
+%}
+
+{% set badgeCVA = cva({
+    base: 'sw-badge badge',
+    variants: {
+        variant: {
+            primary: 'text-bg-primary',
+            secondary: 'text-bg-secondary',
+            success: 'text-bg-success',
+            danger: 'text-bg-danger',
+            warning: 'text-bg-warning',
+            info: 'text-bg-info',
+            light: 'text-bg-light',
+            dark: 'text-bg-dark',
+        },
+        pill: {
+            true: 'rounded-pill',
+        },
+        dot: {
+            true: 'is--dot rounded-circle',
+        },
+    },
+}) %}
+
+{% set attributeDefaults = {
+    class: badgeCVA.apply({ variant, pill, dot }),
+} %}
+
+<span {{ attributes.defaults(attributeDefaults) }}>
+    {%- if not dot -%}
+        {%- block content -%}
+            <twig:Slot name="content">{{ text }}</twig:Slot>
+        {%- endblock -%}
+    {%- endif -%}
+</span>

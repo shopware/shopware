@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\App;
 use GuzzleHttp\Exception\RequestException;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
+use Shopware\Core\Framework\App\Exception\AppCmsExtensionException;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationRejectedException;
+use Shopware\Core\Framework\App\Exception\AppUrlFailedVerificationException;
+use Shopware\Core\Framework\App\Exception\AppValidationRefusedException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Exception\InvalidAppFlowActionVariableException;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeStrategyNotFoundException;
@@ -15,8 +18,11 @@ use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
 use Shopware\Core\Framework\App\ShopId\ShopId;
+use Shopware\Core\Framework\App\Url\VerificationState;
+use Shopware\Core\Framework\App\Url\VerificationStatus;
 use Shopware\Core\Framework\App\Validation\Error\Error;
-use Shopware\Core\Framework\App\Validation\Requirements\UnmetRequirement;
+use Shopware\Core\Framework\App\Validation\Error\IncompatibleAppError;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -30,6 +36,7 @@ class AppException extends HttpException
 {
     public const CANNOT_DELETE_COMPOSER_MANAGED = 'FRAMEWORK__APP_CANNOT_DELETE_COMPOSER_MANAGED';
     public const NOT_COMPATIBLE = 'FRAMEWORK__APP_NOT_COMPATIBLE';
+    public const VALIDATION_FAILED = 'FRAMEWORK__APP_VALIDATION_FAILED';
     public const NOT_FOUND = 'FRAMEWORK__APP_NOT_FOUND';
     public const ALREADY_INSTALLED = 'FRAMEWORK__APP_ALREADY_INSTALLED';
     public const REGISTRATION_FAILED = 'FRAMEWORK__APP_REGISTRATION_FAILED';
@@ -54,6 +61,8 @@ class AppException extends HttpException
     public const APP_TAX_PROVIDER_RESPONSE_INVALID = 'FRAMEWORK__APP_TAX_PROVIDER_RESPONSE_INVALID';
     public const USER_ABORTED = 'FRAMEWORK__APP_USER_ABORTED';
     public const CANNOT_READ_FILE = 'FRAMEWORK__APP_CANNOT_READ_FILE';
+    final public const CMS_BLOCK_FILE_MISSING = 'FRAMEWORK__APP_CMS_BLOCK_FILE_MISSING';
+    final public const CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY = 'FRAMEWORK__APP_CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY';
     public const APP_ACTION_NOT_FOUND = 'FRAMEWORK__APP_ACTION_NOT_FOUND';
     public const JWKS_KEY_NOT_FOUND = 'FRAMEWORK__APP_JWKS_KEY_NOT_FOUND';
     final public const APP_UNALLOWED_HOST = 'APP__UNALLOWED_HOST';
@@ -74,6 +83,8 @@ class AppException extends HttpException
     final public const INVALID_SHOP_ID_CONFIGURATION = 'FRAMEWORK__APP_INVALID_SHOP_ID_CONFIGURATION';
     final public const SHOP_ID_CHANGE_STRATEGY_NOT_FOUND = 'FRAMEWORK__APP_SHOP_ID_CHANGE_STRATEGY_NOT_FOUND';
     final public const APP_URL_INVALID = 'FRAMEWORK__APP_URL_INVALID';
+    final public const APP_URL_FAILED_VERIFICATION = 'FRAMEWORK__APP_URL_FAILED_VERIFICATION';
+    final public const APP_URL_VERIFICATION_UNAVAILABLE = 'FRAMEWORK__APP_URL_VERIFICATION_UNAVAILABLE';
     final public const MANIFEST_NOT_FOUND = 'FRAMEWORK__APP_MANIFEST_NOT_FOUND';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_LOAD_FAILED = 'FRAMEWORK__APP_ELEMENT_TYPE_LOAD_FAILED';
     final public const CONTENT_SYSTEM_ELEMENT_TYPE_DUPLICATE = 'FRAMEWORK__APP_ELEMENT_TYPE_DUPLICATE';
@@ -103,11 +114,30 @@ class AppException extends HttpException
 
     public static function notCompatible(string $pluginName): self
     {
-        return new self(
+        $error = new IncompatibleAppError($pluginName);
+
+        return new AppValidationRefusedException(
             Response::HTTP_BAD_REQUEST,
-            self::NOT_COMPATIBLE,
-            'App {{ name }} is not compatible with this Shopware version',
-            ['name' => $pluginName]
+            $error->getErrorCode(),
+            $error->getMessage(),
+            $error->getParameters()
+        );
+    }
+
+    /**
+     * @param non-empty-list<Error> $errors
+     */
+    public static function validationFailedFromErrors(array $errors): AppValidationRefusedException
+    {
+        return new AppValidationRefusedException(
+            Response::HTTP_BAD_REQUEST,
+            self::VALIDATION_FAILED,
+            implode("\n", array_map(static fn (Error $error): string => $error->getMessage(), $errors)),
+            ['errors' => array_map(static fn (Error $error): array => [
+                'code' => $error->getErrorCode(),
+                'message' => $error->getMessage(),
+                'parameters' => $error->getParameters(),
+            ], $errors)]
         );
     }
 
@@ -429,6 +459,36 @@ class AppException extends HttpException
         );
     }
 
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function cmsBlockFileMissing(string $blockName, string $fileName): self|AppCmsExtensionException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AppCmsExtensionException(\sprintf('File "%s" for block "%s" is missing', $fileName, $blockName));
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CMS_BLOCK_FILE_MISSING,
+            'File "{{ fileName }}" for block "{{ blockName }}" is missing',
+            ['blockName' => $blockName, 'fileName' => $fileName]
+        );
+    }
+
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
+    public static function cmsBlockOutsideOfBlocksDirectory(string $blockName): self|AppCmsExtensionException
+    {
+        if (!Feature::isActive('v6.8.0.0')) {
+            return new AppCmsExtensionException(\sprintf('Block "%s" is outside of the cms/blocks directory', $blockName));
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CMS_BLOCK_OUTSIDE_OF_BLOCKS_DIRECTORY,
+            'Block "{{ blockName }}" is outside of the cms/blocks directory',
+            ['blockName' => $blockName]
+        );
+    }
+
     public static function actionNotFound(): self
     {
         return new self(
@@ -647,6 +707,34 @@ class AppException extends HttpException
         );
     }
 
+    public static function appUrlFailedVerification(VerificationState $state): self
+    {
+        if ($state->is(VerificationStatus::SOFT_FAIL)) {
+            return new AppUrlFailedVerificationException(
+                Response::HTTP_SERVICE_UNAVAILABLE,
+                self::APP_URL_VERIFICATION_UNAVAILABLE,
+                'APP_URL "{{ appUrl }}" could not be reached. Try again later, or run bin/console app:url:verify for details.',
+                ['appUrl' => $state->appUrl]
+            );
+        }
+
+        if ($state->statusCode === null) {
+            return new AppUrlFailedVerificationException(
+                Response::HTTP_BAD_GATEWAY,
+                self::APP_URL_FAILED_VERIFICATION,
+                'APP_URL "{{ appUrl }}" could not be verified. Run bin/console app:url:verify for details.',
+                ['appUrl' => $state->appUrl]
+            );
+        }
+
+        return new AppUrlFailedVerificationException(
+            Response::HTTP_BAD_GATEWAY,
+            self::APP_URL_FAILED_VERIFICATION,
+            'APP_URL "{{ appUrl }}" did not answer the verification request as expected (HTTP {{ statusCode }}). Check that APP_URL points to this installation and is not blocked.',
+            ['appUrl' => $state->appUrl, 'statusCode' => $state->statusCode]
+        );
+    }
+
     public static function manifestNotFound(string $path): self
     {
         return new self(
@@ -782,26 +870,6 @@ class AppException extends HttpException
             'Failed to re-register {{ count }} app(s): {{ apps }}. After resolving the issue, '
             . 'run the shop ID change strategy "reinstall-apps" again.',
             ['count' => (string) \count($failedAppNames), 'apps' => implode(', ', $failedAppNames)]
-        );
-    }
-
-    public static function requirementsNotMet(UnmetRequirement ...$violations): self
-    {
-        $violationDetails = array_map(
-            fn (UnmetRequirement $v) => \sprintf(
-                'App "%s" - Requirement "%s": %s',
-                $v->appName,
-                $v->requirementName,
-                $v->actionableResolution
-            ),
-            $violations
-        );
-
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::APP_REQUIREMENTS_NOT_MET,
-            'The app requirements are not met: {{ violations }}',
-            ['violations' => implode('; ', $violationDetails)]
         );
     }
 }

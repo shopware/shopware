@@ -17,9 +17,11 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\Cache\CacheItem;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Translation\Formatter\MessageFormatter;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\Translator as SymfonyTranslator;
@@ -83,9 +85,8 @@ class TranslatorTest extends TestCase
             static::createStub(CacheTagCollector::class),
         );
 
-        $item = new CacheItem();
-        $property = new \ReflectionProperty(CacheItem::class, 'isTaggable');
-        $property->setValue($item, true);
+        // Items handed out by a tag-aware pool accept tags, which the catalogue loader adds
+        $item = (new TagAwareAdapter(new ArrayAdapter()))->getItem('translation');
 
         $cache->expects($expectedCacheKey ? $this->once() : $this->never())->method('get')->willReturnCallback(static function (string $key, callable $callback) use ($expectedCacheKey, $item) {
             static::assertSame($expectedCacheKey, $key);
@@ -96,9 +97,6 @@ class TranslatorTest extends TestCase
         if ($injectSalesChannelId) {
             $translator->injectSettings($injectSalesChannelId, Uuid::randomHex(), 'en-GB', Context::createDefaultContext());
         }
-
-        $snippetSetIdProp = new \ReflectionProperty(Translator::class, 'snippetSetId');
-        $snippetSetIdProp->setValue($translator, $snippetSetId);
 
         // No snippet is added
         if ($expectedCacheKey === null) {
@@ -221,6 +219,49 @@ class TranslatorTest extends TestCase
         $translator->reset();
     }
 
+    public function testInjectedSalesChannelsWithTheSameSnippetSetGetTheirOwnThemeSnippets(): void
+    {
+        $snippetSetId = Uuid::randomHex();
+        $salesChannelA = Uuid::randomHex();
+        $salesChannelB = Uuid::randomHex();
+        $snippetLoads = [];
+        $translator = $this->createTranslatorWithSnippetsPerSalesChannel(
+            $snippetSetId,
+            [$salesChannelA => 'Label of theme A', $salesChannelB => 'Label of theme B'],
+            $snippetLoads,
+        );
+
+        $translator->injectSettings($salesChannelA, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
+        static::assertSame('Label of theme A', $translator->trans('theme.label'));
+        $translator->resetInjection();
+
+        $translator->injectSettings($salesChannelB, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
+        static::assertSame('Label of theme B', $translator->trans('theme.label'));
+        $translator->resetInjection();
+
+        static::assertSame([$salesChannelA, $salesChannelB], $snippetLoads);
+    }
+
+    public function testRepeatedInjectionOfTheSameSalesChannelReusesTheMergedCatalogue(): void
+    {
+        $snippetSetId = Uuid::randomHex();
+        $salesChannelId = Uuid::randomHex();
+        $snippetLoads = [];
+        $translator = $this->createTranslatorWithSnippetsPerSalesChannel(
+            $snippetSetId,
+            [$salesChannelId => 'Label of the theme'],
+            $snippetLoads,
+        );
+
+        for ($i = 0; $i < 3; ++$i) {
+            $translator->injectSettings($salesChannelId, Defaults::LANGUAGE_SYSTEM, 'en-GB', Context::createDefaultContext());
+            static::assertSame('Label of the theme', $translator->trans('theme.label'));
+            $translator->resetInjection();
+        }
+
+        static::assertSame([$salesChannelId], $snippetLoads);
+    }
+
     /**
      * @return iterable<string, array<int, string|Request|null>>
      */
@@ -312,6 +353,44 @@ class TranslatorTest extends TestCase
             'locale' => 'de-DE',
             'requestSnippetSetId' => $expectedSnippetSetId,
         ];
+    }
+
+    /**
+     * @param array<string, string> $labelBySalesChannel
+     * @param list<string> $snippetLoads
+     */
+    private function createTranslatorWithSnippetsPerSalesChannel(string $snippetSetId, array $labelBySalesChannel, array &$snippetLoads): Translator
+    {
+        $decorated = static::createStub(SymfonyTranslator::class);
+        $decorated->method('getCatalogue')->willReturnCallback(
+            static fn (): MessageCatalogue => new MessageCatalogue('en-GB', ['messages' => ['theme.label' => 'core']])
+        );
+        $decorated->method('getLocale')->willReturn('en-GB');
+
+        $snippetService = static::createStub(SnippetService::class);
+        $snippetService->method('findSnippetSetId')->willReturn($snippetSetId);
+        $snippetService->method('getStorefrontSnippets')->willReturnCallback(
+            static function (MessageCatalogue $catalogue, string $setId, ?string $locale, string $salesChannelId) use ($labelBySalesChannel, &$snippetLoads): array {
+                $snippetLoads[] = $salesChannelId;
+
+                return ['theme.label' => $labelBySalesChannel[$salesChannelId] ?? 'unknown'];
+            }
+        );
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([$snippetSetId]);
+
+        return new Translator(
+            $decorated,
+            new RequestStack(),
+            new TagAwareAdapter(new ArrayAdapter()),
+            new MessageFormatter(),
+            'prod',
+            $connection,
+            static::createStub(LanguageLocaleCodeProvider::class),
+            $snippetService,
+            static::createStub(CacheTagCollector::class),
+        );
     }
 
     private static function createRequest(?string $salesChannelId, ?string $snippetSetId): Request

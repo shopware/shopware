@@ -3,4 +3,6 @@ default: true
 adminUI:
   component: "switch"
   label: "Display"
+  labelSnippet: "sw-experience-studio.styles.display.label"
   description: "Whether the element is rendered at this breakpoint."
+  descriptionSnippet: "sw-experience-studio.styles.display.description"

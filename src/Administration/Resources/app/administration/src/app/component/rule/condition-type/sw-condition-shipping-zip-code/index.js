@@ -10,7 +10,6 @@ import './sw-condition-shipping-zip-code.scss';
  * @component-example
  * <sw-condition-shipping-zip-code :condition="condition" :level="0"></sw-condition-shipping-zip-code>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -82,11 +81,7 @@ export default {
             this.ensureValueExist();
 
             if (this.condition.value.operator !== undefined) {
-                this.isNumeric = ![
-                    '=',
-                    '!=',
-                    'empty',
-                ].includes(this.condition.value.operator);
+                this.isNumeric = !['=', '!=', 'empty'].includes(this.condition.value.operator);
             }
         },
         onChangeNumeric(value) {

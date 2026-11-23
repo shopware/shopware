@@ -7,9 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CustomerRecoveryEntity extends Entity
 {
@@ -33,6 +30,8 @@ class CustomerRecoveryEntity extends Entity
 
     public function getHash(): string
     {
+        $this->checkIfPropertyAccessIsAllowed('hash');
+
         return $this->hash;
     }
 

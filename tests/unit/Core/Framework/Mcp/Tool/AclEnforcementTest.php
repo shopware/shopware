@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolResult;
 use Shopware\Core\Framework\Mcp\Tool\EntityAggregateTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityDeleteTool;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
@@ -154,9 +156,13 @@ class AclEnforcementTest extends TestCase
 
     public function testEntityDeleteToolAllowed(): void
     {
+        $definition = new ProductDefinition();
+        $definition->compile(static::createStub(DefinitionInstanceRegistry::class));
+
         $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('has')->willReturn(true);
         $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+        $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntityDeleteTool(
             $registry,
@@ -199,17 +205,15 @@ class AclEnforcementTest extends TestCase
         return $provider;
     }
 
-    private function assertAclDenied(string $output, string $expectedPrivilege): void
+    private function assertAclDenied(McpToolResult $output, string $expectedPrivilege): void
     {
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Missing privilege', $data['error']);
-        static::assertStringContainsString($expectedPrivilege, $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Missing privilege', $output->error->message);
+        static::assertStringContainsString($expectedPrivilege, $output->error->message);
     }
 
-    private function assertAclAllowed(string $output): void
+    private function assertAclAllowed(McpToolResult $output): void
     {
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success'], 'Tool should succeed when ACL permissions are granted, got: ' . $output);
+        static::assertFalse($output->isError(), 'Tool should succeed when ACL permissions are granted, got: ' . $output->error?->message);
     }
 }

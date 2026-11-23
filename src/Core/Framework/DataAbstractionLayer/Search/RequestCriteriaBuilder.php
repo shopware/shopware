@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
@@ -18,10 +20,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AssociationIdPathNormalizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -75,17 +79,7 @@ class RequestCriteriaBuilder
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        if ($request->isMethod(Request::METHOD_GET)) {
-            // Check for _criteria parameter first
-            if ($request->query->has('_criteria')) {
-                $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
-
-                return $this->fromArray($payload, $criteria, $definition, $context);
-            }
-            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
-        } else {
-            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
-        }
+        $criteria = $this->fromArray($this->getPayload($request), $criteria, $definition, $context);
 
         // @deprecated tag:v6.8.0 - switch the default to 0
         if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '1') === '0') {
@@ -123,6 +117,32 @@ class RequestCriteriaBuilder
         } else {
             $criteria->setTotalCountMode(self::TOTAL_COUNT_MODE_MAPPING[$totalCountMode] ?? Criteria::TOTAL_COUNT_MODE_NONE);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getPayload(Request $request): array
+    {
+        if (!$request->isMethod(Request::METHOD_GET)) {
+            return $request->request->all();
+        }
+
+        $payload = $request->query->all();
+
+        if (!$request->query->has('_criteria')) {
+            return $payload;
+        }
+
+        // a field of the _criteria parameter replaces the individual query parameter of the same name as a whole,
+        // individual query parameters that are not part of it are kept
+        $payload = array_replace(
+            $payload,
+            $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'))
+        );
+        unset($payload['_criteria']);
+
+        return $payload;
     }
 
     /**
@@ -232,10 +252,31 @@ class RequestCriteriaBuilder
                     continue;
                 }
 
+                if (!\is_string($propertyName)) {
+                    throw FrameworkException::associationNotFound((string) $propertyName);
+                }
+
                 $field = $definition->getFields()->get($propertyName);
 
                 if (!$field instanceof AssociationField) {
-                    throw FrameworkException::associationNotFound((string) $propertyName);
+                    throw FrameworkException::associationNotFound($propertyName);
+                }
+
+                try {
+                    EntityDefinitionQueryHelper::validateFieldIsApiAware($field, $propertyName, $context);
+                } catch (ApiProtectionException $exception) {
+                    // @deprecated tag:v6.8.0 - Always reject non-visible requested associations.
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw $exception;
+                    }
+
+                    Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
+                        'Requesting the association "%s.%s" is deprecated because it is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested associations.',
+                        $definition->getEntityName(),
+                        $propertyName,
+                    ));
+
+                    continue;
                 }
 
                 $ref = $field->getReferenceDefinition();
@@ -254,7 +295,29 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['fields'])) {
-            $criteria->addFields($payload['fields']);
+            $fields = [];
+            foreach ($payload['fields'] as $accessor) {
+                try {
+                    EntityDefinitionQueryHelper::validateFieldsAccessorIsApiAware($definition, (string) $accessor, $context);
+                } catch (ApiProtectionException $exception) {
+                    // @deprecated tag:v6.8.0 - Always reject fields traversing non-visible associations.
+                    if (Feature::isActive('v6.8.0.0')) {
+                        throw $exception;
+                    }
+
+                    Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf(
+                        'Requesting the field "%s.%s" is deprecated because it traverses an association that is not available in the current API scope. It is ignored in 6.7 and will be rejected with HTTP 400 and FRAMEWORK__ACCESSOR_NOT_ALLOWED in 6.8. Remove it from the requested fields.',
+                        $definition->getEntityName(),
+                        $accessor,
+                    ));
+
+                    continue;
+                }
+
+                $fields[] = $accessor;
+            }
+
+            $criteria->addFields($fields);
         }
 
         $searchException->tryToThrow();
@@ -536,6 +599,7 @@ class RequestCriteriaBuilder
         }
 
         $prefix = $definition->getEntityName() . '.';
+        $fieldName = AssociationIdPathNormalizer::normalize($definition, $fieldName);
 
         if (!str_contains($fieldName, $prefix)) {
             return $prefix . $fieldName;

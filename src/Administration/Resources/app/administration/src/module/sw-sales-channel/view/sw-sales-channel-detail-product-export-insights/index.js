@@ -22,10 +22,7 @@ const DEFAULT_AVAILABLE_RANGES = Object.keys(DEFAULT_DATE_RANGE_OPTIONS);
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         salesChannel: {
@@ -256,12 +253,7 @@ export default {
         extractHistoryOrderData(data) {
             return Object.entries(
                 this.formatOrderDataArray(data, this.getTimeUnitInterval(this.statisticDateRangesOrderCount) === 'hour'),
-            ).map(
-                ([
-                    key,
-                    value,
-                ]) => ({ x: Number.parseInt(key, 10), y: value.length }),
-            );
+            ).map(([key, value]) => ({ x: Number.parseInt(key, 10), y: value.length }));
         },
 
         extractHistoryCustomerData(data) {
@@ -270,28 +262,18 @@ export default {
                     data,
                     this.getTimeUnitInterval(this.statisticDateRangesCustomerCount) === 'hour',
                 ),
-            ).map(
-                ([
-                    key,
-                    value,
-                ]) => ({ x: Number.parseInt(key, 10), y: value.length }),
-            );
+            ).map(([key, value]) => ({ x: Number.parseInt(key, 10), y: value.length }));
         },
 
         extractTurnoverData(data) {
             return Object.entries(
                 this.formatOrderDataArray(data, this.getTimeUnitInterval(this.statisticDateRangesOrderSum) === 'hour'),
-            ).map(
-                ([
-                    key,
-                    value,
-                ]) => ({
-                    x: Number.parseInt(key, 10),
-                    y: value.reduce((turnover, trackingOrder) => {
-                        return turnover + this.getTrackingOrderAmountTotal(trackingOrder);
-                    }, 0),
-                }),
-            );
+            ).map(([key, value]) => ({
+                x: Number.parseInt(key, 10),
+                y: value.reduce((turnover, trackingOrder) => {
+                    return turnover + this.getTrackingOrderAmountTotal(trackingOrder);
+                }, 0),
+            }));
         },
 
         formatOrderDataArray(array, groupByHour = false) {

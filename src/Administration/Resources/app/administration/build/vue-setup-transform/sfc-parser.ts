@@ -89,6 +89,9 @@ function parseShopwareSetupSfc(source: string, filename = 'anonymous.vue'): Shop
                   contentStart: parsed.descriptor.template.loc.start.offset,
               }
             : null,
+        // Only the codemod prelude reaches this point - anything else already threw above.
+        moduleScript:
+            isCodemodModuleScript && parsed.descriptor.script ? toScriptBlock(parsed.descriptor.script, 'script') : null,
     };
 }
 

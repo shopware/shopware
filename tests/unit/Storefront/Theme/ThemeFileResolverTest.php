@@ -863,7 +863,7 @@ class ThemeFileResolverTest extends TestCase
         $result = $resolver->resolveStyleFiles($config, $configCollection, false);
 
         $paths = $result->getFilepaths();
-        static::assertNotEmpty($paths);
+        static::assertNotCount(0, $paths);
         static::assertTrue(
             (bool) array_filter(
                 $paths,

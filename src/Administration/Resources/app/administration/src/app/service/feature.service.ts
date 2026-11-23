@@ -1,4 +1,4 @@
-import type { default as FeatureType } from 'src/core/feature';
+import type { default as FeatureType, DeprecationOptions } from 'src/core/feature';
 
 /**
  * @sw-package framework
@@ -19,5 +19,13 @@ export default class FeatureService {
 
     isActive(flagName: string): boolean {
         return this.Feature.isActive(flagName);
+    }
+
+    isRegistered(flagName: string): boolean {
+        return this.Feature.isRegistered(flagName);
+    }
+
+    triggerDeprecationOrThrow(majorFlag: string, message: string, options?: DeprecationOptions): void {
+        this.Feature.triggerDeprecationOrThrow(majorFlag, message, options);
     }
 }

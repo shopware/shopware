@@ -20,7 +20,6 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
-use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -59,8 +58,7 @@ class ThemeChangeCommandTest extends TestCase
             $this->themeService,
             $this->pluginRegistry,
             $this->salesChannelRepository,
-            $this->themeRepository,
-            static::createStub(UnusedThemeDirectoryDeleter::class)
+            $this->themeRepository
         );
 
         $this->commandTester = new CommandTester($themeChangeCommand);
@@ -122,6 +120,8 @@ class ThemeChangeCommandTest extends TestCase
 
     public function testThemeChangeCommandWithNotExistingSalesChannelAndTheme(): void
     {
+        $this->themeService->expects($this->never())->method(static::anything());
+
         $this->commandTester->execute(['theme-name' => 'not existing theme', '--sales-channel' => 'not existing saleschannel'], ['interactive' => true]);
 
         static::assertStringContainsString('[ERROR] Could not find sales channel with ID not existing saleschannel', $this->commandTester->getDisplay());
@@ -129,6 +129,8 @@ class ThemeChangeCommandTest extends TestCase
 
     public function testThemeChangeCommandWithNoSalesChannel(): void
     {
+        $this->themeService->expects($this->never())->method(static::anything());
+
         $this->commandTester->execute(['--all' => true, '--sales-channel' => 'foo'], ['interactive' => true]);
 
         static::assertStringContainsString('[ERROR] You can use either --sales-channel or --all, not both at the same time.', $this->commandTester->getDisplay());

@@ -6,17 +6,12 @@ import './sw-first-run-wizard-finish.scss';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['firstRunWizardService'],
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-        'frw-finish',
-    ],
+    emits: ['frw-set-title', 'buttons-update', 'frw-finish'],
 
     data() {
         return {

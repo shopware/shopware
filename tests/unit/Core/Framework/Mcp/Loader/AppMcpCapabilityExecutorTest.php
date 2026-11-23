@@ -9,6 +9,8 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\OAuth\OAuthResource;
+use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -33,10 +35,16 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
     private AppMcpCapabilityExecutor $executor;
 
+    private AppSecretResolver $secretResolver;
+
     protected function setUp(): void
     {
         $this->mockHandler = new MockHandler();
         $client = new Client(['handler' => HandlerStack::create($this->mockHandler)]);
+        $this->secretResolver = static::createStub(AppSecretResolver::class);
+        $this->secretResolver->method('resolve')->willReturnCallback(
+            static fn (string $appName): ?string => $appName === 'no-secret-app' ? null : 'secret',
+        );
         $this->executor = new AppMcpCapabilityExecutor(
             $client,
             'https://shop.example.com',
@@ -46,6 +54,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             static::createStub(KernelInterface::class),
             new RequestStack(),
             static::createStub(RouterInterface::class),
+            $this->secretResolver,
         );
     }
 
@@ -56,7 +65,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
         $result = $this->executor->execute(
             'sync-orders',
-            'test-secret',
+            'my-app',
             'https://app.example.com/mcp/sync',
             ['foo' => 'bar'],
             '1.0.0',
@@ -70,7 +79,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         static::assertSame('https://app.example.com/mcp/sync', (string) $lastRequest->getUri());
         static::assertSame('application/json', $lastRequest->getHeaderLine('Content-Type'));
         static::assertSame('application/json', $lastRequest->getHeaderLine('Accept'));
-        static::assertNotEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
+        static::assertNotSame('', $lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
 
         $body = json_decode($lastRequest->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame('sync-orders', $body['tool']);
@@ -86,7 +95,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
         $result = $this->executor->execute(
             'sync-orders',
-            'test-secret',
+            'my-app',
             'https://app.example.com/mcp/sync',
             [],
         );
@@ -117,9 +126,10 @@ class AppMcpCapabilityExecutorTest extends TestCase
             static::createStub(KernelInterface::class),
             new RequestStack(),
             static::createStub(RouterInterface::class),
+            $this->secretResolver,
         );
 
-        $executor->execute('my-tool', 'secret', 'https://example.com', []);
+        $executor->execute('my-tool', 'my-app', 'https://example.com', []);
     }
 
     public function testExceptionWithLoggerLogsError(): void
@@ -140,9 +150,10 @@ class AppMcpCapabilityExecutorTest extends TestCase
             static::createStub(KernelInterface::class),
             new RequestStack(),
             static::createStub(RouterInterface::class),
+            $this->secretResolver,
         );
 
-        $result = $executor->execute('my-tool', 'secret', 'https://example.com', []);
+        $result = $executor->execute('my-tool', 'my-app', 'https://example.com', []);
         $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($data['success']);
     }
@@ -165,16 +176,17 @@ class AppMcpCapabilityExecutorTest extends TestCase
             static::createStub(KernelInterface::class),
             new RequestStack(),
             static::createStub(RouterInterface::class),
+            $this->secretResolver,
         );
 
-        $executor->execute('my-tool', 'secret', 'https://example.com', []);
+        $executor->execute('my-tool', 'my-app', 'https://example.com', []);
     }
 
-    public function testHmacSignatureIsSentInHeader(): void
+    public function testHmacSignatureUsesTheAppsCurrentSecret(): void
     {
         $this->mockHandler->append(new Response(200, [], '{}'));
 
-        $this->executor->execute('my-tool', 'secret', 'https://example.com', []);
+        $this->executor->execute('my-tool', 'my-app', 'https://example.com', []);
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
@@ -186,15 +198,15 @@ class AppMcpCapabilityExecutorTest extends TestCase
         static::assertSame($expectedSignature, $signature);
     }
 
-    public function testNullAppSecretSkipsHmacHeader(): void
+    public function testAppWithoutSecretSkipsHmacHeader(): void
     {
         $this->mockHandler->append(new Response(200, [], '{"success":true}'));
 
-        $this->executor->execute('my-tool', null, 'https://example.com', []);
+        $this->executor->execute('my-tool', 'no-secret-app', 'https://example.com', []);
 
         $lastRequest = $this->mockHandler->getLastRequest();
         static::assertNotNull($lastRequest);
-        static::assertEmpty($lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
+        static::assertSame('', $lastRequest->getHeaderLine(RequestSigner::SHOPWARE_SHOP_SIGNATURE));
     }
 
     public function testInternalUrlWithNoActiveRequestReturnsError(): void
@@ -208,7 +220,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             router: static::createStub(RouterInterface::class),
         );
 
-        $result = $executor->execute('my-tool', null, '/api/script/my-tool', []);
+        $result = $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
         $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($data['success']);
         static::assertStringContainsString('No active request context', $data['error']);
@@ -242,7 +254,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
 
-        $result = $executor->execute('MyApp-my-tool', null, '/api/script/my-tool', ['name' => 'World']);
+        $result = $executor->execute('MyApp-my-tool', 'MyApp', '/api/script/my-tool', ['name' => 'World']);
         static::assertSame('{"success":true,"data":{"message":"Hello"}}', $result);
     }
 
@@ -255,7 +267,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -271,7 +283,81 @@ class AppMcpCapabilityExecutorTest extends TestCase
         );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
-        $executor->execute('my-tool', null, '/api/script/my-tool', []);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
+    }
+
+    public function testSubrequestIsMarkedWithTheResourceOfAnMcpBoundToken(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+        $parent->attributes->set(OAuthResource::REQUEST_ATTRIBUTE, 'https://shop.example/api/_mcp');
+
+        $requestStack = static::createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r): SymfonyResponse {
+                static::assertSame('https://shop.example/api/_mcp', $r->attributes->get(OAuthResource::SUBREQUEST_ATTRIBUTE));
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
+    }
+
+    public function testSubrequestToAnotherRouteIsNotMarked(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+        $parent->attributes->set(OAuthResource::REQUEST_ATTRIBUTE, 'https://shop.example/api/_mcp');
+
+        $requestStack = static::createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.action.sync']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r): SymfonyResponse {
+                static::assertFalse($r->attributes->has(OAuthResource::SUBREQUEST_ATTRIBUTE));
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', 'my-app', '/api/_action/sync', []);
+    }
+
+    public function testSubrequestOfATokenWithoutResourceIsNotMarked(): void
+    {
+        $parent = new Request();
+        $parent->headers->set('Authorization', 'Bearer my-token-123');
+
+        $requestStack = static::createStub(RequestStack::class);
+        $requestStack->method('getCurrentRequest')->willReturn($parent);
+
+        $router = static::createStub(RouterInterface::class);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
+
+        $kernel = $this->createMock(KernelInterface::class);
+        $kernel->expects($this->once())->method('handle')->willReturnCallback(
+            static function (Request $r): SymfonyResponse {
+                static::assertFalse($r->attributes->has(OAuthResource::SUBREQUEST_ATTRIBUTE));
+
+                return new SymfonyResponse('{"success":true}');
+            }
+        );
+
+        $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
     }
 
     public function testSubrequestPropagatesPreAuthenticatedAttributesForAccessKeyAuth(): void
@@ -285,7 +371,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn($parent);
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -300,7 +386,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
-        $executor->execute('my-tool', null, '/api/script/my-tool', []);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', []);
     }
 
     public function testSubrequestSendsJsonBodyNotFormUrlencoded(): void
@@ -313,7 +399,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->expects($this->once())->method('handle')->willReturnCallback(
@@ -327,7 +413,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
         );
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
-        $executor->execute('my-tool', null, '/api/script/my-tool', ['entity' => 'product', 'limit' => 5]);
+        $executor->execute('my-tool', 'my-app', '/api/script/my-tool', ['entity' => 'product', 'limit' => 5]);
     }
 
     public function testSubrequestExceptionReturnsError(): void
@@ -344,7 +430,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             router: $router,
         );
 
-        $result = $executor->execute('my-tool', null, '/api/script/missing', []);
+        $result = $executor->execute('my-tool', 'my-app', '/api/script/missing', []);
         $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($data['success']);
         static::assertStringContainsString('internal execution failed', $data['error']);
@@ -357,14 +443,14 @@ class AppMcpCapabilityExecutorTest extends TestCase
         $requestStack->method('getCurrentRequest')->willReturn(new Request());
 
         $router = static::createStub(RouterInterface::class);
-        $router->method('match')->willReturn(['_route' => 'api.script.run']);
+        $router->method('match')->willReturn(['_route' => 'api.script_endpoint']);
 
         $kernel = static::createStub(KernelInterface::class);
         $kernel->method('handle')->willReturn(new SymfonyResponse(''));
 
         $executor = $this->makeExecutorWithSubrequest($kernel, $requestStack, $router);
 
-        $result = $executor->execute('my-tool', null, '/api/script/empty', []);
+        $result = $executor->execute('my-tool', 'my-app', '/api/script/empty', []);
         $data = json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
         static::assertFalse($data['success']);
         static::assertStringContainsString('Empty response', $data['error']);
@@ -384,6 +470,7 @@ class AppMcpCapabilityExecutorTest extends TestCase
             $kernel,
             $requestStack,
             $router,
+            $this->secretResolver,
         );
     }
 

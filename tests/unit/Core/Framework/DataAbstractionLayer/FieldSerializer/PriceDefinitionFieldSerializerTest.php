@@ -10,12 +10,14 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceDefinitionFieldSerializer;
@@ -37,6 +39,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -64,6 +67,59 @@ class PriceDefinitionFieldSerializerTest extends TestCase
                 new LineItemListPriceRule(),
             ])
         );
+    }
+
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testDecodeInvalidPriceTypeUsesDomainException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $value);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testDecodeInvalidPriceTypeKeepsLegacyException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $value);
+    }
+
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testEncodeInvalidPriceTypeUsesDomainException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', json_decode($value, true, 512, \JSON_THROW_ON_ERROR), false),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testEncodeInvalidPriceTypeKeepsLegacyException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', json_decode($value, true, 512, \JSON_THROW_ON_ERROR), false),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidPriceTypeProvider(): iterable
+    {
+        yield 'missing type' => ['{}', 'none'];
+        yield 'unknown type' => ['{"type":"invalid"}', 'invalid'];
     }
 
     public function testEncodeConstraintViolation(): void
@@ -119,6 +175,121 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
     }
 
+    /**
+     * A price definition that `decode()` cannot read would make the entity unreadable, so it has to be rejected on write.
+     *
+     * @param array<string, mixed> $priceDefinition
+     */
+    #[DataProvider('undecodablePriceDefinitionProvider')]
+    public function testEncodeRejectsPriceDefinitionThatCannotBeDecoded(
+        array $priceDefinition,
+        string $expectedPointer,
+        string $expectedMessage
+    ): void {
+        try {
+            $this->encodeDefinition($priceDefinition);
+            static::fail('Expected a WriteConstraintViolationException');
+        } catch (WriteConstraintViolationException $exception) {
+            $errors = iterator_to_array($exception->getErrors());
+            static::assertCount(1, $errors);
+            static::assertSame($expectedPointer, $errors[0]['source']['pointer']);
+            static::assertSame($expectedMessage, $errors[0]['detail']);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string, string}>
+     */
+    public static function undecodablePriceDefinitionProvider(): iterable
+    {
+        yield 'quantity without tax rules' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1],
+            '/taxRules',
+            'This value should not be null.',
+        ];
+        yield 'quantity with tax rules that are not a list' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => '19'],
+            '/taxRules',
+            'This value should be of type array.',
+        ];
+        yield 'quantity with a tax rule that is not an object' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => [19]],
+            '/taxRules/0',
+            'This value should be of type array.',
+        ];
+        yield 'quantity with a tax rule without percentage, which would be decoded as zero percent' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => [['taxRate' => 19]]],
+            '/taxRules/0/percentage',
+            'This value should not be null.',
+        ];
+        yield 'currency price with an entry that is not an object' => [
+            ['type' => CurrencyPriceDefinition::TYPE, 'price' => [5]],
+            '/price/0',
+            'This value should be of type array.',
+        ];
+        yield 'currency price entry without currency' => [
+            ['type' => CurrencyPriceDefinition::TYPE, 'price' => [['net' => 10, 'gross' => 11.9, 'linked' => true]]],
+            '/price/0/currencyId',
+            'This value should not be blank.',
+        ];
+        yield 'currency price entry without net price, which would be decoded as zero' => [
+            ['type' => CurrencyPriceDefinition::TYPE, 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 11.9, 'linked' => true]]],
+            '/price/0/net',
+            'This value should not be null.',
+        ];
+        yield 'currency price entry without linked flag' => [
+            ['type' => CurrencyPriceDefinition::TYPE, 'price' => [['currencyId' => Defaults::CURRENCY, 'net' => 10, 'gross' => 11.9]]],
+            '/price/0/linked',
+            'This value should not be null.',
+        ];
+    }
+
+    /**
+     * `Type()` accepts numeric strings and `null` on write, so `decode()` has to accept them as well.
+     *
+     * @param array<string, mixed> $priceDefinition
+     */
+    #[DataProvider('acceptedOnWritePriceDefinitionProvider')]
+    public function testDecodeReadsPriceDefinitionAcceptedOnWrite(array $priceDefinition, PriceDefinitionInterface $expected): void
+    {
+        $encoded = json_encode($this->encodeDefinition($priceDefinition), \JSON_THROW_ON_ERROR);
+
+        $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded);
+
+        static::assertEquals($expected, $decoded);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, PriceDefinitionInterface}>
+     */
+    public static function acceptedOnWritePriceDefinitionProvider(): iterable
+    {
+        yield 'absolute price' => [
+            ['type' => AbsolutePriceDefinition::TYPE, 'price' => '-10.5'],
+            new AbsolutePriceDefinition(-10.5),
+        ];
+        yield 'percentage' => [
+            ['type' => PercentagePriceDefinition::TYPE, 'percentage' => '-20'],
+            new PercentagePriceDefinition(-20),
+        ];
+        yield 'quantity with null quantity and isCalculated' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'taxRules' => [], 'quantity' => null, 'isCalculated' => null],
+            (static function (): QuantityPriceDefinition {
+                $definition = new QuantityPriceDefinition(10, new TaxRuleCollection());
+                $definition->setIsCalculated(false);
+
+                return $definition;
+            })(),
+        ];
+    }
+
+    public function testEncodeAcceptsQuantityPriceDefinitionWithEmptyTaxRules(): void
+    {
+        $stored = $this->encodeDefinition(['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => []]);
+
+        static::assertSame([], $stored['taxRules']);
+    }
+
     public function testEncodeDecodeWithEmptyOperatorCondition(): void
     {
         $rule = new LineItemListPriceRule();
@@ -139,6 +310,41 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         $decoded = $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $encoded['test']);
 
         static::assertEquals($definition, $decoded);
+    }
+
+    /**
+     * @param array<string, string|int> $filter
+     */
+    #[DataProvider('removedRulePayloads')]
+    public function testRemovedRulePriceFiltersRemainWritable(array $filter): void
+    {
+        $field = new PriceDefinitionField('test', 'test');
+        $decoded = $this->fieldSerializer->decode($field, json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => $filter,
+        ], \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        static::assertInstanceOf(UnknownConditionRule::class, $decoded->getFilter());
+
+        $encoded = iterator_to_array($this->fieldSerializer->encode(
+            $field,
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $decoded, true),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+
+        static::assertSame($filter, json_decode($encoded['test'], true, flags: \JSON_THROW_ON_ERROR)['filter']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string|int>}>
+     */
+    public static function removedRulePayloads(): iterable
+    {
+        yield 'stock filter survives removal' => [['_name' => 'cartLineItemStock', 'operator' => Rule::OPERATOR_EQ, 'stock' => 5]];
+        yield 'product states filter survives removal' => [['_name' => 'cartLineItemProductStates', 'operator' => Rule::OPERATOR_EQ, 'productState' => 'is-download']];
     }
 
     public function testDecodePercentagePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
@@ -334,6 +540,11 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]), 3),
         ];
 
+        $withReferencePrice = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19)]), 3);
+        $withReferencePrice->setReferencePriceDefinition(new ReferencePriceDefinition(0.5, 1.0, 'Liter'));
+
+        yield 'quantity price definition with reference price' => [$withReferencePrice];
+
         yield 'absolute price definition' => [
             new AbsolutePriceDefinition(20, $rule),
         ];
@@ -372,9 +583,11 @@ class PriceDefinitionFieldSerializerTest extends TestCase
     }
 
     /**
+     * @param PriceDefinitionInterface|array<string, mixed> $definition
+     *
      * @return array<string, mixed>
      */
-    private function encodeDefinition(PriceDefinitionInterface $definition): array
+    private function encodeDefinition(PriceDefinitionInterface|array $definition): array
     {
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
 

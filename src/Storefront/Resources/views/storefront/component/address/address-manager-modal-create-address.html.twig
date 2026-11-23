@@ -4,8 +4,12 @@
     {% set addressType = 'billing' %}
 {% endif %}
 
-{# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
-{% set type = addressType %}
+{% if not feature('v6.8.0.0') %}
+    {# @deprecated tag:v6.8.0 - Use `addressType` instead of `type`. Support for `type` will be removed. #}
+    {% set type = addressType %}
+{% endif %}
+
+{% set editsGuestBillingAddress = context.customer.guest and (addressType == 'billing' or (postedAddress.get('id') and postedAddress.get('id') == context.customer.activeBillingAddress.id)) %}
 
 <div class="js-pseudo-modal-template-root-element address-manager-modal">
     <div class="modal-header pb-0 align-items-start">
@@ -35,6 +39,8 @@
                 {% block address_manager_modal_address_form_create_personal %}
                     {% if postedAddress.has('accountType') %}
                         {% set accountType = postedAddress.get('accountType') %}
+                    {% elseif editsGuestBillingAddress %}
+                        {% set accountType = context.customer.accountType %}
                     {% else %}
                         {% set accountType = '' %}
                     {% endif %}
@@ -53,6 +59,7 @@
                         data: postedAddress,
                         prefix: 'address',
                         showFormCompany: true,
+                        showVatIdField: editsGuestBillingAddress,
                         type: null
                     } %}
                 {% endblock %}

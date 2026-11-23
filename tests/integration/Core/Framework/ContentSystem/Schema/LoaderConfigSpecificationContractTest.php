@@ -47,7 +47,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testEverySourceSpecificationIsWellFormed(): void
     {
         $sources = $this->dataLoaderProvider()->getSources();
-        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+        static::assertNotSame([], $sources, 'No data loader sources are registered in the container.');
 
         foreach ($sources as $source) {
             $spec = $this->specificationFor($source);
@@ -107,7 +107,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testEverySourceSpecificationAssemblesADecodableConfig(): void
     {
         $sources = $this->dataLoaderProvider()->getSources();
-        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+        static::assertNotSame([], $sources, 'No data loader sources are registered in the container.');
 
         $serializerProvider = $this->serializerProvider();
 
@@ -135,7 +135,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testNoSourceSerializesAnUndeclaredConfigKey(): void
     {
         $sources = $this->dataLoaderProvider()->getSources();
-        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+        static::assertNotSame([], $sources, 'No data loader sources are registered in the container.');
 
         $serializerProvider = $this->serializerProvider();
 
@@ -164,7 +164,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testEveryDeclaredConfigKeySurvivesTheSerializerRoundTrip(): void
     {
         $sources = $this->dataLoaderProvider()->getSources();
-        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+        static::assertNotSame([], $sources, 'No data loader sources are registered in the container.');
 
         $serializerProvider = $this->serializerProvider();
 
@@ -241,7 +241,7 @@ class LoaderConfigSpecificationContractTest extends TestCase
     public function testNoSourcePassesAnUndeclaredConfigKeyThroughItsSerializer(): void
     {
         $sources = $this->dataLoaderProvider()->getSources();
-        static::assertNotEmpty($sources, 'No data loader sources are registered in the container.');
+        static::assertNotSame([], $sources, 'No data loader sources are registered in the container.');
 
         $serializerProvider = $this->serializerProvider();
 

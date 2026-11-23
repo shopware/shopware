@@ -29,7 +29,7 @@
                 "labelEmail": "Email",
                 "placeholderEmail": "Enter email...",
                 "labelLanguage": "User interface language",
-                "placeholderLanguage": "Choose a language...",
+                "placeholderLanguage": "Select a language...",
                 "labelButtonInvite": "Invite user",
                 "accountPermissionHint": "Make sure that the user also belongs to your company in the Shopware Account so that they can use the Administration of this shop without restrictions."
             }
@@ -51,7 +51,8 @@
                         "message": "Role \"{name}\" deleted."
                     },
                     "deleteError": {
-                        "message": "The role \"{name}\" could not be deleted."
+                        "message": "The role \"{name}\" could not be deleted.",
+                        "FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK": "The webhook {webhookNames} uses it. | The webhooks {webhookNames} use it."
                     }
                 }
             },
@@ -171,7 +172,7 @@
                 "contextMenuEdit": "Edit integration",
                 "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
                 "addAccessKey": "Create access key",
-                "noAccessKeysTitle": "No access keys available",
+                "noAccessKeysTitle": "No access keys yet",
                 "noAccessKeysSubline": "Create access keys here",
                 "labelAccessKey": "Access key",
                 "labelPermissions": "Permissions",
@@ -231,12 +232,12 @@
         },
         "permissions": {
             "parents": {
-                "catalogues": "Catalogues",
                 "content": "Content",
                 "customers": "Customers",
                 "marketing": "Marketing",
                 "other": "Other",
                 "orders": "Orders",
+                "products": "Products",
                 "settings": "Settings"
             },
             "users_and_permissions": {
@@ -258,6 +259,10 @@
             },
             "orders": {
                 "label": "Orders"
+            },
+            "experience_studio": {
+                "label": "Experience Studio",
+                "translator": "Translate layouts"
             },
             "routes": {
                 "label": "Routes",

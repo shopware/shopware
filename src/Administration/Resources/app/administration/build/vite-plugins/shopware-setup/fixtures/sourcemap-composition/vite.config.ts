@@ -33,10 +33,7 @@ export default (async () => {
     return {
         root: here,
         logLevel: 'silent',
-        plugins: [
-            ShopwareSetupPlugin({ administrationRoot: adminRoot }),
-            vue(),
-        ],
+        plugins: [ShopwareSetupPlugin({ administrationRoot: adminRoot }), vue()],
         build: {
             write: true,
             outDir: path.join(here, 'dist'),

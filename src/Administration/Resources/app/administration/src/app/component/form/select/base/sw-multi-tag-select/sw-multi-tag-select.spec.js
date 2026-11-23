@@ -1,7 +1,8 @@
 /**
  * @sw-package framework
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const selector = {
     multiDataSelect: {
@@ -27,7 +28,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
                 'sw-label': true,
-                'mt-floating-ui': true,
             },
         },
         props: {
@@ -55,22 +55,16 @@ describe('components/sw-multi-tag-select', () => {
     it.activeFeatureFlags(['v6.8.0.0'])(
         'matches the popover reference width without using the deprecated resizeWidth prop',
         async () => {
-            const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
             const wrapper = await createWrapper();
 
             await wrapper.find(selector.multiDataSelect.container).trigger('click');
             await flushPromises();
 
-            const floatingUi = wrapper.get('mt-floating-ui-stub');
+            const floatingUi = wrapper.getComponent({ name: 'mt-floating-ui' });
 
-            expect(floatingUi.attributes('match-reference-width')).toBe('true');
-            expect(floatingUi.attributes()).not.toHaveProperty('resize-width');
-            expect(warnSpy).not.toHaveBeenCalledWith(
-                'sw-popover',
-                'The "resizeWidth" prop is deprecated and will be removed in v6.8.0. Please use "match-reference-width" instead.',
-            );
-
-            warnSpy.mockRestore();
+            expect(floatingUi.props('matchReferenceWidth')).toBe(true);
+            expect(floatingUi.vm.$attrs).not.toHaveProperty('resize-width');
+            expect(deprecations).not.toHaveTriggered('The prop "resizeWidth" of the component');
         },
     );
 
@@ -80,8 +74,8 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
-        expect(selectOptionsPopover.isVisible()).toBeTruthy();
+        const selectOptionsPopover = new DOMWrapper(document.body).find(selector.multiDataSelect.popover);
+        expect(selectOptionsPopover.exists()).toBeTruthy();
     });
 
     it('should focus input when the user click on .sw-select__selection', async () => {
@@ -98,7 +92,7 @@ describe('components/sw-multi-tag-select', () => {
         await wrapper.find(selector.multiDataSelect.container).trigger('click');
         await flushPromises();
 
-        const selectOptionsPopover = wrapper.find(selector.multiDataSelect.popover);
+        const selectOptionsPopover = new DOMWrapper(document.body).get(selector.multiDataSelect.popover);
         expect(selectOptionsPopover.text()).toBe('global.sw-multi-tag-select.enterValidData');
 
         const input = wrapper.find(selector.multiDataSelect.input);
@@ -137,8 +131,7 @@ describe('components/sw-multi-tag-select', () => {
 
         expect(wrapper.vm.searchTerm).toBe(value);
 
-        const addItemPopover = wrapper.find('.sw-multi-tag-select-valid');
-        await addItemPopover.trigger('click');
+        await new DOMWrapper(document.body).get('.sw-multi-tag-select-valid').trigger('click');
 
         expect(wrapper.emitted('update:value')).toStrictEqual([[[value]]]);
         expect(wrapper.vm.searchTerm).toBe('');

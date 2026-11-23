@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
@@ -14,11 +16,14 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDa
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
+use Shopware\Tests\Unit\Core\Framework\ContentSystem\Fixture\ScopedDefaultBindingFixture;
 
 /**
  * @internal
@@ -86,6 +91,21 @@ class AttachElementTest extends TestCase
             [$attached->id, $attached->slots['content'][0]->id, $attached->slots['content'][1]->id],
             $attach->created(),
         );
+        static::assertSame([], $attach->freshlyScaffolded());
+    }
+
+    #[TestDox('reports every node of a new preset subtree for default initialization')]
+    public function testNewScaffoldReportsEveryNestedId(): void
+    {
+        $incoming = new StoredElement('preset', 'Sw:Block', [], [], [
+            'content' => [new StoredElement('preset-child', 'Sw:Card')],
+        ]);
+        $attach = $this->attach($incoming, isNewScaffold: true);
+
+        $result = $attach->apply(new StoredTree([]));
+
+        $attached = $result->roots[0];
+        static::assertSame([$attached->id, $attached->slots['content'][0]->id], $attach->freshlyScaffolded());
     }
 
     #[TestDox('attaches the subtree into a parent slot at an explicit index')]
@@ -113,6 +133,20 @@ class AttachElementTest extends TestCase
         static::assertCount(3, $result->roots);
         static::assertSame(['block-a', 'block-b'], [$result->roots[0]->id, $result->roots[1]->id]);
         static::assertNotSame('incoming', $result->roots[2]->id);
+    }
+
+    #[TestDox('keeps a language-map property value on the reminted subtree unchanged')]
+    public function testAttachKeepsLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $incoming = StoredElementBuilder::create('Sw:Card', 'incoming')->withProperty('text', $translations)->build();
+
+        $result = $this->attach($incoming)->apply(new StoredTree([]));
+
+        $carried = $result->roots[0]->property('text');
+        static::assertNotNull($carried);
+        static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried);
     }
 
     #[TestDox('wires and attributes the type default binding on the root and nested elements of an unwired subtree')]
@@ -144,7 +178,7 @@ class AttachElementTest extends TestCase
             $this->registry(),
             $incoming,
             $bindingRegistry,
-            new BindingApplicator($serializers),
+            new BindingApplicator($serializers, static::createStub(AbstractContentSystemElementTypeRegistry::class)),
         );
         $result = $attach->apply(new StoredTree([]));
 
@@ -155,6 +189,35 @@ class AttachElementTest extends TestCase
         static::assertSame(['media' => 'core:Sw:Card'], $attached->attributedSpecifications);
         static::assertEquals($wiring, $child->dataRequirements);
         static::assertSame(['media' => 'core:Sw:Card'], $child->attributedSpecifications);
+    }
+
+    /**
+     * @return iterable<string, array{StoredElement, bool, string, ?string}>
+     */
+    public static function rejectionElementIdProvider(): iterable
+    {
+        yield 'attach-element names the supplied element' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming', 'category'];
+
+        $nested = new StoredElement('incoming', 'Sw:Block', [], [], ['content' => [new StoredElement('incoming-child', 'Sw:Card')]]);
+        yield 'attach-element names the supplied nested element' => [$nested, false, 'incoming-child', 'category'];
+        yield 'a preset insertion names the payload id of the nested element' => [$nested, true, 'incoming-child', 'category'];
+        yield 'attach-element names the supplied element when the tree has no root source' => [new StoredElement('incoming', 'Sw:Card'), false, 'incoming', null];
+    }
+
+    #[DataProvider('rejectionElementIdProvider')]
+    #[TestDox('names the element id the caller supplied when the type default of that element rejects the root source: $_dataName')]
+    public function testAttachRejectionNamesTheSuppliedElementId(StoredElement $incoming, bool $isNewScaffold, string $expectedElementId, ?string $rootSource): void
+    {
+        $attach = new AttachElement(
+            $this->registry(),
+            $incoming,
+            $this->scopedCardDefaultRegistry(),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+            isNewScaffold: $isNewScaffold,
+        );
+
+        $this->expectExceptionObject(ContentSystemException::bindingRootSourceNotScoped('core:Sw:Card', 'media', $expectedElementId, $rootSource));
+        $attach->apply(new StoredTree([], $rootSource));
     }
 
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
@@ -194,17 +257,26 @@ class AttachElementTest extends TestCase
         $attach->apply(new StoredTree([new StoredElement('parent', 'Sw:Block')]));
     }
 
-    private function attach(StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null): AttachElement
+    private function attach(StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null, bool $isNewScaffold = false): AttachElement
     {
         return new AttachElement(
             $this->registry(),
             $element,
             static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
-            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class)),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
             $parentElementId,
             $slot,
             $index,
+            isNewScaffold: $isNewScaffold,
         );
+    }
+
+    private function scopedCardDefaultRegistry(): AbstractContentSystemBindingSpecificationRegistry
+    {
+        $registry = static::createStub(AbstractContentSystemBindingSpecificationRegistry::class);
+        $registry->method('all')->willReturn(['core:Sw:Card' => ScopedDefaultBindingFixture::mediaScopedToProduct('Sw:Card', 'Card')]);
+
+        return $registry;
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Mcp\Prompt;
 
 use Mcp\Capability\Attribute\McpPrompt;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpProtocolEra;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -21,15 +23,7 @@ use Shopware\Core\Framework\Log\Package;
 )]
 class ShopwareContextPrompt
 {
-    /**
-     * @return list<array{role: string, content: string}>
-     */
-    public function __invoke(): array
-    {
-        return [
-            [
-                'role' => 'user',
-                'content' => <<<'PROMPT'
+    private const PROMPT = <<<'PROMPT'
 You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 
 ## Domain tools (deferred — enable the matching toolset first)
@@ -38,7 +32,7 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `shopware-entity-read`: entity (string), id (string UUID), criteria (string, optional)
 - `shopware-entity-aggregate`: entity (string), aggregations (string JSON), filters (string JSON, optional)
 - `shopware-entity-upsert`: entity (string), payload (string JSON), dryRun (bool, default true)
-- `shopware-entity-delete`: entity (string), ids (string JSON array), dryRun (bool, default true)
+- `shopware-entity-delete`: entity (string), ids (string JSON array of UUIDs, or of key objects for mapping entities), dryRun (bool, default true)
 - `shopware-system-config-read`: key (string), salesChannelId (string, optional)
 - `shopware-system-config-write`: key (string), value (string), salesChannelId (string, optional), dryRun (bool, default true)
 - `shopware-order-state`: orderNumber or orderId, orderAction / transactionAction / deliveryAction, dryRun (bool, default true)
@@ -50,8 +44,8 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - `swag-dev-tools-log-stream`: limit (int, optional) — stream the most recent log lines
 
 ## Tool discovery (start here)
-- On a fresh session only the discovery tools are advertised: `shopware-toolsets-list`, `shopware-toolset-enable`, `shopware-tool-search`. No domain tool is callable until you enable its toolset — the tools listed below become available only after enabling.
-- For any task, first call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
+- A fresh session advertises the discovery tools `shopware-toolsets-list`, `shopware-toolset-enable` and `shopware-tool-search`, plus any toolsets selected in the connect URL (`?toolsets=`). Domain tools that are not advertised yet become available once you enable their toolset.
+- If an advertised tool fits the task, call it directly. Otherwise call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
 - Enabling a toolset lasts the whole MCP session and accumulates: enabling another toolset keeps the previously enabled ones. The allowlist and ACL permissions remain the security boundary.
 
 ## Key concepts
@@ -59,6 +53,7 @@ You are interacting with a Shopware 6 e-commerce platform via MCP tools.
 - Entity IDs are UUIDs (32 hex chars, no dashes, lowercase).
 - `shopware-entity-search` accepts Admin API criteria JSON: filter, sort, limit, page, associations, aggregations, includes, fields.
 - All write tools default to dryRun=true. Always preview before committing.
+- Many-to-many links (product categories, product properties, ...) are rows of a mapping entity, as in the Admin API sync endpoint. `shopware-entity-upsert` can only ADD links. To REMOVE one, delete the mapping row with `shopware-entity-delete`; this removes only the link, never the category or option itself. There is no "remove" or "delete" flag inside an upsert payload: every field sent on an associated record is written to that record.
 - State transitions via `shopware-order-state` apply to the order, its transactions, and its deliveries independently.
 
 ## Common entity names
@@ -103,6 +98,9 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 2. Read `shopware://currencies` to find the currency ID
 3. `shopware-entity-upsert` on `product` with name, productNumber, stock, taxId, and price array: `[{"currencyId": "...", "gross": 29.99, "net": 25.20, "linked": true}]`
 4. dryRun=true first, then dryRun=false to persist
+
+### Add or remove a product category or property
+Add with `shopware-entity-upsert` on `product`; remove with `shopware-entity-delete` on the mapping entity `shopware-entity-schema` names (`product_category`, `product_property`).
 
 ### Transition an order state
 1. `shopware-entity-search` on `order` to find the order and its current stateMachineState
@@ -164,7 +162,56 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 
 ## Optional extensions
 If a requested tool or workflow is not available, read `shopware://extensions` to discover optional plugins that provide additional capabilities. Each entry includes a description, tool prefix, and the exact install command to give the user.
-PROMPT,
+PROMPT;
+
+    /**
+     * The parts of the prompt that name the toolset session tools. The stateless era (2026-07-28) does not
+     * offer them (see McpProtocolEra::HIDDEN_ON_STATELESS_ERA), so it gets the twins below instead.
+     */
+    private const HANDSHAKE_DOMAIN_TOOLS_HEADING = '## Domain tools (deferred — enable the matching toolset first)';
+
+    private const STATELESS_DOMAIN_TOOLS_HEADING = '## Domain tools (deferred — call them by name, or select their toolset with `?toolsets=`)';
+
+    private const HANDSHAKE_DISCOVERY = <<<'DISCOVERY'
+## Tool discovery (start here)
+- A fresh session advertises the discovery tools `shopware-toolsets-list`, `shopware-toolset-enable` and `shopware-tool-search`, plus any toolsets selected in the connect URL (`?toolsets=`). Domain tools that are not advertised yet become available once you enable their toolset.
+- If an advertised tool fits the task, call it directly. Otherwise call `shopware-toolsets-list`, enable the matching toolset with `shopware-toolset-enable`, then refresh `tools/list` after the server sends a list-changed notification. Use `shopware-tool-search` when you know the capability but not which toolset holds it.
+- Enabling a toolset lasts the whole MCP session and accumulates: enabling another toolset keeps the previously enabled ones. The allowlist and ACL permissions remain the security boundary.
+DISCOVERY;
+
+    private const STATELESS_DISCOVERY = <<<'DISCOVERY'
+## Tool discovery (start here)
+- `tools/list` advertises `shopware-tool-search`, plus the tools of any toolsets selected in the connect URL (`?toolsets=`). Domain tools that are not advertised can still be called.
+- If an advertised tool fits the task, call it directly. Otherwise call `shopware-tool-search` with the capability you need, then call the matched tool by name with `tools/call`.
+- If your client only calls advertised tools, reconnect to the MCP endpoint URL with the toolset of the match in the query, for example `?toolsets=order,media`. Each `shopware-tool-search` match names its toolset. The allowlist and ACL permissions remain the security boundary.
+DISCOVERY;
+
+    /**
+     * @internal
+     */
+    public function __construct(private readonly ?RequestStack $requestStack = null)
+    {
+    }
+
+    /**
+     * @return list<array{role: string, content: string}>
+     */
+    public function __invoke(): array
+    {
+        $content = self::PROMPT;
+
+        if (McpProtocolEra::isStateless($this->requestStack?->getMainRequest())) {
+            $content = str_replace(
+                [self::HANDSHAKE_DOMAIN_TOOLS_HEADING, self::HANDSHAKE_DISCOVERY],
+                [self::STATELESS_DOMAIN_TOOLS_HEADING, self::STATELESS_DISCOVERY],
+                $content,
+            );
+        }
+
+        return [
+            [
+                'role' => 'user',
+                'content' => $content,
             ],
         ];
     }

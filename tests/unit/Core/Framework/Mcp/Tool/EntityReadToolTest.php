@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -19,8 +21,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Tool\EntityReadTool;
-use Shopware\Core\Framework\Mcp\Tool\McpEntityIncludes;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 /**
@@ -28,7 +30,6 @@ use Shopware\Core\Framework\Struct\ArrayEntity;
  */
 #[Package('framework')]
 #[CoversClass(EntityReadTool::class)]
-#[CoversClass(McpEntityIncludes::class)]
 class EntityReadToolTest extends TestCase
 {
     public function testReturnsDataWhenEntityFound(): void
@@ -69,12 +70,11 @@ class EntityReadToolTest extends TestCase
         $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', 'prod-123');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertTrue($data['success']);
-        static::assertArrayHasKey('data', $data);
-        static::assertArrayNotHasKey('error', $data);
-        static::assertSame('prod-123', $data['data']['id']);
-        static::assertSame('Test Product', $data['data']['name']);
+        static::assertFalse($output->isError());
+        static::assertNotNull($output->data);
+        static::assertNull($output->error);
+        static::assertSame('prod-123', $output->data['id']);
+        static::assertSame('Test Product', $output->data['name']);
     }
 
     public function testReturnsErrorWhenEntityNotFound(): void
@@ -112,11 +112,11 @@ class EntityReadToolTest extends TestCase
         $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, $encoder, static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', 'prod-missing');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertFalse($data['success']);
-        static::assertArrayHasKey('error', $data);
-        static::assertArrayNotHasKey('data', $data);
-        static::assertSame('Entity "product" with ID "prod-missing" not found.', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertSame(McpToolError::NOT_FOUND, $output->error->code);
+        static::assertNotNull($output->error);
+        static::assertNull($output->data);
+        static::assertSame('Entity "product" with ID "prod-missing" not found.', $output->error->message);
     }
 
     public function testMalformedCriteriaJsonReturnsError(): void
@@ -137,11 +137,9 @@ class EntityReadToolTest extends TestCase
         );
         $output = ($tool)('product', 'some-id', 'not-json');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Invalid JSON', $data['error']);
-        static::assertStringContainsString('criteria', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Invalid JSON', $output->error->message);
+        static::assertStringContainsString('criteria', $output->error->message);
     }
 
     public function testDeniesAccessWithoutReadPermission(): void
@@ -160,11 +158,9 @@ class EntityReadToolTest extends TestCase
         $tool = new EntityReadTool($registry, static::createStub(RequestCriteriaBuilder::class), $contextProvider, static::createStub(JsonEntityEncoder::class), static::createStub(AclCriteriaValidator::class));
         $output = ($tool)('product', 'some-id');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertArrayHasKey('error', $data);
-        static::assertStringContainsString('product:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertNotNull($output->error);
+        static::assertStringContainsString('product:read', $output->error->message);
     }
 
     public function testDeniesAccessWhenCriteriaRequiresMissingAssociationPrivilege(): void
@@ -197,11 +193,9 @@ class EntityReadToolTest extends TestCase
         $tool = new EntityReadTool($registry, $criteriaBuilder, $contextProvider, static::createStub(JsonEntityEncoder::class), $criteriaValidator);
         $output = ($tool)('order', 'order-id', '{"associations": {"orderCustomer": {}}}');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('Missing privilege:', $data['error']);
-        static::assertStringContainsString('order_customer:read', $data['error']);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('Missing privilege:', $output->error->message);
+        static::assertStringContainsString('order_customer:read', $output->error->message);
     }
 
     public function testUnknownEntityReturnsError(): void
@@ -222,10 +216,69 @@ class EntityReadToolTest extends TestCase
         );
         $output = ($tool)('unknown_entity', 'some-id');
 
-        $data = json_decode($output, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertTrue($output->isError());
+        static::assertStringContainsString('unknown_entity', $output->error->message);
+        static::assertStringContainsString('shopware://entities', $output->error->message);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $output->error->code);
+    }
 
-        static::assertFalse($data['success']);
-        static::assertStringContainsString('unknown_entity', $data['error']);
-        static::assertStringContainsString('shopware://entities', $data['error']);
+    #[TestDox('A malformed "includes" that makes the builder throw the base DataAbstractionLayerException is answered with its detail')]
+    public function testAMalformedCriteriaIsAnsweredWithTheParserDetail(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException(
+            DataAbstractionLayerException::expectedArrayWithType('includes', 'string')
+        );
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityReadTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $data = ($tool)('product', 'prod-123', '{"includes":"id"}');
+
+        static::assertTrue($data->isError());
+        static::assertStringContainsString('includes', $data->error->message);
+    }
+
+    public function testAnUnexpectedThrowableStillPropagates(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
+        $registry->method('has')->willReturn(true);
+        $registry->method('getByEntityName')->willReturn(static::createStub(EntityDefinition::class));
+        $registry->method('getRepository')->willReturn(static::createStub(EntityRepository::class));
+
+        $criteriaBuilder = static::createStub(RequestCriteriaBuilder::class);
+        $criteriaBuilder->method('fromArray')->willThrowException(new \RuntimeException('bug, not bad input'));
+
+        $contextProvider = static::createStub(McpContextProvider::class);
+        $contextProvider->method('getContext')->willReturn($context);
+
+        $tool = new EntityReadTool(
+            $registry,
+            $criteriaBuilder,
+            $contextProvider,
+            static::createStub(JsonEntityEncoder::class),
+            static::createStub(AclCriteriaValidator::class),
+        );
+
+        $this->expectExceptionObject(new \RuntimeException('bug, not bad input'));
+
+        ($tool)('product', 'prod-123');
     }
 }

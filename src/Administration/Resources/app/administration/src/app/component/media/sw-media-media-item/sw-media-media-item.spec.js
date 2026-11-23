@@ -121,9 +121,7 @@ describe('components/media/sw-media-media-item', () => {
                 Promise.reject({
                     response: {
                         data: {
-                            errors: [
-                                error,
-                            ],
+                            errors: [error],
                         },
                     },
                 }),
@@ -131,7 +129,7 @@ describe('components/media/sw-media-media-item', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.onChangeName(
             'new file name',
             {
@@ -157,9 +155,7 @@ describe('components/media/sw-media-media-item', () => {
                 Promise.reject({
                     response: {
                         data: {
-                            errors: [
-                                error,
-                            ],
+                            errors: [error],
                         },
                     },
                 }),
@@ -167,7 +163,7 @@ describe('components/media/sw-media-media-item', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         await wrapper.vm.onChangeName(
             'new file name',
             {

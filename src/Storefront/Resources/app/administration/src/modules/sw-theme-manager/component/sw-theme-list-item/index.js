@@ -8,11 +8,7 @@ import './sw-theme-list-item.scss';
 export default {
     template,
 
-    emits: [
-        'preview-image-change',
-        'item-click',
-        'theme-delete',
-    ],
+    emits: ['preview-image-change', 'item-click', 'theme-delete'],
 
     props: {
         theme: {

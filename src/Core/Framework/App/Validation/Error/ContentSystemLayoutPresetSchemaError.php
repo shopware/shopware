@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Framework\App\Validation\Error;
 
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-class ContentSystemLayoutPresetSchemaError extends Error
+class ContentSystemLayoutPresetSchemaError implements Error
 {
-    private const KEY = 'manifest-invalid-layout-preset-schema';
+    private readonly string $message;
 
     public function __construct(string $filename, string $reason)
     {
@@ -19,12 +20,25 @@ class ContentSystemLayoutPresetSchemaError extends Error
             $filename,
             $reason
         );
-
-        parent::__construct($this->message);
     }
 
-    public function getMessageKey(): string
+    public function getMessage(): string
     {
-        return self::KEY;
+        return $this->message;
+    }
+
+    public function getErrorCode(): string
+    {
+        return AppException::VALIDATION_FAILED;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function getSeverity(): Severity
+    {
+        return Severity::Fail;
     }
 }

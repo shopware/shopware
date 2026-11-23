@@ -145,7 +145,7 @@ class CanonicalRedirectServiceTest extends TestCase
         $dispatcher = new EventDispatcher();
 
         $canonicalRedirectService = new CanonicalRedirectService(
-            $this->getSystemConfigService(true),
+            $this->getSystemConfigService(true, read: false),
             new ExtensionDispatcher($dispatcher),
         );
 
@@ -206,14 +206,14 @@ class CanonicalRedirectServiceTest extends TestCase
         return $request;
     }
 
-    private function getSystemConfigService(bool $shouldRedirect): SystemConfigService
+    private function getSystemConfigService(bool $shouldRedirect, bool $read = true): SystemConfigService
     {
         $service = $this->getMockBuilder(SystemConfigService::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['get'])
             ->getMock();
 
-        $service->method('get')
+        $service->expects($read ? $this->once() : $this->never())->method('get')
             ->with(self::CONFIG_KEY)
             ->willReturn($shouldRedirect);
 

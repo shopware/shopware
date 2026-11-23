@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ProviderDeliveryKeyResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -33,6 +34,7 @@ class AvailableContextResolver
         private readonly ElementResolver $elementResolver,
         private readonly ProviderDeliveryKeyResolver $providerDeliveryKeys,
         private readonly ContextPathResolver $pathResolver,
+        private readonly StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -47,7 +49,7 @@ class AvailableContextResolver
      *
      * @return list<ProvidedContext>
      */
-    public function resolve(string $targetElementId, array $tree, array $rootContext): array
+    public function resolve(string $targetElementId, array $tree, array $rootContext, ?string $rootSource = null): array
     {
         $location = $this->locate($tree, $targetElementId);
 
@@ -65,7 +67,7 @@ class AvailableContextResolver
 
         foreach ($ancestors as $ancestor) {
             $this->providerDeliveryKeys->resolve($ancestor->contextDefinitions, $ancestor->id);
-            $incoming = $this->expose($ancestor, $incoming, $rootContext);
+            $incoming = $this->expose($ancestor, $incoming, $rootContext, $rootSource);
         }
 
         return [...$incoming, ...$rootContext];
@@ -83,7 +85,7 @@ class AvailableContextResolver
      *
      * @return list<ProvidedContext>
      */
-    private function expose(StoredElement $element, array $incoming, array $ambient): array
+    private function expose(StoredElement $element, array $incoming, array $ambient, ?string $rootSource): array
     {
         $exposed = [];
 
@@ -94,10 +96,29 @@ class AvailableContextResolver
                 continue;
             }
 
-            $receivable = $this->ambientReceivableFor($element, (string) $contextKey, $ambient);
+            $consumer = $element->contextDefinitions->getAllConsumers()[$contextKey] ?? null;
+            if ($consumer?->source !== null) {
+                if ($rootSource === null) {
+                    continue;
+                }
 
-            if (!$this->providerResolves($element, (string) $contextKey, [...$incoming, ...$receivable])) {
-                continue;
+                $candidate = $this->mappingInspector->admitStoredProperty(
+                    $element->component,
+                    (string) $contextKey,
+                    $consumer->type,
+                    $consumer->source,
+                    $rootSource,
+                );
+                if ($candidate instanceof ContentSystemException) {
+                    continue;
+                }
+
+                $fqcn = $candidate->valueType;
+            } else {
+                $receivable = $this->ambientReceivableFor($element, (string) $contextKey, $ambient);
+                if (!$this->providerResolves($element, (string) $contextKey, [...$incoming, ...$receivable])) {
+                    continue;
+                }
             }
 
             $exposed[] = new ProvidedContext(
@@ -178,7 +199,7 @@ class AvailableContextResolver
 
         foreach ($ambient as $provided) {
             foreach ($element->contextDefinitions->getAllConsumers() as $consumerKey => $consumer) {
-                if ($consumer->scope !== ConsumerScope::Root) {
+                if ($consumer->scope !== ConsumerScope::Root || $consumer->source !== null) {
                     continue;
                 }
 

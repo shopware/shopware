@@ -46,7 +46,7 @@ import {
     writeStateFile,
 } from './shared';
 import type { ExtensionToolingManifest, SetupWarning, WriteResult } from './shared';
-import { record, toManifestState, warn } from './setup-context';
+import { record, toManifestState, warn, warnTypeCheckOrLint } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { discoverProjects } from './setup-discovery';
 import { createIdeBootstraps, createRootEslintConfig, createRootTsconfig, ensureEntitySchema } from './setup-configs';
@@ -90,10 +90,7 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
     const hostModules = (JSON.parse(fs.readFileSync(hostModulesPath, 'utf8')) as { hostModules: Record<string, string> })
         .hostModules;
 
-    for (const [
-        moduleName,
-        modulePath,
-    ] of Object.entries(hostModules)) {
+    for (const [moduleName, modulePath] of Object.entries(hostModules)) {
         if (!fs.existsSync(path.join(context.administrationRoot, modulePath))) {
             warn(
                 context,
@@ -167,7 +164,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
     );
 
     if (!entitySchemaAvailable) {
-        warn(
+        warnTypeCheckOrLint(
             context,
             'Entity schema types are not available — entity names cannot be type-checked. ' +
                 `Run \`${context.commands.generateSchema}\`.`,
@@ -184,15 +181,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
             eslintConfig: toManifestState(rootEslintState),
         },
         ideBootstraps: Object.fromEntries(
-            Object.entries(ideBootstraps).map(
-                ([
-                    key,
-                    state,
-                ]) => [
-                    key,
-                    toManifestState(state),
-                ],
-            ),
+            Object.entries(ideBootstraps).map(([key, state]) => [key, toManifestState(state)]),
         ),
         gitignore,
         projects: discovered,

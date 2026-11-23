@@ -24,10 +24,7 @@ export default {
         'businessEventService',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -61,6 +58,8 @@ export default {
             showLanguageNotAssignedToSalesChannelWarning: false,
             triggerEvent: null,
             triggerEvents: [],
+            triggerEventsPromise: Promise.resolve(),
+            isTriggerEventSelectedByUser: false,
         };
     },
 
@@ -129,6 +128,10 @@ export default {
             return this.repositoryFactory.create('mail_template_type');
         },
 
+        flowRepository() {
+            return this.repositoryFactory.create('flow');
+        },
+
         testMailRequirementsMet() {
             return (
                 this.testerMail &&
@@ -183,6 +186,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Method will be removed */
         hasTemplateData() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-detail.hasTemplateData is deprecated. Method will be removed.',
+            );
+
             return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
         },
 
@@ -276,7 +284,7 @@ export default {
         },
 
         loadTriggerEvents() {
-            this.businessEventService.getBusinessEvents().then((events) => {
+            this.triggerEventsPromise = this.businessEventService.getBusinessEvents().then((events) => {
                 this.triggerEvents = events
                     .filter((event) => event.aware.includes('mailAware'))
                     .map((event) => ({
@@ -295,6 +303,37 @@ export default {
                         },
                     }));
             });
+        },
+
+        async preselectTriggerEvent(mailTemplateTypeId) {
+            if (this.isTriggerEventSelectedByUser || !this.acl.can('flow:read')) {
+                return;
+            }
+
+            const mailTemplateCriteria = new Criteria(1, null);
+            mailTemplateCriteria.addFilter(Criteria.equals('mailTemplateTypeId', mailTemplateTypeId));
+
+            const { data: mailTemplateIds } = await this.mailTemplateRepository.searchIds(mailTemplateCriteria);
+
+            const flowCriteria = new Criteria(1, null);
+            flowCriteria.addFilter(Criteria.equals('active', true));
+            flowCriteria.addFilter(Criteria.equalsAny('sequences.config.mailTemplateId', mailTemplateIds));
+
+            const flows = mailTemplateIds.length ? await this.flowRepository.search(flowCriteria) : [];
+
+            await this.triggerEventsPromise;
+
+            if (this.isTriggerEventSelectedByUser || this.selectedType?.id !== mailTemplateTypeId) {
+                return;
+            }
+
+            const eventNames = new Set(
+                flows
+                    .map((flow) => flow.eventName)
+                    .filter((eventName) => this.triggerEvents.some((event) => event.name === eventName)),
+            );
+
+            this.setTriggerEvent(eventNames.size === 1 ? [...eventNames][0] : null);
         },
 
         getTriggerEventNameTranslated(eventName) {
@@ -486,6 +525,11 @@ export default {
         },
 
         onTriggerEventChange(eventName) {
+            this.isTriggerEventSelectedByUser = true;
+            this.setTriggerEvent(eventName);
+        },
+
+        setTriggerEvent(eventName) {
             this.triggerEvent = this.triggerEvents.find((event) => event.name === eventName);
             this.availableVariables = {};
             this.mailPreview = null;
@@ -547,6 +591,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Method will be removed */
         mailPreviewContent() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-detail.mailPreviewContent() is deprecated. Method will be removed.',
+            );
+
             const mailTemplate = { ...this.mailTemplate };
 
             if (mailTemplate.contentHtml) {
@@ -570,6 +619,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Method will be removed */
         replaceContent(string) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-mail-template-detail.replaceContent() is deprecated. Method will be removed.',
+            );
+
             // Replace .at([index]), first -> `.[index]` to suitable with mail template data
             return string
                 .replace(/\.at\(([0-9]*)\)\./g, (matchs) => {
@@ -639,6 +693,7 @@ export default {
             try {
                 await this.getMailTemplateType();
                 this.selectedType = await this.mailTemplateTypeRepository.get(id);
+                this.preselectTriggerEvent(id);
                 this.loadInitialAvailableVariables();
                 this.outerCompleterFunction();
             } catch (e) {
@@ -770,14 +825,7 @@ export default {
             variables.splice(1, 0, 'properties');
             const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
 
-            return (
-                field &&
-                field.type === 'association' &&
-                [
-                    'one_to_many',
-                    'many_to_many',
-                ].includes(field.relation)
-            );
+            return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
         },
 
         onGetTreeItems(parent) {

@@ -123,7 +123,7 @@ class CategoryIndexingConcurrencyTest extends TestCase
         $this->seedSeoUrlPool();
 
         $this->assertNoDeadlocksWhile(
-            fn (int $worker) => $this->generateSeoUrls($worker),
+            $this->generateSeoUrls(...),
             'wrote overlapping seo_url rows concurrently',
         );
     }
@@ -234,7 +234,7 @@ class CategoryIndexingConcurrencyTest extends TestCase
         return 0;
     }
 
-    private function generateSeoUrls(int $worker): void
+    private function generateSeoUrls(): void
     {
         $context = Context::createDefaultContext();
         $salesChannel = new SalesChannelEntity();

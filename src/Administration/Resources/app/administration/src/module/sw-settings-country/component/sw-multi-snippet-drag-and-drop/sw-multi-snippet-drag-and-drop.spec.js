@@ -59,11 +59,7 @@ async function createWrapper(customPropsData = {}) {
             },
 
             props: {
-                value: [
-                    'address/company',
-                    'symbol/dash',
-                    'address/department',
-                ],
+                value: ['address/company', 'symbol/dash', 'address/department'],
                 totalLines: 3,
                 linePosition: 0,
                 ...customPropsData,
@@ -91,10 +87,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['add-new-line']).toBeTruthy();
-        expect(wrapper.emitted()['add-new-line'][0]).toEqual([
-            0,
-            'above',
-        ]);
+        expect(wrapper.emitted()['add-new-line'][0]).toEqual([0, 'above']);
     });
 
     it('should emit `add new line` when adding a new row below', async () => {
@@ -105,10 +98,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['add-new-line']).toBeTruthy();
-        expect(wrapper.emitted()['add-new-line'][0]).toEqual([
-            0,
-            'below',
-        ]);
+        expect(wrapper.emitted()['add-new-line'][0]).toEqual([0, 'below']);
     });
 
     it('should emit `location move` when move row to top', async () => {
@@ -119,10 +109,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['position-move']).toBeTruthy();
-        expect(wrapper.emitted()['position-move'][0]).toEqual([
-            0,
-            0,
-        ]);
+        expect(wrapper.emitted()['position-move'][0]).toEqual([0, 0]);
     });
 
     it('should emit `location move` when move row to bottom', async () => {
@@ -133,10 +120,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await menuContextButton.trigger('click');
 
         expect(wrapper.emitted()['position-move']).toBeTruthy();
-        expect(wrapper.emitted()['position-move'][0]).toEqual([
-            0,
-            null,
-        ]);
+        expect(wrapper.emitted()['position-move'][0]).toEqual([0, null]);
     });
 
     it('should emit `change` when delete current line', async () => {
@@ -159,13 +143,7 @@ describe('src/module/sw-settings-country/component/sw-multi-snippet-drag-and-dro
         await button.find('.sw-label__dismiss').trigger('click');
 
         expect(wrapper.emitted('update:value')).toBeTruthy();
-        expect(wrapper.emitted('update:value')[0]).toEqual([
-            0,
-            [
-                'symbol/dash',
-                'address/department',
-            ],
-        ]);
+        expect(wrapper.emitted('update:value')[0]).toEqual([0, ['symbol/dash', 'address/department']]);
     });
 
     it('should render the selection input inside the expected wrapper', async () => {

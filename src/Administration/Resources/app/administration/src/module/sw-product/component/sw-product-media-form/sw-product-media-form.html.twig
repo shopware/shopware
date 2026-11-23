@@ -56,20 +56,25 @@
             :style="gridAutoRows"
         >
             {% block sw_product_media_form_grid_items %}
-            <sw-product-image
+            <template
                 v-for="mediaItem in mediaItems"
                 :key="mediaItem.id"
-                v-draggable="{ dragGroup: 'product-media', data: mediaItem, onDragEnter: onMediaItemDragSort }"
-                v-droppable="{ dragGroup: 'product-media', data: mediaItem }"
-                :is-cover="isCover(mediaItem)"
-                :is-spatial="isSpatial(mediaItem)"
-                :is-ar-ready="isArReady(mediaItem)"
-                :is-placeholder="mediaItem.isPlaceholder"
-                :media-id="mediaItem.mediaId"
-                :show-cover-label="showCoverLabel"
-                @sw-product-image-delete="removeFile(mediaItem)"
-                @sw-product-image-cover="markMediaAsCover(mediaItem)"
-            />
+            >
+                {% block sw_product_media_form_grid_item %}
+                <sw-product-image
+                    v-draggable="{ dragGroup: 'product-media', data: mediaItem, onDragEnter: onMediaItemDragSort }"
+                    v-droppable="{ dragGroup: 'product-media', data: mediaItem }"
+                    :is-cover="isCover(mediaItem)"
+                    :is-spatial="isSpatial(mediaItem)"
+                    :is-ar-ready="isArReady(mediaItem)"
+                    :is-placeholder="mediaItem.isPlaceholder"
+                    :media-id="mediaItem.mediaId"
+                    :show-cover-label="showCoverLabel"
+                    @sw-product-image-delete="removeFile(mediaItem)"
+                    @sw-product-image-cover="markMediaAsCover(mediaItem)"
+                />
+                {% endblock %}
+            </template>
             {% endblock %}
         </div>
         <sw-loader v-else />

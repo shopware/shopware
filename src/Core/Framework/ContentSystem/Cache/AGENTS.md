@@ -1,11 +1,5 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
+## Where to look
 
-## Constraints
-
-- `RenderingCacheContext` created in route, passed through pipeline — tags accumulate, `disable()` is irreversible
-- Supported entities: product, category, landing_page, cms_page, product_stream — all others cause uncacheable
-- Invalidation triggers: `EntityWrittenContainerEvent` for content_layout + all 5 assignment tables
-- Table names come from the definitions' `ENTITY_NAME`; the two Storefront-owned section tables arrive via the
-  `shopware.content_system.section_assignment_entities` parameter, never as a literal in Core
+- Rendering cache context lifecycle, supported entities and their cache tag patterns: [README.md](README.md#key-classes), [README.md](README.md#cache-tag-patterns)
+- Entity writes that invalidate cached pages: [README.md](README.md#invalidation)
+- Mapping-specific media dependencies and custom-field metadata invalidation, scoped to layouts attempting those mappings: [README.md](README.md#cache-tag-patterns), [README.md](README.md#invalidation)

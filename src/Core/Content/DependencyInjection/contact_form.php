@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\DependencyInjection;
 use Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\ContactForm\Validation\ContactFormValidationFactory;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -31,5 +32,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RequestStack::class),
             service('shopware.rate_limiter'),
             service(CmsFormSlotConfigResolver::class),
+            service(ExtensionDispatcher::class),
         ]);
 };

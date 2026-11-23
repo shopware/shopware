@@ -39,11 +39,15 @@ class FeatureFlagExtensionTest extends TestCase
         string $exceptionClass,
         string $exceptionMessage
     ): void {
+        $namespacesBefore = FeatureFlagExtension::getTestNamespaces();
+
         $this->expectExceptionObject(new $exceptionClass($exceptionMessage));
 
-        FeatureFlagExtension::addTestNamespace($namespace);
-
-        static::assertNotContains($namespace, FeatureFlagExtension::getTestNamespaces());
+        try {
+            FeatureFlagExtension::addTestNamespace($namespace);
+        } finally {
+            static::assertSame($namespacesBefore, FeatureFlagExtension::getTestNamespaces());
+        }
     }
 
     /**
@@ -97,6 +101,12 @@ class FeatureFlagExtensionTest extends TestCase
             'valid\namespace\without\backslash\at\the\end',
             \InvalidArgumentException::class,
             'Namespace must be a valid PHP namespace ending with a backslash like this "Shopware\Tests\Unit\", "valid\namespace\without\backslash\at\the\end" given.',
+        ];
+
+        yield 'namespace with a trailing newline' => [
+            "Valid\\Namespace\\\n",
+            \InvalidArgumentException::class,
+            "Namespace must be a valid PHP namespace ending with a backslash like this \"Shopware\\Tests\\Unit\\\", \"Valid\\Namespace\\\n\" given.",
         ];
 
         yield 'namespace already present' => [

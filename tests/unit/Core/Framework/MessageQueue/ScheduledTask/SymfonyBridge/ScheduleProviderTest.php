@@ -44,7 +44,7 @@ class ScheduleProviderTest extends TestCase
         $mockClock->sleep(20);
         $messages = iterator_to_array($generator->getMessages(), false);
 
-        static::assertEmpty($initialmessages);
+        static::assertCount(0, $initialmessages);
         static::assertCount(3, $messages);
 
         static::assertInstanceOf(ScheduledTask::class, $messages[0]);
@@ -94,7 +94,7 @@ class ScheduleProviderTest extends TestCase
         $mockClock->sleep(20);
         $messages = iterator_to_array($generator->getMessages(), false);
 
-        static::assertEmpty($initialmessages);
+        static::assertCount(0, $initialmessages);
         static::assertCount(2, $messages);
 
         static::assertInstanceOf(ScheduledTask::class, $messages[0]);

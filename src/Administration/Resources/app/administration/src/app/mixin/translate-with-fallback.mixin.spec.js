@@ -13,9 +13,7 @@ async function createWrapper({ locale, $te, $t } = {}) {
     return mount(
         {
             template: '<div class="sw-mock"></div>',
-            mixins: [
-                Shopware.Mixin.getByName('translate-with-fallback'),
-            ],
+            mixins: [Shopware.Mixin.getByName('translate-with-fallback')],
         },
         {
             global: {

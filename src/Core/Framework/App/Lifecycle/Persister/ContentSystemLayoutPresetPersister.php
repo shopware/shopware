@@ -8,7 +8,7 @@ use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppConten
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\ContentSystemLayoutPresetAppLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\Dto\LayoutPresetSpecificationDto;
@@ -34,7 +34,7 @@ class ContentSystemLayoutPresetPersister
      */
     public function __construct(
         private readonly EntityRepository $presetRepository,
-        private readonly YamlLayoutPresetLoader $loader,
+        private readonly ContentSystemLayoutPresetAppLoader $appPresetLoader,
         private readonly LayoutPresetSpecificationSerializer $serializer,
         private readonly AbstractContentSystemLayoutPresetRegistry $registry,
         private readonly Connection $connection,
@@ -98,7 +98,7 @@ class ContentSystemLayoutPresetPersister
         $presetsDir = $context->appFilesystem->path(self::PRESETS_DIRECTORY);
 
         try {
-            return $this->loader->loadDtosFromDirectory($presetsDir, 'app:' . $context->app->getName(), $context->app->getName());
+            return $this->appPresetLoader->load($presetsDir, $context->app->getName());
         } catch (ContentSystemException $e) {
             throw AppException::contentSystemLayoutPresetLoadFailed(self::PRESETS_DIRECTORY, $e->getMessage(), $e);
         }

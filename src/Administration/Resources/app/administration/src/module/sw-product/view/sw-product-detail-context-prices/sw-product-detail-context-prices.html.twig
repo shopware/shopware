@@ -306,7 +306,7 @@
         {% block sw_product_detail_prices_price_empty_state %}
         <mt-empty-state
             class="sw-product-detail-context-prices__empty-state"
-            :centered="true"
+            centered
             icon="regular-money-bill"
             :headline="$t('sw-product.detail.tabAdvancedPrices')"
             :description="emptyStateDescription"
@@ -324,7 +324,7 @@
                     <mt-switch
                         v-model="isInherited"
                         class="sw-product-detail-context-prices__inherit-switch"
-                        :disabled="!acl.can('product.editor')"
+                        :disabled="isInherited || !acl.can('product.editor')"
                     />
                     <sw-inheritance-switch
                         class="sw-product-detail-context-prices__inheritance-icon"

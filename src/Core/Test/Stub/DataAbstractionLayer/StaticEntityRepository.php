@@ -63,6 +63,13 @@ class StaticEntityRepository extends EntityRepository
     public array $deletes = [];
 
     /**
+     * Each `search()` and `searchIds()` call appends a clone of the criteria it was given.
+     *
+     * @var list<Criteria>
+     */
+    public array $searchedCriteria = [];
+
+    /**
      * @param array<SearchCallable|ResultTypes> $searches
      */
     public function __construct(
@@ -109,6 +116,7 @@ class StaticEntityRepository extends EntityRepository
      */
     public function search(Criteria $criteria, Context $context): EntitySearchResult
     {
+        $this->searchedCriteria[] = clone $criteria;
         $result = \array_shift($this->searches);
         $callable = $result;
 
@@ -142,12 +150,21 @@ class StaticEntityRepository extends EntityRepository
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $this->searchedCriteria[] = clone $criteria;
         $result = \array_shift($this->searches);
         $callable = $result;
 
         if (\is_callable($callable)) {
             /** @var SearchCallable $callable */
             $result = $callable($criteria, $context);
+        }
+
+        if (\is_array($result) && ($result[0] ?? null) instanceof Entity) {
+            $result = new EntityCollection($result);
+        }
+
+        if ($result instanceof EntityCollection) {
+            $result = array_values($result->getIds());
         }
 
         if ($result instanceof IdSearchResult) {
@@ -169,6 +186,23 @@ class StaticEntityRepository extends EntityRepository
 
         /** @phpstan-ignore return.type (Somehow does not get the generic type correct) */
         return new IdSearchResult(\count($result), $result, $criteria, $context);
+    }
+
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
+    {
+        $this->searchedCriteria[] = clone $criteria;
+        $result = \array_shift($this->searches);
+
+        if (\is_callable($result)) {
+            /** @var SearchCallable $result */
+            $result = $result($criteria, $context, $this);
+        }
+
+        if (!$result instanceof AggregationResultCollection) {
+            throw new \RuntimeException('Invalid mock repository configuration');
+        }
+
+        return $result;
     }
 
     public function create(array $data, Context $context): EntityWrittenContainerEvent

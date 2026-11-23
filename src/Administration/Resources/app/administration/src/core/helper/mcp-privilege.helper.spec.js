@@ -77,10 +77,7 @@ describe('computePrivilegeChips', () => {
                     'order:update',
                 ],
             }),
-        ).toStrictEqual([
-            'product:read',
-            'order:update',
-        ]);
+        ).toStrictEqual(['product:read', 'order:update']);
     });
 
     it('expands entity/operation pairs into dynamic chips', () => {
@@ -88,15 +85,8 @@ describe('computePrivilegeChips', () => {
             computePrivilegeChips({
                 static: ['product:read'],
                 entityParam: 'entity',
-                operations: [
-                    'read',
-                    'update',
-                ],
+                operations: ['read', 'update'],
             }),
-        ).toStrictEqual([
-            'product:read',
-            '<entity>:read',
-            '<entity>:update',
-        ]);
+        ).toStrictEqual(['product:read', '<entity>:read', '<entity>:update']);
     });
 });

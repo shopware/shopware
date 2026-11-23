@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Content\Media\MediaUrlPlaceholderHandlerInterface;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\Gateway\Context\Command\Handler\RegisterCustomerComm
 use Shopware\Core\Framework\Gateway\Context\Command\Registry\ContextGatewayCommandRegistry;
 use Shopware\Core\Framework\Gateway\Context\SalesChannel\ContextGatewayRoute;
 use Shopware\Core\Framework\Log\ExceptionLogger;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
@@ -52,6 +54,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
+use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
@@ -78,10 +81,13 @@ use Shopware\Core\System\SalesChannel\File\Loader\SalesChannelFileLoader;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileRenderer;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileStoreApiMcpSubscriber;
 use Shopware\Core\System\SalesChannel\File\Rendering\SalesChannelFileTemplateOverrideLoader;
+use Shopware\Core\System\SalesChannel\File\SalesChannel\SalesChannelFileRoute;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileNotFoundSubscriber;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileRequestPathResolver;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileTemplateResolver;
+use Shopware\Core\System\SalesChannel\ProductAssignment\Api\SalesChannelProductAssignmentController;
+use Shopware\Core\System\SalesChannel\ProductAssignment\SalesChannelProductAssigner;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher;
@@ -96,6 +102,7 @@ use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
@@ -188,6 +195,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelFileStoreApiMcpSubscriber::class)
         ->args([
             service('router'),
+            env('APP_URL'),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -208,11 +216,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(SalesChannelFileNotFoundSubscriber::class)
         ->args([
-            service(SalesChannelFileLoader::class),
+            service(SalesChannelFileRoute::class),
             service(SalesChannelFileRequestPathResolver::class),
             service(SalesChannelContextRequestRestorer::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SalesChannelFileRoute::class)
+        ->public()
+        ->args([
+            service(SalesChannelFileLoader::class),
+            service(SalesChannelFileRequestPathResolver::class),
+            service(ExtensionDispatcher::class),
+        ]);
 
     $services->set(SalesChannelFileController::class)
         ->public()
@@ -224,6 +240,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->call('setContainer', [
             service('service_container'),
+        ]);
+
+    $services->set(SalesChannelProductAssigner::class)
+        ->args([
+            service('product.repository'),
+            service('product_visibility.repository'),
+            service('sales_channel.repository'),
+            service(ProductStreamBuilder::class),
+        ]);
+
+    $services->set(SalesChannelProductAssignmentController::class)
+        ->public()
+        ->args([
+            service(SalesChannelProductAssigner::class),
         ]);
 
     $services->set(SalesChannelContextPersister::class)
@@ -252,6 +282,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service('currency_country_rounding.repository'),
             service(BaseSalesChannelContextFactory::class),
+            service('country.repository'),
         ]);
 
     $services->set(BaseSalesChannelContextFactory::class)
@@ -337,7 +368,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelContextSwitcher::class)
         ->args([
             service(ContextSwitchRoute::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ContextSwitchRoute::class)
         ->public()
@@ -346,10 +378,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SalesChannelContextPersister::class),
             service('event_dispatcher'),
             service(SalesChannelContextService::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ContextRoute::class)
-        ->public();
+        ->public()
+        ->args([
+            service(ExtensionDispatcher::class),
+        ]);
 
     $services->set(SalesChannelDefinitionInstanceRegistry::class)
         ->public()
@@ -414,8 +450,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SalesChannelValidator::class)
         ->args([
             service(Connection::class),
+            service(SalesChannelTypeCapabilityRegistry::class),
         ])
         ->tag('kernel.event_subscriber');
+
+    $services->set(SalesChannelTypeCapabilityRegistry::class)
+        ->args([
+            tagged_iterator('shopware.sales_channel.type_capabilities'),
+        ]);
 
     $services->set(SalesChannelTypeValidator::class)
         ->tag('kernel.event_subscriber');
@@ -437,6 +479,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(AppContextGateway::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ContextGatewayCommandValidator::class)
@@ -503,8 +546,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.context.gateway.command');
 
     $services->set(SalesChannelMaintenanceIpAllowlistSyncSubscriber::class)
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     // Telemetry: shared sales_channel_type label resolver (cart calculation, order placed metrics)
-    $services->set(SalesChannelTypeResolver::class);
+    $services->set(SalesChannelTypeResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 };

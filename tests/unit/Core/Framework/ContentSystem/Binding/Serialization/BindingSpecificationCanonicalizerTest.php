@@ -208,6 +208,34 @@ class BindingSpecificationCanonicalizerTest extends TestCase
         );
     }
 
+    #[TestDox('FQCN derivation counts duplicate registry entries for one entity name only once')]
+    public function testDerivationIgnoresDuplicateEntriesForTheSameEntityName(): void
+    {
+        $salesChannelDefinition = static::createStub(SalesChannelProductDefinition::class);
+        $salesChannelDefinition->method('getEntityClass')->willReturn(SalesChannelProductEntity::class);
+
+        $salesChannelRegistry = static::createStub(SalesChannelDefinitionInstanceRegistry::class);
+        $salesChannelRegistry->method('getSalesChannelDefinitions')->willReturn(['product' => $salesChannelDefinition]);
+
+        $canonicalizer = $this->canonicalizer(
+            ['image' => $this->typeSpec('image', ['item' => $this->reference(SalesChannelProductEntity::class)])],
+            $this->map(['entity' => [$this->capability(SalesChannelProductEntity::class, ['entity' => 'product'])]], ['entity' => $this->entitySpec()]),
+            [
+                'product' => $this->entityDefinition('product', ProductEntity::class),
+                'product_alias' => $this->entityDefinition('product', ProductEntity::class),
+            ],
+            $salesChannelRegistry,
+        );
+
+        $result = $canonicalizer->canonicalize($this->dto('image', ['item' => ['entity' => ['property' => 'productId']]]), 'binding');
+
+        static::assertIsArray($result->resolves);
+        static::assertSame(
+            ['loader' => 'entity', 'config' => ['property' => 'productId', 'entity' => 'product']],
+            $result->resolves['item'],
+        );
+    }
+
     #[TestDox('FQCN derivation: a mapping-entity definition producing the class is skipped, so it does not create a false ambiguity')]
     public function testDerivationSkipsMappingEntityDefinitions(): void
     {

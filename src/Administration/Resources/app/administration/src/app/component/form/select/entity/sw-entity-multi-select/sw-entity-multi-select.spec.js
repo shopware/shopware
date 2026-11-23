@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -38,6 +38,24 @@ const propertyFixture = [
     },
 ];
 
+const categoryFixture = [
+    {
+        id: 'ae12b3c2-8236-4eb2-84a1-b933863a7906',
+        name: 'Jackets',
+        breadcrumb: ['Ladies', 'Jackets'],
+        group: { name: 'Clothing' },
+        childCount: 0,
+    },
+    {
+        id: 'ae12b3c2-8236-4eb2-84a1-b933863a7907',
+        name: 'Jacken',
+        breadcrumb: null,
+        translated: { breadcrumb: ['Gents', 'Jackets'] },
+        group: { name: 'Clothing' },
+        childCount: 2,
+    },
+];
+
 function getCollection() {
     return new EntityCollection(
         '/test-entity',
@@ -58,6 +76,18 @@ function getPropertyCollection() {
         { isShopwareContext: true },
         propertyFixture,
         propertyFixture.length,
+        null,
+    );
+}
+
+function getCategoryCollection() {
+    return new EntityCollection(
+        '/category',
+        'category',
+        null,
+        { isShopwareContext: true },
+        categoryFixture,
+        categoryFixture.length,
         null,
     );
 }
@@ -85,7 +115,6 @@ const createWrapper = async (customOptions = {}) => {
                 'sw-color-badge': true,
                 'mt-loader': true,
                 'sw-loader-deprecated': true,
-                'mt-floating-ui': true,
             },
             provide: {
                 repositoryFactory: {
@@ -138,9 +167,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual([
-            'first',
-        ]);
+        expect(swEntityMultiSelect.emitted('search-term-change')[0]).toEqual(['first']);
     });
 
     it('should not display variations', async () => {
@@ -205,11 +232,66 @@ describe('components/sw-entity-multi-select', () => {
         await wrapper.find('input').trigger('change');
         await flushPromises();
 
-        const firstListEntry = wrapper.findAll('.sw-select-result-list__item-list li').at(0);
+        const firstListEntry = new DOMWrapper(document.body).get('.sw-select-result-list__item-list li');
 
         expect(firstListEntry.classes()).toContain('has--description');
         expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
         expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
+    });
+
+    it.each([
+        ['no description property', {}, ['', '']],
+        ['the description property', { descriptionProperty: 'group.name' }, ['Clothing', 'Clothing']],
+        [
+            'the formatted description property with translated fallback',
+            { descriptionProperty: 'breadcrumb', descriptionFormatter: 'breadcrumb' },
+            ['Ladies / Jackets', 'Gents / Jackets'],
+        ],
+        [
+            'the formatter arguments',
+            { descriptionProperty: 'breadcrumb', descriptionFormatter: 'breadcrumb', descriptionFormatterArgs: [' > '] },
+            ['Ladies > Jackets', 'Gents > Jackets'],
+        ],
+        [
+            'the raw value for an unknown formatter',
+            { descriptionProperty: 'group.name', descriptionFormatter: 'unknown' },
+            ['Clothing', 'Clothing'],
+        ],
+        ['falsy values', { descriptionProperty: 'childCount' }, ['0', '2']],
+        [
+            'no formatter call for a missing value',
+            { descriptionProperty: 'missing', descriptionFormatter: 'currency' },
+            ['', ''],
+        ],
+    ])('should render result descriptions using %s', async (_, props, expected) => {
+        const wrapper = await createWrapper({
+            props: {
+                entity: 'category',
+                entityCollection: getCategoryCollection(),
+                ...props,
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            search: () => Promise.resolve(getCategoryCollection()),
+                        }),
+                    },
+                },
+            },
+        });
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        await wrapper.find('input').trigger('change');
+        await flushPromises();
+
+        const descriptions = new DOMWrapper(document.body)
+            .findAll('.sw-select-result-list__item-list li .sw-select-result__result-item-description')
+            .map((description) => description.text());
+
+        expect(descriptions).toEqual(expected);
+
+        wrapper.unmount();
     });
 
     it('should render select indicator', async () => {
@@ -243,7 +325,7 @@ describe('components/sw-entity-multi-select', () => {
         await swEntityMultiSelect.find('input').trigger('change');
         await flushPromises();
 
-        expect(swEntityMultiSelect.find('.sw-select-result-list__item-list li .mt-icon')).toBeDefined();
+        expect(new DOMWrapper(document.body).find('.sw-select-result-list__item-list li .mt-icon').exists()).toBeTruthy();
     });
 
     it('should be possible to clear the selection', async () => {

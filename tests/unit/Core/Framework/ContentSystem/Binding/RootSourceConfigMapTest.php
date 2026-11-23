@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(RootSourceConfigMap::class)]
 class RootSourceConfigMapTest extends TestCase
 {
-    #[TestDox('scopeMap returns the inner map, and isScoped is true, for a scoped value')]
+    #[TestDox('returns the inner map, and reports the value as scoped')]
     public function testScopedValue(): void
     {
         $inner = ['product' => 'productId', 'category' => 'categoryId'];
@@ -27,7 +27,7 @@ class RootSourceConfigMapTest extends TestCase
     }
 
     #[DataProvider('nonScopedValueProvider')]
-    #[TestDox('scopeMap returns null, and isScoped is false, for $_dataName')]
+    #[TestDox('returns null, and reports the value as not scoped, for $_dataName')]
     public function testNonScopedValue(mixed $value): void
     {
         static::assertNull(RootSourceConfigMap::scopeMap($value));
@@ -49,16 +49,30 @@ class RootSourceConfigMapTest extends TestCase
         yield 'the marker wrapping a non-array' => [[RootSourceConfigMap::MARKER => 'productId']];
     }
 
-    #[TestDox('collapse leaves non-scoped config values untouched')]
-    public function testCollapseLeavesNonScopedUntouched(): void
+    #[DataProvider('namedOrNullRootSourceProvider')]
+    #[TestDox('returns a config without a scoped value unchanged for $_dataName')]
+    public function testCollapseLeavesNonScopedUntouched(?string $rootSource): void
     {
         $config = ['entity' => 'media', 'associations' => ['manufacturer'], 'referrer' => '{{x}}'];
 
-        static::assertSame($config, RootSourceConfigMap::collapse($config, 'product'));
+        static::assertSame($config, RootSourceConfigMap::collapse($config, $rootSource));
     }
 
-    #[TestDox('collapse picks the value for the given root source from each scoped map')]
-    public function testCollapsePicksRootSourceValue(): void
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function namedOrNullRootSourceProvider(): iterable
+    {
+        yield 'a named root source' => ['category'];
+        yield 'a null root source' => [null];
+    }
+
+    /**
+     * @param array<string, mixed> $expected
+     */
+    #[DataProvider('collapsePicksProvider')]
+    #[TestDox('picks the value for the given root source from each scoped map: $_dataName')]
+    public function testCollapsePicksRootSourceValue(string $rootSource, array $expected): void
     {
         $config = [
             'entity' => 'media',
@@ -66,79 +80,90 @@ class RootSourceConfigMapTest extends TestCase
             'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
         ];
 
-        static::assertSame(
-            ['entity' => 'media', 'property' => 'productId', 'type' => 'product'],
-            RootSourceConfigMap::collapse($config, 'product'),
-        );
-
-        static::assertSame(
-            ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category'],
-            RootSourceConfigMap::collapse($config, 'category'),
-        );
+        static::assertSame($expected, RootSourceConfigMap::collapse($config, $rootSource));
     }
 
-    #[TestDox('collapse drops a scoped key whose map has no entry for the root source')]
-    public function testCollapseDropsScopedKeyWithoutRootSourceEntry(): void
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function collapsePicksProvider(): iterable
     {
-        $config = [
-            'entity' => 'media',
-            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
-        ];
-
-        static::assertSame(['entity' => 'media'], RootSourceConfigMap::collapse($config, 'category'));
+        yield 'product' => ['product', ['entity' => 'media', 'property' => 'productId', 'type' => 'product']];
+        yield 'category' => ['category', ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category']];
     }
 
-    #[TestDox('collapse drops every scoped key when no root source is given')]
-    public function testCollapseDropsScopedKeysWhenRootSourceNull(): void
-    {
-        $config = [
-            'entity' => 'media',
-            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
-        ];
-
-        static::assertSame(['entity' => 'media'], RootSourceConfigMap::collapse($config, null));
-    }
-
-    #[TestDox('branches returns the config as a single branch when it carries no scoped map')]
-    public function testBranchesReturnsSingleBranchForUnscopedConfig(): void
-    {
-        $config = ['entity' => 'media', 'property' => 'mediaId'];
-
-        static::assertSame([$config], RootSourceConfigMap::branches($config));
-    }
-
-    #[TestDox('branches returns a single empty branch for an empty config')]
-    public function testBranchesReturnsSingleBranchForEmptyConfig(): void
-    {
-        static::assertSame([[]], RootSourceConfigMap::branches([]));
-    }
-
-    #[TestDox('branches returns one collapsed config per root source a scoped map names')]
+    #[TestDox('returns one collapsed config per root source, in the order the scoped maps first name them')]
     public function testBranchesCollapsesOnePerRootSource(): void
     {
         $config = [
-            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
-            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
+            'entity' => 'media',
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId', 'landing_page' => 'landingPageId']],
+            'type' => [RootSourceConfigMap::MARKER => ['landing_page' => 'landing_page', 'product' => 'product', 'category' => 'category']],
+            'variant' => [RootSourceConfigMap::MARKER => ['category' => 'narrow', 'landing_page' => 'wide', 'product' => 'square']],
             'referrerCategoryProperty' => '{{referrerCategoryId}}',
         ];
 
         static::assertSame([
-            ['property' => 'productId', 'type' => 'product', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
-            ['property' => 'categoryId', 'type' => 'category', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+            ['entity' => 'media', 'property' => 'productId', 'type' => 'product', 'variant' => 'square', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+            ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category', 'variant' => 'narrow', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
+            ['entity' => 'media', 'property' => 'landingPageId', 'type' => 'landing_page', 'variant' => 'wide', 'referrerCategoryProperty' => '{{referrerCategoryId}}'],
         ], RootSourceConfigMap::branches($config));
     }
 
-    #[TestDox('branches unions the root sources across scoped maps, dropping a key absent for a branch')]
-    public function testBranchesUnionsRootSourcesAcrossScopedMaps(): void
+    /**
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('singleBranchConfigProvider')]
+    #[TestDox('returns the config as its single branch for $_dataName')]
+    public function testBranchesReturnsSingleBranch(array $config): void
+    {
+        static::assertSame([$config], RootSourceConfigMap::branches($config));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function singleBranchConfigProvider(): iterable
+    {
+        yield 'a config without a scoped map' => [['entity' => 'media', 'property' => 'mediaId']];
+        yield 'an empty config' => [[]];
+        yield 'a config whose scoped maps are all empty' => [['entity' => 'media', 'property' => [RootSourceConfigMap::MARKER => []]]];
+    }
+
+    #[DataProvider('namedOrNullRootSourceProvider')]
+    #[TestDox('returns null when the scoped map has no entry for $_dataName')]
+    public function testCollapseReturnsNullWithoutRootSourceEntry(?string $rootSource): void
     {
         $config = [
-            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
-            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+            'entity' => 'media',
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId']],
         ];
 
-        static::assertSame([
-            ['property' => 'productId', 'type' => 'product'],
-            ['property' => 'categoryId'],
-        ], RootSourceConfigMap::branches($config));
+        static::assertNull(RootSourceConfigMap::collapse($config, $rootSource));
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    #[DataProvider('differentRootSourceSetsProvider')]
+    #[TestDox('returns null when a key is scoped over fewer root sources than its sibling: $_dataName')]
+    public function testBranchesReturnsNullForScopedMapsNamingDifferentRootSources(array $config): void
+    {
+        static::assertNull(RootSourceConfigMap::branches($config));
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function differentRootSourceSetsProvider(): iterable
+    {
+        yield 'the narrower map second' => [[
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+        ]];
+        yield 'the narrower map first' => [[
+            'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+            'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+        ]];
     }
 }

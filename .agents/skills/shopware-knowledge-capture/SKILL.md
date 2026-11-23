@@ -1,6 +1,13 @@
 ---
 name: shopware-knowledge-capture
-description: Preserve Shopware knowledge for later. Use when the user asks to save, remember, preserve, document, or store information, rules, lessons learned, workflow knowledge, coding guidance, or agent instructions for future humans or agents.
+description: >
+  Save Shopware knowledge for later humans or agents. Use when the user says "remember
+  this", "remember for next time", "save this lesson", "note this down", "document this
+  rule", "add this to the guidelines", "put this in AGENTS.md", "write an ADR", "store
+  this workflow", or asks where a rule, convention, setup note, or agent instruction
+  belongs (AGENTS.md, coding-guidelines, README, ADR, skill, local notes).
+  Also use after a correction or finding that other agents should not repeat. Not for
+  writing code, tests, PR text, or release notes.
 license: MIT
 ---
 
@@ -20,7 +27,7 @@ Put knowledge in the smallest durable home where future readers will naturally f
 
 - `AGENTS.md`: always-needed agent routing, repository conventions, and short rules agents must load before work.
 - Nested `AGENTS.md`: subtree-specific agent rules that must apply automatically when working below that directory.
-- `CLAUDE.md`: Claude Code compatibility bridge. For every tracked `AGENTS.md`, keep a sibling `CLAUDE.md` whose only content is `@AGENTS.md`.
+- No `CLAUDE.md` exists in the repository. Never create one: a single `CLAUDE.md` disables Claude Code's native `AGENTS.md` loading.
 - `coding-guidelines/`: durable normative coding rules, rationale, and examples useful to humans and agents.
 - Existing README: folder-specific human guidance when contributors naturally read that README for the work.
 - ADR: durable decisions with real trade-offs, consequences, or future compatibility impact.
@@ -39,7 +46,7 @@ Put knowledge in the smallest durable home where future readers will naturally f
 ## Guardrails
 
 - Do not add mechanical `AGENTS.md` or `GEMINI.md` stubs just to point at README files.
-- Do not put independent guidance in `CLAUDE.md`; it only imports the sibling `AGENTS.md`.
+- Do not create `CLAUDE.md` files, including at the root; `AGENTS.md` is the only guidance file.
 - Do not duplicate ADR or coding-guideline content in READMEs.
 - Do not add README or AGENTS files just to index `coding-guidelines/`.
 - Keep local setup, Docker worktree notes, approval rules, and personal tool preferences in untracked local notes, not tracked project docs.

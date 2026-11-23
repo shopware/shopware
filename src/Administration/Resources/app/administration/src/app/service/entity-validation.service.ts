@@ -21,7 +21,6 @@ export type ValidationError = {
 /**
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export type CustomValidator = (
     errors: ValidationError[],
     entity: Entity<any>,
@@ -133,8 +132,11 @@ export default class EntityValidationService {
                         errors.push(EntityValidationService.createRequiredError(`/0/${field}/${index}/gross`));
                     }
                 });
+            } else if (
+                value === undefined ||
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            } else if (value === undefined || (fieldDefinition.type === 'string' && value === '')) {
+                (fieldDefinition.type === 'string' && value === '' && !fieldDefinition.flags?.allow_empty_string)
+            ) {
                 // any other field
                 errors.push(EntityValidationService.createRequiredError(`/0/${field}`));
             }

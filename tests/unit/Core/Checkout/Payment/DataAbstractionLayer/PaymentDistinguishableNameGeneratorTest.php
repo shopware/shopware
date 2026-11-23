@@ -135,7 +135,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateWithoutAppOrPlugin(): void
@@ -158,7 +158,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateWithoutPluginLoaded(): void
@@ -187,7 +187,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateWithoutPluginTranslationsLoaded(): void
@@ -217,7 +217,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateApp(): void
@@ -338,7 +338,7 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 
     public function testGenerateAppWithoutAppTranslationLoaded(): void
@@ -373,6 +373,6 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $generator = new PaymentDistinguishableNameGenerator($paymentRepository);
         $generator->generateDistinguishablePaymentNames(Context::createDefaultContext());
 
-        static::assertEmpty($paymentRepository->upserts);
+        static::assertCount(0, $paymentRepository->upserts);
     }
 }

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -107,6 +108,40 @@ class ScriptControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertStringContainsString('My Test-Product', $response->getContent());
         static::assertSame('text/plain; charset=UTF-8', $response->headers->get('content-type'));
+    }
+
+    public function testRenderTemplateThroughASeoUrlCarryingTheQueryParameters(): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps');
+        $ids = new IdsCollection();
+        $this->createProducts($ids);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $domain = $connection->fetchAssociative(
+            'SELECT `sales_channel_id`, `language_id` FROM `sales_channel_domain` WHERE `url` = :url',
+            ['url' => EnvironmentHelper::getVariable('APP_URL')]
+        );
+        static::assertIsArray($domain);
+
+        $connection->insert('seo_url', [
+            'id' => Uuid::randomBytes(),
+            'sales_channel_id' => $domain['sales_channel_id'],
+            'language_id' => $domain['language_id'],
+            'foreign_key' => Uuid::randomBytes(),
+            'route_name' => 'storefront.app.test.render',
+            'path_info' => '/storefront/script/render?product-id=' . $ids->get('p1'),
+            'seo_path_info' => 'my-render-page',
+            'is_canonical' => 1,
+            'is_modified' => 1,
+            'is_deleted' => 0,
+            'created_at' => '2024-01-01 00:00:00.000',
+        ]);
+
+        $response = $this->request('GET', 'my-render-page', []);
+
+        static::assertNotFalse($response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertStringContainsString('My Test-Product', $response->getContent());
     }
 
     public function testRedirectResponseTemplate(): void

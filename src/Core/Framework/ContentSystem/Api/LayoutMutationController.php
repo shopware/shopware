@@ -9,6 +9,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
 use Shopware\Core\Framework\ContentSystem\Mutation\MutationPipeline;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\AttachElement;
@@ -19,8 +20,11 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\UpdateElementProperties;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
+use Shopware\Core\Framework\ContentSystem\Mutation\PropertyMappingMutationFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
@@ -55,6 +59,8 @@ class LayoutMutationController
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingRegistry,
         private readonly BindingApplicator $bindingApplicator,
         private readonly AbstractContentSystemLayoutPresetRegistry $presetRegistry,
+        private readonly PropertyMappingMutationFactory $propertyMappingMutations,
+        private readonly StoredMappingInspector $mappingInspector,
     ) {
     }
 
@@ -95,7 +101,14 @@ class LayoutMutationController
         ReplaceElementRequest $payload,
         Context $context,
     ): Response {
-        $mutation = new ReplaceElement($this->registry, $payload->elementId, $payload->newType, $this->bindingRegistry, $this->bindingApplicator);
+        $mutation = new ReplaceElement(
+            $this->registry,
+            $payload->elementId,
+            $payload->newType,
+            $this->bindingRegistry,
+            $this->bindingApplicator,
+            $this->mappingInspector,
+        );
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
@@ -149,7 +162,7 @@ class LayoutMutationController
     ): Response {
         $preset = $this->presetRegistry->get($payload->presetId);
         $elements = $this->decoder->decode($preset->payload);
-        $mutation = new AttachElements($this->registry, $elements, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot);
+        $mutation = new AttachElements($this->registry, $elements, $this->bindingRegistry, $this->bindingApplicator, $payload->parentElementId, $payload->slot, isNewScaffold: true);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
@@ -165,13 +178,58 @@ class LayoutMutationController
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }
 
+    #[Route(path: '/api/_action/content-system/layout/update-element-properties', name: 'api.action.content_system.layout.update_element_properties', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function updateProperties(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        UpdateElementPropertiesRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new UpdateElementProperties($this->registry, $payload->elementId, $payload->values, $payload->removeKeys);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/translate-element', name: 'api.action.content_system.layout.translate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function translate(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        TranslateElementRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new TranslateElement($this->registry, $payload->elementId, $payload->values);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/map-property', name: 'api.action.content_system.layout.map_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function mapProperty(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        MapPropertyRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = $this->propertyMappingMutations->map($payload->elementId, $payload->propertyKey, MappingSourceRequestDecoder::decode($payload->source));
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/unmap-property', name: 'api.action.content_system.layout.unmap_property', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function unmapProperty(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        UnmapPropertyRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = $this->propertyMappingMutations->unmap($payload->elementId, $payload->propertyKey);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
     /**
      * @param array<int|string, mixed> $layout
      */
     private function respond(LayoutMutation $mutation, array $layout, ?string $rootSource, Context $context): JsonResponse
     {
+        $rootSource = $rootSource === '' ? null : $rootSource;
         $tree = new StoredTree($this->decoder->decode($layout), $rootSource);
-        $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
+        $rootContext = $this->rootSourceRegistry->resolveGated($tree->rootSource, $context);
         $result = $this->pipeline->run($mutation, $tree, $rootContext);
 
         return new JsonResponse(MutationResponse::fromResult($result, $this->elementCodec));

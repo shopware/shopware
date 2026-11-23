@@ -71,7 +71,7 @@ class RefreshMigrationCommand extends Command
 
     private function getCurrentTimestamp(string $filename): string
     {
-        if (!preg_match('/Migration(\d+).*?\.php$/i', $filename, $matches)) {
+        if (!preg_match('/Migration(\d+).*?\.php$/Di', $filename, $matches)) {
             throw MigrationException::couldNotDetermineTimestamp();
         }
 

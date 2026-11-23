@@ -19,10 +19,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -208,6 +205,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         registerFilterSidebarItem(sidebarItem) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-language-list.registerFilterSidebarItem() is deprecated. Will be removed without replacement.',
+            );
+
             this.filterSidebarItem = sidebarItem;
         },
 
@@ -215,6 +217,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         openFilterSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-language-list.openFilterSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             if (!this.filterSidebarItem?.openContent) {
                 return;
             }
@@ -251,10 +258,7 @@ export default {
         },
 
         async loadTranslationMetadata() {
-            const [
-                listResponse,
-                metaResponse,
-            ] = await Promise.all([
+            const [listResponse, metaResponse] = await Promise.all([
                 this.translationService.getList().catch(() => null),
                 this.translationService.getMeta().catch(() => null),
             ]);
@@ -281,6 +285,23 @@ export default {
             }
 
             return this.$t('sw-settings-language.list.salesChannelCount', count);
+        },
+
+        localeLabel(item) {
+            const localeCode = item.locale?.code;
+
+            if (!localeCode) {
+                return '';
+            }
+
+            const metadata = this.translationMetadata[localeCode];
+
+            // Pseudo languages borrow a real locale code, so only their own name describes them
+            if (metadata?.isPseudoLanguage) {
+                return metadata.name;
+            }
+
+            return Shopware.Utils.format.localeName(localeCode);
         },
 
         getSnippetStatus(item) {
@@ -310,25 +331,24 @@ export default {
             this.showAddLanguageModal = false;
 
             const criteria = new Criteria(1, 1);
-            criteria.addAssociation('locale');
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('locale.code', locale));
 
-            const language = (await this.languageRepository.search(criteria)).first();
+            const {
+                data: [languageId],
+            } = await this.languageRepository.searchIds(criteria);
 
-            if (language) {
+            if (languageId) {
                 this.$router.push({
                     name: 'sw.settings.language.detail',
-                    params: { id: language.id },
+                    params: { id: languageId },
                     query: { languageCreated: 'true' },
                 });
 
                 return;
             }
 
-            await Promise.all([
-                this.getList(),
-                this.loadTranslationMetadata(),
-            ]);
+            await Promise.all([this.getList(), this.loadTranslationMetadata()]);
         },
 
         async onUpdateAllSnippets() {
@@ -454,10 +474,7 @@ export default {
 
         invalidateLanguageCaches() {
             Shopware.Service('cacheService').invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'active-languages',
-                ],
+                cacheKey: ['shared-data', 'active-languages'],
             });
         },
 

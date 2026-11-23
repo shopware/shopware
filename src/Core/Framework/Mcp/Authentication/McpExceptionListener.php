@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Mcp\Authentication;
 
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Mcp\Schema\JsonRpc\Error;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -20,6 +23,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  *
  * Without this, a 401 from a wrong access key causes some clients to fall back
  * to non-standard endpoints (e.g. POST /register), making the real error invisible.
+ *
+ * A 401 on the Admin API endpoint also carries `WWW-Authenticate` pointing to the protected resource
+ * metadata (RFC 9728), which is how MCP clients discover the OAuth authorization server.
  */
 #[Package('framework')]
 class McpExceptionListener implements EventSubscriberInterface
@@ -42,6 +48,13 @@ class McpExceptionListener implements EventSubscriberInterface
      * OAuth client registration attempt.
      */
     private const OAUTH_FALLBACK_PATH = '/register';
+
+    private const HEADER_SECRET_ACCESS_KEY = 'sw-secret-access-key';
+
+    public function __construct(
+        private readonly McpOAuthMetadata $oauthMetadata,
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -73,15 +86,55 @@ class McpExceptionListener implements EventSubscriberInterface
     private function handleMcpException(ExceptionEvent $event): void
     {
         $exception = $event->getThrowable();
-        $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        $message = $exception->getMessage();
+
+        if ($exception instanceof OAuthServerException) {
+            // OAuth errors (missing, invalid, or expired bearer token) do not implement getStatusCode()
+            $httpCode = $exception->getHttpStatusCode();
+
+            if ($exception->getHint() !== null) {
+                // the hint names the actual cause, e.g. a missing Authorization header or an expired token
+                $message .= ' ' . $exception->getHint();
+            }
+        } else {
+            $httpCode = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+        }
 
         $error = new Error(
             id: '',
             code: $this->toJsonRpcCode($httpCode),
-            message: $exception->getMessage(),
+            message: $message,
         );
 
-        $event->setResponse(new JsonResponse($error->jsonSerialize(), $httpCode));
+        $response = new JsonResponse($error->jsonSerialize(), $httpCode);
+
+        if ($httpCode === Response::HTTP_UNAUTHORIZED && $event->getRequest()->attributes->get('_route') === self::MCP_ROUTE_NAME) {
+            $response->headers->set('WWW-Authenticate', $this->buildBearerChallenge($event->getRequest()));
+        }
+
+        $event->setResponse($response);
+    }
+
+    /**
+     * RFC 6750 section 3: a request without any credentials gets the challenge without an error code.
+     */
+    private function buildBearerChallenge(Request $request): string
+    {
+        $parameters = [];
+
+        $hasCredentials = $request->headers->has('Authorization')
+            || $request->headers->has(PlatformRequest::HEADER_ACCESS_KEY)
+            || $request->headers->has(self::HEADER_SECRET_ACCESS_KEY);
+
+        if ($hasCredentials) {
+            $parameters[] = 'error="invalid_token"';
+        }
+
+        // the URL keeps the request's query, so escape it for the quoted-string (RFC 9110 §5.6.4)
+        $metadataUrl = addcslashes($this->oauthMetadata->getProtectedResourceMetadataUrl($request), '"\\');
+        $parameters[] = 'resource_metadata="' . $metadataUrl . '"';
+
+        return 'Bearer ' . implode(', ', $parameters);
     }
 
     private function toJsonRpcCode(int $httpCode): int

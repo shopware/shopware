@@ -84,7 +84,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $this->runWorker();
 
         $urls = $this->getSeoUrls($ids->getList(['a', 'b']), $ids->get('sales-channel'));
-        static::assertNotEmpty($urls, 'baseline SEO URLs must exist before the template change');
+        static::assertNotCount(0, $urls, 'baseline SEO URLs must exist before the template change');
         $beforePaths = array_keys($urls);
 
         // Act: change the SEO URL template under Settings > Shop > SEO. The
@@ -118,7 +118,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
             $afterPaths,
             static fn (string $path): bool => str_starts_with($path, 'custom-prefix/')
         ));
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             $regenerated,
             'subscriber must regenerate SEO URLs under the custom prefix after the template change; '
                 . 'baseline=' . implode(',', $beforePaths) . ' after=' . implode(',', $afterPaths)
@@ -140,7 +141,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $this->runWorker();
 
         $urls = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
-        static::assertNotEmpty($urls, 'baseline SEO URLs must exist before updating the template');
+        static::assertNotCount(0, $urls, 'baseline SEO URLs must exist before updating the template');
 
         $templateId = $this->findDefaultTemplateId(NavigationPageSeoUrlRoute::ROUTE_NAME);
         static::assertNotNull($templateId);
@@ -159,7 +160,8 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
             array_keys($urls),
             static fn (string $path): bool => str_starts_with($path, 'v2/')
         ));
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             $regenerated,
             'subscriber must regenerate SEO URLs under the v2/ prefix after the template update'
         );
@@ -180,7 +182,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         $this->runWorker();
 
         $urlsBefore = $this->getSeoUrls($ids->getList(['a']), $ids->get('sales-channel'));
-        static::assertNotEmpty($urlsBefore, 'baseline SEO URLs must exist');
+        static::assertNotCount(0, $urlsBefore, 'baseline SEO URLs must exist');
 
         $templateId = $this->findDefaultTemplateId(NavigationPageSeoUrlRoute::ROUTE_NAME);
         static::assertNotNull($templateId);
@@ -279,6 +281,143 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         static::assertSame('my-manual-path/', $canonicalA['seoPathInfo']);
     }
 
+    public function testChangingTheTemplateOfOneSalesChannelOnlyRegeneratesThatSalesChannel(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->create([
+            ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
+            ['id' => $ids->create('a'), 'name' => 'a', 'parentId' => $ids->get('root'), 'active' => true],
+        ], $context);
+
+        $this->createSalesChannel($ids->create('changed'), $ids->get('root'), 'http://changed.test');
+        $this->createSalesChannel($ids->create('untouched'), $ids->get('root'), 'http://untouched.test');
+
+        $this->runWorker();
+
+        // a regeneration of the untouched sales channel would replace this canonical path with the template output
+        $this->setCanonicalSeoPathInfo($ids->get('a'), $ids->get('untouched'), 'not-regenerated/');
+
+        $this->seoUrlTemplateRepository->create([
+            [
+                'id' => $ids->create('template'),
+                'salesChannelId' => $ids->get('changed'),
+                'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => CategoryDefinition::ENTITY_NAME,
+                'template' => 'changed/{{ category.name }}',
+            ],
+        ], $context);
+
+        $this->runWorker();
+
+        $changed = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('changed'));
+        static::assertNotNull($changed);
+        static::assertStringStartsWith('changed/', $changed['seoPathInfo']);
+
+        $untouched = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('untouched'));
+        static::assertNotNull($untouched);
+        static::assertSame('not-regenerated/', $untouched['seoPathInfo']);
+    }
+
+    public function testChangingTheDefaultTemplateSkipsSalesChannelsWithTheirOwnTemplate(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->create([
+            ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
+            ['id' => $ids->create('a'), 'name' => 'a', 'parentId' => $ids->get('root'), 'active' => true],
+        ], $context);
+
+        $this->createSalesChannel($ids->create('default'), $ids->get('root'), 'http://default.test');
+        $this->createSalesChannel($ids->create('own-template'), $ids->get('root'), 'http://own-template.test');
+
+        $this->seoUrlTemplateRepository->create([
+            [
+                'id' => $ids->create('own-template-template'),
+                'salesChannelId' => $ids->get('own-template'),
+                'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => CategoryDefinition::ENTITY_NAME,
+                'template' => 'own/{{ category.name }}',
+            ],
+        ], $context);
+
+        $this->runWorker();
+
+        // a regeneration of the sales channel with its own template would replace this canonical path
+        $this->setCanonicalSeoPathInfo($ids->get('a'), $ids->get('own-template'), 'not-regenerated/');
+
+        $defaultTemplateId = $this->findDefaultTemplateId(NavigationPageSeoUrlRoute::ROUTE_NAME);
+        static::assertNotNull($defaultTemplateId);
+
+        $this->seoUrlTemplateRepository->update([
+            ['id' => $defaultTemplateId, 'template' => 'default/{{ category.name }}'],
+        ], $context);
+
+        $this->runWorker();
+
+        $default = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('default'));
+        static::assertNotNull($default);
+        static::assertStringStartsWith('default/', $default['seoPathInfo']);
+
+        $ownTemplate = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('own-template'));
+        static::assertNotNull($ownTemplate);
+        static::assertSame('not-regenerated/', $ownTemplate['seoPathInfo']);
+    }
+
+    public function testRestoringTheInheritanceOfASalesChannelTemplateRegeneratesItWithTheDefaultTemplate(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        $this->categoryRepository->create([
+            ['id' => $ids->create('root'), 'name' => 'root', 'active' => true],
+            ['id' => $ids->create('a'), 'name' => 'a', 'parentId' => $ids->get('root'), 'active' => true],
+        ], $context);
+
+        $this->createSalesChannel($ids->create('sales-channel'), $ids->get('root'));
+
+        $this->seoUrlTemplateRepository->create([
+            [
+                'id' => $ids->create('template'),
+                'salesChannelId' => $ids->get('sales-channel'),
+                'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => CategoryDefinition::ENTITY_NAME,
+                'template' => 'own/{{ category.name }}',
+            ],
+        ], $context);
+
+        $this->runWorker();
+
+        $canonical = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('sales-channel'));
+        static::assertNotNull($canonical);
+        static::assertStringStartsWith('own/', $canonical['seoPathInfo']);
+
+        // restoring the inheritance in the Administration keeps the row and empties its template
+        $this->seoUrlTemplateRepository->update([
+            ['id' => $ids->get('template'), 'template' => null],
+        ], $context);
+
+        $this->runWorker();
+
+        $canonical = $this->getCanonicalSeoUrl($ids->get('a'), $ids->get('sales-channel'));
+        static::assertNotNull($canonical);
+        static::assertSame('a/', $canonical['seoPathInfo']);
+    }
+
+    private function setCanonicalSeoPathInfo(string $foreignKey, string $salesChannelId, string $seoPathInfo): void
+    {
+        $canonical = $this->getCanonicalSeoUrl($foreignKey, $salesChannelId);
+        static::assertNotNull($canonical);
+
+        $this->connection->update(
+            'seo_url',
+            ['seo_path_info' => $seoPathInfo],
+            ['id' => Uuid::fromHexToBytes($canonical['id'])]
+        );
+    }
+
     /**
      * @return array{id: string, seoPathInfo: string}|null
      */
@@ -317,7 +456,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
         return $first;
     }
 
-    private function createSalesChannel(string $id, string $navigationId): void
+    private function createSalesChannel(string $id, string $navigationId, string $url = 'http://seo-config-reindex.test'): void
     {
         $data = [
             'id' => $id,
@@ -347,7 +486,7 @@ class SeoUrlTemplateChangeSubscriberTest extends TestCase
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
                     'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
                     'currencyId' => Defaults::CURRENCY,
-                    'url' => 'http://seo-config-reindex.test',
+                    'url' => $url,
                 ],
             ],
         ];

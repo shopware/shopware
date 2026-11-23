@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Mcp\Tool;
 
+use Mcp\Schema\Enum\ProtocolVersion;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -43,23 +45,37 @@ class StoreApiToolsetEnableToolTest extends TestCase
         $requestStack->push($request);
 
         $tool = new StoreApiToolsetEnableTool($registry, $storage, $requestStack);
-        $result = json_decode($tool('store-api'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = $tool('store-api');
 
-        static::assertTrue($result['success']);
-        static::assertSame('store-api', $result['data']['toolset']['name']);
-        static::assertTrue($result['_meta']['listChanged']);
+        static::assertFalse($result->isError());
+        static::assertSame('store-api', $result->data['toolset']['name']);
+        static::assertTrue($result->meta['listChanged']);
         // Like the admin tool, the store-api variant records intent; the controller emits it.
         static::assertTrue($request->attributes->getBoolean(McpListChangedNotifier::PENDING_TOOLS_LIST_CHANGED_ATTRIBUTE));
     }
 
-    public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
+    public function testIsUnavailableOnTheStatelessEra(): void
     {
-        // The MCP SDK discoverer binds a tool handler to __invoke's declaring class, and the store-api
-        // service locator keys on the service id (= class). If __invoke were only inherited from
-        // ToolsetEnableTool, discovery would bind the handler to the admin base and the store-api
-        // tool would resolve to the wrong (admin-wired) instance.
-        $method = new \ReflectionMethod(StoreApiToolsetEnableTool::class, '__invoke');
+        $storage = $this->createMock(McpToolsetSessionStorage::class);
+        $storage->expects($this->never())->method('enable');
 
-        static::assertSame(StoreApiToolsetEnableTool::class, $method->getDeclaringClass()->getName());
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest());
+
+        $tool = new StoreApiToolsetEnableTool(static::createStub(McpToolsetRegistry::class), $storage, $requestStack);
+        $result = $tool('store-api');
+
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('"?toolsets=store-api"', $result->error->message);
+    }
+
+    private static function statelessRequest(): Request
+    {
+        return Request::create('/store-api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'tools/call',
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

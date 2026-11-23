@@ -68,11 +68,35 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
                     variantListingConfig: {
                         mainVariantId: null,
                     },
-                    childCount: 1,
                 },
             },
             expect.anything(),
         );
+    });
+
+    it('should clone variants without their canonical product', async () => {
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const callback = jest.fn();
+        wrapper.vm.cloneProgress = 1;
+
+        wrapper.vm.duplicateVariant({ id: 'duplicate-id', productNumber: 'SW1' }, ['variant-id'], callback);
+        await flushPromises();
+
+        expect(wrapper.vm.repository.clone).toHaveBeenLastCalledWith(
+            'variant-id',
+            {
+                cloneChildren: false,
+                overwrites: {
+                    parentId: 'duplicate-id',
+                    productNumber: 'SW1.1',
+                    canonicalProductId: null,
+                },
+            },
+            expect.anything(),
+        );
+        expect(callback).toHaveBeenCalled();
     });
 
     it('should not change the original product', async () => {
@@ -92,5 +116,57 @@ describe('src/module/sw-product/component/sw-product-clone-modal', () => {
         });
 
         expect(product.variantListingConfig.mainVariantId).toBe('1a2b3c');
+    });
+
+    it('should save a new product before reserving the duplicate product number', async () => {
+        const product = {
+            id: 'product-id',
+            name: 'shirt',
+            productNumber: 'SW10011',
+            childCount: 0,
+        };
+        const save = jest.fn(() => Promise.resolve());
+        const clone = jest.fn(() => Promise.resolve({ id: 'duplicate-id' }));
+        const reserve = jest.fn().mockResolvedValueOnce({ number: 'SW10012' }).mockResolvedValueOnce({ number: 'SW10013' });
+
+        wrapper = await mount(await wrapTestComponent('sw-product-clone-modal', { sync: true }), {
+            props: {
+                product,
+                productNumberPreview: 'SW10011',
+            },
+            global: {
+                provide: {
+                    repositoryFactory: {
+                        create: () => ({
+                            clone,
+                            save,
+                            searchIds: () => Promise.resolve({ data: { length: 0 } }),
+                        }),
+                    },
+                    numberRangeService: {
+                        reserve,
+                    },
+                },
+                stubs: {
+                    'mt-progress-bar': true,
+                },
+            },
+        });
+
+        await flushPromises();
+
+        expect(save).toHaveBeenCalledWith(product);
+        expect(reserve).toHaveBeenNthCalledWith(1, 'product');
+        expect(reserve).toHaveBeenNthCalledWith(2, 'product');
+        expect(save.mock.invocationCallOrder[0]).toBeLessThan(reserve.mock.invocationCallOrder[1]);
+        expect(clone).toHaveBeenCalledWith(
+            'product-id',
+            expect.objectContaining({
+                overwrites: expect.objectContaining({
+                    productNumber: 'SW10013',
+                }),
+            }),
+            expect.anything(),
+        );
     });
 });

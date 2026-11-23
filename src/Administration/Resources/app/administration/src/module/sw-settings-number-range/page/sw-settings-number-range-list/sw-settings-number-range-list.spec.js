@@ -62,10 +62,7 @@ async function createWrapper(privileges = []) {
                     'sw-card-view': true,
                     'sw-ignore-class': true,
                     'sw-entity-listing': {
-                        props: [
-                            'items',
-                            'dataSource',
-                        ],
+                        props: ['items', 'dataSource'],
                         template: `
                     <div>
                         <template v-for="item in (dataSource || items)">
@@ -108,56 +105,73 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
     });
 
     it('should not allow edit without permission', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeFalsy();
     });
 
     it('should allow edit with edit permission', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.editor',
-        ]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        wrapper = await createWrapper(['number_ranges.editor']);
+        await flushPromises();
         const entityListing = wrapper.find('.sw-settings-number-range-list-grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
     it('should not allow edit without edit permission', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should now allow delete without delete permission', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.editor',
-        ]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        wrapper = await createWrapper(['number_ranges.editor']);
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should not be able to delete if user does not have delete permission', async () => {
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to delete if user has delete permission', async () => {
-        wrapper = await createWrapper([
-            'number_ranges.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        wrapper = await createWrapper(['number_ranges.deleter']);
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
+    });
+
+    it('should offer the create action in the empty state when no number range exists', async () => {
+        wrapper = await createWrapper([
+            'number_ranges.creator',
+        ]);
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-number-range.list.messageEmpty');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        wrapper = await createWrapper([
+            'number_ranges.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty number range list, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });
 });

@@ -16,17 +16,9 @@ const FILE_SIZE_LIMIT = 52428800; // 50 MB
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'documentV2Service',
-        'numberRangeService',
-        'repositoryFactory',
-    ],
+    inject: ['documentV2Service', 'numberRangeService', 'repositoryFactory'],
 
-    emits: [
-        'document-upload',
-        'page-leave',
-        'update:documentType',
-    ],
+    emits: ['document-upload', 'page-leave', 'update:documentType'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -293,7 +285,7 @@ export default Component.wrapComponentConfig({
             this.$emit('page-leave');
         },
 
-        successfulUploadFromUrl(res: { targetId: string }): void {
+        successfulUploadFromUrl(res: { targetId: EntityKey<'media'> }): void {
             this.mediaRepository
                 .get(res.targetId)
                 .then((response) => {

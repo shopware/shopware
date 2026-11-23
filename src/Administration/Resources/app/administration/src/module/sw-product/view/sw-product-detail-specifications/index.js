@@ -8,11 +8,7 @@ import template from './sw-product-detail-specifications.html.twig';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'feature', 'repositoryFactory'],
 
     data() {
         return {
@@ -49,6 +45,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
          */
         productStates() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-specifications.productStates is deprecated. Will be removed, use `productType` instead.',
+            );
+
             return Shopware.Store.get('swProductDetail').productStates;
         },
 

@@ -2,16 +2,19 @@
  * @sw-package framework
  */
 
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { parse } from 'yaml';
+import { flagsOf, getMajorFeatureFlags, loadFeatureConfig, normalizeFeatureFlag } from '../../scripts/feature-flags';
+import registerFeatureFlags from '../_helper_/registerFeatureFlags';
 
-import getMajorFeatureFlags from '../_helper_/majorFeatureFlags';
+const featureConfig = loadFeatureConfig();
+const flags = flagsOf(featureConfig);
 
-const featureConfigPath = resolve(
-    process.env.ADMIN_PATH,
-    '../../../../Core/Framework/Resources/config/packages/feature.yaml',
-);
+// Like in the browser, the flags that are on by default are active unless the environment switches them
+// off. Major CI lanes set their version flag directly; FEATURE_ALL enables every flag.
+const defaultFlags = flags
+    .filter((flag) => flag.default && process.env[normalizeFeatureFlag(flag.name)] === undefined)
+    .map(({ name }) => normalizeFeatureFlag(name));
+const majorFlags = getMajorFeatureFlags(featureConfig, process.env);
+global.activeFeatureFlags = [...new Set([...defaultFlags, ...majorFlags])];
 
-global.activeFeatureFlags =
-    process.env.FEATURE_ALL === 'major' ? getMajorFeatureFlags(parse(readFileSync(featureConfigPath, 'utf8'))) : [];
+// Flags a test activates later only reach `FeatureMock.isActive`.
+registerFeatureFlags(global.activeFeatureFlags, featureConfig);

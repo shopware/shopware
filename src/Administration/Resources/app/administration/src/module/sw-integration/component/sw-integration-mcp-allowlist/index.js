@@ -10,15 +10,12 @@ import './sw-integration-mcp-allowlist.scss';
 export default {
     template,
 
-    inject: [
-        'mcpToolService',
-        'acl',
-    ],
+    inject: ['mcpToolService', 'acl'],
 
     props: {
         /**
-         * null = all capabilities unrestricted (primary toggle on)
-         * {tools, resources, prompts} = per-type allowlists (null per type = unrestricted)
+         * null = nothing was ever selected. Whether that means everything or nothing depends on
+         * `unrestrictedWhenUnset`.
          */
         allowlist: {
             type: Object,
@@ -39,6 +36,12 @@ export default {
             type: Array,
             default: () => [],
         },
+
+        /** True for administrator users, the only principals that bypass the allowlist when unset. */
+        unrestrictedWhenUnset: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     emits: ['update:allowlist'],
@@ -58,26 +61,41 @@ export default {
     computed: {
         allCapabilitiesEnabled: {
             get() {
-                return this.allowlist === null;
+                if (this.unrestrictedWhenUnset) {
+                    return this.allowlist === null;
+                }
+
+                // No bypass means no "unrestricted" state to read off.
+                const populated = this.typeConfigs.filter((tc) => tc.available.length > 0);
+                return (
+                    populated.length > 0 && populated.every((tc) => this.typeSelectedCount(tc.key) === tc.available.length)
+                );
             },
             set(enabled) {
-                this.$emit('update:allowlist', enabled ? null : { tools: null, resources: null, prompts: null });
+                if (this.unrestrictedWhenUnset) {
+                    this.$emit('update:allowlist', enabled ? null : this.emptySelection());
+                    return;
+                }
+
+                this.$emit('update:allowlist', enabled ? this.fullSelection() : this.emptySelection());
             },
         },
 
         toolsAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.tools ?? null;
+            return this.selectionForType('tools');
         },
 
         resourcesAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.resources ?? null;
+            return this.selectionForType('resources');
         },
 
         promptsAllowlist() {
-            if (this.allowlist === null) return null;
-            return this.allowlist.prompts ?? null;
+            return this.selectionForType('prompts');
+        },
+
+        /** No selection and no bypass: the endpoint grants nothing beyond the discovery meta-tools. */
+        hasNoEffectiveCapabilities() {
+            return !this.unrestrictedWhenUnset && this.allowlist === null;
         },
 
         toolGroups() {
@@ -140,11 +158,7 @@ export default {
         },
 
         staleEntries() {
-            return [
-                ...this.staleToolNames,
-                ...this.staleResourceUris,
-                ...this.stalePromptNames,
-            ];
+            return [...this.staleToolNames, ...this.staleResourceUris, ...this.stalePromptNames];
         },
 
         uncoveredTools() {
@@ -187,35 +201,25 @@ export default {
 
             // Only check partially-restricted types; fully-denied types are already covered by the deniedTypes banner
             if (this.resourcesAllowlist !== null && this.resourcesAllowlist.length > 0) {
-                Object.entries(this.resourceGroups).forEach(
-                    ([
-                        prefix,
-                        resources,
-                    ]) => {
-                        if (!activePrefixes.has(prefix)) return;
-                        resources.forEach((resource) => {
-                            if (!this.resourcesAllowlist.includes(resource.uri)) {
-                                suggestions.push({ kind: 'resource', name: resource.uri });
-                            }
-                        });
-                    },
-                );
+                Object.entries(this.resourceGroups).forEach(([prefix, resources]) => {
+                    if (!activePrefixes.has(prefix)) return;
+                    resources.forEach((resource) => {
+                        if (!this.resourcesAllowlist.includes(resource.uri)) {
+                            suggestions.push({ kind: 'resource', name: resource.uri });
+                        }
+                    });
+                });
             }
 
             if (this.promptsAllowlist !== null && this.promptsAllowlist.length > 0) {
-                Object.entries(this.promptGroups).forEach(
-                    ([
-                        prefix,
-                        prompts,
-                    ]) => {
-                        if (!activePrefixes.has(prefix)) return;
-                        prompts.forEach((prompt) => {
-                            if (!this.promptsAllowlist.includes(prompt.name)) {
-                                suggestions.push({ kind: 'prompt', name: prompt.name });
-                            }
-                        });
-                    },
-                );
+                Object.entries(this.promptGroups).forEach(([prefix, prompts]) => {
+                    if (!activePrefixes.has(prefix)) return;
+                    prompts.forEach((prompt) => {
+                        if (!this.promptsAllowlist.includes(prompt.name)) {
+                            suggestions.push({ kind: 'prompt', name: prompt.name });
+                        }
+                    });
+                });
             }
 
             return suggestions;
@@ -257,8 +261,38 @@ export default {
                 });
         },
 
+        /** Resolves null to an empty selection without the bypass, so the editor shows what the server grants. */
+        selectionForType(type) {
+            const fallback = this.unrestrictedWhenUnset ? null : [];
+
+            if (this.allowlist === null) return fallback;
+
+            return this.allowlist[type] ?? fallback;
+        },
+
+        emptySelection() {
+            return { tools: [], resources: [], prompts: [] };
+        },
+
+        fullSelection() {
+            return {
+                tools: this.availableTools.map((t) => t.name),
+                resources: this.availableResources.map((r) => r.uri),
+                prompts: this.availablePrompts.map((p) => p.name),
+            };
+        },
+
+        allNamesForType(type) {
+            if (type === 'tools') return this.availableTools.map((t) => t.name);
+            if (type === 'resources') return this.availableResources.map((r) => r.uri);
+            if (type === 'prompts') return this.availablePrompts.map((p) => p.name);
+            return [];
+        },
+
         emitUpdated(patch) {
-            const current = this.allowlist ?? { tools: null, resources: null, prompts: null };
+            const current =
+                this.allowlist ??
+                (this.unrestrictedWhenUnset ? { tools: null, resources: null, prompts: null } : this.emptySelection());
             this.$emit('update:allowlist', { ...current, ...patch });
         },
 
@@ -345,7 +379,13 @@ export default {
         },
 
         onToggleTypeAll(type, enabled) {
-            this.emitUpdated({ [type]: enabled ? null : [] });
+            if (!enabled) {
+                this.emitUpdated({ [type]: [] });
+                return;
+            }
+
+            // Without the bypass a null per-type value grants nothing, so "all" must be explicit.
+            this.emitUpdated({ [type]: this.unrestrictedWhenUnset ? null : this.allNamesForType(type) });
         },
 
         // Tools
@@ -361,14 +401,8 @@ export default {
             if (isSelected) {
                 const tool = this.availableTools.find((t) => t.name === toolName);
                 const deps = tool?.dependencies ?? [];
-                const toAdd = [
-                    toolName,
-                    ...deps,
-                ].filter((n) => !current.includes(n));
-                updated = [
-                    ...current,
-                    ...toAdd,
-                ];
+                const toAdd = [toolName, ...deps].filter((n) => !current.includes(n));
+                updated = [...current, ...toAdd];
             } else {
                 updated = current.filter((n) => n !== toolName);
             }
@@ -426,12 +460,7 @@ export default {
 
         onToggleResource(uri, isSelected) {
             const current = this.resourcesAllowlist ?? [];
-            const updated = isSelected
-                ? [
-                      ...current,
-                      uri,
-                  ]
-                : current.filter((u) => u !== uri);
+            const updated = isSelected ? [...current, uri] : current.filter((u) => u !== uri);
             this.emitUpdated({ resources: updated });
         },
 
@@ -443,12 +472,7 @@ export default {
 
         onTogglePrompt(name, isSelected) {
             const current = this.promptsAllowlist ?? [];
-            const updated = isSelected
-                ? [
-                      ...current,
-                      name,
-                  ]
-                : current.filter((n) => n !== name);
+            const updated = isSelected ? [...current, name] : current.filter((n) => n !== name);
             this.emitUpdated({ prompts: updated });
         },
 
@@ -491,15 +515,9 @@ export default {
                         const tool = this.availableTools.find((t) => t.name === n);
                         return tool?.dependencies ?? [];
                     });
-                    const toAdd = [
-                        ...names,
-                        ...deps,
-                    ].filter((n) => !current.includes(n));
+                    const toAdd = [...names, ...deps].filter((n) => !current.includes(n));
                     this.emitUpdated({
-                        tools: [
-                            ...current,
-                            ...toAdd,
-                        ],
+                        tools: [...current, ...toAdd],
                     });
                 } else {
                     this.emitUpdated({ tools: current.filter((n) => !names.includes(n)) });
@@ -511,10 +529,7 @@ export default {
                 const current = this.resourcesAllowlist ?? [];
                 const uris = items.map((r) => r.uri);
                 const updated = checked
-                    ? [
-                          ...current,
-                          ...uris.filter((u) => !current.includes(u)),
-                      ]
+                    ? [...current, ...uris.filter((u) => !current.includes(u))]
                     : current.filter((u) => !uris.includes(u));
                 this.emitUpdated({ resources: updated });
                 return;
@@ -524,10 +539,7 @@ export default {
                 const current = this.promptsAllowlist ?? [];
                 const names = items.map((p) => p.name);
                 const updated = checked
-                    ? [
-                          ...current,
-                          ...names.filter((n) => !current.includes(n)),
-                      ]
+                    ? [...current, ...names.filter((n) => !current.includes(n))]
                     : current.filter((n) => !names.includes(n));
                 this.emitUpdated({ prompts: updated });
             }
@@ -546,20 +558,16 @@ export default {
             return humanizeCommonPrefix(items.map((item) => item.name));
         },
 
+        /**
+         * Counts distinct available capabilities, not entries: the save endpoints accept duplicates,
+         * and counting those would make a partial selection look complete.
+         */
         typeSelectedCount(type) {
-            if (type === 'tools') {
-                if (this.toolsAllowlist === null) return this.availableTools.length;
-                return this.toolsAllowlist.filter((n) => this.availableTools.some((t) => t.name === n)).length;
-            }
-            if (type === 'resources') {
-                if (this.resourcesAllowlist === null) return this.availableResources.length;
-                return this.resourcesAllowlist.filter((u) => this.availableResources.some((r) => r.uri === u)).length;
-            }
-            if (type === 'prompts') {
-                if (this.promptsAllowlist === null) return this.availablePrompts.length;
-                return this.promptsAllowlist.filter((n) => this.availablePrompts.some((p) => p.name === n)).length;
-            }
-            return 0;
+            const selection = this.selectionForType(type);
+            if (selection === null) return this.typeTotal(type);
+
+            const selected = new Set(selection);
+            return this.allNamesForType(type).filter((name) => selected.has(name)).length;
         },
 
         isFlatType(type) {
@@ -615,10 +623,10 @@ export default {
         },
 
         typeAllEnabled(type) {
-            if (type === 'tools') return this.toolsAllowlist === null;
-            if (type === 'resources') return this.resourcesAllowlist === null;
-            if (type === 'prompts') return this.promptsAllowlist === null;
-            return true;
+            if (this.selectionForType(type) === null) return true;
+
+            const total = this.typeTotal(type);
+            return total > 0 && this.typeSelectedCount(type) === total;
         },
     },
 };

@@ -39,7 +39,7 @@ class ExcludeFieldsReaderTest extends TestCase
         // The excluded (nullable) field is left null; everything else loads as usual.
         static::assertNull($product->getDescription());
         static::assertSame('Exclude probe', $product->getName());
-        static::assertNotEmpty($product->getProductNumber());
+        static::assertNotSame('', $product->getProductNumber());
     }
 
     #[DataProvider('protectedFieldProvider')]

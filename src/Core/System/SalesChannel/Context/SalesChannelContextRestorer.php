@@ -7,7 +7,6 @@ use Doctrine\DBAL\Exception;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -41,12 +40,19 @@ class SalesChannelContextRestorer
     }
 
     /**
+     * @deprecated tag:v6.8.0 - Will be removed, load the order and use `OrderConverter::assembleSalesChannelContext()` instead. Pass the result to `CartRuleLoader::loadByCart()` if the rules have to be re-evaluated.
+     *
      * @param array<string, string|array<string,bool>|null> $overrideOptions
      *
      * @throws InconsistentCriteriaIdsException
      */
     public function restoreByOrder(string $orderId, Context $context, array $overrideOptions = []): SalesChannelContext
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', OrderConverter::class . '::assembleSalesChannelContext')
+        );
+
         $order = $this->getOrderById($orderId, $context);
         if ($order === null) {
             throw SalesChannelException::orderNotFound($orderId);
@@ -56,64 +62,7 @@ class SalesChannelContextRestorer
             throw SalesChannelException::missingAssociation('orderCustomer');
         }
 
-        $customer = $order->getOrderCustomer()->getCustomer();
-        $customerGroupId = null;
-        if ($customer) {
-            $customerGroupId = $customer->getGroupId();
-        }
-
-        $billingAddress = $order->getBillingAddress();
-        $countryStateId = null;
-        if ($billingAddress) {
-            $countryStateId = $billingAddress->getCountryStateId();
-        }
-
-        $options = [
-            SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId(),
-            SalesChannelContextService::LANGUAGE_ID => $order->getLanguageId(),
-            SalesChannelContextService::CUSTOMER_ID => $order->getOrderCustomer()->getCustomerId(),
-            SalesChannelContextService::COUNTRY_STATE_ID => $countryStateId,
-            SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
-            SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
-            SalesChannelContextService::VERSION_ID => $context->getVersionId(),
-        ];
-
-        if ($paymentMethodId = $this->getPaymentMethodId($order)) {
-            $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $paymentMethodId;
-        }
-
-        $shippingMethodId = $order->getPrimaryOrderDelivery()?->getShippingMethodId();
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            $shippingMethodId = $order->getDeliveries()?->first()?->getShippingMethodId();
-        }
-
-        if ($shippingMethodId !== null) {
-            $options[SalesChannelContextService::SHIPPING_METHOD_ID] = $shippingMethodId;
-        }
-
-        $options = array_merge($options, $overrideOptions);
-
-        $salesChannelContext = $this->factory->create(
-            Uuid::randomHex(),
-            $order->getSalesChannelId(),
-            $options
-        );
-
-        $salesChannelContext->getContext()->addExtensions($context->getExtensions());
-        $salesChannelContext->addState(...$context->getStates());
-
-        if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
-            $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
-        }
-
-        if ($order->getItemRounding() !== null) {
-            $salesChannelContext->setItemRounding($order->getItemRounding());
-        }
-
-        if ($order->getTotalRounding() !== null) {
-            $salesChannelContext->setTotalRounding($order->getTotalRounding());
-        }
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context, $overrideOptions);
 
         $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
         $this->cartRuleLoader->loadByCart(
@@ -186,38 +135,14 @@ class SalesChannelContextRestorer
             ->addAssociation('language.locale')
             ->addAssociation('orderCustomer.customer')
             ->addAssociation('billingAddress')
-            ->addAssociation('transactions');
+            ->addAssociation('transactions.stateMachineState');
 
-        $this->eventDispatcher->dispatch(new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context));
+        $event = Feature::silent(
+            'v6.8.0.0',
+            static fn (): SalesChannelContextRestorerOrderCriteriaEvent => new SalesChannelContextRestorerOrderCriteriaEvent($criteria, $context),
+        );
+        $this->eventDispatcher->dispatch($event);
 
         return $this->orderRepository->search($criteria, $context)->getEntities()->get($orderId);
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getPaymentMethodId(OrderEntity $order): ?string
-    {
-        $transactions = $order->getTransactions();
-        if ($transactions === null) {
-            throw SalesChannelException::missingAssociation('transactions');
-        }
-
-        foreach ($transactions as $transaction) {
-            if ($transaction->getStateMachineState() !== null
-                && ($transaction->getStateMachineState()->getTechnicalName() === OrderTransactionStates::STATE_CANCELLED
-                    || $transaction->getStateMachineState()->getTechnicalName() === OrderTransactionStates::STATE_FAILED)
-            ) {
-                continue;
-            }
-
-            return $transaction->getPaymentMethodId();
-        }
-
-        if (!Feature::isActive('v6.8.0.0')) {
-            return $transactions->last() ? $transactions->last()->getPaymentMethodId() : null;
-        }
-
-        return $order->getPrimaryOrderTransaction()?->getPaymentMethodId();
     }
 }

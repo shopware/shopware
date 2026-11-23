@@ -19,6 +19,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
+use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
@@ -45,9 +46,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(ProductStreamProcessor::class)]
 class ProductStreamProcessorTest extends TestCase
 {
-    use ProductSliderUnitTrait;
-
-    protected FieldConfigCollection $config;
+    private FieldConfigCollection $config;
 
     private ProductStreamBuilder&MockObject $productStreamBuilder;
 
@@ -94,8 +93,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollect(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
 
@@ -135,8 +134,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollectSkipsGroupingWhenStreamDisplaysVariantsDirectly(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $this->configureProductStreamBuilder(false, $this->once());
 
@@ -161,8 +160,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollectAddsCloseoutFilterToCriteriaWhenHideCloseoutEnabled(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
@@ -193,8 +192,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollectDoesNotAddCloseoutFilterToCriteriaWhenHideCloseoutDisabled(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
@@ -221,8 +220,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollectEventCanModifyCriteria(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
@@ -250,8 +249,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollectReturnsNullWhenProductStreamNoLongerExists(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'deleted-product-stream-id');
         $this->config->add($config);
@@ -282,10 +281,72 @@ class ProductStreamProcessorTest extends TestCase
         static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
     }
 
+    public function testCollectReturnsNullWhenProductStreamIsBroken(): void
+    {
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-id');
+        $this->config->add($config);
+
+        $exception = ProductStreamException::noFilters('product-stream-id');
+
+        $this->productRepository->expects($this->never())->method('search');
+
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
+            ->willThrowException($exception);
+
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Product stream configured for CMS product slider has no usable filters.',
+                [
+                    'productStreamId' => 'product-stream-id',
+                    'exception' => $exception,
+                ]
+            );
+
+        $this->eventDispatcher->expects($this->never())
+            ->method('dispatch');
+
+        static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
+    }
+
+    public function testCollectSelectsAllProductsWhenProductStreamIsEmpty(): void
+    {
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-id');
+        $this->config->add($config);
+
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->willThrowException(ProductStreamException::emptyProductStream('product-stream-id'));
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->logger->expects($this->never())->method('warning');
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(ProductSliderStreamCriteriaEvent::class));
+
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $criteria = $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertEquals([new NotEqualsFilter('displayGroup', null)], $criteria->getFilters());
+    }
+
     public function testCollectDoesNotSwallowDeprecationFromBuildFiltersFallback(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
@@ -320,8 +381,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testCollectAddsRandomSortingIfRequired(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $productsConfig = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $sortingConfig = new FieldConfig('productStreamSorting', FieldConfig::SOURCE_PRODUCT_STREAM, 'random');
@@ -350,14 +411,14 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testEnrich(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
 
-        $products = $this->getProducts();
-        $searchResult = $this->getEntitySearchResult($products);
+        $products = ProductSliderFixture::getProducts();
+        $searchResult = ProductSliderFixture::getEntitySearchResult($products);
 
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
@@ -378,14 +439,14 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testEnrichFiltersOutOfStockCloseoutProductsWhenHideCloseoutEnabled(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
 
-        $products = $this->getProducts();
-        $searchResult = $this->getEntitySearchResult($products);
+        $products = ProductSliderFixture::getProducts();
+        $searchResult = ProductSliderFixture::getEntitySearchResult($products);
 
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
@@ -412,14 +473,14 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testEnrichKeepsAllProductsWhenHideCloseoutDisabled(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
         $this->config->add($config);
 
-        $products = $this->getProducts();
-        $searchResult = $this->getEntitySearchResult($products);
+        $products = ProductSliderFixture::getProducts();
+        $searchResult = ProductSliderFixture::getEntitySearchResult($products);
 
         $data = new ElementDataCollection();
         $data->add('product-slider-entity-fallback_id', $searchResult);
@@ -441,8 +502,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testEnrichDoesNothingWithoutEntitySearchResult(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
         $data = new ElementDataCollection();
 
         $this->productRepository->expects($this->never())->method('search');
@@ -455,8 +516,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testEnrichDoesNothingWithoutProducts(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
         $data = new ElementDataCollection();
 
         $result = new EntitySearchResult(
@@ -479,8 +540,8 @@ class ProductStreamProcessorTest extends TestCase
 
     public function testEnrichUsesEmptyProductCollectionIfNoProductIdsDetermined(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
         $data = new ElementDataCollection();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
@@ -506,13 +567,15 @@ class ProductStreamProcessorTest extends TestCase
 
         $slider = $slot->getData();
         static::assertInstanceOf(ProductSliderStruct::class, $slider);
-        static::assertEmpty($slider->getProducts());
+        $products = $slider->getProducts();
+        static::assertNotNull($products);
+        static::assertCount(0, $products);
     }
 
     public function testEnrichKeepsUngroupedVariantsWhenStreamDisplaysVariantsDirectly(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
         $data = new ElementDataCollection();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-1');
@@ -521,7 +584,7 @@ class ProductStreamProcessorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
 
-        $products = $this->getProducts();
+        $products = ProductSliderFixture::getProducts();
         $result = new EntitySearchResult(
             'product',
             $products->count(),

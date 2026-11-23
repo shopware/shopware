@@ -92,15 +92,15 @@ final readonly class CompileThemeHandler
             );
         }
 
-        if ($message->getContext()->getScope() !== Context::USER_SCOPE) {
+        if (!$message->isNotifyOnCompletion() || $message->getContext()->getScope() !== Context::USER_SCOPE) {
             return;
         }
 
-        $salesChannel = $this->saleschannelRepository->search(
+        $salesChannelExists = $this->saleschannelRepository->searchIds(
             new Criteria([$message->getSalesChannelId()]),
             $message->getContext()
-        )->getEntities()->first();
-        if (!$salesChannel) {
+        )->has($message->getSalesChannelId());
+        if (!$salesChannelExists) {
             throw ThemeException::salesChannelNotFound($message->getSalesChannelId());
         }
 

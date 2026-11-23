@@ -69,7 +69,7 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
 describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     it('should not be able to create a new payment method', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-payment-overview__button-create');
 
@@ -77,14 +77,8 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     });
 
     it('should be able to create a new payment method', async () => {
-        const wrapper = await createWrapper(
-            [],
-            [],
-            [
-                'payment.creator',
-            ],
-        );
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper([], [], ['payment.creator']);
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-payment-overview__button-create');
 
@@ -121,10 +115,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
             [
                 {
                     positionId: 'positionId',
-                    paymentMethodHandlers: [
-                        'handler',
-                        'handler2',
-                    ],
+                    paymentMethodHandlers: ['handler', 'handler2'],
                 },
             ],
         );
@@ -156,10 +147,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
                 {
                     positionId: 'positionId',
                     component: 'mt-card',
-                    paymentMethodHandlers: [
-                        'handler',
-                        'handler2',
-                    ],
+                    paymentMethodHandlers: ['handler', 'handler2'],
                 },
             ],
         );

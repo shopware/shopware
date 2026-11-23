@@ -13,10 +13,7 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     provide() {
         return {
@@ -26,10 +23,7 @@ export default {
 
     emits: ['loading-changed'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('notification')],
 
     props: {
         set: {
@@ -88,7 +82,7 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.equals('customFieldSetId', this.set.id));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -166,12 +160,7 @@ export default {
 
         removeEmptyProperties(config) {
             Object.keys(config).forEach((property) => {
-                if (
-                    [
-                        'number',
-                        'boolean',
-                    ].includes(typeof config[property])
-                ) {
+                if (['number', 'boolean'].includes(typeof config[property])) {
                     return;
                 }
 
@@ -187,10 +176,11 @@ export default {
 
         isCustomFieldNameUnique(customField) {
             // Search the server for the customField name
-            const criteria = new Criteria(1, 25);
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
             criteria.addFilter(Criteria.equals('name', customField.name));
-            return this.globalCustomFieldRepository.search(criteria).then((res) => {
-                return res.length === 0;
+            return this.globalCustomFieldRepository.searchIds(criteria).then((res) => {
+                return res.data.length === 0;
             });
         },
 

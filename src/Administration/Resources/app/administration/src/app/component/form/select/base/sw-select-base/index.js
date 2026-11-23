@@ -14,11 +14,7 @@ export default {
 
     inheritAttrs: false,
 
-    emits: [
-        'select-expanded',
-        'select-collapsed',
-        'clear',
-    ],
+    emits: ['select-expanded', 'select-collapsed', 'clear'],
 
     props: {
         isLoading: {
@@ -148,9 +144,9 @@ export default {
         focusPreviousFormElement() {
             const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
             const myFocusable = this.$el.querySelector(focusableSelector);
-            const keyboardFocusable = [
-                ...document.querySelectorAll(focusableSelector),
-            ].filter((el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined);
+            const keyboardFocusable = [...document.querySelectorAll(focusableSelector)].filter(
+                (el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined,
+            );
 
             keyboardFocusable.forEach((element, index) => {
                 if (index > 0 && element === myFocusable) {
@@ -182,6 +178,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed. Use `Element.contains()` instead.
          */
         computePath(event) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-select-base.computePath() is deprecated. Use `Element.contains()` instead.',
+            );
+
             const path = [];
             let target = event.target;
 

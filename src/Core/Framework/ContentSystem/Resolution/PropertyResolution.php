@@ -6,6 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * The resolution of a single declared property of an element type at a position: how it is (or is not) filled.
+ * `type` and `fqcn` are mutually exclusive by `kind`: a `Primitive` resolution never carries `fqcn` and carries
+ * `type` only when the declared type is a single name, and a `Reference` resolution carries `fqcn` and never `type`.
  *
  * @internal
  */

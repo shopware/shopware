@@ -22,14 +22,9 @@ export default {
         };
     },
 
-    emits: [
-        'create-before',
-        'create-after',
-    ],
+    emits: ['create-before', 'create-after'],
 
-    mixins: [
-        Mixin.getByName('ruleContainer'),
-    ],
+    mixins: [Mixin.getByName('ruleContainer')],
 
     computed: {
         children() {
@@ -90,10 +85,7 @@ export default {
 
             if (this.children.first().type !== 'cartLineItemOfType') {
                 this.condition.value = {
-                    types: [
-                        'product',
-                        'custom',
-                    ],
+                    types: ['product', 'custom'],
                 };
             }
         },
@@ -106,8 +98,7 @@ export default {
                 this.parentCondition,
                 this.createCondition(
                     {
-                        type: childCondition.type,
-                        value: childCondition.value,
+                        ...this.conditionDataProviderService.getMovableConditionData(childCondition),
                         [this.childAssociationField]: new EntityCollection(
                             this.condition[this.childAssociationField].source,
                             this.condition[this.childAssociationField].entity,

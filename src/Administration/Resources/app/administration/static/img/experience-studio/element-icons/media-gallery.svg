@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(7.082 3.300) scale(0.9339)">
+      <rect x="23" y="28" width="27" height="20" rx="4" fill="url(#wash)" stroke="#1895ff" />
+      <circle cx="42.980000000000004" cy="33.0" r="2.1" fill="#54afff" stroke="none" />
+      <path d="M24 46l7.829999999999999 -9.8 6.4799999999999995 5.6000000000000005 4.590000000000001 -3.5999999999999996 7.829999999999999 7.800000000000001Z" fill="url(#blue)" stroke="none" />
+      <rect x="23" y="53" width="27" height="20" rx="4" fill="url(#wash)" stroke="#1895ff" />
+      <circle cx="42.980000000000004" cy="58.0" r="2.1" fill="#54afff" stroke="none" />
+      <path d="M24 71l7.829999999999999 -9.8 6.4799999999999995 5.6000000000000005 4.590000000000001 -3.5999999999999996 7.829999999999999 7.800000000000001Z" fill="url(#blue)" stroke="none" />
+      <rect x="23" y="78" width="27" height="20" rx="4" fill="url(#wash)" stroke="#1895ff" />
+      <circle cx="42.980000000000004" cy="83.0" r="2.1" fill="#54afff" stroke="none" />
+      <path d="M24 96l7.829999999999999 -9.8 6.4799999999999995 5.6000000000000005 4.590000000000001 -3.5999999999999996 7.829999999999999 7.800000000000001Z" fill="url(#blue)" stroke="none" />
+      <rect x="62" y="32" width="114" height="70" rx="4" fill="url(#wash)" stroke="#1895ff" />
+      <circle cx="146.36" cy="49.5" r="7.35" fill="#54afff" stroke="none" />
+      <path d="M63 100l33.059999999999995 -34.3 27.36 19.6 19.380000000000003 -12.6 33.059999999999995 27.3Z" fill="url(#blue)" stroke="none" />
+    </g>
+  </g>
+</svg>

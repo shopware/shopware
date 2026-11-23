@@ -123,7 +123,7 @@ class ResetPasswordRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testSuccessResetWithLegacyPassword(): void
@@ -179,7 +179,7 @@ class ResetPasswordRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $criteria = new Criteria([$customerId]);
 
@@ -245,7 +245,7 @@ class ResetPasswordRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     private function createCustomer(string $password, ?string $email = null, bool $addLegacyPassword = false, bool $doubleOptInRegistration = false): string

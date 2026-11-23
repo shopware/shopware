@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
-use Twig\Environment;
 
 /**
  * @internal
@@ -74,11 +73,10 @@ class ProductFeatureTemplateTest extends TestCase
      */
     private function renderFeature(string $type, array $value): string
     {
-        $twig = static::getContainer()->get('twig');
-        static::assertInstanceOf(Environment::class, $twig);
+        $context = $this->createSalesChannelContext();
 
-        return $twig->render('@Storefront/storefront/component/product/feature/list.html.twig', [
-            'context' => $this->createSalesChannelContext(),
+        return StorefrontTwigRenderer::render(static::getContainer(), '@Storefront/storefront/component/product/feature/list.html.twig', [
+            'context' => $context,
             'lineItem' => new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE),
             'features' => [
                 [
@@ -87,6 +85,6 @@ class ProductFeatureTemplateTest extends TestCase
                     'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
                 ],
             ],
-        ]);
+        ], $context);
     }
 }

@@ -9,7 +9,7 @@ import type { MappedError } from '../service/extension-error-handler.service';
 /**
  * @private
  */
-export interface ShopwareExtensionsState {
+interface ShopwareExtensionsState {
     search: {
         page: number;
         limit: number;
@@ -19,7 +19,7 @@ export interface ShopwareExtensionsState {
         filter: $TSFixMe;
     };
     extensionListing: Extension[];
-    categoriesLanguageId: string | null;
+    categoriesLanguageId: EntityKey<'language'> | null;
     myExtensions: {
         loading: boolean;
         data: Extension[];

@@ -27,14 +27,9 @@ export default {
         'filterService',
     ],
 
-    emits: [
-        'modal-close',
-        'selection-submit',
-    ],
+    emits: ['modal-close', 'selection-submit'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         entityName: {
@@ -72,6 +67,10 @@ export default {
         emptyImagePath: {
             type: String,
             required: false,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use "emptyIcon" instead.',
+            },
         },
         // Meteor icon name that is used as an Icon for the empty state.
         emptyIcon: {
@@ -182,16 +181,11 @@ export default {
         assignmentProperties() {
             const properties = [];
 
-            Object.entries(this.entityDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
-                        properties.push(propertyName);
-                    }
-                },
-            );
+            Object.entries(this.entityDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation === 'many_to_many' || property.relation === 'one_to_many') {
+                    properties.push(propertyName);
+                }
+            });
 
             return properties;
         },

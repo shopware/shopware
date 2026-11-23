@@ -32,6 +32,48 @@ class ContentSystemExceptionTest extends TestCase
         static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
     }
 
+    #[TestDox('renders the declared type and the actual shape into the whole translation-shape message')]
+    public function testTranslationShapeInvalidRendersTheWholeMessage(): void
+    {
+        $exception = ContentSystemException::translationShapeInvalid('el-1', 'count', 'integer (translatable)', 'a map whose selected entry is string');
+
+        static::assertSame(
+            'Property "count" of element "el-1" is declared integer (translatable) and must hold a language map of its primitive, but holds a map whose selected entry is string.',
+            $exception->getMessage()
+        );
+    }
+
+    #[TestDox('keeps an inline mapping fault\'s status, code and parameters and names the language of its entry')]
+    public function testInlineMappingFaultInLanguageEntryNamesTheLanguage(): void
+    {
+        $fault = ContentSystemException::malformedInlineMappingToken('product', 'text');
+
+        $exception = ContentSystemException::inlineMappingFaultInLanguageEntry($fault, 'language-german');
+
+        static::assertSame($fault->getStatusCode(), $exception->getStatusCode());
+        static::assertSame(ContentSystemException::MALFORMED_INLINE_MAPPING_TOKEN, $exception->getErrorCode());
+        static::assertSame(['path' => 'product', 'propertyKey' => 'text', 'languageId' => 'language-german'], $exception->getParameters());
+        static::assertSame(
+            'Inline mapping path "product" in property "text" must include a member below its source, for example "{{map:product.name}}". Found in the entry for language "language-german".',
+            $exception->getMessage(),
+        );
+    }
+
+    #[TestDox('appends the language to the fault\'s rendered message without rendering that message a second time')]
+    public function testInlineMappingFaultInLanguageEntryKeepsTheRenderedMessageVerbatim(): void
+    {
+        // A malformed path may hold "$0", which the placeholder substitution reads as a back reference, so a
+        // second rendering pass would change the already rendered message.
+        $fault = ContentSystemException::malformedInlineMappingToken('$0$0', 'text');
+
+        $exception = ContentSystemException::inlineMappingFaultInLanguageEntry($fault, 'language-german');
+
+        static::assertSame(
+            $fault->getMessage() . ' Found in the entry for language "language-german".',
+            $exception->getMessage(),
+        );
+    }
+
     /**
      * @param \Closure(ConstraintViolationList): ContentSystemException $factory
      */
@@ -95,6 +137,28 @@ class ContentSystemExceptionTest extends TestCase
         sort($actual);
 
         static::assertSame($expected, $actual);
+    }
+
+    #[DataProvider('bindingRootSourceNotScopedParametersProvider')]
+    #[TestDox('carries $_dataName in the binding-root-source-not-scoped parameters')]
+    public function testBindingRootSourceNotScopedCarriesItsArgumentsAsParameters(?string $elementId, ?string $rootSource): void
+    {
+        $exception = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', $elementId, $rootSource);
+
+        static::assertSame(
+            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => $elementId, 'rootSource' => $rootSource],
+            $exception->getParameters()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string}>
+     */
+    public static function bindingRootSourceNotScopedParametersProvider(): iterable
+    {
+        yield 'an absent root source as null' => ['crumb-1', null];
+        yield 'a named root source verbatim' => ['crumb-1', 'none'];
+        yield 'an absent element as null' => [null, 'none'];
     }
 
     #[DataProvider('configSerializerMessageFormProvider')]
@@ -188,6 +252,63 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($previous, $e->getPrevious());
     }
 
+    #[TestDox('builds the assignment mismatch violation from the mismatch exception')]
+    public function testRootSourceAssignmentMismatchViolation(): void
+    {
+        $violation = ContentSystemException::rootSourceAssignmentMismatchViolation('product_detail', 'category', '/0/contentLayoutId');
+
+        static::assertSame(
+            'Cannot assign a "category" entity to a content layout whose root source is "product_detail".',
+            $violation->getMessage()
+        );
+        static::assertSame(
+            'Cannot assign a "category" entity to a content layout whose root source is "product_detail".',
+            $violation->getMessageTemplate()
+        );
+        static::assertSame([], $violation->getParameters());
+        static::assertNull($violation->getRoot());
+        static::assertSame('/0/contentLayoutId', $violation->getPropertyPath());
+        static::assertSame('product_detail', $violation->getInvalidValue());
+        static::assertSame('CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH', $violation->getCode());
+    }
+
+    #[TestDox('wraps a decode defect into a single-violation layout write rejection')]
+    public function testLayoutWriteRejection(): void
+    {
+        $defect = ContentSystemException::invalidElementId('12', 'reads as an integer');
+        $rejectedValue = [['id' => '12', 'type' => 'Sw:Text']];
+
+        $rejection = ContentSystemException::layoutWriteRejection($defect, 'layout', $rejectedValue, '/0/layout');
+
+        static::assertSame('/0/layout', $rejection->getPath());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $rejection->getStatusCode());
+        static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $rejection->getErrorCode());
+        static::assertCount(1, $rejection->getViolations());
+
+        $violation = $rejection->getViolations()->get(0);
+        static::assertInstanceOf(ConstraintViolation::class, $violation);
+        static::assertSame('Element id "12" is not accepted: it reads as an integer.', $violation->getMessage());
+        static::assertSame('Element id "12" is not accepted: it reads as an integer.', $violation->getMessageTemplate());
+        static::assertSame([], $violation->getParameters());
+        static::assertNull($violation->getRoot());
+        static::assertSame('/layout', $violation->getPropertyPath());
+        static::assertSame($rejectedValue, $violation->getInvalidValue());
+        static::assertSame('CONTENT_SYSTEM__INVALID_ELEMENT_ID', $violation->getCode());
+    }
+
+    #[TestDox('builds a 403 missing-privilege exception that lists the missing privilege')]
+    public function testMissingPrivileges(): void
+    {
+        $exception = ContentSystemException::missingPrivileges(['content_layout:translate']);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $exception->getErrorCode());
+        static::assertSame(
+            '{"message":"Missing privilege","missingPrivileges":["content_layout:translate"]}',
+            $exception->getMessage(),
+        );
+    }
+
     /**
      * @return iterable<string, array{\Throwable, bool}>
      */
@@ -197,17 +318,21 @@ class ContentSystemExceptionTest extends TestCase
         // so a client typo must become an invalid_config diagnostic, not a 500 that aborts the write. The exact
         // catalogue membership is pinned by a separate test.
         yield 'a code in the client-defect catalogue as a client defect' => [ContentSystemException::unknownLoaderEntity('prodct'), true];
-        yield 'a provider delivery collision as a client defect' => [ContentSystemException::providerDeliveryCollision('item', 'product', 'category', 'el-1'), true];
-        yield 'a root scope combined with redistribute as a client defect' => [ContentSystemException::rootScopeWithRedistribute('product'), true];
         // A code outside the catalogue is an internal fault that must propagate, never relabelled as the client's mistake.
         yield 'a code outside the client-defect catalogue as an internal fault' => [ContentSystemException::invalidFieldType('A', 'B'), false];
         // A served layout is stored data, not client input, so a corrupt forest is an internal fault.
         yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
+        // Every client-supplied path rejects a non-map value on a translatable property before serving, so a
+        // value reaching language reduction with one is an internal fault on the same argument.
+        yield 'an invalid translation shape as an internal fault' => [ContentSystemException::translationShapeInvalid('el-1', 'text', 'string (translatable)', 'string'), false];
+        yield 'an inline expansion resource limit as an internal fault' => [ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'), false];
+        yield 'an unbound internal mapping operation as an internal fault' => [ContentSystemException::mappingRootSourceMissing('element-1', 'text'), false];
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
         yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
         yield 'a box-spacing input failure as a client defect' => [ContentSystemException::boxSpacingInvalidValue('trim', 'x'), true];
+        yield 'a binding root source not scoped as an internal fault' => [ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none'), false];
         // Only a content-system exception can be a client defect, whatever its message says.
         yield 'a non content-system throwable as an internal fault' => [new \RuntimeException('boom'), false];
     }
@@ -253,6 +378,41 @@ class ContentSystemExceptionTest extends TestCase
      */
     public static function producesCorrectStatusAndErrorCodeProvider(): iterable
     {
+        yield 'an unbound internal mapping operation' => [
+            ContentSystemException::mappingRootSourceMissing('element-1', 'text'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__MAPPING_ROOT_SOURCE_MISSING',
+            'Mapping property "text" on element "element-1" requires a bound layout root source.',
+        ];
+
+        yield 'inline expansion limit is a render fault' => [
+            ContentSystemException::inlineMappingExpansionTooLarge(1048576, 'property'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE',
+            '1048576 bytes per property',
+        ];
+
+        yield 'inline input limit remains a validation failure' => [
+            ContentSystemException::inlineMappingInputTooLarge(262144),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE',
+            '262144 bytes',
+        ];
+
+        yield 'inline token scan failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not scan tokens in inline mapping text: Backtrack limit exhausted.',
+        ];
+
+        yield 'inline path validation failure is a server fault' => [
+            ContentSystemException::inlineMappingParsingFailed('validate a path in', 'Backtrack limit exhausted'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED',
+            'Could not validate a path in inline mapping text: Backtrack limit exhausted.',
+        ];
+
         yield 'box-spacing input limit' => [
             ContentSystemException::boxSpacingInvalidValue('trim', 'x'),
             Response::HTTP_BAD_REQUEST,
@@ -368,6 +528,13 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID',
             'repeated-id',
+        ];
+
+        yield 'invalid translation shape' => [
+            ContentSystemException::translationShapeInvalid('el-1', 'text', 'integer (translatable)', 'a map whose selected entry is string'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID',
+            'Property "text" of element "el-1" is declared integer (translatable) and must hold a language map of its primitive, but holds a map whose selected entry is string.',
         ];
 
         yield 'layout assignment not found' => [
@@ -571,6 +738,68 @@ class ContentSystemExceptionTest extends TestCase
             'Sw:Media:Image',
         ];
 
+        yield 'mutation property unknown' => [
+            ContentSystemException::mutationPropertyUnknown('el-1', 'ghost'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN',
+            'Property "ghost" is not a primitive property declared by the type of element "el-1".',
+        ];
+
+        yield 'mutation property conflict' => [
+            ContentSystemException::mutationPropertyConflict('el-1', 'text'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT',
+            'Property "text" of element "el-1" is both written and removed by the same update.',
+        ];
+
+        yield 'mutation property value rejected' => [
+            ContentSystemException::mutationPropertyValueRejected('el-1', 'columns', 'string'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED',
+            'Value for property "columns" of element "el-1" does not match its declared type, but is string.',
+        ];
+
+        yield 'mutation property language key invalid' => [
+            ContentSystemException::mutationPropertyLanguageKeyInvalid('el-1', 'label', 'de-DE'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
+            'Language key "de-DE" of translatable property "label" of element "el-1" is not a language id in lowercase UUID hex.',
+        ];
+
+        yield 'mutation property not translatable' => [
+            ContentSystemException::mutationPropertyNotTranslatable('el-1', 'headline'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE',
+            'Property "headline" is not a translatable property declared by the type of element "el-1".',
+        ];
+
+        // The Admin mutation 404 half of the pair whose other half is the 'layout not found' row above: that one
+        // is the Store-API render-time 500 for a layout that should exist, this one answers an unknown {layoutId}.
+        yield 'content layout not found as the admin mutation 404' => [
+            ContentSystemException::contentLayoutNotFound('layout-1'),
+            Response::HTTP_NOT_FOUND,
+            'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND',
+            'Content layout "layout-1" was not found.',
+        ];
+
+        // The gated half of the root-source pair: membership is checked with this 400 on every write and
+        // mutation path, before resolve()/sourceFor() is reached.
+        yield 'unknown root source as the gating 400' => [
+            ContentSystemException::unknownRootSource('mystery_source'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
+            'Unknown root source "mystery_source". It is not a registered root source.',
+        ];
+
+        // The ungated half: reaching the registry's resolve() with an unregistered id is a programming error in
+        // a caller that skipped the membership gate, so a 500 rather than the client-facing 400 above.
+        yield 'root source resolution unsupported as the ungated-caller 500' => [
+            ContentSystemException::rootSourceResolutionUnsupported('mystery_source'),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED',
+            'is not registered and cannot be resolved',
+        ];
+
         yield 'default content layout deletion' => [
             ContentSystemException::defaultContentLayoutDeletion(['layout-a', 'layout-b']),
             Response::HTTP_BAD_REQUEST,
@@ -599,6 +828,27 @@ class ContentSystemExceptionTest extends TestCase
             'hero-preset',
         ];
 
+        yield 'layout preset circular reference' => [
+            ContentSystemException::layoutPresetCircularReference(['App:A', 'App:B', 'App:A']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE',
+            'Layout preset "App:A" has a circular reference: App:A -> App:B -> App:A',
+        ];
+
+        yield 'layout preset unknown reference' => [
+            ContentSystemException::layoutPresetUnknownReference('App:Missing', ['App:A', 'App:B']),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE',
+            'Layout preset "App:A" references unknown preset "App:Missing" via App:A -> App:B -> App:Missing',
+        ];
+
+        yield 'layout preset too many references' => [
+            ContentSystemException::layoutPresetTooManyReferences('App:A', 1000),
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES',
+            'Layout preset "App:A" reaches the limit of 1000 nested presets',
+        ];
+
         yield 'style option duplicate' => [
             ContentSystemException::styleOptionDuplicate('padding', 'core', 'MyPlugin'),
             Response::HTTP_CONFLICT,
@@ -618,6 +868,41 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_CONFLICT,
             'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS',
             'core:a, core:b',
+        ];
+
+        yield 'binding root source not scoped' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'landing_page'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but carries no value for root source "landing_page".',
+        ];
+
+        yield 'binding root source not scoped, without a root source' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but the layout has no root source.',
+        ];
+
+        yield 'binding root source not scoped, for the root source named none' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but carries no value for root source "none".',
+        ];
+
+        yield 'binding root source not scoped, without an element' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, 'landing_page'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb": its config is scoped by root source, but carries no value for root source "landing_page".',
+        ];
+
+        yield 'binding root source not scoped, without an element and without a root source' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb": its config is scoped by root source, but the layout has no root source.',
         ];
     }
 

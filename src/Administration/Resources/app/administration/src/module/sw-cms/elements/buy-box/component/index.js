@@ -10,10 +10,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-element'), Mixin.getByName('placeholder')],
 
     computed: {
         product() {
@@ -29,9 +26,7 @@ export default {
                     deliveryTime: {
                         name: '1-3 days',
                     },
-                    price: [
-                        { gross: 0.0 },
-                    ],
+                    price: [{ gross: 0.0 }],
                 };
             }
 

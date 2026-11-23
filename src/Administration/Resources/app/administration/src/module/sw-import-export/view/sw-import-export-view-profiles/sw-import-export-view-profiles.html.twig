@@ -19,9 +19,8 @@
 
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
             <mt-button
-                v-tooltip="createTooltip"
                 class="sw-import-export-view-profiles__create-action"
-                :disabled="isLoading || isNotSystemLanguage"
+                :disabled="isLoading"
                 size="small"
                 variant="secondary"
                 @click="onAddNewProfile"

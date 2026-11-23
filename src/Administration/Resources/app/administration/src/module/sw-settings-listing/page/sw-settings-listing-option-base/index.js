@@ -12,14 +12,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -60,6 +55,11 @@ export default {
          * @deprecated tag:v6.8.0 - will be removed, is not used anymore
          */
         productSortingEntityCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-listing-option-base.productSortingEntityCriteria is deprecated and will be removed, is not used anymore.',
+            );
+
             return new Criteria(1, 25);
         },
 
@@ -82,11 +82,7 @@ export default {
 
     methods: {
         createdComponent() {
-            Promise.all([
-                this.fetchProductSortingEntity(),
-                this.fetchCustomFields(),
-                this.fetchDefaultSorting(),
-            ]);
+            Promise.all([this.fetchProductSortingEntity(), this.fetchCustomFields(), this.fetchDefaultSorting()]);
         },
 
         async fetchProductSortingEntity() {
@@ -143,17 +139,20 @@ export default {
                 return false;
             }
 
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
 
             criteria.addFilter(Criteria.equals('key', key));
 
-            const response = await this.productSortingRepository.search(criteria);
+            const {
+                data: [existingId],
+            } = await this.productSortingRepository.searchIds(criteria);
 
-            if (!response.first()) {
+            if (!existingId) {
                 return false;
             }
 
-            return response.first().id !== this.productSortingEntity.id;
+            return existingId !== this.productSortingEntity.id;
         },
 
         async saveProductSorting() {

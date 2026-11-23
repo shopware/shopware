@@ -32,8 +32,8 @@ class ComposerPluginLoaderTest extends TestCase
         $loader = new ComposerPluginLoader($this->classLoader, null);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testWithInvalidPlugins(): void
@@ -56,8 +56,8 @@ class ComposerPluginLoaderTest extends TestCase
         $loader = new ComposerPluginLoader($this->classLoader, null);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertEmpty($loader->getPluginInfos());
-        static::assertEmpty($loader->getPluginInstances()->all());
+        static::assertCount(0, $loader->getPluginInfos());
+        static::assertCount(0, $loader->getPluginInstances()->all());
     }
 
     public function testLoadsPlugins(): void
@@ -67,7 +67,7 @@ class ComposerPluginLoaderTest extends TestCase
         $loader = new ComposerPluginLoader($this->classLoader, null);
         $loader->initializePlugins(TEST_PROJECT_DIR);
 
-        static::assertNotEmpty($loader->getPluginInfos());
+        static::assertNotCount(0, $loader->getPluginInfos());
 
         $entry = array_find($loader->getPluginInfos(), static fn (array $plugin) => $plugin['name'] === 'SwagTestComposerLoaded');
         static::assertNotNull($entry);
@@ -84,7 +84,7 @@ class ComposerPluginLoaderTest extends TestCase
         $loader = new ComposerPluginLoader($this->classLoader, null);
         $plugins = $loader->fetchPluginInfos();
 
-        static::assertNotEmpty($plugins);
+        static::assertNotCount(0, $plugins);
 
         $pluginNames = array_column($plugins, 'name');
         static::assertContains('SwagTestComposerLoaded', $pluginNames);

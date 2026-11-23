@@ -26,6 +26,7 @@ properties:
   text:
     type: string
     translatable: true
+    mappable: true
     title: "Text"
     description: "The text content."
   showBadge:

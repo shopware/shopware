@@ -55,7 +55,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -70,7 +70,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $medias = [
@@ -97,7 +97,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_MAPPED, 'product.media'));
@@ -178,7 +178,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithDefaultConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('sliderItems', FieldConfig::SOURCE_DEFAULT, 'my_default_media.png'));
@@ -195,7 +195,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -208,7 +208,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $imageSliderStruct = $slot->getData();
         static::assertInstanceOf(ImageSliderStruct::class, $imageSliderStruct);
-        static::assertEmpty($imageSliderStruct->getSliderItems());
+        static::assertSame([], $imageSliderStruct->getSliderItems());
     }
 
     public function testEnrichWithMappedConfigAndHasCorrectOrder(): void
@@ -280,7 +280,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $media = new MediaEntity();
         $media->setId('media123');
 
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('media_id', new EntitySearchResult(
             'media',
@@ -310,7 +310,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
 
         $imageSliderItems = $imageSliderStruct->getSliderItems();
         static::assertIsArray($imageSliderItems);
-        static::assertNotEmpty($imageSliderItems);
+        static::assertNotCount(0, $imageSliderItems);
 
         $firstSliderItem = $imageSliderItems[0];
         static::assertSame($media->getId(), $firstSliderItem->getMedia()?->getId());
@@ -460,7 +460,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         }
 
         return new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
             static::getContainer()->get(SalesChannelProductDefinition::class),
             $product
@@ -477,7 +477,7 @@ class ImageSliderTypeDataResolverTest extends TestCase
         $product->setManufacturer($manufacturer);
 
         return new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
             static::getContainer()->get(SalesChannelProductDefinition::class),
             $product

@@ -53,21 +53,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             }),
         );
 
-        const result = await handler.bulkEdit(
-            [
-                'abc',
-                'xyz',
-            ],
-            [],
-        );
+        const result = await handler.bulkEdit(['abc', 'xyz'], []);
 
         expect(bulkEditProductHandler).toHaveBeenCalledTimes(1);
         expect(bulkEditProductHandler).toHaveBeenCalledWith([]);
         expect(handler.entityName).toBe('product');
-        expect(handler.entityIds).toEqual([
-            'abc',
-            'xyz',
-        ]);
+        expect(handler.entityIds).toEqual(['abc', 'xyz']);
         expect(result).toBe(true);
     });
 
@@ -82,9 +73,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             .mockImplementation(() => Promise.resolve(payload));
         const syncMethod = jest.spyOn(handler.syncService, 'sync').mockImplementation(() => Promise.resolve(true));
 
-        const changes = [
-            { type: 'overwrite', field: 'description', value: 'test' },
-        ];
+        const changes = [{ type: 'overwrite', field: 'description', value: 'test' }];
 
         const result = await handler.bulkEdit([], changes);
 
@@ -214,18 +203,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 delete: {},
             };
             handler.entityName = 'product';
-            handler.entityIds = [
-                'product_1',
-                'product_2',
-            ];
+            handler.entityIds = ['product_1', 'product_2'];
         });
 
         const cases = [
-            [
-                'empty changes',
-                [],
-                {},
-            ],
+            ['empty changes', [], {}],
             [
                 'invalid field',
                 [
@@ -413,10 +395,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'invalidField',
-                        value: [
-                            'category_1',
-                            'category_2',
-                        ],
+                        value: ['category_1', 'category_2'],
                     },
                 ],
                 {},
@@ -427,10 +406,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -467,10 +443,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -531,10 +504,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'overwrite',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -717,13 +687,9 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'remove',
                         field: 'visibilities',
                         mappingReferenceField: 'salesChannelId',
-                        value: [
-                            { salesChannelId: 'scn_1', visibility: 30 },
-                        ],
+                        value: [{ salesChannelId: 'scn_1', visibility: 30 }],
                         removedSalesChannelIds: [],
-                        inheritedVisibilities: [
-                            { salesChannelId: 'scn_1', visibility: 30 },
-                        ],
+                        inheritedVisibilities: [{ salesChannelId: 'scn_1', visibility: 30 }],
                     },
                 ],
                 {},
@@ -735,9 +701,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'add',
                         field: 'visibilities',
                         mappingReferenceField: 'salesChannelId',
-                        value: [
-                            { salesChannelId: 'scn_1', visibility: 30 },
-                        ],
+                        value: [{ salesChannelId: 'scn_1', visibility: 30 }],
                         removedSalesChannelIds: [],
                         // Adding scn_1 which is already inherited must not drop scn_2.
                         addedVisibilities: [{ salesChannelId: 'scn_1', visibility: 30 }],
@@ -778,9 +742,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'add',
                         field: 'visibilities',
                         mappingReferenceField: 'salesChannelId',
-                        value: [
-                            { salesChannelId: 'scn_9', visibility: 10 },
-                        ],
+                        value: [{ salesChannelId: 'scn_9', visibility: 10 }],
                         removedSalesChannelIds: [],
                         addedVisibilities: [{ salesChannelId: 'scn_9', visibility: 10 }],
                         inheritedVisibilities: [
@@ -819,10 +781,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             { salesChannelId: 'scn_1', visibility: 30 },
                             { salesChannelId: 'scn_2', visibility: 30 },
                         ],
-                        removedSalesChannelIds: [
-                            'scn_1',
-                            'scn_2',
-                        ],
+                        removedSalesChannelIds: ['scn_1', 'scn_2'],
                         inheritedVisibilities: [
                             { salesChannelId: 'scn_1', visibility: 30 },
                             { salesChannelId: 'scn_2', visibility: 30 },
@@ -837,10 +796,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     'delete-product_visibility': {
                         action: 'delete',
                         entity: 'product_visibility',
-                        payload: [
-                            { id: 'pv_2_1' },
-                            { id: 'pv_2_2' },
-                        ],
+                        payload: [{ id: 'pv_2_1' }, { id: 'pv_2_2' }],
                     },
                 },
                 {
@@ -867,10 +823,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'add',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -912,10 +865,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'productLocations',
-                        value: [
-                            { name: 'location 2' },
-                            { name: 'location 3' },
-                        ],
+                        value: [{ name: 'location 2' }, { name: 'location 3' }],
                     },
                 ],
                 {
@@ -959,10 +909,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'clear',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -1030,10 +977,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {},
@@ -1064,10 +1008,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -1105,11 +1046,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                            { id: 'category_3' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }, { id: 'category_3' }],
                     },
                 ],
                 {
@@ -1159,10 +1096,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'remove',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -1208,10 +1142,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -1676,11 +1607,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             const scopedHandler = getBulkEditProductHandler();
             scopedHandler.groupedPayload = { upsert: {}, delete: {} };
             scopedHandler.entityName = 'product';
-            scopedHandler.entityIds = [
-                'product_1',
-                'product_2',
-                'product_3',
-            ];
+            scopedHandler.entityIds = ['product_1', 'product_2', 'product_3'];
 
             Shopware.EntityDefinition = EntityDefinitionFactory;
             Shopware.EntityDefinition.add('product', {

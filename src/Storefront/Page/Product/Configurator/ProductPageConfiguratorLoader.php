@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page\Product\Configurator;
 
+use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
@@ -25,5 +26,16 @@ class ProductPageConfiguratorLoader extends ProductConfiguratorLoader
     public function load(SalesChannelProductEntity $product, SalesChannelContext $context): PropertyGroupCollection
     {
         return $this->loader->load($product, $context);
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     */
+    public function loadFromCombinations(
+        SalesChannelProductEntity $product,
+        AvailableCombinationResult $combinations,
+        SalesChannelContext $context
+    ): PropertyGroupCollection {
+        return $this->loader->loadFromCombinations($product, $combinations, $context);
     }
 }

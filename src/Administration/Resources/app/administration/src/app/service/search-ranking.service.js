@@ -90,6 +90,9 @@ export default function createSearchRankingService() {
             }
 
             const queryScores = _buildQueryScores(fields, searchTerm);
+            if (queryScores.length < 1) {
+                return;
+            }
 
             const criteria = criteriaCollection[entity] ?? new Criteria(1, defaultLimit);
             criteria.setTotalCountMode(defaultTotalCountMode);
@@ -311,19 +314,20 @@ export default function createSearchRankingService() {
      * @returns {Array}
      */
     function _buildQueryScores(fieldScores, searchTerm) {
-        let terms = searchTerm.split(' ').filter((term) => {
-            return term.length >= minSearchTermLength;
-        });
+        let terms = searchTerm
+            .split(' ')
+            // Only strips brackets at the start or end of each word, e.g. `(cap` -> `cap`
+            .map((term) => term.replace(/^[()[\]{}<>\\]+|[()[\]{}<>\\]+$/gu, ''))
+            .filter((term) => {
+                return term.length >= minSearchTermLength;
+            });
         terms = [...new Set(terms)];
 
         const queryScores = [];
 
         Object.keys(fieldScores).forEach((field) => {
             terms.forEach((term) => {
-                queryScores.push([
-                    Criteria.contains(field, term),
-                    fieldScores[field],
-                ]);
+                queryScores.push([Criteria.contains(field, term), fieldScores[field]]);
             });
         });
 

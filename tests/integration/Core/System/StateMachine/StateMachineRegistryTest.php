@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
-use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
@@ -23,7 +22,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\StateMachineCollection;
 use Shopware\Core\System\StateMachine\StateMachineException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -72,8 +70,9 @@ class StateMachineRegistryTest extends TestCase
         $this->inProgressId = Uuid::randomHex();
         $this->closedId = Uuid::randomHex();
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS _test_nullable');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS _test_nullable;
 CREATE TABLE `_test_nullable` (
   `id` varbinary(16) NOT NULL,
   `state` varchar(255) NULL,
@@ -117,13 +116,12 @@ EOF;
         $this->createOrderWithPartiallyReturnedDeliveryState();
         $availableTransitions = $this->stateMachineRegistry->getAvailableTransitions('order_delivery', $this->fetchFirstIdFromTable('order_delivery'), 'stateId', Context::createDefaultContext());
 
-        static::assertNotEmpty($availableTransitions);
+        static::assertNotCount(0, $availableTransitions);
         static::assertCount(2, $availableTransitions);
 
         $reopenActionExisted = false;
         $retourActionExisted = false;
 
-        /** @var StateMachineTransitionEntity $transition */
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
@@ -146,9 +144,9 @@ EOF;
         $transition = new Transition('order_delivery', $orderDeliveryId, 'retour', 'stateId');
         $stateCollection = $this->stateMachineRegistry->transition($transition, Context::createDefaultContext());
 
-        static::assertNotEmpty($stateCollection);
-        static::assertNotEmpty($stateCollection->get('fromPlace'));
-        static::assertNotEmpty($stateCollection->get('toPlace'));
+        static::assertNotCount(0, $stateCollection);
+        static::assertNotNull($stateCollection->get('fromPlace'));
+        static::assertNotNull($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
         static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
@@ -161,9 +159,9 @@ EOF;
         $transition = new Transition('order_delivery', $orderDeliveryId, 'retour_partially', 'stateId');
         $stateCollection = $this->stateMachineRegistry->transition($transition, Context::createDefaultContext());
 
-        static::assertNotEmpty($stateCollection);
-        static::assertNotEmpty($stateCollection->get('fromPlace'));
-        static::assertNotEmpty($stateCollection->get('toPlace'));
+        static::assertNotCount(0, $stateCollection);
+        static::assertNotNull($stateCollection->get('fromPlace'));
+        static::assertNotNull($stateCollection->get('toPlace'));
         $fromPlace = $stateCollection->get('fromPlace');
         $toPlace = $stateCollection->get('toPlace');
         static::assertSame(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
@@ -177,7 +175,6 @@ EOF;
 
         $orderBuilder = new OrderBuilder($ids, 'o-1');
 
-        /** @var EntityRepository<OrderCollection> $orderRepo */
         $orderRepo = self::getContainer()->get('order.repository');
         static::assertInstanceOf(EntityRepository::class, $orderRepo);
         $orderRepo->create([$orderBuilder->build()], Context::createCLIContext());

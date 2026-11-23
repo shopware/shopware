@@ -16,7 +16,6 @@ const shortcutsDisabledStorageKey = 'sw-admin-keyboard-shortcuts-disabled';
  * @param {Number} [keystrokeDelay=1000]
  * @returns {Object}
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function createShortcutService(shortcutFactory, keystrokeDelay = 1000) {
     let shortcutsDisabled = getShortcutStorage()?.getItem(shortcutsDisabledStorageKey) === 'true';
 
@@ -83,10 +82,7 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         if (currentTime - state.lastKeyTime > keystrokeDelay) {
             buffer = [key];
         } else {
-            buffer = [
-                ...state.buffer,
-                key,
-            ];
+            buffer = [...state.buffer, key];
         }
 
         state = {

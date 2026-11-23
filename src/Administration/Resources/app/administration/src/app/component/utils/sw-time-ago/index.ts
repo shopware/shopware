@@ -10,16 +10,12 @@ import useUpdateClock from './updateClock';
  * @component-example
  * <sw-time-ago date="2021-08-25T11:08:48.940+00:00"></sw-time-ago>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
         date: {
-            type: [
-                Date,
-                String,
-            ] as PropType<Date | string>,
+            type: [Date, String] as PropType<Date | string>,
             required: true,
         },
         dateTimeFormat: {

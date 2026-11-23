@@ -34,10 +34,7 @@ async function createWrapper(props = {}) {
                 ],
             },
             storno: {
-                formats: [
-                    'pdf',
-                    'html',
-                ],
+                formats: ['pdf', 'html'],
             },
         },
     } = props;
@@ -146,10 +143,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             },
         );
 
-        expect(documentFormatCancellationInvoiceListElementsText).toEqual([
-            'pdf--snippet',
-            'html--snippet',
-        ]);
+        expect(documentFormatCancellationInvoiceListElementsText).toEqual(['pdf--snippet', 'html--snippet']);
     });
 
     it('does not preselect file formats after selecting a document type', async () => {
@@ -297,8 +291,9 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         );
     });
 
-    it('emits the document configuration when creating a V2 document', async () => {
-        const wrapper = await createWrapper();
+    it.each(['1000', 'manual-number'])('submits document number %s without reserving it', async (documentNumber) => {
+        const numberRangeReserveMock = jest.fn().mockResolvedValue({ number: '1000' });
+        const wrapper = await createWrapper({ numberRangeReserveMock });
         await flushPromises();
 
         await wrapper
@@ -325,18 +320,21 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             .trigger('click');
         await flushPromises();
 
+        const numberInput = wrapper.find('.sw-order-create-document-modal__document-number input');
+        await numberInput.setValue(documentNumber);
         await wrapper.find('.sw-order-create-document-modal__create-button').trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
         expect(wrapper.emitted()['document-create'][0][0]).toStrictEqual({
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
-            documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            documentNumber: documentNumber === '1000' ? '' : documentNumber,
+            documentNumberPreview: '1000',
+            requestedFileFormats: ['html', 'pdf'],
         });
+        expect(numberRangeReserveMock).toHaveBeenCalledTimes(1);
+        expect(numberRangeReserveMock).toHaveBeenCalledWith('document_invoice', 'sales-channel-id', true);
+        expect(numberInput.element.value).toBe(documentNumber);
     });
 
     it('emits the send action when using the generate and send menu item', async () => {
@@ -421,10 +419,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('html');
@@ -463,10 +458,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
             documentNumber: '1000',
-            requestedFileFormats: [
-                'html',
-                'pdf',
-            ],
+            requestedFileFormats: ['html', 'pdf'],
         });
 
         expect(wrapper.emitted()['preview-show'][0][1]).toBe('pdf');
@@ -530,10 +522,7 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             supportedDocumentTypes: {
                 invoice: { formats: ['pdf'] },
                 swag_warranty: {
-                    formats: [
-                        'pdf',
-                        'html',
-                    ],
+                    formats: ['pdf', 'html'],
                 },
             },
         });

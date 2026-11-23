@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -40,8 +40,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class CartShippingCostRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private CartShippingCostRule $rule;
 
     protected function setUp(): void
@@ -58,7 +56,7 @@ class CartShippingCostRuleTest extends TestCase
         $cart = $this->createCartDummyWithShippingCosts($calculatedPrice);
         $childLineItemCollection = $cart->getLineItems();
 
-        $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
+        $containerLineItem = CartRuleFixture::createContainerLineItem($childLineItemCollection);
 
         $cart->setLineItems(new LineItemCollection([$containerLineItem]));
 
@@ -223,11 +221,11 @@ class CartShippingCostRuleTest extends TestCase
     private function createCartDummyWithShippingCosts(CalculatedPrice $calculatedPrice): Cart
     {
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItemWithDeliveryInfo(false, 3, 10, 40, 3, 0.5),
-            $this->createLineItemWithDeliveryInfo(true, 3, 10, 40, 3, 0.5),
+            CartRuleFixture::createLineItemWithDeliveryInfo(false, 3, 10, 40, 3, 0.5),
+            CartRuleFixture::createLineItemWithDeliveryInfo(true, 3, 10, 40, 3, 0.5),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
         $deliveryPositionCollection = new DeliveryPositionCollection();
         $deliveryDate = new DeliveryDate(new \DateTimeImmutable('now'), new \DateTimeImmutable('now'));
 

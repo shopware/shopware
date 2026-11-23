@@ -172,7 +172,7 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             ]
         );
         $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken, 'Login should succeed');
+        static::assertNotSame('', $contextToken, 'Login should succeed');
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
 
@@ -188,7 +188,6 @@ class HandlePaymentMethodRouteResponseTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
             'stateId' => static::getContainer()->get(InitialStateIdLoader::class)->get(OrderTransactionStates::STATE_MACHINE),
             'amount' => new CalculatedPrice(100, 100, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
-            'payload' => '{}',
         ];
 
         $this->orderTransactionRepository->upsert([$transaction], $context);

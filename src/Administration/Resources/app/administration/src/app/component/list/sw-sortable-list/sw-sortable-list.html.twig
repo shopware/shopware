@@ -25,9 +25,11 @@
 {% block sw_sortable_list_empty_state %}
 <mt-empty-state
     v-else
+    centered
     :icon="$route.meta.$module.icon"
     class="sw-sortable-list__empty-state"
     :headline="$t('sw-empty-state.messageNoResultTitle')"
+    description=""
 />
 {% endblock %}
 {% endblock %}

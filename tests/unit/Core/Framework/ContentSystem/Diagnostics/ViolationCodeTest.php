@@ -60,11 +60,15 @@ class ViolationCodeTest extends TestCase
         yield 'mismatched_property_type' => [ViolationCode::MismatchedPropertyType, ViolationScope::Intrinsic];
         yield 'unknown_style_option' => [ViolationCode::UnknownStyleOption, ViolationScope::Intrinsic];
         yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationScope::Intrinsic];
+        yield 'dangling_language' => [ViolationCode::DanglingLanguage, ViolationScope::Intrinsic];
         yield 'unresolved_required' => [ViolationCode::UnresolvedRequired, ViolationScope::Binding];
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationScope::Binding];
         yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationScope::Binding];
         yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationScope::Binding];
         yield 'unfilled_required_input' => [ViolationCode::UnfilledRequiredInput, ViolationScope::Binding];
+        // Binding, because a mapping is admissible only against a particular root source's catalogue: the
+        // same tree can be legal under one bound source and not under another.
+        yield 'invalid_mapping' => [ViolationCode::InvalidMapping, ViolationScope::Binding];
     }
 
     /**
@@ -82,7 +86,9 @@ class ViolationCodeTest extends TestCase
         yield 'ambiguous_required' => [ViolationCode::AmbiguousRequired, ViolationSeverity::Error];
         yield 'broken_required_chain' => [ViolationCode::BrokenRequiredChain, ViolationSeverity::Error];
         yield 'unfilled_required_input' => [ViolationCode::UnfilledRequiredInput, ViolationSeverity::Error];
+        yield 'invalid_mapping' => [ViolationCode::InvalidMapping, ViolationSeverity::Error];
         yield 'unresolved_optional' => [ViolationCode::UnresolvedOptional, ViolationSeverity::Warning];
         yield 'orphaned_provider' => [ViolationCode::OrphanedProvider, ViolationSeverity::Warning];
+        yield 'dangling_language' => [ViolationCode::DanglingLanguage, ViolationSeverity::Warning];
     }
 }

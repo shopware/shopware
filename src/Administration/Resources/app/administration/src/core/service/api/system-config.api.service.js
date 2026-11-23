@@ -30,7 +30,26 @@ class SystemConfigApiService extends ApiService {
             });
     }
 
+    getSchema(domain, additionalParams = {}, additionalHeaders = {}) {
+        return this.httpClient
+            .get('_action/system-config/get-schema', {
+                params: { domain, ...additionalParams },
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use SystemConfigApiService.getSchema instead.
+     */
     getConfig(domain, additionalParams = {}, additionalHeaders = {}) {
+        Shopware.Feature.triggerDeprecationOrThrow(
+            'V6_8_0_0',
+            'systemConfigApiService.getConfig() is deprecated. Use `getSchema` instead.',
+        );
+
         return this.httpClient
             .get('_action/system-config/schema', {
                 params: { domain, ...additionalParams },
@@ -41,6 +60,11 @@ class SystemConfigApiService extends ApiService {
             });
     }
 
+    /**
+     * @param {string} domain
+     * @param {string|null} [salesChannelId]
+     * @returns {Promise<Record<string, unknown>>}
+     */
     getValues(domain, salesChannelId = null, additionalParams = {}, additionalHeaders = {}) {
         return this.httpClient
             .get('_action/system-config', {

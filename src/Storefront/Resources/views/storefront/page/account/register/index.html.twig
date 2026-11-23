@@ -2,7 +2,8 @@
 
 {% block base_content %}
     {% block page_account_register %}
-        <div class="account-register">
+        <div class="account-register"
+             data-checkout-customer-storage-reset="true">
             {% block page_account_register_header %}
                 <h1>{{ 'account.loginRegistrationHeader'|trans|sw_sanitize }}</h1>
             {% endblock %}

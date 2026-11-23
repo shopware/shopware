@@ -8,14 +8,15 @@ const { isEmpty } = Utils.types;
  * @sw-package after-sales
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'numberRangeService',
-        'repositoryFactory',
-    ],
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
+    inject: ['numberRangeService', 'repositoryFactory'],
 
     emits: [
         'loading-document',
@@ -25,9 +26,7 @@ export default {
         'page-leave',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         order: {

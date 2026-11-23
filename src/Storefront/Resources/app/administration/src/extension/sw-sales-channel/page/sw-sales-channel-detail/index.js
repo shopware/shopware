@@ -8,9 +8,7 @@ const { Component } = Shopware;
 Component.override('sw-sales-channel-detail', {
     template,
 
-    inject: [
-        'themeService',
-    ],
+    inject: ['themeService'],
 
     methods: {
         getLoadSalesChannelCriteria() {

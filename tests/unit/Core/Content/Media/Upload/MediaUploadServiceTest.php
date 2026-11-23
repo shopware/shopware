@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\Upload;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -21,11 +22,10 @@ use Shopware\Core\Content\Media\Upload\MediaUploadParameters;
 use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -92,10 +92,8 @@ class MediaUploadServiceTest extends TestCase
 
     public function testUploadFromLocalPath(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $params = new MediaUploadParameters();
-
-        (new Filesystem())->dumpFile($filePath, 'test content');
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -123,8 +121,8 @@ class MediaUploadServiceTest extends TestCase
         static::assertCount(1, $this->mediaRepository->creates);
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['id']));
         static::assertTrue(isset($this->mediaRepository->creates[0][0]['private']));
-
-        (new Filesystem())->remove($filePath);
+        static::assertArrayNotHasKey('title', $this->mediaRepository->creates[0][0]);
+        static::assertArrayNotHasKey('alt', $this->mediaRepository->creates[0][0]);
     }
 
     public function testUploadFromLocalPathFileNotFound(): void
@@ -139,11 +137,8 @@ class MediaUploadServiceTest extends TestCase
 
     public function testUploadFromRequest(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), 'test');
-        file_put_contents($tempFile, 'test content');
-
         $uploadedFile = new UploadedFile(
-            $tempFile,
+            __DIR__ . '/../fixtures/shopware.jpg',
             'test.jpg',
             'image/jpeg',
             null,
@@ -173,8 +168,6 @@ class MediaUploadServiceTest extends TestCase
         static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
         static::assertCount(1, $this->mediaRepository->creates);
-
-        (new Filesystem())->remove($tempFile);
     }
 
     public function testUploadFromRequestWithoutFile(): void
@@ -200,18 +193,19 @@ class MediaUploadServiceTest extends TestCase
             'test-hash'
         );
 
-        $tmpDir = sys_get_temp_dir();
-        static::assertNotEmpty($tmpDir);
-
+        $tempFile = null;
         $fileFetcher = $this->createMock(FileFetcher::class);
         $fileFetcher
             ->expects($this->once())
             ->method('fetchFromURL')
-            ->with(
-                $url,
-                static::stringContains($tmpDir)
-            )
-            ->willReturn($mediaFile);
+            ->willReturnCallback(static function (string $fetchedUrl, string $destination) use ($url, $mediaFile, &$tempFile): MediaFile {
+                static::assertSame($url, $fetchedUrl);
+                // the service hands the fetcher a temp file it created and removes it after the upload
+                static::assertFileExists($destination);
+                $tempFile = $destination;
+
+                return $mediaFile;
+            });
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -228,9 +222,10 @@ class MediaUploadServiceTest extends TestCase
 
         $result = $service->uploadFromURL($url, $this->context, $params);
 
-        static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
         static::assertCount(1, $this->mediaRepository->creates);
+        static::assertNotNull($tempFile);
+        static::assertFileDoesNotExist($tempFile);
     }
 
     public function testLinkURL(): void
@@ -257,6 +252,83 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('test', $createdMedia['fileName']);
         static::assertSame('jpg', $createdMedia['fileExtension']);
         static::assertSame('image/jpeg', $createdMedia['mimeType']);
+        static::assertArrayNotHasKey('title', $createdMedia);
+        static::assertArrayNotHasKey('alt', $createdMedia);
+    }
+
+    public function testLinkURLWithTitleAndAlt(): void
+    {
+        $params = new MediaUploadParameters(
+            fileName: 'test.jpg',
+            mimeType: 'image/jpeg',
+            title: 'Shopware logo',
+            alt: 'Blue Shopware logo',
+        );
+
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
+
+        $this->buildService(httpClient: $httpClient)->linkURL('https://example.com/image.jpg', $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+
+        $createdMedia = $this->mediaRepository->creates[0][0];
+        static::assertSame('Shopware logo', $createdMedia['title']);
+        static::assertSame('Blue Shopware logo', $createdMedia['alt']);
+    }
+
+    public function testLinkURLRejectsGivenFileNameWithPathSegments(): void
+    {
+        $params = new MediaUploadParameters(fileName: '../../../evil.jpg', mimeType: 'image/jpeg');
+
+        $this->expectExceptionObject(MediaException::illegalFileName('../../../evil', 'Filename must not start with a "." (dot).'));
+
+        $this->buildService()->linkURL('https://example.com/image.jpg', $this->context, $params);
+    }
+
+    public function testLinkURLAcceptsFileNameDerivedFromUrlWithQueryString(): void
+    {
+        $url = 'https://example.com/image.jpg?width=200';
+        $params = new MediaUploadParameters(mimeType: 'image/jpeg');
+
+        $httpClient = new MockHttpClient(new MockResponse('', ['response_headers' => ['content-length' => '1024']]));
+
+        $this->buildService(httpClient: $httpClient)->linkURL($url, $this->context, $params);
+
+        static::assertCount(1, $this->mediaRepository->creates);
+    }
+
+    #[DataProvider('urlsResolvingToLocalFilesAfterDecodingProvider')]
+    public function testLinkURLRejectsUrlResolvingToLocalFileAfterDecoding(string $url): void
+    {
+        $this->expectExceptionObject(MediaException::invalidUrl($url));
+
+        $this->buildService()->linkURL($url, $this->context, new MediaUploadParameters(mimeType: 'image/jpeg'));
+    }
+
+    public static function urlsResolvingToLocalFilesAfterDecodingProvider(): \Generator
+    {
+        yield 'percent encoded dot segments decode to a traversal' => ['https://example.com/%2e%2e/%2e%2e/document/invoice.pdf'];
+        yield 'percent encoded backslashes decode to separators of the derived file name' => ['https://example.com/a%5C..%5C..%5Cx.jpg'];
+    }
+
+    public function testLinkURLAppliesConfiguredMaximumDuration(): void
+    {
+        $url = 'https://example.com/image.jpg';
+        $params = new MediaUploadParameters(fileName: 'test.jpg', mimeType: 'image/jpeg');
+
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $requestUrl, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse('', ['response_headers' => ['content-length' => '1024']]);
+        });
+
+        $this->buildService(httpClient: $httpClient, externalLinkTimeout: 2.5)
+            ->linkURL($url, $this->context, $params);
+
+        static::assertSame(0, $capturedOptions['max_redirects']);
+        static::assertSame(['example.com' => '93.184.216.34'], $capturedOptions['resolve']);
+        static::assertSame(2.5, $capturedOptions['max_duration']);
     }
 
     public function testLinkURLWithoutMimeType(): void
@@ -336,11 +408,9 @@ class MediaUploadServiceTest extends TestCase
 
     public function testUploadWithDeduplication(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $existingMediaId = Uuid::randomHex();
         $params = new MediaUploadParameters(deduplicate: true);
-
-        (new Filesystem())->dumpFile($filePath, 'test content');
 
         // Setup the repository to return an existing media ID for deduplication
         $this->mediaRepository->addSearch([$existingMediaId]);
@@ -355,16 +425,12 @@ class MediaUploadServiceTest extends TestCase
 
         static::assertSame($existingMediaId, $result);
         static::assertCount(0, $this->mediaRepository->creates);
-
-        (new Filesystem())->remove($filePath);
     }
 
     public function testUploadWithErrorHandling(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $params = new MediaUploadParameters();
-
-        (new Filesystem())->dumpFile($filePath, 'test content');
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -384,25 +450,22 @@ class MediaUploadServiceTest extends TestCase
             // Verify that the media was created and then deleted due to error
             static::assertCount(1, $this->mediaRepository->creates);
             static::assertCount(1, $this->mediaRepository->deletes);
-
-            (new Filesystem())->remove($filePath);
         }
     }
 
     public function testUploadWithCustomParameters(): void
     {
-        $filePath = __DIR__ . '/fixtures/test-image.jpg';
+        $filePath = __DIR__ . '/../fixtures/shopware.jpg';
         $customId = Uuid::randomHex();
         $mediaFolderId = Uuid::randomHex();
         $params = new MediaUploadParameters(
             id: $customId,
             mediaFolderId: $mediaFolderId,
             private: true,
-            fileName: 'custom-name.jpg'
+            fileName: 'custom-name.jpg',
+            title: 'Shopware logo',
+            alt: 'Blue Shopware logo',
         );
-
-        // Create test file
-        file_put_contents($filePath, 'test content');
 
         $fileSaver = $this->createMock(FileSaver::class);
         $fileSaver
@@ -430,8 +493,8 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame($customId, $createdMedia['id']);
         static::assertTrue($createdMedia['private']);
         static::assertSame($mediaFolderId, $createdMedia['mediaFolderId']);
-
-        (new Filesystem())->remove($filePath);
+        static::assertSame('Shopware logo', $createdMedia['title']);
+        static::assertSame('Blue Shopware logo', $createdMedia['alt']);
     }
 
     public function testAddExternalThumbnailsToMedia(): void
@@ -463,6 +526,21 @@ class MediaUploadServiceTest extends TestCase
         static::assertSame('https://localhost:8000/thumb-400.jpg', $createdThumbnails[1]['path']);
         static::assertSame(400, $createdThumbnails[1]['width']);
         static::assertSame(400, $createdThumbnails[1]['height']);
+    }
+
+    public function testAddExternalThumbnailsRejectsUrlResolvingToLocalFileAfterDecoding(): void
+    {
+        $url = 'https://localhost:8000/%2e%2e/%2e%2e/document/invoice.pdf';
+        $collection = new ExternalThumbnailCollection([new ExternalThumbnailData($url, 200, 200)]);
+
+        try {
+            $this->mediaUploadService->addExternalThumbnailsToMedia(Uuid::randomHex(), $collection, $this->context);
+            static::fail('Expected the thumbnail URL to be rejected');
+        } catch (MediaException $exception) {
+            static::assertEquals(MediaException::invalidUrl($url), $exception);
+        }
+
+        static::assertCount(0, $this->mediaThumbnailRepository->creates);
     }
 
     public function testDeleteAllExternalThumbnailsSkipsMediaWithZeroThumbnails(): void
@@ -567,10 +645,9 @@ class MediaUploadServiceTest extends TestCase
     /**
      * @deprecated tag:v6.8.0 - Remove this test when validateExternalUrl() is removed
      */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testDeprecatedValidateExternalUrlThrowsForInvalidFormat(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $this->expectExceptionObject(MediaException::invalidUrl('not-a-valid-url'));
 
         MediaUploadService::validateExternalUrl('not-a-valid-url');
@@ -722,6 +799,7 @@ class MediaUploadServiceTest extends TestCase
         ?HttpClientInterface $httpClient = null,
         ?FileUrlValidatorInterface $fileUrlValidator = null,
         ?TrustedUrlResolver $trustedUrlResolver = null,
+        float $externalLinkTimeout = 0.0,
     ): MediaUploadService {
         $service = new MediaUploadService(
             $this->mediaRepository,
@@ -733,15 +811,11 @@ class MediaUploadServiceTest extends TestCase
             $this->mediaThumbnailSizeRepository,
             $fileUrlValidator ?? $this->fileUrlValidator,
             $trustedUrlResolver ?? $this->trustedUrlResolver,
+            externalLinkTimeout: $externalLinkTimeout,
         );
 
         $this->mediaUploadService = $service;
 
         return $service;
     }
-}
-
-// Create fixtures directory structure
-if (!is_dir(__DIR__ . '/fixtures')) {
-    mkdir(__DIR__ . '/fixtures', 0777, true);
 }

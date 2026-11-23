@@ -3,123 +3,107 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Tool;
 
 use Mcp\Capability\Registry;
+use Mcp\Schema\Enum\ProtocolVersion;
 use Mcp\Schema\Tool;
+use Mcp\Server\Stateless\RequestMeta;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
-use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
-use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Tool\Search\ToolSearch;
 use Shopware\Core\Framework\Mcp\Tool\ToolSearchTool;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
 #[Package('framework')]
 #[CoversClass(ToolSearchTool::class)]
-#[CoversClass(AbstractToolSearchTool::class)]
 class ToolSearchToolTest extends TestCase
 {
     public function testSearchReturnsMatchingToolDefinitions(): void
     {
         $tool = new ToolSearchTool($this->registry(), new ToolSearch());
 
-        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('read entity');
 
-        static::assertTrue($data['success']);
-        static::assertSame('shopware-entity-read', $data['data'][0]['tool']['name']);
-        static::assertSame(2, $data['_meta']['totalCandidates']);
-    }
-
-    public function testEmbeddedToolDefinitionKeepsEmptyPropertiesAsAnObject(): void
-    {
-        // The tool definition is embedded as JSON in the tool-call result; a parameterless tool's
-        // empty properties must serialize as {} there too, or strict clients (OpenAI) reject the
-        // whole payload with `[] is not of type 'object'`. The transport normalizer never sees this
-        // location (it lives inside result.content[].text), so it is fixed at the source instead.
-        $tool = new ToolSearchTool($this->registry(), new ToolSearch());
-
-        $json = $tool('read entity');
-
-        static::assertStringContainsString('"properties":{}', $json);
-        static::assertStringNotContainsString('"properties":[]', $json);
+        static::assertFalse($data->isError());
+        static::assertIsArray($data->data);
+        $match = $data->data[0]['tool'];
+        static::assertInstanceOf(Tool::class, $match);
+        static::assertSame('shopware-entity-read', $match->name);
+        static::assertSame(2, $data->meta['totalCandidates']);
     }
 
     public function testResultCarriesToolsetEnableUsageHint(): void
     {
         $tool = new ToolSearchTool($this->registry(), new ToolSearch());
 
-        $data = json_decode($tool('read entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $data = $tool('read entity');
 
-        static::assertArrayHasKey('usage', $data['_meta']);
-        static::assertStringContainsString('shopware-toolset-enable', $data['_meta']['usage']);
+        static::assertArrayHasKey('usage', $data->meta);
+        static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
     }
 
-    public function testSearchIsScopedToAllowlist(): void
+    public function testHandshakeResultNamesNoToolset(): void
     {
-        $allowlistProvider = static::createStub(McpAllowlistProvider::class);
-        $allowlistProvider->method('forCurrentRequest')->willReturn(new McpAllowlist(
-            tools: ['shopware-entity-search'],
-            resources: null,
-            prompts: null,
-        ));
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/api/_mcp', 'POST'));
 
-        $tool = new ToolSearchTool($this->registry(), new ToolSearch(), $allowlistProvider);
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
 
-        $data = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
-        $names = array_column(array_column($data['data'], 'tool'), 'name');
+        $data = $tool('read entity');
 
-        static::assertSame(['shopware-entity-search'], $names);
-        static::assertSame(1, $data['_meta']['totalCandidates']);
+        static::assertArrayNotHasKey('toolset', $data->data[0]);
+        static::assertStringContainsString('shopware-toolset-enable', $data->meta['usage']);
     }
 
-    public function testSearchToolDoesNotReturnItself(): void
+    public function testStatelessResultNamesTheToolsetAndPointsToToolsetsInTheUrl(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest('tools/call'));
+
+        $tool = new ToolSearchTool($this->registry(), new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
+
+        $data = $tool('read entity', 20);
+
+        static::assertIsArray($data->data);
+        $match = $data->data[0]['tool'];
+        static::assertInstanceOf(Tool::class, $match);
+        static::assertSame('shopware-entity-read', $match->name);
+        static::assertSame('entity', $data->data[0]['toolset']);
+        static::assertSame(2, $data->meta['totalCandidates']);
+        static::assertStringContainsString('?toolsets=', $data->meta['usage']);
+        static::assertStringNotContainsString('shopware-toolset-enable', $data->meta['usage']);
+        static::assertStringNotContainsString('shopware-toolsets-list', $data->meta['usage']);
+    }
+
+    public function testStatelessSearchDoesNotFindTheToolsetSessionTools(): void
     {
         $registry = $this->registry();
-        $registry->registerTool(self::tool('shopware-tool-search', 'Search tools'), 'Acme\\ToolSearch');
+        $registry->registerTool(self::tool(McpToolsetRegistry::ENABLE_TOOLSET_TOOL, 'Enable one MCP toolset'), 'Acme\\EnableTool');
+        $registry->registerTool(self::tool(McpToolsetRegistry::LIST_TOOLSETS_TOOL, 'List the MCP toolsets'), 'Acme\\ListTool');
 
-        $tool = new ToolSearchTool($registry, new ToolSearch());
+        $requestStack = new RequestStack();
+        $requestStack->push(self::statelessRequest('tools/call'));
 
-        $data = json_decode($tool('tool search'), true, 512, \JSON_THROW_ON_ERROR);
-        $names = array_column(array_column($data['data'], 'tool'), 'name');
+        $tool = new ToolSearchTool($registry, new ToolSearch(), null, $this->toolsetRegistry(), $requestStack);
 
-        static::assertNotContains('shopware-tool-search', $names);
+        $data = $tool('toolset', 20);
+
+        static::assertSame([], $data->data);
+        static::assertSame(2, $data->meta['totalCandidates']);
     }
 
-    public function testReturnsErrorWhenRegistryIsUnavailable(): void
+    private function toolsetRegistry(): McpToolsetRegistry
     {
-        $tool = new ToolSearchTool(null, new ToolSearch());
+        $registry = static::createStub(McpToolsetRegistry::class);
+        $registry->method('toolsets')->willReturn([
+            ['name' => 'entity', 'title' => 'Entity tools', 'description' => 'Entity', 'tools' => ['shopware-entity-read', 'shopware-entity-search']],
+        ]);
 
-        $data = json_decode($tool('entity'), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertFalse($data['success']);
-        static::assertSame('MCP registry is not available.', $data['error']);
-    }
-
-    public function testSearchResultCountIsCappedAtTwenty(): void
-    {
-        $registry = new Registry();
-        for ($i = 1; $i <= 25; ++$i) {
-            $registry->registerTool(self::tool('shopware-entity-' . $i, 'Entity helper'), 'Acme\\Tool' . $i);
-        }
-
-        $tool = new ToolSearchTool($registry, new ToolSearch());
-
-        $data = json_decode($tool('entity', 25), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertCount(20, $data['data']);
-        static::assertSame(25, $data['_meta']['totalCandidates']);
-    }
-
-    public function testInvokeIsDeclaredOnConcreteClassSoDiscoveryBindsToIt(): void
-    {
-        // The MCP SDK discoverer binds a tool handler to __invoke's declaring class. If __invoke
-        // were only inherited from AbstractToolSearchTool, discovery would bind the handler to the
-        // non-instantiable abstract base and the tool would fail at runtime.
-        $method = new \ReflectionMethod(ToolSearchTool::class, '__invoke');
-
-        static::assertSame(ToolSearchTool::class, $method->getDeclaringClass()->getName());
+        return $registry;
     }
 
     private function registry(): Registry
@@ -140,5 +124,15 @@ class ToolSearchToolTest extends TestCase
             description: $description,
             annotations: null,
         );
+    }
+
+    private static function statelessRequest(string $method): Request
+    {
+        return Request::create('/api/_mcp', 'POST', content: json_encode([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => $method,
+            'params' => ['_meta' => [RequestMeta::PROTOCOL_VERSION => ProtocolVersion::V2026_07_28->value]],
+        ], \JSON_THROW_ON_ERROR));
     }
 }

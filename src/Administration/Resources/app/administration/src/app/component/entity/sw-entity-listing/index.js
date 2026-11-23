@@ -48,13 +48,14 @@ export default {
             type: Array,
             required: false,
             default: null,
+            deprecated: {
+                version: 'v6.8.0.0',
+                comment: 'Use "dataSource" instead. Migration: Change :items="data" to :data-source="data"',
+            },
         },
 
         dataSource: {
-            type: [
-                Array,
-                Object,
-            ],
+            type: [Array, Object],
             required: false,
         },
 
@@ -205,16 +206,6 @@ export default {
     methods: {
         createdComponent() {
             this.$super('createdComponent');
-
-            // Show deprecation warning if items prop is used
-            if (this.items !== null && this.items !== undefined) {
-                console.warn(
-                    '[Deprecation] sw-entity-listing: The "items" prop is deprecated and will be removed in v6.8.0. ' +
-                        'Please use "dataSource" instead to align with the parent sw-data-grid component. ' +
-                        'Migration: Change :items="data" to :data-source="data"',
-                    this,
-                );
-            }
 
             if (this.internalDataSource) {
                 this.applyResult(this.internalDataSource);

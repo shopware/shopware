@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\Media\File;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Media\File\AbstractFileContentValidator;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\File\SvgContentValidator;
 use Shopware\Core\Content\Media\MediaException;
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
  * @internal
  */
 #[Package('discovery')]
-#[CoversClass(AbstractFileContentValidator::class)]
 #[CoversClass(SvgContentValidator::class)]
 class SvgContentValidatorTest extends TestCase
 {

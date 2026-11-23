@@ -10,12 +10,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default Component.wrapComponentConfig({
     template,
 
-    compatConfig: Shopware.compatConfig,
-
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -91,9 +86,7 @@ export default Component.wrapComponentConfig({
             };
         },
 
-        ...mapPropertyErrors('stateMachine', [
-            'name',
-        ]),
+        ...mapPropertyErrors('stateMachine', ['name']),
     },
 
     watch: {

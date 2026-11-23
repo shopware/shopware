@@ -56,12 +56,23 @@ class ContentPreviewPayloadStoreTest extends TestCase
         );
     }
 
-    #[TestDox('accepts an envelope whose layout has no elements')]
+    #[TestDox('accepts an envelope whose layout is empty, as a preview requested before any element exists')]
     public function testLoadAcceptsAnEmptyLayout(): void
     {
         $store = self::storeHolding(self::envelope(['layout' => []]));
 
-        static::assertSame([], $store->load('stored')?->layout);
+        $loaded = $store->load('stored');
+
+        static::assertSame([], $loaded?->layout);
+        static::assertEquals(
+            new ContentPreviewRequest(
+                layout: [],
+                entityType: 'product',
+                entityId: 'prod-1',
+                salesChannelId: 'sales-channel-1',
+            ),
+            $loaded,
+        );
     }
 
     #[TestDox('returns null for a token that addresses no entry')]

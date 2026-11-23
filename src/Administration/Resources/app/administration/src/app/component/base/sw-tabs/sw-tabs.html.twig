@@ -1,7 +1,8 @@
-{# needed becaues vue/compat removes them from $attrs #}
+{# @deprecated tag:v6.9.0 - Will be removed. Use mt-tabs instead. #}
+{# needed because vue/compat removes them from $attrs #}
 {# New mt-tabs component #}
 {% block sw_tabs %}
-<template v-if="useMeteorComponent">
+<template v-if="shouldUseMeteorComponent">
     <mt-tabs
         v-bind="$attrs"
         ref="tabComponent"

@@ -2,13 +2,18 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationEntity;
+use Shopware\Core\System\User\UserEntity;
 
 /**
  * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Adapter\Twig\TwigFieldVisibilityTest
  */
 #[Package('framework')]
 class WebhookEntity extends Entity
@@ -25,11 +30,34 @@ class WebhookEntity extends Entity
 
     protected ?string $appId = null;
 
+    protected ?string $ownerUserId = null;
+
+    protected ?UserEntity $ownerUser = null;
+
+    protected ?string $ownerIntegrationId = null;
+
+    protected ?IntegrationEntity $ownerIntegration = null;
+
+    /**
+     * @internal
+     */
+    protected ?IdentityType $ownerType = null;
+
+    /**
+     * @internal
+     */
+    protected ?string $secret = null;
+
     protected bool $active;
 
     protected int $errorCount;
 
     protected ?AppEntity $app = null;
+
+    /**
+     * @var list<string>|null
+     */
+    protected ?array $aclRoleIds = null;
 
     public function getName(): string
     {
@@ -91,6 +119,80 @@ class WebhookEntity extends Entity
         $this->app = $app;
     }
 
+    public function getOwnerUserId(): ?string
+    {
+        return $this->ownerUserId;
+    }
+
+    public function setOwnerUserId(?string $ownerUserId): void
+    {
+        $this->ownerUserId = $ownerUserId;
+    }
+
+    public function getOwnerUser(): ?UserEntity
+    {
+        return $this->ownerUser;
+    }
+
+    public function setOwnerUser(?UserEntity $ownerUser): void
+    {
+        $this->ownerUser = $ownerUser;
+    }
+
+    public function getOwnerIntegrationId(): ?string
+    {
+        return $this->ownerIntegrationId;
+    }
+
+    public function setOwnerIntegrationId(?string $ownerIntegrationId): void
+    {
+        $this->ownerIntegrationId = $ownerIntegrationId;
+    }
+
+    public function getOwnerIntegration(): ?IntegrationEntity
+    {
+        return $this->ownerIntegration;
+    }
+
+    public function setOwnerIntegration(?IntegrationEntity $ownerIntegration): void
+    {
+        $this->ownerIntegration = $ownerIntegration;
+    }
+
+    /**
+     * @internal
+     */
+    public function getOwnerType(): ?IdentityType
+    {
+        return $this->ownerType;
+    }
+
+    /**
+     * @internal
+     */
+    public function setOwnerType(?IdentityType $ownerType): void
+    {
+        $this->ownerType = $ownerType;
+    }
+
+    /**
+     * @internal
+     */
+    public function getSecret(): ?string
+    {
+        $this->checkIfPropertyAccessIsAllowed('secret');
+
+        return $this->secret;
+    }
+
+    /**
+     * @internal
+     */
+    public function setSecret(#[\SensitiveParameter] ?string $secret): void
+    {
+        $this->secret = $secret;
+    }
+
     public function isActive(): bool
     {
         return $this->active;
@@ -109,5 +211,21 @@ class WebhookEntity extends Entity
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getAclRoleIds(): ?array
+    {
+        return $this->aclRoleIds;
+    }
+
+    /**
+     * @param list<string>|null $aclRoleIds
+     */
+    public function setAclRoleIds(?array $aclRoleIds): void
+    {
+        $this->aclRoleIds = $aclRoleIds;
     }
 }

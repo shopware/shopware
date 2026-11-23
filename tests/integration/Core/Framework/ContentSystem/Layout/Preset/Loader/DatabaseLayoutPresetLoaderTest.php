@@ -8,11 +8,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSystemLayoutPresetSpecification;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -38,11 +36,9 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         $this->createPreset($ids->get('inactive-preset'), $ids->get('inactive-app'), 'AcmeInactivePresets:Hero');
 
         $presets = $this->loader()->load();
-
-        static::assertSame(
-            ['AcmeActivePresets:Hero'],
-            array_map(static fn (ContentSystemLayoutPresetSpecification $preset): string => $preset->id, $presets),
-        );
+        static::assertSame(['AcmeActivePresets:Hero'], array_keys($presets));
+        static::assertSame('Hero', $presets['AcmeActivePresets:Hero']->name);
+        static::assertSame('acme.preset.hero.name', $presets['AcmeActivePresets:Hero']->nameSnippet);
     }
 
     public function testInsertPresetReturnsServerErrorForAnInvalidActiveAppRow(): void
@@ -94,16 +90,13 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
             'id' => $presetId,
             'appId' => $appId,
             'name' => $presetName,
-            'schema' => ['name' => 'Hero', 'description' => 'A hero.', 'icon' => 'regular-star', 'layout' => []],
+            'schema' => ['name' => 'Hero', 'nameSnippet' => 'acme.preset.hero.name', 'description' => 'A hero.', 'icon' => 'regular-star', 'layout' => []],
             'hash' => 'hero-hash',
         ]], Context::createDefaultContext());
     }
 
     private function loader(): DatabaseLayoutPresetLoader
     {
-        $compiler = static::getContainer()->get(LayoutPresetPayloadCompiler::class);
-        static::assertInstanceOf(LayoutPresetPayloadCompiler::class, $compiler);
-
         $validator = static::getContainer()->get('validator');
         static::assertInstanceOf(ValidatorInterface::class, $validator);
 
@@ -112,7 +105,6 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
 
         return new DatabaseLayoutPresetLoader(
             new LayoutPresetSpecificationSerializer(),
-            $compiler,
             $validator,
             $connection,
             'prod',

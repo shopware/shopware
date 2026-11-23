@@ -86,10 +86,7 @@ function isTypeKey(key: string): boolean {
 function childBabelEntries(node: BabelNode, skipKey?: ChildKeyFilter): ChildBabelEntry[] {
     const entries: ChildBabelEntry[] = [];
 
-    for (const [
-        key,
-        value,
-    ] of Object.entries(node as unknown as Record<string, unknown>)) {
+    for (const [key, value] of Object.entries(node as unknown as Record<string, unknown>)) {
         if (NON_NODE_KEYS.includes(key) || skipKey?.(key)) {
             continue;
         }

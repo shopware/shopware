@@ -91,7 +91,7 @@
                                                     {% endblock %}
 
                                                     {% block component_review_filter_checkbox_label %}
-                                                        <label class="custom-control-label text-nowrap"
+                                                        <label class="custom-control-label"
                                                                for="reviewRating{{ matrix.points }}">
                                                             <small>{{ "detail.review#{matrix.points}PointRatingText"|trans|sw_sanitize }}
                                                                 ({{ matrix.count }})</small>
@@ -146,7 +146,7 @@
 
                 {% block component_review_form_teaser_text %}
                     <p>
-                        {% if not page.customerReview %}
+                        {% if not reviews.customerReview %}
                             {{ 'detail.reviewTeaserText'|trans|sw_sanitize }}
                         {% else %}
                             {{ 'detail.reviewExistsTeaserText'|trans|sw_sanitize }}

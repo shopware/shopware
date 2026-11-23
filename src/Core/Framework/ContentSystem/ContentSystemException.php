@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
@@ -60,6 +62,9 @@ class ContentSystemException extends HttpException
     public const LAYOUT_PRESET_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_PRESET_NOT_FOUND';
     public const LAYOUT_PRESETS_INVALID = 'CONTENT_SYSTEM__LAYOUT_PRESETS_INVALID';
     public const LAYOUT_PRESET_INVALID_FILENAME = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME';
+    public const LAYOUT_PRESET_CIRCULAR_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_CIRCULAR_REFERENCE';
+    public const LAYOUT_PRESET_UNKNOWN_REFERENCE = 'CONTENT_SYSTEM__LAYOUT_PRESET_UNKNOWN_REFERENCE';
+    public const LAYOUT_PRESET_TOO_MANY_REFERENCES = 'CONTENT_SYSTEM__LAYOUT_PRESET_TOO_MANY_REFERENCES';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -69,6 +74,12 @@ class ContentSystemException extends HttpException
     public const MUTATION_SLOT_REQUIRED = 'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED';
     public const MUTATION_INVALID_WRAP_TARGETS = 'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS';
     public const MUTATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE';
+    public const MUTATION_PROPERTY_UNKNOWN = 'CONTENT_SYSTEM__MUTATION_PROPERTY_UNKNOWN';
+    public const MUTATION_PROPERTY_CONFLICT = 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT';
+    public const MUTATION_PROPERTY_VALUE_REJECTED = 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED';
+    public const MUTATION_PROPERTY_LANGUAGE_KEY_INVALID = 'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID';
+    public const MUTATION_PROPERTY_NOT_TRANSLATABLE = 'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE';
+
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
     public const CONTENT_LAYOUT_NOT_FOUND = 'CONTENT_SYSTEM__CONTENT_LAYOUT_NOT_FOUND';
@@ -93,8 +104,25 @@ class ContentSystemException extends HttpException
     public const BINDING_TYPE_MISMATCH = 'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH';
     public const BINDING_SPECIFICATION_UNKNOWN_TYPE = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_UNKNOWN_TYPE';
     public const BINDING_SPECIFICATION_CANONICALIZATION_FAILED = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_CANONICALIZATION_FAILED';
+    public const PROPERTY_NOT_MAPPABLE = 'CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE';
+    public const MAPPING_ROOT_SOURCE_MISSING = 'CONTENT_SYSTEM__MAPPING_ROOT_SOURCE_MISSING';
+    public const UNKNOWN_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH';
+    public const INVALID_MAPPING_SOURCE = 'CONTENT_SYSTEM__INVALID_MAPPING_SOURCE';
+    public const MAPPING_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH';
+    public const INVALID_MAPPING_CANDIDATE_PATH = 'CONTENT_SYSTEM__INVALID_MAPPING_CANDIDATE_PATH';
+    public const MAPPING_CANDIDATE_PATH_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CANDIDATE_PATH_MISMATCH';
+    public const MAPPING_CONTEXT_TYPE_MISMATCH = 'CONTENT_SYSTEM__MAPPING_CONTEXT_TYPE_MISMATCH';
+    public const UNKNOWN_INLINE_MAPPING_PATH = 'CONTENT_SYSTEM__UNKNOWN_INLINE_MAPPING_PATH';
+    public const MALFORMED_INLINE_MAPPING_TOKEN = 'CONTENT_SYSTEM__MALFORMED_INLINE_MAPPING_TOKEN';
+    public const INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE = 'CONTENT_SYSTEM__INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE';
+    public const INLINE_MAPPING_TOKEN_IN_MARKUP = 'CONTENT_SYSTEM__INLINE_MAPPING_TOKEN_IN_MARKUP';
+    public const INLINE_MAPPING_REQUIRES_ROOT_SOURCE = 'CONTENT_SYSTEM__INLINE_MAPPING_REQUIRES_ROOT_SOURCE';
+    public const INLINE_MAPPING_INPUT_TOO_LARGE = 'CONTENT_SYSTEM__INLINE_MAPPING_INPUT_TOO_LARGE';
+    public const INLINE_MAPPING_EXPANSION_TOO_LARGE = 'CONTENT_SYSTEM__INLINE_MAPPING_EXPANSION_TOO_LARGE';
+    public const INLINE_MAPPING_PARSING_FAILED = 'CONTENT_SYSTEM__INLINE_MAPPING_PARSING_FAILED';
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
+    public const BINDING_ROOT_SOURCE_NOT_SCOPED = 'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
     public const BOX_SPACING_INVALID_VALUE = 'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
@@ -106,6 +134,7 @@ class ContentSystemException extends HttpException
     public const FIELD_SELECTION_NOT_SUPPORTED = 'CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED';
     public const UNSUPPORTED_PROPERTY_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_PROPERTY_VALUE_TYPE';
     public const INVALID_ELEMENT_ID = 'CONTENT_SYSTEM__INVALID_ELEMENT_ID';
+    public const TRANSLATION_SHAPE_INVALID = 'CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID';
 
     /**
      * Error codes that mark a defect in client-supplied layout input rather than an internal fault. The
@@ -400,6 +429,26 @@ class ContentSystemException extends HttpException
             self::DUPLICATE_ELEMENT_ID,
             'Served forest is corrupt: element ID "{{ elementId }}" appears more than once, and element IDs must be unique across a forest. Re-save the layout through the DAL write, which rejects a repeated ID, and make sure no rendering listener that replaces the tree introduces one.',
             ['elementId' => $elementId]
+        );
+    }
+
+    /**
+     * A translatable property holds one value per language as a language map, and serving collapses that map
+     * to the request language before any rendering step runs. Where the collapse runs, a value that is not a
+     * language map, or whose selected entry does not match the declared primitive, is an internal fault rather
+     * than a client defect, and is deliberately absent from {@see self::CLIENT_DEFECT_CODES} — the same reading
+     * {@see invalidElementId()} and {@see duplicateElementId()} state. Every client-supplied path rejects the
+     * wrong shape earlier, the strict write with a 400 and the draft routes with a reported violation, so a wrong
+     * shape here means the write constraints were bypassed or a preparation listener introduced it after a
+     * conforming read.
+     */
+    public static function translationShapeInvalid(string $elementId, string $key, string $declaredType, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TRANSLATION_SHAPE_INVALID,
+            'Property "{{ key }}" of element "{{ elementId }}" is declared {{ declaredType }} and must hold a language map of its primitive, but holds {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'declaredType' => $declaredType, 'actualType' => $actualType]
         );
     }
 
@@ -711,6 +760,42 @@ class ContentSystemException extends HttpException
         );
     }
 
+    /**
+     * @param list<string> $chain
+     */
+    public static function layoutPresetCircularReference(array $chain): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_CIRCULAR_REFERENCE,
+            'Layout preset "{{ id }}" has a circular reference: {{ chain }}',
+            ['id' => $chain[0] ?? '', 'chain' => implode(' -> ', $chain)]
+        );
+    }
+
+    /**
+     * @param list<string> $path
+     */
+    public static function layoutPresetUnknownReference(string $reference, array $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_UNKNOWN_REFERENCE,
+            'Layout preset "{{ id }}" references unknown preset "{{ reference }}" via {{ chain }}',
+            ['id' => $path[0] ?? '', 'reference' => $reference, 'chain' => implode(' -> ', [...$path, $reference])]
+        );
+    }
+
+    public static function layoutPresetTooManyReferences(string $id, int $limit): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_TOO_MANY_REFERENCES,
+            'Layout preset "{{ id }}" reaches the limit of {{ limit }} nested presets',
+            ['id' => $id, 'limit' => $limit]
+        );
+    }
+
     public static function layoutPresetsInvalid(ConstraintViolationListInterface $violations): self
     {
         return new self(
@@ -807,6 +892,79 @@ class ContentSystemException extends HttpException
             'Element type "{{ type }}" is not a registered element type.',
             ['type' => $type]
         );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyUnknown(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_UNKNOWN,
+            'Property "{{ key }}" is not a primitive property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyConflict(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_CONFLICT,
+            'Property "{{ key }}" of element "{{ elementId }}" is both written and removed by the same update.',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyValueRejected(string $elementId, string $key, string $actualType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_VALUE_REJECTED,
+            'Value for property "{{ key }}" of element "{{ elementId }}" does not match its declared type, but is {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'actualType' => $actualType]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyLanguageKeyInvalid(string $elementId, string $key, string $languageKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_LANGUAGE_KEY_INVALID,
+            'Language key "{{ languageKey }}" of translatable property "{{ key }}" of element "{{ elementId }}" is not a language id in lowercase UUID hex.',
+            ['elementId' => $elementId, 'key' => $key, 'languageKey' => $languageKey]
+        );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyNotTranslatable(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_NOT_TRANSLATABLE,
+            'Property "{{ key }}" is not a translatable property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivileges(array $privileges): MissingPrivilegeException
+    {
+        return new MissingPrivilegeException($privileges);
     }
 
     public static function layoutVersionConflict(string $layoutId): self
@@ -980,6 +1138,213 @@ class ContentSystemException extends HttpException
         );
     }
 
+    // Mapping routes validate or load a bound source before applying the operation. An unbound tree here
+    // indicates an invalid internal call, rather than a client input defect.
+    public static function mappingRootSourceMissing(string $elementId, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MAPPING_ROOT_SOURCE_MISSING,
+            'Mapping property "{{ propertyKey }}" on element "{{ elementId }}" requires a bound layout root source.',
+            ['elementId' => $elementId, 'propertyKey' => $propertyKey],
+        );
+    }
+
+    // The client-facing 400s of the data-mapping write gate. A mapping is a root-scoped context consumer
+    // whose consumer-map key names a declared property of the element's type, so all four name a defect in a
+    // stored mapping rather than in context wiring at large.
+
+    // The declared property exists but its type did not opt in with `mappable: true`.
+    public static function propertyNotMappable(string $component, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PROPERTY_NOT_MAPPABLE,
+            'Property "{{ propertyKey }}" of element type "{{ component }}" is not mappable. Declare "mappable: true" on it to allow mapping it to dynamic data.',
+            ['component' => $component, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // The path is not in the mapping catalogue of the layout's root source. The catalogue is curated, so this
+    // also rejects a path that would resolve but was never vouched for as safe to serve.
+    public static function unknownMappingPath(string $path, string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_MAPPING_PATH,
+            'Mapping path "{{ path }}" is not offered for root source "{{ rootSource }}".',
+            ['path' => $path, 'rootSource' => $rootSource]
+        );
+    }
+
+    public static function invalidMappingSource(\Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INVALID_MAPPING_SOURCE,
+            'The mapping source must contain non-empty type and id strings, optional non-empty path, and an optional config object with no unknown fields.',
+            [],
+            $previous,
+        );
+    }
+
+    // The catalogue offers the path, but its effective type cannot fill the declared property. Rendering
+    // rechecks admission and rejects incompatible runtime values too.
+    public static function mappingTypeMismatch(string $propertyKey, string $declaredType, string $valueType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAPPING_TYPE_MISMATCH,
+            'Mapping onto property "{{ propertyKey }}" yields "{{ valueType }}", which does not satisfy its declared type "{{ declaredType }}".',
+            ['propertyKey' => $propertyKey, 'declaredType' => $declaredType, 'valueType' => $valueType]
+        );
+    }
+
+    public static function mappingContextTypeMismatch(string $path, string $contextType, string $expected): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MAPPING_CONTEXT_TYPE_MISMATCH,
+            'Mapping path "{{ path }}" must use context type "{{ expected }}", got "{{ contextType }}".',
+            ['path' => $path, 'contextType' => $contextType, 'expected' => $expected]
+        );
+    }
+
+    // The validation factories of the INLINE mapping gate. An inline mapping is a `{{map:path}}` token inside an
+    // `inlineMappable` string property, carrying no `acceptsContext` entry of its own, so whole-field mapping checks
+    // cannot see one. Mapping admissibility faults use the shared `Mapping/MappingProblem` channel; a missing root
+    // source is also reported through that channel by diagnostics.
+
+    // The token's path is not in the mapping catalogue of the layout's root source. Rendering removes the token
+    // without resolving it; the write error and diagnostics API tell the author why it is unavailable.
+    public static function unknownInlineMappingPath(string $path, string $rootSource): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::UNKNOWN_INLINE_MAPPING_PATH,
+            'Inline mapping path "{{ path }}" is not offered for root source "{{ rootSource }}".',
+            ['path' => $path, 'rootSource' => $rootSource]
+        );
+    }
+
+    public static function malformedInlineMappingToken(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MALFORMED_INLINE_MAPPING_TOKEN,
+            'Inline mapping path "{{ path }}" in property "{{ propertyKey }}" must include a member below its source, for example "{{map:product.name}}".',
+            ['path' => $path, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // The catalogue offers the path, but interpolation has to write the value into a string, and this candidate
+    // yields something with no faithful text form — an entity or a collection.
+    public static function inlineMappingValueNotStringifiable(string $path, string $valueType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_VALUE_NOT_STRINGIFIABLE,
+            'Inline mapping path "{{ path }}" yields "{{ valueType }}", which has no text representation. Inline mapping supports string, integer, number and boolean values.',
+            ['path' => $path, 'valueType' => $valueType]
+        );
+    }
+
+    // A token inside an HTML tag rather than in text content. Escaping makes a value safe in text context only;
+    // in attribute context an escaped value can still terminate a quoted attribute, and supporting that properly
+    // would mean HTML-aware interpolation rather than string substitution.
+    public static function inlineMappingTokenInMarkup(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_TOKEN_IN_MARKUP,
+            'Inline mapping token "{{ path }}" in property "{{ propertyKey }}" sits inside an HTML tag. Tokens are only supported in text content, not in tags or attributes.',
+            ['path' => $path, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    public static function inlineMappingRequiresRootSource(string $path, string $propertyKey): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_REQUIRES_ROOT_SOURCE,
+            'Inline mapping path "{{ path }}" in property "{{ propertyKey }}" requires a layout with a bound root source.',
+            ['path' => $path, 'propertyKey' => $propertyKey]
+        );
+    }
+
+    // An inline mapping fault found in one entry of a translatable property's language map. It keeps the fault's
+    // status, code and parameters and names the entry's language, because one property holds a text per language.
+    public static function inlineMappingFaultInLanguageEntry(self $fault, string $languageId): self
+    {
+        // The fault's message is already rendered, so it is built without parameters: a second substitution pass
+        // would rewrite authored path text that the first pass produced.
+        $exception = new self(
+            $fault->getStatusCode(),
+            $fault->getErrorCode(),
+            $fault->getMessage() . ' Found in the entry for language "' . $languageId . '".',
+        );
+        $exception->parameters = [...$fault->getParameters(), 'languageId' => $languageId];
+
+        return $exception;
+    }
+
+    // Expansion budgets include authored literal text and escaped source values. Exceeding the output
+    // allowance is a render fault; the separate authored-input limit remains an input-validation 400.
+    public static function inlineMappingExpansionTooLarge(int $maximumBytes, string $scope): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INLINE_MAPPING_EXPANSION_TOO_LARGE,
+            'Inline mapping text exceeds the maximum expanded size of {{ maximumBytes }} bytes per {{ scope }}.',
+            ['maximumBytes' => $maximumBytes, 'scope' => $scope]
+        );
+    }
+
+    public static function inlineMappingInputTooLarge(int $maximumBytes): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::INLINE_MAPPING_INPUT_TOO_LARGE,
+            'Inline mapping text exceeds the maximum supported size of {{ maximumBytes }} bytes.',
+            ['maximumBytes' => $maximumBytes]
+        );
+    }
+
+    public static function inlineMappingParsingFailed(string $operation, string $reason): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INLINE_MAPPING_PARSING_FAILED,
+            'Could not {{ operation }} inline mapping text: {{ reason }}.',
+            ['operation' => $operation, 'reason' => $reason]
+        );
+    }
+
+    /**
+     * A provider offered an empty candidate key, or an undotted key without an explicit typed source.
+     * Without that source, the constructor requires a dotted root-member path from which to infer one.
+     * Only a provider implementation can cause this definition fault.
+     */
+    public static function invalidMappingCandidatePath(string $path): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_MAPPING_CANDIDATE_PATH,
+            'Mapping candidate path "{{ path }}" must be non-empty. Without an explicit typed source, use a dotted root-member path, e.g. "category.name".',
+            ['path' => $path]
+        );
+    }
+
+    public static function mappingCandidatePathMismatch(string $path, string $sourceDisplayName): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MAPPING_CANDIDATE_PATH_MISMATCH,
+            'Mapping candidate path "{{ path }}" must match its source display name "{{ sourceDisplayName }}".',
+            ['path' => $path, 'sourceDisplayName' => $sourceDisplayName]
+        );
+    }
+
     public static function styleOptionDuplicate(string $name, string $existingSource, string $newSource): self
     {
         return new self(
@@ -1062,8 +1427,9 @@ class ContentSystemException extends HttpException
 
     // The load-time 500 for any sugar that cannot expand deterministically (unrecognized resolves shape, mixed
     // loader/source keys, ambiguous or zero eligible tier-A sources, ambiguous or zero entity-name derivation,
-    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Deliberately not in
-    // CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
+    // unknown tier-B config key). The reason carries the mechanical fix the author must apply. Also the write-time
+    // 500 of AttributionReconciler for a binding whose scoped config values name different root-source sets.
+    // Deliberately not in CLIENT_DEFECT_CODES, for the same reason as bindingSpecificationUnknownType.
     public static function bindingSpecificationCanonicalizationFailed(string $id, string $reason): self
     {
         return new self(
@@ -1103,7 +1469,7 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * A null element id means the element does not exist yet: InsertElement checks the type before it scaffolds.
+     * A null element id means the element is not in the layout yet and has no id the client holds: InsertElement checks the type before it inserts.
      */
     public static function bindingTypeMismatch(string $bindingSpecificationId, string $specificationType, string $elementComponent, ?string $elementId): self
     {
@@ -1132,6 +1498,32 @@ class ContentSystemException extends HttpException
             self::BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS,
             'Element type "{{ type }}" has more than one default binding specification ({{ qualifiedIds }}), but at most one specification may be default per type.',
             ['type' => $type, 'qualifiedIds' => implode(', ', $qualifiedIds)]
+        );
+    }
+
+    /**
+     * The 400 for applying a binding whose `!scoped` config value has no entry for the layout's root source, or onto
+     * a layout with no root source. $elementId is the id the caller reports, null when the client knows no id (the
+     * insert-element scaffold, whose id is minted by the server). A null root source gets its own message, because
+     * `none` is the name of a real root source.
+     *
+     * Deliberately outside {@see CLIENT_DEFECT_CODES}: that list classifies defects in a stored or submitted layout,
+     * while this is thrown only by {@see BindingApplicator} when a mutation applies a binding, and is answered to the
+     * client as it is thrown.
+     */
+    public static function bindingRootSourceNotScoped(string $bindingSpecificationId, string $key, ?string $elementId, ?string $rootSource): self
+    {
+        $subject = $elementId === null
+            ? 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}"'
+            : 'Binding specification "{{ bindingSpecificationId }}" cannot wire key "{{ key }}" of element "{{ elementId }}"';
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BINDING_ROOT_SOURCE_NOT_SCOPED,
+            $subject . ($rootSource === null
+                ? ': its config is scoped by root source, but the layout has no root source.'
+                : ': its config is scoped by root source, but carries no value for root source "{{ rootSource }}".'),
+            ['bindingSpecificationId' => $bindingSpecificationId, 'key' => $key, 'elementId' => $elementId, 'rootSource' => $rootSource]
         );
     }
 

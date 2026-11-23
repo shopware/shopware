@@ -32,10 +32,7 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'mediaService',
-        'acl',
-    ],
+    inject: ['mediaService', 'acl'],
 
     props: {
         item: {
@@ -52,10 +49,7 @@ export default {
         'media-item-replaced',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('video-cover'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('video-cover')],
 
     data() {
         return {
@@ -85,6 +79,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-media-item.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 

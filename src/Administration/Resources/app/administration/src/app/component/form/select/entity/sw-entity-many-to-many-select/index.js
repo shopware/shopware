@@ -19,10 +19,7 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'search',
@@ -336,10 +333,7 @@ export default {
 
             this.$emit('item-add', item);
 
-            this.selectedIds = [
-                ...this.selectedIds,
-                item.id,
-            ];
+            this.selectedIds = [...this.selectedIds, item.id];
 
             this.$refs.selectionList.select();
             this.$refs.selectionList.focus();
@@ -453,10 +447,7 @@ export default {
             const addPromises = added.map((item) => {
                 this.$emit('item-add', item);
 
-                this.selectedIds = [
-                    ...this.selectedIds,
-                    item.id,
-                ];
+                this.selectedIds = [...this.selectedIds, item.id];
 
                 if (this.localMode) {
                     this.totalAssigned += 1;
@@ -484,10 +475,7 @@ export default {
                 });
             });
 
-            Promise.all([
-                ...addPromises,
-                ...removePromises,
-            ]).then(() => {
+            Promise.all([...addPromises, ...removePromises]).then(() => {
                 this.$refs.selectionList.select();
                 this.$refs.selectionList.focus();
                 this.isLoading = false;

@@ -13,16 +13,12 @@ import './sw-popover.scss';
  * @component-example
  * <sw-popover></sw-popover>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     props: {
         zIndex: {
-            type: [
-                Number,
-                null,
-            ],
+            type: [Number, null],
             required: false,
             default: null,
         },
@@ -32,11 +28,7 @@ export default {
             default: false,
         },
         popoverClass: {
-            type: [
-                String,
-                Array,
-                Object,
-            ],
+            type: [String, Array, Object],
             required: false,
             default: '',
         },

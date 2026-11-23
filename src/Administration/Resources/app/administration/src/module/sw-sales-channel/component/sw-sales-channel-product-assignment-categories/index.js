@@ -14,14 +14,9 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-change',
-        'product-loading',
-    ],
+    emits: ['selection-change', 'product-loading'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -66,10 +61,7 @@ export default {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [
-                    ...acc,
-                    ...pathIds,
-                ];
+                return [...acc, ...pathIds];
             }, []);
         },
     },
@@ -87,7 +79,10 @@ export default {
 
                 this.getProductFromCategories(value.getIds())
                     .then((products) => {
-                        this.$emit('selection-change', products, 'categoryProducts');
+                        this.$emit('selection-change', products, 'categoryProducts', {
+                            ids: Array.from(value.getIds()),
+                            total: products.total,
+                        });
                     })
                     .catch((error) => {
                         this.createNotificationError({
@@ -136,10 +131,7 @@ export default {
             categoryCriteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('parentId', parentId),
-                    Criteria.multi('OR', [
-                        Criteria.equals('type', 'page'),
-                        Criteria.equals('type', 'folder'),
-                    ]),
+                    Criteria.multi('OR', [Criteria.equals('type', 'page'), Criteria.equals('type', 'folder')]),
                 ]),
             );
 
@@ -243,9 +235,7 @@ export default {
                 Criteria.multi('AND', [
                     Criteria.equalsAny('categoryIds', categories),
                     Criteria.equals('parentId', null),
-                    Criteria.not('and', [
-                        Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                    ]),
+                    Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
                 ]),
             );
 

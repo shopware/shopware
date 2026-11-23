@@ -36,6 +36,7 @@ export interface ContentSystemElementTypePropertyAdminUi {
     props?: Record<string, unknown>;
     entity?: string;
     helpText?: string;
+    helpTextSnippet?: string;
     panel?: string;
     visibleWhen?: ContentSystemElementAdminUiVisibleWhen;
     [key: string]: unknown;
@@ -46,12 +47,28 @@ export interface ContentSystemElementTypePropertyAdminUi {
  */
 export interface ContentSystemElementTypeProperty {
     type: string | string[];
+    /**
+     * Which kinds of mapping candidate can fill this property: `single`, `collection`, or both for a union
+     * or a bare `object`. Derived from `type` on the server, because telling a collection class from an
+     * entity class is a PHP class-hierarchy question.
+     */
+    contextTypes: Array<'single' | 'collection'>;
     translatable: boolean;
     enum: Array<string | number | boolean> | null;
     default: string | number | boolean | null;
     required: boolean;
+    /** Whether the author may replace this property's static value with a mapping onto the layout's entity data. */
+    mappable: boolean;
+    defaultMapping: { type: string; id: string; config?: Record<string, unknown>; path?: string } | null;
+    /**
+     * Whether the author may embed `{{map:path}}` tokens in this property's text, mapping values *within* the value
+     * rather than instead of it. Only ever set on a `string` property, and never together with `mappable`.
+     */
+    inlineMappable: boolean;
     title: string;
+    titleSnippet?: string;
     description: string;
+    descriptionSnippet?: string;
     adminUI: ContentSystemElementTypePropertyAdminUi | null;
     properties?: Record<string, ContentSystemElementTypeProperty> | null;
 }
@@ -88,10 +105,14 @@ export interface ContentSystemElementTypeBindingSpecification {
 export interface ContentSystemElementTypeSpecification {
     name: string;
     label: string;
+    labelSnippet?: string;
     description: string;
+    descriptionSnippet?: string;
     source: string;
     icon: string | null;
+    illustration: string | null;
     category: string | null;
+    priority: number;
     copilot: {
         summary: string;
         hints: string[];
@@ -99,12 +120,17 @@ export interface ContentSystemElementTypeSpecification {
     properties: Record<string, ContentSystemElementTypeProperty>;
     slots: ContentSystemElementTypeSlot[];
     bindingSpecifications?: Record<string, ContentSystemElementTypeBindingSpecification>;
+    /**
+     * Root sources on which inserting the type without a named binding specification succeeds; `null` places no
+     * restriction, an empty array means the insert fails everywhere.
+     */
+    defaultBindingRootSources: string[] | null;
 }
 
 /**
  * @private
  */
-export interface ContentSystemElementTypeResponse {
+interface ContentSystemElementTypeResponse {
     types: ContentSystemElementTypeSpecification[];
 }
 

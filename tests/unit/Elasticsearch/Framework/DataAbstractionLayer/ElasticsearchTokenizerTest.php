@@ -85,6 +85,24 @@ class ElasticsearchTokenizerTest extends TestCase
             ['größe', '10'],
         ];
 
+        yield 'brackets around a word are stripped' => [
+            'tennis (cap [shoe] <sock \bag',
+            null,
+            ['tennis', 'cap', 'shoe', 'sock', 'bag'],
+        ];
+
+        yield 'brackets inside a word are preserved' => [
+            'AB(12)CD',
+            null,
+            ['ab(12)cd'],
+        ];
+
+        yield 'brackets do not count towards the min length' => [
+            'shirt (m',
+            null,
+            ['shirt'],
+        ];
+
         yield 'default min length matches AbstractTokenFilter default (2)' => [
             'a 10',
             null,

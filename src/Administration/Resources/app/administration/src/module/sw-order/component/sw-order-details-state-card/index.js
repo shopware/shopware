@@ -20,14 +20,9 @@ export default {
         'swOrderDetailAskAndSaveEdits',
     ],
 
-    emits: [
-        'show-status-history',
-        'save-edits',
-    ],
+    emits: ['show-status-history', 'save-edits'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         order: {
@@ -116,7 +111,15 @@ export default {
             return this.entity.stateMachineState.translated.name;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
         stateSelectBackgroundStyle() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-order-details-state-card.stateSelectBackgroundStyle is deprecated and will be removed without replacement. `sw-order-state-select-v2` derives the state color from `stateName`.',
+            );
+
             const technicalName = this.entity.stateMachineState.technicalName;
 
             return this.stateStyleDataProviderService.getStyle(`${this.entityName}.state`, technicalName)

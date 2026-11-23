@@ -1,0 +1,17 @@
+{
+  "$comment": "Synthetic: a domain data loader under src/Core/Content/*/ContentSystem/ swallows every exception. The principles guide must load for Content System code outside the module folder, next to the always-on PHP guides.",
+  "signals": [
+    "php_src",
+    "php_src_without_tests"
+  ],
+  "not_signals": [
+    "admin_ui",
+    "storefront_ui"
+  ],
+  "guides": [
+    "bc-php",
+    "platform-scope",
+    "tests-for-behavior-change",
+    "content-system-principles"
+  ]
+}

@@ -12,18 +12,22 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Range;
 
 /**
  * @internal
@@ -32,7 +36,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
-    use EventDispatcherBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -76,6 +79,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->browser->request('POST', $this->getUrl(), [
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => $content,
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();
@@ -85,6 +89,138 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->assertReviewCount(1);
 
         $this->assertReviewContent($expectedContent);
+    }
+
+    public function testCreateRejectsContentThatIsEmptyAfterSanitizing(): void
+    {
+        $this->login($this->browser);
+
+        $this->assertReviewCount(0);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
+            'points' => 5,
+        ]);
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $errors = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+
+        static::assertSame(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
+        static::assertStringEndsWith('/content', $errors[0]['source']['pointer']);
+
+        $this->assertReviewCount(0);
+    }
+
+    /**
+     * @param array<string, mixed> $points
+     */
+    #[DataProvider('provideMissingPoints')]
+    public function testCreateRequiresPoints(array $points): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->login($this->browser);
+
+        $this->browser->request(
+            'POST',
+            $this->getUrl(),
+            server: ['CONTENT_TYPE' => 'application/json'],
+            content: json_encode([
+                'title' => 'Lorem ipsum dolor sit amet',
+                'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+                ...$points,
+            ], \JSON_THROW_ON_ERROR)
+        );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $errors = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+
+        static::assertCount(1, $errors);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $errors[0]['code']);
+        static::assertSame('/points', $errors[0]['source']['pointer']);
+
+        $this->assertReviewCount(0);
+    }
+
+    public function testCreateWithoutPointsSavesTheReviewBeforeTheMajor(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $this->login($this->browser);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ]);
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $this->assertReviewCount(1);
+    }
+
+    #[DataProvider('providePointsInRange')]
+    public function testRepositoryAcceptsPointsFromOneToFive(float $points): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $this->createReviewThroughRepository($points);
+
+        $this->assertReviewCount(1);
+    }
+
+    /**
+     * @return iterable<string, array{float}>
+     */
+    public static function providePointsInRange(): iterable
+    {
+        yield 'lowest rating' => [1.0];
+        yield 'highest rating' => [5.0];
+    }
+
+    #[DataProvider('providePointsOutOfRange')]
+    public function testRepositoryRejectsPointsOutsideOneToFive(float $points): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        try {
+            $this->createReviewThroughRepository($points);
+            static::fail('Points outside 1 to 5 have to be rejected');
+        } catch (WriteException $exception) {
+            $violation = $exception->getExceptions()[0] ?? null;
+
+            static::assertInstanceOf(WriteConstraintViolationException::class, $violation);
+            static::assertSame(Range::NOT_IN_RANGE_ERROR, $violation->getViolations()->get(0)->getCode());
+        }
+
+        $this->assertReviewCount(0);
+    }
+
+    /**
+     * @return iterable<string, array{float}>
+     */
+    public static function providePointsOutOfRange(): iterable
+    {
+        yield 'zero' => [0.0];
+        yield 'below one' => [0.5];
+        yield 'above five' => [5.5];
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function provideMissingPoints(): iterable
+    {
+        yield 'points omitted' => [[]];
+        yield 'points null' => [['points' => null]];
     }
 
     public function testUpdate(): void
@@ -98,6 +234,7 @@ class ProductReviewSaveRouteTest extends TestCase
         $this->browser->request('POST', $this->getUrl(), [
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();
@@ -110,6 +247,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $id,
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
         $this->assertReviewCount(1);
     }
@@ -128,6 +266,10 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertSame($response['errors'][0]['source']['pointer'], '/title');
         static::assertSame($response['errors'][1]['source']['pointer'], '/content');
+
+        if (Feature::isActive('v6.8.0.0')) {
+            static::assertSame($response['errors'][2]['source']['pointer'], '/points');
+        }
     }
 
     public function testCustomerValidation(): void
@@ -143,6 +285,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $id,
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
 
         // Re-login as another user
@@ -153,6 +296,7 @@ class ProductReviewSaveRouteTest extends TestCase
             'id' => $id,
             'title' => 'Lorem ipsum dolor sit amet',
             'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+            'points' => 5,
         ]);
 
         $response = $this->browser->getResponse();
@@ -170,11 +314,8 @@ class ProductReviewSaveRouteTest extends TestCase
             SalesChannelContextService::CUSTOMER_ID => $customerId,
         ]);
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MailBeforeSentEvent::class,
             static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -192,8 +333,6 @@ class ProductReviewSaveRouteTest extends TestCase
             $salesChannelContext
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
-
-        $this->resetEventDispatcher();
 
         static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
         $bodyText = $caughtEvent->getMessage()->getTextBody();
@@ -213,21 +352,17 @@ class ProductReviewSaveRouteTest extends TestCase
             '<a href="https://localhost">Lorem ipsum dolor sit amet, consetetur sadipscing elitr</a>',
             'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
         ];
-        yield 'script' => [
-            '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
-            'alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")',
-        ];
         yield 'javascript' => [
             '<script>alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
         yield 'javascript with attributes' => [
             '<script type="text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
         yield 'javascript with attributes and spaces' => [
             '<script type = "text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
     }
 
@@ -271,6 +406,19 @@ class ProductReviewSaveRouteTest extends TestCase
         ];
         static::getContainer()->get('product.repository')
             ->update($update, Context::createDefaultContext());
+    }
+
+    private function createReviewThroughRepository(float $points): void
+    {
+        static::getContainer()->get('product_review.repository')->create([[
+            'productId' => $this->ids->get('product'),
+            'salesChannelId' => $this->ids->get('sales-channel'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'externalUser' => 'Max',
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
+            'points' => $points,
+        ]], Context::createDefaultContext());
     }
 
     private function getUrl(): string

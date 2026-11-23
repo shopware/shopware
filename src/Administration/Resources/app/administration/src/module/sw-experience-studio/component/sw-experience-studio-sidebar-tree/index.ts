@@ -38,6 +38,10 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: null,
         },
+        showBackButton: {
+            type: Boolean,
+            default: false,
+        },
         selectedElementId: {
             type: String,
             required: false,
@@ -51,6 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     emits: [
+        'back',
         'select-element',
         'add-element',
         'duplicate-element',
@@ -59,6 +64,10 @@ export default Shopware.Component.wrapComponentConfig({
     ],
 
     computed: {
+        panelTitle(): string {
+            return this.layout?.name || this.$t('sw-experience-studio.detail.sidebarTree.title');
+        },
+
         layoutElements(): ContentElementNode[] {
             return this.layout?.layout ?? [];
         },

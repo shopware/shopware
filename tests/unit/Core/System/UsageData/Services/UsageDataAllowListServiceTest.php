@@ -25,7 +25,7 @@ class UsageDataAllowListServiceTest extends TestCase
     {
         $list = UsageDataAllowListService::getDefaultUsageDataAllowList();
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
     }
 
     public function testItFiltersEntity(): void

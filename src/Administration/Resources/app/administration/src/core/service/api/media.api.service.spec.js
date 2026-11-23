@@ -157,10 +157,7 @@ describe('storeService', () => {
 
         expect(await mediaApiService.getDefaultFolderId('product_download')).toBe('product_download_id');
         expect(search).toHaveBeenCalledWith(expect.anything(), {
-            cacheKey: [
-                'media-default-folder',
-                'product_download',
-            ],
+            cacheKey: ['media-default-folder', 'product_download'],
         });
 
         spyRepository.mockRestore();

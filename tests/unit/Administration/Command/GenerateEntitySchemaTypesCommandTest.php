@@ -21,11 +21,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(GenerateEntitySchemaTypesCommand::class)]
 class GenerateEntitySchemaTypesCommandTest extends TestCase
 {
-    use ExtensionToolingCommandTestBehaviour;
-
     public function testStopsWhenTheSchemaDumpFailsWithoutConverting(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true);
         $command = $this->commandInApplication($administrationRoot, dumpExitCode: 3);
 
         $exitCode = (new CommandTester($command))->execute([]);
@@ -36,12 +34,12 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
             'conversion must not run when the dump failed',
         );
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
     }
 
     public function testFailsWithNpmCiGuidanceWhenNodeDependenciesAreMissing(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: false);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: false);
         $command = $this->commandInApplication($administrationRoot, dumpExitCode: Command::SUCCESS);
 
         $tester = new CommandTester($command);
@@ -54,22 +52,22 @@ class GenerateEntitySchemaTypesCommandTest extends TestCase
             'conversion must not run without the Node dependencies',
         );
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
     }
 
     public function testConvertsAfterASuccessfulDumpAndPropagatesTheExitCode(): void
     {
-        $administrationRoot = $this->createAdministrationRoot(withToolingStub: true, stubExitCode: 3);
+        $administrationRoot = ExtensionToolingFixture::createAdministrationRoot(withToolingStub: true, stubExitCode: 3);
         $command = $this->commandInApplication($administrationRoot, dumpExitCode: Command::SUCCESS);
 
         $exitCode = (new CommandTester($command))->execute([]);
 
         static::assertSame(3, $exitCode, 'the converter exit code is propagated');
 
-        $capture = $this->readToolingCapture($administrationRoot);
+        $capture = ExtensionToolingFixture::readToolingCapture($administrationRoot);
         static::assertStringEndsWith('scripts/entitySchemaConverter/convert-schema.ts', $capture['argv'][1]);
 
-        $this->removeAdministrationRoot($administrationRoot);
+        ExtensionToolingFixture::removeAdministrationRoot($administrationRoot);
     }
 
     public function testAdministrationRootResolvesToTheBundleResourcesPathByDefault(): void

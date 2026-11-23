@@ -66,7 +66,7 @@ class FrwRequestOptionsProviderTest extends TestCase
     {
         $headers = $this->optionsProvider->getAuthenticationHeader($this->context);
 
-        static::assertEmpty($headers);
+        static::assertCount(0, $headers);
     }
 
     public function testThrowsInvalidContextSourceExceptionIfNotAdminApiSource(): void

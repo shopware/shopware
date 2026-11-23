@@ -2,6 +2,9 @@
  * @sw-package framework
  */
 
+import * as VueRouter from 'vue-router';
+import coreRoutes from 'src/app/route';
+
 const { Module, Application } = Shopware;
 
 describe('core/factory/router.factory.js', () => {
@@ -176,6 +179,176 @@ describe('core/factory/router.factory.js', () => {
             expect(favicon.getAttribute('href')).toBe(
                 '/bundles/administration/administration/static/img/favicon/modules/icon-module-orders.svg',
             );
+        });
+    });
+
+    describe('createRouterInstance', () => {
+        beforeEach(() => {
+            Application.view.getComponentForRoute = jest.fn((name) => ({
+                name,
+                template: '<div></div>',
+            }));
+        });
+
+        afterEach(() => {
+            delete Application.view.getComponentForRoute;
+        });
+
+        function createRouter({ loggedIn = true } = {}) {
+            const factory = new Shopware.Classes._private.RouterFactory(
+                VueRouter,
+                undefined,
+                Application.getContainer('factory').module,
+                { isLoggedIn: () => loggedIn },
+            );
+
+            // The factory mutates the route definitions, so every router gets its own copy
+            factory.addRoutes(structuredClone(coreRoutes));
+            factory.addModuleRoutes([
+                {
+                    path: '/sw/dashboard/index',
+                    name: 'sw.dashboard.index',
+                    component: 'sw-dashboard-index',
+                },
+                {
+                    path: '/login',
+                    name: 'sw.login.index',
+                    component: 'sw-login',
+                    coreRoute: true,
+                },
+            ]);
+
+            return factory.createRouterInstance();
+        }
+
+        it('should resolve unknown URLs to the not found page inside the root route', () => {
+            const router = createRouter();
+            const route = router.resolve('/sw/does-not/exist');
+
+            expect(route.name).toBe('sw.not.found.index');
+            expect(route.matched.map((record) => record.name)).toEqual([
+                'core',
+                'sw.not.found.index',
+            ]);
+            expect(route.matched[1].components.default.name).toBe('sw-not-found');
+        });
+
+        it('should prefer existing routes over the not found page', () => {
+            const router = createRouter();
+
+            expect(router.resolve('/sw/dashboard/index').matched.map((record) => record.name)).toEqual([
+                'core',
+                'sw.dashboard.index',
+            ]);
+            expect(router.resolve('/').name).toBe('core');
+            expect(router.resolve('/login').name).toBe('sw.login.index');
+            expect(router.resolve('/error').name).toBe('error');
+        });
+
+        it('should not register the not found page for the login-only boot', () => {
+            const router = createRouter({ loggedIn: false });
+
+            expect(router.hasRoute('sw.not.found.index')).toBe(false);
+            expect(router.resolve('/sw/dashboard/index').matched.map((record) => record.name)).toEqual([
+                'core',
+                'sw.dashboard.index',
+            ]);
+        });
+    });
+
+    describe('navigation guard', () => {
+        const dummyComponent = { template: '<div></div>' };
+
+        function createRouter(loggedIn) {
+            const loginService = {
+                isLoggedIn: () => loggedIn,
+                isRefreshing: () => Promise.resolve(false),
+                refreshToken: () => Promise.reject(new Error('not logged in')),
+            };
+
+            const factory = new Shopware.Classes._private.RouterFactory(
+                VueRouter,
+                undefined,
+                Application.getContainer('factory').module,
+                loginService,
+            );
+
+            factory.addRoutes([
+                { path: '/', name: 'core', component: dummyComponent },
+                { path: '/login', name: 'sw.login.index', component: dummyComponent },
+                { path: '/sw/dashboard/index', name: 'sw.dashboard.index', component: dummyComponent },
+                { path: '/oauth/authorize', name: 'sw.oauth.authorize.index', component: dummyComponent },
+            ]);
+
+            return factory.createRouterInstance();
+        }
+
+        beforeAll(() => {
+            Shopware.Service().register('userActivityService', () => ({
+                updateLastUserActivity: () => {},
+            }));
+        });
+
+        beforeEach(() => {
+            sessionStorage.clear();
+        });
+
+        it('should restore the route requested before the SSO login', async () => {
+            const oauthPath = '/oauth/authorize?client_id=shopware-cli&state=abc';
+
+            // Unauthenticated request of the consent page, the guard remembers the route
+            const loggedOutRouter = createRouter(false);
+            await loggedOutRouter.push(oauthPath);
+            expect(loggedOutRouter.currentRoute.value.name).toBe('sw.login.index');
+
+            // The SSO login is started and the browser returns to the plain Administration URL
+            sessionStorage.setItem('sw-sso-restore-previous-route', 'true');
+            const loggedInRouter = createRouter(true);
+            await loggedInRouter.push('/sw/dashboard/index');
+
+            expect(loggedInRouter.currentRoute.value.fullPath).toBe(oauthPath);
+            expect(sessionStorage.getItem('sw-sso-restore-previous-route')).toBeNull();
+            expect(sessionStorage.getItem('sw-admin-previous-route')).toBeNull();
+        });
+
+        it('should restore the previous route only once', async () => {
+            sessionStorage.setItem('sw-sso-restore-previous-route', 'true');
+            sessionStorage.setItem('sw-admin-previous-route', JSON.stringify({ fullPath: '/oauth/authorize?state=abc' }));
+
+            const router = createRouter(true);
+            await router.push('/sw/dashboard/index');
+            await router.push('/sw/dashboard/index');
+
+            expect(router.currentRoute.value.fullPath).toBe('/sw/dashboard/index');
+        });
+
+        it('should not restore the previous route without a SSO login', async () => {
+            sessionStorage.setItem('sw-admin-previous-route', JSON.stringify({ fullPath: '/oauth/authorize?state=abc' }));
+
+            const router = createRouter(true);
+            await router.push('/sw/dashboard/index');
+
+            expect(router.currentRoute.value.fullPath).toBe('/sw/dashboard/index');
+        });
+
+        it('should keep the restore flag while the user is not logged in', async () => {
+            sessionStorage.setItem('sw-sso-restore-previous-route', 'true');
+
+            const router = createRouter(false);
+            await router.push('/login');
+
+            expect(sessionStorage.getItem('sw-sso-restore-previous-route')).toBe('true');
+        });
+
+        it('should continue the navigation when the stored previous route is invalid', async () => {
+            sessionStorage.setItem('sw-sso-restore-previous-route', 'true');
+            sessionStorage.setItem('sw-admin-previous-route', '{invalid');
+
+            const router = createRouter(true);
+            await router.push('/sw/dashboard/index');
+
+            expect(router.currentRoute.value.fullPath).toBe('/sw/dashboard/index');
+            expect(sessionStorage.getItem('sw-admin-previous-route')).toBeNull();
         });
     });
 });

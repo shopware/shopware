@@ -1,0 +1,94 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "\/notification\/message": {
+            "get": {
+                "tags": [
+                    "Notification"
+                ],
+                "summary": "Get notifications",
+                "description": "Returns notifications visible to the current Admin API user.",
+                "operationId": "fetchNotifications",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Maximum number of notifications to return.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 5
+                        }
+                    },
+                    {
+                        "name": "latestTimestamp",
+                        "in": "query",
+                        "description": "Only return notifications created after this timestamp.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notifications returned successfully.",
+                        "content": {
+                            "application\/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "notifications",
+                                        "timestamp"
+                                    ],
+                                    "properties": {
+                                        "notifications": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "required": [
+                                                    "id",
+                                                    "status",
+                                                    "message",
+                                                    "adminOnly",
+                                                    "requiredPrivileges"
+                                                ],
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "status": {
+                                                        "type": "string"
+                                                    },
+                                                    "message": {
+                                                        "type": "string"
+                                                    },
+                                                    "adminOnly": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "requiredPrivileges": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "timestamp": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

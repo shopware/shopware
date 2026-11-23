@@ -42,7 +42,7 @@ class OrderAmountServiceTest extends TestCase
     {
         $states = static::getContainer()->get(Connection::class)->fetchAllKeyValue(
             'SELECT technical_name, LOWER(HEX(id)) FROM state_machine_state WHERE technical_name IN (:states)',
-            ['states' => [OrderTransactionStates::STATE_PAID, OrderStates::STATE_OPEN]],
+            ['states' => [OrderTransactionStates::STATE_PAID, OrderStates::STATE_OPEN, OrderStates::STATE_CANCELLED]],
             ['states' => ArrayParameterType::STRING]
         );
 
@@ -250,6 +250,30 @@ class OrderAmountServiceTest extends TestCase
             'expected' => [],
             'since' => '2021-01-01',
             'paid' => true,
+        ];
+
+        yield 'Cancelled order is excluded from count and amount, not filter paid' => [
+            'orders' => [
+                self::order(1, '2021-01-01', 20.00, OrderStates::STATE_OPEN),
+                self::order(1, '2021-01-01', 30.00, OrderStates::STATE_CANCELLED),
+            ],
+            'expected' => [
+                ['date' => '2021-01-01', 'amount' => 20.00, 'count' => 1],
+            ],
+            'since' => '2021-01-01',
+            'paid' => false,
+        ];
+
+        yield 'Date with only cancelled orders has no bucket' => [
+            'orders' => [
+                self::order(1, '2021-01-01', 20.00, OrderStates::STATE_OPEN),
+                self::order(1, '2021-01-02', 30.00, OrderStates::STATE_CANCELLED),
+            ],
+            'expected' => [
+                ['date' => '2021-01-01', 'amount' => 20.00, 'count' => 1],
+            ],
+            'since' => '2021-01-01',
+            'paid' => false,
         ];
 
         yield 'Multiple orders at same date, different currencies, different states' => [

@@ -1,16 +1,35 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { checkMilestoneLabel, evaluateMilestoneLabel, expectedMilestone, MILESTONE_LABEL_PREFIX, SKIP_CHECK_LABEL, STATUS_CONTEXT } from './milestone-label.ts';
+import {
+    checkMilestoneLabel,
+    evaluateMilestoneLabel,
+    expectedMilestone,
+    MILESTONE_LABEL_PREFIX,
+    SKIP_CHECK_LABEL,
+    STATUS_CONTEXT,
+} from './milestone-label.ts';
 
 // The state of shopware/shopware after the 6.7.13.x branch-off: 6.7.13.* is closed,
 // 6.7.14.0 is what trunk collects.
-const VERSION_BRANCHES = ['6.5.x', '6.6.x', '6.7.11.x', '6.7.12.x', '6.7.13.x'];
+const VERSION_BRANCHES = [
+    '6.5.x',
+    '6.6.x',
+    '6.7.11.x',
+    '6.7.12.x',
+    '6.7.13.x',
+];
 
 const evaluate = (labels: string[], baseRefName = 'trunk', versionBranches = VERSION_BRANCHES) =>
     evaluateMilestoneLabel({ baseRefName, defaultBranch: 'trunk', labels, versionBranches });
 
 const evaluateDraft = (labels: string[], baseRefName = 'trunk') =>
-    evaluateMilestoneLabel({ baseRefName, defaultBranch: 'trunk', labels, versionBranches: VERSION_BRANCHES, isDraft: true });
+    evaluateMilestoneLabel({
+        baseRefName,
+        defaultBranch: 'trunk',
+        labels,
+        versionBranches: VERSION_BRANCHES,
+        isDraft: true,
+    });
 
 test('expectedMilestone is the patch after the highest branched minor', () => {
     assert.equal(expectedMilestone(VERSION_BRANCHES), '6.7.14.0');
@@ -164,7 +183,12 @@ function mergeGroupToolkit(
         toolkit: {
             github: {
                 graphql: async () => ({
-                    repository: { refs: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: VERSION_BRANCHES.map((name) => ({ name })) } },
+                    repository: {
+                        refs: {
+                            pageInfo: { hasNextPage: false, endCursor: null },
+                            nodes: VERSION_BRANCHES.map((name) => ({ name })),
+                        },
+                    },
                 }),
                 rest: {
                     issues: { addLabels: async () => ({}), removeLabel: async () => ({}) },
@@ -175,11 +199,27 @@ function mergeGroupToolkit(
                                 throw new Error(`unexpected pulls.get for #${pull_number}`);
                             }
 
-                            return { data: { number: pull_number, draft: pull.draft ?? false, base: { ref: pull.base }, labels: pull.labels.map((name) => ({ name })) } };
+                            return {
+                                data: {
+                                    number: pull_number,
+                                    draft: pull.draft ?? false,
+                                    base: { ref: pull.base },
+                                    head: { sha: `head-${pull_number}` },
+                                    labels: pull.labels.map((name) => ({ name })),
+                                },
+                            };
                         },
                     },
                     repos: {
-                        createCommitStatus: async ({ state, description, context: ctx }: { state: string; description: string; context: string }) => {
+                        createCommitStatus: async ({
+                            state,
+                            description,
+                            context: ctx,
+                        }: {
+                            state: string;
+                            description: string;
+                            context: string;
+                        }) => {
                             assert.equal(ctx, STATUS_CONTEXT);
                             assert.ok(description.length <= 140, `status description too long: ${description.length}`);
                             statuses.push({ state, description });
@@ -212,22 +252,56 @@ function mergeGroupToolkit(
     };
 }
 
-/** Toolkit stub for the single pull-request path (pull_request_target / merge_group's sibling). */
-function pullRequestToolkit(eventName: string, pull: { base: string; labels: string[]; draft?: boolean; sha?: string }) {
-    const statuses: { state: string; description: string }[] = [];
+/**
+ * Toolkit stub for the single pull-request path (pull_request_target / merge_group's sibling).
+ * `pull` is the state the API reports, `stale` what the event payload still claims — they
+ * diverge whenever a label lands after the event fired, or the run is a re-run.
+ */
+function pullRequestToolkit(
+    eventName: string,
+    pull: { base: string; labels: string[]; draft?: boolean; sha?: string },
+    stale: { base?: string; labels?: string[]; draft?: boolean; sha?: string } = {},
+) {
+    const statuses: { state: string; description: string; sha: string }[] = [];
 
     return {
         statuses,
         toolkit: {
             github: {
                 graphql: async () => ({
-                    repository: { refs: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: VERSION_BRANCHES.map((name) => ({ name })) } },
+                    repository: {
+                        refs: {
+                            pageInfo: { hasNextPage: false, endCursor: null },
+                            nodes: VERSION_BRANCHES.map((name) => ({ name })),
+                        },
+                    },
                 }),
                 rest: {
+                    pulls: {
+                        get: async ({ pull_number }: { pull_number: number }) => ({
+                            data: {
+                                number: pull_number,
+                                draft: pull.draft ?? false,
+                                base: { ref: pull.base },
+                                head: { sha: pull.sha ?? 'cccc' },
+                                labels: pull.labels.map((name) => ({ name })),
+                            },
+                        }),
+                    },
                     repos: {
-                        createCommitStatus: async ({ state, description, context: ctx }: { state: string; description: string; context: string }) => {
+                        createCommitStatus: async ({
+                            state,
+                            description,
+                            sha,
+                            context: ctx,
+                        }: {
+                            state: string;
+                            description: string;
+                            sha: string;
+                            context: string;
+                        }) => {
                             assert.equal(ctx, STATUS_CONTEXT);
-                            statuses.push({ state, description });
+                            statuses.push({ state, description, sha });
 
                             return {};
                         },
@@ -238,7 +312,9 @@ function pullRequestToolkit(eventName: string, pull: { base: string; labels: str
                 info: () => {},
                 warning: () => {},
                 error: () => {},
-                setFailed: () => { throw new Error('the job must stay green; the verdict belongs in the commit status'); },
+                setFailed: () => {
+                    throw new Error('the job must stay green; the verdict belongs in the commit status');
+                },
                 summary: { addRaw: () => ({ write: async () => {} }) },
             },
             context: {
@@ -246,7 +322,13 @@ function pullRequestToolkit(eventName: string, pull: { base: string; labels: str
                 repo: { owner: 'shopware', repo: 'shopware' },
                 payload: {
                     repository: { default_branch: 'trunk' },
-                    pull_request: { number: 1, base: { ref: pull.base }, head: { sha: pull.sha ?? 'cccc' }, draft: pull.draft ?? false, labels: pull.labels.map((name) => ({ name })) },
+                    pull_request: {
+                        number: 1,
+                        base: { ref: stale.base ?? pull.base },
+                        head: { sha: stale.sha ?? pull.sha ?? 'cccc' },
+                        draft: stale.draft ?? pull.draft ?? false,
+                        labels: (stale.labels ?? pull.labels).map((name) => ({ name })),
+                    },
                 },
             },
         },
@@ -256,7 +338,10 @@ function pullRequestToolkit(eventName: string, pull: { base: string; labels: str
 // Locks in "anything but merge_group" rather than a literal event-name check.
 for (const eventName of ['pull_request_target', 'pull_request']) {
     test(`the single-PR path posts the commit status on a "${eventName}" event`, async () => {
-        const { toolkit, statuses } = pullRequestToolkit(eventName, { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] });
+        const { toolkit, statuses } = pullRequestToolkit(eventName, {
+            base: 'trunk',
+            labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`],
+        });
 
         await checkMilestoneLabel(toolkit as never);
 
@@ -264,6 +349,33 @@ for (const eventName of ['pull_request_target', 'pull_request']) {
         assert.equal(statuses[0].state, 'failure');
     });
 }
+
+test('the single-PR path judges the label the API reports, not the one the payload froze', async () => {
+    // The labeler wins the race by a second, so the payload of the event that started this
+    // run has no label yet while the pull request already carries the right one (#20073).
+    const { toolkit, statuses } = pullRequestToolkit(
+        'pull_request_target',
+        { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`] },
+        { labels: [] },
+    );
+
+    await checkMilestoneLabel(toolkit as never);
+
+    assert.equal(statuses[0].state, 'success');
+});
+
+test('the single-PR path posts the status on the head the API reports', async () => {
+    // A re-run replays the original payload, so its head can be several pushes behind.
+    const { toolkit, statuses } = pullRequestToolkit(
+        'pull_request_target',
+        { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`], sha: 'dddd' },
+        { sha: 'cccc' },
+    );
+
+    await checkMilestoneLabel(toolkit as never);
+
+    assert.equal(statuses[0].sha, 'dddd');
+});
 
 test('the single-PR path never fails the job, even when the label is wrong', async () => {
     const { toolkit } = pullRequestToolkit('pull_request_target', { base: 'trunk', labels: [] });
@@ -302,12 +414,15 @@ test('the merge group gate passes a correctly labelled queued PR', () => {
 });
 
 test('the merge group gate checks every PR in a batch, not just the one the ref names', () => {
-    const { toolkit, failed, statuses } = mergeGroupToolkit(
+    const { toolkit, statuses } = mergeGroupToolkit(
         {
             18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.14.0`] },
             18780: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] },
         },
-        [{ sha: 'c1', pulls: [18780] }, { sha: 'c2', pulls: [18791] }],
+        [
+            { sha: 'c1', pulls: [18780] },
+            { sha: 'c2', pulls: [18791] },
+        ],
     );
 
     return checkMilestoneLabel(toolkit as never).then(() => {
@@ -318,7 +433,7 @@ test('the merge group gate checks every PR in a batch, not just the one the ref 
 });
 
 test('the merge group gate still checks the ref-named PR when the commit lookup fails', () => {
-    const { toolkit, failed, warnings, statuses } = mergeGroupToolkit(
+    const { toolkit, warnings, statuses } = mergeGroupToolkit(
         { 18791: { base: 'trunk', labels: [`${MILESTONE_LABEL_PREFIX}6.7.13.0`] } },
         [],
     );
@@ -346,7 +461,12 @@ test('every short form fits the commit status limit', () => {
 
     for (const base of ['trunk', '6.7.13.x', 'feat/some-stacked-branch']) {
         for (const labels of cases) {
-            const { short } = evaluateMilestoneLabel({ baseRefName: base, defaultBranch: 'trunk', labels, versionBranches: VERSION_BRANCHES });
+            const { short } = evaluateMilestoneLabel({
+                baseRefName: base,
+                defaultBranch: 'trunk',
+                labels,
+                versionBranches: VERSION_BRANCHES,
+            });
             assert.ok(short.length <= 140, `too long (${short.length}) for base ${base}: ${short}`);
         }
     }

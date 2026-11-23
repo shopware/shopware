@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Rule\CartTaxDisplayRule;
 use Shopware\Core\Checkout\Cart\Rule\CartTotalPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\CartVolumeRule;
 use Shopware\Core\Checkout\Cart\Rule\CartWeightRule;
+use Shopware\Core\Checkout\Cart\Rule\DeliveryContainerRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
 use Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule;
@@ -22,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemCreationDateRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionHeightRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLongestAndGirthRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWidthRule;
@@ -119,6 +121,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CartWeightRule::class)->tag('shopware.rule.definition');
     $services->set(CartVolumeRule::class)->tag('shopware.rule.definition');
     $services->set(CartHasDeliveryFreeItemRule::class)->tag('shopware.rule.definition');
+    $services->set(DeliveryContainerRule::class)->tag('shopware.rule.definition');
     $services->set(BillingCountryRule::class)->tag('shopware.rule.definition');
     $services->set(BillingStreetRule::class)->tag('shopware.rule.definition');
     $services->set(BillingZipCodeRule::class)->tag('shopware.rule.definition');
@@ -163,12 +166,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(LineItemDimensionWidthRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionHeightRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionLengthRule::class)->tag('shopware.rule.definition');
+    $services->set(LineItemDimensionLongestAndGirthRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionWeightRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemDimensionVolumeRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemListPriceRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemListPriceRatioRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemCustomFieldRule::class)->tag('shopware.rule.definition');
-    $services->set(LineItemStockRule::class)->tag('shopware.rule.definition');
+    $services->set(LineItemStockRule::class)
+        ->tag('shopware.rule.definition')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
     $services->set(LineItemActualStockRule::class)->tag('shopware.rule.definition');
     $services->set(PaymentMethodRule::class)->tag('shopware.rule.definition');
     $services->set(ShippingMethodRule::class)->tag('shopware.rule.definition');
@@ -177,7 +183,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CustomerCustomFieldRule::class)->tag('shopware.rule.definition');
     $services->set(CustomerBirthdayRule::class)->tag('shopware.rule.definition');
     $services->set(CustomerCreatedByAdminRule::class)->tag('shopware.rule.definition');
-    $services->set(LineItemProductStatesRule::class)->tag('shopware.rule.definition');
+    $services->set(LineItemProductStatesRule::class)
+        ->tag('shopware.rule.definition')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(LineItemProductTypeRule::class)
         ->args([

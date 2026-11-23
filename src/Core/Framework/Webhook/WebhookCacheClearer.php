@@ -25,7 +25,6 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     {
         return [
             AppEvents::APP_WRITTEN_EVENT => 'clearWebhookCache',
-            'acl_role.written' => 'clearPrivilegesCache',
         ];
     }
 
@@ -36,16 +35,10 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     public function reset(): void
     {
         $this->clearWebhookCache();
-        $this->clearPrivilegesCache();
     }
 
     public function clearWebhookCache(): void
     {
         $this->manager->clearInternalWebhookCache();
-    }
-
-    public function clearPrivilegesCache(): void
-    {
-        $this->manager->clearInternalPrivilegesCache();
     }
 }

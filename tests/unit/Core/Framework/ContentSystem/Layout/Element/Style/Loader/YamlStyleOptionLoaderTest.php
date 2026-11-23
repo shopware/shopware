@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\StyleOptionSourceDirectory;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Loader\YamlStyleOptionLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Serialization\StyleOptionSpecificationSerializer;
@@ -56,7 +55,7 @@ class YamlStyleOptionLoaderTest extends TestCase
     public function testShippedCoreDefinitionsValidate(): void
     {
         // An out-of-bounds advisory default in a shipped core definition now fails at load.
-        $coreDir = \dirname((string) (new \ReflectionClass(ElementStyle::class))->getFileName()) . '/Definitions';
+        $coreDir = __DIR__ . '/../../../../../../../../../src/Core/Framework/ContentSystem/Layout/Element/Style/Definitions';
 
         $options = $this->createLoader([new StyleOptionSourceDirectory('core', $coreDir)])->load();
 

@@ -15,6 +15,15 @@
         <slot name="label">
             {{ label }}
         </slot>
+
+        {% block sw_settings_item_new_badge %}
+        <mt-promo-badge
+            v-if="showNewBadge"
+            class="sw-settings-item__new-badge"
+            variant="new"
+            size="s"
+        />
+        {% endblock %}
     </div>
     {% endblock %}
 </router-link>

@@ -18,20 +18,12 @@ const utils = Shopware.Utils;
  * <sw-code-editor label="Description">
  * </sw-code-editor>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'feature',
-        'userInputSanitizeService',
-    ],
+    inject: ['feature', 'userInputSanitizeService'],
 
-    emits: [
-        'mounted',
-        'update:value',
-        'blur',
-    ],
+    emits: ['mounted', 'update:value', 'blur'],
 
     props: {
         value: {
@@ -64,18 +56,12 @@ export default {
             type: String,
             required: false,
             default: 'text',
-            validValues: [
-                'entity',
-                'text',
-            ],
+            validValues: ['entity', 'text'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'entity',
-                    'text',
-                ].includes(value);
+                return ['entity', 'text'].includes(value);
             },
         },
 
@@ -83,18 +69,12 @@ export default {
             type: String,
             required: false,
             default: 'twig',
-            validValues: [
-                'twig',
-                'text',
-            ],
+            validValues: ['twig', 'text'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'twig',
-                    'text',
-                ].includes(value);
+                return ['twig', 'text'].includes(value);
             },
         },
 
@@ -311,18 +291,12 @@ export default {
                 const textCompleterCloned = JSON.parse(JSON.stringify(textCompleter));
 
                 if (this.completionMode === 'entity') {
-                    textCompleterCloned.identifierRegexps = [
-                        /[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/,
-                    ];
+                    textCompleterCloned.identifierRegexps = [/[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
 
                     textCompleterCloned.getCompletions = function getComps(editor, session, pos, prefix, callback) {
-                        this.identifierRegexps = [
-                            /[\[\][a-zA-Z_0-9\$\-\u00A2-\uFFFF]/,
-                        ];
+                        this.identifierRegexps = [/[\[\][a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
                         callback(null, completerFunction(prefix));
-                        this.identifierRegexps = [
-                            /[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/,
-                        ];
+                        this.identifierRegexps = [/[\[\]\.a-zA-Z_0-9\$\-\u00A2-\uFFFF]/];
                     };
 
                     textCompleterCloned.completerFunction = completerFunction;

@@ -123,9 +123,7 @@ export async function syncTestPlanSubIssue({ github, core, context }) {
     }
 
     async function reportConflict(children) {
-        const issueLinks = children
-            .map((child) => `- #${child.number}`)
-            .join('\n');
+        const issueLinks = children.map((child) => `- #${child.number}`).join('\n');
 
         await github.rest.issues.createComment({
             owner,
@@ -156,7 +154,12 @@ export async function syncTestPlanSubIssue({ github, core, context }) {
                 '',
                 templateBody,
             ].join('\n'),
+            type: 'Task',
         });
+
+        if (!response.data.type) {
+            core.warning(`Test-plan issue #${response.data.number} was created without an issue type.`);
+        }
 
         return response.data;
     }
@@ -257,11 +260,13 @@ export async function syncTestPlanSubIssue({ github, core, context }) {
     const parentTypeName = await getIssueTypeName();
 
     if (!parentTypeName || !ALLOWED_PARENT_TYPES.has(parentTypeName)) {
-        core.info(`Skipping issue #${parentIssue.number} because its type is ${parentTypeName ?? 'unknown'} instead of Epic or Story.`);
+        core.info(
+            `Skipping issue #${parentIssue.number} because its type is ${parentTypeName ?? 'unknown'} instead of Epic or Story.`,
+        );
         return;
     }
 
-    const childIssue = matchingChildren[0] ?? await createChildIssue();
+    const childIssue = matchingChildren[0] ?? (await createChildIssue());
     const openChildIssue = await ensureChildIsOpen(childIssue);
 
     await ensureSubIssueLink(openChildIssue);

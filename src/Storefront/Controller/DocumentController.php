@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
-use Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
+use Shopware\Core\Checkout\DocumentV2\SalesChannel\AbstractDocumentRoute;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Framework\Log\Package;
@@ -31,7 +31,8 @@ class DocumentController extends StorefrontController
      */
     public function __construct(
         private readonly AbstractDocumentRoute $documentRoute,
-        private readonly AbstractLogoutRoute $logoutRoute
+        private readonly AbstractLogoutRoute $logoutRoute,
+        private readonly string $contentSecurityPolicy,
     ) {
     }
 
@@ -58,7 +59,13 @@ class DocumentController extends StorefrontController
 
         try {
             // @phpstan-ignore arguments.count (format is hidden on AbstractDocumentRoute::download() via NewOptionalParameter to avoid a BC break for decorators; DocumentRoute's final implementation reads this 6th argument for real)
-            return $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType, $format);
+            $response = $this->documentRoute->download($documentId, $request, $context, $request->attributes->get('deepLinkCode'), $fileType, $format);
+
+            if ($response->isSuccessful() && $response->headers->has('Content-Disposition')) {
+                $response->headers->set('Content-Security-Policy', $this->contentSecurityPolicy, false);
+            }
+
+            return $response;
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
             if ($context->getCustomer() !== null) {
                 $this->logoutRoute->logout($context, new RequestDataBag([]));

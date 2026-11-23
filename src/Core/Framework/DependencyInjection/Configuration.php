@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelPolicy;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\Type;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
@@ -101,11 +103,16 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('theme')
                     ->treatNullLike(false)
                     ->canBeUnset()
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('type')->end()
                         ->scalarNode('url')->end()
                         ->scalarNode('visibility')->end()
                         ->variableNode('config')->end()
+                        ->booleanNode('use_last_modified_version_strategy')
+                            ->defaultTrue()
+                            ->info('When disabled, the theme asset version strategy uses an empty version strategy instead of fetching last-modified timestamps from the filesystem. Safe to disable when using SeedingThemePathBuilder, as the seed already invalidates caches.')
+                        ->end()
                     ->end()
                 ->end()
                 ->arrayNode('asset')
@@ -206,6 +213,22 @@ class Configuration implements ConfigurationInterface
             ->end()
             ->scalarNode('access_token_ttl')->defaultValue('PT10M')->end()
             ->scalarNode('refresh_token_ttl')->defaultValue('P1W')->end()
+            ->scalarNode('auth_code_ttl')->defaultValue('PT5M')->end()
+            ->arrayNode('oauth_clients')
+                ->info('Public OAuth clients allowed to use the authorization code grant with PKCE, keyed by client id.')
+                ->normalizeKeys(false)
+                ->useAttributeAsKey('client_id')
+                ->arrayPrototype()
+                    ->children()
+                        ->scalarNode('name')->isRequired()->cannotBeEmpty()->end()
+                        ->arrayNode('redirect_uris')
+                            ->isRequired()
+                            ->requiresAtLeastOneElement()
+                            ->scalarPrototype()->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
             ->scalarNode('max_limit')->end()
             ->arrayNode('static_token')
                 ->children()
@@ -216,6 +239,16 @@ class Configuration implements ConfigurationInterface
                 ->children()
                 ->booleanNode('auth_required')
                     ->defaultTrue()
+                ->end()
+            ->end()
+            ->end()
+            ->arrayNode('user_recovery')
+                ->info('Administration user password recovery ("forgot password") flow. Disable it when passwords are managed externally, e.g. via SSO.')
+                ->addDefaultsIfNotSet()
+                ->children()
+                    ->booleanNode('enabled')
+                        ->defaultTrue()
+                    ->end()
                 ->end()
             ->end();
 
@@ -268,6 +301,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('enabled')->end()
+                ->booleanNode('hide_module')->end()
             ->end();
 
         return $rootNode;
@@ -370,6 +404,13 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('enable_url_validation')->end()
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
+                ->end()
+                ->floatNode('url_upload_timeout')->defaultValue(0.0)->min(0)->end()
+                ->floatNode('external_link_timeout')->defaultValue(0.0)->min(0)->end()
+                ->arrayNode('allowed_protocols')
+                    ->performNoDeepMerging()
+                    ->defaultValue(['http', 'https', 'ftp'])
+                    ->enumPrototype()->values(['http', 'https', 'ftp'])->end()
                 ->end()
                 ->arrayNode('presigned_upload')
                     ->addDefaultsIfNotSet()
@@ -642,7 +683,12 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->booleanNode('major')->defaultFalse()->end()
+                        ->stringNode('major')->cannotBeEmpty()
+                            ->validate()
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/D', $major))
+                                ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
+                            ->end()
+                        ->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -662,6 +708,18 @@ class Configuration implements ConfigurationInterface
 
                         return $flags;
                     })
+                    ->end()
+                ->validate()
+                    ->ifTrue(static function (array $flags): bool {
+                        foreach ($flags as $name => $flag) {
+                            if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    })
+                    ->thenInvalid('A major version flag cannot declare a parent major.')
                     ->end()
             ->end();
 
@@ -1295,7 +1353,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->arrayPrototype()->scalarPrototype()->end()
+            ->arrayPrototype()->variablePrototype()->end()
             ->end()
             ->validate()
             ->ifFalse(
@@ -1342,6 +1400,15 @@ class Configuration implements ConfigurationInterface
                                             ->integerNode('s_maxage')->min(0)->defaultNull()->end()
                                             ->integerNode('stale_while_revalidate')->min(0)->defaultNull()->end()
                                             ->integerNode('stale_if_error')->min(0)->defaultNull()->end()
+                                        ->end()
+                                    ->end()
+                                    ->scalarNode('no_vary_search')
+                                        ->info('Verbatim value of the "No-Vary-Search" header, e.g. "key-order". Declares which query string differences clients may ignore when matching a stored response, both in the HTTP cache and in the prefetch/prerender cache. Never list parameters that change the rendered content (e.g. "p", "order", filter names) via "params", as the stored response would then be served for the wrong URL.')
+                                        ->defaultNull()
+                                        ->validate()
+                                            // `\z` instead of `$`, otherwise a trailing newline would pass and could smuggle a second header
+                                            ->ifTrue(static fn ($value): bool => $value !== null && (!\is_string($value) || preg_match('/^[\x20-\x7E]+\z/', $value) !== 1))
+                                            ->thenInvalid('The "no_vary_search" option must be a single line of printable ASCII, %s given.')
                                         ->end()
                                     ->end()
                                 ->end()
@@ -1538,6 +1605,23 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('mappings')
+                        ->useAttributeAsKey('name')
+                        // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key
+                        // normalization would rewrite `store-api.*` to `store_api.*` and break the lookup
+                        ->normalizeKeys(false)
+                        ->arrayPrototype()
+                            ->useAttributeAsKey('key')
+                            ->normalizeKeys(false)
+                            ->scalarPrototype()
+                                // a YAML `cache: 1` would otherwise only fail at runtime, inside the instrumented code path
+                                ->validate()
+                                    ->ifTrue(static fn ($value): bool => !\is_string($value))
+                                    ->thenInvalid('Telemetry label mapping values must be strings, %s given.')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
                     ->arrayNode('definitions')
                         ->useAttributeAsKey('name')
                         ->arrayPrototype()
@@ -1557,24 +1641,38 @@ class Configuration implements ConfigurationInterface
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
                                         ->validate()
+                                            // the only invalid shape is an empty declaration; cross-source combinations
+                                            // should never fail the build, so third-party config cannot break a shop on a core
+                                            // update that changes how a label is served (see the ADR)
                                             ->ifTrue(static function (array $label): bool {
-                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
-                                                $hasPolicy = isset($label['policy']);
+                                                $hasValues = ($label['allowed_values'] ?? []) !== [] || ($label['add_allowed_values'] ?? []) !== [];
 
-                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
-                                                    return true;
-                                                }
-                                                if (!$hasAllowedValues && !$hasPolicy) {
-                                                    return true;
-                                                }
-
-                                                return false;
+                                                return !$hasValues && !isset($label['policy']);
                                             })
-                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                            ->thenInvalid('Each label must declare values ("allowed_values" and/or "add_allowed_values") or a "policy".')
+                                        ->end()
+                                        ->validate()
+                                            // fold to the effective state: a present `allowed_values` is the complete,
+                                            // final list and locks the label - all `add_allowed_values` contributions
+                                            // are discarded; otherwise the deduplicated contributions are the list.
+                                            // The fold is policy-agnostic; on a `policy: open` label the folded values
+                                            // are inert at runtime and only visible in debug:config
+                                            ->always(static function (array $label): array {
+                                                if (($label['allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = [];
+                                                } elseif (($label['add_allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = array_values(array_unique($label['add_allowed_values']));
+                                                }
+
+                                                return $label;
+                                            })
                                         ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
                                                 ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
+                                            ->end()
+                                            ->arrayNode('add_allowed_values')
                                                 ->scalarPrototype()->end()
                                             ->end()
                                             ->enumNode('policy')
@@ -1655,10 +1753,34 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()->end()
                     ->defaultValue([])
                 ->end()
+                ->arrayNode('allowed_origins')
+                    ->info('Additional Origin values accepted by the MCP endpoints, on top of the shop\'s own origins. An entry is an exact origin (https://chat.example), an origin with any port (http://localhost:*) or * for any origin. Accepts %env(csv:MCP_ALLOWED_ORIGINS)%.')
+                    ->scalarPrototype()->end()
+                    ->defaultValue([])
+                ->end()
+                ->arrayNode('protocol_era')
+                    ->info('MCP protocol revisions each endpoint serves. "legacy" serves the handshake revisions up to 2025-11-25. "auto" also serves the stateless 2026-07-28 revision, and the client picks.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('admin')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                        ->enumNode('store_api')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                    ->end()
+                ->end()
                 ->integerNode('app_tool_timeout')
                     ->info('Timeout in seconds for app webhook MCP tool calls.')
                     ->defaultValue(10)
                     ->min(1)
+                ->end()
+                ->integerNode('tool_result_cache_ttl')
+                    ->info('Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer.')
+                    ->defaultValue(ToolResultCacheStorage::DEFAULT_TTL_SECONDS)
+                    ->min(60)
                 ->end()
             ->end();
 
@@ -1715,6 +1837,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
+                ->booleanNode('enable_url_validation')->defaultTrue()->end()
                 ->booleanNode('allow_unencrypted_traffic')->defaultFalse()->end()
                 ->arrayNode('allowed_private_ip_addresses')
                     ->performNoDeepMerging()
@@ -1743,6 +1866,10 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('repository_url')->defaultNull()->end()
                 ->scalarNode('metadata_url')->defaultNull()->end()
+                ->scalarNode('archive_manifest_url')
+                    ->info('Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.')
+                    ->defaultNull()
+                ->end()
                 ->scalarNode('community_translations_url')->defaultNull()->end()
                 ->scalarNode('documentation_url_snippet_key')->defaultNull()->end()
                 ->integerNode('completeness_threshold')->defaultNull()->end()

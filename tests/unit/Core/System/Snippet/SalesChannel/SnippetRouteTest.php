@@ -8,16 +8,21 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\Snippet\Extension\SnippetRouteExtension;
 use Shopware\Core\System\Snippet\SalesChannel\SalesChannelSnippetLoader;
 use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
+use Shopware\Core\System\Snippet\SalesChannel\SnippetRouteResponse;
 use Shopware\Core\System\Snippet\SalesChannel\SnippetSetResult;
+use Shopware\Core\System\Snippet\SalesChannel\SnippetSetResultList;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -51,7 +56,7 @@ class SnippetRouteTest extends TestCase
             ->with(['language-one', 'language-two'], ['checkout', 'account'], $this->salesChannelContext)
             ->willReturn([$result]);
 
-        $route = new SnippetRoute($loader, static::createStub(CacheTagCollector::class));
+        $route = new SnippetRoute($loader, static::createStub(CacheTagCollector::class), new ExtensionDispatcher(new EventDispatcher()));
 
         // comma separated lists with whitespace and empty entries are translated into clean lists
         $request = new Request([
@@ -74,7 +79,7 @@ class SnippetRouteTest extends TestCase
         $loader = static::createStub(SalesChannelSnippetLoader::class);
         $loader->method('load')->willReturn([$first, $second]);
 
-        $route = new SnippetRoute($loader, static::createStub(CacheTagCollector::class));
+        $route = new SnippetRoute($loader, static::createStub(CacheTagCollector::class), new ExtensionDispatcher(new EventDispatcher()));
 
         $response = $route->load(new Request(), $this->salesChannelContext);
 
@@ -86,7 +91,7 @@ class SnippetRouteTest extends TestCase
         $loader = static::createStub(SalesChannelSnippetLoader::class);
         $loader->method('load')->willReturn([$this->createResult()]);
 
-        $route = new SnippetRoute($loader, static::createStub(CacheTagCollector::class));
+        $route = new SnippetRoute($loader, static::createStub(CacheTagCollector::class), new ExtensionDispatcher(new EventDispatcher()));
 
         $etag = $route->load(new Request(), $this->salesChannelContext)->getEtag();
         static::assertNotNull($etag);
@@ -116,7 +121,7 @@ class SnippetRouteTest extends TestCase
                 $collectedTags = [...$collectedTags, ...$tags];
             });
 
-        $route = new SnippetRoute($loader, $cacheTagCollector);
+        $route = new SnippetRoute($loader, $cacheTagCollector, new ExtensionDispatcher(new EventDispatcher()));
 
         $route->load(new Request(), $this->salesChannelContext);
 
@@ -127,12 +132,35 @@ class SnippetRouteTest extends TestCase
     {
         $route = new SnippetRoute(
             static::createStub(SalesChannelSnippetLoader::class),
-            static::createStub(CacheTagCollector::class)
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $this->expectExceptionObject(new DecorationPatternException(SnippetRoute::class));
 
         $route->getDecorated();
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $response = new SnippetRouteResponse(new SnippetSetResultList());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('snippet-route.load.pre', function (SnippetRouteExtension $extension) use ($request, $response): void {
+            static::assertSame(['request' => $request, 'context' => $this->salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new SnippetRoute(
+            static::createStub(SalesChannelSnippetLoader::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $this->salesChannelContext));
     }
 
     private function createResult(string $hash = 'test-hash', string $snippetSetId = 'test-set-id'): SnippetSetResult

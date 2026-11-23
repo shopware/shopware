@@ -1,6 +1,5 @@
 {% block sw_order_detail_details %}
 <div class="sw-order-detail-details">
-
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
@@ -13,7 +12,6 @@
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__billing-address"
@@ -42,32 +40,31 @@
             show-clearable-button
         />
         {% endblock %}
-
     </sw-order-details-state-card>
     {% endblock %}
 
     {% block sw_order_detail_details_shipping %}
     <sw-order-details-state-card
-        v-if="delivery"
+        v-for="(shipment, index) in shipments"
+        :key="shipment.id"
         position="delivery"
-        :title="$t('sw-order.detailsTab.labelDeliveryCard')"
+        :title="shipmentCardTitle(index)"
         :order="order"
-        :entity="delivery"
+        :entity="shipment"
         :state-label="$t('sw-order.stateCard.headlineDeliveryState')"
         :disabled="!acl.can('order.editor') || undefined"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__shipping-address"
             type="shipping"
-            :address="shippingAddress"
-            :address-id="selectedShippingAddressId"
+            :address="shipment.shippingOrderAddress"
+            :address-id="getSelectedShippingAddressId(shipment)"
             :disabled="!acl.can('order.editor') || undefined"
             :label="$t('sw-order.createBase.detailsBody.labelShippingAddress')"
-            @change-address="onChangeOrderAddress"
+            @change-address="onChangeShipmentAddress(shipment, $event)"
         />
         {% endblock %}
 
@@ -77,7 +74,7 @@
 
         {% block sw_order_detail_details_shipping_method_select %}
         <sw-entity-single-select
-            v-model:value="delivery.shippingMethodId"
+            v-model:value="shipment.shippingMethodId"
             entity="shipping_method"
             disabled
             :criteria="salesChannelCriteria"
@@ -108,7 +105,7 @@
 
         {% block sw_order_detail_details_shipping_date %}
         <mt-datepicker
-            v-model="delivery.shippingDateEarliest"
+            v-model="shipment.shippingDateEarliest"
             disabled
             hide-hint
             :label="$t('sw-order.detailDeliveries.labelDeliveryDate')"
@@ -117,17 +114,18 @@
 
         {% block sw_order_detail_details_shipping_tracking_codes %}
         <sw-multi-tag-select
-            v-model:value="delivery.trackingCodes"
+            v-model:value="shipment.trackingCodes"
             class="sw-order-user-card__tracking-code-select"
             :disabled="!acl.can('order.editor') || undefined"
             :placeholder="$t('sw-order.detailBase.placeholderTrackingCodeSelect')"
             :label="$t('sw-order.detailBase.labelTrackingCodes')"
-            :validate="validateTrackingCode"
+            :validate="(trackingCode) => validateTrackingCode(trackingCode, shipment)"
             @update:value="saveAndReload"
         >
             <template #message-add-data>
                 <span>{{ $t('sw-order.detailBase.addTrackingCode') }}</span>
             </template>
+
             <template #message-enter-valid-data>
                 <span>{{ $t('sw-order.detailBase.enterValidTrackingCode') }}</span>
             </template>
@@ -148,9 +146,7 @@
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_order_email %}
-
         <mt-text-field
             v-model="order.orderCustomer.email"
             class="sw-order-detail-details__email"
@@ -163,7 +159,6 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_phone_number %}
-
         <mt-text-field
             v-model="order.addresses.get(order.billingAddressId).phoneNumber"
             class="sw-order-detail-details__phone-number"
@@ -197,7 +192,6 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_affiliate %}
-
         <mt-text-field
             v-model="order.affiliateCode"
             class="sw-order-detail-details__affiliate-code"
@@ -207,7 +201,6 @@
         {% endblock %}
 
         {% block sw_order_detail_details_order_campaign %}
-
         <mt-text-field
             v-model="order.campaignCode"
             class="sw-order-detail-details__campaign-code"
@@ -226,10 +219,11 @@
             <template #hint>
                 <div class="sw-order-detail-details__field-hint">
                     <mt-icon
-                        size="12"
+                        size="var(--scale-size-12)"
                         name="solid-info-circle"
                         class="sw-order-detail-details__field-hint__icon"
                     />
+
                     <p>{{ $t('sw-order.detailBase.helpTextCustomerComment') }}</p>
                 </div>
             </template>
@@ -246,10 +240,11 @@
             <template #hint>
                 <div class="sw-order-detail-details__field-hint">
                     <mt-icon
-                        size="12"
+                        size="var(--scale-size-12)"
                         name="solid-info-circle"
                         class="sw-order-detail-details__field-hint__icon"
                     />
+
                     <p>{{ $t('sw-order.detailBase.helpTextInternalComment') }}</p>
                 </div>
             </template>
@@ -284,6 +279,7 @@
         position-identifier="sw-order-detail-base-custom-fields__after"
     />
     {% endblock %}
+
     {% block sw_order_detail_base_state_history_modal %}
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"

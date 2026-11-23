@@ -81,16 +81,12 @@ async function createWrapper({
                     'sw-tabs': {
                         name: 'sw-tabs',
                         template: '<div class="sw-tabs"><slot></slot></div>',
-                        props: [
-                            'positionIdentifier',
-                        ],
+                        props: ['positionIdentifier'],
                     },
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
                         template: '<div class="sw-tabs-item"><slot></slot></div>',
-                        props: [
-                            'route',
-                        ],
+                        props: ['route'],
                     },
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-confirm-modal': await wrapTestComponent('sw-confirm-modal'),
@@ -140,7 +136,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
 
     it('should render deprecated tabs when the major feature flag is inactive', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tabItems = wrapper.findAllComponents({ name: 'sw-tabs-item' });
 
@@ -157,7 +153,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
             featureActive: true,
             routeName: 'sw.settings.search.index.liveSearch',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
@@ -184,7 +180,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
             featureActive: true,
             routerPush,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.getProductSearchConfigs = jest.fn();
 
@@ -208,7 +204,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         global.activeAclRoles = ['product_search_config.viewer'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
         expect(saveButton.attributes().disabled).toBeDefined();
@@ -218,7 +214,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-search__button-save');
         expect(saveButton.attributes().disabled).toBeFalsy();
@@ -228,7 +224,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         global.activeAclRoles = ['product_search_config.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         wrapper.vm.createNotificationSuccess = jest.fn();
         wrapper.vm.createNotificationError = jest.fn();
@@ -239,7 +235,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         };
 
         await wrapper.vm.onSaveSearchSettings();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.getProductSearchConfigs).toHaveBeenCalled();
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
@@ -257,7 +253,7 @@ describe('module/sw-settings-search/page/sw-settings-search', () => {
         wrapper.vm.productSearchConfigs = null;
 
         await wrapper.vm.onSaveSearchSettings();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
             message: 'sw-settings-search.notification.saveError',

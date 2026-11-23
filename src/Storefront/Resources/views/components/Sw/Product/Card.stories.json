@@ -138,6 +138,14 @@
                     "summary": false
                 }
             }
+        },
+        "blocks.title": {
+            "control": "text",
+            "description": "HTML for the product card title block."
+        },
+        "blocks.price": {
+            "control": "text",
+            "description": "HTML for the product card price block."
         }
     },
     "stories": [
@@ -151,7 +159,9 @@
                 "layout": "default",
                 "showTaxInfo": false,
                 "border": false,
-                "rounded": false
+                "rounded": false,
+                "blocks.title": "<h2>Storybook product title</h2>",
+                "blocks.price": "<span>€ 19.99</span>"
             }
         }
     ]

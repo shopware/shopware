@@ -44,6 +44,10 @@ class LineItemInProductStreamRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('streamIds', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfProductStream($lineItem)) {
                 return true;
             }
@@ -80,10 +84,6 @@ class LineItemInProductStreamRule extends Rule
      */
     private function matchesOneOfProductStream(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         return RuleComparison::uuids($lineItem->getPayloadValue('streamIds'), $this->streamIds, $this->operator);
     }
 }

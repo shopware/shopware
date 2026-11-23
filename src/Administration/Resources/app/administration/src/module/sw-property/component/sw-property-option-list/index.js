@@ -11,10 +11,7 @@ const { Store } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         propertyGroup: {
@@ -84,6 +81,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed
          */
         dataSource() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-property-option-list.dataSource is deprecated. Will be removed without replacement.',
+            );
+
             return this.propertyGroup.options && this.propertyGroup.options.slice(0, this.limit);
         },
     },

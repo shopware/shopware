@@ -82,7 +82,7 @@ Issue layout (title:
 
 - **Context** — run link, per-shard job links, count, grouping rule
   ("root-cause owner; confirmed collateral included here"), and why the run
-  is red when that needs saying (e.g. suite reinstated after a gap, so
+  failed when that needs saying (e.g. suite reinstated after a gap, so
   breakage accumulated)
 - **Reproduce** — the standard block below, so each team can rerun its
   failures without rediscovering the env:
@@ -103,6 +103,8 @@ Issue layout (title:
   ```
 
   then rerun the test (this matches the CI job env in [`.github/workflows/integration-major.yml`](https://github.com/shopware/shopware/blob/trunk/.github/workflows/integration-major.yml)).
+
+  While more than one major is in flight, that job runs one lane per major: take the `FEATURE_ALL` value from the failing job's name (`v6.8.0.0`) instead of `major`, which would enable the next major as well.
 
   Afterwards restore your test DB with `APP_ENV=test FORCE_INSTALL=true composer init:testdb`.
 

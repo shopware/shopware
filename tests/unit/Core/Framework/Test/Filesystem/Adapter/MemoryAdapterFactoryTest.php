@@ -47,12 +47,12 @@ class MemoryAdapterFactoryTest extends TestCase
         $filesystem->write('testFile', 'testContent');
         $filesystem->write('public/testFile', 'testContent');
         $beforeClear = $filesystem->listContents('', true)->toArray();
-        static::assertNotEmpty($beforeClear);
+        static::assertNotCount(0, $beforeClear);
 
         MemoryAdapterFactory::clearInstancesMemory();
 
         $afterClear = $filesystem->listContents('', true)->toArray();
-        static::assertEmpty($afterClear);
+        static::assertCount(0, $afterClear);
     }
 
     #[TestDox('clearInstancesMemory() is a no-op when no adapter has been created')]
@@ -75,6 +75,6 @@ class MemoryAdapterFactoryTest extends TestCase
         $filesystem->write('testFile', 'testContent');
         MemoryAdapterFactory::clearInstancesMemory();
 
-        static::assertNotEmpty($filesystem->listContents('', true)->toArray());
+        static::assertNotCount(0, $filesystem->listContents('', true)->toArray());
     }
 }

@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -46,6 +39,10 @@ export default {
 
         customerGroupRepository() {
             return this.repositoryFactory.create('customer_group');
+        },
+
+        showEmptyState() {
+            return !this.isLoading && !this.total && this.isValidTerm(this.term);
         },
 
         allCustomerGroupsCriteria() {
@@ -103,7 +100,23 @@ export default {
                     label: 'sw-settings-customer-group.list.columnDisplayGross',
                     inlineEdit: 'boolean',
                 },
+                {
+                    property: 'priceBasis',
+                    label: 'sw-settings-customer-group.list.columnPriceBasis',
+                    sortable: false,
+                },
+                {
+                    property: 'registrationActive',
+                    label: 'sw-settings-customer-group.list.columnRegistrationActive',
+                    visible: false,
+                },
             ];
+        },
+
+        getPriceBasisLabel(customerGroup) {
+            return customerGroup.priceBasis === 'gross'
+                ? this.$t('sw-settings-customer-group.detail.priceBasis.grossLabel')
+                : this.$t('sw-settings-customer-group.detail.priceBasis.netLabel');
         },
 
         customerGroupCriteriaWithFilter(idsOfSelectedCustomerGroups) {

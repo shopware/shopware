@@ -5,8 +5,7 @@ namespace Shopware\Core\Service\Subscriber;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\Event\PermissionsGrantedEvent;
 use Shopware\Core\Service\Event\PermissionsRevokedEvent;
-use Shopware\Core\Service\LifecycleManager;
-use Shopware\Core\Service\Requirement\ServiceConsentRequirement;
+use Shopware\Core\Service\ServiceLifecycle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -15,23 +14,20 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('framework')]
 readonly class PermissionsSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private LifecycleManager $manager)
+    public function __construct(private ServiceLifecycle $serviceLifecycle)
     {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            PermissionsGrantedEvent::class => 'syncConsentRequirement',
-            PermissionsRevokedEvent::class => 'syncConsentRequirement',
+            PermissionsGrantedEvent::class => 'reevaluateServices',
+            PermissionsRevokedEvent::class => 'reevaluateServices',
         ];
     }
 
-    public function syncConsentRequirement(PermissionsGrantedEvent|PermissionsRevokedEvent $event): void
+    public function reevaluateServices(PermissionsGrantedEvent|PermissionsRevokedEvent $event): void
     {
-        $this->manager->reevaluateRequirement(
-            ServiceConsentRequirement::NAME,
-            $event->getContext()
-        );
+        $this->serviceLifecycle->reevaluateInstalled($event->getContext());
     }
 }

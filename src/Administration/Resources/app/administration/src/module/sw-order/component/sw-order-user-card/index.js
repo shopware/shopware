@@ -10,15 +10,18 @@ const { Criteria } = Shopware.Data;
 const ApiService = Shopware.Classes.ApiService;
 const format = Shopware.Utils.format;
 
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+/**
+ * @deprecated tag:v6.8.0 - File will be removed. No longer used.
+ */
 export default {
     template,
 
-    inject: [
-        'customSnippetApiService',
-        'orderService',
-        'repositoryFactory',
-    ],
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed without replacement.',
+    },
+
+    inject: ['customSnippetApiService', 'orderService', 'repositoryFactory'],
 
     emits: [
         'error',
@@ -27,9 +30,7 @@ export default {
         'order-reset',
     ],
 
-    mixins: [
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('salutation')],
 
     props: {
         currentOrder: {

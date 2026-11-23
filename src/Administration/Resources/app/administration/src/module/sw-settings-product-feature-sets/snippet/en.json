@@ -29,6 +29,7 @@
       "labelCreateNew": "Add values"
     },
     "valuesCard": {
+      "emptyStateTitle": "No values yet",
       "createStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range.",
       "labelCreateNew": "Add field",
       "cardTitle": "Values",

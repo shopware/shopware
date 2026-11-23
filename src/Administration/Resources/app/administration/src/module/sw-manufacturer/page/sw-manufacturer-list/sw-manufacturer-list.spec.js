@@ -47,6 +47,7 @@ async function createWrapper(privileges = []) {
                     meta: {
                         $module: {
                             icon: 'regular-content',
+                            description: 'sw-manufacturer.general.descriptionTextModule',
                         },
                     },
                 },
@@ -70,10 +71,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['product_manufacturer.editor']);
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -82,7 +81,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -90,10 +89,8 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline delete', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['product_manufacturer.deleter']);
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -102,7 +99,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should not be able to inline delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -114,7 +111,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -134,7 +131,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should not get search ranking fields when term is null', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -158,7 +155,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -181,7 +178,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });
@@ -194,5 +191,15 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show empty state with module snippets when there are no manufacturers', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.getList();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-manufacturer.list.messageEmpty');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-manufacturer.general.descriptionTextModule');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
     });
 });

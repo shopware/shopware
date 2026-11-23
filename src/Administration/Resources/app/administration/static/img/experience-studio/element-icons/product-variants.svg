@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="128" viewBox="0 0 200 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="30" y1="18" x2="160" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#f3f8ff" />
+    </linearGradient>
+    <linearGradient id="wash" x1="40" y1="30" x2="160" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eaf5ff" />
+      <stop offset="1" stop-color="#d3eaff" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#62b8ff" />
+      <stop offset="1" stop-color="#1895ff" />
+    </linearGradient>
+    <filter id="frame-shadow" x="0" y="0" width="200" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#24436b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+  <g stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="16" y="14" width="168" height="100" rx="8" fill="url(#paper)" stroke="#9eb3ce" filter="url(#frame-shadow)" />
+    <g transform="translate(-4.023 -1.575) scale(1.0198)">
+      <path d="M34 31h59" stroke="#17265c" stroke-width="4" />
+      <circle cx="43" cy="53" r="10" fill="#279aff" stroke="#1895ff" />
+      <circle cx="74" cy="53" r="10" fill="#17265c" stroke="#cad5e4" />
+      <circle cx="105" cy="53" r="10" fill="#f1d3bd" stroke="#cad5e4" />
+      <circle cx="43" cy="53" r="5" fill="none" stroke="white" />
+      <rect x="32" y="77" width="29" height="22" rx="4" fill="white" stroke="#b9cadf" />
+      <path d="M42 88h9" stroke="#a7b8cf" stroke-width="3" />
+      <rect x="69" y="77" width="29" height="22" rx="4" fill="url(#wash)" stroke="#1895ff" />
+      <path d="M79 88h9" stroke="#1895ff" stroke-width="3" />
+      <rect x="106" y="77" width="29" height="22" rx="4" fill="white" stroke="#b9cadf" />
+      <path d="M116 88h9" stroke="#a7b8cf" stroke-width="3" />
+      <rect x="143" y="77" width="29" height="22" rx="4" fill="white" stroke="#b9cadf" />
+      <path d="M153 88h9" stroke="#a7b8cf" stroke-width="3" />
+    </g>
+  </g>
+</svg>

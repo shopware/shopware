@@ -45,9 +45,12 @@ class ContentDiagnoseController
     ): Response {
         [$tree, $decodeViolations] = $this->decoder->decodeLintable($payload->layout);
 
-        $rootContext = $this->rootSourceRegistry->resolveGated($payload->rootSource, $context);
+        $rootSource = $payload->rootSource === '' ? null : $payload->rootSource;
+        $rootContext = $this->rootSourceRegistry->resolveGated($rootSource, $context);
 
-        $analysis = $this->diagnostics->analyze($tree, $rootContext);
+        // resolveGated() has already rejected an unknown non-empty source. When no source is bound,
+        // diagnostics still report inline tokens that require one; whole-field mappings remain unjudged.
+        $analysis = $this->diagnostics->analyze($tree, $rootContext, $rootSource);
 
         $report = new DiagnosticsReport([...$decodeViolations, ...$analysis->report->violations]);
 

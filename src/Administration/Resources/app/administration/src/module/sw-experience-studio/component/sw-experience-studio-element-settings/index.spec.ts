@@ -1,5 +1,8 @@
 import elementSettingsComponent from './index';
 
+const ANCHOR_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+const GERMAN_LANGUAGE_ID = 'a1b2c3d4e5f60718293a4b5c6d7e8f90';
+
 describe('module/sw-experience-studio/component/sw-experience-studio-element-settings', () => {
     const computed = (
         elementSettingsComponent as unknown as {
@@ -105,10 +108,291 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
 
         expect($emit).toHaveBeenCalledWith('update-properties', {
             elementId: 'image-element',
-            properties: {
-                mediaId: 'media-id',
+            propertyKey: 'mediaId',
+            value: 'media-id',
+        });
+    });
+
+    const textType = {
+        properties: {
+            text: {
+                type: 'string',
+                translatable: true,
+                default: 'Placeholder',
+            },
+        },
+    };
+
+    it('presents the anchor chain entry of a translatable property to the field controls', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    text: {
+                        [GERMAN_LANGUAGE_ID]: 'Hallo',
+                        [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    },
+                },
+            },
+            selectedElementType: textType,
+        });
+
+        expect(values).toEqual({
+            text: 'Hello',
+        });
+    });
+
+    it('presents the stored boolean anchor entry of a translatable boolean property to its switch control', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    showTitle: {
+                        [ANCHOR_LANGUAGE_ID]: true,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    showTitle: {
+                        type: 'boolean',
+                        translatable: true,
+                        default: false,
+                    },
+                },
             },
         });
+
+        expect(values).toEqual({
+            showTitle: true,
+        });
+    });
+
+    it('presents the stored numeric anchor entry of a translatable number property to its number control', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    columns: {
+                        [GERMAN_LANGUAGE_ID]: 2,
+                        [ANCHOR_LANGUAGE_ID]: 4,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    columns: {
+                        type: 'integer',
+                        translatable: true,
+                        default: 3,
+                    },
+                },
+            },
+        });
+
+        expect(values).toEqual({
+            columns: 4,
+        });
+    });
+
+    it('shows an empty string for a translatable string property whose language map has no anchor chain entry', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    text: {
+                        [GERMAN_LANGUAGE_ID]: 'Hallo',
+                    },
+                },
+            },
+            selectedElementType: textType,
+        });
+
+        expect(values).toEqual({ text: '' });
+    });
+
+    it('keeps a translatable number property without an anchor chain entry absent so the declared default applies', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    columns: {
+                        [GERMAN_LANGUAGE_ID]: 2,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    columns: {
+                        type: 'integer',
+                        translatable: true,
+                        default: 3,
+                    },
+                },
+            },
+        });
+
+        expect(values).toEqual({});
+        expect(Object.prototype.hasOwnProperty.call(values, 'columns')).toBe(false);
+    });
+
+    it('leaves an unauthored translatable property absent so the declared default still applies', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {},
+            },
+            selectedElementType: textType,
+        });
+
+        expect(values).toEqual({});
+        expect(Object.prototype.hasOwnProperty.call(values, 'text')).toBe(false);
+    });
+
+    it('resolves a translatable property through the anchor chain when evaluating field visibility', () => {
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {
+                    text: {
+                        [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    text: textType.properties.text,
+                    subline: {
+                        type: 'string',
+                        translatable: false,
+                        adminUI: {
+                            visibleWhen: {
+                                field: 'text',
+                                equals: 'Hello',
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'text',
+                property: textType.properties.text,
+                breakpointAware: false,
+            },
+            {
+                key: 'subline',
+                property: {
+                    type: 'string',
+                    translatable: false,
+                    adminUI: {
+                        visibleWhen: {
+                            field: 'text',
+                            equals: 'Hello',
+                        },
+                    },
+                },
+                breakpointAware: false,
+            },
+        ]);
+    });
+
+    it('resolves a translatable boolean property to its boolean entry when evaluating field visibility', () => {
+        const showTitle = {
+            type: 'boolean',
+            translatable: true,
+            default: false,
+        };
+        const title = {
+            type: 'string',
+            translatable: false,
+            adminUI: {
+                visibleWhen: {
+                    field: 'showTitle',
+                    equals: true,
+                },
+            },
+        };
+
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {
+                    showTitle: {
+                        [ANCHOR_LANGUAGE_ID]: true,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    showTitle,
+                    title,
+                },
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'showTitle',
+                property: showTitle,
+                breakpointAware: false,
+            },
+            {
+                key: 'title',
+                property: title,
+                breakpointAware: false,
+            },
+        ]);
+    });
+
+    it('emits the raw control value of a translatable property under its own key', () => {
+        const $emit = jest.fn();
+
+        methods.onUpdateElementField.call(
+            {
+                selectedElement: {
+                    id: 'text-element',
+                    properties: {
+                        text: {
+                            [ANCHOR_LANGUAGE_ID]: 'Hello',
+                            [GERMAN_LANGUAGE_ID]: 'Hallo',
+                        },
+                    },
+                },
+                selectedElementType: textType,
+                allowEdit: true,
+                $emit,
+            },
+            {
+                key: 'text',
+                value: 'Hello again',
+            },
+        );
+
+        expect($emit).toHaveBeenCalledWith('update-properties', {
+            elementId: 'text-element',
+            propertyKey: 'text',
+            value: 'Hello again',
+        });
+    });
+
+    it.each([
+        [
+            'catalogue unavailable',
+            true,
+        ],
+        [
+            null,
+            false,
+        ],
+        [
+            '',
+            false,
+        ],
+    ])('reports load-error state for %s', (message, expected) => {
+        expect(computed.hasMappingCandidateLoadError.call({ mappingCandidateLoadError: message })).toBe(expected);
+    });
+
+    it('emits a mapping-candidate retry request', () => {
+        const $emit = jest.fn();
+
+        methods.onRetryMappingCandidates.call({ $emit });
+
+        expect($emit).toHaveBeenCalledWith('retry-mapping-candidates');
     });
 
     it('keeps breakpoint-aware box spacing properties in the element settings', () => {
@@ -148,5 +432,102 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                 breakpointAware: true,
             },
         ]);
+    });
+
+    describe('data mapping', () => {
+        const mappableTextType = {
+            properties: {
+                text: {},
+                headline: {},
+            },
+        };
+
+        it('reports the mapped path per declared property', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        text: {
+                            type: 'single',
+                            required: false,
+                            scope: 'root',
+                            source: { type: 'root', id: 'category', path: 'name' },
+                        },
+                    },
+                },
+                selectedElementType: mappableTextType,
+            });
+
+            expect(mappings).toEqual({
+                text: 'category.name',
+            });
+        });
+
+        it('ignores ordinary wiring under a declared property key', () => {
+            const mappings = computed.elementMappings.call({
+                selectedElement: {
+                    id: 'text-element',
+                    acceptsContext: {
+                        text: {
+                            type: 'single',
+                            required: true,
+                            scope: 'root',
+                        },
+                    },
+                },
+                selectedElementType: mappableTextType,
+            });
+
+            expect(mappings).toEqual({});
+        });
+
+        it('emits the declared property key rather than a binding storage key', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'image-element',
+                    },
+                    selectedElementType: imageType,
+                    allowEdit: true,
+                    $emit,
+                },
+                {
+                    key: 'media',
+                    source: { type: 'root', id: 'product', path: 'cover' },
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).toHaveBeenCalledWith('update-mapping', {
+                elementId: 'image-element',
+                propertyKey: 'media',
+                source: { type: 'root', id: 'product', path: 'cover' },
+                contextType: 'single',
+            });
+        });
+
+        it('stays silent on a read-only layout', () => {
+            const $emit = jest.fn();
+
+            methods.onUpdateElementMapping.call(
+                {
+                    selectedElement: {
+                        id: 'text-element',
+                    },
+                    selectedElementType: textType,
+                    allowEdit: false,
+                    $emit,
+                },
+                {
+                    key: 'text',
+                    source: { type: 'root', id: 'category', path: 'name' },
+                    contextType: 'single',
+                },
+            );
+
+            expect($emit).not.toHaveBeenCalled();
+        });
     });
 });

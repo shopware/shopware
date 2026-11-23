@@ -43,6 +43,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ViteFileAccessorDecorator::class),
             service('filesystem'),
             service(ClockInterface::class),
+            service('services_resetter'),
         ])
         ->tag('shopware.system_check');
 

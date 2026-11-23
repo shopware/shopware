@@ -2,14 +2,15 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 
-use Mcp\Capability\Attribute\McpPrompt;
-use Mcp\Capability\Attribute\McpResource;
-use Mcp\Capability\Attribute\McpTool;
+use Mcp\Schema\ServerCapabilities;
+use Mcp\Server\Subscription\PublishingEventDispatcher;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
+use Shopware\Core\Framework\Mcp\Notification\McpListVersionsNotificationBus;
+use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -21,398 +22,263 @@ use Symfony\Component\DependencyInjection\Reference;
 #[CoversClass(McpServerBuilderCompilerPass::class)]
 class McpServerBuilderCompilerPassTest extends TestCase
 {
-    public function testDiscoveryCacheIsWiredWhenServiceExists(): void
+    public function testRequestHandlersAreScopedPerServer(): void
     {
         $container = $this->createContainer();
-        $container->register('shopware.mcp.discovery_cache');
 
-        $builderDef = $container->getDefinition('mcp.server.builder');
-        $builderDef->addMethodCall('setDiscovery', [
-            new Reference('mcp.discovery.reflection'),
-            [],
-            [],
-        ]);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $builderDef->getMethodCalls();
-        $setDiscoveryCalls = array_filter($calls, fn ($c) => $c[0] === 'setDiscovery');
-
-        static::assertNotEmpty($setDiscoveryCalls);
-
-        $lastCall = end($setDiscoveryCalls);
-        static::assertInstanceOf(Reference::class, $lastCall[1][3]);
-        static::assertSame('shopware.mcp.discovery_cache', (string) $lastCall[1][3]);
+        static::assertSame('mcp.admin.request_handler', $this->taggedIteratorTag($container, 'admin', 'addRequestHandlers'));
+        static::assertSame('mcp.store_api.request_handler', $this->taggedIteratorTag($container, 'store_api', 'addRequestHandlers'));
     }
 
-    public function testDiscoveryCacheSkipsNonSetDiscoveryMethodCalls(): void
+    public function testNotificationHandlersAreScopedPerServer(): void
     {
         $container = $this->createContainer();
-        $container->register('shopware.mcp.discovery_cache');
 
-        $builderDef = $container->getDefinition('mcp.server.builder');
-        $builderDef->addMethodCall('setSomethingElse', ['arg1']);
-        $builderDef->addMethodCall('setDiscovery', [
-            new Reference('mcp.discovery.reflection'),
-            [],
-            [],
-        ]);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $builderDef->getMethodCalls();
-        $setDiscoveryCalls = array_filter($calls, fn ($c) => $c[0] === 'setDiscovery');
-
-        static::assertNotEmpty($setDiscoveryCalls);
-
-        $lastCall = end($setDiscoveryCalls);
-        static::assertInstanceOf(Reference::class, $lastCall[1][3]);
-        static::assertSame('shopware.mcp.discovery_cache', (string) $lastCall[1][3]);
+        static::assertSame('mcp.admin.notification_handler', $this->taggedIteratorTag($container, 'admin', 'addNotificationHandlers'));
+        static::assertSame('mcp.store_api.notification_handler', $this->taggedIteratorTag($container, 'store_api', 'addNotificationHandlers'));
     }
 
-    public function testDiscoveryCacheSkippedWhenNoCacheService(): void
+    public function testCapabilityLoadersStayOnTheAdminServer(): void
     {
         $container = $this->createContainer();
 
-        $builderDef = $container->getDefinition('mcp.server.builder');
-        $builderDef->addMethodCall('setDiscovery', [
-            new Reference('mcp.discovery.reflection'),
-            [],
-            [],
-        ]);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
+        static::assertSame('mcp.loader', $this->taggedIteratorTag($container, 'admin', 'addLoaders'));
+        static::assertSame([], $this->calls($container, 'store_api', 'addLoaders'));
+    }
 
-        $calls = $builderDef->getMethodCalls();
-        $setDiscoveryCalls = array_filter($calls, fn ($c) => $c[0] === 'setDiscovery');
+    public function testBothServersPageWithTheShopwareParameter(): void
+    {
+        $container = $this->createContainer();
 
-        foreach ($setDiscoveryCalls as $call) {
-            static::assertArrayNotHasKey(3, $call[1]);
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame(
+                [['%shopware.mcp.pagination_limit%']],
+                $this->calls($container, $server, 'setPaginationLimit'),
+            );
         }
     }
 
-    public function testPluginToolsAreRegisteredWithBuilder(): void
+    public function testBothServersStayOnTheHandshakeEraByDefault(): void
     {
         $container = $this->createContainer();
 
-        $def = new Definition(McpBuilderTestNamespacedTool::class);
-        $def->addTag('shopware.mcp.tool');
-        $container->setDefinition(McpBuilderTestNamespacedTool::class, $def);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addToolCalls = array_filter($calls, fn ($c) => $c[0] === 'addTool');
-
-        static::assertNotEmpty($addToolCalls);
-
-        $args = array_values($addToolCalls)[0][1];
-        static::assertSame(McpBuilderTestNamespacedTool::class, $args[0]);
-        static::assertSame('my-builder-namespaced-tool', $args[1]);
-        static::assertNull($args[2]);
-        static::assertSame('test namespaced tool', $args[3]);
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([[]], $this->calls($container, $server, 'withoutModernEra'));
+        }
     }
 
-    public function testPluginPromptsAreRegisteredWithBuilder(): void
+    public function testTheLegacyEraPinsTheHandshakeEra(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'legacy', 'store_api' => 'legacy']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([[]], $this->calls($container, $server, 'withoutModernEra'));
+            static::assertSame([], $this->calls($container, $server, 'setNotificationBus'));
+            static::assertSame([], $this->calls($container, $server, 'setSubscriptionLifetime'));
+        }
+        static::assertFalse($container->hasDefinition(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS));
+    }
+
+    public function testTheAutoEraServesBothErasAndGivesTheAdminServerANotificationBus(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'auto', 'store_api' => 'auto']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([], $this->calls($container, $server, 'withoutModernEra'));
+        }
+
+        $busCalls = $this->calls($container, 'admin', 'setNotificationBus');
+        static::assertCount(1, $busCalls);
+        static::assertInstanceOf(Reference::class, $busCalls[0][0]);
+        static::assertSame(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS, (string) $busCalls[0][0]);
+        foreach (['admin', 'store_api'] as $server) {
+            static::assertSame([[25.0]], $this->calls($container, $server, 'setSubscriptionLifetime'));
+        }
+
+        $bus = $container->getDefinition(McpServerBuilderCompilerPass::ADMIN_NOTIFICATION_BUS);
+        static::assertSame(McpListVersionsNotificationBus::class, $bus->getClass());
+        static::assertSame(
+            [McpListVersions::class, 'cache.app', 'logger'],
+            array_map(static fn (mixed $argument): string => (string) $argument, $bus->getArguments()),
+        );
+
+        $dispatcher = $container->getDefinition('mcp.server.admin.registry')->getArgument(0);
+        static::assertInstanceOf(Definition::class, $dispatcher);
+        static::assertSame(PublishingEventDispatcher::class, $dispatcher->getClass());
+
+        static::assertSame([], $this->calls($container, 'store_api', 'setNotificationBus'));
+        static::assertInstanceOf(Reference::class, $container->getDefinition('mcp.server.store_api.registry')->getArgument(0));
+    }
+
+    public function testTheEraIsConfiguredPerServer(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'legacy', 'store_api' => 'auto']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        static::assertSame([[]], $this->calls($container, 'admin', 'withoutModernEra'));
+        static::assertSame([], $this->calls($container, 'store_api', 'withoutModernEra'));
+        static::assertSame(['admin' => 'legacy', 'store_api' => 'auto'], McpServerBuilderCompilerPass::protocolEras($container));
+    }
+
+    public function testNoServerAnnouncesResourceSubscriptions(): void
+    {
+        foreach (['legacy', 'auto'] as $era) {
+            $container = $this->createContainer();
+            $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => $era, 'store_api' => $era]);
+
+            (new McpServerBuilderCompilerPass())->process($container);
+
+            foreach (['admin', 'store_api'] as $server) {
+                static::assertFalse($this->capabilities($container, $server)->resourcesSubscribe, $server . ' on ' . $era);
+            }
+        }
+    }
+
+    public function testOnlyTheAdminServerAnnouncesListChangesOnTheAutoEra(): void
+    {
+        $container = $this->createContainer();
+        $container->setParameter(McpServerBuilderCompilerPass::PROTOCOL_ERA_PARAMETER, ['admin' => 'auto', 'store_api' => 'auto']);
+
+        (new McpServerBuilderCompilerPass())->process($container);
+
+        $admin = $this->capabilities($container, 'admin');
+        static::assertTrue($admin->toolsListChanged);
+        static::assertTrue($admin->resourcesListChanged);
+        static::assertTrue($admin->promptsListChanged);
+
+        $store = $this->capabilities($container, 'store_api');
+        static::assertFalse($store->toolsListChanged);
+        static::assertFalse($store->resourcesListChanged);
+        static::assertFalse($store->prompts);
+    }
+
+    public function testNoServerAnnouncesListChangesOnTheLegacyEra(): void
     {
         $container = $this->createContainer();
 
-        $def = new Definition(McpBuilderTestPrompt::class);
-        $def->addTag('shopware.mcp.prompt');
-        $container->setDefinition(McpBuilderTestPrompt::class, $def);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addPromptCalls = array_filter($calls, fn ($c) => $c[0] === 'addPrompt');
-
-        static::assertNotEmpty($addPromptCalls);
-
-        $args = array_values($addPromptCalls)[0][1];
-        static::assertSame(McpBuilderTestPrompt::class, $args[0]);
-        static::assertSame('my-builder-prompt', $args[1]);
-        static::assertNull($args[2]);
-        static::assertSame('test plugin prompt', $args[3]);
+        foreach (['admin', 'store_api'] as $server) {
+            $capabilities = $this->capabilities($container, $server);
+            static::assertFalse($capabilities->toolsListChanged);
+            static::assertFalse($capabilities->resourcesListChanged);
+            static::assertFalse($capabilities->promptsListChanged);
+        }
     }
 
-    public function testPluginResourcesAreRegisteredWithBuilder(): void
+    public function testUnrelatedCallsKeepTheirArgumentsAndOrder(): void
     {
         $container = $this->createContainer();
 
-        $def = new Definition(McpBuilderTestResource::class);
-        $def->addTag('shopware.mcp.resource');
-        $container->setDefinition(McpBuilderTestResource::class, $def);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
+        $methods = array_column($container->getDefinition('mcp.server.admin.builder')->getMethodCalls(), 0);
 
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addResourceCalls = array_filter($calls, fn ($c) => $c[0] === 'addResource');
-
-        static::assertNotEmpty($addResourceCalls);
-
-        $args = array_values($addResourceCalls)[0][1];
-        static::assertSame(McpBuilderTestResource::class, $args[0]);
-        static::assertSame('plugin://builder-resource', $args[1]);
-        static::assertSame('my-builder-resource', $args[2]);
-        static::assertNull($args[3]);
-        static::assertSame('test plugin resource', $args[4]);
-        static::assertNull($args[5]);
+        static::assertSame([
+            'setServerInfo',
+            'setPaginationLimit',
+            'addRequestHandlers',
+            'addNotificationHandlers',
+            'addLoaders',
+            'setLogger',
+            'withoutModernEra',
+            'setCapabilities',
+        ], $methods);
+        static::assertSame([['Shopware', '1.0.0']], $this->calls($container, 'admin', 'setServerInfo'));
     }
 
-    public function testPluginResourceWithMimeTypeIsRegisteredWithBuilder(): void
-    {
-        $container = $this->createContainer();
-
-        $def = new Definition(McpBuilderTestResourceWithMimeType::class);
-        $def->addTag('shopware.mcp.resource');
-        $container->setDefinition(McpBuilderTestResourceWithMimeType::class, $def);
-
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addResourceCalls = array_filter($calls, fn ($c) => $c[0] === 'addResource');
-
-        static::assertNotEmpty($addResourceCalls);
-
-        $args = array_values($addResourceCalls)[0][1];
-        static::assertSame('application/json', $args[5]);
-    }
-
-    public function testMethodLevelMcpToolAttributeIsDetected(): void
-    {
-        $container = $this->createContainer();
-
-        $def = new Definition(McpBuilderTestMethodLevelTool::class);
-        $def->addTag('shopware.mcp.tool');
-        $container->setDefinition(McpBuilderTestMethodLevelTool::class, $def);
-
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addToolCalls = array_filter($calls, fn ($c) => $c[0] === 'addTool');
-
-        static::assertNotEmpty($addToolCalls);
-
-        $args = array_values($addToolCalls)[0][1];
-        static::assertSame('my-builder-method-level-tool', $args[1]);
-        static::assertNull($args[2]);
-        static::assertSame('method-level description', $args[3]);
-    }
-
-    public function testMethodLevelMcpPromptAttributeIsDetected(): void
-    {
-        $container = $this->createContainer();
-
-        $def = new Definition(McpBuilderTestMethodLevelPrompt::class);
-        $def->addTag('shopware.mcp.prompt');
-        $container->setDefinition(McpBuilderTestMethodLevelPrompt::class, $def);
-
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addPromptCalls = array_filter($calls, fn ($c) => $c[0] === 'addPrompt');
-
-        static::assertNotEmpty($addPromptCalls);
-
-        $args = array_values($addPromptCalls)[0][1];
-        static::assertSame('my-builder-method-prompt', $args[1]);
-        static::assertNull($args[2]);
-        static::assertSame('method-level prompt description', $args[3]);
-    }
-
-    public function testMethodLevelMcpResourceAttributeIsDetected(): void
-    {
-        $container = $this->createContainer();
-
-        $def = new Definition(McpBuilderTestMethodLevelResource::class);
-        $def->addTag('shopware.mcp.resource');
-        $container->setDefinition(McpBuilderTestMethodLevelResource::class, $def);
-
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $addResourceCalls = array_filter($calls, fn ($c) => $c[0] === 'addResource');
-
-        static::assertNotEmpty($addResourceCalls);
-
-        $args = array_values($addResourceCalls)[0][1];
-        static::assertSame('plugin://builder-method-resource', $args[1]);
-        static::assertSame('builder-method-resource', $args[2]);
-        static::assertNull($args[3]);
-        static::assertSame('method-level resource description', $args[4]);
-    }
-
-    public function testPluginToolTitleIsPassedToBuilder(): void
-    {
-        $container = $this->createContainer();
-
-        $def = new Definition(McpBuilderTestToolWithTitle::class);
-        $def->addTag('shopware.mcp.tool');
-        $container->setDefinition(McpBuilderTestToolWithTitle::class, $def);
-
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $args = array_values(array_filter($calls, fn ($c) => $c[0] === 'addTool'))[0][1];
-
-        static::assertSame('tool-with-title', $args[1]);
-        static::assertSame('Human-Readable Tool', $args[2]);
-        static::assertSame('Performs actions', $args[3]);
-    }
-
-    public function testPluginPromptTitleIsPassedToBuilder(): void
-    {
-        $container = $this->createContainer();
-
-        $def = new Definition(McpBuilderTestPromptWithTitle::class);
-        $def->addTag('shopware.mcp.prompt');
-        $container->setDefinition(McpBuilderTestPromptWithTitle::class, $def);
-
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
-
-        $calls = $container->getDefinition('mcp.server.builder')->getMethodCalls();
-        $args = array_values(array_filter($calls, fn ($c) => $c[0] === 'addPrompt'))[0][1];
-
-        static::assertSame('prompt-with-title', $args[1]);
-        static::assertSame('Human-Readable Prompt', $args[2]);
-        static::assertSame('Sets context', $args[3]);
-    }
-
-    public function testSkipsWhenNoMcpServerBuilder(): void
+    public function testSkipsAServerThatIsNotRegistered(): void
     {
         $container = new ContainerBuilder();
 
-        $pass = new McpServerBuilderCompilerPass();
-        $pass->process($container);
+        (new McpServerBuilderCompilerPass())->process($container);
 
-        static::assertFalse($container->hasDefinition('mcp.server.builder'));
+        static::assertFalse($container->hasDefinition('mcp.server.admin.builder'));
+        static::assertFalse($container->hasDefinition('mcp.server.store_api.builder'));
     }
 
+    /**
+     * Mirrors the calls the MCP bundle puts on a server builder it registers from the `servers`
+     * configuration.
+     */
     private function createContainer(): ContainerBuilder
     {
         $container = new ContainerBuilder();
-        $container->register('mcp.server.builder');
+
+        foreach (['admin' => 'Shopware', 'store_api' => 'Shopware Store API'] as $server => $name) {
+            $definition = new Definition();
+            $definition->addMethodCall('setServerInfo', [$name, '1.0.0']);
+            $definition->addMethodCall('setPaginationLimit', [50]);
+            $definition->addMethodCall('addRequestHandlers', [new TaggedIteratorArgument('mcp.request_handler')]);
+            $definition->addMethodCall('addNotificationHandlers', [new TaggedIteratorArgument('mcp.notification_handler')]);
+            $definition->addMethodCall('addLoaders', [new TaggedIteratorArgument('mcp.loader')]);
+            $definition->addMethodCall('setLogger', []);
+
+            $container->setDefinition(\sprintf('mcp.server.%s.builder', $server), $definition);
+            $container->setDefinition(\sprintf('mcp.server.%s.registry', $server), new Definition(null, [new Reference('event_dispatcher'), new Reference('logger')]));
+        }
 
         return $container;
     }
-}
 
-/**
- * @internal
- */
-#[McpTool(name: 'my-builder-namespaced-tool', description: 'test namespaced tool')]
-class McpBuilderTestNamespacedTool extends McpToolResponse
-{
-    public function __invoke(): string
+    /**
+     * @return list<array<mixed>>
+     */
+    private function calls(ContainerBuilder $container, string $server, string $method): array
     {
-        return '';
+        $arguments = [];
+
+        foreach ($container->getDefinition(\sprintf('mcp.server.%s.builder', $server))->getMethodCalls() as [$name, $callArguments]) {
+            if ($name === $method) {
+                $arguments[] = $callArguments;
+            }
+        }
+
+        return $arguments;
     }
-}
 
-/**
- * @internal
- */
-#[McpPrompt(name: 'my-builder-prompt', description: 'test plugin prompt')]
-class McpBuilderTestPrompt
-{
-    public function __invoke(): string
+    private function capabilities(ContainerBuilder $container, string $server): ServerCapabilities
     {
-        return '';
+        $calls = $this->calls($container, $server, 'setCapabilities');
+
+        static::assertCount(1, $calls);
+        static::assertInstanceOf(Definition::class, $calls[0][0]);
+        static::assertSame(ServerCapabilities::class, $calls[0][0]->getClass());
+
+        $arguments = [];
+        foreach ($calls[0][0]->getArguments() as $name => $value) {
+            static::assertIsString($name);
+            $arguments[ltrim($name, '$')] = $value;
+        }
+
+        return new ServerCapabilities(...$arguments);
     }
-}
 
-/**
- * @internal
- */
-#[McpResource(uri: 'plugin://builder-resource', name: 'my-builder-resource', description: 'test plugin resource')]
-class McpBuilderTestResource
-{
-    public function __invoke(): string
+    private function taggedIteratorTag(ContainerBuilder $container, string $server, string $method): string
     {
-        return '';
-    }
-}
+        $calls = $this->calls($container, $server, $method);
 
-/**
- * @internal
- */
-#[McpResource(uri: 'plugin://builder-mime-resource', name: 'mime-resource', description: 'mime resource', mimeType: 'application/json')]
-class McpBuilderTestResourceWithMimeType
-{
-    public function __invoke(): string
-    {
-        return '';
-    }
-}
+        static::assertCount(1, $calls);
+        static::assertInstanceOf(TaggedIteratorArgument::class, $calls[0][0]);
 
-/**
- * @internal
- */
-class McpBuilderTestMethodLevelTool extends McpToolResponse
-{
-    #[McpTool(name: 'my-builder-method-level-tool', description: 'method-level description')]
-    public function __invoke(): string
-    {
-        return '';
-    }
-}
-
-/**
- * @internal
- */
-class McpBuilderTestMethodLevelPrompt
-{
-    #[McpPrompt(name: 'my-builder-method-prompt', description: 'method-level prompt description')]
-    public function __invoke(): string
-    {
-        return '';
-    }
-}
-
-/**
- * @internal
- */
-class McpBuilderTestMethodLevelResource
-{
-    #[McpResource(uri: 'plugin://builder-method-resource', name: 'builder-method-resource', description: 'method-level resource description')]
-    public function __invoke(): string
-    {
-        return '';
-    }
-}
-
-/**
- * @internal
- */
-#[McpTool(name: 'tool-with-title', title: 'Human-Readable Tool', description: 'Performs actions')]
-class McpBuilderTestToolWithTitle extends McpToolResponse
-{
-    public function __invoke(): string
-    {
-        return '';
-    }
-}
-
-/**
- * @internal
- */
-#[McpPrompt(name: 'prompt-with-title', title: 'Human-Readable Prompt', description: 'Sets context')]
-class McpBuilderTestPromptWithTitle
-{
-    public function __invoke(): string
-    {
-        return '';
+        return $calls[0][0]->getTag();
     }
 }

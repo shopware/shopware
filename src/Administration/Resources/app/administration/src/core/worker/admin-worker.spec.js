@@ -13,12 +13,10 @@ function getConsumeRequests(history) {
 }
 
 /**
- * Flushes the microtask queue multiple times to handle the dispatcher's promise chain.
- * The new HTTP dispatcher architecture adds extra promise layers (dispatcher → adapter → client),
- * requiring multiple microtask flushes to fully resolve all promises.
+ * Flushes the microtask queue multiple times so the axios promise chain (interceptors, adapter, response
+ * transformation) fully settles before assertions run.
  */
 async function flushMicrotasks() {
-    // Flush microtask queue twice to handle dispatcher → adapter → client promise chain
     await Promise.resolve();
     await Promise.resolve();
 }
@@ -90,10 +88,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should restart the consume call after 20 seconds when handledMessages dont exist', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -128,10 +123,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should restart the consume call directly when handledMessages exist', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 50 },
-            ];
+            return [200, { handledMessages: 50 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -165,10 +157,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should reset timeout to send request before 20 seconds (no messages)', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -215,18 +204,13 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should cancel current consume request', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
 
         const isCanceled = (index) => {
-            const cancelToken = getConsumeRequests(axiosMock.history)[index].cancelToken;
-
-            return !!cancelToken.reason;
+            return getConsumeRequests(axiosMock.history)[index].signal.aborted;
         };
 
         const message = {
@@ -255,9 +239,7 @@ describe('core/worker/admin-worker.worker.js', () => {
 
     it('should set the onMessage method to the first port on connect', async () => {
         const mockEvent = {
-            ports: [
-                { postMessage: jest.fn() },
-            ],
+            ports: [{ postMessage: jest.fn() }],
         };
 
         expect(mockEvent.ports[0].onmessage).toBeUndefined();

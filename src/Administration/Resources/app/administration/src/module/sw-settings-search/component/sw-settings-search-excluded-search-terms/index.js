@@ -10,20 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'excludedSearchTermService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['excludedSearchTermService', 'repositoryFactory', 'acl'],
 
-    emits: [
-        'edit-change',
-        'data-load',
-    ],
+    emits: ['edit-change', 'data-load'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         searchConfigs: {

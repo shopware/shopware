@@ -14,9 +14,9 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
+
+    emits: ['update:value'],
 
     props: {
         customer: {
@@ -70,9 +70,6 @@ export default Component.wrapComponentConfig({
                 }
 
                 this.$emit('update:value', newValue);
-                return;
-
-                this.$emit('change', newValue);
             },
         },
 

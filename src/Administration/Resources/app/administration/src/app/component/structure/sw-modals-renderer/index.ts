@@ -9,7 +9,6 @@ import './sw-modals-renderer.scss';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -47,10 +46,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const originalVariant = button.variant ?? 'primary';
             const mappedVariant = variantMap[originalVariant] ?? originalVariant;
-            const isGhost = [
-                'ghost',
-                'ghost-danger',
-            ].includes(originalVariant);
+            const isGhost = ['ghost', 'ghost-danger'].includes(originalVariant);
 
             return {
                 method: button.method ?? ((): undefined => undefined),

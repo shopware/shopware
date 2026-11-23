@@ -42,6 +42,11 @@ class LineItemPropertyRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            $payload = $lineItem->getPayload();
+            if (!\array_key_exists('propertyIds', $payload) && !\array_key_exists('optionIds', $payload)) {
+                continue;
+            }
+
             if ($this->lineItemMatch($lineItem)) {
                 return true;
             }
@@ -67,10 +72,6 @@ class LineItemPropertyRule extends Rule
 
     private function lineItemMatch(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         $properties = $lineItem->getPayloadValue('propertyIds') ?? [];
         $options = $lineItem->getPayloadValue('optionIds') ?? [];
 

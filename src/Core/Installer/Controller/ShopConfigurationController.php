@@ -81,7 +81,7 @@ class ShopConfigurationController extends InstallerController
             $availableLanguages = $this->getAllAvailableLanguages();
             $selectedLanguages = array_map(static function (string $iso) use ($availableLanguages) {
                 // already a full locale like xx-XX?
-                if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
+                if (preg_match('/^[a-z]{2}-[A-Z]{2}$/D', $iso)) {
                     return $iso;
                 }
 

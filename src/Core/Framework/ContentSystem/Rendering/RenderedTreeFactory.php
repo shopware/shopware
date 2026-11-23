@@ -118,7 +118,8 @@ final readonly class RenderedTreeFactory
             $loaderValues[$element->id] ?? [],
             $delivery->context,
             $delivery->distributionReferencedKeys,
-            $slots
+            $slots,
+            $delivery->mappingFallbackKeys,
         );
     }
 }

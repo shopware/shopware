@@ -5,21 +5,21 @@ namespace Shopware\Core\Checkout\Document\Service;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\ResolvedDocumentFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -28,9 +28,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -38,6 +41,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @final
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Generator::class,
+)]
 class DocumentGenerator
 {
     /**
@@ -54,6 +62,7 @@ class DocumentGenerator
         private readonly ClockInterface $clock,
         private readonly DocumentFileResolver $documentFileResolver,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly Filesystem $filesystem = new Filesystem(),
     ) {
     }
 
@@ -80,7 +89,7 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
+        $fileType ??= Feature::silent('v6.9.0.0', static fn (): ?string => $document->getDocumentMediaFile()?->getFileExtension()) ?? PdfRenderer::FILE_EXTENSION;
 
         $resolvedFile = $this->documentFileResolver->resolve($document, $fileType, ResolvedDocumentFile::SOURCE_LEGACY);
         if ($resolvedFile !== null) {
@@ -232,7 +241,7 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $documentMedia = $document->getDocumentMediaFile();
+        $documentMedia = Feature::silent('v6.9.0.0', static fn (): ?MediaEntity => $document->getDocumentMediaFile());
         if ($documentMedia?->getId() !== null) {
             throw DocumentException::documentGenerationException('Document already exists');
         }
@@ -241,15 +250,23 @@ class DocumentGenerator
             throw DocumentException::documentGenerationException('This document is dynamically generated and cannot be overwritten');
         }
 
-        $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest);
-
         $fileName = (string) $uploadedFileRequest->query->get('fileName');
 
         if ($fileName === '') {
             throw DocumentException::documentGenerationException('Parameter "fileName" is missing');
         }
 
-        $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
+        $tempFile = $this->filesystem->tempnam(sys_get_temp_dir(), '');
+
+        try {
+            $mediaFile = $this->mediaService->fetchFile($uploadedFileRequest, $tempFile);
+
+            // Media is written under system scope because the route-level document:update
+            // ACL check already authorizes the caller to create document media.
+            $mediaId = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context): string => $this->mediaService->saveMediaFile($mediaFile, $fileName, $context, 'document'));
+        } finally {
+            $this->filesystem->remove($tempFile);
+        }
 
         $this->documentRepository->upsert([
             [
@@ -264,7 +281,7 @@ class DocumentGenerator
             $documentId,
             $document->getOrderId(),
             $document->getOrderVersionId(),
-            $document->getDocumentType()?->getTechnicalName() ?? '',
+            $document->getTypeName() ?? '',
             $document->getDocumentNumber() ?? '',
             $context,
         ));
@@ -327,7 +344,7 @@ class DocumentGenerator
         $result = (bool) $statement->fetchOne();
 
         if ($result) {
-            throw DocumentException::documentNumberAlreadyExistsException($documentNumber);
+            throw DocumentException::documentNumberAlreadyExistsExceptionForType($documentNumber, $documentTypeName);
         }
     }
 
@@ -349,11 +366,8 @@ class DocumentGenerator
 
         $operation->setDocumentId($documentId);
 
-        /** @var DocumentTypeEntity $documentType */
-        $documentType = $document->getDocumentType();
-
         $documentStruct = $this->generate(
-            $documentType->getTechnicalName(),
+            $document->getTypeName() ?? '',
             [$document->getOrderId() => $operation],
             $context
         )->getSuccess()->first();
@@ -436,10 +450,12 @@ class DocumentGenerator
             return null;
         }
 
-        foreach ([
-            $document->getDocumentMediaFile(),
-            $document->getDocumentA11yMediaFile(),
-        ] as $media) {
+        $legacyMedia = Feature::silent(
+            'v6.9.0.0',
+            static fn (): array => [$document->getDocumentMediaFile(), $document->getDocumentA11yMediaFile()],
+        );
+
+        foreach ($legacyMedia as $media) {
             if (
                 $media !== null
                 && $media->getFileExtension() !== null

@@ -49,7 +49,7 @@ class ApiControllerDeleteTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
@@ -103,7 +103,7 @@ class ApiControllerDeleteTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/country', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'country', $id);
@@ -139,7 +139,7 @@ class ApiControllerDeleteTest extends TestCase
         $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'country', $id);
@@ -154,10 +154,7 @@ class ApiControllerDeleteTest extends TestCase
 
     public function testDeleteManyToOne(): void
     {
-        $dropStatement = <<<EOF
-DROP TABLE IF EXISTS `named`;
-DROP TABLE IF EXISTS `named_optional_group`;
-EOF;
+        $dropStatement = 'DROP TABLE IF EXISTS `named`, `named_optional_group`';
 
         $namedOptionalGroupStatement = <<<EOF
 CREATE TABLE `named_optional_group` (
@@ -203,7 +200,7 @@ EOF;
         $this->getBrowser()->jsonRequest('POST', '/api/named', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/named/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'named', $id);
@@ -242,7 +239,7 @@ EOF;
         $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
@@ -257,7 +254,7 @@ EOF;
                 'SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid',
                 ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)]
             )->fetchAllAssociative();
-        static::assertEmpty($a);
+        static::assertCount(0, $a);
 
         $this->assertEntityExists($this->getBrowser(), 'product', $id);
         $this->assertEntityExists($this->getBrowser(), 'category', $category);
@@ -285,7 +282,7 @@ EOF;
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -300,7 +297,7 @@ EOF;
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
 
         $a = static::getContainer()->get(Connection::class)->executeQuery('SELECT * FROM product_category WHERE product_id = :pid AND category_id = :cid', ['pid' => Uuid::fromHexToBytes($id), 'cid' => Uuid::fromHexToBytes($category)])->fetchAllAssociative();
-        static::assertNotEmpty($a);
+        static::assertNotCount(0, $a);
 
         $this->assertEntityExists($browser, 'product', $id);
         $this->assertEntityExists($browser, 'category', $category);

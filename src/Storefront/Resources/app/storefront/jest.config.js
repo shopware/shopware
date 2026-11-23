@@ -91,9 +91,7 @@ module.exports = {
     ],
 
     transform: {
-        // Pass the babel config explicitly so files outside the storefront root
-        // (e.g. the JS component system in `views/components`) are transformed too.
-        '^.+\\.(t|j)s$': ['babel-jest', { configFile: path.resolve(__dirname, '.babelrc.js') }],
+        '^.+\\.(t|j)s$': ['babel-jest', { configFile: path.join(__dirname, '.babelrc.js') }],
         '^.+\\.html$': '<rootDir>/text.loader.js',
     },
 

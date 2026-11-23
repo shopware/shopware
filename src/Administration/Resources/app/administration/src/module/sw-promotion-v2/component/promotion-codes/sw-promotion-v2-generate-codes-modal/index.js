@@ -10,18 +10,11 @@ const debounce = Shopware.Utils.debounce;
 export default {
     template,
 
-    inject: [
-        'promotionCodeApiService',
-    ],
+    inject: ['promotionCodeApiService'],
 
-    emits: [
-        'generate-finish',
-        'close',
-    ],
+    emits: ['generate-finish', 'close'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         promotion: {

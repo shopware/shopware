@@ -87,7 +87,14 @@ function compareSegments(left: number[], right: number[]): number {
     return 0;
 }
 
-export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, versionBranches, isDraft = false, labelerPending = false }: MilestoneLabelInput): MilestoneVerdict {
+export function evaluateMilestoneLabel({
+    baseRefName,
+    defaultBranch,
+    labels,
+    versionBranches,
+    isDraft = false,
+    labelerPending = false,
+}: MilestoneLabelInput): MilestoneVerdict {
     if (labels.includes(SKIP_CHECK_LABEL)) {
         return { status: 'skipped', message: `\`${SKIP_CHECK_LABEL}\` is set`, short: `${SKIP_CHECK_LABEL} is set` };
     }
@@ -135,7 +142,9 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
         return {
             status: 'invalid',
             message: `has no \`${MILESTONE_LABEL_PREFIX}*\` label, so it would be released without being announced anywhere`,
-            short: expected ? `no ${MILESTONE_LABEL_PREFIX}* label, set ${MILESTONE_LABEL_PREFIX}${expected}` : `no ${MILESTONE_LABEL_PREFIX}* label`,
+            short: expected
+                ? `no ${MILESTONE_LABEL_PREFIX}* label, set ${MILESTONE_LABEL_PREFIX}${expected}`
+                : `no ${MILESTONE_LABEL_PREFIX}* label`,
             // On a version branch the right patch depends on release state this module cannot see.
             expected: baseLine === undefined ? expected : undefined,
         };
@@ -152,8 +161,16 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
 
     if (baseLine !== undefined) {
         return version.startsWith(`${baseLine}.`)
-            ? { status: 'ok', message: `\`${label}\` matches base branch \`${baseRefName}\``, short: `${label} matches ${baseRefName}` }
-            : { status: 'invalid', message: `\`${label}\` does not belong to base branch \`${baseRefName}\``, short: `${label} does not belong to ${baseRefName}` };
+            ? {
+                  status: 'ok',
+                  message: `\`${label}\` matches base branch \`${baseRefName}\``,
+                  short: `${label} matches ${baseRefName}`,
+              }
+            : {
+                  status: 'invalid',
+                  message: `\`${label}\` does not belong to base branch \`${baseRefName}\``,
+                  short: `${label} does not belong to ${baseRefName}`,
+              };
     }
 
     const line = version.split('.').slice(0, 3).join('.');
@@ -176,8 +193,9 @@ export function evaluateMilestoneLabel({ baseRefName, defaultBranch, labels, ver
 
     return {
         status: 'invalid',
-        message: `\`${label}\` claims the ${line}.* release, but branch \`${line}.x\` already exists — anything merged into \`${defaultBranch}\` now ships later. `
-            + `Set \`${MILESTONE_LABEL_PREFIX}${expected ?? '<next version>'}\`, or add \`${backportLabel}\` if this really is meant to be backported into ${line}.x.`,
+        message:
+            `\`${label}\` claims the ${line}.* release, but branch \`${line}.x\` already exists — anything merged into \`${defaultBranch}\` now ships later. ` +
+            `Set \`${MILESTONE_LABEL_PREFIX}${expected ?? '<next version>'}\`, or add \`${backportLabel}\` if this really is meant to be backported into ${line}.x.`,
         short: `${label} is closed for new work, set ${MILESTONE_LABEL_PREFIX}${expected ?? '<next version>'} or add ${backportLabel}`,
         expected,
     };
@@ -196,16 +214,35 @@ type IssuesClient = {
     };
 };
 
-type MergeGroupClient = {
+type PullRequestClient = {
     rest: {
         pulls: {
             get(options: { owner: string; repo: string; pull_number: number }): Promise<{
-                data: { number: number; draft?: boolean; base: { ref: string }; labels: { name: string }[] };
+                data: {
+                    number: number;
+                    draft?: boolean;
+                    base: { ref: string };
+                    head: { sha: string };
+                    labels: { name: string }[];
+                };
             }>;
         };
+    };
+};
+
+type MergeGroupClient = {
+    rest: {
         repos: {
-            compareCommitsWithBasehead(options: { owner: string; repo: string; basehead: string }): Promise<{ data: { commits: { sha: string }[] } }>;
-            listPullRequestsAssociatedWithCommit(options: { owner: string; repo: string; commit_sha: string }): Promise<{ data: { number: number }[] }>;
+            compareCommitsWithBasehead(options: {
+                owner: string;
+                repo: string;
+                basehead: string;
+            }): Promise<{ data: { commits: { sha: string }[] } }>;
+            listPullRequestsAssociatedWithCommit(options: {
+                owner: string;
+                repo: string;
+                commit_sha: string;
+            }): Promise<{ data: { number: number }[] }>;
         };
     };
 };
@@ -214,8 +251,13 @@ type StatusClient = {
     rest: {
         repos: {
             createCommitStatus(options: {
-                owner: string; repo: string; sha: string;
-                state: 'success' | 'failure'; context: string; description: string; target_url?: string;
+                owner: string;
+                repo: string;
+                sha: string;
+                state: 'success' | 'failure';
+                context: string;
+                description: string;
+                target_url?: string;
             }): Promise<unknown>;
         };
     };
@@ -234,26 +276,35 @@ type Logger = {
 type Repo = { owner: string; repo: string };
 
 const VERSION_BRANCHES_QUERY = /* GraphQL */ `
-  query ($owner: String!, $repo: String!, $branchQuery: String!, $after: String) {
-    repository(owner: $owner, name: $repo) {
-      refs(refPrefix: "refs/heads/", query: $branchQuery, first: 100, after: $after) {
-        pageInfo { hasNextPage endCursor }
-        nodes { name }
-      }
+    query ($owner: String!, $repo: String!, $branchQuery: String!, $after: String) {
+        repository(owner: $owner, name: $repo) {
+            refs(refPrefix: "refs/heads/", query: $branchQuery, first: 100, after: $after) {
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
+                nodes {
+                    name
+                }
+            }
+        }
     }
-  }`;
+`;
 
 export async function fetchVersionBranches(github: GraphqlClient, { owner, repo }: Repo): Promise<string[]> {
     const branches: string[] = [];
     let after: string | undefined = undefined;
 
     do {
-        const result: { repository: { refs: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: { name: string }[] } } } =
-            await github.graphql(VERSION_BRANCHES_QUERY, { owner, repo, branchQuery: VERSION_BRANCH_QUERY, after });
+        const result: {
+            repository: {
+                refs: { pageInfo: { hasNextPage: boolean; endCursor: string | null }; nodes: { name: string }[] };
+            };
+        } = await github.graphql(VERSION_BRANCHES_QUERY, { owner, repo, branchQuery: VERSION_BRANCH_QUERY, after });
 
         const { pageInfo, nodes } = result.repository.refs;
         branches.push(...nodes.map((node) => node.name).filter((name) => VERSION_BRANCH_PATTERN.test(name)));
-        after = pageInfo.hasNextPage ? pageInfo.endCursor ?? undefined : undefined;
+        after = pageInfo.hasNextPage ? (pageInfo.endCursor ?? undefined) : undefined;
     } while (after);
 
     return branches;
@@ -285,7 +336,7 @@ type PullRequestContext = {
 };
 
 type Toolkit = {
-    github: GraphqlClient & IssuesClient & MergeGroupClient & StatusClient;
+    github: GraphqlClient & IssuesClient & PullRequestClient & MergeGroupClient & StatusClient;
     core: Logger;
     context: PullRequestContext;
 };
@@ -306,14 +357,26 @@ function defaultBranchOf(context: PullRequestContext): string {
 /** `refs/heads/gh-readonly-queue/trunk/pr-18791-<base sha>` -> 18791 */
 const MERGE_GROUP_REF_PATTERN = /\/pr-(\d+)-[0-9a-f]+$/;
 
-type CheckedPullRequest = { number: number; baseRefName: string; labels: string[]; isDraft: boolean; labelerPending: boolean };
+type CheckedPullRequest = {
+    number: number;
+    baseRefName: string;
+    headSha: string;
+    labels: string[];
+    isDraft: boolean;
+    labelerPending: boolean;
+};
 
 /**
  * The queue may batch several PRs into one group while the ref names only the last,
  * so commits are resolved back to their PRs. The ref-named PR is always included so
  * a failed lookup cannot silently pass it.
  */
-export async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, core: Logger, repo: Repo, mergeGroup: MergeGroupPayload): Promise<number[]> {
+export async function pullRequestNumbersInMergeGroup(
+    github: MergeGroupClient,
+    core: Logger,
+    repo: Repo,
+    mergeGroup: MergeGroupPayload,
+): Promise<number[]> {
     const numbers = new Set<number>();
 
     const named = MERGE_GROUP_REF_PATTERN.exec(mergeGroup.head_ref)?.[1];
@@ -328,13 +391,18 @@ export async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, c
         });
 
         for (const commit of comparison.commits) {
-            const { data: pulls } = await github.rest.repos.listPullRequestsAssociatedWithCommit({ ...repo, commit_sha: commit.sha });
+            const { data: pulls } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                ...repo,
+                commit_sha: commit.sha,
+            });
             for (const pull of pulls) {
                 numbers.add(pull.number);
             }
         }
     } catch (error) {
-        core.warning(`Could not resolve the merge group's commits to pull requests, checking only #${named ?? 'none'}: ${error instanceof Error ? error.message : String(error)}`);
+        core.warning(
+            `Could not resolve the merge group's commits to pull requests, checking only #${named ?? 'none'}: ${error instanceof Error ? error.message : String(error)}`,
+        );
     }
 
     if (numbers.size === 0) {
@@ -344,34 +412,42 @@ export async function pullRequestNumbersInMergeGroup(github: MergeGroupClient, c
     return [...numbers].sort((left, right) => left - right);
 }
 
+/**
+ * Deliberately the API and not `context.payload.pull_request`: the payload is frozen at the
+ * moment the event fired, so a label the labeler adds a second later stays invisible to the
+ * run racing it — and nothing re-judges the PR afterwards, because a re-run replays that same
+ * payload and a label set with the `GITHUB_TOKEN` emits no event of its own (#20073).
+ */
+async function fetchPullRequest(
+    github: PullRequestClient,
+    repo: Repo,
+    number: number,
+    labelerPending: boolean,
+): Promise<CheckedPullRequest> {
+    const { data } = await github.rest.pulls.get({ ...repo, pull_number: number });
+
+    return {
+        number: data.number,
+        baseRefName: data.base.ref,
+        headSha: data.head.sha,
+        labels: data.labels.map((label) => label.name),
+        isDraft: data.draft ?? false,
+        labelerPending,
+    };
+}
+
 async function pullRequestsToCheck({ github, core, context }: Toolkit): Promise<CheckedPullRequest[]> {
     const mergeGroup = context.payload.merge_group;
 
     if (context.eventName !== 'merge_group' || !mergeGroup) {
-        const pullRequest = pullRequestOf(context);
+        const labelerPending = context.payload.action === 'opened' || context.payload.action === 'reopened';
 
-        return [{
-            number: pullRequest.number,
-            baseRefName: pullRequest.base.ref,
-            labels: (pullRequest.labels ?? []).map((label) => label.name),
-            isDraft: pullRequest.draft ?? false,
-            labelerPending: context.payload.action === 'opened' || context.payload.action === 'reopened',
-        }];
+        return [await fetchPullRequest(github, context.repo, pullRequestOf(context).number, labelerPending)];
     }
 
     const numbers = await pullRequestNumbersInMergeGroup(github, core, context.repo, mergeGroup);
 
-    return Promise.all(numbers.map(async (number) => {
-        const { data } = await github.rest.pulls.get({ ...context.repo, pull_number: number });
-
-        return {
-            number: data.number,
-            baseRefName: data.base.ref,
-            labels: data.labels.map((label) => label.name),
-            isDraft: data.draft ?? false,
-            labelerPending: false,
-        };
-    }));
+    return Promise.all(numbers.map((number) => fetchPullRequest(github, context.repo, number, false)));
 }
 
 export const STATUS_CONTEXT = 'milestone/label';
@@ -384,10 +460,10 @@ function truncate(text: string): string {
 }
 
 /** The commit the status belongs to: the merge group for the queue, the head otherwise. */
-function statusShaOf(context: PullRequestContext): string {
+function statusShaOf(context: PullRequestContext, pullRequests: CheckedPullRequest[]): string {
     const mergeGroup = context.payload.merge_group;
 
-    return context.eventName === 'merge_group' && mergeGroup ? mergeGroup.head_sha : pullRequestOf(context).head.sha;
+    return context.eventName === 'merge_group' && mergeGroup ? mergeGroup.head_sha : pullRequests[0].headSha;
 }
 
 /** The only link a commit status carries, so point it at the run holding the long form. */
@@ -406,13 +482,18 @@ function runUrl({ owner, repo }: Repo): string | undefined {
  * is keyed by context: the next run overwrites it and the pull request turns green
  * without a new commit.
  */
-async function postVerdictStatus(toolkit: Toolkit, state: 'success' | 'failure', description: string): Promise<void> {
+async function postVerdictStatus(
+    toolkit: Toolkit,
+    pullRequests: CheckedPullRequest[],
+    state: 'success' | 'failure',
+    description: string,
+): Promise<void> {
     const { github, context } = toolkit;
     const target = runUrl(context.repo);
 
     await github.rest.repos.createCommitStatus({
         ...context.repo,
-        sha: statusShaOf(context),
+        sha: statusShaOf(context, pullRequests),
         state,
         context: STATUS_CONTEXT,
         description: truncate(description),
@@ -446,21 +527,24 @@ export async function checkMilestoneLabel(toolkit: Toolkit): Promise<void> {
         core.info(`PR #${pullRequest.number} ${verdict.message}`);
     }
 
-    const summary = judged.map(({ pullRequest, verdict }) =>
-        `- ${{ ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status]} #${pullRequest.number} ${verdict.message}`);
+    const summary = judged.map(
+        ({ pullRequest, verdict }) =>
+            `- ${{ ok: '✅', skipped: '➖', invalid: '❌' }[verdict.status]} #${pullRequest.number} ${verdict.message}`,
+    );
     await core.summary.addRaw(`## Milestone label\n\n${summary.join('\n')}\n`).write();
 
     const invalid = judged.filter(({ verdict }) => verdict.status === 'invalid');
 
     // A single pull request speaks for itself; a batched merge group has to name the
     // offenders, because the status is the only thing the queue shows.
-    const description = judged.length === 1
-        ? judged[0].verdict.short
-        : invalid.length === 0
-            ? `all ${judged.length} queued pull requests carry a valid milestone label`
-            : invalid.map(({ pullRequest, verdict }) => `#${pullRequest.number} ${verdict.short}`).join('; ');
+    const description =
+        judged.length === 1
+            ? judged[0].verdict.short
+            : invalid.length === 0
+              ? `all ${judged.length} queued pull requests carry a valid milestone label`
+              : invalid.map(({ pullRequest, verdict }) => `#${pullRequest.number} ${verdict.short}`).join('; ');
 
-    await postVerdictStatus(toolkit, invalid.length === 0 ? 'success' : 'failure', description);
+    await postVerdictStatus(toolkit, pullRequests, invalid.length === 0 ? 'success' : 'failure', description);
 }
 
 /**
@@ -493,7 +577,14 @@ export async function reconcileMilestoneLabel({ github, core, context }: Toolkit
     await applyMilestoneLabel(github, core, context.repo, pullRequest.number, labels, verdict.expected);
 }
 
-async function applyMilestoneLabel(github: IssuesClient, core: Logger, repo: Repo, number: number, labels: string[], expected: string): Promise<void> {
+async function applyMilestoneLabel(
+    github: IssuesClient,
+    core: Logger,
+    repo: Repo,
+    number: number,
+    labels: string[],
+    expected: string,
+): Promise<void> {
     const target = `${MILESTONE_LABEL_PREFIX}${expected}`;
 
     for (const stale of labels.filter((label) => label.startsWith(MILESTONE_LABEL_PREFIX) && label !== target)) {
@@ -506,14 +597,26 @@ async function applyMilestoneLabel(github: IssuesClient, core: Logger, repo: Rep
 }
 
 const OPEN_PULL_REQUESTS_QUERY = /* GraphQL */ `
-  query ($owner: String!, $repo: String!, $baseRefName: String!, $after: String) {
-    repository(owner: $owner, name: $repo) {
-      pullRequests(baseRefName: $baseRefName, states: OPEN, first: 100, after: $after) {
-        pageInfo { hasNextPage endCursor }
-        nodes { number isDraft labels(first: 50) { nodes { name } } }
-      }
+    query ($owner: String!, $repo: String!, $baseRefName: String!, $after: String) {
+        repository(owner: $owner, name: $repo) {
+            pullRequests(baseRefName: $baseRefName, states: OPEN, first: 100, after: $after) {
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
+                nodes {
+                    number
+                    isDraft
+                    labels(first: 50) {
+                        nodes {
+                            name
+                        }
+                    }
+                }
+            }
+        }
     }
-  }`;
+`;
 
 /** Re-evaluates every open PR against the default branch and repairs contradicting labels. */
 export async function reconcileOpenMilestoneLabels({ github, core, context }: Toolkit, dryRun: boolean): Promise<void> {
@@ -538,15 +641,27 @@ export async function reconcileOpenMilestoneLabels({ github, core, context }: To
         } = await github.graphql(OPEN_PULL_REQUESTS_QUERY, { ...context.repo, baseRefName: defaultBranch, after });
 
         const { pageInfo, nodes } = result.repository.pullRequests;
-        pullRequests.push(...nodes.map((node) => ({ number: node.number, isDraft: node.isDraft, labels: node.labels.nodes.map((label) => label.name) })));
-        after = pageInfo.hasNextPage ? pageInfo.endCursor ?? undefined : undefined;
+        pullRequests.push(
+            ...nodes.map((node) => ({
+                number: node.number,
+                isDraft: node.isDraft,
+                labels: node.labels.nodes.map((label) => label.name),
+            })),
+        );
+        after = pageInfo.hasNextPage ? (pageInfo.endCursor ?? undefined) : undefined;
     } while (after);
 
     const failed: number[] = [];
     let fixed = 0;
 
     for (const pullRequest of pullRequests) {
-        const verdict = evaluateMilestoneLabel({ baseRefName: defaultBranch, defaultBranch, labels: pullRequest.labels, versionBranches, isDraft: pullRequest.isDraft });
+        const verdict = evaluateMilestoneLabel({
+            baseRefName: defaultBranch,
+            defaultBranch,
+            labels: pullRequest.labels,
+            versionBranches,
+            isDraft: pullRequest.isDraft,
+        });
         if (verdict.status !== 'invalid') {
             continue;
         }
@@ -557,7 +672,9 @@ export async function reconcileOpenMilestoneLabels({ github, core, context }: To
         }
 
         if (dryRun) {
-            core.info(`Would set \`${MILESTONE_LABEL_PREFIX}${verdict.expected}\` on #${pullRequest.number}: ${verdict.message}`);
+            core.info(
+                `Would set \`${MILESTONE_LABEL_PREFIX}${verdict.expected}\` on #${pullRequest.number}: ${verdict.message}`,
+            );
             ++fixed;
             continue;
         }
@@ -568,13 +685,19 @@ export async function reconcileOpenMilestoneLabels({ github, core, context }: To
             ++fixed;
         } catch (error) {
             failed.push(pullRequest.number);
-            core.error(`Failed to fix the milestone label on #${pullRequest.number}: ${error instanceof Error ? error.message : String(error)}`);
+            core.error(
+                `Failed to fix the milestone label on #${pullRequest.number}: ${error instanceof Error ? error.message : String(error)}`,
+            );
         }
     }
 
-    core.info(`Checked ${pullRequests.length} open PR(s) against \`${defaultBranch}\`, ${dryRun ? 'would have fixed' : 'fixed'} ${fixed}.`);
+    core.info(
+        `Checked ${pullRequests.length} open PR(s) against \`${defaultBranch}\`, ${dryRun ? 'would have fixed' : 'fixed'} ${fixed}.`,
+    );
 
     if (failed.length > 0) {
-        throw new Error(`Failed to fix the milestone label on ${failed.length} PR(s): ${failed.map((number) => `#${number}`).join(', ')}`);
+        throw new Error(
+            `Failed to fix the milestone label on ${failed.length} PR(s): ${failed.map((number) => `#${number}`).join(', ')}`,
+        );
     }
 }

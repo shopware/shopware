@@ -1,3 +1,8 @@
+{# Each width is the distance from the field's text anchor to the fixed artwork beside it:
+   manufacturer 196.75 - 6.32, productNumber 262.97 - 196.75, guarantee 121.47 - 5.07. #}
+{%- set manufacturerTextLength = manufacturer|sw_garan_label_text_length(190.43, 9) -%}
+{%- set productNumberTextLength = productNumber|sw_garan_label_text_length(66.22, 9) -%}
+{%- set guaranteeTextLength = guarantee|sw_garan_label_duration_text_length(116.4, 80, -0.03) -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 269.29 283.46">
     <defs>
@@ -120,6 +125,15 @@
         <clipPath id="label-clippath-8">
             <rect class="label-cls-11" x="200.11" y="141.9" width="5.38" height="5.38"/>
         </clipPath>
+        <clipPath id="label-clippath-manufacturer">
+            <rect x="6.32" y="62" width="190.43" height="20"/>
+        </clipPath>
+        <clipPath id="label-clippath-product-number">
+            <rect x="196.75" y="62" width="66.22" height="20"/>
+        </clipPath>
+        <clipPath id="label-clippath-guarantee">
+            <rect x="5.07" y="70" width="116.4" height="96"/>
+        </clipPath>
     </defs>
     <g id="label-Layer_3" data-name="Layer 3">
         <rect class="label-cls-8" width="269.52" height="284.16"/>
@@ -127,8 +141,8 @@
     <g id="label-Layer_1" data-name="Layer 1">
         <rect class="label-cls-9" x="3.09" y="2.63" width="263.11" height="165.38"/>
         <rect class="label-cls-9" x="3.09" y="171.68" width="263.11" height="108.38"/>
-        <text class="label-cls-5" transform="translate(6.32 74.52)"><tspan x="0" y="0">{{ manufacturer }}</tspan></text>
-        <text class="label-cls-5" transform="translate(196.75 74.52)"><tspan x="0" y="0">{{ productNumber }}</tspan></text>
+        <g clip-path="url(#label-clippath-manufacturer)"><text class="label-cls-5" transform="translate(6.32 74.52)"><tspan x="0" y="0"{% if manufacturerTextLength %} textLength="{{ manufacturerTextLength }}" lengthAdjust="spacingAndGlyphs"{% endif %}>{{ manufacturer }}</tspan></text></g>
+        <g clip-path="url(#label-clippath-product-number)"><text class="label-cls-5" transform="translate(196.75 74.52)"><tspan x="0" y="0"{% if productNumberTextLength %} textLength="{{ productNumberTextLength }}" lengthAdjust="spacingAndGlyphs"{% endif %}>{{ productNumber }}</tspan></text></g>
         <line class="label-cls-10" x1="6.32" y1="61.34" x2="262.97" y2="61.34"/>
         <path class="label-cls-17" d="M229.14,0v39.02c0,1.72.91,3.24,2.24,3.75l13.63,5.22c.67.26,1.38.26,2.05.01l13.59-5.01c1.35-.5,2.27-2.03,2.27-3.76V0h-33.79Z"/>
         <g>
@@ -865,7 +879,7 @@
             <path class="label-cls-7" d="M194.13,43.87s-1.05,1.2-1.41,1.58c-.25.26-.57.73-.96.93-1.02.52-1.22.5-2.24.24-.43-.11-.83-.43-1.16-.73l-6.81-6.08c-.82-.74-.27-2.1.83-2.06l4.27.16c.52.02,1.02.23,1.4.58l6.09,5.36Z"/>
             <path class="label-cls-7" d="M186.62,44.36l2.04,1.82c1.19.84,2.62.87,3.66-.28l12.06-13.48c.69-.78.19-2.02-.88-2.14l-2.02-.24c-.92-.11-1.83.22-2.44.88l-12.42,13.45Z"/>
         </g>
-        <text class="label-cls-3" transform="translate(5.07 150.57)"><tspan x="0" y="0">{{ guarantee }}</tspan></text>
+        <g clip-path="url(#label-clippath-guarantee)"><text class="label-cls-3" transform="translate(5.07 150.57)"><tspan x="0" y="0"{% if guaranteeTextLength %} textLength="{{ guaranteeTextLength }}" lengthAdjust="spacingAndGlyphs"{% endif %}>{{ guarantee }}</tspan></text></g>
         <g>
             <rect class="label-cls-9" x="121.47" y="127.8" width="26.36" height="22.68" rx="1.66" ry="1.66"/>
             <rect class="label-cls-7" x="128.31" y="124.74" width="3.13" height="6.19" rx=".54" ry=".54"/>

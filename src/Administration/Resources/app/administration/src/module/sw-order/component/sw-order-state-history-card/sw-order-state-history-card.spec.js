@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 /**
  * @sw-package checkout
@@ -6,9 +7,7 @@ import { mount } from '@vue/test-utils';
 async function createWrapper() {
     const orderProp = {
         transactions: [],
-        deliveries: [
-            {},
-        ],
+        deliveries: [{}],
     };
 
     orderProp.transactions.last = () => ({});
@@ -53,6 +52,10 @@ async function createWrapper() {
 }
 
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
+    beforeEach(() => {
+        allowDeprecation('The component "sw-order-state-history-card" is deprecated');
+    });
+
     let wrapper;
 
     // @deprecated tag:v6.8.0 - The test will be removed with sw-order-state-history-card.
@@ -95,7 +98,7 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         wrapper = await createWrapper();
         await wrapper.setData({ showModal: true });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         // Document selection should be visible
         expect(wrapper.find('sw-order-state-change-modal-attach-documents-stub').exists()).toBeTruthy();

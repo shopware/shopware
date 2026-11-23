@@ -64,12 +64,49 @@ class WebhookExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
     }
 
+    public function testWebhookNotOwned(): void
+    {
+        $e = WebhookException::webhookNotOwned('webhookId');
+
+        static::assertSame('Webhook "webhookId" can only be changed by its owner.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_NOT_OWNED', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
+    public function testWebhookEventNotPermitted(): void
+    {
+        $e = WebhookException::webhookEventNotPermitted('order.written');
+
+        static::assertSame('Subscribing to event "order.written" is not permitted.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_EVENT_NOT_PERMITTED', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
+    public function testWebhookEventPrivilegesMissing(): void
+    {
+        $e = WebhookException::webhookEventPrivilegesMissing('product.written', ['product:read', 'order:read']);
+
+        static::assertSame('Subscribing to event "product.written" requires the privileges: product:read, order:read.', $e->getMessage());
+        static::assertSame('FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
     public function testUnsupportedMessage(): void
     {
         $e = WebhookException::unsupportedMessage('stdClass');
 
         static::assertSame('The webhook transport only supports WebhookEventMessage, got "stdClass".', $e->getMessage());
         static::assertSame('FRAMEWORK__WEBHOOK_UNSUPPORTED_MESSAGE', $e->getErrorCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+    }
+
+    public function testAclRoleUsedByWebhook(): void
+    {
+        $e = WebhookException::aclRoleUsedByWebhook('roleId', ['Order export', 'ERP sync']);
+
+        static::assertSame('Role "roleId" is used by the webhooks "Order export", "ERP sync". Remove it from them before deleting it.', $e->getMessage());
+        static::assertSame(2, $e->getParameter('count'));
+        static::assertSame('FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK', $e->getErrorCode());
         static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
     }
 }

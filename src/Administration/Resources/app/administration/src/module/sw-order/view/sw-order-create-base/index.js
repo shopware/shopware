@@ -11,15 +11,17 @@ const { get, format, array } = Utils;
 /**
  * @deprecated tag:v6.8.0 - will be removed, is not used anymore
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed, is not used anymore.',
+    },
+
     emits: ['error'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -501,10 +503,7 @@ export default {
                 const matchedItem = this.promotionCodeTags.find((tag) => tag.code === lineItem.payload.code);
 
                 if (!matchedItem) {
-                    this.promotionCodeTags = [
-                        ...this.promotionCodeTags,
-                        { ...lineItem.payload, isInvalid: false },
-                    ];
+                    this.promotionCodeTags = [...this.promotionCodeTags, { ...lineItem.payload, isInvalid: false }];
                 }
             });
         },

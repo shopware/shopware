@@ -71,9 +71,7 @@ async function createWrapper(
                     'sw-tabs-item': true,
                     'mt-tabs': {
                         name: 'mt-tabs',
-                        emits: [
-                            'new-item-active',
-                        ],
+                        emits: ['new-item-active'],
                         props: {
                             defaultItem: {
                                 type: String,
@@ -175,7 +173,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
         await tabs.vm.$emit('new-item-active', 'mappings');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('mappings');
         expect(wrapper.find('sw-import-export-edit-profile-general-stub').exists()).toBe(false);

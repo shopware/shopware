@@ -15,10 +15,7 @@ import template from './sw-label.html.twig';
 export default {
     template,
 
-    emits: [
-        'selected',
-        'dismiss',
-    ],
+    emits: ['selected', 'dismiss'],
 
     props: {
         variant: {
@@ -53,17 +50,9 @@ export default {
             type: String,
             required: false,
             default: 'default',
-            validValues: [
-                'small',
-                'medium',
-                'default',
-            ],
+            validValues: ['small', 'medium', 'default'],
             validator(value) {
-                return [
-                    'small',
-                    'medium',
-                    'default',
-                ].includes(value);
+                return ['small', 'medium', 'default'].includes(value);
             },
         },
         appearance: {

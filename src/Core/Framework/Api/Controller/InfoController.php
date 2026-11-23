@@ -13,10 +13,14 @@ use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\Api\Event\AdminInfoConfigEvent;
 use Shopware\Core\Framework\Api\Route\ApiRouteInfoResolver;
 use Shopware\Core\Framework\Api\Route\RouteInfo;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\ContentSystem\Adapter\NoneSpecificationSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
@@ -26,6 +30,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\Preset\Specification\ContentSys
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingCandidate;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\Context;
@@ -38,9 +45,9 @@ use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Store\InAppPurchase;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
 use Shopware\Core\Kernel;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
-use Shopware\Core\Maintenance\System\Service\AppUrlVerifier;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -70,6 +77,7 @@ class InfoController extends AbstractController
         private readonly IncrementGatewayRegistry $incrementGatewayRegistry,
         private readonly MigrationInfo $migrationInfo,
         private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly ActiveAppsLoader $activeAppsLoader,
         private readonly FlowActionCollector $flowActionCollector,
         private readonly SystemConfigService $systemConfigService,
         private readonly ApiRouteInfoResolver $apiRouteInfoResolver,
@@ -84,8 +92,13 @@ class InfoController extends AbstractController
         private readonly AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry,
         private readonly StoredSchemaResolver $storedSchemaResolver,
         private readonly AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry,
+        private readonly AbstractContentSystemMappingCandidateRegistry $mappingCandidateRegistry,
+        private readonly InlineMappingTokenParser $inlineMappingTokenParser,
         private readonly ?PresignedMediaUploadService $presignedMediaUploadService,
         private readonly MediaFileExtensionListProvider $mediaFileExtensionListProvider,
+        private readonly VersionHistory $versionHistory,
+        private readonly DefaultBindingRootSources $defaultBindingRootSources,
+        private readonly DraftLayoutDecoder $draftLayoutDecoder,
     ) {
     }
 
@@ -201,6 +214,39 @@ class InfoController extends AbstractController
         return new JsonResponse(['rootSources' => $rootSources]);
     }
 
+    /**
+     * The data-mapping catalogue, keyed by root source, so the Administration can offer an author the dynamic
+     * data a layout of that type may be mapped to. Every known root source carries an entry, empty when it
+     * offers nothing mappable, which keeps the client from having to tell "no candidates" apart from
+     * "unknown source".
+     */
+    #[Route(
+        path: '/api/_info/content-system-mapping-candidates.json',
+        name: 'api.info.content-system-mapping-candidates',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']],
+        methods: ['GET']
+    )]
+    public function contentSystemMappingCandidates(): JsonResponse
+    {
+        $candidates = [];
+
+        foreach ($this->rootSourceRegistry->knownRootSources() as $rootSource) {
+            $candidates[$rootSource] = array_map(
+                function (MappingCandidate $candidate): array {
+                    return [
+                        ...$candidate->toSchema(),
+                        'canonicalToken' => InlineMappingTokenParser::isValidPath($candidate->path)
+                            ? $this->inlineMappingTokenParser->canonicalToken($candidate->path)
+                            : null,
+                    ];
+                },
+                array_values($this->mappingCandidateRegistry->forRootSource($rootSource))
+            );
+        }
+
+        return new JsonResponse(['mappingCandidates' => (object) $candidates]);
+    }
+
     #[Route(path: '/api/_info/events.json', name: 'api.info.business-events', methods: ['GET'])]
     public function businessEvents(Context $context): JsonResponse
     {
@@ -250,6 +296,14 @@ class InfoController extends AbstractController
             $adminWorker['enableQueueStatsWorker'] = $this->params->get('shopware.admin_worker.enable_queue_stats_worker');
         }
 
+        // Resolve the private extension whitelist ONCE: getMimeTypesByExtension() internally
+        // calls getAllowedExtensions(), which dispatches MediaFileExtensionWhitelistEvent.
+        // Calling both would dispatch that event twice per request; the array keys are exactly
+        // the allowed extensions (see MediaFileExtensionListProvider::normalizeExtensions()).
+        $privateMimeTypesByExtension = $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context);
+
+        $appUrlReachable = $this->appUrlVerifier->verifyForAdministration();
+
         $config = [
             'version' => $this->getShopwareVersion(),
             'shopId' => $this->getShopId(),
@@ -261,17 +315,20 @@ class InfoController extends AbstractController
                 'enableUrlFeature' => $this->params->get('shopware.media.enable_url_upload_feature'),
                 'presignedUploadSupported' => $this->presignedMediaUploadService !== null
                     && $this->presignedMediaUploadService->isAvailable(),
-                'appUrlReachable' => $this->appUrlVerifier->isAppUrlReachable($request),
-                'appsRequireAppUrl' => $this->appUrlVerifier->hasAppsThatNeedAppUrl(),
+                'appUrlReachable' => $appUrlReachable,
+                'appUrlStatusCode' => $appUrlReachable ? null : $this->appUrlVerifier->getCurrentState()?->statusCode,
+                'appsRequireAppUrl' => $this->activeAppsLoader->hasRegisteredApps(),
                 'firstMigrationDate' => $this->migrationInfo->getFirstMigrationDate(),
-                'private_allowed_extensions' => $this->mediaFileExtensionListProvider->getAllowedExtensions(true, $context),
-                'private_allowed_mime_types_by_extension' => $this->mediaFileExtensionListProvider->getMimeTypesByExtension(true, $context),
+                'private_allowed_extensions' => array_keys($privateMimeTypesByExtension),
+                'private_allowed_mime_types_by_extension' => $privateMimeTypesByExtension,
                 'enableHtmlSanitizer' => $this->params->get('shopware.html_sanitizer.enabled'),
                 'enableStagingMode' => $this->params->get('shopware.staging.administration.show_banner') && $this->systemConfigService->getBool(SetupStagingEvent::CONFIG_FLAG),
                 'disableExtensionManagement' => !$this->params->get('shopware.deployment.runtime_extension_management'),
+                'hideUpdateModule' => (bool) $this->params->get('shopware.auto_update.hide_module'),
                 'minSearchTermLength' => $this->systemConfigService->getInt('core.search.minSearchTermLength') ?: 2,
             ],
             'inAppPurchases' => $this->inAppPurchase->all(),
+            'versionHistory' => $this->versionHistory->all(),
         ];
 
         $config = $this->eventDispatcher->dispatch(new AdminInfoConfigEvent($config))->getConfig();
@@ -333,8 +390,12 @@ class InfoController extends AbstractController
     #[Route(path: '/api/_info/content-system-layout-presets.json', name: 'api.info.content-system-layout-presets', methods: ['GET'])]
     public function getContentSystemLayoutPresets(): JsonResponse
     {
+        // Decoded as the preset insert decodes the served payload, so the walk sees the elements the insert attaches.
         $presets = array_map(
-            static fn (ContentSystemLayoutPresetSpecification $preset) => $preset->toArray(),
+            fn (ContentSystemLayoutPresetSpecification $preset) => [
+                ...$preset->toArray(),
+                'defaultBindingRootSources' => $this->defaultBindingRootSources->forElements($this->draftLayoutDecoder->decode($preset->payload)),
+            ],
             array_values($this->layoutPresetRegistry->all())
         );
 
@@ -349,14 +410,18 @@ class InfoController extends AbstractController
      * opposed to the spec's own properties, which is the hydrated output schema. Cast to an object so a type
      * that stores nothing serializes {} (the OpenAPI type: object), not [].
      *
+     * defaultBindingRootSources is folded in as the root sources on which inserting the type without a named binding
+     * specification succeeds, see {@see DefaultBindingRootSources::forType()}.
+     *
      * @return array<string, mixed> the type's ElementTypeSchema plus the folded bindingSpecifications and
-     *                              storageSchema objects
+     *                              storageSchema objects and the defaultBindingRootSources list
      */
     private function elementTypeSchema(ContentSystemElementTypeSpecification $def): array
     {
         $schema = $def->toSchema();
         $schema['bindingSpecifications'] = (object) $this->bindingSpecificationSchemasForType($def->name());
         $schema['storageSchema'] = (object) $this->storedSchemaResolver->resolve($def);
+        $schema['defaultBindingRootSources'] = $this->defaultBindingRootSources->forType($def->name());
 
         return $schema;
     }

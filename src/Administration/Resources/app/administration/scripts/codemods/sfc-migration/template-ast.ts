@@ -7,32 +7,21 @@
  * point, the `<sw-block>` shape predicate and the identifier scan of the template's expressions, so
  * every pass inspecting the generated markup agrees on what a block is, on which names the markup
  * reads, and on what happens to markup Vue cannot parse.
+ *
+ * The parse entry point and the block predicate live in the runtime module
+ * `src/core/factory/reconnect-cross-block-conditionals.ts`, because the template factory reconnects the same
+ * `v-if` chains at runtime that this codemod reconnects at conversion time. They are re-exported here
+ * so the passes keep one import for everything template-shaped.
  */
 
-import { ElementTypes, NodeTypes, isCoreComponent, parse, parserOptions } from '@vue/compiler-dom';
-import type { ElementNode, ExpressionNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
+import { ElementTypes, NodeTypes, isCoreComponent, parserOptions } from '@vue/compiler-dom';
+import type { ExpressionNode, RootNode, TemplateChildNode } from '@vue/compiler-dom';
 import { camelize, capitalize } from 'vue';
-
-/**
- * Parses generated template markup, or returns `null` when Vue rejects it. Markup Vue cannot parse
- * is nothing these passes can inspect or repair; the validation gate reports it instead.
- */
-function parseTemplate(source: string): RootNode | null {
-    try {
-        return parse(source, { comments: true });
-    } catch {
-        return null;
-    }
-}
-
-/** Only the blocks this codemod emitted; a hand-written `<sw-block>` binds its name dynamically. */
-function isConvertedBlock(node: ElementNode): boolean {
-    return node.tag === 'sw-block' && node.props.some((prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'name');
-}
-
-function elementChildren(node: ElementNode): ElementNode[] {
-    return node.children.filter((child): child is ElementNode => child.type === NodeTypes.ELEMENT);
-}
+import {
+    elementChildren,
+    isConvertedBlock,
+    parseTemplate,
+} from '../../../src/core/factory/reconnect-cross-block-conditionals';
 
 const QUOTED_LITERAL = /'[^']*'|"[^"]*"|`[^`]*`/g;
 // Not preceded by a dot, so `entity.name` contributes `entity` but never `name`, and not by a word

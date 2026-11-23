@@ -44,6 +44,8 @@
 <svg
     v-else
     class="sw-media-folder-thumbnail"
+    :class="{ 'is--colored': isColored }"
+    :style="colorStyle"
     viewBox="0 0 65 56"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

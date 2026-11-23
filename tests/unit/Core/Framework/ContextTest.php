@@ -144,7 +144,7 @@ class ContextTest extends TestCase
 
         static::assertInstanceOf(Context::class, $deserialized);
 
-        static::assertEmpty($deserialized->getVars()['extensions']);
+        static::assertSame([], $deserialized->getVars()['extensions']);
         static::assertEquals($context->getSource(), $deserialized->getSource());
         static::assertEquals($context->getRounding(), $deserialized->getRounding());
         static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());
@@ -166,7 +166,7 @@ class ContextTest extends TestCase
 
         $deserialized = Serialization::assertRoundTrip($context);
 
-        static::assertEmpty($deserialized->getVars()['extensions']);
+        static::assertSame([], $deserialized->getVars()['extensions']);
         static::assertEquals($context->getSource(), $deserialized->getSource());
         static::assertEquals($context->getRounding(), $deserialized->getRounding());
         static::assertSame($context->getRuleIds(), $deserialized->getRuleIds());

@@ -1,5 +1,4 @@
-import type { AxiosResponse } from 'axios';
-import type { HttpClient } from 'src/core/factory/http-client.types';
+import type { HttpClient, HttpResponse } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import type { SnippetRegistry } from 'src/core/factory/locale.factory';
 import type LocaleFactory from 'src/core/factory/locale.factory';
@@ -31,7 +30,7 @@ class SnippetApiService extends ApiService {
             .get(`/_action/${this.getApiBasePath()}/filter`, {
                 headers,
             })
-            .then((response: AxiosResponse<SnippetFilter>) => {
+            .then((response: HttpResponse<SnippetFilter>) => {
                 return ApiService.handleResponse(response);
             });
     }
@@ -44,34 +43,29 @@ class SnippetApiService extends ApiService {
             .get(`/_admin/snippets?locale=${locale}`, {
                 headers,
             })
-            .then((response: AxiosResponse<SnippetRegistry>) => {
+            .then((response: HttpResponse<SnippetRegistry>) => {
                 return ApiService.handleResponse(response);
             })
             .then((snippetRegistry: SnippetRegistry) => {
                 const registry = localeFactory.getLocaleRegistry();
 
-                Object.entries(snippetRegistry).forEach(
-                    ([
-                        localeKey,
-                        snippets,
-                    ]) => {
-                        const fnName = registry.has(localeKey) ? 'extend' : 'register';
+                Object.entries(snippetRegistry).forEach(([localeKey, snippets]) => {
+                    const fnName = registry.has(localeKey) ? 'extend' : 'register';
 
-                        // Adding snippets to the locale factory
-                        localeFactory[fnName](localeKey, snippets);
+                    // Adding snippets to the locale factory
+                    localeFactory[fnName](localeKey, snippets);
 
-                        // Only update i18n instance when using register
-                        // (extend already handles this internally)
-                        if (fnName === 'register' && Shopware.Snippet?.setLocaleMessage) {
-                            // Get the merged new messages from the locale registry
-                            const allMessagesForLocale = registry.get(localeKey) || {};
+                    // Only update i18n instance when using register
+                    // (extend already handles this internally)
+                    if (fnName === 'register' && Shopware.Snippet?.setLocaleMessage) {
+                        // Get the merged new messages from the locale registry
+                        const allMessagesForLocale = registry.get(localeKey) || {};
 
-                            // Set empty messages first to trigger reactivity update
-                            Shopware.Snippet.setLocaleMessage?.(localeKey, {});
-                            Shopware.Snippet.setLocaleMessage?.(localeKey, allMessagesForLocale);
-                        }
-                    },
-                );
+                        // Set empty messages first to trigger reactivity update
+                        Shopware.Snippet.setLocaleMessage?.(localeKey, {});
+                        Shopware.Snippet.setLocaleMessage?.(localeKey, allMessagesForLocale);
+                    }
+                });
             });
     }
 
@@ -82,7 +76,7 @@ class SnippetApiService extends ApiService {
             .get(`/_admin/locales`, {
                 headers,
             })
-            .then((response: AxiosResponse<InstalledLocales>) => {
+            .then((response: HttpResponse<InstalledLocales>) => {
                 return ApiService.handleResponse(response);
             });
     }

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Resolution;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
@@ -16,9 +17,13 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigS
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderTypeCapability;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\DistributionStrategy;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Resolution\CandidateOrigin;
 use Shopware\Core\Framework\ContentSystem\Resolution\ElementResolver;
 use Shopware\Core\Framework\ContentSystem\Resolution\PropertyKind;
@@ -58,6 +63,115 @@ class ElementResolverTest extends TestCase
         static::assertTrue($resolutions[0]->required);
         static::assertNull($resolutions[0]->resolved);
         static::assertSame([], $resolutions[0]->candidates);
+    }
+
+    /**
+     * A primitive used to report nothing at all, which stopped being true the moment an author could bind one
+     * to entity data: the Administration reads resolutions to show where a value comes from, and without this
+     * a mapped headline looks exactly like an empty one.
+     */
+    #[DataProvider('mappedPrimitiveSources')]
+    #[TestDox('resolves a mapped primitive to a root candidate naming the mapped path')]
+    public function testResolvesMappedPrimitiveToRootCandidate(MappingSourceReference $source): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withConsumer('headline', ContextType::Single, scope: ConsumerScope::Root, source: $source)
+            ->build();
+
+        $resolutions = $this->resolveElement(
+            $element,
+            ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string')->build(),
+        );
+
+        static::assertSame(PropertyKind::Primitive, $resolutions[0]->kind);
+        static::assertNotNull($resolutions[0]->resolved);
+        static::assertSame(CandidateOrigin::Root, $resolutions[0]->resolved->origin);
+        static::assertSame($source->displayName(), $resolutions[0]->resolved->contextKey);
+        // Still not a candidates menu entry: a candidate is something an authoring UI may still choose, and
+        // this one is chosen. What could be chosen instead is the mapping candidate endpoint's catalogue,
+        // which a resolution cannot enumerate because it never sees the root source.
+        static::assertSame([], $resolutions[0]->candidates);
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference}>
+     */
+    public static function mappedPrimitiveSources(): iterable
+    {
+        yield 'core mapping' => [MappingSourceReference::root('category', 'name')];
+        yield 'plugin mapping' => [new MappingSourceReference('AcmePlugin', 'message', path: 'text')];
+    }
+
+    #[DataProvider('mappedReferenceSources')]
+    public function testMappedReferenceOverridesStoredAndAmbiguousSuggestedSources(MappingSourceReference $source, bool $stored): void
+    {
+        $builder = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root, source: $source);
+        if ($stored) {
+            $builder->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
+        }
+        $element = $builder->build();
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willReturn(SalesChannelProductEntity::class);
+        $resolver = $this->appliedWiringResolver($loader, mappable: true);
+        $available = [
+            $this->provided(root: false, providerElementId: 'parent-a', contextKey: 'first'),
+            $this->provided(root: false, providerElementId: 'parent-b', contextKey: 'second'),
+        ];
+
+        $resolution = $resolver->resolve($element, new ResolutionContext('el-1', $available))[0];
+
+        static::assertSame(PropertyKind::Reference, $resolution->kind);
+        static::assertNotNull($resolution->resolved);
+        static::assertSame(CandidateOrigin::Root, $resolution->resolved->origin);
+        static::assertSame($source->displayName(), $resolution->resolved->contextKey);
+        static::assertNull($resolution->resolved->providerElementId);
+        static::assertCount(2, $resolution->candidates);
+        static::assertSame([CandidateOrigin::Parent, CandidateOrigin::Parent], array_column($resolution->candidates, 'origin'));
+    }
+
+    /**
+     * @return iterable<string, array{MappingSourceReference, bool}>
+     */
+    public static function mappedReferenceSources(): iterable
+    {
+        $root = MappingSourceReference::root('product');
+        $plugin = new MappingSourceReference('AcmePlugin', 'selection', path: 'item');
+        yield 'root mapping over picker' => [$root, true];
+        yield 'root mapping over ambiguous suggestions' => [$root, false];
+        yield 'plugin mapping over picker' => [$plugin, true];
+        yield 'plugin mapping over ambiguous suggestions' => [$plugin, false];
+    }
+
+    /**
+     * The same discriminator the write gate and the diagnostics layer use: an undotted root-scoped consumer is
+     * the wiring `Mutation/ContextConsumerMirror` mints, not an author's mapping, so it must not be reported as
+     * one filling the property.
+     */
+    #[TestDox('leaves a primitive unresolved when the root-scoped consumer aliased onto it is mirrored wiring rather than a mapping')]
+    public function testMirroredWiringDoesNotResolveAPrimitive(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withConsumer('headline', ContextType::Single, propertyAlias: 'headline', scope: ConsumerScope::Root)
+            ->build();
+
+        $resolutions = $this->resolveElement(
+            $element,
+            ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string')->build(),
+        );
+
+        static::assertNull($resolutions[0]->resolved);
+    }
+
+    #[TestDox('leaves an unmapped primitive of a stored element unresolved')]
+    public function testUnmappedPrimitiveOfAStoredElementStaysUnresolved(): void
+    {
+        $resolutions = $this->resolveElement(
+            StoredElementBuilder::create('Sw:Block', 'el-1')->build(),
+            ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string')->build(),
+        );
+
+        static::assertNull($resolutions[0]->resolved);
     }
 
     #[TestDox('resolves a reference via the single matching ancestor provider, keeping loaders as alternatives')]
@@ -322,6 +436,7 @@ class ElementResolverTest extends TestCase
             $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
             static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(DataLoaderProvider::class),
+            new MappingConsumers(),
         );
 
         static::assertSame([], $resolver->resolve('Sw:Unknown', new ResolutionContext('el-1', [])));
@@ -389,9 +504,29 @@ class ElementResolverTest extends TestCase
             $this->typeResolver($map),
             $serializers ?? static::createStub(DataLoaderConfigSerializerProvider::class),
             static::createStub(DataLoaderProvider::class),
+            new MappingConsumers(),
         );
 
         return $resolver->resolve('Sw:Block', $context);
+    }
+
+    /**
+     * Resolves an actual element rather than a type name, which is what the mapping cases need: a mapping
+     * lives on the element, so a type-name-only resolve cannot see one.
+     *
+     * @return list<PropertyResolution>
+     */
+    private function resolveElement(StoredElement $element, ContentSystemElementTypeSpecification $spec): array
+    {
+        $resolver = new ElementResolver(
+            $this->registryReturning($spec),
+            $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
+            static::createStub(DataLoaderConfigSerializerProvider::class),
+            static::createStub(DataLoaderProvider::class),
+            new MappingConsumers(),
+        );
+
+        return $resolver->resolve($element, new ResolutionContext($element->id, []));
     }
 
     private function registryReturning(ContentSystemElementTypeSpecification $spec): AbstractContentSystemElementTypeRegistry
@@ -425,13 +560,14 @@ class ElementResolverTest extends TestCase
     /**
      * @param AbstractContentDataLoader<Struct> $loader
      */
-    private function appliedWiringResolver(AbstractContentDataLoader $loader): ElementResolver
+    private function appliedWiringResolver(AbstractContentDataLoader $loader, bool $mappable = false): ElementResolver
     {
         return new ElementResolver(
-            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()),
+            $this->registryReturning(ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true, mappable: $mappable)->build()),
             $this->typeResolver(new ContentSystemDataLoaderMap([], [])),
             static::createStub(DataLoaderConfigSerializerProvider::class),
             $this->loaderProvider($loader),
+            new MappingConsumers(),
         );
     }
 

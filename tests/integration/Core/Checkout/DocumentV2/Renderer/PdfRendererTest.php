@@ -90,7 +90,7 @@ class PdfRendererTest extends TestCase
         static::assertInstanceOf(DocumentFileEntity::class, $pdfFile);
 
         $bytes = $this->mediaService->loadFile($pdfFile->getMediaId(), $this->context);
-        static::assertNotEmpty($bytes);
+        static::assertNotSame('', $bytes);
         static::assertStringStartsWith('%PDF-', $bytes);
     }
 
@@ -125,7 +125,7 @@ class PdfRendererTest extends TestCase
         static::assertSame('application/pdf', $preview->getContentType());
         static::assertSame(DocumentFormat::PDF->fileExtension(), $preview->getFileExtension());
         static::assertStringEndsWith('.pdf', $preview->getName());
-        static::assertNotEmpty($preview->getContent());
+        static::assertNotSame('', $preview->getContent());
         static::assertStringStartsWith('%PDF-', $preview->getContent());
         static::assertSame('application/pdf', (new \finfo(\FILEINFO_MIME_TYPE))->buffer($preview->getContent()));
         static::assertCount(
@@ -161,7 +161,7 @@ class PdfRendererTest extends TestCase
         static::assertInstanceOf(DocumentFileEntity::class, $pdfFile);
 
         $bytes = $this->mediaService->loadFile($pdfFile->getMediaId(), $this->context);
-        static::assertNotEmpty($bytes);
+        static::assertNotSame('', $bytes);
         static::assertStringStartsWith('%PDF-', $bytes);
     }
 

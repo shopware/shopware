@@ -38,7 +38,7 @@ class ExtensionStoreDataControllerTest extends TestCase
         $response = $this->controller->getInstalledExtensions($this->createAdminStoreContext());
         $data = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($data);
+        static::assertNotCount(0, $data);
         static::assertContains('TestApp', array_column($data, 'name'));
     }
 }

@@ -14,7 +14,12 @@ import { ShopwareSetupTransformError } from '../utils/transform-error';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
 import { absoluteRange, walk } from './utils';
 import { isFunctionLikeNode } from '../utils/ast-traversal';
-import { RESERVED_OVERRIDE_STATE_NAME, SHOPWARE_SETUP_INTERNAL_PREFIX, type ShopwareSetupMacroName } from './macros';
+import {
+    RESERVED_OVERRIDE_STATE_NAME,
+    SHOPWARE_SETUP_INTERNAL_PREFIX,
+    type ShopwareSetupMacroName,
+    type StaticObjectMarkerEntry,
+} from './macros';
 import { RESERVED_HELPER_NAMES, VUE_BUILTIN_MACRO_NAMES, getWrongModeWalkChecks } from './macro-registry';
 
 /**
@@ -164,25 +169,21 @@ function assertReservedMacroNames(bindings: NamedBinding[], scriptOffset: number
  * Ensures exposed names refer to local runtime bindings, not imports or missing names.
  */
 function assertStaticObjectEntries(
-    localNames: string[],
+    entries: StaticObjectMarkerEntry[],
     runtimeBindingNames: Set<string>,
     importedBindings: Set<string>,
-    scriptOffset: number,
     macroName: ShopwareSetupMacroName,
 ): void {
-    localNames.forEach((localName) => {
-        if (importedBindings.has(localName)) {
+    entries.forEach(({ name, position }) => {
+        if (importedBindings.has(name)) {
             throw new ShopwareSetupTransformError(
-                `Imported binding "${localName}" cannot be exposed with ${macroName}().`,
-                scriptOffset,
+                `Imported binding "${name}" cannot be exposed with ${macroName}().`,
+                position,
             );
         }
 
-        if (!runtimeBindingNames.has(localName)) {
-            throw new ShopwareSetupTransformError(
-                `${macroName}() references unknown local binding "${localName}".`,
-                scriptOffset,
-            );
+        if (!runtimeBindingNames.has(name)) {
+            throw new ShopwareSetupTransformError(`${macroName}() references unknown local binding "${name}".`, position);
         }
     });
 }

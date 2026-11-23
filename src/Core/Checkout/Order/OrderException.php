@@ -27,6 +27,8 @@ class OrderException extends HttpException
     final public const ORDER_MISSING_ORDER_NUMBER_CODE = 'CHECKOUT__ORDER_MISSING_ORDER_NUMBER';
     final public const ORDER_MISSING_TRANSACTIONS_CODE = 'CHECKOUT__ORDER_MISSING_TRANSACTIONS';
     final public const ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_NOT_FOUND';
+    final public const ORDER_ORDER_TRANSACTION_CAPTURE_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_CAPTURE_NOT_FOUND';
+    final public const ORDER_ORDER_TRANSACTION_CAPTURE_REFUND_NOT_FOUND_CODE = 'CHECKOUT__ORDER_ORDER_TRANSACTION_CAPTURE_REFUND_NOT_FOUND';
     final public const ORDER_PAYMENT_METHOD_UNAVAILABLE = 'CHECKOUT__ORDER_PAYMENT_METHOD_NOT_AVAILABLE';
     final public const ORDER_ORDER_ALREADY_PAID_CODE = 'CHECKOUT__ORDER_ORDER_ALREADY_PAID';
     final public const ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION_CODE = 'CHECKOUT__ORDER_CAN_NOT_RECALCULATE_LIVE_VERSION';
@@ -42,6 +44,7 @@ class OrderException extends HttpException
     final public const ASSOCIATION_NOT_FOUND = 'CHECKOUT__ORDER_ASSOCIATION_NOT_FOUND';
     final public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     final public const STATE_MACHINE_STATE_NOT_FOUND = 'SYSTEM__STATE_MACHINE_STATE_NOT_FOUND';
+    final public const ORDER_RESTORATION_FAILED = 'CHECKOUT__ORDER_RESTORATION_FAILED';
 
     public static function missingAssociation(string $association): self
     {
@@ -80,6 +83,26 @@ class OrderException extends HttpException
             self::ORDER_ORDER_TRANSACTION_NOT_FOUND_CODE,
             self::$couldNotFindMessage,
             ['entity' => 'order transaction', 'field' => 'id', 'value' => $id]
+        );
+    }
+
+    public static function orderTransactionCaptureNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_ORDER_TRANSACTION_CAPTURE_NOT_FOUND_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'order transaction capture', 'field' => 'id', 'value' => $id]
+        );
+    }
+
+    public static function orderTransactionCaptureRefundNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::ORDER_ORDER_TRANSACTION_CAPTURE_REFUND_NOT_FOUND_CODE,
+            self::$couldNotFindMessage,
+            ['entity' => 'order transaction capture refund', 'field' => 'id', 'value' => $id]
         );
     }
 
@@ -269,6 +292,17 @@ class OrderException extends HttpException
                 'place' => $technicalPlaceName,
                 'stateMachine' => $stateMachineName,
             ]
+        );
+    }
+
+    public static function orderRestorationFailed(string $orderId, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::ORDER_RESTORATION_FAILED,
+            'Order with id "{{ orderId }}" could not be restored.',
+            ['orderId' => $orderId],
+            $previous
         );
     }
 }

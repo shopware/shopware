@@ -350,8 +350,7 @@ class EntityLayoutContextFactoryTest extends TestCase
      */
     private function createRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<ProductContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(ProductContentLayoutCollection::class, []);
 
         return $repository;
     }

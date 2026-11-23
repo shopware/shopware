@@ -17,6 +17,6 @@
   },
   "diff_path": "diff.patch",
   "files": [
-    "src/Administration/Resources/app/administration/src/module/sw-product/snippet/en-GB.json"
+    "src/Administration/Resources/app/administration/src/module/sw-product/snippet/en.json"
   ]
 }

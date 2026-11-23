@@ -12,7 +12,6 @@ use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutCollection;
 use Shopware\Storefront\ContentSystem\HeaderContentLayout\HeaderContentLayoutEntity;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -31,17 +30,12 @@ class EntityLayoutResolverTest extends TestCase
         $this->resolver = new EntityLayoutResolver();
     }
 
-    #[TestDox('builds placeholder values from entity id field and scalar query parameters, ignoring non-scalar parameters')]
-    public function testResolvePlaceholdersMergesEntityIdWithScalarQueryParameters(): void
+    #[TestDox('builds the entity id placeholder from the entity id field')]
+    public function testResolvePlaceholdersBuildsTheEntityIdPlaceholder(): void
     {
-        $request = new Request(['color' => 'red', 'tags' => ['a', 'b']]);
+        $result = $this->resolver->resolvePlaceholders('productId', 'product-id-1');
 
-        $result = $this->resolver->resolvePlaceholders('productId', 'product-id-1', $request);
-
-        static::assertSame(
-            ['productId' => 'product-id-1', 'color' => 'red'],
-            $result->all()
-        );
+        static::assertSame(['productId' => 'product-id-1'], $result->all());
     }
 
     #[TestDox('returns layout ID when assignment exists')]
@@ -75,8 +69,7 @@ class EntityLayoutResolverTest extends TestCase
      */
     private function createRepository(HeaderContentLayoutEntity ...$entities): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([$entities]);
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, [$entities]);
 
         return $repository;
     }

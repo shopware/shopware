@@ -58,7 +58,8 @@ class DeleteAdminFilesAfterBuildCommandTest extends TestCase
     public function testSnippetDirectoriesAreNeverDeleted(): void
     {
         $snippetDirectories = $this->findSnippetDirectories();
-        static::assertNotEmpty(
+        static::assertNotCount(
+            0,
             $snippetDirectories,
             'The administration components must ship at least one snippet directory, otherwise this test proves nothing.'
         );

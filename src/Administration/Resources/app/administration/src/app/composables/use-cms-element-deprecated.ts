@@ -70,22 +70,17 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
             set(element, 'config', {});
         }
 
-        Object.entries(config).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                const path = `config.${key}`;
+        Object.entries(config).forEach(([key, value]) => {
+            const path = `config.${key}`;
 
-                if (has(element, path)) {
-                    return;
-                }
+            if (has(element, path)) {
+                return;
+            }
 
-                const newValue: unknown = cloneDeep(get(element, `translated.${path}`, value));
+            const newValue: unknown = cloneDeep(get(element, `translated.${path}`, value));
 
-                set(element, path, newValue);
-            },
-        );
+            set(element, path, newValue);
+        });
     }
 
     function applyContentOverride(): void {
@@ -102,14 +97,9 @@ export default function useCmsElementDeprecated(options: UseCmsElementDeprecated
             return;
         }
 
-        Object.entries(overrideConfig).forEach(
-            ([
-                key,
-                value,
-            ]) => {
-                set(element, `config.${key}`, cloneDeep(value));
-            },
-        );
+        Object.entries(overrideConfig).forEach(([key, value]) => {
+            set(element, `config.${key}`, cloneDeep(value));
+        });
     }
 
     function initElementData(elementName: string): void {

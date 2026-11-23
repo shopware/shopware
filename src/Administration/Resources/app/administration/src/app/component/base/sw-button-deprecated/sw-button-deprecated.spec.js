@@ -199,9 +199,7 @@ describe('components/base/sw-button-deprecated', () => {
                         'router-link': true,
                         'sw-loader': true,
                     },
-                    plugins: [
-                        router,
-                    ],
+                    plugins: [router],
                     mocks: {
                         $router: router,
                     },

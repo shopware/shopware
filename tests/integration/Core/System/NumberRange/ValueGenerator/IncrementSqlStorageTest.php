@@ -207,7 +207,7 @@ class IncrementSqlStorageTest extends TestCase
             Uuid::randomHex() => 5,
         ];
 
-        static::assertEmpty($this->storage->list());
+        static::assertCount(0, $this->storage->list());
 
         foreach ($states as $id => $value) {
             $this->storage->set($id, $value);

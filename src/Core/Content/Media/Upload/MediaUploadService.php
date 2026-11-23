@@ -6,6 +6,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Event\MediaUploadedEvent;
 use Shopware\Core\Content\Media\File\FileFetcher;
+use Shopware\Core\Content\Media\File\FileNameValidator;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\FileUrlValidatorInterface;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -13,6 +14,7 @@ use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Content\Media\Thumbnail\ExternalThumbnailCollection;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -36,6 +38,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 #[Package('discovery')]
 readonly class MediaUploadService
 {
+    private FileNameValidator $fileNameValidator;
+
     /**
      * @internal
      *
@@ -54,7 +58,9 @@ readonly class MediaUploadService
         private FileUrlValidatorInterface $fileUrlValidator,
         private TrustedUrlResolver $trustedUrlResolver,
         private bool $enableUrlValidation = true,
+        private float $externalLinkTimeout = 0.0,
     ) {
+        $this->fileNameValidator = new FileNameValidator();
     }
 
     /**
@@ -145,6 +151,15 @@ readonly class MediaUploadService
         MediaUploadParameters $params = new MediaUploadParameters()
     ): string {
         $decodedUrl = urldecode($url);
+        if (!ExternalMediaUrl::isStrict($decodedUrl)) {
+            throw MediaException::invalidUrl($url);
+        }
+
+        // A name derived from the strictly validated URL has no separators, but may contain query characters the file name validator rejects
+        if ($params->fileName) {
+            $this->fileNameValidator->validateFileName($params->getFileNameWithoutExtension());
+        }
+
         $params->fillDefaultFileName(basename($decodedUrl));
 
         if ($params->mimeType === null) {
@@ -178,6 +193,14 @@ readonly class MediaUploadService
             $payload['mediaFolderId'] = $params->mediaFolderId;
         }
 
+        if ($params->title !== null) {
+            $payload['title'] = $params->title;
+        }
+
+        if ($params->alt !== null) {
+            $payload['alt'] = $params->alt;
+        }
+
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($payload): void {
             $this->mediaRepository->create([$payload], $context);
         });
@@ -200,13 +223,10 @@ readonly class MediaUploadService
         $criteria->addFilter(new EqualsFilter('mediaId', $mediaId));
         $criteria->addFilter(new PrefixFilter('path', 'http'));
 
-        $thumbnailIds = $this->thumbnailRepository->searchIds($criteria, $context)->getIds();
-
-        if ($thumbnailIds === []) {
+        $deletePayload = $this->thumbnailRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($deletePayload === []) {
             return;
         }
-
-        $deletePayload = \array_map(static fn (string $id) => ['id' => $id], $thumbnailIds);
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($deletePayload): void {
             $this->thumbnailRepository->delete($deletePayload, $context);
@@ -312,6 +332,14 @@ readonly class MediaUploadService
             $payload['mediaFolderId'] = $params->mediaFolderId;
         }
 
+        if ($params->title !== null) {
+            $payload['title'] = $params->title;
+        }
+
+        if ($params->alt !== null) {
+            $payload['alt'] = $params->alt;
+        }
+
         $this->mediaRepository->create([$payload], $context);
 
         return $id;
@@ -328,6 +356,10 @@ readonly class MediaUploadService
             'max_redirects' => 0,
             'resolve' => [$resolved->host => $resolved->ip],
         ];
+
+        if ($this->externalLinkTimeout > 0) {
+            $options['max_duration'] = $this->externalLinkTimeout;
+        }
 
         if ($this->enableUrlValidation) {
             $client = new NoPrivateNetworkHttpClient($client, TrustedUrlResolver::BLOCKED_SUBNETS);
@@ -355,6 +387,9 @@ readonly class MediaUploadService
         foreach ($thumbnails as $thumbnail) {
             $this->assertValidExternalUrl($thumbnail->url);
             $decodedUrl = urldecode($thumbnail->url);
+            if (!ExternalMediaUrl::isStrict($decodedUrl)) {
+                throw MediaException::invalidUrl($thumbnail->url);
+            }
 
             $sizeId = $this->getOrCreateThumbnailSize($thumbnail->width, $thumbnail->height, $context);
 

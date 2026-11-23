@@ -38,7 +38,9 @@
  * </sw-block>
  * ```
  */
-const blockList = require('../../blocks-list.json');
+const { components } = require('../../public-api/index.json');
+
+const coreBlocks = new Set(Object.values(components).flatMap(({ blocks }) => blocks));
 
 module.exports = {
     meta: {
@@ -84,7 +86,7 @@ module.exports = {
                     return;
                 }
 
-                const isOverridingExistingBlock = blockList.includes(nameAttribute.value.value);
+                const isOverridingExistingBlock = coreBlocks.has(nameAttribute.value.value);
                 if (!isOverridingExistingBlock) {
                     return;
                 }

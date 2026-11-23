@@ -53,10 +53,7 @@ export default function useNotificationTranslation(): {
                 'em',
                 'br',
             ],
-            ALLOWED_ATTR: [
-                'href',
-                'target',
-            ],
+            ALLOWED_ATTR: ['href', 'target'],
         });
     }
 

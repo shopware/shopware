@@ -1,5 +1,6 @@
 import template from './sw-multi-tag-select.html.twig';
 import './sw-multi-tag-select.scss';
+import '../sw-select-result-list/sw-select-result-list.scss';
 
 const { Mixin } = Shopware;
 const { get } = Shopware.Utils;
@@ -24,15 +25,9 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'add-item-is-valid',
-        'update:value',
-        'display-values-expand',
-    ],
+    emits: ['add-item-is-valid', 'update:value', 'display-values-expand'],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
@@ -142,10 +137,7 @@ export default {
                 return;
             }
 
-            this.$emit('update:value', [
-                ...this.value,
-                this.searchTerm,
-            ]);
+            this.$emit('update:value', [...this.value, this.searchTerm]);
             this.searchTerm = '';
         },
 

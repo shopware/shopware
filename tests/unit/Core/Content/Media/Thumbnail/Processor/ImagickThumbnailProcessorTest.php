@@ -100,7 +100,7 @@ class ImagickThumbnailProcessorTest extends TestCase
     {
         $binary = $this->processor->convertImage($this->image, 'image/jpeg', 80);
 
-        static::assertNotEmpty($binary);
+        static::assertNotSame('', $binary);
         $image = new \Imagick();
         $image->readImageBlob($binary);
         static::assertSame(\Imagick::INTERLACE_JPEG, $image->getImageInterlaceScheme());

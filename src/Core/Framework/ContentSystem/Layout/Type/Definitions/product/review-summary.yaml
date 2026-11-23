@@ -1,8 +1,11 @@
 meta:
   label: "Product Review Summary"
+  labelSnippet: "sw-experience-studio.elements.product-review-summary.label"
   description: "Rating summary for a product: average rating, per-star breakdown and a login prompt for guests."
   icon: "regular-star-half"
-  category: "content"
+  illustration: "product-review-summary"
+  category: "commerce"
+  priority: 59
   copilot:
     summary: "Product rating summary (average and per-star breakdown)."
     hints:
@@ -14,4 +17,5 @@ properties:
     type: Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult
     required: false
     title: "Reviews"
+    titleSnippet: "sw-experience-studio.elements.product-review-summary.reviews.title"
     description: "Hydrated review result the summary reads its rating matrix and totals from. Received as root-scoped context from the page, which loads it once, so the summary and the reviews element beside it share the same load."

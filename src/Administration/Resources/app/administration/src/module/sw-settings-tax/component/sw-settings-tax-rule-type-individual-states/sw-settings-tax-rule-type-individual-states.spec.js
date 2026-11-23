@@ -80,10 +80,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
     });
 
     it('fetches country states at creation', async () => {
-        const states = [
-            Shopware.Utils.createId(),
-            Shopware.Utils.createId(),
-        ];
+        const states = [Shopware.Utils.createId(), Shopware.Utils.createId()];
 
         const wrapper = await createWrapper({
             data: {

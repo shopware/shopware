@@ -38,7 +38,6 @@
 {% set renderThumbnailNav = showThumbnailNav and not singleMedia %}
 {% set renderNavigationArrows = showNavigationArrows and not singleMedia %}
 {% set autoColumns = not renderThumbnailNav %}
-{% set previewItemTag = showFullScreenGallery ? 'button' : 'div' %}
 
 {% set mediaGalleryCVA = cva({
     base: 'sw-media-gallery',
@@ -104,11 +103,21 @@
                         {% set previewLabel = previewLabel ~ ', ' ~ mediaItem.translated.alt|striptags %}
                     {% endif %}
 
-                    <{{ previewItemTag }}
-                        class="sw-media-gallery__preview-item"
-                        id="sw-media-gallery-preview-{{ loop.index }}"
-                        data-media-id="{{ loop.index }}"
-                        {% if showFullScreenGallery %}
+                    {% set previewMedia %}
+                        <twig:Sw:Media
+                            :media="mediaItem"
+                            :title="null"
+                            class="sw-media-gallery__preview"
+                            :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
+                            :autoplay="autoplayVideos"
+                        />
+                    {% endset %}
+
+                    {% if showFullScreenGallery %}
+                        <button
+                            class="sw-media-gallery__preview-item"
+                            id="sw-media-gallery-preview-{{ loop.index }}"
+                            data-media-id="{{ loop.index }}"
                             type="button"
                             data-bs-toggle="modal"
                             data-bs-target="#{{ lightboxId }}"
@@ -116,16 +125,18 @@
                             aria-label="{{ previewLabel }}"
                             aria-haspopup="dialog"
                             aria-controls="{{ lightboxId }}"
-                        {% endif %}
-                    >
-                        <twig:Sw:Media 
-                            :media="mediaItem"
-                            :title="null"
-                            class="sw-media-gallery__preview"
-                            :itemprop="useSchemaMarkup ? ('image' ~ (loop.first ? ' primaryImageOfPage' : '')) : null"
-                            :autoplay="autoplayVideos"
-                        />
-                    </{{ previewItemTag }}>
+                        >
+                            {{ previewMedia }}
+                        </button>
+                    {% else %}
+                        <div
+                            class="sw-media-gallery__preview-item"
+                            id="sw-media-gallery-preview-{{ loop.index }}"
+                            data-media-id="{{ loop.index }}"
+                        >
+                            {{ previewMedia }}
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
 

@@ -32,9 +32,11 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -106,7 +108,8 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('domainId', $result);
 
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -124,7 +127,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testRegisterEventWithCustomerRules(): void
@@ -143,7 +146,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -159,7 +162,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         static::assertNotNull($ruleIds, 'Register event was not dispatched');
         static::assertContains($ids->get('rule'), $ruleIds, 'Context was not reloaded');
@@ -191,7 +194,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -250,7 +253,8 @@ class RegisterRouteTest extends TestCase
         if ($expectedStatus === 200) {
             static::assertSame('customer', $response['apiAlias']);
             static::assertArrayNotHasKey('errors', $response);
-            static::assertNotEmpty($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertIsString($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             $browser->request(
                 'POST',
@@ -267,9 +271,9 @@ class RegisterRouteTest extends TestCase
             $response = $browser->getResponse();
 
             $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-            static::assertNotEmpty($contextToken);
+            static::assertNotSame('', $contextToken);
         } else {
-            static::assertNotEmpty($response['errors']);
+            static::assertNotCount(0, $response['errors']);
             static::assertSame('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
         }
     }
@@ -289,9 +293,11 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($contextToken);
+        static::assertNotSame('', $contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         $this->browser
             ->request(
@@ -322,6 +328,12 @@ class RegisterRouteTest extends TestCase
             ],
         ]);
 
+        $this->systemConfigService->set(
+            'core.loginRegistration.doubleOptInRegistration',
+            true,
+            $this->ids->get('sales-channel-3')
+        );
+
         $browser->request(
             'POST',
             '/store-api/account/register',
@@ -337,24 +349,6 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertArrayNotHasKey('errors', $response);
-        static::assertNotEmpty($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
-
-        $browser->request(
-            'POST',
-            '/store-api/account/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => 'teg-reg@example.com',
-                'password' => '12345678',
-            ], \JSON_THROW_ON_ERROR)
-        );
-
-        $response = $browser->getResponse();
-
-        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
     }
 
     /**
@@ -371,6 +365,72 @@ class RegisterRouteTest extends TestCase
         yield 'domain with double trailing slash is normalized' => [
             ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
         ];
+    }
+
+    public function testRegistrationOnSalesChannelWithoutDomains(): void
+    {
+        $browser = $this->createSalesChannelBrowserWithoutDomains();
+
+        $browser->request(
+            'POST',
+            '/store-api/account/register',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($this->getRegistrationData('https://headless.example.com'), \JSON_THROW_ON_ERROR)
+        );
+
+        $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertIsString($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testRegistrationAcceptsForeignStorefrontUrlWithoutDoubleOptIn(): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData('http://my-evil-page'), \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertSame('customer', $response['apiAlias']);
+    }
+
+    public function testRegistrationRejectsForeignStorefrontUrlWithDoubleOptIn(): void
+    {
+        $this->systemConfigService->set(
+            'core.loginRegistration.doubleOptInRegistration',
+            true,
+            $this->ids->get('sales-channel')
+        );
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($this->getRegistrationData('http://my-evil-page'), \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/storefrontUrl', $response['errors'][0]['source']['pointer']);
     }
 
     public function testDoubleOptin(): void
@@ -410,7 +470,7 @@ class RegisterRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         } else {
             static::assertSame(
@@ -459,7 +519,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testDoubleOptinContextReloadForEvents(): void
@@ -478,7 +538,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -513,10 +573,7 @@ class RegisterRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
         $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerConfirmRegisterUrlEvent::class,
             static function (CustomerConfirmRegisterUrlEvent $event): void {
                 $event->setConfirmUrl($event->getConfirmUrl());
@@ -524,8 +581,7 @@ class RegisterRouteTest extends TestCase
         );
 
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerDoubleOptInRegistrationEvent::class,
             static function (CustomerDoubleOptInRegistrationEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -773,7 +829,7 @@ class RegisterRouteTest extends TestCase
     {
         $accountTypes = static::getContainer()->getParameter('customer.account_types');
         static::assertIsArray($accountTypes);
-        static::assertNotEmpty($accountTypes);
+        static::assertNotCount(0, $accountTypes);
         $accountType = $accountTypes[array_rand($accountTypes)];
 
         $additionalData = [
@@ -801,7 +857,8 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($accountType, $response['accountType']);
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -819,7 +876,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testRegistrationWithWrongAccountType(): void
@@ -858,6 +915,38 @@ class RegisterRouteTest extends TestCase
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
+    public function testRegistrationRequiresBirthdayWhenConfigured(): void
+    {
+        $this->systemConfigService->set('core.loginRegistration.showBirthdayField', true);
+        $this->systemConfigService->set('core.loginRegistration.birthdayFieldRequired', true);
+
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['birthdayDay'], $registrationData['birthdayMonth'], $registrationData['birthdayYear']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $codesByPointer = array_column(
+            array_map(static fn (array $error): array => ['pointer' => $error['source']['pointer'], 'code' => $error['code']], $response['errors']),
+            'code',
+            'pointer'
+        );
+
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $codesByPointer['/birthdayDay'] ?? null);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $codesByPointer['/birthdayMonth'] ?? null);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $codesByPointer['/birthdayYear'] ?? null);
+    }
+
     public function testRegistrationWithoutAccountTypeIsEmptyString(): void
     {
         $additionalData = [
@@ -881,7 +970,8 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
 
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -899,7 +989,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testRegistrationWithoutAccountTypeFallbackToDefaultValue(): void
@@ -922,7 +1012,8 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
 
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -940,7 +1031,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testRegistrationCommercialAccountWithVatIds(): void
@@ -971,7 +1062,8 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertSame(['DE123456789'], $response['vatIds']);
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -989,7 +1081,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testRegistrationCommercialAccountWithVatIdsIsEmpty(): void
@@ -1020,8 +1112,9 @@ class RegisterRouteTest extends TestCase
             static::assertArrayHasKey('errors', $response);
         } else {
             static::assertSame('customer', $response['apiAlias']);
-            static::assertEmpty($response['vatIds']);
-            static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertCount(0, $response['vatIds']);
+            static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             $this->browser
                 ->request(
@@ -1039,7 +1132,7 @@ class RegisterRouteTest extends TestCase
             $response = $this->browser->getResponse();
 
             $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-            static::assertNotEmpty($contextToken);
+            static::assertNotSame('', $contextToken);
         }
     }
 
@@ -1152,7 +1245,8 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -1170,7 +1264,74 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
+    }
+
+    public function testRegistrationBusinessAccountWithVatIdsIsNormalizedBeforeMatchingRegex(): void
+    {
+        static::getContainer()->get(Connection::class)
+            ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                'de 123456789',
+            ],
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertSame(['DE123456789'], $response['vatIds']);
+    }
+
+    public function testRegistrationBusinessAccountWithScalarVatIdsReturnsValidationError(): void
+    {
+        static::getContainer()->get(Connection::class)
+            ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => 'abc',
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
     }
 
     public function testRegistrationCommercialAccountWithDifferentCommercialAddress(): void
@@ -1233,7 +1394,8 @@ class RegisterRouteTest extends TestCase
         static::assertSame('Test Department 1', $addressesDepartment[0]);
         static::assertSame('Test Department 2', $addressesDepartment[1]);
 
-        static::assertNotEmpty($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -1251,7 +1413,7 @@ class RegisterRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
     }
 
     public function testRegistrationCommercialAccountWithDifferentCommercialAddressButEmptyCompany(): void
@@ -1374,7 +1536,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
     }
 
@@ -1398,7 +1560,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::INVALID_TYPE_ERROR', $response['errors'][0]['code']);
         static::assertSame('associative_array', $response['errors'][0]['meta']['parameters']['{{ type }}']);
         static::assertSame('/billingAddress', $response['errors'][0]['source']['pointer']);
@@ -1423,7 +1585,7 @@ class RegisterRouteTest extends TestCase
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($response['errors']);
+        static::assertNotCount(0, $response['errors']);
         static::assertSame('VIOLATION::AT_LEAST_ONE_OF_ERROR', $response['errors'][0]['code']);
         static::assertSame('/shippingAddress', $response['errors'][0]['source']['pointer']);
     }
@@ -1563,6 +1725,104 @@ class RegisterRouteTest extends TestCase
         static::assertSame('VIOLATION::TOO_LONG_ERROR', $error['code']);
         static::assertSame('/password', $error['source']['pointer']);
         static::assertSame(':PASSWORD_IS_TOO_LONG', $error['detail']);
+    }
+
+    public function testRegisterWithHtmlInFirstName(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['firstName'] = '<John';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+
+        $error = $response['errors'][0];
+
+        static::assertSame('VIOLATION::CONTAINS_HTML_ERROR', $error['code']);
+        static::assertSame('/firstName', $error['source']['pointer']);
+    }
+
+    public function testRegisterWithHtmlInBillingAddressStreet(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['billingAddress']['street'] = '<Main';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+
+        $error = $response['errors'][0];
+
+        static::assertSame('VIOLATION::CONTAINS_HTML_ERROR', $error['code']);
+        static::assertSame('/billingAddress/street', $error['source']['pointer']);
+    }
+
+    public function testRegisterWithLessThanSignThatDoesNotOpenATag(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['firstName'] = 'Jo <3';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertSame('Jo <3', $response['firstName']);
+    }
+
+    private function createSalesChannelBrowserWithoutDomains(): KernelBrowser
+    {
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('headless-sales-channel'),
+            'domains' => [
+                [
+                    'id' => $this->ids->create('headless-domain'),
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://headless.example.com',
+                ],
+            ],
+        ]);
+
+        $this->addCountriesToSalesChannel([], $this->ids->get('headless-sales-channel'));
+
+        /** @var EntityRepository<SalesChannelDomainCollection> $domainRepository */
+        $domainRepository = static::getContainer()->get('sales_channel_domain.repository');
+        $domainRepository->delete([['id' => $this->ids->get('headless-domain')]], Context::createDefaultContext());
+
+        return $browser;
     }
 
     /**

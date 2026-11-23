@@ -15,16 +15,14 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -32,7 +30,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class InstallAppCommandTest extends TestCase
 {
-    use EventDispatcherBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const RECOVERY_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
@@ -193,9 +190,7 @@ class InstallAppCommandTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $installedEvents = 0;
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function () use (&$installedEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function () use (&$installedEvents): void {
             ++$installedEvents;
         });
 
@@ -246,14 +241,27 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('App installation of invalidWebhooks failed due: ', $commandTester->getDisplay());
     }
 
-    public function testInstallInvalidAppWithNoValidate(): void
+    public function testAFailingValidationErrorIsReportedAndFailsTheCommand(): void
     {
         $commandTester = new CommandTester($this->createCommand(__DIR__ . '/../Manifest/_fixtures'));
         $commandTester->setInputs(['yes', 'yes']);
-        $commandTester->execute(['name' => 'invalidWebhooks', '--no-validate' => true]);
+
+        // The non-hookable tax.written webhook is only reported; the missing permissions refuse.
+        $commandTester->execute(['name' => 'invalidWebhooks']);
+
+        static::assertSame(1, $commandTester->getStatusCode());
+        static::assertStringContainsString('App installation of invalidWebhooks failed due', $commandTester->getDisplay());
+        static::assertStringContainsString('order:read', $commandTester->getDisplay());
+    }
+
+    public function testAValidationNoticeDoesNotStopAnInstall(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures/validationFailure'));
+        $commandTester->setInputs(['yes', 'yes']);
+        $commandTester->execute(['name' => 'validationFailure']);
 
         static::assertSame(0, $commandTester->getStatusCode());
-        static::assertStringContainsString('App invalidWebhooks has been successfully installed.', $commandTester->getDisplay());
+        static::assertStringContainsString('App validationFailure has been successfully installed.', $commandTester->getDisplay());
     }
 
     public function testInstallMultipleAppsAtOnceForced(): void
@@ -320,8 +328,7 @@ class InstallAppCommandTest extends TestCase
         return new InstallAppCommand(
             new AppLoader($appFolder, new NullLogger()),
             static::getContainer()->get(AppLifecycle::class),
-            new AppPrinter($this->appRepository),
-            static::getContainer()->get(ManifestValidator::class)
+            new AppPrinter($this->appRepository)
         );
     }
 }

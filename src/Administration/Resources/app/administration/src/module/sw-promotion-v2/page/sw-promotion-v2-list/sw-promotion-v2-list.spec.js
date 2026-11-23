@@ -99,10 +99,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable editing of entries when privilege is set', async () => {
-        global.activeAclRoles = [
-            'promotion.viewer',
-            'promotion.editor',
-        ];
+        global.activeAclRoles = ['promotion.viewer', 'promotion.editor'];
 
         const wrapper = await createWrapper();
 
@@ -121,11 +118,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
     });
 
     it('should enable deletion of entries when privilege is set', async () => {
-        global.activeAclRoles = [
-            'promotion.viewer',
-            'promotion.editor',
-            'promotion.deleter',
-        ];
+        global.activeAclRoles = ['promotion.viewer', 'promotion.editor', 'promotion.deleter'];
 
         const wrapper = await createWrapper();
 
@@ -150,7 +143,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -172,7 +165,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -198,7 +191,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -223,7 +216,7 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });
@@ -261,8 +254,6 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
                     individualCodePattern: '',
                     individualCodes: null,
                     active: false,
-                    orderCount: 0,
-                    ordersPerCustomerCount: null,
                 },
             },
             Shopware.Context.api,

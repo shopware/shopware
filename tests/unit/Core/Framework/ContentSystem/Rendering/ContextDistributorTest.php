@@ -112,7 +112,9 @@ class ContextDistributorTest extends TestCase
 
         $deliveries = $this->distributor()->distribute($parent, ['product' => 'product-data'], $children);
 
-        static::assertTrue($deliveries[0]->isEmpty());
+        static::assertSame([], $deliveries[0]->context);
+        static::assertSame([], $deliveries[0]->distributionReferencedKeys);
+        static::assertSame([], $deliveries[0]->mappingFallbackKeys);
     }
 
     #[TestDox('returns one delivery per child, carrying that child id, even when it received nothing')]

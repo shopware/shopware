@@ -33,23 +33,20 @@ class CreatePageCommandTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var StaticEntityRepository<ProductCollection> */
-        $productRepository = new StaticEntityRepository([
+        $productRepository = StaticEntityRepository::of(ProductCollection::class, [
             [
                 'product-id-1',
                 'product-id-2',
             ],
         ], new ProductDefinition());
 
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [
             [
                 'category-id-1',
             ],
         ], new CategoryDefinition());
 
-        /** @var StaticEntityRepository<MediaCollection> */
-        $mediaRepository = new StaticEntityRepository([
+        $mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
             [
                 'media-id-1',
             ],
@@ -80,7 +77,7 @@ class CreatePageCommandTest extends TestCase
         static::assertCount(4, $cmsPage['blocks']);
 
         // no deleted cms pages
-        static::assertEmpty($this->cmsPageRepository->deletes);
+        static::assertCount(0, $this->cmsPageRepository->deletes);
 
         static::assertSame(0, $commandTester->getStatusCode());
     }

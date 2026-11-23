@@ -19,6 +19,7 @@ use Shopware\Core\Framework\MessageQueue\Telemetry\MessageGroupResolver;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessageQueueTelemetrySubscriber;
 use Shopware\Core\Framework\MessageQueue\Telemetry\MessengerQueueDepthCollector;
 use Shopware\Core\Framework\MessageQueue\Telemetry\WorkerMessageTimingHelper;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
 use Shopware\Core\Framework\Telemetry\Metrics\Meter;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
@@ -43,10 +44,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('shopware.increment.gateway.registry'),
             service(StatsService::class),
+            service('logger'),
         ])
         ->tag('kernel.event_subscriber');
 
-    $services->set(MessageGroupResolver::class);
+    $services->set(MessageGroupResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     $services->set(WorkerMessageTimingHelper::class);
 

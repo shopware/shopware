@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Template;
 
+use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -12,11 +13,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 
 /**
  * Renders a document Twig template under the order's locale, translator and sales-channel context.
  *
- * Auto-injects `order`, `documentNumber`, `rootDir` and `context` into the template scope.
+ * Auto-injects `order`, `documentNumber`, `rootDir`, `context` and `extensions` into the template scope.
  * Renderers pass only the view path, the {@see RenderInput} and any format-specific extras
  * (e.g. an HTML pagination counter or PDF configuration).
  *
@@ -27,9 +30,10 @@ final readonly class DocumentTemplateRenderer
 {
     public function __construct(
         private TemplateFinder $templateFinder,
-        private TwigEnvironment $twig,
+        private Environment $twig,
         private AbstractTranslator $translator,
         private AbstractSalesChannelContextFactory $contextFactory,
+        private EventDispatcherInterface $eventDispatcher,
         private string $rootDir,
     ) {
     }
@@ -72,14 +76,23 @@ final readonly class DocumentTemplateRenderer
             $context,
         );
 
+        $parameterEvent = new DocumentTemplateRendererParameterEvent($parameters);
+        $this->eventDispatcher->dispatch($parameterEvent);
+        $parameters['extensions'] = $parameterEvent->getExtensions();
+
         try {
             $this->templateFinder->reset();
+            $template = $this->templateFinder->find($view);
 
-            return $this->twig->renderWithTimezoneOverride(
-                $this->templateFinder->find($view),
-                $parameters,
-                $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
-            );
+            if ($this->twig instanceof TwigEnvironment) {
+                return $this->twig->renderWithTimezoneOverride(
+                    $template,
+                    $parameters,
+                    $salesChannelContext->getSalesChannel()->getBusinessTimeZone(),
+                );
+            }
+
+            return $this->twig->render($template, $parameters);
         } catch (\Throwable $exception) {
             throw DocumentV2Exception::templateRenderFailed($view, $exception);
         } finally {

@@ -5,7 +5,9 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Validation\Error;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Validation\Error\ContentSystemElementTypeSchemaError;
+use Shopware\Core\Framework\App\Validation\Error\Severity;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -20,14 +22,9 @@ class ContentSystemElementTypeSchemaErrorTest extends TestCase
     {
         $error = new ContentSystemElementTypeSchemaError('/path/to/types', 'YAML syntax invalid');
 
+        static::assertSame(AppException::VALIDATION_FAILED, $error->getErrorCode());
+        static::assertSame([], $error->getParameters());
         static::assertSame('Invalid element type schema in "/path/to/types": YAML syntax invalid', $error->getMessage());
-    }
-
-    #[TestDox('returns correct message key')]
-    public function testReturnsCorrectMessageKey(): void
-    {
-        $error = new ContentSystemElementTypeSchemaError('file.yaml', 'reason');
-
-        static::assertSame('manifest-invalid-element-type-schema', $error->getMessageKey());
+        static::assertSame(Severity::Fail, $error->getSeverity());
     }
 }

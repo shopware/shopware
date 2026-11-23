@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\DTO\Service;
 use Shopware\Core\Service\Event\NewServicesInstalledEvent;
 use Shopware\Core\Service\Message\InstallServicesMessage;
-use Shopware\Core\Service\Message\UpdateServiceMessage;
 use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -31,23 +30,32 @@ class AllServiceInstaller
     }
 
     /**
-     * Converges the shop toward the registry: discovers services that are not yet installed and hands
-     * each one to ServiceLifecycle, and schedules an update for every already-installed service still
-     * listed in the registry so it reaches the registry's latest revision.
-     * It should only be called from a higher-level, 'state'-aware class: Shopware\Core\Service\LifecycleManager.
-     *
      * @return array<string> The newly installed services
      */
     public function reconcile(Context $context): array
     {
         $existingServices = $this->serviceStorage->findAll($context);
-        $registryServices = $this->serviceRegistryClient->getAll();
+        $activeServices = $this->serviceRegistryClient->getActive();
 
-        $installedServices = $this->installNewServices($existingServices, $registryServices, $context);
+        $installedServices = $this->installNewServices($existingServices, $activeServices, $context);
 
-        $this->scheduleUpdates($existingServices, $registryServices);
+        $this->updateServices($existingServices, $activeServices, $context);
+
+        $this->uninstallRetiredServices($existingServices, $context);
+
+        if ($installedServices !== []) {
+            $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
+        }
 
         return $installedServices;
+    }
+
+    /**
+     * Uninstalls only what the registry explicitly lists as retired, never a service merely missing from its list.
+     */
+    public function uninstallRetired(Context $context): void
+    {
+        $this->uninstallRetiredServices($this->serviceStorage->findAll($context), $context);
     }
 
     public function scheduleInstall(): void
@@ -72,44 +80,57 @@ class AllServiceInstaller
                     $installedServices[] = $entry->name;
                 }
             } catch (\Throwable $e) {
-                $this->logger->warning(\sprintf('Cannot install service "%s" because of error: "%s"', $entry->name, $e->getMessage()));
+                $this->logger->warning('Cannot install service', ['service' => $entry->name, 'exception' => $e]);
             }
-        }
-
-        if ($installedServices !== []) {
-            $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
         }
 
         return $installedServices;
     }
 
     /**
-     * The update is idempotent (ServiceLifecycle::update no-ops when the installed revision already
-     * matches), so enqueuing for every in-registry service is safe.
-     *
      * @param list<Service> $existingServices
      * @param array<ServiceEntry> $registryServices
      */
-    private function scheduleUpdates(array $existingServices, array $registryServices): void
+    private function updateServices(array $existingServices, array $registryServices, Context $context): void
     {
         $registryServiceNames = [];
         foreach ($registryServices as $registryService) {
             $registryServiceNames[$registryService->name] = true;
         }
 
-        $scheduled = [];
         foreach ($existingServices as $service) {
-            if (isset($registryServiceNames[$service->name])) {
-                $this->messageBus->dispatch(new UpdateServiceMessage($service->name));
-                $scheduled[] = $service->name;
+            if (!isset($registryServiceNames[$service->name])) {
+                continue;
+            }
+
+            try {
+                $this->serviceLifecycle->update($service->name, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot update service', ['service' => $service->name, 'exception' => $exception]);
             }
         }
+    }
 
-        if ($scheduled !== []) {
-            $this->logger->debug('Reconcile scheduled updates for installed services', [
-                'count' => \count($scheduled),
-                'services' => $scheduled,
-            ]);
+    /**
+     * @param list<Service> $existingServices
+     */
+    private function uninstallRetiredServices(array $existingServices, Context $context): void
+    {
+        $retiredServiceNames = array_flip(array_map(
+            static fn (ServiceEntry $entry): string => $entry->name,
+            $this->serviceRegistryClient->getRetired()
+        ));
+
+        foreach ($existingServices as $service) {
+            if (!isset($retiredServiceNames[$service->name])) {
+                continue;
+            }
+
+            try {
+                $this->serviceLifecycle->uninstall($service->name, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot uninstall retired service', ['service' => $service->name, 'exception' => $exception]);
+            }
         }
     }
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -79,12 +80,21 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $self = new self(
             (float) $data['price'],
             new TaxRuleCollection($taxRules),
-            \array_key_exists('quantity', $data) ? $data['quantity'] : 1
+            $data['quantity'] ?? 1
         );
 
-        $self->setIsCalculated(\array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
+        $self->setIsCalculated($data['isCalculated'] ?? false);
         $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
         $self->setRegulationPrice(isset($data['regulationPrice']) ? (float) $data['regulationPrice'] : null);
+
+        $reference = $data['referencePriceDefinition'] ?? null;
+        if (\is_array($reference) && isset($reference['purchaseUnit'], $reference['referenceUnit'], $reference['unitName'])) {
+            $self->setReferencePriceDefinition(new ReferencePriceDefinition(
+                (float) $reference['purchaseUnit'],
+                (float) $reference['referenceUnit'],
+                (string) $reference['unitName']
+            ));
+        }
 
         return $self;
     }
@@ -114,6 +124,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     {
         return [
             'price' => [new NotBlank(), new Type('numeric')],
+            'taxRules' => [new NotNull(), new Type('array')],
             'quantity' => [new Type('int')],
             'isCalculated' => [new Type('bool')],
         ];

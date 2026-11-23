@@ -16,7 +16,6 @@ import './sw-sidebar-item.scss';
  *     Product in sidebar
  * </sw-sidebar-item>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -27,11 +26,7 @@ export default {
         },
     },
 
-    emits: [
-        'toggle-active',
-        'close-content',
-        'click',
-    ],
+    emits: ['toggle-active', 'close-content', 'click'],
 
     props: {
         title: {
@@ -55,10 +50,7 @@ export default {
             required: false,
             default: 'top',
             validator(value) {
-                return [
-                    'top',
-                    'bottom',
-                ].includes(value);
+                return ['top', 'bottom'].includes(value);
             },
         },
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\AllowList;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlist;
@@ -23,105 +24,92 @@ class McpAllowlistTest extends TestCase
         static::assertNull($allowlist->prompts);
     }
 
-    public function testFromJsonNullReturnsUnrestricted(): void
+    public function testBlockedReturnsAllEmpty(): void
     {
-        $allowlist = McpAllowlist::fromJson(null);
-
-        static::assertNull($allowlist->tools);
-        static::assertNull($allowlist->resources);
-        static::assertNull($allowlist->prompts);
-    }
-
-    public function testFromJsonEmptyStringReturnsUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::fromJson('');
-
-        static::assertNull($allowlist->tools);
-        static::assertNull($allowlist->resources);
-        static::assertNull($allowlist->prompts);
-    }
-
-    public function testFromJsonInvalidJsonReturnsUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::fromJson('not-valid-json');
-
-        static::assertNull($allowlist->tools);
-        static::assertNull($allowlist->resources);
-        static::assertNull($allowlist->prompts);
-    }
-
-    public function testFromJsonScalarReturnsUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::fromJson('"string"');
-
-        static::assertNull($allowlist->tools);
-        static::assertNull($allowlist->resources);
-        static::assertNull($allowlist->prompts);
-    }
-
-    public function testFromJsonParsesToolsList(): void
-    {
-        $allowlist = McpAllowlist::fromJson('{"tools":["tool-a","tool-b"]}');
-
-        static::assertSame(['tool-a', 'tool-b'], $allowlist->tools);
-        static::assertNull($allowlist->resources);
-        static::assertNull($allowlist->prompts);
-    }
-
-    public function testFromJsonParsesAllTypes(): void
-    {
-        $json = json_encode([
-            'tools' => ['shopware-entity-read', 'shopware-entity-search'],
-            'resources' => ['shopware://entities'],
-            'prompts' => ['shopware-context'],
-        ]);
-        static::assertNotFalse($json);
-
-        $allowlist = McpAllowlist::fromJson($json);
-
-        static::assertSame(['shopware-entity-read', 'shopware-entity-search'], $allowlist->tools);
-        static::assertSame(['shopware://entities'], $allowlist->resources);
-        static::assertSame(['shopware-context'], $allowlist->prompts);
-    }
-
-    public function testFromJsonNullKeyMeansUnrestricted(): void
-    {
-        $allowlist = McpAllowlist::fromJson('{"tools":null,"resources":["shopware://entities"]}');
-
-        static::assertNull($allowlist->tools);
-        static::assertSame(['shopware://entities'], $allowlist->resources);
-        static::assertNull($allowlist->prompts);
-    }
-
-    public function testFromJsonEmptyArrayBlocksEverything(): void
-    {
-        $allowlist = McpAllowlist::fromJson('{"tools":[],"resources":[],"prompts":[]}');
+        $allowlist = McpAllowlist::blocked();
 
         static::assertSame([], $allowlist->tools);
         static::assertSame([], $allowlist->resources);
         static::assertSame([], $allowlist->prompts);
     }
 
-    public function testFromJsonFiltersNonStringValues(): void
+    /**
+     * @param list<string> $tools
+     * @param list<string> $resources
+     * @param list<string> $prompts
+     */
+    #[DataProvider('restrictedFromJsonProvider')]
+    public function testRestrictedFromJson(?string $json, array $tools, array $resources, array $prompts): void
     {
-        $allowlist = McpAllowlist::fromJson('{"tools":["valid-tool",123,null,"another-tool"]}');
+        $allowlist = McpAllowlist::restrictedFromJson($json);
 
-        static::assertSame(['valid-tool', 'another-tool'], $allowlist->tools);
+        static::assertSame($tools, $allowlist->tools);
+        static::assertSame($resources, $allowlist->resources);
+        static::assertSame($prompts, $allowlist->prompts);
     }
 
-    public function testFromJsonInvalidTypeForListReturnsNull(): void
+    /**
+     * Anything that is not an explicit list of names resolves to an empty selection, so there is no
+     * path back to unrestricted access for a principal without the administrator bypass.
+     *
+     * @return iterable<string, array{string|null, list<string>, list<string>, list<string>}>
+     */
+    public static function restrictedFromJsonProvider(): iterable
     {
-        $allowlist = McpAllowlist::fromJson('{"tools":"not-an-array"}');
+        yield 'null column' => [null, [], [], []];
+        yield 'empty column' => ['', [], [], []];
+        yield 'unparseable JSON' => ['{not-valid-json}', [], [], []];
+        yield 'JSON that is not an object' => ['"just-a-string"', [], [], []];
+        yield 'empty object' => ['{}', [], [], []];
 
-        static::assertNull($allowlist->tools);
+        yield 'explicit selection per type' => [
+            '{"tools":["tool-a"],"resources":["shopware://entities"],"prompts":["shopware-context"]}',
+            ['tool-a'],
+            ['shopware://entities'],
+            ['shopware-context'],
+        ];
+        yield 'explicit null per type' => [
+            '{"tools":["tool-a"],"resources":null,"prompts":null}',
+            ['tool-a'],
+            [],
+            [],
+        ];
+        yield 'per-type value is a string' => ['{"tools":"not-an-array"}', [], [], []];
+
+        // json_decode(..., true) turns a JSON object into an associative array. It is not a list of
+        // capability names, so reading its values as one would hand out capabilities nobody listed.
+        yield 'per-type value is an object' => ['{"tools":{"x":"shopware-entity-delete"}}', [], [], []];
+        yield 'per-type value is a sparse list' => ['{"tools":{"0":"tool-a","2":"tool-b"}}', [], [], []];
+
+        yield 'non-string entries are dropped' => [
+            '{"tools":["valid-tool",123,null,"another-tool"]}',
+            ['valid-tool', 'another-tool'],
+            [],
+            [],
+        ];
     }
 
-    public function testFromJsonAbsentKeyReturnsNull(): void
+    /**
+     * @param array<mixed> $payload
+     */
+    #[DataProvider('payloadProvider')]
+    public function testIsValidPayload(array $payload, bool $expected): void
     {
-        $allowlist = McpAllowlist::fromJson('{}');
+        static::assertSame($expected, McpAllowlist::isValidPayload($payload));
+    }
 
-        static::assertNull($allowlist->tools);
-        static::assertNull($allowlist->resources);
-        static::assertNull($allowlist->prompts);
+    /**
+     * @return iterable<string, array{array<mixed>, bool}>
+     */
+    public static function payloadProvider(): iterable
+    {
+        yield 'every type as a list' => [['tools' => ['shopware-entity-read'], 'resources' => ['shopware://entities'], 'prompts' => []], true];
+        yield 'a subset of the types' => [['tools' => ['shopware-entity-read']], true];
+        yield 'null per type' => [['tools' => null, 'resources' => null, 'prompts' => null], true];
+        yield 'empty payload' => [[], true];
+        yield 'unknown key' => [['tools' => null, 'unknownKey' => 'value'], false];
+        yield 'string instead of a list' => [['prompts' => 'not-valid'], false];
+        yield 'object instead of a list' => [['tools' => ['x' => 'shopware-entity-delete']], false];
+        yield 'non-string names' => [['tools' => [1, 2, 3]], false];
     }
 }

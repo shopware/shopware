@@ -117,20 +117,12 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
 
                                         return Promise.resolve(response);
                                     },
-                                    search: (param) => {
-                                        let response = null;
+                                    searchIds: (param) => {
+                                        const ids = getProductSortings()
+                                            .filter((element) => element[param.filters[0].field] === param.filters[0].value)
+                                            .map((element) => element.id);
 
-                                        getProductSortings().forEach((element) => {
-                                            if (element[param.filters[0].field] === param.filters[0].value) {
-                                                response = element;
-                                            }
-                                        });
-
-                                        return Promise.resolve({
-                                            first: () => {
-                                                return response;
-                                            },
-                                        });
+                                        return Promise.resolve({ total: ids.length, data: ids });
                                     },
                                     save: (entity) => {
                                         if (entity.fail) {

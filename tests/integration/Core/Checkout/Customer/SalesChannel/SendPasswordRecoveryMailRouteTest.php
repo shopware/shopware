@@ -17,10 +17,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -70,6 +70,36 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         static::assertArrayHasKey('apiAlias', $response);
         static::assertArrayHasKey('success', $response);
         static::assertTrue($response['success']);
+    }
+
+    /**
+     * @param array<string, string> $payload
+     */
+    #[DataProvider('blankEmailProvider')]
+    public function testResetWithBlankEmailIsRejected(array $payload): void
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/recovery-password',
+                $payload + ['storefrontUrl' => 'http://localhost']
+            );
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
+        static::assertSame('/email', $response['errors'][0]['source']['pointer']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string>}>
+     */
+    public static function blankEmailProvider(): iterable
+    {
+        yield 'missing email' => [[]];
+        yield 'empty email' => [['email' => '']];
     }
 
     public function testResetWithInvalidUrl(): void
@@ -150,8 +180,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->addDomain($domainUrlTest['domain']);
 
         $caughtEvent = null;
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -182,20 +211,15 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
         $systemConfigService->set('core.loginRegistration.pwdRecoverUrl', '/test/rec/password/%%RECOVERHASH%%"');
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             }
         );
 
-        $this->addEventListener(
-            $dispatcher,
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             PasswordRecoveryUrlEvent::class,
             static function (PasswordRecoveryUrlEvent $event): void {
                 $event->setRecoveryUrl($event->getRecoveryUrl() . '/?somethingSpecial=1');

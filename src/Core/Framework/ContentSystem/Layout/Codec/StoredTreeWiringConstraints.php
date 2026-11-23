@@ -89,15 +89,22 @@ final class StoredTreeWiringConstraints
                             // NotNull beside the Choice, because Choice skips a null value: without it a
                             // present null would pass the write and then fail every decode.
                             'scope' => new Optional($this->nonNull(new Choice(choices: ConsumerScope::values()))),
+                            'source' => new Optional($this->nonNull(new Type('array'), new Collection(fields: [
+                                'type' => $this->nonNull(new NotBlank(), new Type('string')),
+                                'id' => $this->nonNull(new NotBlank(), new Type('string')),
+                                'config' => new Optional([new Type('array')]),
+                                'path' => new Optional([new NotBlank(), new Type('string')]),
+                            ], allowExtraFields: false, allowMissingFields: false))),
                         ],
                         allowExtraFields: false,
                         allowMissingFields: false
                     ),
                     new Callback($this->validateConsumerAliases(...)),
                     new Callback($this->validateConsumerScope(...)),
+                    new Callback($this->validateMappingConsumer(...)),
                 )
             ),
-            // Map-level, because both rules are judged per entry against the entry's own map key, which a
+            // Map-level, because all three rules are judged per entry against the entry's own map key, which a
             // constraint inside the `All()` above never sees.
             new Callback($this->validateConsumerBaseKeys(...)),
             new Callback($this->validateRedistributeKeyShape(...)),
@@ -248,6 +255,30 @@ final class StoredTreeWiringConstraints
         $context->buildViolation('This value must not be combined with "redistribute" set to true.')
             ->atPath('[scope]')
             ->addViolation();
+    }
+
+    private function validateMappingConsumer(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (!\is_array($value) || !isset($value['source']) || !\is_array($value['source'])) {
+            return;
+        }
+
+        $sourceType = $value['source']['type'] ?? null;
+        if (!\is_string($sourceType)) {
+            return;
+        }
+
+        if (
+            ($value['required'] ?? null) !== false
+            || ($value['redistribute'] ?? false) === true
+            || ($value['consumerAlias'] ?? null) !== null
+            || ($value['propertyAlias'] ?? null) !== null
+            || ($value['scope'] ?? null) !== ConsumerScope::Root->value
+        ) {
+            $context->buildViolation('A mapping must be optional, root-scoped, unaliased and non-redistributing.')
+                ->atPath('[source]')
+                ->addViolation();
+        }
     }
 
     /**

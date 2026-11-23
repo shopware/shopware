@@ -28,14 +28,9 @@ export const handleConsentRequest: HandleMethod<'consentRequest'> = (message, { 
     const extensionsStore = useExtensionsStore();
     const consentStore = useConsentStore();
 
-    const extension = Object.entries(extensionsStore.extensionsState).find(
-        ([
-            ,
-            ext,
-        ]) => {
-            return new URL(_event_.origin).origin === new URL(ext.baseUrl).origin;
-        },
-    );
+    const extension = Object.entries(extensionsStore.extensionsState).find(([, ext]) => {
+        return new URL(_event_.origin).origin === new URL(ext.baseUrl).origin;
+    });
 
     if (!extension) {
         return Promise.reject(new Error(`No extension found for origin: ${_event_.origin}`));

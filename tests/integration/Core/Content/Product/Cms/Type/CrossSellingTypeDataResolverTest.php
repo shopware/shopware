@@ -33,7 +33,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $mock = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $mock = static::createStub(AbstractProductCrossSellingRoute::class);
         $mock->method('load')->willReturn(
             new ProductCrossSellingRouteResponse(
                 new CrossSellingElementCollection()
@@ -50,7 +50,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -65,7 +65,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     public function testCollectWithConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, 'product123'));
@@ -83,7 +83,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -101,7 +101,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     public function testEnrichWithConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
             'product',
@@ -129,7 +129,7 @@ class CrossSellingTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyProductId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, null));

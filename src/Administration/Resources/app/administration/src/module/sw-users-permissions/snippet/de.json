@@ -29,7 +29,7 @@
                 "labelEmail": "E-Mail",
                 "placeholderEmail": "Gib eine E-Mail-Adresse ein ...",
                 "labelLanguage": "Sprache der Benutzeroberfläche",
-                "placeholderLanguage": "Wähle eine Sprache aus ...",
+                "placeholderLanguage": "Sprache auswählen ...",
                 "labelButtonInvite": "Benutzer einladen",
                 "accountPermissionHint": "Achte darauf, dass der Benutzer auch im Shopware Account zu Deinem Unternehmen gehört, damit er die Administration dieses Shops uneingeschränkt nutzen kann."
             }
@@ -42,7 +42,7 @@
             "role-grid": {
                 "labelName": "Name",
                 "labelDescription": "Beschreibung",
-                "messageEmptyTitle": "Noch keine Rollen vorhanden",
+                "messageEmptyTitle": "Noch keine Rollen",
                 "messageEmptySubline": "Erstelle Rollen, um Benutzerrechte zu organisieren.",
                 "titleModalDelete": "Rolle löschen",
                 "textModalDelete": "Möchtest Du die Rolle \"{name}\" wirklich löschen?",
@@ -51,7 +51,8 @@
                         "message": "Rolle \"{name}\" gelöscht."
                     },
                     "deleteError": {
-                        "message": "Die Rolle \"{name}\" konnte nicht gelöscht werden."
+                        "message": "Die Rolle \"{name}\" konnte nicht gelöscht werden.",
+                        "FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK": "Der Webhook {webhookNames} verwendet sie. | Die Webhooks {webhookNames} verwenden sie."
                     }
                 }
             },
@@ -171,7 +172,7 @@
                 "contextMenuEdit": "Integration bearbeiten",
                 "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
                 "addAccessKey": "Zugangsschlüssel erstellen",
-                "noAccessKeysTitle": "Keine Zugangsschlüssel vorhanden",
+                "noAccessKeysTitle": "Noch keine Zugangsschlüssel",
                 "noAccessKeysSubline": "Erstelle hier Zugangsschlüssel",
                 "labelAccessKey": "Zugangsschlüssel",
                 "labelPermissions": "Berechtigungen",
@@ -231,12 +232,12 @@
         },
         "permissions": {
             "parents": {
-                "catalogues": "Kataloge",
                 "content": "Inhalte",
                 "customers": "Kunden",
                 "marketing": "Marketing",
                 "other": "Andere",
                 "orders": "Bestellungen",
+                "products": "Produkte",
                 "settings": "Einstellungen"
             },
             "users_and_permissions": {
@@ -258,6 +259,10 @@
             },
             "orders": {
                 "label": "Bestellungen"
+            },
+            "experience_studio": {
+                "label": "Experience Studio",
+                "translator": "Layouts übersetzen"
             },
             "routes": {
                 "label": "Routen",

@@ -31,7 +31,7 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
         $validator = new ContentSystemElementTypeAppValidator($loader);
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(0, $errors->getElements());
+        static::assertCount(0, $errors);
     }
 
     #[TestDox('returns schema error when types directory contains invalid definitions')]
@@ -46,15 +46,14 @@ class ContentSystemElementTypeAppValidatorTest extends TestCase
         $validator = new ContentSystemElementTypeAppValidator($loader);
         $errors = $validator->validate($manifest, Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
+        static::assertCount(1, $errors);
 
-        $error = $errors->first();
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemElementTypeSchemaError::class, $error);
         static::assertSame(
             'Invalid element type schema in "/app/path/Resources/content-system/types": Failed to load element type from "broken.yaml": Invalid YAML syntax',
             $error->getMessage()
         );
-        static::assertSame('manifest-invalid-element-type-schema', $error->getMessageKey());
     }
 
     #[TestDox('propagates non-content-system exceptions without catching')]

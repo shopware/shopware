@@ -5,6 +5,8 @@ import './sw-order-state-change-modal-attach-documents.scss';
  * @sw-package checkout
  */
 
+const SEND_MAIL_STORAGE_KEY = 'sw-order-state-change-modal-send-mail';
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -30,7 +32,23 @@ export default {
         };
     },
 
+    watch: {
+        sendMail(value) {
+            if (value) localStorage.removeItem(SEND_MAIL_STORAGE_KEY);
+            else localStorage.setItem(SEND_MAIL_STORAGE_KEY, 'false');
+        },
+    },
+
+    mounted() {
+        this.loadSendMail();
+    },
+
     methods: {
+        loadSendMail() {
+            const stored = localStorage.getItem(SEND_MAIL_STORAGE_KEY);
+            this.sendMail = stored !== 'false';
+        },
+
         onConfirm() {
             const docIds = [];
             this.$refs.attachDocuments.documents.forEach((doc) => {

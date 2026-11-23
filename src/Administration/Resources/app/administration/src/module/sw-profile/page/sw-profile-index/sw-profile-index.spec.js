@@ -16,7 +16,12 @@ async function createWrapper(
     isSso = { isSso: false },
     saveFunction = () => Promise.resolve({}),
     loginService = { loginByUsername: () => Promise.resolve({}), logout: () => {} },
-    { featureActive = false, routeName = 'sw.profile.index.general', routerPush = jest.fn() } = {},
+    {
+        featureActive = false,
+        routeName = 'sw.profile.index.general',
+        routerPush = jest.fn(),
+        changeset = [{ changes: { id: '1337' } }],
+    } = {},
 ) {
     return mount(await wrapTestComponent('sw-profile-index', { sync: true }), {
         global: {
@@ -44,17 +49,12 @@ async function createWrapper(
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -115,9 +115,9 @@ async function createWrapper(
                                 }),
                             search: () => Promise.resolve(new EntityCollection('', '', Shopware.Context.api, null, [], 0)),
                             getSyncChangeset: () => ({
-                                changeset: [{ changes: { id: '1337' } }],
+                                changeset,
                             }),
-                            save: () => Promise.resolve(),
+                            save: saveFunction,
                         };
                     },
                 },
@@ -286,16 +286,14 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to save own user', async () => {
-        const wrapper = await createWrapper([
-            'user.update_profile',
-        ]);
+        const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
         await wrapper.setData({
             isLoading: false,
             isUserLoading: false,
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const saveButton = wrapper.find('.sw-profile__save-action');
 
@@ -442,6 +440,28 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             expect(useTheme().theme.value).toBe('dark');
             expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
             expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+                [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+            });
+        });
+
+        it('should save the theme applied by the appearance shortcut while the page is open', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            await useTheme().saveUserTheme('dark');
+            await flushPromises();
+
+            expect(wrapper.vm.userTheme).toBe('dark');
+
+            await wrapper.find('.sw-profile__save-action').trigger('click');
+            await flushPromises();
+
+            expect(useTheme().theme.value).toBe('dark');
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenNthCalledWith(2, {
                 [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
             });
         });
@@ -678,12 +698,48 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.isLoading).toBe(false);
     });
 
-    it('should show an error and not succeed when save fails (non-user:editor path)', async () => {
+    it('should skip updateUser but still save theme when the user has no changes (non-user:editor path)', async () => {
         const loginByUsername = jest.fn(() => Promise.resolve({}));
         const loginService = { loginByUsername, logout: jest.fn() };
-        const updateUser = jest.fn(() => Promise.reject(new Error('Save failed')));
+        const updateUser = jest.fn(() => Promise.resolve({}));
 
-        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService);
+        const wrapper = await createWrapper([], { isSso: false }, updateUser, loginService, { changeset: [] });
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: null,
+            user: {
+                id: '87923',
+                username: 'admin',
+                localeId: '1337',
+                email: 'foo@bar.baz',
+            },
+        });
+
+        wrapper.vm.updateCurrentUser = jest.fn(async () => {});
+        wrapper.vm.saveUserTheme = jest.fn(async () => {});
+
+        wrapper.vm.saveUser({});
+        await flushPromises();
+
+        expect(updateUser).not.toHaveBeenCalled();
+        expect(wrapper.vm.updateCurrentUser).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.saveUserTheme).toHaveBeenCalledTimes(1);
+        expect(loginByUsername).not.toHaveBeenCalled();
+        expect(wrapper.vm.isSaveSuccessful).toBe(true);
+        expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it.each([
+        [[], 'OTHER_ERROR', 'sw-profile.index.notificationSaveErrorMessage'],
+        [[], 'USER__USERNAME_NOT_UNIQUE', 'global.error-codes.USER__USERNAME_NOT_UNIQUE'],
+        [['user:editor'], 'USER__USERNAME_NOT_UNIQUE', 'global.error-codes.USER__USERNAME_NOT_UNIQUE'],
+    ])('shows the expected save error for privileges %j and code %s', async (privileges, code, message) => {
+        const loginByUsername = jest.fn(() => Promise.resolve({}));
+        const loginService = { loginByUsername, logout: jest.fn() };
+        const updateUser = jest.fn(() => Promise.reject({ response: { data: { errors: [{ code }] } } }));
+
+        const wrapper = await createWrapper(privileges, { isSso: false }, updateUser, loginService);
         await flushPromises();
 
         await wrapper.setData({
@@ -704,7 +760,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(loginByUsername).not.toHaveBeenCalled();
         expect(wrapper.vm.isSaveSuccessful).toBe(false);
         expect(wrapper.vm.isLoading).toBe(false);
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({ message });
     });
 
     it('should log out and not show a save error when re-login fails after password change (user:editor path)', async () => {

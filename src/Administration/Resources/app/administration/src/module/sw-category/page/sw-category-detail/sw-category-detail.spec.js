@@ -2,9 +2,12 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import 'src/module/sw-settings-seo/component/sw-seo-url/store';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 describe('src/module/sw-category/page/sw-category-detail', () => {
     const saveMock = jest.fn(() => Promise.resolve());
+    const updateCanonicalUrlMock = jest.fn(() => Promise.resolve());
     async function createWrapper() {
         return mount(await wrapTestComponent('sw-category-detail', { sync: true }), {
             global: {
@@ -19,11 +22,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     },
                     'sw-category-tree': {
                         template: '<div class="sw-category-tree"></div>',
-                        props: [
-                            'allowEdit',
-                            'allowCreate',
-                            'allowDelete',
-                        ],
+                        props: ['allowEdit', 'allowCreate', 'allowDelete'],
                     },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot></slot></div>',
@@ -49,6 +48,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     'sw-empty-state': true,
                 },
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     cmsService: {
                         getEntityMappingTypes: () => {},
                     },
@@ -68,7 +68,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                                 }),
                         }),
                     },
-                    seoUrlService: {},
+                    seoUrlService: { updateCanonicalUrl: updateCanonicalUrlMock },
                     systemConfigApiService: {
                         getValues: () =>
                             Promise.resolve({
@@ -81,6 +81,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     }
 
     beforeEach(() => {
+        allowDeprecation('sw-category-detail.extractSlotOverrides() is deprecated');
         global.activeAclRoles = [];
 
         Shopware.Store.unregister('cmsPage');
@@ -146,10 +147,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to create', async () => {
-        global.activeAclRoles = [
-            'category.creator',
-            'category.editor',
-        ];
+        global.activeAclRoles = ['category.creator', 'category.editor'];
 
         const wrapper = await createWrapper();
 
@@ -173,11 +171,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to delete', async () => {
-        global.activeAclRoles = [
-            'category.creator',
-            'category.editor',
-            'category.deleter',
-        ];
+        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
 
         const wrapper = await createWrapper();
 
@@ -201,11 +195,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should set default layout', async () => {
-        global.activeAclRoles = [
-            'category.creator',
-            'category.editor',
-            'category.deleter',
-        ];
+        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
 
         const wrapper = await createWrapper();
 
@@ -288,5 +278,76 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         expect(wrapper.vm.landingPageCriteria.associations.some(({ association }) => association === 'translations')).toBe(
             true,
         );
+    });
+
+    describe('saving SEO URLs', () => {
+        async function saveWithSeoUrl({ foreignKey = 'category-id', seoPathInfo, isModified }) {
+            global.activeAclRoles = ['category.editor'];
+            const wrapper = await createWrapper();
+
+            Shopware.Store.get('swCategoryDetail').category = {
+                id: 'category-id',
+                slotConfig: '',
+                navigationSalesChannels: [],
+                footerSalesChannels: [],
+                serviceSalesChannels: [],
+            };
+            await wrapper.setData({ isLoading: false });
+
+            const original = {
+                id: 'sc',
+                foreignKey,
+                salesChannelId: 'sc',
+                languageId: 'lang',
+                seoPathInfo: 'Custom/Path',
+                isModified,
+            };
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [original];
+            seoStore.seoUrlCollection = [{ ...original, seoPathInfo }];
+
+            await wrapper.get('.sw-category-detail__save-action').trigger('click');
+            await flushPromises();
+        }
+
+        beforeEach(() => {
+            updateCanonicalUrlMock.mockClear();
+            saveMock.mockClear();
+        });
+
+        afterEach(() => {
+            const seoStore = Shopware.Store.get('swSeoUrl');
+            seoStore.originalSeoUrls = [];
+            seoStore.seoUrlCollection = null;
+        });
+
+        it.each([
+            { state: 'cleared', seoPathInfo: '', originalIsModified: true, isModified: false },
+            { state: 'whitespace-only', seoPathInfo: '  ', originalIsModified: true, isModified: false },
+            { state: 'edited', seoPathInfo: 'New/Path', originalIsModified: false, isModified: true },
+        ])(
+            'should send a $state SEO URL with isModified=$isModified',
+            async ({ seoPathInfo, originalIsModified, isModified }) => {
+                await saveWithSeoUrl({ seoPathInfo, isModified: originalIsModified });
+
+                expect(updateCanonicalUrlMock).toHaveBeenCalledTimes(1);
+                expect(updateCanonicalUrlMock).toHaveBeenCalledWith(
+                    expect.objectContaining({ id: 'sc', seoPathInfo, isModified }),
+                    'lang',
+                );
+            },
+        );
+
+        it('should send SEO URLs after the category is saved', async () => {
+            await saveWithSeoUrl({ seoPathInfo: '', isModified: true });
+
+            expect(saveMock.mock.invocationCallOrder[0]).toBeLessThan(updateCanonicalUrlMock.mock.invocationCallOrder[0]);
+        });
+
+        it('should not send SEO URLs left over from another category', async () => {
+            await saveWithSeoUrl({ foreignKey: 'other-category-id', seoPathInfo: '', isModified: true });
+
+            expect(updateCanonicalUrlMock).not.toHaveBeenCalled();
+        });
     });
 });

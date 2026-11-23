@@ -42,6 +42,10 @@ class LineItemDimensionLengthRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if ($lineItem->getDeliveryInformation() === null && !\array_key_exists(LineItem::PAYLOAD_PRODUCT_TYPE, $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchLengthDimension($lineItem)) {
                 return true;
             }
@@ -78,10 +82,6 @@ class LineItemDimensionLengthRule extends Rule
      */
     private function matchLengthDimension(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         $deliveryInformation = $lineItem->getDeliveryInformation();
 
         if (!$deliveryInformation instanceof DeliveryInformation) {

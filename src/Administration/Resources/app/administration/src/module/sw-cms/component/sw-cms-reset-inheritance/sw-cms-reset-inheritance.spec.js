@@ -27,18 +27,11 @@ async function createWrapper(props = {}) {
                 stubs: {
                     'mt-icon': {
                         template: '<i class="mt-icon" :name="name"></i>',
-                        props: [
-                            'name',
-                            'size',
-                            'color',
-                        ],
+                        props: ['name', 'size', 'color'],
                     },
                     'mt-link': {
                         template: '<button class="mt-link" @click="$emit(\'click\')"><slot /></button>',
-                        props: [
-                            'variant',
-                            'as',
-                        ],
+                        props: ['variant', 'as'],
                     },
                     'sw-confirm-modal': {
                         template: `
@@ -149,7 +142,7 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
         const wrapper = await createWrapper();
 
         await wrapper.vm.onConfirm();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(contentEntity.slotConfig).toBeNull();
     });
@@ -183,7 +176,7 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
 
         wrapper.vm.resetSlotOverrides();
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(slot1.config).toStrictEqual({
             testField: { value: 'base-value' },
@@ -206,10 +199,7 @@ describe('src/module/sw-cms/component/sw-cms-reset-inheritance', () => {
         Shopware.Store.get('cmsPage').setCurrentPage({
             sections: [
                 {
-                    blocks: [
-                        { slots: [slot1] },
-                        { slots: [slot2] },
-                    ],
+                    blocks: [{ slots: [slot1] }, { slots: [slot2] }],
                 },
             ],
         });

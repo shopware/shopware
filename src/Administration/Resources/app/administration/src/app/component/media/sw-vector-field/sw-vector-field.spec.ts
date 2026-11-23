@@ -22,11 +22,7 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                             <slot name="sw-field-input" />
                         </div>
                     `,
-                    props: [
-                        'label',
-                        'description',
-                        'disabled',
-                    ],
+                    props: ['label', 'description', 'disabled'],
                 },
                 'mt-number-field': {
                     template: '<input class="mt-number-field" :value="modelValue" @input="onInput" @change="onChange" />',
@@ -36,10 +32,7 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                         'step',
                         'size',
                     ],
-                    emits: [
-                        'update:model-value',
-                        'input-change',
-                    ],
+                    emits: ['update:model-value', 'input-change'],
                     methods: {
                         onInput(e: Event) {
                             const val = Number((e.target as HTMLInputElement).value);
@@ -53,10 +46,7 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
                 },
                 'mt-icon': {
                     template: '<span class="mt-icon" @click="$emit(\'click\')" />',
-                    props: [
-                        'name',
-                        'size',
-                    ],
+                    props: ['name', 'size'],
                 },
             },
             directives: {
@@ -69,11 +59,6 @@ async function createWrapper(overrides: Record<string, unknown> = {}): Promise<a
 
 describe('src/app/component/media/sw-vector-field', () => {
     describe('Component Initialization', () => {
-        it('should mount successfully', async () => {
-            const wrapper = await createWrapper();
-            expect(wrapper.exists()).toBe(true);
-        });
-
         it('should initialize currentValue from value prop', async () => {
             const wrapper = await createWrapper({
                 props: { value: { x: 1, y: 2, z: 3 } },
@@ -443,7 +428,7 @@ describe('src/app/component/media/sw-vector-field', () => {
             });
 
             wrapper.vm.onLinkToggle();
-            await wrapper.vm.$nextTick();
+            await flushPromises();
 
             expect(wrapper.vm.linked).toBe(true);
         });

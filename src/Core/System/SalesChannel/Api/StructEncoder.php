@@ -5,6 +5,8 @@ namespace Shopware\Core\System\SalesChannel\Api;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
@@ -93,8 +95,10 @@ class StructEncoder implements ResetInterface
             if (isset($data['elements'])) {
                 $entities = [];
 
+                $elements = \array_values($struct->getEntities()->getElements());
+
                 foreach (\array_values($data['elements']) as $index => $value) {
-                    $entity = $struct->getEntities()->getAt($index);
+                    $entity = $elements[$index] ?? null;
                     if (!$entity instanceof Struct) {
                         throw SalesChannelException::encodingInvalidStructException(\sprintf('Entity at index "%d" is not a valid struct', $index));
                     }
@@ -113,8 +117,9 @@ class StructEncoder implements ResetInterface
 
         if ($struct instanceof Collection) {
             $new = [];
+            $elements = \array_values($struct->getElements());
             foreach ($data as $index => $value) {
-                $structItem = $struct->getAt($index);
+                $structItem = $elements[$index] ?? null;
                 if ($structItem instanceof Struct) {
                     $new[] = $this->encodeStruct($structItem, $fields, $value);
                 }
@@ -135,6 +140,8 @@ class StructEncoder implements ResetInterface
     {
         $alias ??= $struct->getApiAlias();
 
+        $vars = $struct->getVars();
+
         foreach ($data as $property => $value) {
             if ($property === 'customFields' && $value === []) {
                 $data[$property] = $value = new \stdClass();
@@ -150,7 +157,13 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            if (!$this->isAllowed($alias, (string) $property, $fields) && !$fields->hasNested($alias, (string) $property)) {
+            if ($this->isProtected($alias, (string) $property)) {
+                unset($data[$property]);
+
+                continue;
+            }
+
+            if (!$fields->isAllowed($alias, (string) $property) && !$fields->hasNested($alias, (string) $property)) {
                 unset($data[$property]);
 
                 continue;
@@ -161,8 +174,8 @@ class StructEncoder implements ResetInterface
             }
 
             $object = $value;
-            if (\array_key_exists($property, $struct->getVars())) {
-                $object = $struct->getVars()[$property];
+            if (\array_key_exists($property, $vars)) {
+                $object = $vars[$property];
             }
 
             if ($object instanceof Struct) {
@@ -171,19 +184,14 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            // simple array of structs case
-            if ($this->isStructArray($object)) {
-                $array = [];
-                foreach ($object as $key => $item) {
-                    $array[$key] = $this->encodeStruct($item, $fields, $value[$key]);
-                }
-
-                $data[$property] = $array;
-
-                continue;
-            }
-
-            $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), (string) $property, $value, $fields);
+            $data[$property] = $this->encodeNestedArray(
+                $struct->getApiAlias(),
+                (string) $property,
+                $value,
+                $fields,
+                \is_array($object) ? $object : null,
+                $this->getEntityName($struct)
+            );
         }
 
         $data['apiAlias'] = $struct->getApiAlias();
@@ -193,17 +201,21 @@ class StructEncoder implements ResetInterface
 
     /**
      * @param array<string, mixed> $data
+     * @param array<int|string, mixed>|null $objects
+     * @param string|null $entityName entity whose field flags and custom field sets apply to the data, defaults to `$alias`
      *
      * @return array<string, mixed>
      */
-    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields): array
+    private function encodeNestedArray(string $alias, string $prefix, array $data, ResponseFields $fields, ?array $objects = null, ?string $entityName = null): array
     {
+        $entityName ??= $alias;
+
         if ($prefix === 'customFields' && $data) {
             if ($this->blockedCustomFields === null) {
                 $this->fetchBlockedCustomFields();
             }
 
-            $blockedFields = $this->blockedCustomFields[$alias] ?? [];
+            $blockedFields = $this->blockedCustomFields[$entityName] ?? [];
             $blockedFields = \array_merge($blockedFields, $this->blockedCustomFields['global'] ?? []);
             if ($blockedFields) {
                 $blockedFieldsLookup = \array_flip($blockedFields);
@@ -214,17 +226,32 @@ class StructEncoder implements ResetInterface
             }
         }
 
-        if ($prefix !== 'translated' && !$fields->hasNested($alias, $prefix)) {
-            return $data;
-        }
+        $hasNestedFields = $prefix === 'translated' || $fields->hasNested($alias, $prefix);
 
         foreach ($data as $property => &$value) {
+            $object = $objects[$property] ?? null;
+            if ($object instanceof Struct) {
+                $value = $this->encodeStruct($object, $fields, $value);
+
+                continue;
+            }
+
+            if (!$hasNestedFields) {
+                continue;
+            }
+
             if ($property === 'customFields' && $value === []) {
                 $value = new \stdClass();
             }
 
             $accessor = $prefix . '.' . $property;
             if ($prefix === 'translated') {
+                if ($this->isProtected($entityName, (string) $property)) {
+                    unset($data[$property]);
+
+                    continue;
+                }
+
                 $accessor = $property;
             }
 
@@ -238,12 +265,24 @@ class StructEncoder implements ResetInterface
                 continue;
             }
 
-            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields);
+            $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields, \is_array($object) ? $object : null, $entityName);
         }
 
         unset($value);
 
         return $data;
+    }
+
+    /**
+     * Breadcrumbs carry the translated values of their category, so the category definition applies to them
+     */
+    private function getEntityName(Struct $struct): string
+    {
+        if ($struct instanceof Breadcrumb) {
+            return CategoryDefinition::ENTITY_NAME;
+        }
+
+        return $struct->getApiAlias();
     }
 
     private function isAllowed(string $type, string $property, ResponseFields $fields): bool
@@ -349,20 +388,6 @@ class StructEncoder implements ResetInterface
         }
 
         return $value;
-    }
-
-    private function isStructArray(mixed $object): bool
-    {
-        if (!\is_array($object)) {
-            return false;
-        }
-
-        $values = array_values($object);
-        if (!isset($values[0])) {
-            return false;
-        }
-
-        return $values[0] instanceof Struct;
     }
 
     private function fetchBlockedCustomFields(): void

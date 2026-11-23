@@ -62,11 +62,7 @@ function componentTag(name: string): string {
 /** The binding Vue's `resolveSetupReference()` selects for a template asset, in lookup order. */
 function setupBinding(name: string, bindings: Readonly<Record<string, unknown>>): string | null {
     const camelName = camelize(name);
-    const candidates = [
-        name,
-        camelName,
-        capitalize(camelName),
-    ];
+    const candidates = [name, camelName, capitalize(camelName)];
     const dotIndex = name.indexOf('.');
 
     if (dotIndex > 0) {
@@ -88,7 +84,7 @@ function componentBindingCollision(
     unboundComponents: string[],
     boundComponents: string[],
     bindings: Readonly<Record<string, unknown>>,
-    imports: Readonly<Record<string, { isFromSetup: boolean }>>,
+    imports: Readonly<Partial<Record<string, { isFromSetup: boolean }>>>,
 ): string | null {
     const remaining = new Set(boundComponents.map(componentTag));
 
@@ -123,7 +119,7 @@ function directiveBindingCollision(
     unboundDirectives: string[],
     boundDirectives: string[],
     bindings: Readonly<Record<string, unknown>>,
-    imports: Readonly<Record<string, { isFromSetup: boolean }>>,
+    imports: Readonly<Partial<Record<string, { isFromSetup: boolean }>>>,
 ): string | null {
     const remaining = new Set(boundDirectives);
 

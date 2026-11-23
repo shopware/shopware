@@ -79,11 +79,7 @@ function createEntityCollectionMock(entityName, items = []) {
 function repositoryMock(entityName, entitiesWithResults) {
     return {
         search: jest.fn((_, api) => {
-            const entities = [
-                { name: 'Foo' },
-                { name: 'Bar' },
-                { name: 'Baz' },
-            ];
+            const entities = [{ name: 'Foo' }, { name: 'Bar' }, { name: 'Baz' }];
 
             if (api.inheritance) {
                 entities.push({ name: 'Inherited' });
@@ -94,6 +90,11 @@ function repositoryMock(entityName, entitiesWithResults) {
             }
 
             return Promise.resolve(createEntityCollectionMock(entityName));
+        }),
+        searchIds: jest.fn(() => {
+            const total = entitiesWithResults.includes(entityName) ? 3 : 0;
+
+            return Promise.resolve({ total, data: [] });
         }),
         sync: jest.fn(() => Promise.resolve()),
         save: jest.fn(() => Promise.resolve()),
@@ -535,8 +536,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         const assignedTotalCriteria = new Criteria(1, 1);
         assignedTotalCriteria.addFilter(Criteria.not('AND', testConfig.product.criteria().filters));
 
-        const criterias = repository.search.mock.calls.map((call) => call[0]);
-        const apis = repository.search.mock.calls.map((call) => call[1]);
+        const criterias = repository.searchIds.mock.calls.map((call) => call[0]);
+        const apis = repository.searchIds.mock.calls.map((call) => call[1]);
 
         expect(criterias).toContainEqual(assignedTotalCriteria);
         expect(apis).toContainEqual(defaultApi ? Context.api : testConfig.product.api());
@@ -591,6 +592,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
         const repositoryOverwriteMock = {
             search: jest.fn(() => Promise.resolve(createEntityCollectionMock('product', [itemMock]))),
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: [] })),
             save: jest.fn(() => Promise.resolve()),
         };
 
@@ -616,7 +618,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             type === 'one-to-many' ? { ...itemMock, test: null } : expect.any(Object),
             defaultApi ? Context.api : testConfig.product.api(),
         );
-        expect(repositoryOverwriteMock.search).toHaveBeenCalledTimes(2);
+        expect(repositoryOverwriteMock.search).toHaveBeenCalledTimes(1);
+        expect(repositoryOverwriteMock.searchIds).toHaveBeenCalledTimes(1);
     });
 
     it('should delete multiple items', async () => {
@@ -640,6 +643,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
         const repositoryOverwriteMock = {
             search: jest.fn(() => Promise.resolve(createEntityCollectionMock('product', [itemMock]))),
+            searchIds: jest.fn(() => Promise.resolve({ total: 1, data: [] })),
             save: jest.fn(() => Promise.resolve()),
         };
 
@@ -658,7 +662,8 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-entity-listing__confirm-bulk-delete-modal').exists()).toBe(false);
 
         expect(repositoryOverwriteMock.save).toHaveBeenCalledTimes(1);
-        expect(repositoryOverwriteMock.search).toHaveBeenCalledTimes(4);
+        expect(repositoryOverwriteMock.search).toHaveBeenCalledTimes(2);
+        expect(repositoryOverwriteMock.searchIds).toHaveBeenCalledTimes(2);
     });
 
     it.each([
@@ -714,17 +719,12 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             {
                 name: 'with manufacturerId',
                 item: { id: 'p-1', name: 'Product', manufacturerId: 'mfr-1' },
-                expectedLinks: [
-                    'sw.manufacturer.detail',
-                    'sw.product.detail.prices',
-                ],
+                expectedLinks: ['sw.manufacturer.detail', 'sw.product.detail.prices'],
             },
             {
                 name: 'without manufacturerId',
                 item: { id: 'p-1', name: 'Product' },
-                expectedLinks: [
-                    'sw.product.detail.prices',
-                ],
+                expectedLinks: ['sw.product.detail.prices'],
             },
         ])('should render router-link for manufacturer column $name', async ({ item, expectedLinks }) => {
             const configWithManufacturerColumn = {
@@ -756,6 +756,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
 
             const wrapper = await createWrapper(defaultProps, ['product'], {
                 search: jest.fn(() => Promise.resolve(createEntityCollectionMock('product', [item]))),
+                searchIds: jest.fn(() => Promise.resolve({ total: 1, data: [] })),
             });
             await flushPromises();
 

@@ -12,13 +12,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
@@ -172,11 +168,7 @@ export default {
             return Shopware.Service('repositoryFactory')
                 .create('number_range')
                 .searchIds(criteria, Shopware.Context.api, {
-                    cacheKey: [
-                        'shared-data',
-                        'number-range-ids',
-                        'product',
-                    ],
+                    cacheKey: ['shared-data', 'number-range-ids', 'product'],
                     ttl: 5 * 60 * 1000,
                 })
                 .then((numberRangeIds) => {

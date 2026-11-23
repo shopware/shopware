@@ -157,6 +157,9 @@ class ProductListingComponentTest extends TestCase
         $sorting->setKey('price-asc');
         $sorting->setTranslated(['label' => 'Price ascending']);
 
-        return ProductListingResult::fromSearchResult($result, new ProductSortingCollection([$sorting]));
+        $listing = ProductListingResult::createFrom($result);
+        $listing->setAvailableSortings(new ProductSortingCollection([$sorting]));
+
+        return $listing;
     }
 }

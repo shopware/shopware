@@ -1,4 +1,5 @@
 import type { AppModuleDefinition } from 'src/core/service/api/app-modules.service';
+import useTheme from 'src/app/composables/use-theme';
 import template from './sw-extension-app-module-page.html.twig';
 import './sw-extension-app-module-page.scss';
 
@@ -11,10 +12,7 @@ const { Context } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'extensionSdkService',
-    ],
+    inject: ['acl', 'extensionSdkService'],
 
     props: {
         appName: {
@@ -112,12 +110,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const moduleLabel = this.translate(this.moduleDefinition.label);
 
-            return [
-                appLabel,
-                moduleLabel,
-            ]
-                .filter((part) => !!part)
-                .join(' - ');
+            return [appLabel, moduleLabel].filter((part) => !!part).join(' - ');
         },
 
         entryPoint(): string | null {
@@ -182,10 +175,11 @@ export default Shopware.Component.wrapComponentConfig({
 
                 // The source already contains old query params remove them
                 const source = new URL(sourceString);
-                const sourceWithoutParams = source.origin + source.pathname;
+                const unsignedSource = new URL(source.origin + source.pathname);
+                unsignedSource.searchParams.append('color-scheme', useTheme().resolvedTheme.value);
 
                 this.extensionSdkService
-                    .signIframeSrc(this.appName, sourceWithoutParams)
+                    .signIframeSrc(this.appName, unsignedSource.toString())
                     .then((response) => {
                         const uri = (response as { uri?: string })?.uri;
 

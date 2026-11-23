@@ -14,15 +14,9 @@ const { isArray } = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('theme'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('theme'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -144,6 +138,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         hasMoreThanOneTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.hasMoreThanOneTab is deprecated and will be removed.',
+            );
+
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
@@ -167,15 +166,10 @@ export default {
         tabItems() {
             const entries = Object.entries(this.orderedTabs);
 
-            return entries.map(
-                ([
-                    name,
-                    tab,
-                ]) => ({
-                    name,
-                    label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
-                }),
-            );
+            return entries.map(([name, tab]) => ({
+                name,
+                label: this.getTabLabel(tab.labelSnippetKey, tab.label) || name,
+            }));
         },
     },
 
@@ -297,6 +291,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.openMediaSidebar() is deprecated and will be removed.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 
@@ -334,6 +333,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         restoreMediaInheritance(currentValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.restoreMediaInheritance() is deprecated and will be removed without replacement.',
+            );
+
             return currentValue;
         },
 
@@ -588,10 +592,7 @@ export default {
 
             // Remove unused fields from changeset (defined by not set at all in the themeConfig or the type is not set)
             const filtered = {};
-            for (const [
-                key,
-                value,
-            ] of Object.entries(allValues)) {
+            for (const [key, value] of Object.entries(allValues)) {
                 if (
                     this.themeConfig[key] === undefined ||
                     this.themeConfig[key].type === undefined ||
@@ -655,10 +656,7 @@ export default {
                 this.activeTab = activeTab;
             }
 
-            for (const [
-                key,
-                item,
-            ] of Object.entries(this.$refs)) {
+            for (const [key, item] of Object.entries(this.$refs)) {
                 if (key.startsWith('wrapper-') && item !== undefined && isArray(item) && item[0] !== undefined) {
                     this.inheritanceChanged[key] = item[0].isInherited;
                 }
@@ -671,27 +669,17 @@ export default {
 
         getThemeCompatibleSalesChannels() {
             const criteria = new Criteria();
-            criteria.addAssociation('type');
-            criteria.addFilter(
-                Criteria.equalsAny('type.name', [
-                    'Storefront',
-                    'Headless',
-                ]),
-            );
+            criteria.addFilter(Criteria.equalsAny('type.name', ['Storefront', 'Headless']));
 
-            return this.salesChannelRepository.search(criteria).then((searchResult) => {
-                return searchResult.getIds();
+            return this.salesChannelRepository.searchIds(criteria).then(({ data }) => {
+                return data;
             });
         },
 
         getSalesChannelsWithTheme() {
             const criteria = new Criteria();
             criteria.addAssociation('themes');
-            criteria.addFilter(
-                Criteria.not('or', [
-                    Criteria.equals('themes.id', null),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('themes.id', null)]));
 
             return this.salesChannelRepository.search(criteria).then((searchResult) => {
                 return searchResult;
@@ -705,10 +693,7 @@ export default {
 
             return this.defaultFolderRepository
                 .search(criteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        this.themeRepository.schema.entity,
-                    ],
+                    cacheKey: ['media-default-folder', this.themeRepository.schema.entity],
                 })
                 .then((searchResult) => {
                     const defaultFolder = searchResult.first();
@@ -750,12 +735,7 @@ export default {
 
             Object.assign(config, config.custom);
 
-            if (
-                [
-                    'sw-single-select',
-                    'sw-multi-select',
-                ].includes(config.custom?.componentName)
-            ) {
+            if (['sw-single-select', 'sw-multi-select'].includes(config.custom?.componentName)) {
                 config.custom.options.forEach((option) => {
                     /** @deprecated tag:v6.8.0 - Theme config labels will be removed entirely, use `this.$t` instead */
                     option.label = this.getSnippet(option.labelSnippetKey, option.label);
@@ -792,6 +772,7 @@ export default {
          * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
          * @returns {string}
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, a used fallback triggers the deprecation itself
         getSnippet(key, fallback = '') {
             for (let themeName of this.inheritedSnippetPrefixes) {
                 const snippetKey = `sw-theme.${themeName}.${key}`;
@@ -802,23 +783,20 @@ export default {
                 }
             }
 
-            console.warn(
-                `[DEPRECATED] v6.8.0 - Theme config labels & helpTexts will be removed entirely, use snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
-            );
+            if (fallback) {
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    'V6_8_0_0',
+                    `Theme config labels & helpTexts are deprecated and will be removed entirely in v6.8.0.0. Please use the snippet translation for key "sw-theme.${this.inheritedSnippetPrefixes[0]}.${key}" instead.`,
+                );
+            }
 
             return fallback;
         },
 
         isFieldHandlingLabelAndHelpText(field) {
             return (
-                [
-                    'switch',
-                    'checkbox',
-                ].includes(field.type) ||
-                [
-                    'sw-switch-field',
-                    'sw-checkbox-field',
-                ].includes(field.custom?.componentName)
+                ['switch', 'checkbox'].includes(field.type) ||
+                ['sw-switch-field', 'sw-checkbox-field'].includes(field.custom?.componentName)
             );
         },
 
@@ -873,6 +851,7 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, getSnippet triggers it when a fallback is used
         getTabLabel(key, fallback = '') {
             const snippet = this.getSnippet(key, fallback);
             if (snippet.length >= 1) {

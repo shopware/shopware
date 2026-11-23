@@ -48,6 +48,7 @@ use Shopware\Core\Content\Flow\Dispatching\Storer\LanguageStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MailStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\MessageStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\NewsletterRecipientStorer;
+use Shopware\Core\Content\Flow\Dispatching\Storer\OrderDeliveryStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\OrderTransactionStorer;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ProductStorer;
@@ -63,6 +64,7 @@ use Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScopeBuilder;
 use Shopware\Core\Content\Flow\Rule\OrderCreatedByAdminRule;
 use Shopware\Core\Content\Flow\Rule\OrderCustomFieldRule;
+use Shopware\Core\Content\Flow\Rule\OrderDaysSincePlacedRule;
 use Shopware\Core\Content\Flow\Rule\OrderDeliveryStatusRule;
 use Shopware\Core\Content\Flow\Rule\OrderDocumentTypeRule;
 use Shopware\Core\Content\Flow\Rule\OrderDocumentTypeSentRule;
@@ -77,21 +79,21 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerRecoveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\NewsletterRecipientProvider;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderDeliveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\UserRecoveryProvider;
 use Shopware\Core\Content\Shared\MailFlow\DocumentResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
-use Shopware\Core\Framework\Telemetry\Metrics\Meter;
+use Shopware\Core\Framework\Telemetry\Metrics\Config\LabelMappingRegistry;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Framework\Validation\DataValidator;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -150,7 +152,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderConverter::class),
             service(DeliveryBuilder::class),
             tagged_iterator('shopware.cart.collector'),
-        ]);
+        ])
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(FlowExecutor::class)
         ->public()
@@ -166,11 +169,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(FlowMetricsInstrumentor::class),
         ]);
 
-    $services->set(TriggerGroupResolver::class);
+    $services->set(TriggerGroupResolver::class)
+        ->args([
+            service(LabelMappingRegistry::class),
+        ]);
 
     $services->set(FlowMetricsInstrumentor::class)
         ->args([
-            service(Meter::class),
+            service(Telemetry::class),
             service(TriggerGroupResolver::class),
         ]);
 
@@ -223,9 +229,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('logger'),
             service('event_dispatcher'),
             service('mail_template_type.repository'),
-            service(Translator::class),
             service(Connection::class),
-            service(LanguageLocaleCodeProvider::class),
             service(JsonEntityEncoder::class),
             service(DefinitionInstanceRegistry::class),
             param('shopware.mail.update_mail_variables_on_send'),
@@ -407,6 +411,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('flow.storer');
 
+    $services->set(OrderDeliveryStorer::class)
+        ->args([
+            service(OrderDeliveryProvider::class),
+        ])
+        ->tag('flow.storer');
+
     $services->set(NewsletterRecipientStorer::class)
         ->args([
             service('newsletter_recipient.repository'),
@@ -443,6 +453,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('shopware.rule.definition');
 
     $services->set(OrderTrackingCodeRule::class)
+        ->tag('shopware.rule.definition');
+
+    $services->set(OrderDaysSincePlacedRule::class)
         ->tag('shopware.rule.definition');
 
     $services->set(OrderDeliveryStatusRule::class)

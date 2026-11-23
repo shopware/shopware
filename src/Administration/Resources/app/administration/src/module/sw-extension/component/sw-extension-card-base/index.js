@@ -20,16 +20,9 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'shopwareExtensionService',
-        'extensionStoreActionService',
-        'cacheApiService',
-    ],
+    inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
 
-    emits: [
-        'update-list',
-        'select-change',
-    ],
+    emits: ['update-list', 'select-change'],
 
     mixins: ['sw-extension-error'],
 
@@ -75,6 +68,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-extension-card-base.dateFilter is deprecated. Will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -147,12 +145,12 @@ export default {
             return Filter.getByName('asset');
         },
 
-        isRemovable() {
-            if (this.extension.installedAt === null && this.extension.source === 'local') {
-                return true;
-            }
+        hasDeletableFiles() {
+            return this.extension.allowRemove === true;
+        },
 
-            return false;
+        isRemovable() {
+            return this.extension.installedAt === null && this.hasDeletableFiles;
         },
 
         isUninstallable() {
@@ -161,6 +159,10 @@ export default {
             }
 
             return false;
+        },
+
+        hasActiveSubscription() {
+            return this.extension.storeLicense?.variant === 'rent' && this.extension.storeLicense.expirationDate === null;
         },
 
         isUpdateable() {
@@ -268,12 +270,7 @@ export default {
                 return true;
             }
 
-            if (
-                !this.extensionManagementDisabled &&
-                this.extension.storeLicense &&
-                this.extension.storeLicense.variant === 'rent' &&
-                this.extension.storeLicense.expirationDate === null
-            ) {
+            if (!this.extensionManagementDisabled && this.hasActiveSubscription) {
                 return true;
             }
 
@@ -443,7 +440,7 @@ export default {
                 await this.shopwareExtensionService.removeExtension(this.extension.name, this.extension.type, removeData);
                 this.extension.active = false;
             } catch (e) {
-                this.showStoreError(e);
+                this.showExtensionErrors(e);
             } finally {
                 this.isLoading = false;
             }

@@ -3,7 +3,6 @@ title: Migrate container configuration from XML to PHP
 date: 2026-07-30
 area: framework
 tags: [dependency-injection, container, routing, symfony, plugins]
-status: accepted
 ---
 
 ## Context

@@ -6,6 +6,7 @@ import useConsentStore from 'src/core/consent/consent.store';
 import { GatewayClient } from 'src/core/telemetry/product-analytics/gateway-client';
 import createConsentEventHandler from 'src/core/telemetry/product-analytics/consent-event-handler';
 import createTelemetryEventHandler from 'src/core/telemetry/product-analytics/telemetry-event-handler';
+import { trackSessionSnapshot } from 'src/app/service/product-analytics-session-snapshot.service';
 
 /**
  * @private
@@ -56,6 +57,7 @@ export default async function (): Promise<WatchHandle | undefined> {
                 Shopware.Utils.EventBus.on('telemetry', eventHandlers);
 
                 Shopware.Telemetry.identify();
+                void Shopware.Application.viewInitialized.then(trackSessionSnapshot);
             } else {
                 if (!gatewayClient.isInitialized) {
                     return;

@@ -22,6 +22,7 @@ async function createWrapper(privileges = []) {
 
                             return privileges.includes(identifier);
                         },
+                        isAdmin: () => !!Shopware.Store.get('session').currentUser?.admin,
                     },
                     loginService: {},
                     userService: {

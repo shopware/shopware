@@ -101,7 +101,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $seeded->setHash(Hasher::hash(json_encode($normalized, \JSON_THROW_ON_ERROR)));
         $seeded->setSchema($normalized);
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemBindingSpecificationCollection([$seeded]),
         ]);
@@ -126,7 +125,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $existing = $this->buildExistingEntity('binding-media', 'media-picker');
         $existing->setHash('outdated-hash-value');
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemBindingSpecificationCollection([$existing]),
         ]);
@@ -150,7 +148,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     {
         $obsolete = $this->buildExistingEntity('binding-old', 'legacy-binding');
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemBindingSpecificationCollection([$obsolete]),
         ]);
@@ -170,7 +167,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
 
         $orphan = $this->buildExistingEntity('binding-orphan', 'orphan-binding');
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([new AppContentSystemBindingSpecificationCollection([$orphan])]);
 
         $registry = static::createMock(AbstractContentSystemBindingSpecificationRegistry::class);
@@ -187,8 +183,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
     #[TestDox('queries the stored bindings for the installing app by app id')]
     public function testQueriesExistingBindingsByAppId(): void
     {
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
-        $repo = new StaticEntityRepository([
+        $repo = StaticEntityRepository::of(AppContentSystemBindingSpecificationCollection::class, [
             function (Criteria $criteria, Context $context): AppContentSystemBindingSpecificationCollection {
                 static::assertCount(1, $criteria->getFilters());
                 $filter = $criteria->getFilters()[0];
@@ -214,7 +209,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         // them together.
         $obsolete = $this->buildExistingEntity('binding-old', 'legacy-binding');
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemBindingSpecificationCollection([$obsolete]),
         ]);
@@ -294,7 +288,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $loader = static::createStub(YamlBindingSpecificationLoader::class);
         $loader->method('loadDtosFromTypeDirectory')->willReturn([]);
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([new AppContentSystemBindingSpecificationCollection()]);
 
         $persister = $this->buildPersister($repo, loader: $loader);
@@ -312,8 +305,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $loader = static::createStub(YamlBindingSpecificationLoader::class);
         $loader->method('loadDtosFromTypeDirectory')->willThrowException($loaderException);
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
-        $repo = new StaticEntityRepository([]);
+        $repo = StaticEntityRepository::of(AppContentSystemBindingSpecificationCollection::class, []);
 
         $persister = $this->buildPersister($repo, loader: $loader);
 
@@ -339,8 +331,7 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
         $loader = static::createMock(YamlBindingSpecificationLoader::class);
         $loader->expects($this->never())->method('loadDtosFromTypeDirectory');
 
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
-        $repo = new StaticEntityRepository([]);
+        $repo = StaticEntityRepository::of(AppContentSystemBindingSpecificationCollection::class, []);
 
         $persister = $this->buildPersister($repo, loader: $loader, typeLoader: $typeLoader);
 
@@ -577,7 +568,6 @@ class ContentSystemBindingSpecificationPersisterTest extends TestCase
      */
     private function createEmptyRepository(): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<AppContentSystemBindingSpecificationCollection> $repo */
         $repo = new StaticEntityRepository([
             new AppContentSystemBindingSpecificationCollection(),
         ]);

@@ -21,6 +21,7 @@ export default {
         'acl',
         'mediaDefaultFolderService',
         'feature',
+        'customFieldDataProviderService',
     ],
 
     mixins: [
@@ -76,11 +77,23 @@ export default {
             return this.repositoryFactory.create('media');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-manufacturer-detail.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-manufacturer-detail.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'product_manufacturer'));
 
@@ -116,11 +129,7 @@ export default {
             };
         },
 
-        ...mapPropertyErrors('manufacturer', [
-            'description',
-            'link',
-            'name',
-        ]),
+        ...mapPropertyErrors('manufacturer', ['description', 'link', 'name']),
     },
 
     watch: {
@@ -153,12 +162,9 @@ export default {
         async loadEntityData() {
             this.isLoading = true;
 
-            const [
-                manufacturerResponse,
-                customFieldResponse,
-            ] = await Promise.allSettled([
+            const [manufacturerResponse, customFieldResponse] = await Promise.allSettled([
                 this.manufacturerRepository.get(this.manufacturerId),
-                this.customFieldSetRepository.search(this.customFieldSetCriteria),
+                this.customFieldDataProviderService.getCustomFieldSets('product_manufacturer', false, null),
                 this.getMediaDefaultFolderId(),
             ]);
 
@@ -199,6 +205,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         setMediaFromSidebar(media) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-manufacturer-detail.setMediaFromSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             this.manufacturer.mediaId = media.id;
         },
 
@@ -210,6 +221,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-manufacturer-detail.openMediaSidebar() is deprecated. Will be removed without replacement.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 

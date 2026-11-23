@@ -51,7 +51,8 @@ class StorefrontRoutingTest extends TestCase
             new CoreRequestTransformer(),
             static::getContainer()->get(SeoResolver::class),
             static::getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
-            static::getContainer()->get(DomainLoader::class)
+            static::getContainer()->get(DomainLoader::class),
+            static::getContainer()->getParameter('shopware.routing.api_context_route_prefixes'),
         );
 
         $this->seoUrlReplacer = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);

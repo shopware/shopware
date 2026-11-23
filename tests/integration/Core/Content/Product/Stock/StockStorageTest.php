@@ -7,12 +7,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Events\ProductBackInStockEvent;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -27,7 +32,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -37,6 +41,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -61,6 +66,16 @@ class StockStorageTest extends TestCase
     private EntityRepository $lineItemRepository;
 
     private CartService $cartService;
+
+    /**
+     * @var list<string>
+     */
+    private array $noLongerAvailableIds = [];
+
+    /**
+     * @var list<string>
+     */
+    private array $backInStockIds = [];
 
     private AbstractSalesChannelContextFactory $contextFactory;
 
@@ -207,27 +222,189 @@ class StockStorageTest extends TestCase
         $this->assertStock(10, $product);
     }
 
-    public static function triggerProductNoLongerAvailableEventOnCreateProvider(): \Generator
+    public function testVariantAvailabilityFollowsCloseoutChangeOfParent(): void
     {
-        yield 'Closeout, no stock' => [0, true, 0];
-        yield 'Closeout, with stock' => [1, true, 1];
-        yield 'None closeout, no stock' => [0, false, 1];
-        yield 'None closeout, stock' => [1, false, 1];
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => true,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 0,
+            'isCloseout' => null,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'isCloseout' => false]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'isCloseout' => true]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
     }
 
-    #[DataProvider('triggerProductNoLongerAvailableEventOnCreateProvider')]
-    public function testTriggerProductNoLongerAvailableEventOnCreate(int $stock, bool $closeout, int $triggered): void
+    public function testVariantAvailabilityFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => true,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => null,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
+    public function testVariantWithOwnCloseoutFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => false,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => true,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
+    public static function availabilityEventsOnCreateProvider(): \Generator
+    {
+        yield 'Closeout, no stock' => [0, true, false];
+        yield 'Closeout, with stock' => [1, true, true];
+        yield 'None closeout, no stock' => [0, false, true];
+        yield 'None closeout, stock' => [1, false, true];
+    }
+
+    #[DataProvider('availabilityEventsOnCreateProvider')]
+    public function testAvailabilityEventsOnCreate(int $stock, bool $closeout, bool $backInStock): void
+    {
+        $ids = new IdsCollection();
+
+        $this->collectAvailabilityEvents();
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->price(10)
+            ->stock($stock)
+            ->closeout($closeout)
+            ->build();
+
+        $this->productRepository->create([$product], Context::createDefaultContext());
+
+        $this->assertAvailabilityEvents($ids->get('p1'), noLongerAvailable: false, backInStock: $backInStock);
+    }
+
+    public static function availabilityEventsOnAlterProvider(): \Generator
+    {
+        yield 'Closeout, not stock, after 0' => [
+            'stock' => 0,
+            'closeout' => true,
+            'after' => 0,
+            'noLongerAvailable' => false,
+            'backInStock' => false,
+        ];
+
+        yield 'Closeout, not stock, after 1' => [
+            'stock' => 0,
+            'closeout' => true,
+            'after' => 1,
+            'noLongerAvailable' => false,
+            'backInStock' => true,
+        ];
+
+        yield 'Closeout, stock, after 0' => [
+            'stock' => 1,
+            'closeout' => true,
+            'after' => 0,
+            'noLongerAvailable' => true,
+            'backInStock' => false,
+        ];
+
+        yield 'Closeout, stock, after 1' => [
+            'stock' => 1,
+            'closeout' => true,
+            'after' => 1,
+            'noLongerAvailable' => false,
+            'backInStock' => false,
+        ];
+
+        // changing stock of none closeout products should never change the availability
+        yield 'None closeout, not stock, after 0' => [
+            'stock' => 0,
+            'closeout' => false,
+            'after' => 0,
+            'noLongerAvailable' => false,
+            'backInStock' => false,
+        ];
+
+        yield 'None closeout, not stock, after 1' => [
+            'stock' => 0,
+            'closeout' => false,
+            'after' => 1,
+            'noLongerAvailable' => false,
+            'backInStock' => false,
+        ];
+
+        yield 'None closeout, stock, after 0' => [
+            'stock' => 1,
+            'closeout' => false,
+            'after' => 0,
+            'noLongerAvailable' => false,
+            'backInStock' => false,
+        ];
+
+        yield 'None closeout, stock, after 1' => [
+            'stock' => 1,
+            'closeout' => false,
+            'after' => 1,
+            'noLongerAvailable' => false,
+            'backInStock' => false,
+        ];
+    }
+
+    #[DataProvider('availabilityEventsOnAlterProvider')]
+    public function testAvailabilityEventsOnAlter(int $stock, bool $closeout, int $after, bool $noLongerAvailable, bool $backInStock): void
     {
         $ids = new IdsCollection();
 
         $context = Context::createDefaultContext();
-
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $listener = $this->createMock(CallableClass::class);
-        $listener->expects($this->exactly($triggered))->method('__invoke');
-
-        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
 
         $product = (new ProductBuilder($ids, 'p1'))
             ->price(10)
@@ -236,90 +413,12 @@ class StockStorageTest extends TestCase
             ->build();
 
         $this->productRepository->create([$product], $context);
-    }
 
-    public static function eventTriggeredOnAlterProvider(): \Generator
-    {
-        yield 'Closeout, not stock, after 0, not triggered' => [
-            'stock' => 0,
-            'closeout' => true,
-            'after' => 0,
-            'triggered' => 0,
-        ];
-
-        yield 'Closeout, not stock, after 1, triggered' => [
-            'stock' => 0,
-            'closeout' => true,
-            'after' => 1,
-            'triggered' => 1,
-        ];
-
-        yield 'Closeout, stock, after 0, triggered' => [
-            'stock' => 1,
-            'closeout' => true,
-            'after' => 0,
-            'triggered' => 1,
-        ];
-
-        yield 'Closeout, stock, after 1, not triggered' => [
-            'stock' => 1,
-            'closeout' => true,
-            'after' => 1,
-            'triggered' => 0,
-        ];
-
-        // changing stock of closeout products should never trigger the event
-        yield 'None closeout, not stock, after 0, not triggered' => [
-            'stock' => 0,
-            'closeout' => false,
-            'after' => 0,
-            'triggered' => 0,
-        ];
-
-        yield 'None closeout, not stock, after 1, not triggered' => [
-            'stock' => 0,
-            'closeout' => false,
-            'after' => 1,
-            'triggered' => 0,
-        ];
-
-        yield 'None closeout, stock, after 0, not triggered' => [
-            'stock' => 1,
-            'closeout' => false,
-            'after' => 0,
-            'triggered' => 0,
-        ];
-
-        yield 'None closeout, stock, after 1, not triggered' => [
-            'stock' => 1,
-            'closeout' => false,
-            'after' => 1,
-            'triggered' => 0,
-        ];
-    }
-
-    #[DataProvider('eventTriggeredOnAlterProvider')]
-    public function testEventTriggeredOnAlter(int $stock, bool $closeout, int $after, int $triggered): void
-    {
-        $ids = new IdsCollection();
-
-        $context = Context::createDefaultContext();
-
-        $product = (new ProductBuilder($ids, 'p1'))
-            ->price(10)
-            ->stock($stock)
-            ->closeout($closeout)
-            ->build();
-
-        $this->productRepository->create([$product], $context);
-
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $listener = $this->createMock(CallableClass::class);
-
-        $listener->expects($this->exactly($triggered))->method('__invoke');
-        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
+        $this->collectAvailabilityEvents();
 
         $this->productRepository->update([['id' => $product['id'], 'stock' => $after]], $context);
+
+        $this->assertAvailabilityEvents($ids->get('p1'), $noLongerAvailable, $backInStock);
     }
 
     public function testStockAfterOrderProduct(): void
@@ -525,6 +624,64 @@ class StockStorageTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertFalse($product->getAvailable());
         $this->assertStock(0, $product);
+    }
+
+    public function testProductLineItemWithoutProductReferenceDoesNotChangeStock(): void
+    {
+        $context = Context::createDefaultContext();
+        $productId = $this->createProduct(['stock' => 5]);
+        $orderId = $this->orderProduct($productId, 5);
+
+        $this->lineItemRepository->create([[
+            'id' => Uuid::randomHex(),
+            'orderId' => $orderId,
+            'identifier' => 'deleted-product',
+            'quantity' => 2,
+            'label' => 'Deleted product',
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'price' => new CalculatedPrice(10, 20, new CalculatedTaxCollection(), new TaxRuleCollection(), 2),
+            'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+        ]], $context);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        $this->assertStock(0, $product);
+    }
+
+    public function testRemovingTheProductReferenceOfAnOrderLineItemRestoresStock(): void
+    {
+        $context = Context::createDefaultContext();
+        $productId = $this->createProduct(['stock' => 5]);
+        $orderId = $this->orderProduct($productId, 5);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $lineItem = $this->lineItemRepository->search($criteria, $context)->getEntities()->first();
+        static::assertInstanceOf(OrderLineItemEntity::class, $lineItem);
+
+        $this->lineItemRepository->update([['id' => $lineItem->getId(), 'referencedId' => null, 'productId' => null, 'payload' => ['productNumber' => null]]], $context);
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+        $this->assertStock(5, $product);
+    }
+
+    public function testCancellingAnOrderWithAProductLineItemWithoutProductReference(): void
+    {
+        $productId = $this->createProduct(['stock' => 5]);
+        $orderId = $this->orderProduct($productId, 5);
+
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE order_line_item SET referenced_id = NULL, product_id = NULL WHERE order_id = :orderId',
+            ['orderId' => Uuid::fromHexToBytes($orderId)]
+        );
+
+        $this->transitionOrder($orderId, StateMachineTransitionActions::ACTION_CANCEL);
+
+        static::assertSame('cancelled', static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT state_machine_state.technical_name FROM `order` INNER JOIN state_machine_state ON state_machine_state.id = `order`.state_id WHERE `order`.id = :orderId AND `order`.version_id = :versionId',
+            ['orderId' => Uuid::fromHexToBytes($orderId), 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]
+        ));
     }
 
     public function testStockIsUpdatedIfOrderLineItemIsDeleted(): void
@@ -987,5 +1144,24 @@ class StockStorageTest extends TestCase
         $transitionObject = new Transition('order', $orderId, $transition, 'stateId');
 
         $registry->transition($transitionObject, Context::createDefaultContext());
+    }
+
+    private function collectAvailabilityEvents(): void
+    {
+        $hooks = EventHookDispatcher::fromContainer(static::getContainer());
+
+        $hooks->on(ProductNoLongerAvailableEvent::class, function (ProductNoLongerAvailableEvent $event): void {
+            $this->noLongerAvailableIds = [...$this->noLongerAvailableIds, ...$event->getIds()];
+        });
+
+        $hooks->on(ProductBackInStockEvent::class, function (ProductBackInStockEvent $event): void {
+            $this->backInStockIds = [...$this->backInStockIds, ...$event->getIds()];
+        });
+    }
+
+    private function assertAvailabilityEvents(string $productId, bool $noLongerAvailable, bool $backInStock): void
+    {
+        static::assertSame($noLongerAvailable ? [$productId] : [], $this->noLongerAvailableIds);
+        static::assertSame($backInStock ? [$productId] : [], $this->backInStockIds);
     }
 }

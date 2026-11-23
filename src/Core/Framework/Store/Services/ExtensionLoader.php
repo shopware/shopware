@@ -87,7 +87,7 @@ class ExtensionLoader
     {
         $data = [];
         foreach ($collection as $app) {
-            $data[] = $this->prepareAppData($context, $app);
+            $data[] = $this->prepareAppData($app);
         }
 
         $registeredApps = $this->loadFromListingArray($context, $data);
@@ -108,6 +108,7 @@ class ExtensionLoader
                 $registeredApp = $registeredApps->get($name);
 
                 $registeredApp->setIsTheme($app->isTheme());
+                $registeredApp->setAllowRemove($app->isAllowRemove());
 
                 // Set version of local app to registered app if newer
                 if (version_compare((string) $app->getVersion(), (string) $registeredApp->getVersion(), '>')) {
@@ -190,6 +191,7 @@ class ExtensionLoader
             'updatedAt' => $plugin->getUpgradedAt(),
             'allowDisable' => true,
             'allowUpdate' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
+            'allowRemove' => !$plugin->getManagedByComposer() || $plugin->isLocatedInCustomPluginDirectory(),
             'managedByComposer' => $plugin->getManagedByComposer(),
             'inAppPurchases' => $this->inAppPurchase->getByExtension($plugin->getName()),
         ];
@@ -231,6 +233,7 @@ class ExtensionLoader
                 'active' => false,
                 'type' => ExtensionStruct::EXTENSION_TYPE_APP,
                 'allowUpdate' => !$app->isManagedByComposer(),
+                'allowRemove' => !$app->isManagedByComposer(),
                 'managedByComposer' => $app->isManagedByComposer(),
                 'isTheme' => is_file($app->getPath() . '/Resources/theme.json'),
                 'privacyPolicyExtension' => isset($appArray['privacyPolicyExtensions']) ? $this->getTranslationFromArray($appArray['privacyPolicyExtensions'], $language, 'en-GB') : '',
@@ -259,7 +262,7 @@ class ExtensionLoader
     /**
      * @return array<string, mixed>
      */
-    private function prepareAppData(Context $context, AppEntity $app): array
+    private function prepareAppData(AppEntity $app): array
     {
         $data = [
             'localId' => $app->getId(),

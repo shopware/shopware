@@ -42,17 +42,14 @@ final class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $context = Context::createCLIContext();
-
         $criteria = $this->getExpiredNewsletterRecipientCriteria();
-        $emailRecipient = $this->newsletterRecipientRepository->searchIds($criteria, $context);
 
-        if ($emailRecipient->getIds() === []) {
+        $emailRecipients = $this->newsletterRecipientRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($emailRecipients === []) {
             return;
         }
 
-        $emailRecipientIds = array_map(static fn ($id) => ['id' => $id], $emailRecipient->getIds());
-
-        $this->newsletterRecipientRepository->delete($emailRecipientIds, $context);
+        $this->newsletterRecipientRepository->delete($emailRecipients, $context);
     }
 
     private function getExpiredNewsletterRecipientCriteria(): Criteria

@@ -1,5 +1,6 @@
 import template from './sw-media-folder-item.html.twig';
 import './sw-media-folder-item.scss';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 const { Application, Mixin, Context } = Shopware;
 const { warn } = Shopware.Utils.debug;
@@ -23,9 +24,7 @@ export default {
         'media-folder-move',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         isParent: {
@@ -44,6 +43,7 @@ export default {
             lastDefaultFolderId: null,
             iconConfig: {
                 name: '',
+                color: '',
             },
         };
     },
@@ -69,6 +69,15 @@ export default {
             return 'folder-thumbnail';
         },
 
+        // Module color of a default folder while the user has module colors enabled
+        folderColor() {
+            return useModuleIconColors().enabled.value && this.iconConfig.color ? this.iconConfig.color : undefined;
+        },
+
+        moduleIconColor() {
+            return this.folderColor ?? 'var(--color-icon-secondary-default)';
+        },
+
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -77,6 +86,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-media-folder-item.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },
@@ -113,6 +127,7 @@ export default {
             }
 
             this.iconConfig.name = module.manifest?.icon ?? '';
+            this.iconConfig.color = module.manifest?.color ?? '';
         },
 
         async onChangeName(updatedName, item, endInlineEdit) {

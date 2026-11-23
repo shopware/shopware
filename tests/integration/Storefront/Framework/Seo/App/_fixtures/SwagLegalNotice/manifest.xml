@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/Framework/App/Manifest/Schema/manifest-3.0.xsd">
+    <meta>
+        <name>SwagLegalNotice</name>
+        <label>Swag Legal Notice</label>
+        <description>Declares a static storefront SEO URL on the imprint path</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <storefront>
+        <seo-url name="legal-notice">
+            <path>imprint</path>
+        </seo-url>
+    </storefront>
+</manifest>

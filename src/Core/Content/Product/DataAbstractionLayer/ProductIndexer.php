@@ -102,9 +102,11 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
+        $childrenIds = $this->getChildrenIds($ids);
+
         $parentAndChildIdsToBeChunked = \array_diff(\array_unique(\array_filter(\array_merge(
             $this->getParentIds($ids),
-            $this->getChildrenIds($ids)
+            $childrenIds
         ))), $ids);
 
         if (\count($parentAndChildIdsToBeChunked) + \count($ids) < self::UPDATE_IDS_CHUNK_SIZE) {
@@ -117,6 +119,14 @@ class ProductIndexer extends EntityIndexer
         });
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
+
+        // Variants inherit `isCloseout` and `minPurchase`, so a change on the parent changes their availability as well.
+        // If none of the written products has variants, there is nothing to look up
+        $inheritedStocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['isCloseout', 'minPurchase']);
+        if ($inheritedStocks !== [] && $childrenIds !== []) {
+            $stocks = \array_unique([...$stocks, ...$this->getInheritingChildrenIds($inheritedStocks)]);
+        }
+
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
             $this->stockStorage->index(array_values($stocks), $event->getContext());
         });
@@ -290,6 +300,24 @@ class ProductIndexer extends EntityIndexer
     {
         $childrenIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return array_unique(array_filter($childrenIds));
+    }
+
+    /**
+     * Variants of the given products that inherit `isCloseout` or `minPurchase`
+     *
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
+    private function getInheritingChildrenIds(array $ids): array
+    {
+        $childrenIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids) AND (is_closeout IS NULL OR min_purchase IS NULL)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );

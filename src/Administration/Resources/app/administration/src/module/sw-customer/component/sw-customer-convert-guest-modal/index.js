@@ -16,14 +16,9 @@ export default {
 
     emits: ['modal-close'],
 
-    inject: [
-        'guestCustomerConvertService',
-        'loadCustomer',
-    ],
+    inject: ['guestCustomerConvertService', 'loadCustomer'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         customer: {
@@ -39,9 +34,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('customer', [
-            ...errorConfig['sw.customer.detail.base'].customer,
-        ]),
+        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer]),
     },
 
     methods: {

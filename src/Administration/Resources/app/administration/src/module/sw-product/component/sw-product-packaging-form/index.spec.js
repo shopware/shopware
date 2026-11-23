@@ -64,11 +64,7 @@ async function createWrapper({ allowEdit = true, showSettingPackaging = true, pr
             'modelValue',
             'disabled',
         ],
-        emits: [
-            'update:model-value',
-            'inheritance-restore',
-            'inheritance-remove',
-        ],
+        emits: ['update:model-value', 'inheritance-restore', 'inheritance-remove'],
         template: '<input :value="modelValue" :disabled="disabled" />',
     };
 
@@ -84,24 +80,13 @@ async function createWrapper({ allowEdit = true, showSettingPackaging = true, pr
                 },
                 'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper', { sync: true }),
                 'sw-inheritance-switch': {
-                    props: [
-                        'isInherited',
-                        'disabled',
-                    ],
-                    emits: [
-                        'inheritance-restore',
-                        'inheritance-remove',
-                    ],
+                    props: ['isInherited', 'disabled'],
+                    emits: ['inheritance-restore', 'inheritance-remove'],
                     template: '<button class="sw-inheritance-switch" type="button"></button>',
                 },
                 'sw-entity-single-select': {
-                    props: [
-                        'value',
-                        'disabled',
-                    ],
-                    emits: [
-                        'update:value',
-                    ],
+                    props: ['value', 'disabled'],
+                    emits: ['update:value'],
                     template: '<select :value="value" :disabled="disabled"></select>',
                 },
                 'mt-number-field': fieldStub,

@@ -10,6 +10,13 @@ async function createWrapper() {
                 'sw-datepicker': true,
                 'sw-textarea-field': true,
             },
+            provide: {
+                documentV2Service: {
+                    sortFileFormats: (formats) => formats,
+                    getFileFormatSnippet: (format) => format,
+                    getAvailableDocumentTypes: jest.fn().mockResolvedValue({}),
+                },
+            },
         },
     });
 }

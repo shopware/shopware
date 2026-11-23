@@ -33,17 +33,12 @@ import template from './sw-inherit-wrapper.html.twig';
  *
  * </sw-inherit-wrapper>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     inject: ['feature'],
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
     props: {
         value: {
@@ -170,8 +165,8 @@ export default {
                 return this.customInheritationCheckFunction(this.value);
             }
 
-            // if association or array
-            if ((this.isAssociation || Array.isArray(this.value)) && this.value) {
+            // if association
+            if (this.isAssociation && this.value) {
                 return this.value.length <= 0;
             }
 

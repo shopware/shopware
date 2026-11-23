@@ -37,6 +37,7 @@
         >
             {% block sw_order_customer_grid_content %}
             <sw-entity-listing
+                v-if="!showEmptyState"
                 class="sw-order-customer-grid__content"
                 :show-selection="false"
                 :show-settings="false"
@@ -101,21 +102,14 @@
             {% endblock %}
 
             {% block sw_order_customer_grid_empty_state %}
-            <sw-empty-state
+            <mt-empty-state
                 v-if="showEmptyState"
                 class="sw-order-customer-grid__empty-state"
-                :show-description="false"
-                :title="emptyTitle"
-            >
-                {% block sw_order_customer_grid_empty_state_icon %}
-                <template #icon>
-                    <img
-                        :src="assetFilter('/administration/administration/static/img/empty-states/customer-empty-state.svg')"
-                        :alt="$t('sw-customer.list.messageEmpty')"
-                    >
-                </template>
-                {% endblock %}
-            </sw-empty-state>
+                centered
+                icon="regular-users"
+                :headline="emptyTitle"
+                description=""
+            />
             {% endblock %}
         </div>
 
@@ -234,5 +228,8 @@
         </sw-modal>
         {% endblock %}
     </template>
+
+    {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+    {% block sw_order_customer_grid_empty_state_icon %}{% endblock %}
 </mt-card>
 {% endblock %}

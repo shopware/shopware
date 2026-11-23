@@ -159,7 +159,7 @@ class CheckoutCartPageLoaderTest extends TestCase
             $this->getContextWithDummyCustomer()
         );
 
-        static::assertEmpty($page->getCountries());
+        static::assertCount(0, $page->getCountries());
     }
 
     private function createLoader(

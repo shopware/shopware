@@ -1,0 +1,13 @@
+{% block swag_example_list %}
+<sw-page class="swag-example-list">
+    <template #content>
+        <sw-card-view>
+            <mt-card :title="$t('swag-example.general.list.cardTitle')">
+                <p class="swag-example-list__text">
+                    {{ $t('swag-example.general.list.cardText') }}
+                </p>
+            </mt-card>
+        </sw-card-view>
+    </template>
+</sw-page>
+{% endblock %}

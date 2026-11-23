@@ -9,19 +9,12 @@ use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Store\Exception\ExtensionNotFoundException;
 use Shopware\Core\Framework\Store\StoreException;
-use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Storefront\Theme\ThemeCollection;
 
 /**
  * @internal - only for use by the app-system
@@ -30,18 +23,14 @@ use Shopware\Storefront\Theme\ThemeCollection;
 class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
 {
     /**
-     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
-     * @param ?EntityRepository<ThemeCollection> $themeRepository
-     *
-     * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! Will be fixed with https://github.com/shopware/shopware/issues/12966)
+     * @param iterable<ExtensionRemovalValidatorInterface> $removalValidators
      */
     public function __construct(
         private readonly StoreClient $storeClient,
         private readonly AppLoader $appLoader,
         private readonly AbstractAppLifecycle $appLifecycle,
         private readonly AppStorage $appStorage,
-        private readonly EntityRepository $salesChannelRepository,
-        private readonly ?EntityRepository $themeRepository,
+        private readonly iterable $removalValidators,
         private readonly AppConfirmationDeltaProvider $appDeltaService
     ) {
     }
@@ -77,16 +66,16 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         if (!$app) {
             throw StoreException::extensionNotFoundFromId($id);
         }
+        $manifest = $this->findDeletableManifest($technicalName);
 
         $this->storeClient->cancelSubscription($licenseId, $context);
         $this->appLifecycle->uninstall($technicalName, ['id' => $id], $context);
-        $this->deleteExtension($technicalName, $keepUserData, $context);
+        $this->uninstallAndDeleteFiles($technicalName, $manifest, $keepUserData, $context);
     }
 
     public function deleteExtension(string $technicalName, bool $keepUserData, Context $context): void
     {
-        $this->uninstallExtension($technicalName, $context, $keepUserData);
-        $this->appLoader->deleteApp($technicalName);
+        $this->uninstallAndDeleteFiles($technicalName, $this->findDeletableManifest($technicalName), $keepUserData, $context);
     }
 
     public function activateExtension(string $technicalName, Context $context): void
@@ -151,53 +140,30 @@ class StoreAppLifecycleService extends AbstractStoreAppLifecycleService
         return $app;
     }
 
-    private function getThemeIdByTechnicalName(string $technicalName, Context $context): ?string
-    {
-        if (!$this->themeRepository instanceof EntityRepository) {
-            return null;
-        }
-
-        return $this->themeRepository->searchIds(
-            (new Criteria())->addFilter(new EqualsFilter('technicalName', $technicalName)),
-            $context
-        )->firstId();
-    }
-
     private function validateExtensionCanBeRemoved(string $technicalName, string $id, Context $context): void
     {
-        $themeId = $this->getThemeIdByTechnicalName($technicalName, $context);
+        foreach ($this->removalValidators as $validator) {
+            $validator->validateCanBeRemoved($technicalName, $id, $context);
+        }
+    }
 
-        if ($themeId === null) {
-            // extension is not a theme
-            return;
+    private function findDeletableManifest(string $technicalName): ?Manifest
+    {
+        $manifest = $this->appLoader->load()[$technicalName] ?? null;
+
+        if ($manifest?->isManagedByComposer()) {
+            throw StoreException::cannotDeleteManaged($technicalName);
         }
 
-        $criteria = new Criteria();
-        $criteria->addAggregation(
-            new FilterAggregation(
-                'assigned_theme_filter',
-                new TermsAggregation('assigned_theme', 'themes.id'),
-                [new EqualsFilter('themes.id', $themeId)]
-            )
-        );
-        $criteria->addAggregation(
-            new FilterAggregation(
-                'assigned_children_filter',
-                new TermsAggregation('assigned_children', 'themes.parentThemeId'),
-                [new EqualsFilter('themes.parentThemeId', $themeId)]
-            )
-        );
+        return $manifest;
+    }
 
-        $aggregates = $this->salesChannelRepository->aggregate($criteria, $context);
+    private function uninstallAndDeleteFiles(string $technicalName, ?Manifest $manifest, bool $keepUserData, Context $context): void
+    {
+        $this->uninstallExtension($technicalName, $context, $keepUserData);
 
-        /** @var TermsResult $directlyAssigned */
-        $directlyAssigned = $aggregates->get('assigned_theme');
-
-        /** @var TermsResult $assignedChildren */
-        $assignedChildren = $aggregates->get('assigned_children');
-
-        if ($directlyAssigned->getKeys() !== [] || $assignedChildren->getKeys() !== []) {
-            throw StoreException::extensionThemeStillInUse($id);
+        if ($manifest !== null) {
+            $this->appLoader->deleteApp($manifest);
         }
     }
 }

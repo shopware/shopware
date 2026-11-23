@@ -22,7 +22,6 @@ interface DismissibleNotice {
  * @component-example
  * <sw-dismissible-notices :notices="[{ key: 'my-module.index.someChangeNotice', deprecationVersion: 'v6.8.0.0' }]" />
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 
@@ -86,10 +85,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return;
             }
 
-            this.dismissedNotices = [
-                ...this.dismissedNotices,
-                notice,
-            ];
+            this.dismissedNotices = [...this.dismissedNotices, notice];
 
             await this.userConfigService.upsert({
                 [USER_CONFIG_KEY]: this.dismissedNotices,

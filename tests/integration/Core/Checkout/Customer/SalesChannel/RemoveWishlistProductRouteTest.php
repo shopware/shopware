@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -69,7 +70,7 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         // After login successfully, the context token will be set in the header
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
     }
@@ -77,16 +78,13 @@ class RemoveWishlistProductRouteTest extends TestCase
     public function testDeleteProductShouldReturnSuccess(): void
     {
         $productId = $this->createProduct($this->context);
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventWasThrown = false;
+        $removedEvent = null;
 
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
 
-        $listener = static function (WishlistProductRemovedEvent $event) use ($productId, &$eventWasThrown): void {
-            static::assertSame($productId, $event->getProductId());
-            $eventWasThrown = true;
-        };
-        $dispatcher->addListener(WishlistProductRemovedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(WishlistProductRemovedEvent::class, static function (WishlistProductRemovedEvent $event) use (&$removedEvent): void {
+            $removedEvent = $event;
+        });
 
         $this->browser
             ->request(
@@ -98,9 +96,8 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
-        static::assertTrue($eventWasThrown);
-
-        $dispatcher->removeListener(WishlistProductRemovedEvent::class, $listener);
+        static::assertInstanceOf(WishlistProductRemovedEvent::class, $removedEvent);
+        static::assertSame($productId, $removedEvent->getProductId());
     }
 
     public function testDeleteProductShouldThrowCustomerWishlistNotActivatedException(): void

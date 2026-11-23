@@ -6,6 +6,7 @@ import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
 import IntegrationApiService from './integration.api.service';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 function getIntegrationApiService() {
     const client = createHTTPClient();
@@ -17,6 +18,10 @@ function getIntegrationApiService() {
 }
 
 describe('integrationApiService', () => {
+    beforeEach(() => {
+        allowDeprecation('integrationApiService.updateAdmin() is deprecated');
+    });
+
     it('is registered correctly', () => {
         const { integrationApiService } = getIntegrationApiService();
         expect(integrationApiService).toBeInstanceOf(IntegrationApiService);
@@ -40,10 +45,7 @@ describe('integrationApiService', () => {
     it('saveMcpAllowlist sends POST to correct endpoint with allowlist', async () => {
         const { integrationApiService, clientMock } = getIntegrationApiService();
         const integrationId = 'abc123';
-        const allowlist = [
-            'shopware-entity-read',
-            'shopware-entity-search',
-        ];
+        const allowlist = ['shopware-entity-read', 'shopware-entity-search'];
 
         clientMock.onPost(`/_action/integration/${integrationId}/mcp-allowlist`).reply(204, null);
 

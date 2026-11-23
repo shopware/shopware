@@ -26,7 +26,7 @@
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
-                                                "required": ["name", "label", "description", "source", "icon", "category", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema"],
+                                                "required": ["name", "label", "description", "source", "icon", "illustration", "category", "priority", "copilot", "properties", "slots", "bindingSpecifications", "storageSchema", "defaultBindingRootSources"],
                                                 "properties": {
                                                     "name": {
                                                         "type": "string",
@@ -40,17 +40,34 @@
                                                         "type": "string",
                                                         "description": "Human-readable description."
                                                     },
+                                                    "labelSnippet": {
+                                                        "type": "string",
+                                                        "description": "Optional Administration snippet key for the label; the English label remains available."
+                                                    },
+                                                    "descriptionSnippet": {
+                                                        "type": "string",
+                                                        "description": "Optional Administration snippet key for the description."
+                                                    },
                                                     "source": {
                                                         "type": "string",
                                                         "description": "Source identifier (e.g. core, plugin:MyPlugin, app:MyApp)."
                                                     },
                                                     "icon": {
                                                         "type": ["string", "null"],
-                                                        "description": "Optional icon identifier."
+                                                        "description": "Optional Meteor icon name used in the tree and as the picker fallback."
+                                                    },
+                                                    "illustration": {
+                                                        "type": ["string", "null"],
+                                                        "description": "Optional SVG illustration filename without its extension, for example media-image. Used in the picker independently of icon."
                                                     },
                                                     "category": {
                                                         "type": ["string", "null"],
                                                         "description": "Optional category for grouping."
+                                                    },
+                                                    "priority": {
+                                                        "type": "integer",
+                                                        "default": 0,
+                                                        "description": "Element picker priority within its category. Higher values appear first; defaults to 0 when omitted from the type declaration."
                                                     },
                                                     "copilot": {
                                                         "type": "object",
@@ -72,7 +89,7 @@
                                                         "description": "Map of property name to property specification. Encodes as `[]` when the type declares no properties (for example a slot-only container).",
                                                         "additionalProperties": {
                                                             "type": "object",
-                                                            "required": ["type", "translatable", "enum", "default", "required", "title", "description", "adminUI"],
+                                                            "required": ["type", "contextTypes", "translatable", "enum", "default", "properties", "required", "mappable", "inlineMappable", "title", "description", "adminUI", "defaultMapping"],
                                                             "properties": {
                                                                 "type": {
                                                                     "oneOf": [
@@ -88,8 +105,16 @@
                                                                     ],
                                                                     "description": "Primitive type name, FQCN, object, or a list of those for union declarations."
                                                                 },
+                                                                "contextTypes": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string",
+                                                                        "enum": ["single", "collection"]
+                                                                    }
+                                                                },
                                                                 "translatable": {
-                                                                    "type": "boolean"
+                                                                    "type": "boolean",
+                                                                    "description": "`true` means the property stores one value per language: its stored value is a language map, language id in lowercase UUID hex to a value of `type`, rather than a bare value of `type`."
                                                                 },
                                                                 "enum": {
                                                                     "type": ["array", "null"],
@@ -110,14 +135,35 @@
                                                                 "required": {
                                                                     "type": "boolean"
                                                                 },
+                                                                "mappable": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "inlineMappable": {
+                                                                    "type": "boolean"
+                                                                },
                                                                 "title": {
                                                                     "type": "string"
                                                                 },
                                                                 "description": {
                                                                     "type": "string"
                                                                 },
+                                                                "titleSnippet": {
+                                                                    "type": "string",
+                                                                    "description": "Optional Administration snippet key for the property title."
+                                                                },
+                                                                "descriptionSnippet": {
+                                                                    "type": "string",
+                                                                    "description": "Optional Administration snippet key for the property description."
+                                                                },
                                                                 "adminUI": {
                                                                     "type": ["object", "null"]
+                                                                },
+                                                                "defaultMapping": {
+                                                                    "description": "Initial mapping for a freshly scaffolded element when the layout root offers a compatible candidate. Insert, preset attachment, wrapping containers, and replacement mutations apply it. Duplication preserves the copied mapping state. Direct DAL, Admin CRUD API, and Sync API writes do not seed it, and saving does not restore a removed mapping.",
+                                                                    "oneOf": [
+                                                                        { "$ref": "#/components/schemas/ContentSystemMappingSourceReference" },
+                                                                        { "type": "null" }
+                                                                    ]
                                                                 }
                                                             }
                                                         }
@@ -167,7 +213,7 @@
                                                                 },
                                                                 "default": {
                                                                     "type": "boolean",
-                                                                    "description": "Whether this is the type's synthesized default specification, derived as id === type. At most one default exists per type. Inserting or replacing an element with no explicit binding choice auto-applies the type's default (fill-only: it never overwrites already-wired or carried keys); an explicit binding choice applies on top and wins on shared keys."
+                                                                    "description": "Whether this is the type's synthesized default specification, derived as id === type. The app lifecycle registers at most one default per type; a type with more than one answers `409` whenever the default is applied (insert-element, replace-element, attach-element and insert-preset). Inserting or replacing an element with no explicit binding choice auto-applies the type's default (fill-only: it never overwrites already-wired or carried keys); on insert-element an explicit binding choice is applied first, the default fills after it, and the explicit choice wins shared keys."
                                                                 },
                                                                 "resolves": {
                                                                     "type": ["object", "array"],
@@ -231,9 +277,21 @@
                                                                 "default": {
                                                                     "type": ["string", "integer", "number", "boolean"],
                                                                     "description": "The default stored value. Present only on a `property` entry whose property declares a default, and never on a `resolvedByStorage` or `config` entry, because a config key's default is a reference token (a property name) rather than a stored value."
+                                                                },
+                                                                "translatable": {
+                                                                    "type": "boolean",
+                                                                    "enum": [true],
+                                                                    "description": "Present, and always `true`, only on a `property` entry whose declared property is translatable; omitted otherwise, the way `default` is omitted where none is declared. The stored value under such a key is a language map — language id in lowercase UUID hex to a value of `type`, anchored on the system language `2fbb5fe2e29a4d70aa5854ce7ce3e20b` — rather than a bare value of `type`. `default` beside it stays the declared scalar; storage seeds that scalar under the anchor key."
                                                                 }
                                                             }
                                                         }
+                                                    },
+                                                    "defaultBindingRootSources": {
+                                                        "type": ["array", "null"],
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": "The root-source ids on which inserting the type without a named binding specification succeeds, with its default binding specification applied automatically. `null` when the type has no default binding specification or its default places no root-source restriction. An empty array when no root source satisfies every scoped entry of its default or the type has more than one default binding specification. It does not limit an insert that names a binding specification."
                                                     }
                                                 }
                                             }

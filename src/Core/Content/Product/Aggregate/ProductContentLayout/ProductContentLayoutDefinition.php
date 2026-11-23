@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\Product\Aggregate\ProductContentLayout;
 
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingDataLoader;
+use Shopware\Core\Content\Product\ContentSystem\DataLoader\CrossSellingLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorDataLoader;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductConfiguratorLoaderConfig;
 use Shopware\Core\Content\Product\ContentSystem\DataLoader\ProductReviewDataLoader;
@@ -17,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @final
  */
-#[Package('inventory')]
+#[Package('discovery')]
 class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefinition
 {
     final public const ENTITY_NAME = 'product_content_layout';
@@ -70,6 +72,11 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
                 ProductReviewDataLoader::SOURCE,
                 new ProductReviewLoaderConfig(property: 'productId')
             ),
+            new DataRequirement(
+                'crossSellings',
+                CrossSellingDataLoader::SOURCE,
+                new CrossSellingLoaderConfig(property: 'productId'),
+            ),
         ];
     }
 
@@ -81,6 +88,11 @@ class ProductContentLayoutDefinition extends AbstractContentLayoutAssignableDefi
             'properties.group',
             'mainCategories.category',
             'media.media',
+            // The picture behind the cover assignment, which `product.cover` needs to project to a
+            // MediaEntity. SalesChannelProductDefinition::processCriteria() happens to add this one too, but
+            // it adds it for the storefront's own reasons and only while the criteria selects no fields —
+            // too conditional for a mapping candidate to rest on, so the requirement is declared here.
+            'cover.media',
         ];
     }
 

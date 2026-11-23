@@ -23,6 +23,7 @@ const createService = (overrides = {}) => ({
     version: '1.0.0-b63f0ad27d1ee5a22871637a2ffcdc80',
     requested_privileges: [],
     privileges: [],
+    state: 'active',
     domains: [],
     requirements: [],
     state_change_permitted: true,
@@ -40,46 +41,36 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
 
     it.each([
         [
-            true,
-            [],
+            'active',
             'green',
             'active',
         ],
         [
-            false,
-            [],
-            'red',
-            'inactive',
-        ],
-        [
-            false,
-            ['order:read'],
-            'red',
-            'inactive',
-        ],
-        [
-            true,
-            ['order:read'],
+            'pending_permissions',
             'orange',
             'awaiting-permissions',
         ],
-    ])('displays the service with the correct status', (active, requestedPrivileges, statusColor, statusText) => {
+        [
+            'inactive',
+            'red',
+            'inactive',
+        ],
+        [
+            'something-we-do-not-know',
+            'red',
+            'inactive',
+        ],
+    ])('displays the service with the correct status', (state, statusColor, statusText) => {
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
-                service: createService({
-                    active: active,
-                    requested_privileges: requestedPrivileges,
-                }),
+                service: createService({ state: state }),
             },
             global: {
                 stubs: {
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -98,14 +89,8 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
     });
 
     it.each([
-        [
-            'service-icon',
-            'data:image/png;base64, service-icon',
-        ],
-        [
-            null,
-            'administration/administration/static/img/services/extension-icon-placeholder.svg',
-        ],
+        ['service-icon', 'data:image/png;base64, service-icon'],
+        [null, 'administration/administration/static/img/services/extension-icon-placeholder.svg'],
     ])('displays the service with the correct icon and version', (icon, expected) => {
         const card = mount(SwSettingsServicesServiceCard, {
             props: {
@@ -116,10 +101,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -149,10 +131,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -215,10 +194,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -267,10 +243,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -311,10 +284,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -389,10 +359,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwColorBadge,
                     SwExtensionIcon: {
                         template: '<div><img :src="src" :alt="alt" /></div>',
-                        props: [
-                            'src',
-                            'alt',
-                        ],
+                        props: ['src', 'alt'],
                     },
                     SwStatus,
                     MtModalAction,
@@ -405,11 +372,7 @@ describe('src/module/sw-settings-services/component/sw-settings-services-service
                     SwExtensionPermissionsModal: {
                         name: 'sw-extension-permissions-modal',
                         template: '<div>permissions modal stub</div>',
-                        props: [
-                            'extension-label',
-                            'permissions',
-                            'domains',
-                        ],
+                        props: ['extension-label', 'permissions', 'domains'],
                     },
                 },
             },

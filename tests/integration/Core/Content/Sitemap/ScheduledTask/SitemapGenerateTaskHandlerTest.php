@@ -56,7 +56,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->messageBusMock = $this->createMock(MessageBusInterface::class);
         $this->sitemapHandler = new SitemapGenerateTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             new SitemapSalesChannelLoader($this->salesChannelRepository, static::getContainer()->get('event_dispatcher')),
             static::getContainer()->get(SystemConfigService::class),
             $this->messageBusMock
@@ -225,6 +225,45 @@ class SitemapGenerateTaskHandlerTest extends TestCase
             null,
             false
         );
+
+        $this->messageBusMock->expects($this->once())
+            ->method('dispatch')
+            ->with($message)
+            ->willReturn(new Envelope($message));
+
+        $this->sitemapHandler->run();
+    }
+
+    public function testSkipsInactiveSalesChannels(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM sales_channel');
+
+        $activeId = Uuid::randomHex();
+        $this->createSalesChannel([
+            'id' => $activeId,
+            'name' => 'active',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://active.test',
+            ]],
+        ]);
+        $this->createSalesChannel([
+            'name' => 'inactive',
+            'active' => false,
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'domains' => [[
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'currencyId' => Defaults::CURRENCY,
+                'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'url' => 'http://inactive.test',
+            ]],
+        ]);
+
+        $message = new SitemapMessage($activeId, Defaults::LANGUAGE_SYSTEM, null, null, false);
 
         $this->messageBusMock->expects($this->once())
             ->method('dispatch')

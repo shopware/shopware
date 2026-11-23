@@ -47,23 +47,34 @@ describe('searchApiService', () => {
 
         clientMock.onPost('/_admin/search').reply(200, { data: 'foo' });
 
-        const response = await searchApiService.searchQuery({});
+        const response = await searchApiService.searchQuery({ product: { limit: 25 } });
 
         expect(response.data).toBe('foo');
     });
 
-    it('is request aborted correctly', async () => {
-        global.activeFeatureFlags = [
-            ...new Set([
-                ...global.activeFeatureFlags,
-                'V6_8_0_0',
-            ]),
-        ];
+    it('returns an empty result without a request when there are no queries', async () => {
         const { searchApiService, clientMock } = getSearchApiService();
 
         clientMock.onPost('/_admin/search').reply(200, { data: 'foo' });
 
-        const response = searchApiService.searchQuery({});
+        const pendingResponse = searchApiService.searchQuery({ product: { limit: 25 } });
+        const pendingAbortController = searchApiService.searchAbortController;
+
+        const response = await searchApiService.searchQuery({});
+
+        expect(response).toEqual({ data: {} });
+        expect(clientMock.history.post).toHaveLength(1);
+        expect(pendingAbortController.signal.aborted).toBe(true);
+        expect(await pendingResponse).toEqual({});
+    });
+
+    it('is request aborted correctly', async () => {
+        global.activeFeatureFlags = [...new Set([...global.activeFeatureFlags, 'V6_8_0_0'])];
+        const { searchApiService, clientMock } = getSearchApiService();
+
+        clientMock.onPost('/_admin/search').reply(200, { data: 'foo' });
+
+        const response = searchApiService.searchQuery({ product: { limit: 25 } });
         searchApiService.searchAbortController.abort();
 
         expect(await response).toEqual({});

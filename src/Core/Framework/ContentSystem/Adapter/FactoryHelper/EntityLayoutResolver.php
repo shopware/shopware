@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Resolves content layout assignments and processes placeholders for entity-based rendering.
@@ -47,17 +46,9 @@ class EntityLayoutResolver
         return $entity->getContentLayoutId();
     }
 
-    public function resolvePlaceholders(
-        string $entityIdField,
-        string $entityId,
-        Request $request
-    ): PlaceholderValues {
-        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
-
-        return PlaceholderValues::from(array_merge(
-            [$entityIdField => $entityId],
-            $scalarParameters
-        ));
+    public function resolvePlaceholders(string $entityIdField, string $entityId): PlaceholderValues
+    {
+        return PlaceholderValues::from([$entityIdField => $entityId]);
     }
 
     private function buildAssignmentCriteria(string $entityIdField, string $entityId, SalesChannelContext $context): Criteria

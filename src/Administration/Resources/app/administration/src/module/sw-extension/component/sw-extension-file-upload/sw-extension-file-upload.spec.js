@@ -87,7 +87,6 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         const uploadButton = wrapper.get('.sw-extension-file-upload__button');
         await uploadButton.trigger('click');
 
-        await wrapper.vm.$nextTick();
         await flushPromises();
 
         const warningModal = wrapper.get('.sw-extension-file-upload-confirm-modal');
@@ -199,9 +198,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
             Promise.reject({
                 response: {
                     data: {
-                        errors: [
-                            'Wrong file format',
-                        ],
+                        errors: ['Wrong file format'],
                     },
                 },
             }),
@@ -217,7 +214,7 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
         await fileInput.trigger('change');
 
         // check if error notification gets thrown
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const growlNotifications = Shopware.Store.get('notification').growlNotifications;
 
         expect(Object.keys(growlNotifications)).toHaveLength(1);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewPayloadStore;
+use Shopware\Core\Framework\ContentSystem\Api\ContentPreviewRequest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -24,12 +25,32 @@ class ContentPreviewPayloadStoreTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    #[TestDox('keeps a stored preview available after kernel services are reset')]
+    public function testStoredPreviewSurvivesServiceReset(): void
+    {
+        $payload = new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: Uuid::randomHex(),
+            salesChannelId: Uuid::randomHex(),
+        );
+        $token = static::getContainer()->get(ContentPreviewPayloadStore::class)->store($payload);
+
+        try {
+            static::getContainer()->get('services_resetter')->reset();
+
+            static::assertEquals($payload, static::getContainer()->get(ContentPreviewPayloadStore::class)->load($token));
+        } finally {
+            static::getContainer()->get('cache.content_system_preview')->deleteItem('content-system.preview.' . $token);
+        }
+    }
+
     #[TestDox('the container-wired validator enforces the constraints the DTO declares')]
     public function testLoadRejectsAConstraintViolationThroughTheContainerValidator(): void
     {
         $token = Uuid::randomHex();
         $key = 'content-system.preview.' . $token;
-        $cache = static::getContainer()->get('cache.system');
+        $cache = static::getContainer()->get('cache.content_system_preview');
 
         // A structurally complete envelope — every field the DTO declares, each of the right PHP type — so the
         // field and type gates pass and the blank entityType reaches the constraint check, the only gate the

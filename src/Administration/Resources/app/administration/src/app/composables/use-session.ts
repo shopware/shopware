@@ -8,7 +8,7 @@ interface LocaleToLanguageService {
     localeToLanguage(locale: string): Promise<string>;
 }
 
-const currentUser = ref<EntitySchema.user | null>(null);
+const currentUser = ref<Entity<'user'> | null>(null);
 const userPending = computed(() => !currentUser.value);
 const languageId = ref('');
 const currentLocale = ref<string | null>(null);
@@ -35,7 +35,7 @@ async function setAdminLocale(locale: string): Promise<void> {
     });
 }
 
-function setCurrentUser(user: EntitySchema.user) {
+function setCurrentUser(user: Entity<'user'>) {
     currentUser.value = user;
 }
 

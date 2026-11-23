@@ -1554,7 +1554,6 @@
 *  [NEXT-34290 - Add wrapper component for sw-password-field](./changelog/release-6-6-3-0/2024-05-17-add-wrapper-component-for-sw-password-field.md)
 *  [NEXT-36325 - Improve error message for wrong API usage ManyToOne field](./changelog/release-6-6-3-0/2024-05-18-improve-error-message-for-wrong-api-usage-many-to-one-field.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-34295 - AAdd wrapper component for sw-colorpicker](./changelog/release-6-6-3-0/2024-05-21-aadd-wrapper-component-for-sw-colorpicker.md)
-*  [NEXT-34292 - Add wrapper component for sw-external-link](./changelog/release-6-6-3-0/2024-05-21-add-wrapper-component-for-sw-external-link.md)
 *  [NEXT-34291 - Add wrapper component for sw-skeleton-bar](./changelog/release-6-6-3-0/2024-05-21-add-wrapper-component-for-sw-skeleton-bar.md)
 *  [NEXT-35761 - Handle invalid uuid error](./changelog/release-6-6-3-0/2024-05-21-handle-invalid-uuid-error.md)
 *  [NEXT-34294 - Implement mt-email-field](./changelog/release-6-6-3-0/2024-05-21-implement-mt-email-field.md)

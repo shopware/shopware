@@ -3,19 +3,20 @@
 namespace Shopware\Core\Checkout\Order\Exception;
 
 use Shopware\Core\Checkout\Order\OrderException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed. Use OrderException::paymentMethodNotAvailable() instead
- *
- * @codeCoverageIgnore
+ * @deprecated tag:v6.8.0 - Will be removed. Use OrderException::paymentMethodNotAvailable() instead
  */
 #[Package('checkout')]
 class PaymentMethodNotAvailableException extends OrderException
 {
     public function __construct(string $id)
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         parent::__construct(
             Response::HTTP_NOT_FOUND,
             'CHECKOUT__UNAVAILABLE_PAYMENT_METHOD',

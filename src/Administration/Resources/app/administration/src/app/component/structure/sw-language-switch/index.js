@@ -15,7 +15,6 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-language-switch></sw-language-switch>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -74,11 +73,7 @@ export default {
         },
 
         languageCacheKey() {
-            return [
-                'shared-data',
-                'active-languages',
-                Shopware.Context.api.languageId ?? 'default',
-            ];
+            return ['shared-data', 'active-languages', Shopware.Context.api.languageId ?? 'default'];
         },
     },
 

@@ -295,6 +295,18 @@ class DraftLayoutDecoderTest extends TestCase
         }
     }
 
+    #[TestDox('decodeLintable throws invalidLayoutStructure for a slot child with an empty id')]
+    public function testDecodeLintableRejectsEmptySlotChildId(): void
+    {
+        try {
+            $this->decoder()->decodeLintable([['id' => 'el-1', 'component' => 'Sw:Block', 'slots' => ['content' => [['id' => '', 'component' => 'Sw:Text']]]]]);
+            static::fail('Expected a ContentSystemException for the empty slot child id.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+            static::assertStringContainsString('Layout element id must be a non-empty string.', $exception->getMessage());
+        }
+    }
+
     #[TestDox('decodeLintable rethrows a non-client-defect decode fault unchanged')]
     public function testDecodeLintableRethrowsInternalFault(): void
     {
@@ -335,6 +347,29 @@ class DraftLayoutDecoderTest extends TestCase
             [['id' => 'el-1']],
             new ConstraintViolationList([
                 new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].component', null),
+            ]),
+        ];
+
+        yield 'slot child with an empty id' => [
+            [['id' => 'el-1', 'component' => 'Sw:Block', 'slots' => ['content' => [['id' => '', 'component' => 'Sw:Text']]]]],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].slots.content[0].id', ''),
+            ]),
+        ];
+
+        yield 'slot child with an empty component' => [
+            [['id' => 'el-1', 'component' => 'Sw:Block', 'slots' => ['content' => [['id' => 'el-2', 'component' => '']]]]],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element component must be a non-empty string.', null, [], null, '[0].slots.content[0].component', ''),
+            ]),
+        ];
+
+        yield 'nested slot child with an empty id' => [
+            [['id' => 'el-1', 'component' => 'Sw:Block', 'slots' => ['content' => [
+                ['id' => 'el-2', 'component' => 'Sw:Block', 'slots' => ['inner' => [['id' => '', 'component' => 'Sw:Text']]]],
+            ]]]],
+            new ConstraintViolationList([
+                new ConstraintViolation('Layout element id must be a non-empty string.', null, [], null, '[0].slots.content[0].slots.inner[0].id', ''),
             ]),
         ];
     }

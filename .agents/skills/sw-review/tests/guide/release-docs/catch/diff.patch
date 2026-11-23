@@ -1,0 +1,118 @@
+diff --git a/RELEASE_INFO-6.7.md b/RELEASE_INFO-6.7.md
+index cbde1aa..f256322 100644
+--- a/RELEASE_INFO-6.7.md
++++ b/RELEASE_INFO-6.7.md
+@@ -1460,6 +1460,12 @@ While it is `false`, `shopware.app_system.allow_unencrypted_traffic` and `shopwa
+ 
+ # 6.7.14.2
+ 
++## Hosting & Configuration
++
++### Configurable number of URLs per sitemap file
++
++The new option `shopware.sitemap.max_urls_per_file` sets how many URLs a generated sitemap file holds before the next file starts. The default stays at 49999.
++
+ ## Critical Fixes
+ 
+ ### Product and promotion duplication works again
+diff --git a/UPGRADE-6.8.md b/UPGRADE-6.8.md
+index 0e6ec3c..0441179 100644
+--- a/UPGRADE-6.8.md
++++ b/UPGRADE-6.8.md
+@@ -2893,6 +2893,10 @@ Move the definitions into a dedicated `Resources/config/custom-fields.xml` file
+ 
+ <details>
+ 
++## Sitemap files will hold fewer URLs
++
++We will lower the default of `shopware.sitemap.max_urls_per_file` from 49999 to 25000 in 6.8. We decided to do this because several merchants reported that search engines time out while fetching very large sitemap files, and because the old hard-coded limit made it impossible to tune this on hosting setups with slow storage. After a long discussion we think a smaller default is the safer choice for most shops. If you rely on the file names or on the number of sitemap files, you will have to set the option back to 49999 in your `shopware.yaml`.
++
+ ## Database: Time zone support required
+ 
+ The database now requires time zone data to be loaded. You can verify whether time zone data is available by running:
+diff --git a/src/Core/Content/DependencyInjection/sitemap.php b/src/Core/Content/DependencyInjection/sitemap.php
+index 958e02b..b693dd3 100644
+--- a/src/Core/Content/DependencyInjection/sitemap.php
++++ b/src/Core/Content/DependencyInjection/sitemap.php
+@@ -66,6 +66,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
+     $services->set(SitemapHandleFactoryInterface::class, SitemapHandleFactory::class)
+         ->args([
+             service('event_dispatcher'),
++            '%shopware.sitemap.max_urls_per_file%',
+         ]);
+ 
+     $services->set(SitemapRoute::class)
+diff --git a/src/Core/Content/Sitemap/Service/SitemapHandle.php b/src/Core/Content/Sitemap/Service/SitemapHandle.php
+index 560f9c0..7947c94 100644
+--- a/src/Core/Content/Sitemap/Service/SitemapHandle.php
++++ b/src/Core/Content/Sitemap/Service/SitemapHandle.php
+@@ -40,6 +40,7 @@ class SitemapHandle implements SitemapHandleInterface
+         private readonly EventDispatcherInterface $eventDispatcher,
+         ?string $domain = null,
+         private ?string $domainId = null,
++        private readonly int $maxUrlsPerFile = self::MAX_URLS,
+     ) {
+         $this->setDomainName($domain);
+ 
+@@ -56,7 +57,7 @@ class SitemapHandle implements SitemapHandleInterface
+             gzwrite($this->handle, (string) $url);
+             ++$this->urlCount;
+ 
+-            if ($this->urlCount % self::MAX_URLS === 0) {
++            if ($this->urlCount % $this->maxUrlsPerFile === 0) {
+                 $this->printFooter();
+                 gzclose($this->handle);
+                 ++$this->index;
+diff --git a/src/Core/Content/Sitemap/Service/SitemapHandleFactory.php b/src/Core/Content/Sitemap/Service/SitemapHandleFactory.php
+index aa11b98..85c3e8b 100644
+--- a/src/Core/Content/Sitemap/Service/SitemapHandleFactory.php
++++ b/src/Core/Content/Sitemap/Service/SitemapHandleFactory.php
+@@ -13,8 +13,10 @@ class SitemapHandleFactory implements SitemapHandleFactoryInterface
+     /**
+      * @internal
+      */
+-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
+-    {
++    public function __construct(
++        private readonly EventDispatcherInterface $eventDispatcher,
++        private readonly int $maxUrlsPerFile = 49999,
++    ) {
+     }
+ 
+     public function create(
+@@ -25,6 +27,6 @@ class SitemapHandleFactory implements SitemapHandleFactoryInterface
+     ): SitemapHandleInterface {
+         $domainId = \func_num_args() > 3 ? func_get_arg(3) : null;
+ 
+-        return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain, $domainId);
++        return new SitemapHandle($filesystem, $context, $this->eventDispatcher, $domain, $domainId, $this->maxUrlsPerFile);
+     }
+ }
+diff --git a/src/Core/Framework/DependencyInjection/Configuration.php b/src/Core/Framework/DependencyInjection/Configuration.php
+index 855dd8a..48c2e60 100644
+--- a/src/Core/Framework/DependencyInjection/Configuration.php
++++ b/src/Core/Framework/DependencyInjection/Configuration.php
+@@ -330,6 +330,11 @@ class Configuration implements ConfigurationInterface
+                     ->min(1)
+                     ->defaultValue(100)
+                 ->end()
++                ->integerNode('max_urls_per_file')
++                    ->min(1)
++                    ->max(50000)
++                    ->defaultValue(49999)
++                ->end()
+                 ->arrayNode('scheduled_task')
+                     ->children()
+                         ->booleanNode('enabled')
+diff --git a/src/Core/Framework/Resources/config/packages/shopware.yaml b/src/Core/Framework/Resources/config/packages/shopware.yaml
+index 76ac3b3..0b6fb7f 100644
+--- a/src/Core/Framework/Resources/config/packages/shopware.yaml
++++ b/src/Core/Framework/Resources/config/packages/shopware.yaml
+@@ -430,6 +430,7 @@ shopware:
+ 
+     sitemap:
+         batchsize: 100
++        max_urls_per_file: 49999
+         custom_urls:
+         excluded_urls:
+         scheduled_task:

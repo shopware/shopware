@@ -42,18 +42,12 @@ function isIllegalUrlException(error) {
  * @component-example
  * <sw-upload-listener @sw-uploads-added="..."></sw-upload-listener>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template: '<div style="display: none"></div>',
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         uploadTag: {
@@ -153,15 +147,20 @@ export default {
          * @deprecated tag:v6.8.0 - Will be replaced by the centralized upload state in `sw-upload-status`
          */
         updateSuccessNotification(uploadTag, payload) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-upload-listener.updateSuccessNotification() is deprecated. Will be replaced by the centralized upload state in `sw-upload-status`.',
+            );
+
             const notification = {
                 title: this.$root.$t('global.default.success'),
                 message: this.$root.$t(
                     payload.customMessage ?? 'global.sw-media-upload.notification.success.message',
-                    payload.successAmount,
                     {
                         count: payload.successAmount,
                         total: payload.totalAmount,
                     },
+                    payload.successAmount,
                 ),
                 growl: payload.successAmount + payload.failureAmount === payload.totalAmount,
             };
@@ -194,6 +193,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be replaced by the centralized upload state in `sw-upload-status`
          */
         showErrorNotification(payload) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-upload-listener.showErrorNotification() is deprecated. Will be replaced by the centralized upload state in `sw-upload-status`.',
+            );
+
             if (isIllegalFileNameException(payload.error)) {
                 this.createNotificationError({
                     title: this.$root.$t('global.default.error'),

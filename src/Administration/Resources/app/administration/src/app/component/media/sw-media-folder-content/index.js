@@ -11,10 +11,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'filterItems',
-        'repositoryFactory',
-    ],
+    inject: ['filterItems', 'repositoryFactory'],
 
     emits: ['selected'],
 

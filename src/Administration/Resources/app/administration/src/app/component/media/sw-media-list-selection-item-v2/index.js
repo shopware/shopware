@@ -10,10 +10,7 @@ import './sw-media-list-selection-item-v2.scss';
 export default {
     template,
 
-    emits: [
-        'click',
-        'item-remove',
-    ],
+    emits: ['click', 'item-remove'],
 
     props: {
         item: {

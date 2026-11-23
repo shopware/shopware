@@ -88,7 +88,7 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
 
         $this->mysqlIncrementer->reset('test-user-1');
 
@@ -119,7 +119,7 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
 
         $this->mysqlIncrementer->delete('test-user-1', ['sw.product.index']);
 
@@ -142,12 +142,12 @@ class MySQLIncrementerTest extends TestCase
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertNotEmpty($list);
+        static::assertNotCount(0, $list);
 
         $this->mysqlIncrementer->delete('test-user-1');
 
         $list = $this->mysqlIncrementer->list('test-user-1');
 
-        static::assertEmpty($list);
+        static::assertCount(0, $list);
     }
 }

@@ -12,11 +12,7 @@ const { uniqBy } = Shopware.Utils.array;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['feature', 'repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -92,6 +88,11 @@ export default {
          * @returns {string[]}
          */
         currentProductStates() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-variants.currentProductStates is deprecated. Will be removed, use `currentProductType` instead.',
+            );
+
             return this.activeTab.split(',');
         },
 
@@ -120,12 +121,7 @@ export default {
             if (groupIds.length === 0) {
                 return [];
             }
-            const groupMap = new Map(
-                this.groups.map((group) => [
-                    group.id,
-                    group,
-                ]),
-            );
+            const groupMap = new Map(this.groups.map((group) => [group.id, group]));
             return groupIds.map((id) => groupMap.get(id)).filter(Boolean);
         },
     },
@@ -177,6 +173,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement.
          */
         async loadConfigSettingGroups() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-product-detail-variants.loadConfigSettingGroups() is deprecated. Will be removed without replacement.',
+            );
+
             // No-op: configSettingGroups is computed from productEntity.configuratorSettings and groups.
         },
 
@@ -240,8 +241,11 @@ export default {
         },
 
         checkIfPropertiesExists() {
-            this.propertyRepository.search(new Criteria(1, 1)).then((res) => {
-                this.propertiesAvailable = res.total > 0;
+            const criteria = new Criteria(1, 1);
+            criteria.setTotalCountMode(0);
+
+            this.propertyRepository.searchIds(criteria).then((res) => {
+                this.propertiesAvailable = res.data.length > 0;
             });
         },
 
@@ -300,10 +304,7 @@ export default {
 
             const results = await Promise.all(promises);
 
-            return [
-                initialResult,
-                ...results,
-            ].flatMap((result) => result);
+            return [initialResult, ...results].flatMap((result) => result);
         },
     },
 };

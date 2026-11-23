@@ -5,7 +5,10 @@ namespace Shopware\Core\Content\Product\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\PriceSelector;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
@@ -25,6 +28,7 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Package('inventory')]
 class ProductFeatureBuilder
@@ -32,6 +36,8 @@ class ProductFeatureBuilder
     private const CUSTOM_FIELD_KEY_PREFIX = 'custom-field-';
 
     private const ENTITY_LABEL_KEY_PREFIX = 'custom-field-entity-';
+
+    private const CUSTOM_FIELD_SNIPPET_PREFIX = 'customFields.';
 
     /**
      * @internal
@@ -41,7 +47,10 @@ class ProductFeatureBuilder
     public function __construct(
         private readonly EntityRepository $customFieldRepository,
         private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
-        private readonly DefinitionInstanceRegistry $definitionRegistry
+        private readonly DefinitionInstanceRegistry $definitionRegistry,
+        private readonly TranslatorInterface $translator,
+        private readonly PriceSelector $priceSelector,
+        private readonly QuantityPriceCalculator $quantityPriceCalculator,
     ) {
     }
 
@@ -380,7 +389,7 @@ class ProductFeatureBuilder
             throw CartException::wrongCartDataType($fieldKey, CustomFieldEntity::class);
         }
 
-        $display = $this->getDisplayValue($customField, $translation[$name], $data, $context);
+        $display = $this->getDisplayValue($customField, $translation[$name], $product->getTaxId(), $data, $context);
         if ($display === null && $this->needsDisplayValue($customField)) {
             return null;
         }
@@ -435,10 +444,10 @@ class ProductFeatureBuilder
      *
      * @return list<string>|float|null
      */
-    private function getDisplayValue(CustomFieldEntity $customField, mixed $content, CartDataCollection $data, SalesChannelContext $context): array|float|null
+    private function getDisplayValue(CustomFieldEntity $customField, mixed $content, ?string $taxId, CartDataCollection $data, SalesChannelContext $context): array|float|null
     {
         if ($customField->getType() === CustomFieldTypes::PRICE) {
-            return $this->getPriceValue($content, $context);
+            return $this->getPriceValue($content, $taxId, $context);
         }
 
         if ($this->getReferencedEntityName($customField) !== null) {
@@ -512,7 +521,7 @@ class ProductFeatureBuilder
         return $values;
     }
 
-    private function getPriceValue(mixed $content, SalesChannelContext $context): ?float
+    private function getPriceValue(mixed $content, ?string $taxId, SalesChannelContext $context): ?float
     {
         if (!\is_array($content)) {
             return null;
@@ -537,13 +546,23 @@ class ProductFeatureBuilder
             return null;
         }
 
-        $value = $context->getTaxState() === CartPrice::TAX_STATE_GROSS ? $price->getGross() : $price->getNet();
+        $taxRules = $taxId !== null ? $context->buildTaxRules($taxId) : new TaxRuleCollection();
+
+        $selected = $this->priceSelector->select($price, $taxRules, $context);
+        $value = $selected->getValue();
 
         if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
         }
 
-        return $value;
+        if ($selected->isCalculated()) {
+            return $value;
+        }
+
+        $definition = new QuantityPriceDefinition($value, $taxRules);
+        $definition->setIsCalculated(false);
+
+        return $this->quantityPriceCalculator->calculate($definition, $context)->getUnitPrice();
     }
 
     private function getReferencedEntityName(CustomFieldEntity $customField): ?string
@@ -616,14 +635,20 @@ class ProductFeatureBuilder
     }
 
     /**
-     * Custom field labels are not translated by the DAL, they are stored inside the field's config,
-     * indexed by locale code. As a label is not required for every language, the language chain of
-     * the context is walked, so a label inherits from the parent language and finally from the
-     * system language, matching how the DAL resolves translated fields. Without a label for any of
-     * them, the technical name is used, the same way a product attribute feature is labelled.
+     * The context locale is passed explicitly, as only Storefront requests set the translator locale.
+     * A snippet equal to its key or to the field name is unset: the translator echoes the key, and the
+     * snippet is seeded with the field name when the field was created without a label for that language.
+     * Config labels are walked along the language chain, as the DAL resolves translated fields.
      */
     private function getCustomFieldLabel(CustomFieldEntity $customField, SalesChannelContext $context): string
     {
+        $snippetKey = self::CUSTOM_FIELD_SNIPPET_PREFIX . $customField->getName();
+        $snippet = $this->translator->trans($snippetKey, [], null, $context->getLanguageInfo()->localeCode);
+
+        if ($snippet !== '' && $snippet !== $snippetKey && $snippet !== $customField->getName()) {
+            return $snippet;
+        }
+
         $labels = $customField->getConfig()['label'] ?? null;
 
         return $this->getTranslatedLabel(\is_array($labels) ? $labels : [], $context) ?? $customField->getName();

@@ -37,11 +37,11 @@ class SitemapFileRoute
         return $this->extensions->publish(
             name: SitemapFileExtension::NAME,
             extension: new SitemapFileExtension($request, $context, $filePath),
-            function: $this->_getSitemapFile(...)
+            function: fn (Request $request, SalesChannelContext $context, string $filePath): Response => $this->_getSitemapFile($context, $filePath)
         );
     }
 
-    private function _getSitemapFile(Request $request, SalesChannelContext $context, string $filePath): Response
+    private function _getSitemapFile(SalesChannelContext $context, string $filePath): Response
     {
         $filePath = 'sitemap/' . $filePath;
 

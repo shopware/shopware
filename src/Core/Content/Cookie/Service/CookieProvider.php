@@ -44,7 +44,7 @@ class CookieProvider
         private readonly ScriptExecutor $scriptExecutor,
         array $sessionOptions = [],
         /**
-         * @phpstan-ignore phpat.restrictNamespacesInCore (Storefront dependency is nullable. Don't do that! This will be fixed with the next major version as it is not used anymore)
+         * @phpstan-ignore phpat.restrictNamespacesInCore (The optional legacy provider preserves Storefront extension compatibility without requiring Storefront)
          */
         private readonly ?CookieProviderInterface $legacyCookieProvider = null,
     ) {
@@ -55,9 +55,10 @@ class CookieProvider
     {
         $cookieGroups = new CookieGroupCollection();
 
-        if ($this->legacyCookieProvider && !Feature::isActive('v6.8.0.0')) {
-            // @deprecated tag:v6.8.0 - Legacy cookie conversion can be removed completely
-            $this->convertLegacyCookies($cookieGroups, $this->legacyCookieProvider->getCookieGroups());
+        if ($this->legacyCookieProvider !== null && (!Feature::has('v6.9.0.0') || !Feature::isActive('v6.9.0.0'))) {
+            // @deprecated tag:v6.9.0 - Remove the legacy provider conversion.
+            $legacyCookieGroups = Feature::silent('v6.9.0.0', fn () => $this->legacyCookieProvider->getCookieGroups());
+            $this->convertLegacyCookies($cookieGroups, $legacyCookieGroups);
         } else {
             $cookieGroups->add($this->getCookieGroupRequiredEntries());
             $cookieGroups->add($this->getCookieGroupStatistical());
@@ -221,7 +222,7 @@ class CookieProvider
         foreach ($legacyCookieGroups as $legacyCookieGroup) {
             $snippetName = $legacyCookieGroup['snippet_name'] ?? null;
             if (!\is_string($snippetName)) {
-                throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup);
+                Feature::silent('v6.9.0.0', static fn () => throw CookieException::invalidLegacyCookieGroupProvided($legacyCookieGroup));
             }
 
             $cookieGroup = $cookieGroupCollection->get($snippetName);
@@ -263,7 +264,7 @@ class CookieProvider
                 foreach ($legacyCookieGroup['entries'] as $entry) {
                     $cookie = $entry['cookie'] ?? null;
                     if (!\is_string($cookie)) {
-                        throw CookieException::invalidLegacyCookieEntryProvided($entry);
+                        Feature::silent('v6.9.0.0', static fn () => throw CookieException::invalidLegacyCookieEntryProvided($entry));
                     }
                     $cookieEntry = new CookieEntry($cookie);
 

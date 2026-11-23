@@ -59,10 +59,7 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-search-bar': true,
                     'sw-entity-listing': {
-                        props: [
-                            'items',
-                            'dataSource',
-                        ],
+                        props: ['items', 'dataSource'],
                         template: `
 <div>
     <template v-for="item in (dataSource || items)">
@@ -82,7 +79,7 @@ async function createWrapper(privileges = []) {
 describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     it('should not be able to create a new currency', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-currency-list__button-create');
 
@@ -90,10 +87,8 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to create a new currency', async () => {
-        const wrapper = await createWrapper([
-            'currencies.creator',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['currencies.creator']);
+        await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-currency-list__button-create');
 
@@ -102,7 +97,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should not be able to inline edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-currency-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -110,10 +105,8 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'currencies.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['currencies.editor']);
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-currency-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -122,17 +115,15 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-currency-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'currencies.deleter',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['currencies.deleter']);
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-currency-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -140,17 +131,15 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-currency-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'currencies.editor',
-        ]);
-        await wrapper.vm.$nextTick();
+        const wrapper = await createWrapper(['currencies.editor']);
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-currency-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();

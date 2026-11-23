@@ -46,7 +46,7 @@ class CustomerGroupRegistrationActionController
     /**
      * @throws Exception
      */
-    #[Route(path: '/api/_action/customer-group-registration/accept', name: 'api.customer-group.accept', methods: ['POST'], requirements: ['version' => '\d+'])]
+    #[Route(path: '/api/_action/customer-group-registration/accept', name: 'api.customer-group.accept', methods: ['POST'])]
     public function accept(Request $request, Context $context): JsonResponse
     {
         $silentError = $request->request->getBoolean('silentError');
@@ -100,7 +100,7 @@ class CustomerGroupRegistrationActionController
     /**
      * @throws Exception
      */
-    #[Route(path: '/api/_action/customer-group-registration/decline', name: 'api.customer-group.decline', methods: ['POST'], requirements: ['version' => '\d+'])]
+    #[Route(path: '/api/_action/customer-group-registration/decline', name: 'api.customer-group.decline', methods: ['POST'])]
     public function decline(Request $request, Context $context): JsonResponse
     {
         $silentError = $request->request->getBoolean('silentError');

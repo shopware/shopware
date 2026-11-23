@@ -12,8 +12,14 @@
 
 import { NodeTypes, type TemplateChildNode } from '@vue/compiler-dom';
 import type { ShopwareSetupMode } from '../utils/shopware-setup-block';
-import { ShopwareSetupTransformError } from '../utils/transform-error';
-import { type DirectiveNode, type ElementNode, getDefaultSlotDirective, isSwBlockExtends } from './template-references';
+import { ShopwareSetupInternalError, ShopwareSetupTransformError } from '../utils/transform-error';
+import {
+    type DirectiveNode,
+    type ElementNode,
+    type UnmappableExpression,
+    getDefaultSlotDirective,
+    isSwBlockExtends,
+} from './template-references';
 
 function getDirectNamedSlot(node: ElementNode): ElementNode | undefined {
     for (const child of node.children) {
@@ -124,28 +130,33 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
 }
 
 /**
- * Rejects writing to a forwarded override binding from `<sw-block extends>` content.
+ * Rejects a `<sw-block extends>` expression whose forwarded references cannot be rewritten.
  *
- * A forwarded binding arrives in the block's slot scope ref-unwrapped, as a slot-scope local, so a
- * template write (`@click="count = count + 1"`, `count++`) assigns to that local and silently no-ops -
- * the identical line works in a base component, which makes it a nasty trap. Reject it and point the
- * author at mutating the value from a method in the override setup instead.
+ * Every forwarded binding is reached through the generated slot scope, which means lowering has to
+ * rewrite each reference in place. Vue hands expressions back with HTML entities already decoded, and the
+ * analyzer maps offsets back through complete character references only: an entity written without its
+ * semicolon (`count &lt max`), or one that decodes to several characters, leaves no reliable position.
+ * That is rare and trivially avoidable, so it is reported rather than guessed at.
  */
-function assertNoWritesToForwardedBindings(
-    writeTargets: Map<string, number>,
-    forwardableNames: Set<string>,
+function assertMappableForwardedReferences(
+    unmappableExpressions: UnmappableExpression[],
+    forwardedNames: Set<string>,
     templateOffset: number,
 ): void {
-    writeTargets.forEach((offset, name) => {
-        if (!forwardableNames.has(name)) {
+    unmappableExpressions.forEach((expression) => {
+        const blocked = Array.from(expression.names).filter((name) => forwardedNames.has(name));
+
+        if (blocked.length === 0) {
             return;
         }
 
         throw new ShopwareSetupTransformError(
-            `Cannot assign to "${name}" inside <sw-block extends> content: forwarded override bindings are read-only ` +
-                'there (the write targets a slot-scope local and has no effect). Mutate the value from a method defined ' +
-                'in the override setup and call that instead.',
-            templateOffset + offset,
+            `An expression inside <sw-block extends> content reads the forwarded override ` +
+                `${blocked.length === 1 ? 'binding' : 'bindings'} ${blocked.map((name) => `"${name}"`).join(', ')} ` +
+                'and contains an HTML entity that cannot be mapped back to the source: one without its terminating ' +
+                'semicolon, or one that decodes to several characters. The reference is rewritten into the generated ' +
+                'slot scope in place. Terminate the entity with ";" or write the character itself.',
+            templateOffset + expression.offset,
         );
     });
 }
@@ -174,12 +185,15 @@ function assertOverrideTemplateTopLevel(children: TemplateChildNode[], templateO
             return;
         }
 
+        // Text-node ranges include leading whitespace; point at the content the author must move.
+        const contentOffset = node.type === NodeTypes.TEXT ? node.loc.source.search(/\S/) : 0;
+
         throw new ShopwareSetupTransformError(
             'An override template may only contain <sw-block extends="..."> blocks at its top level. An override ' +
                 'component renders only inside the blocks it extends, so any other top-level markup would never render ' +
                 'and its setup references would resolve against the hidden override component. Move it into a ' +
                 '<sw-block extends> block.',
-            templateOffset + node.loc.start.offset,
+            templateOffset + node.loc.start.offset + contentOffset,
         );
     });
 }
@@ -212,7 +226,7 @@ function findOpeningTagAttributeEnd(template: string, elementStart: number): num
         }
     }
 
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> opening tag end.', elementStart);
+    throw new ShopwareSetupInternalError('Unable to locate <sw-block> opening tag end.', elementStart);
 }
 
 /**
@@ -228,14 +242,14 @@ function findOpeningTagNameEnd(template: string, elementStart: number): number {
         }
     }
 
-    throw new ShopwareSetupTransformError('Unable to locate <sw-block> tag name end.', elementStart);
+    throw new ShopwareSetupInternalError('Unable to locate <sw-block> tag name end.', elementStart);
 }
 
 /**
  * @private
  */
 export {
-    assertNoWritesToForwardedBindings,
+    assertMappableForwardedReferences,
     assertOverrideTemplateTopLevel,
     assertSwBlockAttributes,
     findOpeningTagAttributeEnd,

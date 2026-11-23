@@ -30,10 +30,7 @@ const documentTypeMock = [
 
 const supportedDocumentTypesMock = {
     invoice: {
-        formats: [
-            'pdf',
-            'zugferd_xml',
-        ],
+        formats: ['pdf', 'zugferd_xml'],
     },
     credit_note: { formats: ['pdf'] },
 };
@@ -106,75 +103,84 @@ async function createWrapper(sequence = {}) {
 }
 
 describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
-    it('should show validation if document multiple type field is empty', async () => {
-        const wrapper = await createWrapper();
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should show validation if document multiple type field is empty',
+        async () => {
+            const wrapper = await createWrapper();
 
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-        await flushPromises();
+            const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
+            await saveButton.trigger('click');
+            await flushPromises();
 
-        const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
-        expect(documentTypeSelect.classes()).toContain('has--error');
+            const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
+            expect(documentTypeSelect.classes()).toContain('has--error');
 
-        await wrapper.setData({
-            documentTypesSelected: ['invoice'],
-        });
+            await wrapper.setData({
+                documentTypesSelected: ['invoice'],
+            });
 
-        await saveButton.trigger('click');
+            await saveButton.trigger('click');
 
-        expect(documentTypeSelect.classes()).not.toContain('has--error');
-    });
+            expect(documentTypeSelect.classes()).not.toContain('has--error');
+        },
+    );
 
-    it('should emit process-finish when document multiple type is selected', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.setData({
-            documentTypesSelected: [
-                'invoice',
-                'delivery_note',
-            ],
-        });
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should emit process-finish when document multiple type is selected',
+        async () => {
+            const wrapper = await createWrapper();
+            await wrapper.setData({
+                documentTypesSelected: ['invoice', 'delivery_note'],
+            });
 
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-        await flushPromises();
+            const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
+            await saveButton.trigger('click');
+            await flushPromises();
 
-        expect(wrapper.emitted()['process-finish'][0]).toEqual([
-            {
-                config: {
-                    documentTypes: [
-                        {
-                            documentType: 'invoice',
-                            documentRangerType: 'document_invoice',
-                        },
-                        {
-                            documentType: 'delivery_note',
-                            documentRangerType: 'document_delivery_note',
-                        },
-                    ],
+            expect(wrapper.emitted()['process-finish'][0]).toEqual([
+                {
+                    config: {
+                        documentTypes: [
+                            {
+                                documentType: 'invoice',
+                                documentRangerType: 'document_invoice',
+                            },
+                            {
+                                documentType: 'delivery_note',
+                                documentRangerType: 'document_delivery_note',
+                            },
+                        ],
+                    },
                 },
-            },
-        ]);
-    });
+            ]);
+        },
+    );
 
-    it('should not preselect a document type when switching back from a v2 config and require an explicit choice before saving', async () => {
-        const wrapper = await createWrapper({
-            config: {
-                documentType: 'invoice',
-                fileFormats: ['pdf'],
-            },
-        });
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should not preselect a document type when switching back from a v2 config and require an explicit choice before saving',
+        async () => {
+            const wrapper = await createWrapper({
+                config: {
+                    documentType: 'invoice',
+                    fileFormats: ['pdf'],
+                },
+            });
 
-        expect(wrapper.vm.documentTypesSelected).toEqual([]);
+            expect(wrapper.vm.documentTypesSelected).toEqual([]);
 
-        const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
-        await saveButton.trigger('click');
-        await flushPromises();
+            const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
+            await saveButton.trigger('click');
+            await flushPromises();
 
-        expect(wrapper.emitted()['process-finish']).toBeUndefined();
+            expect(wrapper.emitted()['process-finish']).toBeUndefined();
 
-        const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
-        expect(documentTypeSelect.classes()).toContain('has--error');
-    });
+            const documentTypeSelect = wrapper.find('.sw-flow-generate-document-modal__type-multi-select');
+            expect(documentTypeSelect.classes()).toContain('has--error');
+        },
+    );
 
     describe('document generation rework', () => {
         afterEach(() => {
@@ -202,10 +208,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
             expect(wrapper.find('.sw-flow-generate-document-modal__file-formats-select').exists()).toBe(true);
 
             expect(wrapper.vm.supportedDocumentTypes).toEqual(supportedDocumentTypesMock);
-            expect(wrapper.vm.documentTypeOptions.map((type) => type.value)).toEqual([
-                'invoice',
-                'credit_note',
-            ]);
+            expect(wrapper.vm.documentTypeOptions.map((type) => type.value)).toEqual(['invoice', 'credit_note']);
         });
 
         it('should not preselect a document type when the sequence has a legacy multi-type config', async () => {
@@ -213,10 +216,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
 
             const wrapper = await createWrapper({
                 config: {
-                    documentTypes: [
-                        { documentType: 'invoice' },
-                        { documentType: 'credit_note' },
-                    ],
+                    documentTypes: [{ documentType: 'invoice' }, { documentType: 'credit_note' }],
                 },
             });
             await flushPromises();
@@ -257,10 +257,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 fileFormatsSelected: ['pdf'],
             });
 
-            expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual([
-                'pdf',
-                'zugferd_xml',
-            ]);
+            expect(wrapper.vm.fileFormatOptions.map((format) => format.value)).toEqual(['pdf', 'zugferd_xml']);
 
             wrapper.vm.onDocumentTypeSelectedChange('credit_note');
             await flushPromises();
@@ -294,10 +291,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
 
             await wrapper.setData({
                 documentTypeSelected: 'invoice',
-                fileFormatsSelected: [
-                    'pdf',
-                    'zugferd_xml',
-                ],
+                fileFormatsSelected: ['pdf', 'zugferd_xml'],
             });
 
             const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
@@ -308,10 +302,7 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
                 {
                     config: {
                         documentType: 'invoice',
-                        fileFormats: [
-                            'pdf',
-                            'zugferd_xml',
-                        ],
+                        fileFormats: ['pdf', 'zugferd_xml'],
                     },
                 },
             ]);

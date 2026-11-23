@@ -28,7 +28,7 @@ export interface ContentSystemStyleOptionSpecification {
 /**
  * @private
  */
-export interface ContentSystemStyleOptionResponse {
+interface ContentSystemStyleOptionResponse {
     styleOptions: Record<string, ContentSystemStyleOptionSpecification>;
 }
 

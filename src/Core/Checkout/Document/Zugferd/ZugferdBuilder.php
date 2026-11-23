@@ -17,11 +17,17 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'ZUGFeRD XML is produced by the DocumentV2 XML renderer without a public builder API.',
+)]
 class ZugferdBuilder
 {
     private string $currentDocumentType;
@@ -74,7 +80,7 @@ class ZugferdBuilder
     {
         match ($lineItem->getType()) {
             LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE => $document->withProductLineItem($lineItem, $parentPosition),
-            LineItem::PROMOTION_LINE_ITEM_TYPE => $document->withDiscountItem($lineItem),
+            LineItem::PROMOTION_LINE_ITEM_TYPE, LineItem::DISCOUNT_LINE_ITEM => $document->withDiscountItem($lineItem),
             LineItem::CREDIT_LINE_ITEM_TYPE => $this->handleCreditLineItem($document, $lineItem, $parentPosition),
             default => null,
         };

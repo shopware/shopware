@@ -3,11 +3,22 @@
  */
 import type { ContextState } from '../../../app/composables/use-context';
 
+const { Criteria } = Shopware.Data;
+
+/**
+ * Kept outside of the store state on purpose: it only deduplicates concurrent requests and must not be reactive.
+ */
+let pendingCustomerRequest: {
+    customerId: EntityKey<'customer'>;
+    request: Promise<Entity<'customer'> | null>;
+} | null = null;
+
 interface OrderAddressId {
-    orderAddressId: string;
-    customerAddressId: string;
+    orderAddressId: EntityKey<'order_address'>;
+    customerAddressId: EntityKey<'customer_address'>;
     type: string;
     edited: boolean;
+    deliveryId?: EntityKey<'order_delivery'>;
 }
 
 const swOrderDetailStore = Shopware.Store.register({
@@ -15,7 +26,8 @@ const swOrderDetailStore = Shopware.Store.register({
 
     state() {
         return {
-            order: null as EntitySchema.order | null,
+            order: null as Entity<'order'> | null,
+            customer: null as Entity<'customer'> | null,
             loading: {
                 order: false, // live version id
                 recalculation: false, // custom version id
@@ -50,27 +62,65 @@ const swOrderDetailStore = Shopware.Store.register({
             this.loading[name] = data;
         },
 
+        /**
+         * Loading the customer once into the store keeps order detail components (i.e. order address selection
+         * components) in sync, so creations and edits in one component are immediately available in all others.
+         */
+        loadCustomer(customerId: EntityKey<'customer'>, reload = false): Promise<Entity<'customer'> | null> {
+            if (!reload && this.customer?.id === customerId) {
+                return Promise.resolve(this.customer);
+            }
+
+            if (!reload && pendingCustomerRequest?.customerId === customerId) {
+                return pendingCustomerRequest.request;
+            }
+
+            const criteria = new Criteria(1, 25);
+            criteria.addAssociation('addresses.country');
+
+            const request = Shopware.Service('repositoryFactory')
+                .create('customer')
+                .get(customerId, Shopware.Context.api, criteria)
+                .then((customer) => {
+                    this.customer = customer;
+
+                    return customer;
+                })
+                .finally(() => {
+                    if (pendingCustomerRequest?.request === request) {
+                        pendingCustomerRequest = null;
+                    }
+                });
+
+            pendingCustomerRequest = { customerId, request };
+
+            return request;
+        },
+
+        resetCustomer() {
+            this.customer = null;
+            pendingCustomerRequest = null;
+        },
+
         setOrderAddressIds(value?: OrderAddressId | null) {
             if (!value) {
                 this.orderAddressIds = [];
                 return;
             }
 
-            const { orderAddressId, customerAddressId, type, edited } = value;
+            const { orderAddressId, customerAddressId, type, edited, deliveryId } = value;
+            const isSameSelection = (ids: OrderAddressId) =>
+                ids.orderAddressId === orderAddressId && ids.type === type && ids.deliveryId === deliveryId;
 
             // Handle deletion scenario where orderAddressId matches customerAddressId
-            if (orderAddressId === customerAddressId && !edited) {
-                this.orderAddressIds = this.orderAddressIds.filter(
-                    (ids) => !(ids.orderAddressId === orderAddressId && ids.type === type),
-                );
+            if (String(orderAddressId) === String(customerAddressId) && !edited) {
+                this.orderAddressIds = this.orderAddressIds.filter((ids) => !isSameSelection(ids));
 
                 return;
             }
 
             // Find index of the existing item
-            const index = this.orderAddressIds.findIndex(
-                (ids) => ids.orderAddressId === orderAddressId && ids.type === type,
-            );
+            const index = this.orderAddressIds.findIndex(isSameSelection);
 
             // If found, update the existing item
             if (index !== -1) {

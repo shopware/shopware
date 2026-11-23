@@ -173,10 +173,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-expor
         jest.clearAllMocks();
     });
 
-    it('is a Vue component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('renders all insight cards when user can view orders and customers', () => {
         const cards = wrapper.findAll('.sw-chart-card');
 
@@ -216,19 +212,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-expor
             return originalGetByName(name);
         });
 
-        wrapper.vm.historyOrderDataCount = [
-            { id: '1' },
-            { id: '2' },
-            { id: '3' },
-        ];
-        wrapper.vm.historyCustomerDataCount = [
-            { id: '1' },
-            { id: '2' },
-        ];
-        wrapper.vm.historyOrderDataSum = [
-            { amountTotal: 100 },
-            { amountTotal: 250 },
-        ];
+        wrapper.vm.historyOrderDataCount = [{ id: '1' }, { id: '2' }, { id: '3' }];
+        wrapper.vm.historyCustomerDataCount = [{ id: '1' }, { id: '2' }];
+        wrapper.vm.historyOrderDataSum = [{ amountTotal: 100 }, { amountTotal: 250 }];
 
         expect(wrapper.vm.orderCountSummary).toBe(3);
         expect(wrapper.vm.customerCountSummary).toBe(2);

@@ -39,10 +39,7 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
         expect(fs.readFileSync(path.join(shimDir, 'eslint.mjs'), 'utf8')).toContain('shopwareAdminExtension');
 
         // Multi-bundle suite with independent roots: one bridge per root.
-        for (const bundle of [
-            'BundleA',
-            'BundleB',
-        ]) {
+        for (const bundle of ['BundleA', 'BundleB']) {
             expect(
                 fs.existsSync(
                     path.join(projectRoot, `custom/plugins/Suite/src/${bundle}/Resources/app/administration/.shopware`),
@@ -55,6 +52,20 @@ describe('scripts/extensionTooling/setup automatic bridging', () => {
             fs.existsSync(path.join(projectRoot, 'vendor/acme/custom-admin/src/Resources/app/administration/.shopware')),
         ).toBe(true);
         expect(result.writes.some((write) => write.file.includes('.shopware'))).toBe(true);
+    });
+
+    it('bridges the jest factory rooted at the extension, without scaffolding a jest config', () => {
+        setupExtensionTooling({ projectRoot, administrationRoot });
+
+        const adminFolder = path.join(projectRoot, 'custom/plugins/ZeroConfig/src/Resources/app/administration');
+        const shimJest = fs.readFileSync(path.join(adminFolder, '.shopware/jest.mjs'), 'utf8');
+        const factorySpecifier = /from "(.+\/extension-tooling\/jest\.mjs)"/.exec(shimJest)?.[1] ?? '';
+
+        expect(path.resolve(adminFolder, '.shopware', factorySpecifier)).toBe(
+            path.join(administrationRoot, 'extension-tooling', 'jest.mjs'),
+        );
+        expect(shimJest).toContain('shopwareAdminJest({ rootDir: adminFolder, ...options })');
+        expect(fs.existsSync(path.join(adminFolder, 'jest.config.mjs'))).toBe(false);
     });
 
     it('scaffolds committable plugin configs that extend the bridge and are never overwritten', () => {

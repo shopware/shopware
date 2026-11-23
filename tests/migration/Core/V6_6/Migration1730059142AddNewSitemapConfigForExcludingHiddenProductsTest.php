@@ -34,7 +34,7 @@ class Migration1730059142AddNewSitemapConfigForExcludingHiddenProductsTest exten
 
     public function testMigration(): void
     {
-        static::assertEmpty($this->getConfig());
+        static::assertCount(0, $this->getConfig());
 
         $migration = new Migration1730059142AddNewSitemapConfigForExcludingHiddenProducts();
         $migration->update($this->connection);

@@ -114,7 +114,7 @@ class ProductSortingStreamSearchTest extends TestCase
         $this->ids = $ids;
 
         $allIndices = $this->indexDetector->getAllUsedIndices();
-        static::assertNotEmpty($allIndices, 'No ES indices found. Keys: ' . implode(', ', array_keys($allIndices)));
+        static::assertNotCount(0, $allIndices, 'No ES indices found. Keys: ' . implode(', ', array_keys($allIndices)));
 
         $indexName = array_keys($allIndices)[0];
 
@@ -404,7 +404,7 @@ class ProductSortingStreamSearchTest extends TestCase
 
         $command->run(new ArrayInput([]), new NullOutput());
 
-        static::assertNotEmpty($this->indexDetector->getAllUsedIndices());
+        static::assertNotCount(0, $this->indexDetector->getAllUsedIndices());
 
         // Create custom fields
         $customFieldRepository = static::getContainer()->get('custom_field_set.repository');

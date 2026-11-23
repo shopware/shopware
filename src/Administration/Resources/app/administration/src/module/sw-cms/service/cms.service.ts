@@ -220,9 +220,10 @@ class CmsService {
         return this.mappingTypesCache[entityName];
     }
 
-    private async addCustomFieldsToMappingTypes(entityName: string, mappings: EntityMappings): Promise<void> {
+    private async searchAllMappableCustomFields(entityName: string): Promise<Entity<'custom_field'>[]> {
         const customFieldRepository = Shopware.Service('repositoryFactory').create('custom_field');
-        const criteria = new Shopware.Data.Criteria(1, 50);
+        const limit = 100;
+        const criteria = new Shopware.Data.Criteria(1, limit);
         criteria.addFilter(Shopware.Data.Criteria.equals('customFieldSet.relations.entityName', entityName));
         criteria.addFilter(Shopware.Data.Criteria.equals('active', 1));
         criteria.addFilter(
@@ -232,8 +233,27 @@ class CmsService {
                 Shopware.Data.Criteria.equals('type', 'html'),
             ]),
         );
+        // Without a stable sort, pages can overlap or skip custom fields.
+        criteria.addSorting(Shopware.Data.Criteria.sort('name', 'ASC'));
+        criteria.setTotalCountMode(1);
 
-        const customFields = await customFieldRepository.search(criteria, Shopware.Context.api);
+        const firstPage = await customFieldRepository.search(criteria, Shopware.Context.api);
+        const totalPages = Math.ceil((firstPage.total ?? 0) / limit);
+
+        const remainingPages = await Promise.all(
+            Array.from({ length: Math.max(totalPages - 1, 0) }, (_, index) =>
+                customFieldRepository.search(
+                    Shopware.Data.Criteria.fromCriteria(criteria).setPage(index + 2),
+                    Shopware.Context.api,
+                ),
+            ),
+        );
+
+        return [firstPage, ...remainingPages].flatMap((page) => [...page]);
+    }
+
+    private async addCustomFieldsToMappingTypes(entityName: string, mappings: EntityMappings): Promise<void> {
+        const customFields = await this.searchAllMappableCustomFields(entityName);
         customFields.forEach((customField: Entity<'custom_field'>) => {
             const customFieldConfig = customField.config as { customFieldType?: string } | undefined;
 
@@ -351,14 +371,8 @@ class CmsService {
         property: string,
         deep: boolean = true,
     ): void {
-        const toOneAssociation = [
-            'many_to_one',
-            'one_to_one',
-        ].includes(propSchema.relation!);
-        const toManyAssociation = [
-            'one_to_many',
-            'many_to_many',
-        ].includes(propSchema.relation!);
+        const toOneAssociation = ['many_to_one', 'one_to_one'].includes(propSchema.relation!);
+        const toManyAssociation = ['one_to_many', 'many_to_many'].includes(propSchema.relation!);
 
         if (toOneAssociation && propSchema.entity) {
             this.addToMappingEntity(mappings, propSchema, pathPrefix, property);
@@ -435,7 +449,7 @@ class CmsService {
 
         if (Array.isArray(configValue)) {
             const entityIds: string[] = [];
-            const mediaItems = configValue as { mediaId: string }[];
+            const mediaItems = configValue as { mediaId: EntityKey<'media'> }[];
 
             if (mediaItems.length && mediaItems[0].mediaId) {
                 mediaItems.forEach((val) => {
@@ -463,12 +477,7 @@ function CmsElementCollect(slot: RuntimeSlot) {
 
     let entityCount = 0;
     Object.keys(slot.config).forEach((key) => {
-        if (
-            [
-                'mapped',
-                'default',
-            ].includes(slot.config[key].source)
-        ) {
+        if (['mapped', 'default'].includes(slot.config[key].source)) {
             return;
         }
 
@@ -499,12 +508,7 @@ function CmsElementCollectWithInheritance(slot: RuntimeSlot) {
 
     let entityCount = 0;
     Object.keys(slot.config).forEach((configKey) => {
-        if (
-            [
-                'mapped',
-                'default',
-            ].includes(slot.config[configKey].source)
-        ) {
+        if (['mapped', 'default'].includes(slot.config[configKey].source)) {
             return;
         }
 
@@ -578,11 +582,4 @@ Application.addServiceProvider('cmsService', () => new CmsService());
  * @private
  * @sw-package discovery
  */
-export {
-    CmsService,
-    type CmsElementConfig,
-    type CmsBlockConfig,
-    type CmsSlotConfig,
-    type RuntimeSlot,
-    type EnrichedSlotData,
-};
+export { CmsService, type CmsElementConfig, type CmsBlockConfig, type CmsSlotConfig, type RuntimeSlot };

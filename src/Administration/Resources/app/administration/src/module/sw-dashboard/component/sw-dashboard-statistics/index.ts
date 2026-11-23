@@ -3,7 +3,7 @@ import './sw-dashboard-statistics.scss';
 
 const { Criteria } = Shopware.Data;
 
-type OrderEntity = EntitySchema.order;
+type OrderEntity = Entity<'order'>;
 
 type HistoryDateRange = {
     label: string;
@@ -54,11 +54,7 @@ interface ComponentData {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'stateStyleDataProviderService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'stateStyleDataProviderService', 'acl'],
 
     data(): ComponentData {
         return {
@@ -279,6 +275,11 @@ export default Shopware.Component.wrapComponentConfig({
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-dashboard-statistics.dateFilter is deprecated. Will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
     },
@@ -521,8 +522,3 @@ export default Shopware.Component.wrapComponentConfig({
         },
     },
 });
-
-/**
- * @private might get removed with any update (even minor!) as it likely gets replaced by shopware analytics
- */
-export type { HistoryDateRange };

@@ -4,12 +4,6 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 
 use PHPUnit\Event\Code\TestDox;
 use PHPUnit\Event\Code\TestMethod;
-use PHPUnit\Event\Telemetry\Duration;
-use PHPUnit\Event\Telemetry\GarbageCollectorStatus;
-use PHPUnit\Event\Telemetry\HRTime;
-use PHPUnit\Event\Telemetry\Info;
-use PHPUnit\Event\Telemetry\MemoryUsage;
-use PHPUnit\Event\Telemetry\Snapshot;
 use PHPUnit\Event\Test\PreparationStarted;
 use PHPUnit\Event\TestData\TestDataCollection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -23,6 +17,7 @@ use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\Subscriber\TestPreparationS
 use Shopware\Tests\Integration\Core\Test\PHPUnit\Extension\FeatureFlag\_fixtures\ClassLevelOffender;
 use Shopware\Tests\Integration\Core\Test\PHPUnit\Extension\FeatureFlag\_fixtures\CleanFixture;
 use Shopware\Tests\Integration\Core\Test\PHPUnit\Extension\FeatureFlag\_fixtures\MethodLevelOffender;
+use Shopware\Tests\Unit\Core\Test\PHPUnit\TelemetryInfoFactory;
 
 /**
  * @internal
@@ -41,7 +36,7 @@ class TestPreparationStartedSubscriberTest extends TestCase
         $subscriber = new TestPreparationStartedSubscriber(new SavedConfig());
 
         $this->expectExceptionObject(new \RuntimeException(\sprintf(
-            '#[DisabledFeatures] on %s::testSomething has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major runs with FEATURE_ALL=major. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
+            '#[DisabledFeatures] on %s::testSomething has no effect in the integration suite. Feature state there comes from the job configuration: the default integration job runs with feature flags off, integration-major enables the version flag. Remove the attribute; if the test must not run under an active major flag, guard it with Feature::skipTestIfActive() instead.',
             $class
         )));
 
@@ -74,21 +69,8 @@ class TestPreparationStartedSubscriberTest extends TestCase
      */
     private function preparationStartedFor(string $class, string $method): PreparationStarted
     {
-        $snapshot = new Snapshot(
-            HRTime::fromSecondsAndNanoseconds(0, 0),
-            MemoryUsage::fromBytes(0),
-            MemoryUsage::fromBytes(0),
-            new GarbageCollectorStatus(0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, false, false, false, 0),
-        );
-
         return new PreparationStarted(
-            new Info(
-                $snapshot,
-                Duration::fromSecondsAndNanoseconds(0, 0),
-                MemoryUsage::fromBytes(0),
-                Duration::fromSecondsAndNanoseconds(0, 0),
-                MemoryUsage::fromBytes(0),
-            ),
+            TelemetryInfoFactory::create(),
             new TestMethod(
                 $class,
                 $method,

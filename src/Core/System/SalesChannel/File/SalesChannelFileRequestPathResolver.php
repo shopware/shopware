@@ -28,7 +28,7 @@ final class SalesChannelFileRequestPathResolver
             || $fileFamily === '.'
             || $fileFamily === '..'
             || mb_strlen($fileFamily) > self::MAX_FILE_FAMILY_LENGTH
-            || preg_match('/^[A-Za-z0-9_-]+$/', $fileFamily) !== 1
+            || preg_match('/^[A-Za-z0-9_-]+$/D', $fileFamily) !== 1
         ) {
             throw SalesChannelException::invalidSalesChannelFileFamily($fileFamily);
         }
@@ -48,7 +48,7 @@ final class SalesChannelFileRequestPathResolver
 
         $segments = explode('/', $path);
         foreach ($segments as $segment) {
-            if ($segment === '' || $segment === '.' || $segment === '..' || preg_match('/^[A-Za-z0-9._-]+$/', $segment) !== 1) {
+            if ($segment === '' || $segment === '.' || $segment === '..' || preg_match('/^[A-Za-z0-9._-]+$/D', $segment) !== 1) {
                 throw SalesChannelException::invalidSalesChannelFilePath($path);
             }
         }

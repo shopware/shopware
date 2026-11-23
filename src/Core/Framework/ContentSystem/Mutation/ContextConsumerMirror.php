@@ -15,7 +15,7 @@ use Shopware\Core\Framework\ContentSystem\Resolution\PropertyResolution;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Mirrors resolved acceptsContext consumers onto the elements a mutation created: a parent-resolved reference
+ * Mirrors resolved acceptsContext consumers onto the elements a mutation freshly scaffolded: a parent-resolved reference
  * becomes a parent-scope consumer, a root-resolved one a {@see ConsumerScope::Root} consumer.
  *
  * @internal
@@ -27,7 +27,7 @@ class ContextConsumerMirror
 {
     /**
      * @param array<string, list<PropertyResolution>> $resolutions per-element resolutions, keyed by element id
-     * @param list<string> $createdElementIds the mutation's created() ids
+     * @param list<string> $createdElementIds the mutation's freshlyScaffolded() ids
      */
     public function apply(StoredTree $tree, array $resolutions, array $createdElementIds): StoredTree
     {
@@ -46,7 +46,7 @@ class ContextConsumerMirror
         }
 
         // No consumer written, so this identical instance is returned.
-        return $changed ? new StoredTree($roots) : $tree;
+        return $changed ? $tree->withRoots($roots) : $tree;
     }
 
     /**

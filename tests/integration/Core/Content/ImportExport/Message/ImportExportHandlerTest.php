@@ -12,6 +12,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Content\ImportExport\AbstractImportExportTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\TraceableMessageBus;
@@ -108,21 +109,14 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportMessage = new ImportExportMessage($context, 'invalid_id', ImportExportLogEntity::ACTIVITY_IMPORT);
 
-        $importExportExceptionImportExportHandlerEventCount = 0;
+        $events = [];
 
-        $this->listener
-            ->addListener(
-                ImportExportExceptionImportExportHandlerEvent::class,
-                static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
-                    static::assertInstanceOf(InvalidUuidException::class, $event->getException());
-                    static::assertSame(
-                        0,
-                        $event->getException()->getCode()
-                    );
-                    static::assertSame($importExportMessage, $event->getMessage());
-                    ++$importExportExceptionImportExportHandlerEventCount;
-                }
-            );
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
+            ImportExportExceptionImportExportHandlerEvent::class,
+            static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$events): void {
+                $events[] = $event;
+            }
+        );
 
         $importExportHandler->__invoke($importExportMessage);
 
@@ -131,6 +125,12 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
         });
 
         static::assertCount($importExportMessageCount, $messages);
-        static::assertSame(1, $importExportExceptionImportExportHandlerEventCount);
+        static::assertCount(1, $events);
+        static::assertInstanceOf(InvalidUuidException::class, $events[0]->getException());
+        static::assertSame(
+            0,
+            $events[0]->getException()->getCode()
+        );
+        static::assertSame($importExportMessage, $events[0]->getMessage());
     }
 }

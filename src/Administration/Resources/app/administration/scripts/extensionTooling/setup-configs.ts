@@ -9,7 +9,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { record, warn } from './setup-context';
+import { record, warnTypeCheckOrLint } from './setup-context';
 import type { GeneratorContext } from './setup-context';
 import { eslintConfigVerdict, tsconfigVerdict } from './probe-static';
 import { describeConfigFix } from './report-guidance';
@@ -39,11 +39,7 @@ const SOURCE_EXTENSIONS = [
  * that adds jest types. The committed runtime config excludes these suffixes;
  * the generated spec tsconfig (setup-bridge) includes exactly them.
  */
-export const SPEC_FILE_SUFFIXES = [
-    'spec.ts',
-    'spec.tsx',
-    'spec.js',
-];
+export const SPEC_FILE_SUFFIXES = ['spec.ts', 'spec.tsx', 'spec.js'];
 
 /** Collapses a multi-line fix into one warning sentence — the indentation only reads in the report's tree. */
 function flattenFix(fix: string[]): string {
@@ -60,13 +56,7 @@ function settingsFragment(settings: Record<string, unknown>): string[] {
     const entries = Object.entries(settings);
 
     return entries.map(
-        (
-            [
-                name,
-                value,
-            ],
-            index,
-        ) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
+        ([name, value], index) => `    "${name}": ${JSON.stringify(value)}${index < entries.length - 1 ? ',' : ''}`,
     );
 }
 
@@ -74,10 +64,7 @@ function settingsFragment(settings: Record<string, unknown>): string[] {
 function nestKeys(settings: Record<string, unknown>): Record<string, unknown> {
     const nested: Record<string, unknown> = {};
 
-    for (const [
-        dottedKey,
-        value,
-    ] of Object.entries(settings)) {
+    for (const [dottedKey, value] of Object.entries(settings)) {
         const segments = dottedKey.split('.');
         let cursor = nested;
 
@@ -113,7 +100,7 @@ export function ensureEntitySchema(context: GeneratorContext): boolean {
     ].join('\n');
 
     record(context, writeManagedFile(entitySchemaPath, stubContent, context.dryRun));
-    warn(
+    warnTypeCheckOrLint(
         context,
         'The generated entity schema types are missing; a stub with an empty entity list was created. ' +
             `Run \`${context.commands.generateSchema}\` to get installation-specific entity types.`,
@@ -368,7 +355,7 @@ export function scaffoldExtensionConfigs(
         const verdict = tsconfigVerdict(tsconfigPath, relativePosix(context.projectRoot, tsconfigPath));
 
         if (!verdict.composes) {
-            warn(
+            warnTypeCheckOrLint(
                 context,
                 `${tsconfigPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware preset.'} ` +
                     `Fix: ${flattenFix(describeConfigFix('TypeScript', verdict))}`,
@@ -381,7 +368,7 @@ export function scaffoldExtensionConfigs(
         const verdict = eslintConfigVerdict(eslintPath, relativePosix(context.projectRoot, eslintPath));
 
         if (!verdict.composes) {
-            warn(
+            warnTypeCheckOrLint(
                 context,
                 `${eslintPath} already exists and was not touched — ${verdict.detail ?? 'it does not compose the Shopware factory.'} ` +
                     `Fix: ${flattenFix(describeConfigFix('ESLint', verdict))}`,

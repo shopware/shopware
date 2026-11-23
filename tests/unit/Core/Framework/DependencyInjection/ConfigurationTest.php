@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\StringNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -29,6 +31,19 @@ class ConfigurationTest extends TestCase
         $tree = $configuration->getConfigTreeBuilder();
 
         static::assertSame('shopware', $tree->buildTree()->getName());
+    }
+
+    public function testUserRecoveryIsEnabledByDefaultAndCanBeDisabled(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['api' => []]]);
+
+        static::assertTrue($config['api']['user_recovery']['enabled']);
+
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'api' => ['user_recovery' => ['enabled' => false]],
+        ]]);
+
+        static::assertFalse($config['api']['user_recovery']['enabled']);
     }
 
     public function testFeatureToggleConfigTreeNode(): void
@@ -49,6 +64,87 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('enable', $nodes);
         $node = $nodes['enable'];
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+    }
+
+    public function testFeatureCanDeclareItsParentMajor(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0'],
+                    ['name' => 'JSON_LD_DATA', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+
+        static::assertArrayNotHasKey('major', $config['feature']['flags']['v6.8.0.0']);
+        static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testFeatureRejectsBooleanMajor(bool $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'FEATURE_NEXT_123', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidParentMajorDataProvider(): iterable
+    {
+        yield 'incomplete version' => ['v6.8.0'];
+        yield 'patch version' => ['v6.8.1.0'];
+        yield 'environment variable name' => ['V6_8_0_0'];
+        yield 'trailing newline' => ["v6.8.0.0\n"];
+    }
+
+    #[DataProvider('invalidParentMajorDataProvider')]
+    public function testFeatureRejectsInvalidParentMajor(string $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'JSON_LD_DATA', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testFeatureCannotBeItsOwnParentMajor(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testMajorVersionFlagCannotBeAnotherMajorSubFeature(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.9.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
     }
 
     public function testCdnPathCacheBusterDefaultsToTrue(): void
@@ -100,6 +196,65 @@ class ConfigurationTest extends TestCase
         ]);
     }
 
+    #[DataProvider('validNoVarySearchProvider')]
+    public function testNoVarySearchConfigTreeNode(string $value): void
+    {
+        $config = $this->processNoVarySearch($value);
+
+        static::assertSame($value, $config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function validNoVarySearchProvider(): iterable
+    {
+        yield 'key order' => ['key-order'];
+        yield 'params list' => ['key-order, params=("utm_source" "gclid")'];
+        yield 'all params with except' => ['params, except=("q")'];
+    }
+
+    public function testNoVarySearchDefaultsToNull(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => ['headers' => ['cache_control' => ['public' => true]]],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertNull($config['http_cache']['policies']['my_policy']['headers']['no_vary_search']);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    #[DataProvider('invalidNoVarySearchProvider')]
+    public function testNoVarySearchConfigRejectsInvalidValues($value, string $given): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException(\sprintf(
+            'Invalid configuration for path "shopware.http_cache.policies.my_policy.headers.no_vary_search": '
+            . 'The "no_vary_search" option must be a single line of printable ASCII, %s given.',
+            $given
+        )));
+
+        $this->processNoVarySearch($value);
+    }
+
+    /**
+     * @return iterable<string, array{0: mixed, 1: string}>
+     */
+    public static function invalidNoVarySearchProvider(): iterable
+    {
+        // a header value must never be able to smuggle a second header
+        yield 'header injection via CRLF' => ["key-order\r\nX-Injected: 1", '"key-order\r\nX-Injected: 1"'];
+        yield 'newline' => ["key-order\n", '"key-order\n"'];
+        yield 'empty string' => ['', '""'];
+    }
+
     public function testTranslationConfigDefaultsToNull(): void
     {
         $configuration = new Configuration();
@@ -109,6 +264,7 @@ class ConfigurationTest extends TestCase
         static::assertSame([
             'repository_url' => null,
             'metadata_url' => null,
+            'archive_manifest_url' => null,
             'community_translations_url' => null,
             'documentation_url_snippet_key' => null,
             'completeness_threshold' => null,
@@ -180,7 +336,7 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('major', $nodes);
         $node = $nodes['major'];
-        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+        static::assertInstanceOf(StringNodeDefinition::class, $node);
 
         static::assertArrayHasKey('toggleable', $nodes);
         $node = $nodes['toggleable'];
@@ -344,6 +500,7 @@ class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(new Configuration(), []);
 
+        static::assertTrue($config['app_system']['enable_url_validation']);
         static::assertFalse($config['app_system']['allow_unencrypted_traffic']);
         static::assertSame([], $config['app_system']['allowed_private_ip_addresses']);
     }
@@ -353,12 +510,14 @@ class ConfigurationTest extends TestCase
         $config = (new Processor())->processConfiguration(new Configuration(), [
             [
                 'app_system' => [
+                    'enable_url_validation' => false,
                     'allow_unencrypted_traffic' => true,
                     'allowed_private_ip_addresses' => ['10.0.0.10', 'fd00::1'],
                 ],
             ],
         ]);
 
+        static::assertFalse($config['app_system']['enable_url_validation']);
         static::assertTrue($config['app_system']['allow_unencrypted_traffic']);
         static::assertSame(['10.0.0.10', 'fd00::1'], $config['app_system']['allowed_private_ip_addresses']);
     }
@@ -373,6 +532,22 @@ class ConfigurationTest extends TestCase
                     'allowed_private_ip_addresses' => ['not-an-ip'],
                 ],
             ],
+        ]);
+    }
+
+    public function testMediaAllowedProtocolsDefaultToAllSupportedProtocols(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [['media' => []]]);
+
+        static::assertSame(['http', 'https', 'ftp'], $config['media']['allowed_protocols']);
+    }
+
+    public function testMediaAllowedProtocolsRejectUnsupportedProtocol(): void
+    {
+        $this->expectExceptionObject(new InvalidConfigurationException('The value "gopher" is not allowed for path "shopware.media.allowed_protocols.1". Permissible values: "http", "https", "ftp".'));
+
+        (new Processor())->processConfiguration(new Configuration(), [
+            ['media' => ['allowed_protocols' => ['https', 'gopher']]],
         ]);
     }
 
@@ -593,6 +768,24 @@ class ConfigurationTest extends TestCase
         static::assertFalse($systemConfigs['system_config'][$salesChannelId]['core.listing.allowBuyInListing']);
     }
 
+    public function testEmptyArraySystemConfigValue(): void
+    {
+        $configuration = new Configuration();
+        $salesChannelId = Uuid::randomHex();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            'shopware' => [
+                'system_config' => [
+                    'default' => ['foo.ids' => ['global-id']],
+                    $salesChannelId => ['foo.ids' => []],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['global-id'], $config['system_config']['default']['foo.ids']);
+        static::assertSame([], $config['system_config'][$salesChannelId]['foo.ids']);
+    }
+
     public function testInvalidSystemConfigKeys(): void
     {
         $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID'));
@@ -607,6 +800,233 @@ class ConfigurationTest extends TestCase
                     ],
                     'foobar' => [
                         'core.listing.allowBuyInListing' => false,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function testTelemetryAddAllowedValuesUnionsAcrossSources(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['add_allowed_values' => ['core_a', 'core_b', 'other']],
+            ['add_allowed_values' => ['plugin_a', 'core_b']],
+        );
+
+        static::assertSame(['core_a', 'core_b', 'other', 'plugin_a'], $label['add_allowed_values']);
+        static::assertSame([], $label['allowed_values'] ?? []);
+    }
+
+    public function testTelemetryAllowedValuesReplacesAndDiscardsContributions(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['add_allowed_values' => ['core_a', 'core_b']],
+            ['add_allowed_values' => ['plugin_a']],
+            ['allowed_values' => ['project_a', 'other']],
+        );
+
+        static::assertSame(['project_a', 'other'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLaterAllowedValuesWins(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['allowed_values' => ['first']],
+            ['allowed_values' => ['second']],
+        );
+
+        static::assertSame(['second'], $label['allowed_values']);
+    }
+
+    public function testTelemetryContributionsAfterLockAreStillDiscarded(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['allowed_values' => ['base']],
+            ['add_allowed_values' => ['plugin_a']],
+        );
+
+        static::assertSame(['base'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryOpenLabelKeepsContributionsVisible(): void
+    {
+        // no base list to extend on an open label: the contributions are inert at runtime,
+        // but stay in the processed config so debug:config shows what a source tried to add
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['add_allowed_values' => ['plugin_a']],
+        );
+
+        static::assertSame('open', $label['policy']);
+        static::assertSame(['plugin_a'], $label['add_allowed_values']);
+        static::assertSame([], $label['allowed_values'] ?? []);
+    }
+
+    public function testTelemetryOpenLabelLockIsLegal(): void
+    {
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['add_allowed_values' => ['plugin_a']],
+            ['allowed_values' => ['product', 'other']],
+        );
+
+        static::assertSame('open', $label['policy']);
+        // folding mechanism is still applied, even though open policy ignores bounding afterwards
+        static::assertSame(['product', 'other'], $label['allowed_values']);
+        static::assertSame([], $label['add_allowed_values']);
+    }
+
+    public function testTelemetryLaterSourcePolicyOverrideBoundsAnOpenLabel(): void
+    {
+        // bounding an open label is an explicit policy override: `policy` is last-source-wins,
+        // so project config can turn a shipped open label into a bounded one
+        $label = $this->processTelemetryLabel(
+            ['policy' => 'open'],
+            ['policy' => 'replace', 'allowed_values' => ['product', 'other']],
+        );
+
+        static::assertSame('replace', $label['policy']);
+        static::assertSame(['product', 'other'], $label['allowed_values']);
+    }
+
+    public function testTelemetryLabelRejectsMissingValuesAndPolicy(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->processTelemetryLabel([]);
+    }
+
+    public function testTelemetryMappingsMergePerKey(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'entity_group' => ['swag_blog_*' => 'blog', 'swag_shared' => 'core_value'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'entity_group' => ['swag_shared' => 'project_value'],
+                            'swag_custom' => ['foo' => 'bar'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $mappings = $config['telemetry']['metrics']['mappings'];
+        static::assertSame('blog', $mappings['entity_group']['swag_blog_*']);
+        static::assertSame('project_value', $mappings['entity_group']['swag_shared']);
+        static::assertSame(['foo' => 'bar'], $mappings['swag_custom']);
+    }
+
+    public function testTelemetryMappingKeysAreNotNormalized(): void
+    {
+        // route names and action segments carry dashes, message keys carry backslashes; the default
+        // config-tree key normalization (`-` → `_`) would silently break every such lookup at runtime
+        $config = (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'telemetry' => [
+                    'metrics' => [
+                        'mappings' => [
+                            'route_domain' => ['store-api.product*' => 'product', 'frontend.checkout.line-item*' => 'cart'],
+                            'action_domain' => ['import-export' => 'import-export'],
+                            'message_group' => ['Swag\\Blog\\Message\\*' => 'blog'],
+                            'swag-paypal_refund_kind' => ['refund-full' => 'full'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame([
+            'route_domain' => ['store-api.product*' => 'product', 'frontend.checkout.line-item*' => 'cart'],
+            'action_domain' => ['import-export' => 'import-export'],
+            'message_group' => ['Swag\\Blog\\Message\\*' => 'blog'],
+            'swag-paypal_refund_kind' => ['refund-full' => 'full'],
+        ], $config['telemetry']['metrics']['mappings']);
+    }
+
+    #[DataProvider('nonStringTelemetryMappingValues')]
+    public function testTelemetryMappingRejectsNonStringValues(mixed $value): void
+    {
+        try {
+            (new Processor())->processConfiguration(new Configuration(), [
+                ['telemetry' => ['metrics' => ['mappings' => ['entity_group' => ['swag_blog_*' => $value]]]]],
+            ]);
+            static::fail('Expected a non-string mapping value to be rejected');
+        } catch (InvalidConfigurationException $e) {
+            static::assertStringContainsString('Telemetry label mapping values must be strings', $e->getMessage());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonStringTelemetryMappingValues(): iterable
+    {
+        yield 'integer' => [1];
+        yield 'float' => [1.5];
+        yield 'boolean' => [true];
+        yield 'null' => [null];
+    }
+
+    /**
+     * Each argument is one config source (framework, plugin, project, ...) for the same label,
+     * merged in argument order.
+     *
+     * @param array<string, mixed> ...$labelSources
+     *
+     * @return array<string, mixed> the processed configuration of that label
+     */
+    private function processTelemetryLabel(array ...$labelSources): array
+    {
+        $sources = [];
+        foreach ($labelSources as $labelSource) {
+            $sources[] = [
+                'telemetry' => [
+                    'metrics' => [
+                        'definitions' => [
+                            'test.metric' => [
+                                'type' => 'counter',
+                                'labels' => ['test_label' => $labelSource],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        $config = (new Processor())->processConfiguration(new Configuration(), $sources);
+
+        return $config['telemetry']['metrics']['definitions']['test.metric']['labels']['test_label'];
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return array<string, mixed>
+     */
+    private function processNoVarySearch($value): array
+    {
+        return (new Processor())->processConfiguration(new Configuration(), [
+            [
+                'http_cache' => [
+                    'policies' => [
+                        'my_policy' => [
+                            'headers' => [
+                                'cache_control' => ['public' => true],
+                                'no_vary_search' => $value,
+                            ],
+                        ],
                     ],
                 ],
             ],

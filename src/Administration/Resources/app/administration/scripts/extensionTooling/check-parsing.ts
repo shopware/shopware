@@ -20,11 +20,7 @@ const LINTABLE_EXTENSIONS = [
     '.mjs',
     '.cjs',
 ];
-const TYPE_CHECKABLE_EXTENSIONS = [
-    '.ts',
-    '.tsx',
-    '.vue',
-];
+const TYPE_CHECKABLE_EXTENSIONS = ['.ts', '.tsx', '.vue'];
 
 /**
  * Breadth-first walk of every source path, skipping node_modules, yielding the
@@ -290,18 +286,12 @@ export function deduplicateByMaximumMultiplicity<F>(groups: F[][], keyOf: (findi
             groupCounts.set(key, (groupCounts.get(key) ?? 0) + 1);
         }
 
-        for (const [
-            key,
-            count,
-        ] of groupCounts) {
+        for (const [key, count] of groupCounts) {
             maximumCounts.set(key, Math.max(maximumCounts.get(key) ?? 0, count));
         }
     }
 
-    return [...maximumCounts.entries()].flatMap(
-        ([
-            key,
-            count,
-        ]) => Array.from({ length: count }, () => representatives.get(key) as F),
+    return [...maximumCounts.entries()].flatMap(([key, count]) =>
+        Array.from({ length: count }, () => representatives.get(key) as F),
     );
 }

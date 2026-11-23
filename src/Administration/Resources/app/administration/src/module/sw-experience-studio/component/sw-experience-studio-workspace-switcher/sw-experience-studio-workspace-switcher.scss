@@ -1,0 +1,40 @@
+.sw-experience-studio-workspace-switcher {
+    min-width: 0;
+    max-width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+
+    .mt-button__content {
+        min-width: 0;
+        max-width: 100%;
+        grid-template-columns: 16px minmax(0, 1fr) 12px;
+    }
+
+    &__menu {
+        width: 480px;
+        max-width: calc(100vw - 32px);
+        max-height: var(--reka-dropdown-menu-content-available-height);
+        overflow-y: auto;
+    }
+
+    &__entry-content {
+        display: grid;
+        flex: 1;
+        grid-template-columns: minmax(0, 1fr);
+        align-items: center;
+        min-width: 0;
+    }
+
+    &__entry.is--active > .mt-icon {
+        color: var(--color-icon-brand-default);
+    }
+
+    &__entry.is--active &__name {
+        color: var(--color-text-brand-default);
+    }
+
+    &__name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

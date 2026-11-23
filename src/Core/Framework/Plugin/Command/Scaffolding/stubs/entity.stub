@@ -2,46 +2,25 @@
 
 namespace {{ namespace }}\Core\Content\{{ entityName }};
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\FieldType;
+use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
 
-class {{ entityName }}Entity extends Entity
+#[Entity('{{ tableName }}', collectionClass: {{ entityName }}Collection::class)]
+class {{ entityName }}Entity extends EntityStruct
 {
-    use EntityIdTrait;
+    #[PrimaryKey]
+    #[Field(type: FieldType::UUID, api: ['admin-api' => true, 'store-api' => false])]
+    public string $id;
 
-    protected ?string $name;
+    #[Field(type: FieldType::STRING, api: ['admin-api' => true, 'store-api' => false])]
+    public ?string $name = null;
 
-    protected ?string $description;
+    #[Field(type: FieldType::STRING, api: ['admin-api' => true, 'store-api' => false])]
+    public ?string $description = null;
 
-    protected bool $active;
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): void
-    {
-        $this->description = $description;
-    }
-
-    public function isActive(): bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): void
-    {
-        $this->active = $active;
-    }
+    #[Field(type: FieldType::BOOL, api: ['admin-api' => true, 'store-api' => false])]
+    public ?bool $active = null;
 }

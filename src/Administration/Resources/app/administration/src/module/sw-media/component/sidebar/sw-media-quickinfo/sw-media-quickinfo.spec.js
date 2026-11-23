@@ -3,8 +3,9 @@
 /**
  * @sw-package discovery
  */
-import { mount } from '@vue/test-utils';
+import { config, mount } from '@vue/test-utils';
 import 'src/module/sw-media/mixin/media-sidebar-modal.mixin';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const itemMock = (options = {}) => {
     const itemOptions = {
@@ -35,6 +36,37 @@ const arPlacementOptions = [
 const originalCreateObjectURL = window.URL.createObjectURL;
 const originalRevokeObjectURL = window.URL.revokeObjectURL;
 
+/**
+ * The real service on a stubbed HTTP client, so the component's `getConfig()` call reaches its deprecation.
+ */
+function createSystemConfigApiService() {
+    const httpClient = {
+        get: () =>
+            Promise.resolve({
+                data: [
+                    {
+                        elements: [
+                            {
+                                name: 'core.media.defaultARPlacement',
+                                config: {
+                                    options: arPlacementOptions,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            }),
+    };
+    const service = new SystemConfigApiService(httpClient, { getToken: () => 'token' });
+    service.getValues = () => {
+        return Promise.resolve({
+            'core.store.media.defaultEnableAugmentedReality': 'false',
+        });
+    };
+
+    return service;
+}
+
 async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaRepositoryProvideFunctions = {}) {
     return mount(await wrapTestComponent('sw-media-quickinfo', { sync: true }), {
         global: {
@@ -58,27 +90,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
                         ...mediaRepositoryProvideFunctions,
                     }),
                 },
-                systemConfigApiService: {
-                    getValues: () => {
-                        return Promise.resolve({
-                            'core.store.media.defaultEnableAugmentedReality': 'false',
-                        });
-                    },
-                    getConfig: () => {
-                        return Promise.resolve([
-                            {
-                                elements: [
-                                    {
-                                        name: 'core.media.defaultARPlacement',
-                                        config: {
-                                            options: arPlacementOptions,
-                                        },
-                                    },
-                                ],
-                            },
-                        ]);
-                    },
-                },
+                systemConfigApiService: createSystemConfigApiService(),
                 mediaService: {
                     renameMedia: () => Promise.resolve(),
                     prepareDownloadMedia: jest.fn(),
@@ -144,13 +156,7 @@ async function createWrapper(itemMockOptions, mediaServiceFunctions = {}, mediaR
  * @returns {[[object,boolean, boolean]]} [i][0] Array of options for the mockItem, [i][1] flag for if 'isSpatial', [i][2] flag for if 'isArReady'
  */
 function provide2DMockOptions() {
-    return [
-        [
-            {},
-            false,
-            false,
-        ],
-    ];
+    return [[{}, false, false]];
 }
 
 /**
@@ -221,6 +227,15 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         Shopware.Store.get('actionButtons').buttons = [];
     });
 
+    it('should load the AR placement options from the media system config', async () => {
+        const getConfig = jest.spyOn(SystemConfigApiService.prototype, 'getConfig');
+
+        await createWrapper();
+        await flushPromises();
+
+        expect(getConfig).toHaveBeenCalledWith('core.media');
+    });
+
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -245,6 +260,23 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
 
         const editMenuItem = wrapper.find('.quickaction--move');
         expect(editMenuItem.classes()).toContain('sw-media-sidebar__quickaction--disabled');
+    });
+
+    it('should limit the alt text to the 255 characters the database can store', async () => {
+        global.activeAclRoles = ['media.editor'];
+        // the alt field sits in the default slot of the stubbed metadata item
+        config.global.renderStubDefaultSlot = true;
+
+        const wrapper = await createWrapper({ hasFile: true });
+        await flushPromises();
+        config.global.renderStubDefaultSlot = false;
+
+        const altField = wrapper.findAll('sw-confirm-field-stub').find((field) => {
+            return field.attributes('placeholder')?.includes('sw-media.sidebar.metadata.altText');
+        });
+
+        expect(altField).toBeDefined();
+        expect(altField.attributes('max-length')).toBe('255');
     });
 
     it('should be able to edit', async () => {
@@ -276,9 +308,7 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
                     Promise.reject({
                         response: {
                             data: {
-                                errors: [
-                                    error,
-                                ],
+                                errors: [error],
                             },
                         },
                     }),
@@ -291,17 +321,17 @@ describe('module/sw-media/components/sw-media-quickinfo', () => {
         expect(wrapper.vm.fileNameError).toStrictEqual(error);
     });
 
-    it.each([
-        ...provide2DMockOptions(),
-        ...provide3DMockOptions(),
-    ])('should display ar-ready toggle if item is a 3D file', async (mockOptions, isSpatial) => {
-        global.activeAclRoles = ['media.editor'];
+    it.each([...provide2DMockOptions(), ...provide3DMockOptions()])(
+        'should display ar-ready toggle if item is a 3D file',
+        async (mockOptions, isSpatial) => {
+            global.activeAclRoles = ['media.editor'];
 
-        const wrapper = await createWrapper(mockOptions);
-        await flushPromises();
+            const wrapper = await createWrapper(mockOptions);
+            await flushPromises();
 
-        expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
-    });
+            expect(wrapper.find('.sw-media-sidebar__quickactions-switch.ar-ready-toggle').exists()).toBe(isSpatial);
+        },
+    );
 
     it.each(provide3DMockOptions())(
         'should trigger update:item event when ar-toggle is changed',

@@ -13,13 +13,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -53,6 +49,8 @@ export default {
             error: null,
             isEditingDomain: false,
             measurementSystems: [],
+            snippetSets: [],
+            locales: [],
         };
     },
 
@@ -82,8 +80,106 @@ export default {
             return this.$t('sw-sales-channel.detail.buttonEditDomain');
         },
 
+        snippetSetRepository() {
+            return this.repositoryFactory.create('snippet_set');
+        },
+
         snippetSetCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, null).addSorting(Criteria.sort('name', 'ASC'));
+        },
+
+        localeRepository() {
+            return this.repositoryFactory.create('locale');
+        },
+
+        localeCriteria() {
+            const criteria = new Criteria(1, null);
+            criteria.addFields('code', 'name');
+
+            return criteria;
+        },
+
+        localeCodesById() {
+            return Object.fromEntries(this.locales.map((locale) => [locale.id, locale.code]));
+        },
+
+        salesChannelLocaleCodes() {
+            return [...(this.salesChannel.languages ?? [])]
+                .map((language) => this.localeCodesById[language.localeId])
+                .filter((code) => !!code);
+        },
+
+        currentDomainLocaleCode() {
+            return this.getLocaleCode(this.currentDomain?.languageId);
+        },
+
+        languageNamesByPrefix() {
+            const names = {};
+
+            this.locales.forEach((locale) => {
+                const prefix = this.getLanguagePrefix(locale.code);
+                if (!(prefix in names)) {
+                    names[prefix] = locale.translated?.name ?? locale.name;
+                }
+            });
+
+            return names;
+        },
+
+        snippetSetGroups() {
+            const seen = new Set();
+
+            return this.snippetSetOptions
+                .filter((option) => !seen.has(option.group) && seen.add(option.group))
+                .map((option) => ({
+                    id: option.group,
+                    label:
+                        option.group === 'misc'
+                            ? this.$t('sw-sales-channel.detail.snippetSetGroupOther')
+                            : (this.languageNamesByPrefix[option.group] ?? option.group.toUpperCase()),
+                }));
+        },
+
+        snippetSetOptions() {
+            const currentPrefix = this.currentDomainLocaleCode ? this.getLanguagePrefix(this.currentDomainLocaleCode) : null;
+            const salesChannelPrefixes = this.salesChannelLocaleCodes.map(this.getLanguagePrefix);
+
+            const options = [...this.snippetSets].map((snippetSet) => {
+                const prefix = this.getLanguagePrefix(snippetSet.iso);
+                const isSalesChannelLanguage = salesChannelPrefixes.includes(prefix);
+
+                let groupRank = 2;
+                if (prefix === currentPrefix) {
+                    groupRank = 0;
+                } else if (isSalesChannelLanguage) {
+                    groupRank = 1;
+                }
+
+                let rank = 2;
+                if (snippetSet.iso === this.currentDomainLocaleCode) {
+                    rank = 0;
+                } else if (this.salesChannelLocaleCodes.includes(snippetSet.iso)) {
+                    rank = 1;
+                }
+
+                return {
+                    value: snippetSet.id,
+                    label: snippetSet.name,
+                    iso: snippetSet.iso,
+                    group: isSalesChannelLanguage ? prefix : 'misc',
+                    groupRank,
+                    rank,
+                };
+            });
+
+            return options.sort((a, b) => {
+                return (
+                    a.groupRank - b.groupRank ||
+                    a.group.localeCompare(b.group) ||
+                    a.rank - b.rank ||
+                    a.label.localeCompare(b.label)
+                );
+            });
         },
 
         salesChannelFilterCriteria() {
@@ -110,10 +206,7 @@ export default {
                 this.salesChannel.currencies?.getIds?.() ??
                 (this.salesChannel.currencies ?? []).map((currency) => currency.id);
 
-            [
-                this.salesChannel.currencyId,
-                this.currentDomain?.currencyId,
-            ].forEach((currencyId) => {
+            [this.salesChannel.currencyId, this.currentDomain?.currencyId].forEach((currencyId) => {
                 if (currencyId && !currencyIds.includes(currencyId)) {
                     currencyIds.push(currencyId);
                 }
@@ -185,7 +278,31 @@ export default {
 
     methods: {
         async createdComponent() {
-            this.measurementSystems = await this.measurementSystemRepository.search(this.measurementSystemCriteria);
+            [
+                this.measurementSystems,
+                this.snippetSets,
+                this.locales,
+            ] = await Promise.all([
+                this.measurementSystemRepository.search(this.measurementSystemCriteria),
+                this.snippetSetRepository.search(this.snippetSetCriteria),
+                this.localeRepository.search(this.localeCriteria),
+            ]);
+
+            if (this.currentDomain && !this.isEditingDomain && !this.currentDomain.snippetSetId) {
+                this.preselectSnippetSet(this.currentDomain.languageId);
+            }
+        },
+
+        getLanguagePrefix(localeCode) {
+            return localeCode.split(/[-_]/)[0].toLowerCase();
+        },
+
+        snippetSetSearchFunction({ options, labelProperty, searchTerm }) {
+            const term = searchTerm.toLowerCase();
+
+            return options.filter((option) => {
+                return option[labelProperty].toLowerCase().includes(term) || option.iso.toLowerCase().includes(term);
+            });
         },
 
         sortColumns(column) {
@@ -359,6 +476,7 @@ export default {
 
             this.currentDomain = domain;
             this.isEditingDomain = false;
+            this.preselectSnippetSet(domain.languageId);
         },
 
         async onClickAddNewDomain() {
@@ -432,13 +550,50 @@ export default {
         },
 
         onLanguageSelect(id) {
+            this.currentDomain.languageId = id;
             this.onOptionSelect('language', this.salesChannel.languages.get(id));
+            this.preselectSnippetSet(id);
 
             if (!this.currentDomain.isExternalStorefront || !this.isExternalStorefrontDisabled) {
                 return;
             }
 
             this.currentDomain.isExternalStorefront = false;
+        },
+
+        getLocaleCode(languageId) {
+            const language = this.salesChannel.languages?.get?.(languageId);
+
+            return this.localeCodesById[language?.localeId] ?? null;
+        },
+
+        preselectSnippetSet(languageId) {
+            const localeCode = this.getLocaleCode(languageId);
+
+            if (!localeCode) {
+                return;
+            }
+
+            const prefix = this.getLanguagePrefix(localeCode);
+            const currentSet = this.snippetSets.find((set) => set.id === this.currentDomain.snippetSetId);
+
+            if (currentSet && this.getLanguagePrefix(currentSet.iso) === prefix) {
+                return;
+            }
+
+            // Options are sorted with the exact locale match first, so the first hit of the group is the best candidate
+            const option = this.snippetSetOptions.find((candidate) => this.getLanguagePrefix(candidate.iso) === prefix);
+
+            if (!option) {
+                return;
+            }
+
+            this.onSnippetSetSelect(option.value);
+        },
+
+        onSnippetSetSelect(id) {
+            this.currentDomain.snippetSetId = id;
+            this.onOptionSelect('snippetSet', this.snippetSets.find((snippetSet) => snippetSet.id === id) ?? null);
         },
 
         onOptionSelect(name, entity) {

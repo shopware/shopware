@@ -44,7 +44,7 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
         const tabs = wrapper.getComponent({ name: 'mt-tabs' });
 
         await tabs.vm.$emit('new-item-active', 'sorting');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('sorting');
         expect(wrapper.find('.sw-cms-el-config-product-listing__content-info').exists()).toBe(false);
@@ -77,11 +77,11 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
     it('should show use-filter-properties-option when properties available', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // calculate showPropertySelection
+        await flushPromises(); // calculate showPropertySelection
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        await wrapper.vm.$nextTick(); // re-render view
+        await flushPromises(); // re-render view
 
         const showUseFilterByPropertiesSwitchField = wrapper.find(
             'input[aria-label="sw-cms.elements.productListing.config.filter.labelUseFilterByProperties"]',
@@ -99,18 +99,14 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
     it('should sort properties by status', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises(); // fetch property_group call
 
         // enable filterByProperties otherwise any property is active
         wrapper.vm.filterByProperties = true;
 
         expect(wrapper.vm.showPropertySelection).toBeTruthy();
 
-        const expectedOrderWhenNoPropertiesAreActive = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedOrderWhenNoPropertiesAreActive = ['bar', 'baz', 'foo'];
         const propertiesOrderByAPI = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
@@ -119,13 +115,9 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
         wrapper.vm.element.config.propertyWhitelist.value = ['x02']; // activate Property_group 'baz'
         wrapper.vm.loadFilterableProperties();
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises(); // fetch property_group call
 
-        const expectedOrderWhenPropertyBazIsActive = [
-            'baz',
-            'bar',
-            'foo',
-        ];
+        const expectedOrderWhenPropertyBazIsActive = ['baz', 'bar', 'foo'];
         const propertiesOrderBySortingViaActiveState = wrapper.vm.properties.map((item) => item.name);
 
         expect(expectedOrderWhenPropertyBazIsActive).toEqual(propertiesOrderBySortingViaActiveState);
@@ -134,20 +126,16 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
     it('should filter properties by term', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises(); // fetch property_group call
         await flushPromises();
 
-        const expectedToDisplayProperties = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         wrapper.vm.filterPropertiesTerm = 'bar';
         wrapper.vm.onFilterProperties();
-        await wrapper.vm.$nextTick(); // fetch filtered list
+        await flushPromises(); // fetch filtered list
         await flushPromises();
 
         const expectedToDisplayFilteredProperties = ['bar'];
@@ -155,7 +143,7 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
 
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
-        await wrapper.vm.$nextTick(); // await template re-render
+        await flushPromises(); // await template re-render
         await flushPromises();
 
         const emptyStateElement = wrapper.findComponent({
@@ -167,25 +155,21 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
     it('should show an empty-state when filtered properties have no result', async () => {
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises(); // fetch property_group call
 
-        const expectedToDisplayProperties = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
         wrapper.vm.filterPropertiesTerm = 'notinlist';
         wrapper.vm.onFilterProperties();
-        await wrapper.vm.$nextTick(); // fetch filtered list
+        await flushPromises(); // fetch filtered list
 
         const expectedToDisplayFilteredProperties = [];
         const displayedFilteredProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayFilteredProperties).toEqual(displayedFilteredProperties);
 
-        await wrapper.vm.$nextTick(); // await template re-render
+        await flushPromises(); // await template re-render
 
         const emptyStateElement = wrapper.findComponent({
             name: 'sw-empty-state-stub',
@@ -197,13 +181,9 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
         /* eslint-disable inclusive-language/use-inclusive-words */
         const wrapper = await createWrapper('filter');
 
-        await wrapper.vm.$nextTick(); // fetch property_group call
+        await flushPromises(); // fetch property_group call
 
-        const expectedToDisplayProperties = [
-            'bar',
-            'baz',
-            'foo',
-        ];
+        const expectedToDisplayProperties = ['bar', 'baz', 'foo'];
         const displayedProperties = wrapper.vm.properties.map((item) => item.name);
         expect(expectedToDisplayProperties).toEqual(displayedProperties);
 
@@ -223,10 +203,7 @@ describe('src/module/sw-cms/elements/product-listing/config - filters', () => {
 
         // check that baz with the id x02 got added to the selection
         selectedProperties = wrapper.vm.element.config.propertyWhitelist.value;
-        expect(selectedProperties).toEqual([
-            'x03',
-            'x02',
-        ]);
+        expect(selectedProperties).toEqual(['x03', 'x02']);
 
         // simulate a click on a switch to deselect the property foo
         wrapper.vm.propertyStatusChanged(false, 'x03');

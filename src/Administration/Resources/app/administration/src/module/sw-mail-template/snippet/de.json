@@ -26,7 +26,7 @@
       "errorMediaItemDuplicated": "Medium bereits verwendet",
       "columnFilename": "Dateiname",
       "emptyStateTitle": "Noch keine E-Mail-Templates",
-      "emptyStateSubTitle": "Füge E-Mail-Templates über den \"Hinzufügen\"-Button hinzu."
+      "emptyStateSubTitle": "E-Mail-Templates legen den Inhalt der E-Mails fest, die Dein Shop an Kunden versendet."
     },
     "detail": {
       "basic": {
@@ -102,7 +102,7 @@
       "titleSidebarItemRefresh": "Aktualisieren",
       "messageDeleteError": "Die Kopf- und Fußzeile \"{name}\" kann nicht gelöscht werden, solange Verkaufskanäle konfiguriert sind.",
       "emptyStateTitle": "Noch keine Kopf- und Fußzeile",
-      "emptyStateSubTitle": "Füge Kopf- und Fußzeile über den \"Hinzufügen\"-Button."
+      "emptyStateSubTitle": "Kopf- und Fußzeilen umrahmen den Inhalt jeder E-Mail, die Dein Shop versendet."
     },
     "detail": {
       "basic": {

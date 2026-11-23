@@ -4,22 +4,39 @@
     position-identifier="sw-mail-header-footer-list"
 >
     {% block sw_mail_header_footer_list_grid_empty_state %}
-    <sw-empty-state
+    <mt-empty-state
         v-if="!isLoading && !showListing"
-        :title="$t('sw-mail-header-footer.list.emptyStateTitle')"
-        :subline="$t('sw-mail-header-footer.list.emptyStateSubTitle')"
-        :absolute="false"
+        centered
+        icon="regular-envelope"
+        :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-mail-header-footer.list.emptyStateTitle')"
+        :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t('sw-mail-header-footer.list.emptyStateSubTitle')"
+        :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+        :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
     >
-        {% block sw_mail_header_footer_list_grid_empty_state_icon %}
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
-                :alt="$t('sw-mail-header-footer.list.emptyStateTitle')"
+        <template
+            v-if="!isValidTerm(term)"
+            #button
+        >
+            {% block sw_mail_header_footer_list_grid_empty_state_button %}
+            <mt-button
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('mail_templates.creator'),
+                    showOnDisabledElements: true
+                }"
+                variant="primary"
+                :disabled="!acl.can('mail_templates.creator')"
+                @click="$router.push({ name: 'sw.mail.template.create_head_foot' })"
             >
+                {{ $t('sw-mail-header-footer.list.buttonAddMailHeaderFooter') }}
+            </mt-button>
+            {% endblock %}
         </template>
-        {% endblock %}
-    </sw-empty-state>
+    </mt-empty-state>
     {% endblock %}
+
+    {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+    {% block sw_mail_header_footer_list_grid_empty_state_icon %}{% endblock %}
 
     {% block sw_mail_template_list_grid %}
     <template #grid>

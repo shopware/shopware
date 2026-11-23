@@ -21,12 +21,11 @@ use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
 use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
-use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
-use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -36,7 +35,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -69,16 +68,6 @@ class SendMailActionTest extends TestCase
      */
     private LoggerInterface $logger;
 
-    /**
-     * @var LanguageLocaleCodeProvider&Stub
-     */
-    private LanguageLocaleCodeProvider $languageLocaleProvider;
-
-    /**
-     * @var AbstractTranslator&Stub
-     */
-    private AbstractTranslator $translator;
-
     private SendMailAction $action;
 
     protected function setUp(): void
@@ -86,8 +75,6 @@ class SendMailActionTest extends TestCase
         $this->mailTemplate = new MailTemplateEntity();
         $this->mailService = static::createStub(AbstractMailService::class);
         $this->mailTemplateRepository = static::createStub(EntityRepository::class);
-        $this->languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
-        $this->translator = static::createStub(Translator::class);
         $this->mailTemplateTypeRepository = static::createStub(EntityRepository::class);
         $this->logger = static::createStub(LoggerInterface::class);
 
@@ -107,6 +94,10 @@ class SendMailActionTest extends TestCase
         static::assertSame('action.mail.send', SendMailAction::getName());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Removed with mail template sample updates.
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     #[DataProvider('mailTemplateTypeProvider')]
     public function testUpdateMailTemplateType(MailTemplateTypeUpdateProvider $provider): void
     {
@@ -118,8 +109,10 @@ class SendMailActionTest extends TestCase
 
         $mailTemplateRepository = $this->createMock(EntityRepository::class);
         $mailTemplateTypeRepository = $this->createMock(EntityRepository::class);
+        $mailService = $this->createMock(AbstractMailService::class);
 
         $action = $this->createAction(
+            mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
             mailTemplateTypeRepository: $mailTemplateTypeRepository,
             connection: $connection,
@@ -174,6 +167,17 @@ class SendMailActionTest extends TestCase
         $flow->setData(CustomerAware::CUSTOMER, $customer);
         $flow->setConfig($config);
 
+        if ($provider->sensitive) {
+            $flow->setData('sensitive', true);
+            $flow->setData(FlowMailVariables::RESET_URL, 'BODY-SECRET');
+        }
+
+        $mailService->expects($this->once())->method('send')->with(
+            static::anything(),
+            $context,
+            ['eventName' => '', ...$flow->data()],
+        );
+
         $entitySearchResult = $this->createMock(EntitySearchResult::class);
         $entitySearchResult->expects($this->once())
             ->method('getEntities')
@@ -183,7 +187,7 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam) {
+        if (!Feature::isActive('v6.8.0.0') && $provider->mailTemplateTypeId && $provider->updateMailTemplateTypeParam && !$provider->sensitive) {
             $mailTemplateTypeRepository->expects($this->once())->method('update')->with([
                 [
                     'id' => $provider->mailTemplateTypeId,
@@ -282,16 +286,6 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $translator = $this->createMock(Translator::class);
-        $translator->expects($this->once())
-            ->method('getSnippetSetId')
-            ->willReturn(null);
-
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $languageLocaleProvider->expects($this->once())
-            ->method('getLocaleForLanguageId')
-            ->willReturn('en-GB');
-
         $mailService = $this->createMock(AbstractMailService::class);
         $mailService->expects($this->once())
             ->method('send')
@@ -314,8 +308,6 @@ class SendMailActionTest extends TestCase
         $this->createAction(
             mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
-            translator: $translator,
-            languageLocaleProvider: $languageLocaleProvider,
         )->handleFlow($flow);
     }
 
@@ -337,6 +329,12 @@ class SendMailActionTest extends TestCase
         yield 'mail template type id exists' => [new MailTemplateTypeUpdateProvider(
             updateMailTemplateTypeParam: true,
             mailTemplateTypeId: Uuid::randomHex(),
+        )];
+
+        yield 'sensitive mail is sent without persisting its sample data' => [new MailTemplateTypeUpdateProvider(
+            updateMailTemplateTypeParam: true,
+            mailTemplateTypeId: Uuid::randomHex(),
+            sensitive: true,
         )];
     }
 
@@ -454,16 +452,6 @@ class SendMailActionTest extends TestCase
             ->method('search')
             ->willReturn($entitySearchResult);
 
-        $translator = $this->createMock(Translator::class);
-        $translator->expects($this->once())
-            ->method('getSnippetSetId')
-            ->willReturn(null);
-
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
-        $languageLocaleProvider->expects($this->once())
-            ->method('getLocaleForLanguageId')
-            ->willReturn('en-GB');
-
         $mailService = $this->createMock(AbstractMailService::class);
         $mailService->expects($this->once())
             ->method('send')
@@ -488,9 +476,48 @@ class SendMailActionTest extends TestCase
         $this->createAction(
             mailService: $mailService,
             mailTemplateRepository: $mailTemplateRepository,
-            translator: $translator,
-            languageLocaleProvider: $languageLocaleProvider,
         )->handleFlow($flow);
+    }
+
+    public function testSendFailureDoesNotLogBodyOrExceptionContent(): void
+    {
+        $context = Context::createDefaultContext();
+        $templateId = Uuid::randomHex();
+        $this->mailTemplate->setId($templateId);
+        $this->mailTemplate->setTranslated([
+            'subject' => 'Recovery',
+            'contentHtml' => 'BODY-SECRET',
+            'contentPlain' => 'BODY-SECRET',
+        ]);
+        $this->mailTemplateRepository->method('search')->willReturn(new EntitySearchResult(
+            'mail_template',
+            1,
+            new MailTemplateCollection([$this->mailTemplate]),
+            null,
+            new Criteria(),
+            $context,
+        ));
+        $this->mailService->method('send')->willThrowException(new \RuntimeException('BODY-SECRET'));
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('error')->with(
+            'Could not send mail.',
+            static::callback(static function (array $data): bool {
+                static::assertSame('Recovery', $data['subject']);
+                static::assertSame(\RuntimeException::class, $data['exceptionClass']);
+                static::assertStringNotContainsString('BODY-SECRET', json_encode($data, \JSON_THROW_ON_ERROR));
+
+                return true;
+            }),
+        );
+
+        $flow = new StorableFlow('customer.recovery.request', $context);
+        $flow->setData('sensitive', true);
+        $flow->setConfig(['mailTemplateId' => $templateId, 'recipient' => ['type' => 'customer']]);
+        $flow->setData(MailAware::MAIL_STRUCT, new MailRecipientStruct(['customer@example.com' => 'Customer']));
+        $flow->setData(MailAware::SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
+
+        $this->createAction(logger: $logger, updateMailTemplateType: false)->handleFlow($flow);
     }
 
     /**
@@ -501,21 +528,18 @@ class SendMailActionTest extends TestCase
         ?AbstractMailService $mailService = null,
         ?EntityRepository $mailTemplateRepository = null,
         ?EntityRepository $mailTemplateTypeRepository = null,
-        ?AbstractTranslator $translator = null,
-        ?LanguageLocaleCodeProvider $languageLocaleProvider = null,
         ?Connection $connection = null,
         ?JsonEntityEncoder $encoder = null,
         bool $updateMailTemplateType = true,
+        ?LoggerInterface $logger = null,
     ): SendMailAction {
         return new SendMailAction(
             $mailService ?? $this->mailService,
             $mailTemplateRepository ?? $this->mailTemplateRepository,
-            $this->logger,
+            $logger ?? $this->logger,
             static::createStub(EventDispatcherInterface::class),
             $mailTemplateTypeRepository ?? $this->mailTemplateTypeRepository,
-            $translator ?? $this->translator,
             $connection ?? static::createStub(Connection::class),
-            $languageLocaleProvider ?? $this->languageLocaleProvider,
             $encoder ?? static::createStub(JsonEntityEncoder::class),
             static::createStub(DefinitionInstanceRegistry::class),
             $updateMailTemplateType
@@ -534,6 +558,7 @@ class MailTemplateTypeUpdateProvider
     public function __construct(
         public readonly bool $updateMailTemplateTypeParam,
         public readonly ?string $mailTemplateTypeId,
+        public readonly bool $sensitive = false,
     ) {
     }
 }

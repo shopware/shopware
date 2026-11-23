@@ -135,11 +135,11 @@ class TwigSwIncludeTest extends TestCase
 
         $twig = new TwigEnvironment($loader, ['cache' => false]);
 
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel->method('getBundles')
             ->willReturn($bundles);
 
-        $scopeDetector = $this->createMock(TemplateScopeDetector::class);
+        $scopeDetector = static::createStub(TemplateScopeDetector::class);
         $scopeDetector->method('getScopes')
             ->willReturn([TemplateScopeDetector::DEFAULT_SCOPE]);
 

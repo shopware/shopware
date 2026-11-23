@@ -13,11 +13,11 @@ use function Symfony\Component\String\u;
 #[Package('framework')]
 class LayoutPresetNameResolver
 {
-    private const SEGMENT_PATTERN = '/^[a-z0-9]+(-[a-z0-9]+)*$/';
+    private const SEGMENT_PATTERN = '/^[a-z0-9]+(-[a-z0-9]+)*$/D';
 
     public function resolve(string $relativePath, string $prefix): string
     {
-        $path = preg_replace('/\.(yaml|yml)$/', '', $relativePath);
+        $path = preg_replace('/\.(yaml|yml)$/D', '', $relativePath);
         if (!\is_string($path)) {
             throw ContentSystemException::layoutPresetInvalidFilename($relativePath, $relativePath);
         }

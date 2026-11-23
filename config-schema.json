@@ -323,6 +323,10 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "enable_url_validation": {
+                    "type": "boolean",
+                    "default": true
+                },
                 "allow_unencrypted_traffic": {
                     "type": "boolean",
                     "default": false
@@ -386,6 +390,36 @@
                     "type": "integer",
                     "minimum": 1,
                     "title": "Timeout in seconds for app webhook MCP tool calls."
+                },
+                "tool_result_cache_ttl": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "title": "Seconds a stored oversized MCP tool result is kept before the cleanup task removes it. The task runs hourly, so a result can stay up to an hour longer."
+                },
+                "protocol_era": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "admin": {
+                            "type": "string",
+                            "enum": [
+                                "legacy",
+                                "auto"
+                            ],
+                            "default": "legacy",
+                            "title": "MCP protocol revisions the Admin API endpoint serves. \"legacy\" serves the handshake revisions up to 2025-11-25. \"auto\" also serves the stateless 2026-07-28 revision, and the client picks."
+                        },
+                        "store_api": {
+                            "type": "string",
+                            "enum": [
+                                "legacy",
+                                "auto"
+                            ],
+                            "default": "legacy",
+                            "title": "MCP protocol revisions the Store API endpoint serves. \"legacy\" serves the handshake revisions up to 2025-11-25. \"auto\" also serves the stateless 2026-07-28 revision, and the client picks."
+                        }
+                    },
+                    "title": "MCP protocol revisions each endpoint serves."
                 }
             },
             "title": "MCP (Model Context Protocol)"
@@ -523,9 +557,23 @@
                 },
                 "rate_limiter": {
                     "$ref": "#/definitions/rate_limiter"
+                },
+                "user_recovery": {
+                    "$ref": "#/definitions/api_user_recovery"
                 }
             },
             "title": "API"
+        },
+        "api_user_recovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": true
+                }
+            },
+            "title": "Administration user password recovery"
         },
         "api_browser": {
             "type": "object",
@@ -553,7 +601,13 @@
                 "reset_password": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
+                "reset_password_client": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
                 "user_recovery": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "user_recovery_client": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "contact_form": {
@@ -569,6 +623,9 @@
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "import_export_file_download": {
+                    "$ref": "#/definitions/rate_limiter_config"
+                },
+                "checkout_draft": {
                     "$ref": "#/definitions/rate_limiter_config"
                 },
                 "mcp": {
@@ -639,6 +696,9 @@
             "additionalProperties": false,
             "properties": {
                 "enabled": {
+                    "type": "boolean"
+                },
+                "hide_module": {
                     "type": "boolean"
                 }
             },
@@ -1178,6 +1238,10 @@
                                             "stale_while_revalidate": { "type": "integer", "minimum": 0 },
                                             "stale_if_error": { "type": "integer", "minimum": 0 }
                                         }
+                                    },
+                                    "no_vary_search": {
+                                        "type": "string",
+                                        "title": "Verbatim value of the \"No-Vary-Search\" header, e.g. \"key-order\""
                                     }
                                 }
                             }
@@ -1481,6 +1545,25 @@
                 "url_upload_max_size": {
                     "type": "string"
                 },
+                "url_upload_timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "title": "Maximum duration in seconds for fetching a media file from a URL. Set to 0 to disable the timeout."
+                },
+                "external_link_timeout": {
+                    "type": "number",
+                    "minimum": 0,
+                    "title": "Maximum duration in seconds for checking an external media link. Set to 0 to disable the timeout."
+                },
+                "allowed_protocols": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": ["http", "https", "ftp"]
+                    },
+                    "title": "URL schemes accepted for media upload by URL."
+                },
                 "remote_thumbnails": {
                     "type": "object",
                     "additionalProperties": false,
@@ -1575,6 +1658,14 @@
                 "use_local_filesystem": {
                     "type": "boolean",
                     "default": false
+                },
+                "archive_manifest_url": {
+                    "description": "Manifest of the archive with all translations. When set, `translation:download` and `translation:install --all` download all locales as one archive.",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": null
                 },
                 "scheduled_task": {
                     "type": "object",

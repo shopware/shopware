@@ -79,7 +79,7 @@ async function createWrapper(slotsData = {}, { routeName = undefined } = {}) {
                         $module: {
                             icon: 'regular-plug',
                             title: 'sw.example.title',
-                            color: '#189EFF',
+                            color: 'var(--sw-color-module-brand-default)',
                         },
                     },
                 },
@@ -283,11 +283,7 @@ describe('src/app/component/meteor/sw-meteor-page', () => {
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({ name: 'tab.two' });
 
         await tabs.vm.$emit('new-item-active', 'tab.three');
-        expect(wrapper.emitted('new-item-active')).toEqual([
-            [
-                'tab.three',
-            ],
-        ]);
+        expect(wrapper.emitted('new-item-active')).toEqual([['tab.three']]);
 
         expect(wrapper.find('.sw-tabs__content').exists()).toBe(false);
     });

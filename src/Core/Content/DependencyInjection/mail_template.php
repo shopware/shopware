@@ -22,9 +22,11 @@ use Shopware\Core\Content\MailTemplate\Service\MailTemplateContentBuilder;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateSendService;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Content\Shared\MailFlow\DataProvider\SalesChannelProvider;
+use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -82,6 +84,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MailDataSimulator::class),
             service(MailTemplateContentBuilder::class),
             service('event_dispatcher'),
+            service(Translator::class),
+            service(LanguageLocaleCodeProvider::class),
         ]);
 
     $services->set(MailTemplateSendService::class)

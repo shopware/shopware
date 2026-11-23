@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContent
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -45,13 +46,15 @@ class ContentSystemElementTypePersister
         private readonly ElementTypeSpecificationSerializer $serializer,
         private readonly Connection $connection,
         private readonly LockFactory $lockFactory,
+        private readonly AbstractContentSystemLayoutPresetRegistry $presetRegistry,
     ) {
     }
 
     /**
      * Syncs app element types to DB: validates against registry + inactive types,
      * then upserts changed / deletes removed types. Invalidates the registry cache
-     * only when changes were written.
+     * only when changes were written. The layout preset cache is invalidated with it,
+     * because compiled preset payloads depend on the element types' translatable flags.
      */
     public function persist(AppPersistContext $context): void
     {
@@ -107,6 +110,7 @@ class ContentSystemElementTypePersister
             // Keep invalidation inside the lock and after commit so no concurrent persist can repopulate stale data.
             if ($upserts !== [] || $deleteIds !== []) {
                 $this->registry->invalidate();
+                $this->presetRegistry->invalidate();
             }
         } finally {
             $lock->release();

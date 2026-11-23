@@ -35,7 +35,7 @@ class SystemLockerTest extends TestCase
         $locker->lock();
 
         $content = file_get_contents(__DIR__ . '/install.lock');
-        static::assertNotEmpty($content);
+        static::assertNotFalse($content);
         // The file should contain a timestamp in YmdHi format
         static::assertMatchesRegularExpression('/^\d{12}$/', $content);
     }

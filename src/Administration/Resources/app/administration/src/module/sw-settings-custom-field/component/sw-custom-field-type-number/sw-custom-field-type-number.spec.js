@@ -53,11 +53,7 @@ async function createWrapper(customFieldOverrides = {}, isNew = true) {
                 },
                 'mt-select': {
                     template: '<div class="mt-select" />',
-                    props: [
-                        'modelValue',
-                        'options',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'options', 'disabled'],
                 },
                 'mt-number-field': {
                     template: '<div class="mt-number-field" />',
@@ -121,14 +117,8 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-type-num
     });
 
     it.each([
-        [
-            'int',
-            true,
-        ],
-        [
-            'float',
-            false,
-        ],
+        ['int', true],
+        ['float', false],
     ])('should expose isIntField for numberType %s', async (numberType, expected) => {
         const wrapper = await createWrapper({ numberType });
 

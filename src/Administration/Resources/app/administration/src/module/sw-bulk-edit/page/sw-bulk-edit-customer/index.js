@@ -14,14 +14,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'bulkEditApiFactory',
-        'repositoryFactory',
-    ],
+    inject: ['bulkEditApiFactory', 'repositoryFactory', 'customFieldDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -46,7 +41,13 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-bulk-edit-customer.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
@@ -54,7 +55,13 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-bulk-edit-customer.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'customer'));
@@ -180,7 +187,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = 'var(--color-pumpkin-500)';
+            this.$route.meta.$module.color = 'var(--sw-color-module-orange-default)';
             this.$route.meta.$module.icon = 'regular-users';
         },
 
@@ -197,10 +204,7 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.accountFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.accountFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -215,7 +219,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('customer', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },

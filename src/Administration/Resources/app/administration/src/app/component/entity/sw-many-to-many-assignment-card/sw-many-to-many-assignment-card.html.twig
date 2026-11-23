@@ -24,6 +24,7 @@
                     v-bind="$attrs"
                     @select-expanded="onSelectExpanded"
                     @select-collapsed="onSelectCollapsed"
+                    @clear="onClear"
                 >
 
                     <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">

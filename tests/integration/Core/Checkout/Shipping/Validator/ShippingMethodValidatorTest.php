@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethod
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
@@ -135,6 +136,60 @@ class ShippingMethodValidatorTest extends TestCase
 
         static::assertNull($exception);
         static::assertSame([$this->ids->get('replacement')], $this->fetchPriceIds());
+    }
+
+    public function testReplacingEveryPriceWithANestedZeroCostCartValuePriceWithinOneSyncIsAllowed(): void
+    {
+        $this->createShippingMethod(active: true, priceKeys: ['price']);
+
+        $operations = [
+            new SyncOperation(
+                'delete-old-prices',
+                ShippingMethodPriceDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_DELETE,
+                [['id' => $this->ids->get('price')]]
+            ),
+            new SyncOperation(
+                'write',
+                ShippingMethodDefinition::ENTITY_NAME,
+                SyncOperation::ACTION_UPSERT,
+                [[
+                    'id' => $this->ids->get('shipping'),
+                    'prices' => [[
+                        'id' => $this->ids->create('replacement'),
+                        'calculation' => 2,
+                        'quantityStart' => 0,
+                        'currencyPrice' => [[
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 0,
+                            'gross' => 0,
+                            'linked' => true,
+                        ]],
+                    ]],
+                ]]
+            ),
+        ];
+
+        $exception = $this->write(fn () => static::getContainer()->get(SyncService::class)
+            ->sync($operations, $this->context, new SyncBehavior()));
+
+        static::assertNull($exception);
+        static::assertSame([$this->ids->get('replacement')], $this->fetchPriceIds());
+
+        $replacement = $this->shippingMethodPriceRepository
+            ->search(new Criteria([$this->ids->get('replacement')]), $this->context)
+            ->getEntities()
+            ->first();
+        static::assertNotNull($replacement);
+        static::assertSame(2, $replacement->getCalculation());
+        static::assertSame(0.0, $replacement->getQuantityStart());
+
+        $currencyPrices = $replacement->getCurrencyPrice();
+        static::assertNotNull($currencyPrices);
+        $price = $currencyPrices->getCurrencyPrice(Defaults::CURRENCY);
+        static::assertNotNull($price);
+        static::assertSame(0.0, $price->getNet());
+        static::assertSame(0.0, $price->getGross());
     }
 
     public function testPriceInsertedAndDeletedWithinOneSyncDoesNotOffsetTheLastPriceDeletion(): void
@@ -358,6 +413,24 @@ class ShippingMethodValidatorTest extends TestCase
             ShippingMethodValidator::VIOLATION_ACTIVE_WITHOUT_PRICE,
             $this->firstViolation($exception)->getCode()
         );
+    }
+
+    public function testRemovingTheTaxIdOfAShippingMethodWithFixedTaxIsRejected(): void
+    {
+        $this->createShippingMethod(active: false, priceKeys: []);
+        $this->shippingMethodRepository->update([[
+            'id' => $this->ids->get('shipping'),
+            'taxType' => ShippingMethodEntity::TAX_TYPE_FIXED,
+            'taxId' => $this->getValidTaxId(),
+        ]], $this->context);
+
+        $exception = $this->write(fn () => $this->shippingMethodRepository->update([[
+            'id' => $this->ids->get('shipping'),
+            'taxId' => null,
+        ]], $this->context));
+
+        static::assertNotNull($exception);
+        static::assertSame(ShippingMethodValidator::VIOLATION_TAX_ID_REQUIRED, $this->firstViolation($exception)->getCode());
     }
 
     private function addPriceWithoutCurrencyValues(string $key, string $shippingMethodKey = 'shipping'): void

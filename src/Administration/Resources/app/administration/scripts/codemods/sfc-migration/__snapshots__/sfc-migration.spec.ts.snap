@@ -400,7 +400,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { computed } from 'vue';
-import useMediaGridListener from 'src/app/composables/use-media-grid-listener';
+import { useMediaGridListener } from 'shopware:composables';
 
 const props = defineProps({
     items: {
@@ -459,7 +459,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import useRuleBetweenOperator from 'src/app/composables/use-rule-between-operator';
+import { useRuleBetweenOperator } from 'shopware:composables';
 
 const props = defineProps({
     condition: {
@@ -643,7 +643,7 @@ import { salutation } from './salutation.helper';
 </template>
 
 <script setup>
-import useSalutation from 'src/app/composables/use-salutation';
+import { useSalutation } from 'shopware:composables';
 
 const props = defineProps({
     customer: {
@@ -697,8 +697,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import useNotification from 'src/app/composables/use-notification';
-import useSalutation from 'src/app/composables/use-salutation';
+import { useNotification, useSalutation } from 'shopware:composables';
 
 defineProps({
     customer: {
@@ -757,7 +756,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import useMediaSidebarModal from 'src/app/composables/use-media-sidebar-modal';
+import { useMediaSidebarModal } from 'shopware:composables';
 
 const props = defineProps({
     ids: {
@@ -810,7 +809,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import useMediaSidebarModal from 'src/app/composables/use-media-sidebar-modal';
+import { useMediaSidebarModal } from 'shopware:composables';
 
 const props = defineProps({
     ids: {
@@ -924,7 +923,7 @@ const { Criteria } = Shopware.Data;
 // - these were routed into the composable options instead of staying state: limit, sortBy, searchConfigEntity
 
 import { ref, computed, inject } from 'vue';
-import useListing from 'src/app/composables/use-listing';
+import { useListing } from 'shopware:composables';
 
 const repositoryFactory = inject('repositoryFactory');
 
@@ -1094,7 +1093,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import useVideoCover from 'src/app/composables/use-video-cover';
+import { useVideoCover } from 'shopware:composables';
 
 const props = defineProps({
     item: {
@@ -1156,7 +1155,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import useRuleContainer from 'src/app/composables/use-rule-container';
+import { useRuleContainer } from 'shopware:composables';
 
 const props = defineProps({
     entity: {
@@ -1230,7 +1229,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { ref, computed } from 'vue';
-import useSalutation from 'src/app/composables/use-salutation';
+import { useSalutation } from 'shopware:composables';
 
 const { salutation } = useSalutation();
 
@@ -1407,7 +1406,6 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
   "reasons": [
     "unsupported inject declaration (only the array form is migrated)",
     "convert 'metaInfo' manually",
-    "convert 'shortcuts' manually",
     "unmapped this.$device",
   ],
   "sfc": "<template>
@@ -1418,6 +1416,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 
 <script setup>
 import { ref } from 'vue';
+import useShortcut from 'src/app/composables/use-shortcut';
 
 const onSave = function () {
     if (this.$device.getViewportWidth() > 500) {
@@ -1426,6 +1425,8 @@ const onSave = function () {
 };
 
 const title = ref('Partial');
+
+useShortcut('SYSTEMKEY+S', onSave);
 
 // TODO(sfc-migration): unsupported inject declaration (only the array form is migrated) — original code:
 // inject: {
@@ -1440,11 +1441,6 @@ const title = ref('Partial');
 //         return {
 //             title: this.title,
 //         };
-//     }
-
-// TODO(sfc-migration): convert 'shortcuts' manually — original code:
-// shortcuts: {
-//         'SYSTEMKEY+S': 'onSave',
 //     }
 
 // TODO(sfc-migration): unmapped this.$device
@@ -1626,6 +1622,50 @@ swDefinePublic({
     countItems,
     toggle,
     openModal,
+});
+</script>
+",
+}
+`;
+
+exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and generated SFC per fixture) converts sw-shortcut-page 1`] = `
+{
+  "outcome": "full",
+  "reasons": [],
+  "sfc": "<template>
+    <sw-block name="sw_shortcut_page">
+        <button class="sw-shortcut-page" @click="onSave">{{ saved }}</button>
+    </sw-block>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import useShortcut from 'src/app/composables/use-shortcut';
+
+const onSave = function () {
+    saved.value = true;
+};
+
+const onCancel = function () {
+    saved.value = false;
+};
+
+const editable = ref(true);
+const saved = ref(false);
+
+useShortcut('SYSTEMKEY+S', onSave, {
+    active: function () {
+        return editable.value;
+    },
+});
+
+useShortcut('ESCAPE', onCancel);
+
+swDefinePublic({
+    editable,
+    saved,
+    onSave,
+    onCancel,
 });
 </script>
 ",

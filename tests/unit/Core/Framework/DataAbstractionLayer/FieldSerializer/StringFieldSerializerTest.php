@@ -56,13 +56,10 @@ class StringFieldSerializerTest extends TestCase
             new ConstraintValidatorFactory()
         );
 
-        $sanitizer = static::createStub(HtmlSanitizer::class);
-        $sanitizer->method('sanitize')->willReturnArgument(0);
-
         $this->serializer = new StringFieldSerializer(
             $this->validator,
             $this->definitionInstanceRegistry,
-            $sanitizer
+            new HtmlSanitizer(cacheEnabled: false)
         );
     }
 
@@ -240,10 +237,6 @@ class StringFieldSerializerTest extends TestCase
     #[DataProvider('stringValueProvider')]
     public function testStringValuesAreEncoded(string $input, string $expected, array $flags): void
     {
-        $sanitizer = static::createStub(HtmlSanitizer::class);
-        $sanitizer->method('sanitize')->willReturn($expected);
-        $this->serializer = new StringFieldSerializer($this->validator, $this->definitionInstanceRegistry, $sanitizer);
-
         $field = $this->createField($flags);
 
         // Create case
@@ -261,6 +254,8 @@ class StringFieldSerializerTest extends TestCase
         yield 'string is passed through' => ['test12-B', 'test12-B', [new Required()]];
         yield 'HTML is kept when sanitizing is disabled' => ['<test>', '<test>', [new Required(), new AllowHtml(false)]];
         yield 'sanitized HTML strips script tag' => ['<script></script>test12-B', 'test12-B', [new Required(), new AllowHtml()]];
+        yield 'a "<" that does not start a tag survives on a plain text field' => ['I <3 Kisses', 'I <3 Kisses', [new Required()]];
+        yield 'script content is dropped instead of leaking as text on a plain text field' => ['<script>alert(1)</script>x', 'x', [new Required()]];
     }
 
     /**

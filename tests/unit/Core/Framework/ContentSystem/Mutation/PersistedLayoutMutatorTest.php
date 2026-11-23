@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\DiagnosticsReport;
@@ -19,15 +20,25 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\DefaultMappingSeeder;
+use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingConsumers;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingTypeCompatibility;
+use Shopware\Core\Framework\ContentSystem\Mapping\Registry\AbstractContentSystemMappingCandidateRegistry;
+use Shopware\Core\Framework\ContentSystem\Mapping\StoredMappingInspector;
 use Shopware\Core\Framework\ContentSystem\Mutation\LayoutMutation;
+use Shopware\Core\Framework\ContentSystem\Mutation\MutationResult;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\PersistedLayoutMutator;
 use Shopware\Core\Framework\ContentSystem\Resolution\ProvidedContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -61,7 +72,7 @@ class PersistedLayoutMutatorTest extends TestCase
 
         $orphaning = $this->orphaningMutation('block-a');
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, null, $orphaning, $context);
 
@@ -81,13 +92,31 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, self::VERSION), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, self::VERSION, new RemoveElement('block-a'), $context);
 
         static::assertSame($id, $repository->updates[0][0]['id']);
         static::assertCount(1, $repository->updates[0][0]['layout']);
         static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $result->layout->roots));
+    }
+
+    public function testMutationReceivesTheRootSourceFromTheLockedLayout(): void
+    {
+        $id = $this->ids->get('layout');
+        $context = Context::createDefaultContext();
+        $repository = $this->staticRepository($this->entity($id, null, 'category'), $id, $context);
+        $mutation = $this->createMock(LayoutMutation::class);
+        $mutation->expects($this->once())->method('apply')->willReturnCallback(static function (StoredTree $tree): StoredTree {
+            static::assertSame('category', $tree->rootSource);
+
+            return $tree->remove('block-a');
+        });
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+
+        $result = $mutator->mutate($id, null, $mutation, $context);
+
+        static::assertSame('category', $result->layout->rootSource);
     }
 
     #[DataProvider('diagnosesAgainstRootSourceProvider')]
@@ -101,7 +130,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $rootContext = $rooted ? [$this->providedContext()] : [];
 
         $registry = $this->createMock(RootSourceRegistry::class);
-        $registry->expects($this->once())->method('resolve')->with($rootSource)->willReturn($rootContext);
+        $registry->expects($this->once())->method('resolveGated')->with($rootSource, static::identicalTo($context))->willReturn($rootContext);
 
         $report = new DiagnosticsReport([]);
         $diagnostics = $this->createMock(LayoutDiagnostics::class);
@@ -116,10 +145,11 @@ class PersistedLayoutMutatorTest extends TestCase
                     return true;
                 }),
                 static::identicalTo($rootContext),
+                $rootSource,
             )
             ->willReturn(new LayoutAnalysis($report, []));
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics);
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $diagnostics, $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, null, new RemoveElement('block-a'), $context);
 
@@ -133,11 +163,97 @@ class PersistedLayoutMutatorTest extends TestCase
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($this->entity($id, '2026-06-22T10:00:00.123456+00:00'), $id, $context);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $result = $mutator->mutate($id, '2026-06-22T10:00:00.123000+00:00', new RemoveElement('block-a'), $context);
 
         static::assertSame(['block-b'], array_map(static fn (StoredElement $e): string => $e->id, $result->layout->roots));
+    }
+
+    #[DataProvider('callerScopeProvider')]
+    #[TestDox('runs the repository write on the caller\'s scope when the mutation declares no write privilege ($_dataName)')]
+    public function testWritesOnTheCallersScopeWithoutAWritePrivilege(string $callerScope): void
+    {
+        $id = $this->ids->get('layout');
+        $scopes = [];
+        $mutator = $this->scopeRecordingMutator($id, ['block-b'], $scopes);
+
+        // RemoveElement keeps the inherited AbstractLayoutMutation::writePrivilege(), so this pins its null default.
+        // The caller holds no privilege, so a mutator that checked one on this path would throw instead of writing.
+        $this->adminApiContext()->scope(
+            $callerScope,
+            static fn (Context $callerContext): MutationResult => $mutator->mutate($id, null, new RemoveElement('block-a'), $callerContext),
+        );
+
+        static::assertSame(['search' => $callerScope, 'update' => $callerScope, 'resolve' => $callerScope], $scopes);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function callerScopeProvider(): iterable
+    {
+        yield 'a caller in user scope' => [Context::USER_SCOPE];
+
+        // A second caller scope, so a default naming any one fixed scope moves the write off one of the two callers.
+        yield 'a caller in crud scope' => [Context::CRUD_API_SCOPE];
+    }
+
+    #[DataProvider('writePrivilegeProvider')]
+    #[TestDox('runs only the repository write in system scope for a caller holding the declared $_dataName and restores the caller\'s scope afterwards')]
+    public function testScopesOnlyTheWriteToSystemScopeWhenTheCallerHoldsTheWritePrivilege(string $writePrivilege): void
+    {
+        $id = $this->ids->get('layout');
+        $context = $this->adminApiContext([$writePrivilege]);
+        $scopes = [];
+        // The mutation removes block-a, so the committed roots differ from the stored ones: a commit that wrote the
+        // pre-mutation roots would fail the payload assertion in the update() callback.
+        $mutator = $this->scopeRecordingMutator($id, ['block-b'], $scopes);
+
+        $removal = new RemoveElement('block-a');
+        $mutation = static::createStub(LayoutMutation::class);
+        // apply() receives no context, so the scope it runs in is read off the caller's context, which
+        // Context::scope() would switch in place.
+        $mutation->method('apply')->willReturnCallback(static function (StoredTree $tree) use ($removal, $context, &$scopes): StoredTree {
+            $scopes['apply'] = $context->getScope();
+
+            return $removal->apply($tree);
+        });
+        $mutation->method('writePrivilege')->willReturn($writePrivilege);
+
+        $mutator->mutate($id, null, $mutation, $context);
+
+        static::assertSame(
+            ['search' => Context::USER_SCOPE, 'apply' => Context::USER_SCOPE, 'update' => Context::SYSTEM_SCOPE, 'resolve' => Context::USER_SCOPE],
+            $scopes,
+        );
+        static::assertSame(Context::USER_SCOPE, $context->getScope());
+    }
+
+    #[TestDox('throws a missing-privilege 403 naming the declared write privilege before any read when the caller lacks it')]
+    public function testRejectsACallerLackingTheWritePrivilegeBeforeAnyRead(): void
+    {
+        $id = $this->ids->get('layout');
+        // The caller holds the entity's update privilege but not the declared one, so a mutator checking any
+        // privilege other than the declared one lets the write through.
+        $context = $this->adminApiContext(['content_layout:update']);
+
+        // Neither the lock nor the load may happen, so the 403 also wins over a 404 for a layout that does not exist.
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->expects($this->never())->method('createLock');
+        $repository = $this->createMock(EntityRepository::class);
+        $repository->expects($this->never())->method('search');
+        $repository->expects($this->never())->method('update');
+
+        $mutation = $this->createMock(LayoutMutation::class);
+        $mutation->expects($this->never())->method('apply');
+        $mutation->method('writePrivilege')->willReturn('content_layout:translate');
+
+        $mutator = new PersistedLayoutMutator($lockFactory, $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
+
+        $this->expectExceptionObject(ContentSystemException::missingPrivileges(['content_layout:translate']));
+
+        $mutator->mutate($id, null, $mutation, $context);
     }
 
     #[TestDox('propagates a WriteException from the committing write without swallowing it')]
@@ -149,7 +265,7 @@ class PersistedLayoutMutatorTest extends TestCase
         $writeException = (new WriteException())->add(new \RuntimeException('binding broke resolvability'));
         $repository->method('update')->willThrowException($writeException);
 
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         $this->expectExceptionObject($writeException);
 
@@ -205,6 +321,17 @@ class PersistedLayoutMutatorTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{string}>
+     */
+    public static function writePrivilegeProvider(): iterable
+    {
+        yield 'translate privilege' => ['content_layout:translate'];
+
+        // A second privilege, held alone, so a mutator that checks a fixed privilege instead of the declared one fails.
+        yield 'update privilege' => ['content_layout:update'];
+    }
+
+    /**
      * @return iterable<string, array{?string, string}>
      */
     public static function rejectsVersionConflictProvider(): iterable
@@ -226,7 +353,7 @@ class PersistedLayoutMutatorTest extends TestCase
     ): void {
         $context = Context::createDefaultContext();
         $repository = $this->staticRepository($entity, $layoutId, $context);
-        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics());
+        $mutator = new PersistedLayoutMutator($this->lockFactory(), $repository, $this->registry(), $this->diagnostics(), $this->defaultMappingSeeder());
 
         try {
             $mutator->mutate($layoutId, $token, new RemoveElement('block-a'), $context);
@@ -264,8 +391,7 @@ class PersistedLayoutMutatorTest extends TestCase
     {
         $collection = new ContentLayoutCollection($entity === null ? [] : [$entity]);
 
-        /** @var StaticEntityRepository<ContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([
+        $repository = StaticEntityRepository::of(ContentLayoutCollection::class, [
             static function (Criteria $criteria, Context $context) use ($collection, $expectedLayoutId, $expectedContext): ContentLayoutCollection {
                 static::assertSame([$expectedLayoutId], array_values($criteria->getIds()));
                 static::assertSame($expectedContext, $context);
@@ -275,6 +401,67 @@ class PersistedLayoutMutatorTest extends TestCase
         ]);
 
         return $repository;
+    }
+
+    /**
+     * A mutator whose repository and root-source registry record, under 'search', 'update' and 'resolve', the scope
+     * the context carries while each call runs. Context::scope() switches the scope in place and restores it on
+     * return, so only a capture inside the call observes the scope that call ran in. The update callback also pins
+     * the committed payload to one write of the layout id with the expected root ids, and fails a second update().
+     *
+     * @param list<string> $expectedRootIds the ids of the roots the single update() must carry
+     * @param array<string, string> $scopes
+     */
+    private function scopeRecordingMutator(string $layoutId, array $expectedRootIds, array &$scopes): PersistedLayoutMutator
+    {
+        $collection = new ContentLayoutCollection([$this->entity($layoutId, null)]);
+
+        $repository = static::createStub(EntityRepository::class);
+        $repository->method('search')->willReturnCallback(
+            static function (Criteria $criteria, Context $context) use ($collection, &$scopes): EntitySearchResult {
+                $scopes['search'] = $context->getScope();
+
+                return new EntitySearchResult('content_layout', $collection->count(), $collection, null, $criteria, $context);
+            }
+        );
+        $repository->method('update')->willReturnCallback(
+            static function (array $data, Context $context) use (&$scopes, $layoutId, $expectedRootIds): EntityWrittenContainerEvent {
+                static::assertArrayNotHasKey('update', $scopes, 'The layout must be written by exactly one update() call.');
+                static::assertCount(1, $data);
+                static::assertSame($layoutId, $data[0]['id']);
+                static::assertSame($expectedRootIds, array_column($data[0]['layout'], 'id'));
+
+                $scopes['update'] = $context->getScope();
+
+                return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
+            }
+        );
+
+        $registry = static::createStub(RootSourceRegistry::class);
+        $registry->method('resolveGated')->willReturnCallback(
+            static function (?string $rootSource, Context $context) use (&$scopes): array {
+                $scopes['resolve'] = $context->getScope();
+
+                return [];
+            }
+        );
+
+        return new PersistedLayoutMutator($this->lockFactory(), $repository, $registry, $this->diagnostics(), $this->defaultMappingSeeder());
+    }
+
+    /**
+     * An Admin API caller's context starts in user scope. A SystemSource context starts in system scope already,
+     * so a write switched to system scope would be indistinguishable from one left on the caller's scope, and it
+     * holds every privilege, so a missing one could not be modelled.
+     *
+     * @param list<string> $permissions
+     */
+    private function adminApiContext(array $permissions = []): Context
+    {
+        $source = new AdminApiSource($this->ids->get('user'));
+        $source->setPermissions($permissions);
+
+        return Context::createDefaultContext($source);
     }
 
     private function entity(string $id, ?string $updatedAt, string $rootSource = 'product'): ContentLayoutEntity
@@ -303,7 +490,7 @@ class PersistedLayoutMutatorTest extends TestCase
     private function registry(): RootSourceRegistry
     {
         $registry = static::createStub(RootSourceRegistry::class);
-        $registry->method('resolve')->willReturn([]);
+        $registry->method('resolveGated')->willReturn([]);
 
         return $registry;
     }
@@ -314,6 +501,23 @@ class PersistedLayoutMutatorTest extends TestCase
         $diagnostics->method('analyze')->willReturn(new LayoutAnalysis(new DiagnosticsReport([]), []));
 
         return $diagnostics;
+    }
+
+    private function defaultMappingSeeder(): DefaultMappingSeeder
+    {
+        $types = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $candidateRegistry = static::createStub(AbstractContentSystemMappingCandidateRegistry::class);
+
+        return new DefaultMappingSeeder(
+            $types,
+            new StoredMappingInspector(
+                $types,
+                $candidateRegistry,
+                new MappingTypeCompatibility(),
+                new MappingConsumers(),
+                new InlineMappingTokenParser(),
+            ),
+        );
     }
 
     private function providedContext(): ProvidedContext
@@ -364,6 +568,11 @@ class PersistedLayoutMutatorTest extends TestCase
                 return [];
             }
 
+            public function freshlyScaffolded(): array
+            {
+                return [];
+            }
+
             public function orphaned(): array
             {
                 return $this->detached;
@@ -377,6 +586,11 @@ class PersistedLayoutMutatorTest extends TestCase
             public function droppedProperties(): array
             {
                 return [];
+            }
+
+            public function writePrivilege(): ?string
+            {
+                return null;
             }
         };
     }

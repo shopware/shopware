@@ -70,7 +70,6 @@ class SeoUrlGenerator
         }
 
         $criteria = new Criteria($ids);
-        $route->prepareCriteria($criteria, $salesChannel);
 
         $config = $route->getConfig();
 
@@ -90,6 +89,9 @@ class SeoUrlGenerator
             $associations = $this->getAssociations($template, $repository->getDefinition());
             $criteria->addAssociations($associations);
 
+            // after the associations of the template, so the route can restrict them, e.g. to the sales channel
+            $route->prepareCriteria($criteria, $salesChannel);
+
             $criteria->setLimit(50);
 
             /** @var RepositoryIterator<EntityCollection<covariant Entity>> $iterator */
@@ -99,6 +101,37 @@ class SeoUrlGenerator
                 yield from $this->generateUrls($route, $config, $salesChannel, $searchResult, $this->getTemplateName($template));
             }
         }
+    }
+
+    /**
+     * @internal
+     *
+     * @return array<string>
+     */
+    public function getAssociations(string $template, EntityDefinition $definition): array
+    {
+        try {
+            $variables = $this->twigVariableParser->parse($template);
+        } catch (\Exception $e) {
+            throw SeoException::invalidTemplate($e->getMessage());
+        }
+
+        $associations = [];
+        foreach ($variables as $variable) {
+            $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
+
+            $lastField = array_last($fields);
+
+            $runtime = new Runtime();
+
+            if ($lastField instanceof Field && $lastField->getFlag(Runtime::class)) {
+                $associations = array_merge($associations, $runtime->getDepends());
+            }
+
+            $associations[] = EntityDefinitionQueryHelper::getAssociationPath($variable, $definition);
+        }
+
+        return array_filter(array_unique($associations));
     }
 
     /**
@@ -131,7 +164,7 @@ class SeoUrlGenerator
 
             $seoUrl->setError($mapping->getError());
 
-            $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
+            $pathInfo = $this->router->generate($config->getTargetRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
             $seoUrl->setPathInfo($pathInfo);
@@ -216,34 +249,5 @@ class SeoUrlGenerator
         }
 
         return mb_substr($subject, mb_strlen($prefix));
-    }
-
-    /**
-     * @return array<string>
-     */
-    private function getAssociations(string $template, EntityDefinition $definition): array
-    {
-        try {
-            $variables = $this->twigVariableParser->parse($template);
-        } catch (\Exception $e) {
-            throw SeoException::invalidTemplate($e->getMessage());
-        }
-
-        $associations = [];
-        foreach ($variables as $variable) {
-            $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
-
-            $lastField = array_last($fields);
-
-            $runtime = new Runtime();
-
-            if ($lastField instanceof Field && $lastField->getFlag(Runtime::class)) {
-                $associations = array_merge($associations, $runtime->getDepends());
-            }
-
-            $associations[] = EntityDefinitionQueryHelper::getAssociationPath($variable, $definition);
-        }
-
-        return array_filter(array_unique($associations));
     }
 }

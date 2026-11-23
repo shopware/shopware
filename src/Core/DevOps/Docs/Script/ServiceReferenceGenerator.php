@@ -343,7 +343,6 @@ class ServiceReferenceGenerator implements ScriptReferenceGenerator
                 }
 
                 $default = null;
-                // @phpstan-ignore-next-line
                 if ($parameter->isDefaultValueAvailable()) {
                     $default = mb_strtolower(var_export($parameter->getDefaultValue(), true));
                 }

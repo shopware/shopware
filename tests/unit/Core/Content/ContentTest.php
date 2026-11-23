@@ -23,11 +23,11 @@ class ContentTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('kernel.environment', 'test');
 
-        static::assertEmpty($container->getResources());
+        static::assertCount(0, $container->getResources());
 
         $content->build($container);
 
-        static::assertNotEmpty($container->getResources());
+        static::assertNotCount(0, $container->getResources());
 
         $resourceFiles = [];
         foreach ($container->getResources() as $resource) {

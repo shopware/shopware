@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Loader\ClosureLoader;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -35,15 +36,16 @@ class RouterTest extends TestCase
             $request,
         ]);
 
-        $symfonyRouter = new SymfonyRouter(new Container(), null);
-        \Closure::bind(function (): void {
+        $container = new Container();
+        $container->set('routing.loader', new ClosureLoader());
+        $symfonyRouter = new SymfonyRouter($container, static function (): RouteCollection {
             $routeCollection = new RouteCollection();
             $routeCollection->add('frontend.home.page', new Route('/', ['_controller' => 'Shopware\Storefront\Controller\HomeController::index']));
             $routeCollection->add('frontend.navigation.page', new Route('/navigation/{navigationId}', ['_controller' => 'Shopware\Storefront\Controller\NavigationController::index']));
             $routeCollection->add('custom.route', new Route('/custom-route', ['_controller' => 'Shopware\Storefront\Controller\CustomController::index']));
 
-            $this->collection = $routeCollection;
-        }, $symfonyRouter, SymfonyRouter::class)();
+            return $routeCollection;
+        }, ['resource_type' => 'closure']);
 
         $router = new Router(
             $symfonyRouter,

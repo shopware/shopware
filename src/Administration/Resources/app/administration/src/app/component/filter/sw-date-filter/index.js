@@ -16,10 +16,7 @@ export default {
 
     inject: ['feature'],
 
-    emits: [
-        'filter-reset',
-        'filter-update',
-    ],
+    emits: ['filter-reset', 'filter-update'],
 
     props: {
         filter: {
@@ -222,9 +219,7 @@ export default {
                 lte: normalizedDateValue.to,
             };
 
-            const filterCriteria = [
-                Criteria.range(this.filter.property, params),
-            ];
+            const filterCriteria = [Criteria.range(this.filter.property, params)];
 
             this.dateValue = normalizedDateValue;
 
@@ -438,11 +433,9 @@ export default {
         },
 
         formatDateParts({ year, month, date }) {
-            return [
-                String(year).padStart(4, '0'),
-                String(month + 1).padStart(2, '0'),
-                String(date).padStart(2, '0'),
-            ].join('-');
+            return [String(year).padStart(4, '0'), String(month + 1).padStart(2, '0'), String(date).padStart(2, '0')].join(
+                '-',
+            );
         },
 
         getUserTimeZoneDateBoundary(value, time) {

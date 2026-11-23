@@ -32,8 +32,8 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
 
         $errors = $this->validator($loader)->validate($this->manifest(), Context::createDefaultContext());
 
-        static::assertCount(1, $errors->getElements());
-        $error = $errors->first();
+        static::assertCount(1, $errors);
+        $error = $errors[0];
         static::assertInstanceOf(ContentSystemBindingSpecificationSchemaError::class, $error);
         static::assertStringContainsString('unexpected shape', $error->getMessage());
     }
@@ -53,7 +53,7 @@ class ContentSystemBindingSpecificationAppValidatorTest extends TestCase
         // and must not let the type-load failure escape.
         $errors = $this->validator($loader, $typeLoader)->validate($this->manifest(), Context::createDefaultContext());
 
-        static::assertCount(0, $errors->getElements());
+        static::assertCount(0, $errors);
     }
 
     private function validator(YamlBindingSpecificationLoader $loader, ?YamlTypeLoader $typeLoader = null): ContentSystemBindingSpecificationAppValidator

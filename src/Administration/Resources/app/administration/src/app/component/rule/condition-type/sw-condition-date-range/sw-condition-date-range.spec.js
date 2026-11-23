@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import 'src/app/component/rule/condition-type/sw-condition-date-range';
 import 'src/app/component/rule/sw-condition-base';
@@ -89,7 +89,7 @@ describe('component/rule/sw-condition-date-range', () => {
         await wrapper.find('.sw-single-select input').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--true').trigger('click');
+        await new DOMWrapper(document.body).find('.sw-select-option--true').trigger('click');
         await flushPromises();
 
         getDatepickers().forEach((datepicker) => {

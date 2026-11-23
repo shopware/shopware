@@ -59,14 +59,16 @@ class UserController extends AbstractController
     )]
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
         $criteria = new Criteria([$userId]);
         $criteria->addAssociations(['aclRoles', 'avatarMedia']);
 
@@ -89,19 +91,26 @@ class UserController extends AbstractController
     )]
     public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
 
+        $userId = $source->getUserId();
+
         $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password', 'timeZone'];
 
-        if (array_diff(array_keys($request->request->all()), $allowedChanges) !== []) {
+        $changes = $request->request->all();
+        if (array_diff(array_keys($changes), $allowedChanges) !== []) {
             throw ApiException::missingPrivileges(['user:update']);
+        }
+
+        if (\array_key_exists('avatarMedia', $changes)) {
+            $this->assertAvatarMediaIsLinkOnly($changes['avatarMedia']);
         }
 
         return $context->scope(
@@ -117,14 +126,16 @@ class UserController extends AbstractController
     )]
     public function status(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
         if ($result->getTotal() === 0) {
@@ -141,14 +152,16 @@ class UserController extends AbstractController
     )]
     public function logout(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw ApiException::invalidAdminSource($context->getSource()::class);
+        $source = $context->getSource();
+        if (!$source instanceof AdminApiSource) {
+            throw ApiException::invalidAdminSource($source::class);
         }
 
-        $userId = $context->getSource()->getUserId();
-        if (!$userId) {
+        if (!$source->isDirectUser()) {
             throw ApiException::userNotLoggedIn();
         }
+
+        $userId = $source->getUserId();
 
         $this->ssoService->revokeUserTokens($userId);
 
@@ -170,9 +183,10 @@ class UserController extends AbstractController
 
         $source = $context->getSource();
 
+        $isSelf = $source instanceof AdminApiSource && $source->isSelf($userId);
+
         if ((!$source instanceof AdminApiSource)
-            || (!$source->isAllowed('user:update')
-            && $source->getUserId() !== $userId)
+            || (!$source->isAllowed('user:update') && !$isSelf)
         ) {
             throw new PermissionDeniedException();
         }
@@ -231,7 +245,7 @@ class UserController extends AbstractController
             throw new PermissionDeniedException();
         }
 
-        $isSelfUpdate = $source->getUserId() === $data['id'];
+        $isSelfUpdate = \is_string($data['id']) && $source->isSelf($data['id']);
         $canUpdateUsers = $source->isAllowed('user:update');
 
         if (!$canUpdateUsers && !$isSelfUpdate) {
@@ -288,7 +302,7 @@ class UserController extends AbstractController
             $data['id'] = $roleId;
         }
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));
+        $events = $this->roleRepository->upsert([$data], $context);
         $eventIds = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);
         \assert($entityId !== null);
@@ -343,11 +357,21 @@ class UserController extends AbstractController
     {
         $this->validateScope($request);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId): void {
-            $this->roleRepository->delete([['id' => $roleId]], $context);
-        });
+        $this->roleRepository->delete([['id' => $roleId]], $context);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $roleId, $request, $context);
+    }
+
+    /**
+     * A self-service profile edit may link an avatar, nothing more. The write runs in SYSTEM_SCOPE,
+     * where ACL and write protection are off, so any other field would be written to the media
+     * entity and, through its associations (user, avatarUsers), to other users.
+     */
+    private function assertAvatarMediaIsLinkOnly(mixed $avatarMedia): void
+    {
+        if (!\is_array($avatarMedia) || array_keys($avatarMedia) !== ['id'] || !\is_string($avatarMedia['id'])) {
+            throw ApiException::missingPrivileges(['user:update']);
+        }
     }
 
     private function validateScope(Request $request): void

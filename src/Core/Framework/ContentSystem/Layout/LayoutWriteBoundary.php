@@ -35,9 +35,9 @@ final class LayoutWriteBoundary
     {
         $seeded = $this->elements($this->defaultSeeder->seed($tree->roots));
 
-        $styled = $this->styleNormalizer->normalize(new StoredTree($seeded))->roots;
+        $styled = $this->styleNormalizer->normalize($tree->withRoots($seeded))->roots;
 
-        return new StoredTree($this->elements($this->attributionReconciler->reconcile($styled)));
+        return $tree->withRoots($this->elements($this->attributionReconciler->reconcile($styled)));
     }
 
     /**

@@ -3,7 +3,7 @@
  */
 
 import types from 'src/core/service/utils/types.utils';
-import type { AxiosResponse } from 'axios';
+import type { HttpResponse } from 'src/core/factory/http-client.types';
 import Entity from './entity.data';
 import Criteria from './criteria.data';
 import EntityCollection from './entity-collection.data';
@@ -48,6 +48,13 @@ type data = {
     aggregations: aggregations;
 };
 
+/**
+ * Payload of a repository search response that the hydrator turns into an `EntityCollection`.
+ *
+ * @private
+ */
+export type EntitySearchResponseData = data;
+
 type field = {
     entity: keyof EntitySchema.Entities;
 };
@@ -81,7 +88,7 @@ export default class EntityHydrator {
     hydrateSearchResult<EntityName extends keyof EntitySchema.Entities>(
         route: string,
         entityName: EntityName,
-        response: AxiosResponse<data>,
+        response: HttpResponse<data>,
         context: apiContext,
         criteria: Criteria,
     ): EntityCollection<EntityName> {
@@ -110,16 +117,16 @@ export default class EntityHydrator {
     /**
      * Hydrates a collection of entities. Nested association will be hydrated into collections or entity classes.
      */
-    hydrate(
+    hydrate<EntityName extends keyof EntitySchema.Entities>(
         route: string,
-        entityName: entityNames,
+        entityName: EntityName,
         data: data,
         context: apiContext,
         criteria: Criteria,
-    ): EntityCollection<entityNames> {
+    ): EntityCollection<EntityName> {
         this.cache = {};
 
-        const collection = new EntityCollection<entityNames>(route, entityName, context, criteria);
+        const collection = new EntityCollection<EntityName>(route, entityName, context, criteria);
 
         data.data.forEach((row) => {
             const entity = this.hydrateEntity(entityName, row, data, context, criteria);
@@ -163,37 +170,36 @@ export default class EntityHydrator {
         data.id = id;
 
         // hydrate empty json fields
-        Object.entries(data).forEach(
-            ([
-                attributeKey,
-                attributeValue,
-            ]) => {
-                const field = schema.getField(attributeKey);
+        Object.entries(data).forEach(([attributeKey, attributeValue]) => {
+            const field = schema.getField(attributeKey);
 
-                if (!field) {
-                    return;
-                }
+            if (!field) {
+                return;
+            }
 
-                if (!schema.isJsonField(field)) {
-                    return;
-                }
+            if (!schema.isJsonField(field)) {
+                return;
+            }
 
-                if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
-                    data[attributeKey] = {};
-                    return;
-                }
+            if (Array.isArray(attributeValue) && attributeValue.length <= 0 && schema.isJsonObjectField(field)) {
+                data[attributeKey] = {};
+                return;
+            }
 
-                const isEmptyObject =
-                    !Array.isArray(attributeValue) &&
-                    typeof attributeValue === 'object' &&
-                    attributeValue !== null &&
-                    Object.keys(attributeValue).length <= 0;
+            const isEmptyObject =
+                !Array.isArray(attributeValue) &&
+                typeof attributeValue === 'object' &&
+                attributeValue !== null &&
+                Object.keys(attributeValue).length <= 0;
 
-                if (schema.isJsonListField(field) && (isEmptyObject || attributeValue === null)) {
-                    data[attributeKey] = [];
-                }
-            },
-        );
+            // Inherited fields use null as the inheritance marker.
+            if (
+                schema.isJsonListField(field) &&
+                (isEmptyObject || (attributeValue === null && field.flags?.inherited !== true))
+            ) {
+                data[attributeKey] = [];
+            }
+        });
 
         Object.keys(row.relationships).forEach((property) => {
             const value = row.relationships[property] as data;
@@ -234,9 +240,9 @@ export default class EntityHydrator {
             return true;
         });
 
-        const e = new Entity<EntityName>(id, entityName, data as unknown as EntitySchema.Entities[EntityName]);
+        const e = new Entity<EntityName>(id, entityName, data as unknown as Entity<EntityName>);
 
-        this.cache[cacheKey] = e as unknown as Entity<entityNames>;
+        this.cache[cacheKey] = e as unknown as Entity<EntityName>;
 
         return e;
     }
@@ -276,20 +282,20 @@ export default class EntityHydrator {
      * Hydrates a many association (one to many and many to many) collection and hydrates the related entities
      * @private
      */
-    hydrateToMany(
+    hydrateToMany<EntityName extends keyof EntitySchema.Entities>(
         criteria: Criteria,
         property: string,
         value: data,
-        entityName: keyof EntitySchema.Entities,
+        entityName: EntityName,
         context: apiContext,
         response: data,
-    ): EntityCollection<entityNames> {
+    ): EntityCollection<EntityName> {
         const associationCriteria = this.getAssociationCriteria(criteria, property);
         const apiResourcePath = (context?.apiResourcePath as string) ?? '';
 
         const url = value.links.related.substr(value.links.related.indexOf(apiResourcePath) + apiResourcePath.length);
 
-        const collection = new EntityCollection<entityNames>(url, entityName, context, associationCriteria);
+        const collection = new EntityCollection<EntityName>(url, entityName, context, associationCriteria);
 
         if (value.data === null) {
             return collection;
@@ -298,7 +304,7 @@ export default class EntityHydrator {
         value.data.forEach((link) => {
             const nestedRaw = this.getIncluded(link.type, link.id, response);
             const nestedEntity = this.hydrateEntity(
-                link.type as entityNames,
+                link.type as EntityName,
                 nestedRaw,
                 response,
                 context,

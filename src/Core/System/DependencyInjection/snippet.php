@@ -6,9 +6,12 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use League\Flysystem\FilesystemOperator;
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Adapter\Filesystem\FilesystemFactory;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\App\Source\SourceResolver;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetDefinition;
 use Shopware\Core\System\Snippet\Command\DownloadTranslationCommand;
@@ -19,12 +22,15 @@ use Shopware\Core\System\Snippet\Command\UpdateTranslationCommand;
 use Shopware\Core\System\Snippet\Command\Util\CountryAgnosticFileLinter;
 use Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetLifecycleHandler;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\SalesChannel\SalesChannelSnippetLoader;
 use Shopware\Core\System\Snippet\SalesChannel\SnippetRoute;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTask;
 use Shopware\Core\System\Snippet\ScheduledTask\UpdateTranslationsTaskHandler;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\AbstractTranslationLoader;
+use Shopware\Core\System\Snippet\Service\TranslationArchiveLoader;
 use Shopware\Core\System\Snippet\Service\TranslationConfigLoader;
 use Shopware\Core\System\Snippet\Service\TranslationFilesystemFactory;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -70,6 +76,22 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('kernel.project_dir') . '/',
         ]);
 
+    $services->set(StorefrontSnippetStorage::class)
+        ->args([
+            service('shopware.filesystem.translation'),
+            service(SourceResolver::class),
+            service('logger'),
+            param('kernel.cache_dir') . '/app-snippets',
+        ]);
+
+    $services->set(StorefrontSnippetLifecycleHandler::class)
+        ->args([
+            service(StorefrontSnippetStorage::class),
+            service(CacheInvalidator::class),
+            service(Connection::class),
+        ])
+        ->tag('shopware.app_lifecycle.handler', ['priority' => -1400]);
+
     $services->set(SnippetFixer::class)
         ->args([
             service(SnippetFileHandler::class),
@@ -101,6 +123,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TranslationConfig::class),
             service(TranslationMetadataStore::class),
             service(TranslationUpdater::class),
+            service(TranslationArchiveLoader::class),
         ])
         ->tag('console.command');
 
@@ -108,6 +131,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AbstractTranslationLoader::class),
             service(TranslationConfig::class),
+            service(TranslationArchiveLoader::class),
         ])
         ->tag('console.command');
 
@@ -158,6 +182,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->alias(AbstractTranslationLoader::class, TranslationLoader::class);
+
+    $services->set(TranslationArchiveLoader::class)
+        ->args([
+            service('shopware.translation.client'),
+            service('shopware.filesystem.translation'),
+            service(AbstractTranslationLoader::class),
+            service(TranslationConfig::class),
+            service('filesystem'),
+            param('kernel.cache_dir'),
+        ]);
 
     $services->set(TranslationMetadataStore::class)
         ->args([
@@ -216,6 +250,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(SalesChannelSnippetLoader::class),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(SnippetFileHandler::class)

@@ -6,7 +6,7 @@
     :aria-selected="active ? 'true' : 'false'"
     :aria-label="ariaLabel"
     tabindex="0"
-    @mouseenter="onMouseEnter"
+    @mousemove="onMouseEnter"
     @click.stop="onClickResult"
 >
     {% block sw_select_result_item_preview %}

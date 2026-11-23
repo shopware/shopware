@@ -22,6 +22,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinitio
 use Shopware\Core\Content\Product\DataAbstractionLayer\StatesUpdater;
 use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\ContentSystemLayoutProvisioner;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
@@ -105,7 +106,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('property_group.repository'),
         ])
-        ->tag('shopware.demodata_generator', ['option-name' => 'properties', 'option-default' => 10, 'option-description' => 'Property group count (option count rand(30-300))', 'option_name' => 'properties', 'option_default' => 10, 'option_description' => 'Property group count (option count rand(30-300))']);
+        ->tag('shopware.demodata_generator', ['option-name' => 'properties', 'option-default' => 11, 'option-description' => 'Property group count, groups are added until this many exist', 'option_name' => 'properties', 'option_default' => 11, 'option_description' => 'Property group count, groups are added until this many exist']);
 
     $services->set(CategoryGenerator::class)
         ->args([
@@ -140,8 +141,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ProductContentLayoutGenerator::class)
         ->args([
-            service('content_layout.repository'),
-            service('product_content_layout.repository'),
+            service(ContentSystemLayoutProvisioner::class),
             service(Connection::class),
         ])
         ->tag('shopware.demodata_generator', ['option-name' => 'product-content-layouts', 'option-default' => 1, 'option-description' => 'Product detail page content layouts (assigned to products)', 'option_name' => 'product-content-layouts', 'option_default' => 1, 'option_description' => 'Product detail page content layouts (assigned to products)']);

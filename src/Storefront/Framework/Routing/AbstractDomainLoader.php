@@ -16,7 +16,7 @@ abstract class AbstractDomainLoader
     abstract public function getDecorated(): AbstractDomainLoader;
 
     /**
-     * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed, use loadDomains() instead
+     * @deprecated tag:v6.8.0 - Will be removed, use loadDomains() instead
      *
      * @return array<string, Domain>
      */

@@ -3,7 +3,6 @@
  */
 
 import Debouncer from 'src/helper/debouncer.helper';
-import DeviceDetection from 'src/helper/device-detection.helper';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 import Plugin from 'src/plugin-system/plugin.class';
 
@@ -140,10 +139,8 @@ export default class CookiePermissionPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-
         if (this._button) {
-            const submitEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-            this._button.addEventListener(submitEvent, this._handleDenyButton.bind(this));
+            this._button.addEventListener('click', this._handleDenyButton.bind(this));
         }
 
         window.addEventListener('resize', Debouncer.debounce(this._setBodyPadding.bind(this), this.options.resizeDebounceTime), {

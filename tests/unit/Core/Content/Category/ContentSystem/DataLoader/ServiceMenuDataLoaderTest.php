@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ServiceMenuDataLoader::class)]
 class ServiceMenuDataLoaderTest extends TestCase
 {

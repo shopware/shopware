@@ -22,9 +22,7 @@ const REQUIRED_BASE_FIELDS = [
     'navigationCategoryId',
 ];
 
-const REQUIRED_PRODUCT_EXPORT_FIELDS = [
-    'name',
-];
+const REQUIRED_PRODUCT_EXPORT_FIELDS = ['name'];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -36,6 +34,7 @@ export default {
         'systemConfigApiService',
         'acl',
         'feature',
+        'customFieldDataProviderService',
     ],
 
     provide() {
@@ -45,10 +44,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -129,6 +125,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         isAgenticCommerce() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.isAgenticCommerce is deprecated. Will be removed.',
+            );
+
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
             }
@@ -138,11 +139,21 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         hasSwagAgenticCommercePlugin() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.hasSwagAgenticCommercePlugin is deprecated. Will be removed.',
+            );
+
             return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         showAgenticCommerceDeprecationBanner() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.showAgenticCommerceDeprecationBanner is deprecated. Will be removed.',
+            );
+
             return this.isAgenticCommerce && !this.hasSwagAgenticCommercePlugin;
         },
 
@@ -167,9 +178,7 @@ export default {
                 };
             };
 
-            const tabs = [
-                createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base'),
-            ];
+            const tabs = [createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base')];
 
             if (this.isAgenticCommerce && !this.isLoading) {
                 tabs.push(
@@ -232,7 +241,13 @@ export default {
             return this.repositoryFactory.create('sales_channel_analytics');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.customFieldRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
@@ -244,10 +259,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             return criteria.addFilter(
-                Criteria.equalsAny('typeId', [
-                    Defaults.storefrontSalesChannelTypeId,
-                    Defaults.apiSalesChannelTypeId,
-                ]),
+                Criteria.equalsAny('typeId', [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId]),
             );
         },
 
@@ -274,6 +286,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         defaultAgenticCommerceExportConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.defaultAgenticCommerceExportConfig is deprecated. Will be removed.',
+            );
+
             return [
                 {
                     provider: 'open-ai',
@@ -311,6 +328,11 @@ export default {
     methods: {
         /** @deprecated tag:v6.8.0 - Will be removed */
         onClickInstallAgenticCommercePlugin() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.onClickInstallAgenticCommercePlugin() is deprecated. Will be removed.',
+            );
+
             if (this.$router.hasRoute('sw.extension.store.detail')) {
                 this.$router.push({ name: 'sw.extension.store.detail', params: { id: '21761' } });
                 return;
@@ -449,12 +471,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            const criteria = new Criteria(1, 100);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
-
-            this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
+            this.customFieldDataProviderService.getCustomFieldSets('sales_channel', false, 100).then((searchResult) => {
                 this.customFieldSets = searchResult;
             });
         },
@@ -571,6 +588,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         validateAgenticCommerceExportConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.validateAgenticCommerceExportConfig() is deprecated. Will be removed.',
+            );
+
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
             const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
             let isValid = true;
@@ -591,6 +613,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         async loadAgenticCommerceExportConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.loadAgenticCommerceExportConfig() is deprecated. Will be removed.',
+            );
+
             this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
                 return {
                     ...configEntry,
@@ -611,10 +638,7 @@ export default {
                     configEntry.isLoading = true;
 
                     try {
-                        const [
-                            config,
-                            values,
-                        ] = await Promise.all([
+                        const [config, values] = await Promise.all([
                             this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
                             this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
                         ]);
@@ -635,6 +659,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         async saveAgenticCommerceExportConfig() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-detail.saveAgenticCommerceExportConfig() is deprecated. Will be removed.',
+            );
+
             if (!this.isAgenticCommerce || !this.salesChannel?.id) {
                 return true;
             }

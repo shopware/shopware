@@ -12,7 +12,7 @@
             "columnName": "Name",
             "columnValidFrom": "Valid from",
             "columnValidUntil": "Valid until",
-            "titleEmpty": "No promotions yet.",
+            "titleEmpty": "No promotions yet",
             "descriptionEmpty": "Boost your sales by discounting your products and services.",
             "placeholderSearchBar": "Search promotions...",
             "textDeleteConfirm": "Are you sure you want to delete the promotion \"{name}\"?",
@@ -65,7 +65,7 @@
                     },
                     "individual": {
                         "description": "Individual promotion codes",
-                        "emptyStateTitle": "No promotion codes generated yet.",
+                        "emptyStateTitle": "No promotion codes generated yet",
                         "generateButton": "Generate new codes",
                         "searchPlaceholder": "Search promotion codes...",
                         "addButton": "Add codes",

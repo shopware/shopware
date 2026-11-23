@@ -313,6 +313,10 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'price' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                ],
                 'parent' => [
                     'type' => 'nested',
                     'properties' => [
@@ -522,6 +526,21 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     ],
                 ],
                 ],
+                ['price_fields' => [
+                    'path_match' => 'price.*.*',
+                    'mapping' => [
+                        'type' => 'double',
+                    ],
+                ],
+                ],
+                ['visibility' => [
+                    'path_match' => 'visibility_*',
+                    'match_mapping_type' => 'long',
+                    'mapping' => [
+                        'type' => 'integer',
+                    ],
+                ],
+                ],
                 [
                     'long_to_double' => [
                         'match_mapping_type' => 'long',
@@ -538,6 +557,50 @@ class ElasticsearchProductDefinitionTest extends TestCase
         }
 
         static::assertEquals($expectedMapping, $definition->getMapping(Context::createDefaultContext()));
+    }
+
+    public function testVisibilityOfSalesChannelMissingInMappingIsMappedAsIntegerByDynamicTemplate(): void
+    {
+        $existingSalesChannelId = Uuid::randomHex();
+        $newSalesChannelId = Uuid::randomHex();
+
+        $definition = new ElasticsearchProductDefinition(
+            static::createStub(ProductDefinition::class),
+            static::createStub(Connection::class),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([Defaults::LANGUAGE_SYSTEM => [$existingSalesChannelId]]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $mapping = $definition->getMapping(Context::createDefaultContext());
+
+        static::assertArrayNotHasKey('visibility_' . $newSalesChannelId, $mapping['properties']);
+
+        static::assertArrayHasKey('dynamic_templates', $mapping);
+        $templates = array_merge(...$mapping['dynamic_templates']);
+        $templateOrder = array_keys($templates);
+        static::assertArrayHasKey('visibility', $templates);
+        static::assertLessThan(
+            array_search('long_to_double', $templateOrder, true),
+            array_search('visibility', $templateOrder, true),
+            'The visibility template must be checked before long_to_double, the first matching template wins'
+        );
+
+        $visibilityTemplate = $templates['visibility'];
+        static::assertSame(
+            [
+                'path_match' => 'visibility_*',
+                'match_mapping_type' => 'long',
+                'mapping' => $mapping['properties']['visibility_' . $existingSalesChannelId],
+            ],
+            $visibilityTemplate
+        );
+        static::assertTrue(fnmatch($visibilityTemplate['path_match'], 'visibility_' . $newSalesChannelId));
+        static::assertFalse(fnmatch($visibilityTemplate['path_match'], 'visibilities.visibility'));
     }
 
     public function testMappingCustomFields(): void
@@ -780,6 +843,16 @@ class ElasticsearchProductDefinitionTest extends TestCase
             static::assertSame($price, $document[$key]);
         }
 
+        // keyed by `c_<currencyId>` to match the accessor of the criteria parser, and the `c` prefix of the
+        // database key is only stripped once - the currency id of the second price starts with a `c` itself
+        static::assertSame(
+            [
+                'c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0],
+                'c_c0d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 20.0, 'net' => 16.0],
+            ],
+            $document['price']
+        );
+
         static::assertSame(
             [
                 '809c1844f4734243b6aa04aba860cd45',
@@ -870,6 +943,32 @@ class ElasticsearchProductDefinitionTest extends TestCase
             ],
             $document['properties']
         );
+    }
+
+    public function testFetchingSkipsPriceNotKeyedByCurrency(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $this->getConnection(price: '[{"currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "net": 8, "gross": 10}]'),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([
+                Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+            ]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+
+        static::assertSame([], $documents[$uuid]['price']);
     }
 
     public function testFetchingWithSalesChannelLanguageMissingDefaultLang(): void
@@ -1074,7 +1173,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
-    private function getConnection(int $numberOfTranslations = 1): Stub&Connection
+    private function getConnection(int $numberOfTranslations = 1, ?string $price = null): Stub&Connection
     {
         $connection = static::createStub(Connection::class);
 
@@ -1108,6 +1207,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'coverId' => null,
                     'childCount' => 0,
                     'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
+                    'price' => $price ?? '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca": {"currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "net": 8, "gross": 10}, "cc0d2554b0ce847cd82f3ac9bd1c0dfca": {"currencyId": "c0d2554b0ce847cd82f3ac9bd1c0dfca", "net": 16, "gross": 20}}',
                     'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
                     'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',

@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
 
 const mockGet = jest.fn();
 
@@ -54,18 +55,12 @@ async function createWrapper({
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                        'disabled',
-                    ],
+                    props: ['route', 'title', 'disabled'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -103,11 +98,13 @@ async function createWrapper({
                 exportTemplateService: {
                     getProductExportTemplateRegistry: () => ({}),
                 },
-                systemConfigApiService: {
-                    getConfig: () => Promise.resolve([]),
-                    getValues: () => Promise.resolve({}),
-                    batchSave: () => Promise.resolve(),
-                },
+                systemConfigApiService: Object.assign(
+                    new SystemConfigApiService({ get: () => Promise.resolve({ data: [] }) }, { getToken: () => 'token' }),
+                    {
+                        getValues: () => Promise.resolve({}),
+                        batchSave: () => Promise.resolve(),
+                    },
+                ),
                 feature: {
                     isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                 },

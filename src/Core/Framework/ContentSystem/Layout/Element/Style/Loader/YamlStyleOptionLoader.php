@@ -25,7 +25,7 @@ class YamlStyleOptionLoader extends AbstractContentSystemStyleOptionLoader
 {
     // Must start with a letter: an all-numeric name (e.g. "123") would be coerced to an int array key on
     // read and silently dropped by the registry-free deserialize, so it could never round-trip.
-    private const NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/';
+    private const NAME_PATTERN = '/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/D';
 
     /**
      * @param list<StyleOptionSourceDirectory> $directories

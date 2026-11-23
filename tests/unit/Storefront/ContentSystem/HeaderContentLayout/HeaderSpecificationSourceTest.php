@@ -33,8 +33,7 @@ class HeaderSpecificationSourceTest extends TestCase
     {
         $this->resolver = static::createStub(DomainAwareLayoutResolver::class);
 
-        /** @var StaticEntityRepository<HeaderContentLayoutCollection> $repository */
-        $repository = new StaticEntityRepository([]);
+        $repository = StaticEntityRepository::of(HeaderContentLayoutCollection::class, []);
 
         $this->source = new HeaderSpecificationSource(
             $this->resolver,
@@ -48,6 +47,12 @@ class HeaderSpecificationSourceTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         static::assertTrue($this->source->supports('', new Request(), $context));
+    }
+
+    #[TestDox('uses the header section as its mapping catalogue source')]
+    public function testRootSourceReturnsHeaderSection(): void
+    {
+        static::assertSame('header', $this->source->rootSource());
     }
 
     #[TestDox('resolves layout ID from domain-aware assignment')]
@@ -71,6 +76,15 @@ class HeaderSpecificationSourceTest extends TestCase
         $result = $this->source->resolveSpecificationData('', new Request(), $context);
 
         static::assertSame([], $result->dataRequirements);
+    }
+
+    #[TestDox('turns no query parameter into a placeholder value')]
+    public function testResolveSpecificationDataIgnoresQueryParameters(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $result = $this->source->resolveSpecificationData('', new Request(['color' => 'red', '0' => 'x']), $context);
+
+        static::assertSame([], $result->placeholderValues->all());
     }
 
     #[TestDox('resolves cache tags using header section tag')]

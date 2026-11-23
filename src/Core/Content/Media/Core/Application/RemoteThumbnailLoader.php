@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Core\Params\UrlParams;
 use Shopware\Core\Content\Media\Extension\ResolveRemoteThumbnailUrlExtension;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
@@ -78,7 +79,7 @@ class RemoteThumbnailLoader implements ResetInterface
             $mediaFolderId = $mediaEntity->get('mediaFolderId');
             $thumbnailSizes = $mediaThumbnailSizes[$mediaFolderId] ?? [];
 
-            if ($thumbnailSizes === []) {
+            if ($thumbnailSizes === [] || $this->isVectorGraphic($mediaEntity)) {
                 $mediaEntity->assign(['thumbnails' => new MediaThumbnailCollection()]);
 
                 continue;
@@ -205,6 +206,17 @@ class RemoteThumbnailLoader implements ResetInterface
         }
 
         return $this->mediaFolderThumbnailSizes = $grouped;
+    }
+
+    /**
+     * A thumbnail URL of a vector graphic returns the original file at its own size,
+     * so the width of the thumbnail in a srcset would make the browser shrink the image.
+     */
+    private function isVectorGraphic(MediaEntity|PartialEntity $mediaEntity): bool
+    {
+        $mediaType = $mediaEntity->has('mediaType') ? $mediaEntity->get('mediaType') : null;
+
+        return $mediaType instanceof ImageType && $mediaType->is(ImageType::VECTOR_GRAPHIC);
     }
 
     private function getBaseUrl(): string

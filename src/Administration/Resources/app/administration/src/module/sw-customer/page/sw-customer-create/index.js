@@ -19,11 +19,10 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -32,13 +31,12 @@ export default {
             customerNumberPreview: '',
             isSaveSuccessful: false,
             isLoading: false,
+            customerCustomFieldSets: null,
         };
     },
 
     computed: {
-        ...mapPropertyErrors('address', [
-            'company',
-        ]),
+        ...mapPropertyErrors('address', ['company']),
 
         customerRepository() {
             return this.repositoryFactory.create('customer');
@@ -82,6 +80,10 @@ export default {
         salutationFilter() {
             return Shopware.Filter.getByName('salutation');
         },
+
+        showCustomFieldSets() {
+            return !!this.customer && this.customerCustomFieldSets?.length > 0;
+        },
     },
 
     watch: {
@@ -91,6 +93,22 @@ export default {
                     this.customer.boundSalesChannelId = salesChannelId;
                 }
             });
+
+            const currentSalesChannelId = salesChannelId;
+
+            this.loadLanguage(currentSalesChannelId)
+                .then((languageId) => {
+                    if (!this.customer || this.customer.salesChannelId !== currentSalesChannelId) {
+                        return;
+                    }
+
+                    this.customer.languageId = languageId || Shopware.Context.api.languageId;
+                })
+                .catch(() => {
+                    if (this.customer && this.customer.salesChannelId === currentSalesChannelId) {
+                        this.customer.languageId = Shopware.Context.api.languageId;
+                    }
+                });
         },
 
         'customer.accountType'(value) {
@@ -108,6 +126,8 @@ export default {
 
     methods: {
         async createdComponent() {
+            this.loadCustomFieldSets();
+
             const defaultSalutationId = await this.getDefaultSalutation();
 
             Shopware.Store.get('context').resetLanguageToDefault();
@@ -127,7 +147,14 @@ export default {
             this.customer.password = '';
             this.customer.vatIds = [];
             this.customer.salutationId = defaultSalutationId;
+            this.customer.languageId = Shopware.Context.api.languageId;
             this.address.salutationId = defaultSalutationId;
+        },
+
+        loadCustomFieldSets() {
+            return this.customFieldDataProviderService.getCustomFieldSets('customer').then((customFieldSets) => {
+                this.customerCustomFieldSets = customFieldSets;
+            });
         },
 
         saveFinish() {

@@ -17,6 +17,7 @@
         "copyLink": "Link kopieren",
         "delete": "Löschen",
         "dissolve": "Auflösen",
+        "unselectAll": "Auswahl aufheben",
         "download": "Download",
         "move": "Verschieben",
         "replace": "Ersetzen",
@@ -74,7 +75,7 @@
       "rootFolderName": "Medien"
     },
     "mediaLibrary": {
-      "labelButtonLoadMore": "Weitere laden",
+      "labelButtonLoadMore": "Mehr laden",
       "labelButtonLoadAll": "Alle laden",
       "titleEmptyState": "Noch keine Medien vorhanden",
       "descriptionEmptyState": "Verwaltung von Medien."

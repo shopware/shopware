@@ -6,19 +6,23 @@ use Mcp\Capability\Attribute\McpResourceTemplate;
 use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpException;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultPrincipal;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Serves a large tool result that was stored during the current MCP session.
- * Access is restricted to the session that created the result.
+ * Serves a large tool result that a previous tool call stored. The id in the URI is a signed pointer
+ * that only the integration or user who stored the result can read. A plain id, as issued before the
+ * pointers were signed, is still served to the session that stored it.
  */
 #[Package('framework')]
 #[McpResourceTemplate(
-    uriTemplate: 'shopware://tool-result/{id}',
+    uriTemplate: McpToolResultPointer::URI_PREFIX . '{id}',
     name: 'tool-result',
-    description: 'Retrieves a large tool result stored by a previous tool call in this session. Fetch when a tool response contains a resourceUri pointing here.',
+    description: 'A large tool result that a previous tool call stored instead of returning it inline. Tool results point here with a resource_link. The link expires after an hour.',
     mimeType: 'application/json',
 )]
 class ToolResultResource
@@ -28,6 +32,7 @@ class ToolResultResource
      */
     public function __construct(
         private readonly ToolResultCacheStorage $storage,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -36,15 +41,20 @@ class ToolResultResource
      */
     public function __invoke(string $id, RequestContext $context): array
     {
-        $sessionId = $context->getSession()->getId()->toString();
-        $result = $this->storage->read($id, $sessionId);
+        if (str_contains($id, '.')) {
+            $request = $this->requestStack->getCurrentRequest();
+            $principal = $request !== null ? McpToolResultPrincipal::fromRequest($request) : null;
+            $result = $principal !== null ? $this->storage->readFor($id, $principal) : null;
+        } else {
+            $result = $this->storage->read($id, $context->getSession()->getId()->toString());
+        }
 
         if ($result === null) {
             throw McpException::toolResultNotFound($id);
         }
 
         return [
-            'uri' => 'shopware://tool-result/' . $id,
+            'uri' => McpToolResultPointer::URI_PREFIX . $id,
             'mimeType' => $result['mimeType'],
             'text' => $result['content'],
         ];

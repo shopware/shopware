@@ -3,18 +3,24 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Element\Context;
 
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
 final readonly class ContextConsumer implements \JsonSerializable
 {
+    /**
+     * `$source` identifies the typed data source for a mapping. The consumer map key remains the destination
+     * property, so several properties may use the same source reference.
+     */
     public function __construct(
         public ContextType $type,
         public bool $required,
         public bool $redistribute = false,
         public ?string $consumerAlias = null,
         public ?string $propertyAlias = null,
-        public ConsumerScope $scope = ConsumerScope::Parent
+        public ConsumerScope $scope = ConsumerScope::Parent,
+        public ?MappingSourceReference $source = null,
     ) {
     }
 
@@ -42,6 +48,10 @@ final readonly class ContextConsumer implements \JsonSerializable
 
         if ($this->scope !== ConsumerScope::Parent) {
             $data['scope'] = $this->scope->value;
+        }
+
+        if ($this->source !== null) {
+            $data['source'] = $this->source->jsonSerialize();
         }
 
         return $data;

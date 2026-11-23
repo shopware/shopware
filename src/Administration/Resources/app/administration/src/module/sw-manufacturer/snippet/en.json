@@ -2,12 +2,14 @@
   "sw-manufacturer": {
     "general": {
       "mainMenuItemList": "Manufacturers",
+      "descriptionTextModule": "Manage manufacturers here.",
       "mainMenuItemGeneral": "Manufacturers",
       "placeholderSearchBar": "Search manufacturers..."
     },
     "list": {
       "textManufacturerOverview": "Manufacturers",
       "textTotalManufacturer": "No manufacturers | One manufacturer | {count} manufacturers",
+      "messageEmpty": "No manufacturers yet",
       "buttonAddManufacturer": "Add manufacturer",
       "columnName": "Manufacturer",
       "columnLink": "Website"

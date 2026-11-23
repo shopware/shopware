@@ -17,10 +17,7 @@ export default {
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'search',
@@ -31,44 +28,34 @@ export default {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
-
         resultLimit: {
             type: Number,
             required: false,
             default: 25,
         },
-
         valueLimit: {
             type: Number,
             required: false,
             default: 5,
         },
-
         placeholder: {
             type: String,
             required: false,
             default: '',
         },
-
         alwaysShowPlaceholder: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         criteria: {
             type: Object,
             required: false,
@@ -76,30 +63,25 @@ export default {
                 return new Criteria(1, props.resultLimit);
             },
         },
-
         disabled: {
             type: Boolean,
             required: false,
             default: undefined,
         },
-
         highlightSearchTerm: {
             type: Boolean,
             required: false,
             default: true,
         },
-
         entityCollection: {
             type: Array,
             required: true,
         },
-
         entityName: {
             type: String,
             required: false,
             default: null,
         },
-
         context: {
             type: Object,
             required: false,
@@ -107,35 +89,40 @@ export default {
                 return Shopware.Context.api;
             },
         },
-
         hideLabels: {
             type: Boolean,
             required: false,
             default: false,
         },
-
         selectionDisablingMethod: {
             type: Function,
             required: false,
             default: () => false,
         },
-
         descriptionPosition: {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-            ],
+            validValues: ['bottom', 'right'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                ].includes(value);
+                return ['bottom', 'right'].includes(value);
             },
         },
-
+        descriptionProperty: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        descriptionFormatter: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        descriptionFormatterArgs: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
         advancedSelectionComponent: {
             type: String,
             required: false,
@@ -143,7 +130,6 @@ export default {
                 return '';
             },
         },
-
         advancedSelectionParameters: {
             type: Object,
             required: false,
@@ -151,7 +137,6 @@ export default {
                 return {};
             },
         },
-
         displayVariants: {
             type: Boolean,
             required: false,
@@ -182,6 +167,16 @@ export default {
     },
 
     computed: {
+        descriptionFormatterFn() {
+            if (!this.descriptionFormatter) {
+                return null;
+            }
+
+            const formatter = Shopware.Filter.getByName(this.descriptionFormatter);
+
+            return typeof formatter === 'function' ? formatter : null;
+        },
+
         repository() {
             return this.repositoryFactory.create(this.entityName || this.entityCollection.entity);
         },
@@ -289,6 +284,25 @@ export default {
                     }
                 });
             }
+        },
+
+        displayDescriptionProperty(item) {
+            if (!this.descriptionProperty) {
+                return '';
+            }
+
+            const value =
+                this.getKey(item, this.descriptionProperty) ?? this.getKey(item, `translated.${this.descriptionProperty}`);
+
+            if (value === null || value === undefined) {
+                return '';
+            }
+
+            if (!this.descriptionFormatterFn) {
+                return value;
+            }
+
+            return this.descriptionFormatterFn(value, ...this.descriptionFormatterArgs);
         },
 
         displayLabelProperty(item) {

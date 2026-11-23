@@ -16,7 +16,7 @@ use Shopware\Core\Test\Stub\ContentSystem\StubLoaderConfig;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ServiceMenuLoaderConfigSerializer::class)]
 class ServiceMenuLoaderConfigSerializerTest extends TestCase
 {

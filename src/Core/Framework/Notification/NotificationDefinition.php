@@ -17,11 +17,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 #[Package('framework')]
+#[ClassMoved(version: 'v6.8.0', previousClassName: 'Shopware\Administration\Notification\NotificationDefinition')]
 class NotificationDefinition extends EntityDefinition
 {
     final public const ENTITY_NAME = 'notification';

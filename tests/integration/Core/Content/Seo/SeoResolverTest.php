@@ -508,4 +508,96 @@ class SeoResolverTest extends TestCase
         static::assertTrue($resolved->isCanonical);
         static::assertNull($resolved->canonicalPathInfo);
     }
+
+    public function testResolveCanonicalFallbackMatchesPathInfoWithTheRequestQuery(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'storefront.app.MyApp.render',
+                'pathInfo' => '/storefront/script/render?product-id=p1',
+                'seoPathInfo' => 'my-render-page',
+                'isCanonical' => true,
+            ],
+        ], $context);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            'storefront/script/render',
+            'product-id=p1',
+        ));
+
+        static::assertSame('/storefront/script/render', $resolved->pathInfo);
+        static::assertFalse($resolved->isCanonical);
+        static::assertSame('/my-render-page', $resolved->canonicalPathInfo);
+    }
+
+    public function testResolveCanonicalFallbackPrefersThePathInfoCarryingTheRequestQuery(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'storefront.app.MyApp.render',
+                'pathInfo' => '/storefront/script/render',
+                'seoPathInfo' => 'plain-render-page',
+                'isCanonical' => true,
+            ],
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'storefront.app.MyApp.render',
+                'pathInfo' => '/storefront/script/render?product-id=p1',
+                'seoPathInfo' => 'my-render-page',
+                'isCanonical' => true,
+            ],
+        ], $context);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            'storefront/script/render',
+            'product-id=p1',
+        ));
+
+        static::assertSame('/my-render-page', $resolved->canonicalPathInfo);
+    }
+
+    public function testResolveCanonicalFallbackWithoutQueryIgnoresQueryBearingPathInfo(): void
+    {
+        $context = Context::createDefaultContext();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->seoUrlRepository->create([
+            [
+                'salesChannelId' => $salesChannelId,
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'routeName' => 'storefront.app.MyApp.render',
+                'pathInfo' => '/storefront/script/render?product-id=p1',
+                'seoPathInfo' => 'my-render-page',
+                'isCanonical' => true,
+            ],
+        ], $context);
+
+        $resolved = $this->seoResolver->resolveUrl(new SeoUrlRequestContext(
+            $context->getLanguageId(),
+            $salesChannelId,
+            'storefront/script/render',
+        ));
+
+        static::assertSame('/storefront/script/render', $resolved->pathInfo);
+        static::assertFalse($resolved->isCanonical);
+        static::assertNull($resolved->canonicalPathInfo);
+    }
 }

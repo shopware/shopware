@@ -19,12 +19,10 @@ export default {
         'repositoryFactory',
         'seoUrlService',
         'systemConfigApiService',
+        'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -135,11 +133,23 @@ export default {
             return this.category ? this.category.cmsPageId : null;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.customFieldSetRepository is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.customFieldSetCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'category'));
@@ -147,7 +157,13 @@ export default {
             return criteria;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetLandingPageCriteria() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.customFieldSetLandingPageCriteria is deprecated. Use customFieldDataProviderService instead.',
+            );
+
             const criteria = new Criteria(1, null);
 
             criteria.addFilter(Criteria.equals('relations.entityName', 'landing_page'));
@@ -299,10 +315,7 @@ export default {
             return;
         }
 
-        const keysToDelete = [
-            'id',
-            'versionId',
-        ];
+        const keysToDelete = ['id', 'versionId'];
         const changedKeys = Object.keys(changes).filter((key) => !keysToDelete.includes(key));
         const hasDeletions = deletionQueue.length > 0;
 
@@ -472,9 +485,7 @@ export default {
                     return;
                 }
 
-                Shopware.Store.get('shopwareApps').selectedIds = [
-                    this.landingPageId,
-                ];
+                Shopware.Store.get('shopwareApps').selectedIds = [this.landingPageId];
                 await Shopware.Store.get('swCategoryDetail').loadActiveLandingPage({
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
@@ -507,9 +518,7 @@ export default {
                 return;
             }
 
-            Shopware.Store.get('shopwareApps').selectedIds = [
-                this.categoryId,
-            ];
+            Shopware.Store.get('shopwareApps').selectedIds = [this.categoryId];
             Shopware.Store.get('swCategoryDetail')
                 .loadActiveCategory({
                     repository: this.categoryRepository,
@@ -531,8 +540,8 @@ export default {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('category', false, null)
                 .then((customFieldSet) => {
                     Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
                 })
@@ -544,8 +553,8 @@ export default {
         loadLandingPageCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository
-                .search(this.customFieldSetLandingPageCriteria)
+            return this.customFieldDataProviderService
+                .getCustomFieldSets('landing_page', false, null)
                 .then((customFieldSet) => {
                     Shopware.Store.get('swCategoryDetail').customFieldSets = customFieldSet;
                 })
@@ -638,8 +647,6 @@ export default {
             this.isLoading = true;
 
             try {
-                await this.updateSeoUrls();
-
                 const response = await this.systemConfigApiService.getValues('core.cms');
 
                 this.defaultCategoryId = response['core.cms.default_category_cms_page'];
@@ -649,6 +656,8 @@ export default {
                 }
 
                 await this.categoryRepository.save(this.category, { ...Shopware.Context.api });
+
+                await this.updateSeoUrls();
 
                 this.isSaveSuccessful = true;
                 this.entryPointOverwriteConfirmed = false;
@@ -768,6 +777,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         extractSlotOverrides(origin, changes) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.extractSlotOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             const slotOverrides = {};
 
             if (changes === null) {
@@ -813,6 +827,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         getCmsPageOverrides() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.getCmsPageOverrides() is deprecated. Will be removed without replacement.',
+            );
+
             if (this.cmsPage === null) {
                 return null;
             }
@@ -828,6 +847,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         deleteSpecifcKeys(sections) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-category-detail.deleteSpecifcKeys() is deprecated. Will be removed without replacement.',
+            );
+
             if (!sections) {
                 return;
             }
@@ -868,41 +892,40 @@ export default {
                 return Promise.resolve();
             }
 
-            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls;
+            const seoUrls = Shopware.Store.get('swSeoUrl').newOrModifiedUrls.filter((seoUrl) => {
+                return seoUrl.foreignKey === this.category.id;
+            });
 
             return Promise.all(
                 seoUrls.map((seoUrl) => {
-                    if (seoUrl.seoPathInfo) {
-                        seoUrl.isModified = true;
-                        return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
-                            if (error.response?.data?.errors) {
-                                error.response.data.errors.forEach((apiError) => {
-                                    const messageKey = `global.error-codes.${apiError.detail}`;
-                                    const params = apiError.meta?.parameters || {};
-                                    const translatedMessage = this.$t(messageKey, params);
+                    seoUrl.isModified = !!seoUrl.seoPathInfo?.trim();
 
-                                    const errorMessage =
-                                        translatedMessage !== messageKey
-                                            ? translatedMessage
-                                            : apiError.detail ||
-                                              apiError.title ||
-                                              this.$t('global.notification.unspecifiedSaveErrorMessage');
+                    return this.seoUrlService.updateCanonicalUrl(seoUrl, seoUrl.languageId).catch((error) => {
+                        if (error.response?.data?.errors) {
+                            error.response.data.errors.forEach((apiError) => {
+                                const messageKey = `global.error-codes.${apiError.detail}`;
+                                const params = apiError.meta?.parameters || {};
+                                const translatedMessage = this.$t(messageKey, params);
 
-                                    this.createNotificationError({
-                                        message: errorMessage,
-                                    });
-                                });
-                            } else {
+                                const errorMessage =
+                                    translatedMessage !== messageKey
+                                        ? translatedMessage
+                                        : apiError.detail ||
+                                          apiError.title ||
+                                          this.$t('global.notification.unspecifiedSaveErrorMessage');
+
                                 this.createNotificationError({
-                                    message: error.message || this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                                    message: errorMessage,
                                 });
-                            }
+                            });
+                        } else {
+                            this.createNotificationError({
+                                message: error.message || this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                            });
+                        }
 
-                            return Promise.reject(error);
-                        });
-                    }
-
-                    return Promise.resolve();
+                        return Promise.reject(error);
+                    });
                 }),
             );
         },

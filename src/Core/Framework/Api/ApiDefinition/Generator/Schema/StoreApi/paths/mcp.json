@@ -33,6 +33,15 @@
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"
+                    },
+                    {
+                        "name": "toolsets",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated toolsets whose tools `tools/list` advertises from the first request of the connection, for example `store-api`. `all` selects every toolset, and unknown names are ignored. It is part of the URL the client connects to, so it applies to every request of the session. `shopware-toolsets-list` reports these toolsets as enabled.",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -116,6 +125,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -134,7 +144,10 @@
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     },
                                     {
                                         "title": "tools/call",
@@ -161,6 +174,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -179,7 +193,10 @@
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     },
                                     {
                                         "title": "resources/read",
@@ -201,6 +218,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -219,7 +237,10 @@
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     },
                                     {
                                         "title": "prompts/get",
@@ -248,6 +269,7 @@
                                             }
                                         },
                                         "required": [
+                                            "method",
                                             "params"
                                         ]
                                     },
@@ -257,7 +279,10 @@
                                             "method": {
                                                 "const": "ping"
                                             }
-                                        }
+                                        },
+                                        "required": [
+                                            "method"
+                                        ]
                                     }
                                 ]
                             }

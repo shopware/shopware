@@ -1,3 +1,5 @@
+import Store from 'src/app/store';
+
 type CmsSlot = Entity<'cms_slot'> & { config?: Record<string, unknown> };
 
 type CmsPageState = {
@@ -33,8 +35,11 @@ function findSlot(page: null | Entity<'cms_page'>, elementId: string): CmsSlot |
 /**
  * @private
  * @sw-package discovery
+ *
+ * Registered on the store singleton instead of `Shopware.Store`: `src/core/shopware.ts` loads this file
+ * through `Shopware.Composables` before the global object exists.
  */
-const cmsPageStore = Shopware.Store.register({
+const cmsPageStore = Store.instance.register({
     id: 'cmsPage',
 
     state: (): CmsPageState => ({
@@ -105,7 +110,7 @@ const cmsPageStore = Shopware.Store.register({
             this.pageEntityName = 'cms_page';
         },
 
-        setDefaultMediaFolderId(folderId: string) {
+        setDefaultMediaFolderId(folderId: EntityKey<'media_folder'>) {
             this.defaultMediaFolderId = folderId;
         },
 

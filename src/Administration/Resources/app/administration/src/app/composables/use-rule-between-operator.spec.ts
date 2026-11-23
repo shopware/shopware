@@ -36,18 +36,9 @@ describe('src/app/composables/use-rule-between-operator', () => {
     });
 
     it.each([
-        [
-            'a missing value',
-            {},
-        ],
-        [
-            'null',
-            { value: { renderedFieldValue: null } },
-        ],
-        [
-            'an array',
-            { value: { renderedFieldValue: [] } },
-        ],
+        ['a missing value', {}],
+        ['null', { value: { renderedFieldValue: null } }],
+        ['an array', { value: { renderedFieldValue: [] } }],
     ])('falls back to an empty pair for %s', (_name, condition) => {
         const { composable } = createComposable(condition);
 

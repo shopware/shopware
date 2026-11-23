@@ -43,26 +43,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'payment_method:read',
                 'shipping_method:read',
             ],
-            dependencies: [
-                'property.viewer',
-            ],
+            dependencies: ['property.viewer'],
         },
         creator: {
-            privileges: [
-                'property_group:create',
-            ],
-            dependencies: [
-                'property.viewer',
-                'property.editor',
-            ],
+            privileges: ['property_group:create'],
+            dependencies: ['property.viewer', 'property.editor'],
         },
         deleter: {
-            privileges: [
-                'property_group:delete',
-            ],
-            dependencies: [
-                'property.viewer',
-            ],
+            privileges: ['property_group:delete'],
+            dependencies: ['property.viewer'],
         },
     },
 });

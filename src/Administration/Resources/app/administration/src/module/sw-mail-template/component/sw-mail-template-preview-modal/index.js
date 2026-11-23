@@ -9,9 +9,7 @@ import './sw-mail-template-preview-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-    ],
+    emits: ['modal-close'],
 
     props: {
         mailPreview: {

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Mutation\Op;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoaderConfig;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
+use Shopware\Core\Framework\ContentSystem\Mapping\MappingSourceReference;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\DuplicateElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -74,6 +76,7 @@ class DuplicateElementTest extends TestCase
 
         $clone = $result->roots[1];
         static::assertSame([$clone->id, $clone->slots['content'][0]->id], $duplicate->created());
+        static::assertSame([], $duplicate->freshlyScaffolded());
         static::assertNotContains('root', $duplicate->created());
         static::assertNotContains('child', $duplicate->created());
     }
@@ -98,6 +101,20 @@ class DuplicateElementTest extends TestCase
         static::assertSame([$clone->id], $duplicate->affected());
     }
 
+    #[TestDox('carries a language-map property value over to the clone unchanged')]
+    public function testDuplicateCarriesLanguageMapUnchanged(): void
+    {
+        $german = Uuid::randomHex();
+        $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
+        $original = StoredElementBuilder::create('Sw:Card', 'original')->withProperty('text', $translations)->build();
+
+        $result = (new DuplicateElement('original'))->apply(new StoredTree([$original]));
+
+        $carried = $result->roots[1]->property('text');
+        static::assertNotNull($carried);
+        static::assertObjectEquals(StoredValue::fromDecoded($translations), $carried);
+    }
+
     #[TestDox('carries key-based wiring, context definitions, and style over to the clone unchanged')]
     public function testDuplicatePreservesWiringAndStyle(): void
     {
@@ -120,11 +137,11 @@ class DuplicateElementTest extends TestCase
      * defect turns a duplicated element from one that receives the page's root context into one that
      * receives nothing, with no error anywhere.
      */
-    #[TestDox('carries the root consumer scope over to the reconstructed clone')]
-    public function testDuplicatePreservesTheRootConsumerScopeOnClone(): void
+    #[TestDox('carries a property mapping over to the reconstructed clone')]
+    public function testDuplicatePreservesPropertyMappingOnClone(): void
     {
         $original = StoredElementBuilder::create('Sw:Card', 'original')
-            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->withConsumer('text', ContextType::Single, scope: ConsumerScope::Root, source: MappingSourceReference::fromRootPath('product.name'))
             ->build();
         $tree = new StoredTree([$original]);
 
@@ -132,9 +149,10 @@ class DuplicateElementTest extends TestCase
 
         $clone = $result->roots[1];
         static::assertNotSame('original', $clone->id);
-        $consumer = $clone->contextDefinitions->getAllConsumers()['product'] ?? null;
+        $consumer = $clone->contextDefinitions->getAllConsumers()['text'] ?? null;
         static::assertInstanceOf(ContextConsumer::class, $consumer);
         static::assertSame(ConsumerScope::Root, $consumer->scope);
+        static::assertSame('product.name', $consumer->source?->displayName());
     }
 
     #[TestDox('carries attributed specifications over to the reconstructed clone unchanged')]

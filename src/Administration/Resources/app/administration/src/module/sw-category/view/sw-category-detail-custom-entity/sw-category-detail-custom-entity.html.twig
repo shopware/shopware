@@ -48,8 +48,10 @@
 
             <template #empty-state>
                 <mt-empty-state
+                    centered
                     :icon="$route.meta.$module.icon"
                     :headline="$t('sw-category.base.customEntity.instanceAssignment.emptyState.title')"
+                    description=""
                 />
             </template>
         </sw-many-to-many-assignment-card>

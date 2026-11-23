@@ -25,6 +25,7 @@
                 <template #default="{ isInherited }">
                     <mt-select
                         v-model="element.config.boxLayout.value"
+                        :hide-clearable-button="true"
                         :options="boxLayoutOptions"
                         :disabled="isInherited"
                     />
@@ -196,6 +197,8 @@
                 :element="element"
                 :label="$t('sw-cms.elements.productListing.config.tab.filter')"
                 class="sw-cms-el-config-product-listing__config-filter"
+                @inheritance:remove="onFilterInheritanceRemove"
+                @inheritance:restore="onFilterInheritanceRestore"
             >
                 <template #default="{ isInherited }">
                     {% block sw_cms_element_product_listing_config_mt_filter_info %}
@@ -304,7 +307,7 @@
                                     {% block sw_cms_element_product_listing_config_mt_filter_property_grid_column_status %}
                                     <mt-switch
                                         class="sw-cms-el-config-product-listing__property-grid-switch"
-                                        :disabled="column.disabled"
+                                        :disabled="column.disabled || isInherited"
                                         :model-value="item.active"
                                         @update:model-value="propertyStatusChanged($event, item.id)"
                                     />
@@ -332,7 +335,8 @@
                         {% block sw_cms_element_product_listing_config_mt_filter_empty_state %}
                         <mt-empty-state
                             v-else
-                            icon="solid-products"
+                            centered
+                            icon="regular-products"
                             :headline="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
                             :description="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
                         />
@@ -345,7 +349,10 @@
         {% endblock %}
     </template>
 
-    <template v-else>
+    <sw-silence-deprecations
+        v-else
+        flag="V6_9_0_0"
+    >
         <sw-tabs
             position-identifier="sw-cms-element-config-product-listing"
             default-item="content"
@@ -390,6 +397,7 @@
                         <template #default="{ isInherited }">
                             <mt-select
                                 v-model="element.config.boxLayout.value"
+                                :hide-clearable-button="true"
                                 :options="boxLayoutOptions"
                                 :disabled="isInherited"
                             />
@@ -557,6 +565,8 @@
                         :element="element"
                         :label="$t('sw-cms.elements.productListing.config.tab.filter')"
                         class="sw-cms-el-config-product-listing__config-filter"
+                        @inheritance:remove="onFilterInheritanceRemove"
+                        @inheritance:restore="onFilterInheritanceRestore"
                     >
                         <template #default="{ isInherited }">
                         {% block sw_cms_element_product_listing_config_filter_info %}
@@ -665,7 +675,7 @@
                                                     {% block sw_cms_element_product_listing_config_filter_property_grid_column_status %}
                                             <mt-switch
                                                 class="sw-cms-el-config-product-listing__property-grid-switch"
-                                                :disabled="column.disabled"
+                                                :disabled="column.disabled || isInherited"
                                                 :model-value="item.active"
                                                 @update:model-value="propertyStatusChanged($event, item.id)"
                                             />
@@ -693,6 +703,7 @@
                                 {% block sw_cms_element_product_listing_config_filter_empty_state %}
                                 <mt-empty-state
                                     v-else
+                                    centered
                                     icon="regular-products"
                                     :headline="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateLabel')"
                                     :description="$t('sw-cms.elements.productListing.config.filter.gridEmptyStateHint')"
@@ -705,7 +716,7 @@
                 </template>
             </template>
         </sw-tabs>
-    </template>
+    </sw-silence-deprecations>
     {% endblock %}
 </div>
 {% endblock %}

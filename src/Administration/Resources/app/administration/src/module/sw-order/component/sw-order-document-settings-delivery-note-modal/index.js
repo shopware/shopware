@@ -4,14 +4,15 @@ import template from './sw-order-document-settings-delivery-note-modal.html.twig
  * @sw-package after-sales
  * @deprecated tag:v6.9.0 - Removed with document generation v1.
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    emits: [
-        'loading-document',
-        'loading-preview',
-    ],
+    deprecated: {
+        version: 'v6.9.0.0',
+        comment: 'Removed with document generation v1.',
+    },
+
+    emits: ['loading-document', 'loading-preview'],
 
     data() {
         return {

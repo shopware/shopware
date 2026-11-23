@@ -301,24 +301,23 @@ final class BoxSpacingNormalizer
             return $trimmed;
         }
 
-        if ($this->matches(self::CSS_KEYWORD_PATTERN, $trimmed)) {
+        if ($this->matched(preg_match(self::CSS_KEYWORD_PATTERN, $trimmed), $trimmed)) {
             return strtolower($trimmed);
         }
 
-        if (str_contains($trimmed, '(') || $this->matches(self::HAS_CSS_UNIT_PATTERN, $trimmed)) {
+        if (str_contains($trimmed, '(') || $this->matched(preg_match(self::HAS_CSS_UNIT_PATTERN, $trimmed), $trimmed)) {
             return $trimmed;
         }
 
-        if ($this->matches(self::PLAIN_NUMBER_PATTERN, $trimmed)) {
+        if ($this->matched(preg_match(self::PLAIN_NUMBER_PATTERN, $trimmed), $trimmed)) {
             return $trimmed . 'px';
         }
 
         return $trimmed;
     }
 
-    private function matches(string $pattern, string $value): bool
+    private function matched(int|false $matched, string $value): bool
     {
-        $matched = preg_match($pattern, $value);
         if ($matched === false) {
             throw $this->tokenizationFailure('match', $value);
         }

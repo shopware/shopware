@@ -53,7 +53,7 @@ class TranslationControllerTest extends TestCase
         $content = $this->decodeResponse($response->getContent());
         static::assertArrayHasKey('total', $content);
         static::assertArrayHasKey('items', $content);
-        static::assertNotEmpty($content['items']);
+        static::assertNotCount(0, $content['items']);
         static::assertCount($content['total'], $content['items']);
 
         $item = $content['items'][0];

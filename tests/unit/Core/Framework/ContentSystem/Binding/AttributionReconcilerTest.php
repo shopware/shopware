@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Binding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
+use Shopware\Core\Framework\ContentSystem\Binding\RootSourceConfigMap;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -85,6 +87,56 @@ class AttributionReconcilerTest extends TestCase
         static::assertInstanceOf(StoredElement::class, $reconciled);
         static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
         static::assertSame('edited-after-binding', $reconciled->property('mediaId')?->jsonSerialize());
+    }
+
+    /**
+     * @param array<string, mixed> $elementConfig
+     * @param array<string, string> $expectedAttributions
+     */
+    #[DataProvider('scopedConfigWiringProvider')]
+    #[TestDox('judges attribution against every root-source branch of a scoped binding config')]
+    public function testReconcilesAttributionAgainstEveryRootSourceBranchOfScopedConfig(array $elementConfig, array $expectedAttributions): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', [
+                'entity' => 'media',
+                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+                'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
+            ]),
+        ]);
+
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', new StubArrayLoaderConfig($elementConfig))
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element]);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame($expectedAttributions, $reconciled->attributedSpecifications);
+    }
+
+    /**
+     * @return \Generator<string, array{array<string, mixed>, array<string, string>}>
+     */
+    public static function scopedConfigWiringProvider(): \Generator
+    {
+        yield 'config equals the first branch' => [
+            ['entity' => 'media', 'property' => 'productId', 'type' => 'product'],
+            ['product' => 'spec-1'],
+        ];
+
+        yield 'config equals the second branch' => [
+            ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category'],
+            ['product' => 'spec-1'],
+        ];
+
+        yield 'config mixes values from different branches' => [
+            ['entity' => 'media', 'property' => 'productId', 'type' => 'category'],
+            [],
+        ];
     }
 
     #[TestDox('recurses into slot children, dropping a nested element\'s stale attribution too')]
@@ -198,6 +250,31 @@ class AttributionReconcilerTest extends TestCase
         $reconciled = $result[0];
         static::assertInstanceOf(StoredElement::class, $reconciled);
         static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
+    }
+
+    #[TestDox('throws bindingSpecificationCanonicalizationFailed when the attributed binding\'s scoped config values name different root-source sets')]
+    public function testThrowsWhenScopedConfigNamesDifferentRootSourceSets(): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', [
+                'entity' => 'media',
+                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+                'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+            ]),
+        ]);
+
+        $config = new StubArrayLoaderConfig(['entity' => 'media', 'property' => 'productId', 'type' => 'product']);
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', $config)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
+            'spec-1',
+            'the scoped config values of key "product" name different root-source sets.',
+        ));
+
+        $this->reconciler(['spec-1' => $specification], $this->provider())->reconcile([$element]);
     }
 
     #[TestDox('rejects the write when the element wiring source has no registered config serializer, instead of dropping the attribution')]

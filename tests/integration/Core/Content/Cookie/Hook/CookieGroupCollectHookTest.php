@@ -23,7 +23,7 @@ class CookieGroupCollectHookTest extends TestCase
 
     public function testAppScriptCanManipulateCookieGroups(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/_fixtures/cookieScriptApp');
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures/SwagCookieScript');
 
         $cookieGroups = static::getContainer()->get(CookieProvider::class)
             ->getCookieGroups(new Request(), Generator::generateSalesChannelContext());

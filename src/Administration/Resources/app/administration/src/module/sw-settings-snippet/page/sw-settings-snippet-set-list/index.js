@@ -20,9 +20,7 @@ export default {
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('sw-settings-list'),
-    ],
+    mixins: [Mixin.getByName('sw-settings-list')],
 
     data() {
         return {
@@ -71,6 +69,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
          */
         dateFilter() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-snippet-set-list.dateFilter is deprecated and will be removed, because the filter is unused.',
+            );
+
             return Shopware.Filter.getByName('date');
         },
 
@@ -249,11 +252,21 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         onClone(id) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-snippet-set-list.onClone() is deprecated. Will be removed without replacement.',
+            );
+
             this.showCloneModal = id;
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         closeCloneModal() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-snippet-set-list.closeCloneModal() is deprecated. Will be removed without replacement.',
+            );
+
             this.showCloneModal = false;
         },
 
@@ -340,6 +353,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed without replacement */
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-settings-snippet-set-list.getNoPermissionsTooltip() is deprecated. Will be removed without replacement.',
+            );
+
             return {
                 showDelay: 300,
                 appearance: 'dark',

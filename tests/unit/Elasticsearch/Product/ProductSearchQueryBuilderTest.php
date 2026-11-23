@@ -39,7 +39,6 @@ use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
 use Shopware\Elasticsearch\FieldQueryBuilder;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchTokenizer;
 use Shopware\Elasticsearch\NestedFieldQueryBuilder;
-use Shopware\Elasticsearch\Product\AbstractProductSearchQueryBuilder;
 use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
 use Shopware\Elasticsearch\TokenQueryBuilder;
@@ -50,7 +49,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(AbstractProductSearchQueryBuilder::class)]
 #[CoversClass(ProductSearchQueryBuilder::class)]
 class ProductSearchQueryBuilderTest extends TestCase
 {
@@ -84,30 +82,27 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     public function testBuildEmptyQuery(): void
     {
-        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
-
         $builder = $this->getBuilder([
             self::config(field: 'restockTime', ranking: 500, tokenize: true, and: false),
         ]);
 
         $criteria = new Criteria();
         $criteria->setTerm('foo');
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
 
-        static::assertSame([], $parsed->toArray());
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
+
+        $builder->build($criteria, Context::createDefaultContext());
     }
 
     public function testBuildWithoutFields(): void
     {
-        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
-
         $builder = $this->getBuilder(null);
 
         $criteria = new Criteria();
 
-        $parsed = $builder->build($criteria, Context::createDefaultContext());
+        $this->expectExceptionObject(ElasticsearchException::emptyQuery());
 
-        static::assertSame([], $parsed->toArray());
+        $builder->build($criteria, Context::createDefaultContext());
     }
 
     /**
@@ -611,7 +606,7 @@ class ProductSearchQueryBuilderTest extends TestCase
             new ElasticsearchTokenizer(),
         );
 
-        static::expectException(DecorationPatternException::class);
+        static::expectExceptionObject(new DecorationPatternException(ProductSearchQueryBuilder::class));
         $builder->getDecorated();
     }
 

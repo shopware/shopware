@@ -8,6 +8,7 @@
 
     <mt-empty-state
         v-if="isEmpty"
+        centered
         :icon="$route.meta.$module.icon"
         :headline="$t('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
         :description="$t('sw-settings-search.generalTab.textEmptyStateSearchableContentDescription')"

@@ -26,10 +26,7 @@ const categories = [
         path: '|1|',
         parentId: '1',
         childCount: 0,
-        breadcrumb: [
-            'Home',
-            'Kitchen',
-        ],
+        breadcrumb: ['Home', 'Kitchen'],
     },
     {
         name: 'Fashion',
@@ -52,10 +49,7 @@ const categories = [
         path: '|3|',
         parentId: '3',
         childCount: 0,
-        breadcrumb: [
-            'Fashion',
-            'Skirt',
-        ],
+        breadcrumb: ['Fashion', 'Skirt'],
     },
     {
         name: 'Dress',
@@ -67,10 +61,7 @@ const categories = [
         path: '|3|',
         parentId: '3',
         childCount: 0,
-        breadcrumb: [
-            'Fashion',
-            'Dress',
-        ],
+        breadcrumb: ['Fashion', 'Dress'],
     },
 ];
 
@@ -83,12 +74,10 @@ const products = [
     {
         name: 'Product 2',
         id: '2222',
-        categoryIds: [
-            '3',
-            '1',
-        ],
+        categoryIds: ['3', '1'],
     },
 ];
+products.total = 1024;
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-sales-channel-product-assignment-categories', { sync: true }), {
@@ -111,11 +100,7 @@ async function createWrapper() {
                 `,
                 },
                 'sw-tree-item': {
-                    props: [
-                        'item',
-                        'activeItemIds',
-                        'activeParentIds',
-                    ],
+                    props: ['item', 'activeItemIds', 'activeParentIds'],
                     data() {
                         return {
                             checked: false,
@@ -238,23 +223,20 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
         // Check 1st item
         await treeItemSelections.at(0).setChecked();
         await flushPromises();
-        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual([
-            '1',
-        ]);
+        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['1']);
         expect(wrapper.emitted('selection-change')[1]).toEqual([
             products,
             'categoryProducts',
+            { ids: ['1'], total: 1024 },
         ]);
 
         // Check 3rd item
         await treeItemSelections.at(2).setChecked();
-        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual([
-            '1',
-            '3',
-        ]);
+        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['1', '3']);
         expect(wrapper.emitted('selection-change')[2]).toEqual([
             products,
             'categoryProducts',
+            { ids: ['1', '3'], total: 1024 },
         ]);
     });
 
@@ -269,33 +251,29 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-product-assignm
 
         // Check 2nd item
         await searchItemSelections.at(1).trigger('click');
-        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual([
-            '2',
-        ]);
+        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['2']);
         expect(wrapper.emitted('selection-change')[1]).toEqual([
             products,
             'categoryProducts',
+            { ids: ['2'], total: 1024 },
         ]);
 
         // Check 5th item
         await searchItemSelections.at(4).trigger('click');
-        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual([
-            '2',
-            '5',
-        ]);
+        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['2', '5']);
         expect(wrapper.emitted('selection-change')[2]).toEqual([
             products,
             'categoryProducts',
+            { ids: ['2', '5'], total: 1024 },
         ]);
 
         // Uncheck 2nd item
         await searchItemSelections.at(1).trigger('click');
-        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual([
-            '5',
-        ]);
+        expect(Array.from(wrapper.vm.selectedCategoriesItemsIds)).toEqual(['5']);
         expect(wrapper.emitted('selection-change')[3]).toEqual([
             products,
             'categoryProducts',
+            { ids: ['5'], total: 1024 },
         ]);
     });
 });

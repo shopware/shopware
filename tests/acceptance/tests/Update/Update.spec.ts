@@ -1,9 +1,10 @@
 import { test, expect } from '@fixtures/AcceptanceTest';
+import { satisfies } from 'compare-versions';
 
 test(
     `Update an existing Shopware ${process.env.SHOPWARE_UPDATE_FROM} instance.`,
     { tag: '@Update' },
-    async ({ page, AdminApiContext }) => {
+    async ({ page, AdminApiContext, InstanceMeta }) => {
         test.slow();
 
         await page.goto(process.env.ADMIN_URL);
@@ -12,14 +13,24 @@ test(
             timeout: 20000,
         });
 
-        (await (await AdminApiContext.get(`./_info/config`)).json()) as { version: string };
+        (await (await AdminApiContext.get(`./_info/config`)).json()) as {
+            version: string;
+        };
 
         await page.goto('#/sw/settings/shopware/updates/wizard');
 
         await page.getByRole('button', { name: 'Start update' }).click();
 
-        await page.getByLabel("Yes, I've created a backup.").check();
-        await page.getByRole('button', { name: 'Install' }).click();
+        const updateModal = page.getByRole('dialog');
+
+        await updateModal.getByLabel("Yes, I've created a backup.").check();
+
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        if (satisfies(InstanceMeta.version, '<6.7.15.0')) {
+            await updateModal.getByRole('button', { name: 'Install' }).click();
+        } else {
+            await updateModal.getByRole('button', { name: 'Continue' }).click();
+        }
         await page.waitForLoadState('domcontentloaded');
 
         await page.getByRole('link', { name: 'Continue' }).click();

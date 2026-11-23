@@ -4,8 +4,9 @@
 import { mount } from '@vue/test-utils';
 import 'src/app/mixin/placeholder.mixin';
 import 'src/app/mixin/salutation.mixin';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
-async function createWrapper() {
+async function createWrapper(reviewOverrides = {}, stubOverrides = {}) {
     return mount(await wrapTestComponent('sw-review-detail', { sync: true }), {
         global: {
             mocks: {
@@ -35,6 +36,7 @@ async function createWrapper() {
                                 salesChannelId: 'd4c3b2a1',
                                 customer: {
                                     name: 'Customer Number 1',
+                                    email: 'customer@example.com',
                                 },
                                 product: {
                                     name: 'Product Number 1',
@@ -48,6 +50,7 @@ async function createWrapper() {
                                         name: 'Channel Number 1',
                                     },
                                 },
+                                ...reviewOverrides,
                             });
                         },
                     }),
@@ -83,6 +86,7 @@ async function createWrapper() {
                 'sw-custom-field-set-renderer': true,
                 'sw-error-summary': true,
                 'sw-time-ago': true,
+                ...stubOverrides,
             },
         },
     });
@@ -90,6 +94,7 @@ async function createWrapper() {
 
 describe('module/sw-review/page/sw-review-detail', () => {
     beforeEach(() => {
+        allowDeprecation('sw-review-detail.dateFilter is deprecated');
         global.activeAclRoles = [];
     });
 
@@ -162,5 +167,38 @@ describe('module/sw-review/page/sw-review-detail', () => {
 
         await saveButton.trigger('click');
         expect(saveButton.attributes('is-loading')).toBe('true');
+    });
+
+    it('should fall back to the translated sales channel name', async () => {
+        const wrapper = await createWrapper(
+            {
+                salesChannel: {
+                    name: null,
+                    translated: {
+                        name: 'Channel Number 1',
+                    },
+                },
+            },
+            {
+                'mt-card': {
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
+                },
+                'sw-card-section': {
+                    template: '<div><slot></slot></div>',
+                },
+                'sw-description-list': {
+                    template: '<div><slot></slot></div>',
+                },
+            },
+        );
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        const salesChannelLabel = wrapper
+            .findAll('dt')
+            .find((label) => label.text() === 'sw-review.detail.labelSalesChannel');
+
+        expect(salesChannelLabel).toBeDefined();
+        expect(salesChannelLabel.element.nextElementSibling.textContent.trim()).toBe('Channel Number 1');
     });
 });

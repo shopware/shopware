@@ -86,21 +86,11 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
 
     /** Two package-level configs, each governing two roots — undecidable without --root-config. */
     function writeAmbiguousPlugin(): void {
-        writeMultiRootPlugin(
-            'Ambiguous',
-            [
-                'BundleA',
-                'BundleB',
-            ],
-            'GroupOne',
-        );
+        writeMultiRootPlugin('Ambiguous', ['BundleA', 'BundleB'], 'GroupOne');
         // Extend rather than replace so both groups keep their bundles.
         writeFile(path.join(projectRoot, 'custom/plugins/Ambiguous/composer.json'), '{}\n');
 
-        for (const bundle of [
-            'BundleC',
-            'BundleD',
-        ]) {
+        for (const bundle of ['BundleC', 'BundleD']) {
             writeFile(
                 path.join(
                     projectRoot,
@@ -113,42 +103,22 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
         writePluginsConfig(
             projectRoot,
             [
-                [
-                    'GroupOne',
-                    'BundleA',
-                ],
-                [
-                    'GroupOne',
-                    'BundleB',
-                ],
-                [
-                    'GroupTwo',
-                    'BundleC',
-                ],
-                [
-                    'GroupTwo',
-                    'BundleD',
-                ],
-            ].map(
-                ([
-                    group,
-                    bundle,
-                ]) => ({
-                    technicalName: `Ambiguous${bundle}`,
-                    basePath: `custom/plugins/Ambiguous/src/${group}/${bundle}`,
-                    administrationPath: 'Resources/app/administration/src',
-                }),
-            ),
+                ['GroupOne', 'BundleA'],
+                ['GroupOne', 'BundleB'],
+                ['GroupTwo', 'BundleC'],
+                ['GroupTwo', 'BundleD'],
+            ].map(([group, bundle]) => ({
+                technicalName: `Ambiguous${bundle}`,
+                basePath: `custom/plugins/Ambiguous/src/${group}/${bundle}`,
+                administrationPath: 'Resources/app/administration/src',
+            })),
         );
         writeFile(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupOne/tsconfig.json'), ['{ "files": [] }']);
         writeFile(path.join(projectRoot, 'custom/plugins/Ambiguous/src/GroupTwo/tsconfig.json'), ['{ "files": [] }']);
     }
 
     it('groups a zero-config multi-root plugin into one bridge per source root', () => {
-        writeMultiRootPlugin('Mono', [
-            'BundleA',
-            'BundleB',
-        ]);
+        writeMultiRootPlugin('Mono', ['BundleA', 'BundleB']);
 
         setupExtensionTooling({ projectRoot, administrationRoot });
 
@@ -156,10 +126,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
     });
 
     it('bridges once beside an explicit --root-config and scaffolds one covering config', () => {
-        writeMultiRootPlugin('Mono', [
-            'BundleA',
-            'BundleB',
-        ]);
+        writeMultiRootPlugin('Mono', ['BundleA', 'BundleB']);
 
         setupExtensionTooling({ projectRoot, administrationRoot, rootConfig: { extension: 'Mono', dir: '.' } });
 
@@ -186,10 +153,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
     });
 
     it('shares one bridge for the package config that governs several roots', () => {
-        writeMultiRootPlugin('Shared', [
-            'BundleA',
-            'BundleB',
-        ]);
+        writeMultiRootPlugin('Shared', ['BundleA', 'BundleB']);
         writeFile(path.join(projectRoot, 'custom/plugins/Shared/tsconfig.json'), ['{ "files": [] }']);
 
         const result = setupExtensionTooling({ projectRoot, administrationRoot });
@@ -204,15 +168,9 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
     });
 
     it('keeps one bridge per root for genuinely independent per-root configs', () => {
-        writeMultiRootPlugin('Independent', [
-            'BundleA',
-            'BundleB',
-        ]);
+        writeMultiRootPlugin('Independent', ['BundleA', 'BundleB']);
 
-        for (const bundle of [
-            'BundleA',
-            'BundleB',
-        ]) {
+        for (const bundle of ['BundleA', 'BundleB']) {
             writeFile(
                 path.join(
                     projectRoot,
@@ -241,10 +199,7 @@ describe('scripts/extensionTooling/setup root-config bridge mode', () => {
     });
 
     it('warns about a --root-config naming an unknown extension', () => {
-        writeMultiRootPlugin('Known', [
-            'BundleA',
-            'BundleB',
-        ]);
+        writeMultiRootPlugin('Known', ['BundleA', 'BundleB']);
 
         const result = setupExtensionTooling({
             projectRoot,

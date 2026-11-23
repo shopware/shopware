@@ -7,9 +7,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentGenerationResult;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -17,7 +14,6 @@ use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
@@ -29,8 +25,11 @@ use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -41,6 +40,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -122,15 +122,12 @@ class DocumentGeneratorTest extends TestCase
         $documentFile->setDocumentFormat(HtmlRenderer::FILE_EXTENSION);
         $documentFile->setMedia($v2Media);
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setTechnicalName(InvoiceRenderer::TYPE);
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName(InvoiceRenderer::TYPE);
         $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
 
         $documentRepository = new StaticEntityRepository([
@@ -179,17 +176,12 @@ class DocumentGeneratorTest extends TestCase
         $mediaA11y->setFileExtension(HtmlRenderer::FILE_EXTENSION);
         $mediaA11y->setMimeType(HtmlRenderer::FILE_CONTENT_TYPE);
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setName('invoice');
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDocumentMediaFileId($media->getId());
         $document->setDocumentMediaFile($media);
         $document->setDocumentA11yMediaFileId($mediaA11y->getId());
@@ -253,16 +245,12 @@ class DocumentGeneratorTest extends TestCase
         $xmlMedia->setFileName('invoice');
         $xmlMedia->setMimeType('application/xml');
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDocumentMediaFileId($xmlMedia->getId());
         $document->setDocumentMediaFile($xmlMedia);
 
@@ -573,17 +561,13 @@ class DocumentGeneratorTest extends TestCase
         $orderVersionId = Uuid::randomHex();
         $mediaId = Uuid::randomHex();
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId($documentId);
         $document->setOrderId($orderId);
         $document->setOrderVersionId($orderVersionId);
         $document->setStatic(true);
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDeepLinkCode('deepLinkCode');
         $document->setDocumentNumber('1000');
 
@@ -634,6 +618,69 @@ class DocumentGeneratorTest extends TestCase
         $request = new Request(['fileName' => 'invoice'], [], [], [], [], ['HTTP_CONTENT_LENGTH' => '5'], 'hello');
 
         $generator->upload($documentId, $context, $request);
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testUploadRemovesTempFile(bool $saveFails): void
+    {
+        $documentId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setOrderId(Uuid::randomHex());
+        $document->setOrderVersionId(Uuid::randomHex());
+        $document->setStatic(true);
+        $document->setConfig([]);
+        $document->setTypeName('invoice');
+        $document->setDeepLinkCode('deepLinkCode');
+
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult('document', 1, new DocumentCollection([$document]), null, new Criteria([$documentId]), $context),
+        ]);
+
+        $tempFile = null;
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('fetchFile')->willReturnCallback(static function (Request $request, ?string $path) use (&$tempFile): MediaFile {
+            $tempFile = $path;
+            (new Filesystem())->dumpFile((string) $path, 'hello');
+
+            return new MediaFile((string) $path, 'application/pdf', 'pdf', 5);
+        });
+        $tempFileExistedOnSave = false;
+        $mediaService->method('saveMediaFile')->willReturnCallback(static function (MediaFile $mediaFile) use ($saveFails, &$tempFileExistedOnSave): string {
+            $tempFileExistedOnSave = is_file($mediaFile->getFileName());
+
+            if ($saveFails) {
+                throw new \LogicException('save failed');
+            }
+
+            return Uuid::randomHex();
+        });
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            $mediaService,
+            $documentRepository,
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        $exception = null;
+
+        try {
+            $generator->upload($documentId, $context, new Request(['fileName' => 'invoice'], [], [], [], [], [], 'hello'));
+        } catch (\LogicException $exception) {
+        }
+
+        static::assertSame($saveFails ? 'save failed' : null, $exception?->getMessage());
+        static::assertTrue($tempFileExistedOnSave);
+        static::assertIsString($tempFile);
+        static::assertFileDoesNotExist($tempFile);
     }
 
     /**
@@ -751,7 +798,7 @@ class DocumentGeneratorTest extends TestCase
                 static::assertNotNull($struct->getId());
                 static::assertNotNull($struct->getMediaId());
                 static::assertSame($struct->getMediaId(), $mediaId);
-                static::assertEmpty($struct->getA11yMediaId());
+                static::assertSame('', $struct->getA11yMediaId());
             },
         ];
 

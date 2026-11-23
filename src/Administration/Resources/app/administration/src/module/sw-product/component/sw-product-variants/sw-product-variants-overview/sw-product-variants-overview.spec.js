@@ -23,11 +23,13 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         save: jest.fn(() => Promise.resolve()),
         syncDeleted: jest.fn(() => Promise.resolve()),
         search: jest.fn(() => Promise.resolve([])),
+        searchIds: jest.fn(() => Promise.resolve({ total: 0, data: [] })),
         get: jest.fn(() => Promise.resolve({})),
     };
 
     repositoryFactoryCreateMock = {
         search: () => Promise.resolve([]),
+        searchIds: () => Promise.resolve({ total: 0, data: [] }),
         save: jest.fn(() => Promise.resolve([])).mockName('repositoryFactory save'),
         get: () => Promise.resolve({}),
         syncDeleted: () => Promise.resolve({}),
@@ -189,6 +191,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
 
         product.getEntityName = () => 'T-Shirt';
 
+        Shopware.Store.unregister('swProductDetail');
         Shopware.Store.register({
             id: 'swProductDetail',
             state() {
@@ -587,6 +590,74 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
     });
 
+    describe('storefront presentation when deleting variants', () => {
+        async function createProductWrapper(variantListingConfig) {
+            global.activeAclRoles = ['product.deleter'];
+            const wrapper = await createWrapper({
+                productEntity: { id: '72bfaf5d90214ce592715a9649d8760a', variantListingConfig },
+            });
+            await flushPromises();
+
+            return wrapper;
+        }
+
+        async function confirmDeletion(wrapper) {
+            await wrapper
+                .find('.sw-product-variants-overview__delete-modal')
+                .findAll('button')
+                .find((button) => button.text().trim() === 'global.default.delete')
+                .trigger('click');
+            await flushPromises();
+
+            expect(repositoryFactoryCreateMock.save).toHaveBeenCalledTimes(1);
+
+            return repositoryFactoryCreateMock.save.mock.calls[0][0].variantListingConfig;
+        }
+
+        async function deleteVariant(variantListingConfig, rowIndex) {
+            const wrapper = await createProductWrapper(variantListingConfig);
+            await wrapper.findAll('.sw-context-menu-item--danger')[rowIndex].trigger('click');
+
+            return confirmDeletion(wrapper);
+        }
+
+        it.each([
+            ['keep showing a variant', false, false],
+            ['keep showing a variant when no choice was saved', null, false],
+            ['keep showing the main product', true, true],
+        ])('should %s when the chosen main variant is deleted', async (_, displayParent, expectedDisplayParent) => {
+            const savedConfig = await deleteVariant({ displayParent, mainVariantId: 1, configuratorGroupConfig: [] }, 0);
+
+            expect(savedConfig).toEqual({
+                displayParent: expectedDisplayParent,
+                mainVariantId: null,
+                configuratorGroupConfig: [],
+            });
+        });
+
+        it('should keep the chosen main variant when another variant is deleted', async () => {
+            const savedConfig = await deleteVariant(
+                { displayParent: false, mainVariantId: 1, configuratorGroupConfig: [] },
+                1,
+            );
+
+            expect(savedConfig).toEqual({ displayParent: false, mainVariantId: 1, configuratorGroupConfig: [] });
+        });
+
+        it('should reset the storefront presentation when all variants are deleted', async () => {
+            const wrapper = await createProductWrapper({
+                displayParent: false,
+                mainVariantId: 1,
+                configuratorGroupConfig: [],
+            });
+
+            await wrapper.find('.sw-data-grid__select-all input[type="checkbox"]').setChecked();
+            await wrapper.find('.sw-product-variants-overview__bulk-delete-action').trigger('click');
+
+            expect(await confirmDeletion(wrapper)).toBeNull();
+        });
+    });
+
     it('should contain a currencyColumns computed property', async () => {
         const wrapper = await createWrapper();
 
@@ -685,6 +756,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             {
                 create: jest.fn(() => ({
                     search: () => Promise.resolve([]),
+                    searchIds: () => Promise.resolve({ total: 0, data: [] }),
                     save: jest.fn(() => Promise.resolve()),
                     get: () => Promise.resolve({}),
                     syncDeleted: syncDeletedMock,

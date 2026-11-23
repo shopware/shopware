@@ -17,10 +17,12 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     use HasCommandOption;
 
     public const OPTION_NAME = 'create-admin-module';
+    private const OPTION_TITLE = 'Admin Module';
     private const OPTION_DESCRIPTION = 'Create an example admin module';
+    private const OPTION_DESCRIPTION_LONG = 'A custom Administration module is a self-contained feature area in Shopware’s admin interface, such as Products or Orders. It contains the screens, routes, components, and logic needed to manage that area.';
     private const CLI_QUESTION = 'Do you want to create an example admin module?';
 
-    private string $mainJsEntry = <<<'EOL'
+    private string $mainTsEntry = <<<'EOL'
     // Import admin module
     import './module/swag-example';
 
@@ -31,7 +33,11 @@ class AdminModuleGenerator implements ScaffoldingGenerator
         "swag-example": {
             "general": {
                 "mainMenuItemGeneral": "My custom module",
-                "descriptionTextModule": "Manage this custom module here"
+                "descriptionTextModule": "Manage this custom module here",
+                "list": {
+                  "cardTitle": "My admin component",
+                  "cardText": "Hello admin!"
+                }
             }
         }
     }
@@ -47,7 +53,11 @@ class AdminModuleGenerator implements ScaffoldingGenerator
         }
 
         $stubCollection->add($this->createModule());
-        $stubCollection->add($this->createMainJsEntry());
+        $stubCollection->add($this->createMainTsEntry());
+        $adminStubs = $this->createAdminComponent();
+        foreach ($adminStubs as $adminStub) {
+            $stubCollection->add($adminStub);
+        }
 
         foreach ($this->createSnippets() as $snippet) {
             $stubCollection->add($snippet);
@@ -57,16 +67,37 @@ class AdminModuleGenerator implements ScaffoldingGenerator
     private function createModule(): Stub
     {
         return Stub::template(
-            'src/Resources/app/administration/src/module/swag-example/index.js',
-            self::STUB_DIRECTORY . '/js-module.stub'
+            'src/Resources/app/administration/src/module/swag-example/index.ts',
+            self::STUB_DIRECTORY . '/ts-module.stub'
         );
     }
 
-    private function createMainJsEntry(): Stub
+    /**
+     * @return Stub[]
+     */
+    private function createAdminComponent(): array
+    {
+        return [
+            Stub::template(
+                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/index.ts',
+                self::STUB_DIRECTORY . '/admin-component-index.stub'
+            ),
+            Stub::template(
+                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/swag-example-list.html.twig',
+                self::STUB_DIRECTORY . '/admin-component-template.stub'
+            ),
+            Stub::template(
+                'src/Resources/app/administration/src/module/swag-example/page/swag-example-list/swag-example-list.scss',
+                self::STUB_DIRECTORY . '/admin-component-styling.stub'
+            ),
+        ];
+    }
+
+    private function createMainTsEntry(): Stub
     {
         return Stub::raw(
-            'src/Resources/app/administration/src/main.js',
-            $this->mainJsEntry,
+            'src/Resources/app/administration/src/main.ts',
+            $this->mainTsEntry,
         );
     }
 

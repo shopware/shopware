@@ -67,6 +67,12 @@
                                     "price": {
                                         "type": "number"
                                     },
+                                    "discount": {
+                                        "type": "number"
+                                    },
+                                    "percentage": {
+                                        "type": "number"
+                                    },
                                     "apiAlias": {
                                         "type": "string",
                                         "const": "cart_regulation_price"

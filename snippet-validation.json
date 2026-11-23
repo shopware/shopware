@@ -1,0 +1,19 @@
+{
+    "globalDefaultDuplicates": {
+        "administration": {
+            "sw-privileges.roles": "Resolved through the runtime-composed key `sw-privileges.roles.${role}`, so the duplicates cannot be referenced statically and the namespace keeps its own translations.",
+            "sw-privileges.permissionType": "Resolved through the runtime-composed key `sw-privileges.permissionType.` + type, same as sw-privileges.roles.",
+            "sw-settings-logging.list": "Log level labels are resolved dynamically via `sw-settings-logging.list.level${level}`.",
+            "sw-media.sidebar.actions.delete": "Reachable through the dynamic quick-action key `sw-media.sidebar.actions.${option.id}`, so the entry has to stay even though some call sites reference it statically.",
+            "sw-theme": "Theme configuration field labels (`sw-theme.…label`) are auto-constructed from the theme config structure, not authored as reusable UI strings, so they keep their own labels."
+        },
+        "storefront": {}
+    },
+    "emptyTranslations": {
+        "administration": {
+            "sw-category.base.products.dynamicProductGroupHelpText.videoUrl": "The video exists in German only; an empty URL hides the link in every other locale.",
+            "sw-category.base.products.dynamicProductGroupHelpText.videoLink": "Label of the German-only video link; stays empty wherever videoUrl is empty."
+        },
+        "storefront": {}
+    }
+}

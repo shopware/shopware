@@ -140,6 +140,24 @@ the mixin's `this` semantics:
   renaming the binding (`const { salutation: salutation$1 } = useSalutation()`), but the template
   cannot be rewritten.
 
+### Composable imports and extension targets
+
+The Administration and extensions import the composables the same way, from `shopware:composables`:
+
+```js
+import { useNotification, useSalutation } from 'shopware:composables';
+```
+
+Which composables it publishes is read from the checked-in `shopware-modules.json`. One that is not
+published is imported from its file under `src/app/composables/`, which only the Administration can do.
+
+A component outside the Administration's `src/` is migrated as an extension, even when the selected
+target also contains Administration components. There, a mixin whose composable is not published keeps
+the component on the Options API with
+`useX() replaces the 'y' mixin but is not published to extensions through shopware:composables`.
+Today that is `cms-element`, whose `useCmsElementDeprecated` stays internal; an extension moves to
+`useCmsElement` by hand, which routes config writes through the `cmsPage` store.
+
 A rename is emitted, not refused, but the generated name is the codemod's own and it costs the member
 its `swDefinePublic` entry. So the draft carries a `VERIFY` TODO directly above the destructure, and
 the outcome is `partial` until a reader has picked a name:
@@ -223,6 +241,25 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## Shortcuts
+
+A `shortcuts` entry named its handler as a string and the plugin resolved it off the instance, which
+is what a `<script setup>` component cannot answer. Each entry becomes a `useShortcut()` call taking
+the method itself:
+
+```js
+useShortcut('SYSTEMKEY+S', onSave, { active: () => acl.can('product.editor') });
+useShortcut('ESCAPE', onCancel);
+```
+
+The handler name is resolved against the binding map the same way a string `watch` handler is, so an
+entry naming something the component does not declare as a method is a TODO rather than a call to a
+binding that does not exist. Both the object form's `active` shapes are supported — a function, whose
+body converts like any other, and a boolean constant.
+
+Both paths register with the same registry, so an option-based and a composable shortcut compete for
+the same key on equal terms and the precedence does not change with the conversion.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,
@@ -252,11 +289,11 @@ Each file answers exactly one question:
 | `component-source-model.ts`               | Which source files, registrations, and exact Twig binding belong together? The one structural read of the tree                                                                                                                                 |
 | `convert-component.ts`                    | What happens to one component? The pipeline: template + script transform → prettier → validation gate                                                                                                                                          |
 | `transform-template.ts`                   | How does twig become a Vue template? (`{% block %}` → `<sw-block>`, comments, the `{% parent %}` and leftover-twig gates)                                                                                                                      |
-| `template-ast.ts`                         | What does a converted template look like? Shared `@vue/compiler-dom` parse and the `<sw-block>` shape predicate                                                                                                                                |
+| `template-ast.ts`                         | What does a converted template look like? Identifier and component-tag scans; re-exports the parse entry point and `<sw-block>` predicate from `src/core/factory/reconnect-cross-block-conditionals.ts`                                        |
 | `assert-block-slots.ts`                   | Does a converted block swallow content? Named-slot children of `<sw-block>`                                                                                                                                                                    |
 | `assert-single-root.ts`                   | Did the conversion cost the component its single root? Root tally before vs. after the blocks                                                                                                                                                  |
-| `move-root-comments.ts`                   | Where does a root Twig comment go? Outside `<template>`, so the note stays in the SFC without becoming a rendered root                                                                                                                          |
-| `normalize-cross-block-conditionals.ts`   | How does a `v-if` chain survive a block boundary? Guard branches for `v-else`/`v-else-if` the conversion orphaned                                                                                                                              |
+| `move-root-comments.ts`                   | Where does a root Twig comment go? Outside `<template>`, so the note stays in the SFC without becoming a rendered root                                                                                                                         |
+| `normalize-cross-block-conditionals.ts`   | How does a `v-if` chain survive a block boundary? Babel side-effect check around the shared guard insertion in `src/core/factory/reconnect-cross-block-conditionals.ts`                                                                        |
 | `transform-script.ts`                     | In what order is the `<script setup>` assembled? Orchestrates parse → collect → rewrite → render                                                                                                                                               |
 | `option-handlers.ts`                      | How is each top-level option handled? One handler per option (`props`, `data`, `watch`, …)                                                                                                                                                     |
 | `rewrite-this.ts`                         | Where does each `this.x` reference go? The rewrite pass, aware of both `this` binding and lexical scope                                                                                                                                        |

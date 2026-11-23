@@ -100,9 +100,7 @@ async function createWrapper(props, options = {}) {
                     'sw-media-collapse': true,
                     'mt-tabs': {
                         name: 'mt-tabs',
-                        emits: [
-                            'new-item-active',
-                        ],
+                        emits: ['new-item-active'],
                         props: {
                             defaultItem: {
                                 type: String,
@@ -464,10 +462,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             customFieldConfigType: 'select',
             fieldName: 'custom_first_tab_i_am_a_multi_select',
             entityCustomFieldValueBefore: ['first_choice'],
-            entityCustomFieldValueAfter: [
-                'first_choice',
-                'second_choice',
-            ],
+            entityCustomFieldValueAfter: ['first_choice', 'second_choice'],
             componentName: 'sw-multi-select',
             componentLabel: 'I am a multi select field',
             componentConfigAddition: {
@@ -895,10 +890,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         await withTranslatedLanguageContext({}, async () => {
             wrapper = await createWrapper(
                 {
-                    sets: createTranslatedFieldSet([
-                        createTranslatedTextField(),
-                        createTranslatedCheckboxField(),
-                    ]),
+                    sets: createTranslatedFieldSet([createTranslatedTextField(), createTranslatedCheckboxField()]),
                     entity: createTranslatedEntity({
                         translatedCustomFields: {
                             translatedTextField: 'inherit me from translation',
@@ -969,10 +961,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         await withTranslatedLanguageContext({}, async () => {
             wrapper = await createWrapper(
                 {
-                    sets: createTranslatedFieldSet([
-                        createTranslatedTextField(),
-                        createTranslatedCheckboxField(),
-                    ]),
+                    sets: createTranslatedFieldSet([createTranslatedTextField(), createTranslatedCheckboxField()]),
                     entity: createTranslatedEntity({
                         customFields: {
                             translatedTextField: 'translated own value',
@@ -1087,10 +1076,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         await withTranslatedLanguageContext({}, async () => {
             wrapper = await createWrapper(
                 {
-                    sets: createTranslatedFieldSet([
-                        createTranslatedTextField(),
-                        createTranslatedCheckboxField(),
-                    ]),
+                    sets: createTranslatedFieldSet([createTranslatedTextField(), createTranslatedCheckboxField()]),
                     entity: createTranslatedEntity({
                         customFields: {
                             translatedTextField: 'translated own value',
@@ -1172,10 +1158,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         await withTranslatedLanguageContext({}, async () => {
             wrapper = await createWrapper(
                 {
-                    sets: createTranslatedFieldSet([
-                        createTranslatedCheckboxField(),
-                        createTranslatedNumberField(),
-                    ]),
+                    sets: createTranslatedFieldSet([createTranslatedCheckboxField(), createTranslatedNumberField()]),
                     entity: createTranslatedEntity({
                         translatedCustomFields: {
                             translatedCheckboxField: false,
@@ -1532,9 +1515,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
             wrapper = await createWrapper(propsWithSetLabel(null));
 
             expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(1);
-            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([
-                { label: 'set1', name: 'set1' },
-            ]);
+            expect([...wrapper.getComponent({ name: 'mt-tabs' }).props('items')]).toEqual([{ label: 'set1', name: 'set1' }]);
         },
     );
 

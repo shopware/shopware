@@ -6,7 +6,6 @@ import './sw-order-nested-line-items-row.scss';
  *
  * @private
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
@@ -38,9 +37,7 @@ export default {
 
     methods: {
         getNestingClasses(nestingLevel) {
-            return [
-                `nesting-level-${nestingLevel}`,
-            ];
+            return [`nesting-level-${nestingLevel}`];
         },
     },
 };

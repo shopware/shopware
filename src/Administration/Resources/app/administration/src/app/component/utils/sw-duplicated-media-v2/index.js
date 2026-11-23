@@ -17,11 +17,7 @@ const LOCAL_STORAGE_SAVE_SELECTION = 'sw-duplicate-media-resolve-save-selection'
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-        'mediaPresignedUploadService',
-    ],
+    inject: ['repositoryFactory', 'mediaService', 'mediaPresignedUploadService'],
 
     data() {
         return {
@@ -72,9 +68,7 @@ export default {
             if (!this.currentTask) {
                 return '';
             }
-            const metadata = [
-                this.dateFilter(new Date(), { month: 'long' }),
-            ];
+            const metadata = [this.dateFilter(new Date(), { month: 'long' })];
 
             if (this.currentTask.src instanceof File) {
                 metadata.push(this.fileSizeFilter(this.currentTask.src.size));
@@ -267,7 +261,21 @@ export default {
             }
 
             this.mediaService.addUpload(newTask.uploadTag, newTask);
+
+            // sw-upload-listener deletes the empty media of a failed upload, but it is gone
+            // when the media field popover was closed, so clean up here instead.
+            const hasUploadListener = this.mediaService.$listeners[newTask.uploadTag]?.length > 0;
             await this.mediaService.runUploads(newTask.uploadTag);
+
+            if (hasUploadListener) {
+                return;
+            }
+
+            const isDuplicatedAgain = this.postponedFailedUploads.some((task) => task.targetId === newTask.targetId);
+            const target = await this.mediaRepository.get(newTask.targetId, Context.api);
+            if (target && !target.hasFile && !isDuplicatedAgain) {
+                await this.mediaRepository.delete(target.id, Context.api);
+            }
         },
 
         async skipAll() {
@@ -308,14 +316,16 @@ export default {
                     Criteria.equals('private', uploadTask.isPrivate),
                 ]),
             );
+            criteria.setTotalCountMode(0);
 
-            const searchResult = await this.mediaRepository.search(criteria, Context.api);
-            const newTarget = searchResult[0];
+            const {
+                data: [newTargetId],
+            } = await this.mediaRepository.searchIds(criteria, Context.api);
             const oldTargetId = uploadTask.targetId;
 
             if (this.presignedSupported && uploadTask.src instanceof File) {
                 try {
-                    const mediaId = await this.presignedUpload(uploadTask, newTarget.id);
+                    const mediaId = await this.presignedUpload(uploadTask, newTargetId);
 
                     const oldTarget = await this.mediaRepository.get(oldTargetId, Context.api);
                     if (oldTarget && !oldTarget.hasFile) {
@@ -335,7 +345,7 @@ export default {
                 return;
             }
 
-            uploadTask.targetId = newTarget.id;
+            uploadTask.targetId = newTargetId;
 
             this.mediaService.addUpload(uploadTask.uploadTag, uploadTask);
 
@@ -352,15 +362,13 @@ export default {
         async presignedUpload(uploadTask, mediaId) {
             const mimeType = uploadTask.src.type || 'application/octet-stream';
 
-            const [
-                result,
-                dimensions,
-            ] = await Promise.all([
+            const [result, dimensions] = await Promise.all([
                 this.mediaPresignedUploadService.prepareUpload({
                     fileName: uploadTask.fileName,
                     extension: uploadTask.extension,
                     mimeType,
                     mediaId,
+                    fileSize: uploadTask.src.size,
                 }),
                 this.mediaPresignedUploadService.getImageDimensions(uploadTask.src),
             ]);
@@ -407,10 +415,12 @@ export default {
                     Criteria.equals('private', uploadTask.isPrivate),
                 ]),
             );
+            criteria.setTotalCountMode(0);
 
-            const searchResult = await this.mediaRepository.search(criteria, Context.api);
-            const newTarget = searchResult[0];
-            uploadTask.targetId = newTarget.id;
+            const {
+                data: [newTargetId],
+            } = await this.mediaRepository.searchIds(criteria, Context.api);
+            uploadTask.targetId = newTargetId;
             uploadTask.originalTargetId = originalTargetId;
 
             this.mediaService.keepFile(uploadTask.uploadTag, uploadTask);

@@ -51,9 +51,7 @@ class MediaThumbnailRepositoryTest extends TestCase
         $thumbnailIds = static::getContainer()->get('media_thumbnail.repository')
             ->searchIds(new Criteria(), Context::createDefaultContext());
 
-        $delete = \array_values(\array_map(static fn ($id) => ['id' => $id], $thumbnailIds->getIds()));
-
-        static::getContainer()->get('media_thumbnail.repository')->delete($delete, Context::createDefaultContext());
+        static::getContainer()->get('media_thumbnail.repository')->delete($thumbnailIds->getPrimaryKeyData(), Context::createDefaultContext());
         $this->runWorker();
 
         static::assertFalse($this->getFilesystem($service)->has($thumbnailPath));

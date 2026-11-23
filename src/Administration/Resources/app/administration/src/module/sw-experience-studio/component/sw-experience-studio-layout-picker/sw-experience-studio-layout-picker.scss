@@ -1,0 +1,24 @@
+.sw-experience-studio-layout-picker {
+    &__layout-name {
+        max-width: 100%;
+        padding: 0;
+        overflow: hidden;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--color-text-brand-default);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: 2px;
+        }
+    }
+}

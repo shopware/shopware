@@ -3,9 +3,7 @@ import './sw-condition-base-line-item.scss';
 
 const { EntityCollection } = Shopware.Data;
 
-const NON_GENERIC_MATCH_ANY_CONDITIONS = [
-    'cartLineItem',
-];
+const NON_GENERIC_MATCH_ANY_CONDITIONS = ['cartLineItem', 'cartLineItemCustomField'];
 
 /**
  * @public
@@ -16,7 +14,6 @@ const NON_GENERIC_MATCH_ANY_CONDITIONS = [
  * @component-example
  * <sw-condition-base-line-item :condition="condition"></sw-condition-base-line-item>
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 

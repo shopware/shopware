@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import type { Plugin, ViteDevServer } from 'vite';
 import { glob } from 'tinyglobby';
 import { compileAsync } from 'sass-embedded';
+import { normalizeComponentEntryName } from './component-entry-name.cjs';
 
 type BundleEntry = {
     basePath?: string;
@@ -29,10 +30,10 @@ const COMP_CSS_PREFIX = '/__sw-comp-css/';
  * colon-separated tag used in `data-component` attributes and the import map.
  *
  *   'Sw/Header/Navbar.ts'      → 'Sw:Header:Navbar'
- *   'Wusel/Counter.ts' (+ ns)  → 'ComponentTestApp:Wusel:Counter'
+ *   'Custom/Counter.ts' (+ ns)  → 'ComponentTestApp:Custom:Counter'
  */
 function fileToTag(relPath: string, namespace: string | undefined): string {
-    const withoutExt = relPath.replace(/\.(ts|js)$/, '');
+    const withoutExt = normalizeComponentEntryName(relPath);
     const colonPath = withoutExt.split('/').join(':');
     return namespace ? `${namespace}:${colonPath}` : colonPath;
 }

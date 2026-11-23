@@ -26,7 +26,7 @@ class BasicCaptchaGeneratorTest extends TestCase
     {
         $basicCaptchaImage = $this->captcha->generate();
         static::assertTrue($this->isValid64base($basicCaptchaImage->imageBase64()));
-        static::assertNotEmpty($basicCaptchaImage->getCode());
+        static::assertNotSame('', $basicCaptchaImage->getCode());
     }
 
     private function isValid64base(string $string): bool

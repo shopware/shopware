@@ -16,9 +16,7 @@ export default {
 
     emits: ['selection-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -55,11 +53,15 @@ export default {
                 criteria.setTerm(this.searchTerm);
             }
 
-            criteria.addAssociation('visibilities.salesChannel');
+            /**
+             * @deprecated tag:v6.8.0 - The products will be loaded without their visibilities.
+             */
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                criteria.addAssociation('visibilities.salesChannel');
+            }
+
             criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                ]),
+                Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );
             criteria.addFilter(Criteria.equals('parentId', null));
 

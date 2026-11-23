@@ -1,0 +1,27 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\DocumentV2;
+
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @extends EntityCollection<DocumentEntity>
+ *
+ * @codeCoverageIgnore
+ */
+#[Package('after-sales')]
+#[ClassMoved(version: 'v6.9.0', previousClassName: 'Shopware\Core\Checkout\Document\DocumentCollection')]
+class DocumentCollection extends EntityCollection
+{
+    public function getApiAlias(): string
+    {
+        return 'document_collection';
+    }
+
+    protected function getExpectedClass(): string
+    {
+        return DocumentEntity::class;
+    }
+}

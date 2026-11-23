@@ -8,9 +8,7 @@ import './sw-cms-el-sidebar-filter.scss';
 export default {
     template,
 
-    mixins: [
-        Shopware.Mixin.getByName('cms-element'),
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-element')],
 
     computed: {
         componentClasses() {

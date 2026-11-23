@@ -12,8 +12,15 @@ declare global {
      * bindings are public and may be replaced by component overrides. The macro
      * is removed by the Shopware setup transform and is never called at runtime.
      *
+     * The same entries become the component's parent-facing surface: the
+     * transform generates the `defineExpose()` call from them, so a parent
+     * holding a template ref reads and writes exactly these bindings, next to
+     * the component's own props. Writing `defineExpose()` by hand is rejected.
+     *
      * This macro is rejected in override components. Overrides must use
      * `swDefineOverride()` to declare replacement bindings instead.
+     *
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
      */
     function swDefinePublic<TPublic extends Record<PropertyKey, unknown>>(bindings: TPublic): void;
 
@@ -26,6 +33,8 @@ declare global {
      *
      * This macro is rejected in base components. Base components must use
      * `swDefinePublic()` to expose overrideable setup bindings instead.
+     *
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
      */
     function swDefineOverride<TOverride extends Record<PropertyKey, unknown>>(bindings: TOverride): void;
 
@@ -35,6 +44,8 @@ declare global {
      * Returns the previous public setup state passed to the generated
      * `overrideComponentSetup()` callback. This helper is injected by the
      * transform and is only valid in override components.
+     *
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
      */
     function useSwPreviousState<
         TPreviousState extends Record<PropertyKey, any> = Record<PropertyKey, any>,
@@ -46,6 +57,8 @@ declare global {
      * Prefer Vue's `defineProps()` in new base components when possible. This
      * helper remains available for existing Shopware setup code and is replaced
      * by the transform with the generated setup props object.
+     *
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
      */
     function useSwProps<TProps extends Record<PropertyKey, any> = Record<PropertyKey, any>>(): TProps;
 
@@ -54,6 +67,8 @@ declare global {
      *
      * The helper is injected by the transform and resolves to the generated
      * setup context object.
+     *
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM
      */
     function useSwContext<TContext = SetupContext>(): TContext;
 }

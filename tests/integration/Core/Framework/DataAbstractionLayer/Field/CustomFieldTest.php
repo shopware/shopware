@@ -944,7 +944,7 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['assoc' => ['foo' => 'bar']], $first->get('custom'));
 
         $patch = [
@@ -955,7 +955,7 @@ class CustomFieldTest extends TestCase
         $repo->update([$patch], Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['assoc' => ['foo' => 'baz']], $first->get('custom'));
     }
 
@@ -979,7 +979,7 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
         $first = $repo->search(new Criteria([$ids->get('id-1')]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
 
         $fields = $first->get('custom');
 
@@ -1078,7 +1078,7 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['array' => ['foo', 'bar']], $first->get('custom'));
 
         $patch = [
@@ -1089,7 +1089,7 @@ class CustomFieldTest extends TestCase
         $repo->update([$patch], Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['array' => ['bar', 'baz']], $first->get('custom'));
     }
 

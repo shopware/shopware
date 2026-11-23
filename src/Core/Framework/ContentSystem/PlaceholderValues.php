@@ -27,6 +27,8 @@ final readonly class PlaceholderValues
      */
     public static function from(array $values): self
     {
+        $admitted = [];
+
         foreach ($values as $key => $value) {
             if (!\is_string($key)) {
                 throw ContentSystemException::invalidMapKey(
@@ -43,9 +45,11 @@ final readonly class PlaceholderValues
                     get_debug_type($value)
                 );
             }
+
+            $admitted[$key] = $value;
         }
 
-        return new self($values);
+        return new self($admitted);
     }
 
     /**

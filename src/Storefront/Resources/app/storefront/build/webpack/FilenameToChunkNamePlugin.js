@@ -13,7 +13,7 @@ class FilenameToChunkNamePlugin {
                     if (!chunk.name) {
                         const chunkModule = compilation.chunkGraph.getChunkRootModules(chunk)[0];
                         const rootModule = chunkModule?.rootModule || chunkModule;
-                        const rootPath = rootModule?.userRequest;
+                        const rootPath = rootModule?.userRequest?.split(/[?#]/)[0];
                         const targetName = rootPath && `${chunk.runtime}.${path.basename(rootPath, '.js')}`;
                         const isTargetNameSet = allChunkNames.includes(targetName);
                         const name = isTargetNameSet ? `${targetName}.${chunk.id}` : targetName;

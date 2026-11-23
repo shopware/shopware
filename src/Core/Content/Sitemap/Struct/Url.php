@@ -35,7 +35,7 @@ class Url extends Struct implements \Stringable
     public function __toString(): string
     {
         return \sprintf(
-            '<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>%s</changefreq><priority>%.1f</priority></url>',
+            '<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>%s</changefreq><priority>%.1F</priority></url>',
             $this->getLoc(),
             $this->getLastmod()->format('Y-m-d'),
             $this->getChangefreq(),

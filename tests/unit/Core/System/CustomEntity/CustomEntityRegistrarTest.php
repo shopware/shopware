@@ -103,7 +103,6 @@ class CustomEntityRegistrarTest extends TestCase
         /** @var DynamicEntityDefinition[] $definitions */
         $definitions = [
             DynamicEntityDefinition::create('ce_test_one', [], [], $container),
-            DynamicEntityDefinition::create('ce_test_two', [], [], $container),
         ];
 
         $connection = $this->createMock(Connection::class);

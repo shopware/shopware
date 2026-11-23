@@ -226,7 +226,7 @@ class Entity extends Struct
         $class = array_last($class);
 
         $entityName = preg_replace(
-            '/_entity$/',
+            '/_entity$/D',
             '',
             ltrim(mb_strtolower((string) preg_replace('/[A-Z]/', '_$0', $class)), '_')
         );

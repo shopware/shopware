@@ -1,5 +1,4 @@
 import template from './sw-order-state-change-modal.html.twig';
-import './sw-order-state-change-modal.scss';
 
 /**
  * @sw-package checkout
@@ -9,10 +8,7 @@ import './sw-order-state-change-modal.scss';
 export default {
     template,
 
-    emits: [
-        'page-leave',
-        'page-leave-confirm',
-    ],
+    emits: ['page-leave', 'page-leave-confirm'],
 
     props: {
         order: {

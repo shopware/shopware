@@ -56,9 +56,7 @@ async function createWrapper({ featureActive = false } = {}) {
         'sw-tabs-item': true,
         'mt-tabs': {
             name: 'mt-tabs',
-            emits: [
-                'new-item-active',
-            ],
+            emits: ['new-item-active'],
             props: {
                 defaultItem: {
                     type: String,
@@ -99,10 +97,7 @@ async function createWrapper({ featureActive = false } = {}) {
     );
 }
 
-const tabs = [
-    '.sw-order-create-initial-modal__tab-product',
-    '.sw-order-create-initial-modal__tab-options',
-];
+const tabs = ['.sw-order-create-initial-modal__tab-product', '.sw-order-create-initial-modal__tab-options'];
 
 describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
     beforeAll(() => {
@@ -198,7 +193,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         Shopware.Store.get('swOrder').setCustomer({
             id: '1234',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(mtTabs.props('items')).toEqual([
             {
@@ -232,7 +227,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
 
         mtTabs.vm.$emit('new-item-active', 'products');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('products');
         expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
@@ -240,7 +235,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.find('sw-order-create-options-stub').isVisible()).toBeFalsy();
 
         mtTabs.vm.$emit('new-item-active', 'options');
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.activeTab).toBe('options');
         expect(wrapper.find('sw-order-customer-grid-stub').isVisible()).toBeFalsy();
@@ -311,6 +306,25 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(spyCancelCart).toHaveBeenCalled();
     });
 
+    it('should show an error and emit modal-close when cancelling the cart fails', async () => {
+        Shopware.Store.get('swOrder').setCustomer({ id: '1234', salesChannelId: 'sales-channel-id' });
+        Shopware.Store.get('swOrder').setCartToken(cartToken);
+        jest.spyOn(Shopware.Service('cartStoreService'), 'cancelCart').mockRejectedValueOnce(new Error('cancel failed'));
+        const notificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'createNotification');
+
+        const wrapper = await createWrapper();
+        await wrapper.find('.sw-order-create-initial-modal__button-cancel').trigger('click');
+        await flushPromises();
+
+        expect(notificationSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                variant: 'error',
+                message: 'sw-order.initialModal.messageCancelCartError',
+            }),
+        );
+        expect(wrapper.emitted('modal-close')).toHaveLength(1);
+    });
+
     it('should be able to save line item', async () => {
         const wrapper = await createWrapper();
 
@@ -373,15 +387,9 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         expect(wrapper.vm.promotionCodes).toEqual([]);
 
         const optionsView = wrapper.findComponent('sw-order-create-options-stub');
-        optionsView.vm.$emit('promotions-change', [
-            'DISCOUNT',
-            'XMAS',
-        ]);
+        optionsView.vm.$emit('promotions-change', ['DISCOUNT', 'XMAS']);
 
-        expect(wrapper.vm.promotionCodes).toEqual([
-            'DISCOUNT',
-            'XMAS',
-        ]);
+        expect(wrapper.vm.promotionCodes).toEqual(['DISCOUNT', 'XMAS']);
     });
 
     it('should able to get shipping cost change', async () => {
@@ -451,9 +459,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
         Shopware.Store.get('swOrder').setContext({
             context: {
                 currencyId: 'euro',
-                languageIdChain: [
-                    'english',
-                ],
+                languageIdChain: ['english'],
             },
             shippingMethod: {
                 id: 'standard',
@@ -471,7 +477,7 @@ describe('src/module/sw-order/view/sw-order-create-initial-modal', () => {
             },
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.context).toEqual({
             currencyId: 'euro',

@@ -44,7 +44,7 @@
             {% block sw_newsletter_recipient_list_empty_state %}
             <mt-empty-state
                 v-if="!isLoading && !total"
-                :centered="true"
+                centered
                 :icon="$route.meta.$module.icon"
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-newsletter-recipient.list.messageEmpty')"
                 :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t($route.meta.$module.description)"
@@ -267,13 +267,10 @@
 
                     <template #content>
                         {% block sw_newsletter_recipient_list_sidebar_filter_sales_channel_items %}
-                        <mt-select
-                            :enable-multi-selection="true"
-                            :model-value="salesChannelFilterValue"
-                            :options="salesChannelFilters"
-                            label-property="name"
-                            value-property="id"
-                            @update:model-value="onSalesChannelSelectionChanged"
+                        <sw-entity-multi-id-select
+                            :value="salesChannelFilterValue"
+                            :repository="salesChannelRepository"
+                            @update:value="onSalesChannelSelectionChanged"
                         />
                         {% endblock %}
                     </template>

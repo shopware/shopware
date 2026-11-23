@@ -54,6 +54,7 @@ import {
     type ComposableScaffold,
     composableCallbacks,
     findComposableDescriptor,
+    PUBLISHED_COMPOSABLES,
     scaffoldRunsUnread,
 } from './composables';
 
@@ -65,6 +66,9 @@ type CollectedMember =
 
 /** A collected `watch` entry, rendered by `renderWatcher()` after the rewrite pass. */
 type CollectedWatcher = { source: string; handler: FnLike | string; options: string };
+
+/** A collected `shortcuts` entry, rendered by `renderShortcut()` after the rewrite pass. */
+type CollectedShortcut = { key: string; handler: string; active: FnLike | string | null };
 
 /** Everything the classification pass collects for the later rewrite and render steps. */
 type Collected = {
@@ -81,6 +85,8 @@ type Collected = {
     computeds: CollectedMember[];
     methods: CollectedMember[];
     watchEntries: { key: string; prop: t.ObjectProperty | t.ObjectMethod }[];
+    /** Raw `shortcuts` entries; resolved by collectShortcuts() once every method name is known. */
+    shortcutEntries: { key: string; prop: t.ObjectProperty }[];
     hooks: { hook: string; fn: FnLike }[];
     rewriteFns: FnLike[];
     foreignNodes: t.Node[];
@@ -128,6 +134,7 @@ function createCollected(): Collected {
         computeds: [],
         methods: [],
         watchEntries: [],
+        shortcutEntries: [],
         hooks: [],
         rewriteFns: [],
         foreignNodes: [],
@@ -404,6 +411,26 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
         }
     },
 
+    // Collection only: an entry names its handler as a string, which collectShortcuts() can only
+    // resolve once the classification loop has seen the component's methods.
+    shortcuts: (prop, ctx, collected) => {
+        if (prop.type !== 'ObjectProperty' || prop.value.type !== 'ObjectExpression') {
+            unknownOption(ctx, 'shortcuts', prop);
+            return;
+        }
+
+        for (const entry of prop.value.properties) {
+            const shortcutKey = entry.type === 'SpreadElement' ? null : keyName(entry);
+
+            if (entry.type !== 'ObjectProperty' || !shortcutKey) {
+                report(ctx, 'todo', 'unsupported shortcuts entry', entry);
+                continue;
+            }
+
+            collected.shortcutEntries.push({ key: shortcutKey, prop: entry });
+        }
+    },
+
     // Resolution only: the guards need every member name the component declares, which the
     // classification loop has not seen yet. resolveMixins() runs them once it has.
     mixins: (prop, ctx, collected) => {
@@ -424,6 +451,15 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
 
             if (descriptor === undefined) {
                 report(ctx, 'skip', `no composable registered for mixin '${mixinName}'`);
+                continue;
+            }
+
+            if (ctx.extensionTarget && !PUBLISHED_COMPOSABLES.has(descriptor.import.name)) {
+                report(
+                    ctx,
+                    'skip',
+                    `${descriptor.import.name}() replaces the '${mixinName}' mixin but is not published to extensions through shopware:composables`,
+                );
                 continue;
             }
 
@@ -688,10 +724,7 @@ function instanceMemberText(ctx: Ctx, member: string, kind: MemberKind): string 
 function composableArguments(ctx: Ctx, descriptor: ComposableDescriptor): string[] {
     const args: string[] = [];
 
-    for (const [
-        callbackName,
-        event,
-    ] of Object.entries(descriptor.emits ?? {})) {
+    for (const [callbackName, event] of Object.entries(descriptor.emits ?? {})) {
         ctx.helpers.add('emit');
         // The payload travels through untouched, so the descriptor does not have to know the arity of
         // each event.
@@ -835,10 +868,7 @@ function resolveMixins(
             }
         }
 
-        for (const [
-            member,
-            spec,
-        ] of Object.entries(descriptor.members)) {
+        for (const [member, spec] of Object.entries(descriptor.members)) {
             // A leaf override would work under Vue's merge rules — the component's member simply wins —
             // but after the migration the composable binding and the component's own binding would
             // share one name, so the component keeps the Options API instead.
@@ -888,10 +918,7 @@ function resolveMixins(
     for (const descriptor of active) {
         const entries: ResolvedComposable['entries'] = [];
 
-        for (const [
-            member,
-            spec,
-        ] of Object.entries(descriptor.members)) {
+        for (const [member, spec] of Object.entries(descriptor.members)) {
             if (!readMembers.has(member)) {
                 continue;
             }
@@ -1052,6 +1079,76 @@ function collectWatchers(ctx: Ctx, collected: Collected): CollectedWatcher[] {
     return watchers;
 }
 
+/**
+ * Resolves each `shortcuts` entry's handler name against the binding map, the way a string `watch`
+ * handler is resolved. Runs after classification because the method may be declared below the
+ * option, and before the rewrite pass because an `active()` body contributes to it.
+ */
+function collectShortcuts(ctx: Ctx, collected: Collected): CollectedShortcut[] {
+    const shortcuts: CollectedShortcut[] = [];
+
+    for (const { key, prop } of collected.shortcutEntries) {
+        let handlerName: string | null = null;
+        let active: FnLike | string | null = null;
+        let supported = true;
+
+        if (prop.value.type === 'StringLiteral') {
+            handlerName = prop.value.value;
+        } else if (prop.value.type === 'ObjectExpression') {
+            for (const optionEntry of prop.value.properties) {
+                const optionName = optionEntry.type === 'SpreadElement' ? null : keyName(optionEntry);
+
+                if (optionName === 'method' && optionEntry.type === 'ObjectProperty') {
+                    handlerName = optionEntry.value.type === 'StringLiteral' ? optionEntry.value.value : null;
+                } else if (optionName === 'active') {
+                    const activeFn = asFunction(optionEntry as t.ObjectMethod | t.ObjectProperty);
+
+                    if (activeFn) {
+                        active = activeFn;
+                        collected.rewriteFns.push(activeFn);
+                    } else if (optionEntry.type === 'ObjectProperty' && optionEntry.value.type === 'BooleanLiteral') {
+                        active = raw(ctx, optionEntry.value);
+                    } else {
+                        supported = false;
+                    }
+                } else {
+                    supported = false;
+                }
+            }
+        } else {
+            supported = false;
+        }
+
+        // A handler named as a string only survives the conversion if it resolves to a method the
+        // component declares; nothing else can be called by that name from setup.
+        if (handlerName === null || ctx.bindings.get(handlerName) !== 'method') {
+            supported = false;
+        }
+
+        if (!supported) {
+            report(ctx, 'todo', `unsupported shortcuts entry '${key}'`, prop);
+            continue;
+        }
+
+        shortcuts.push({ key, handler: bindingName(ctx, handlerName as string), active });
+    }
+
+    return shortcuts;
+}
+
+/** Render phase — only valid once the `this` rewrite has run over the MagicString. */
+function renderShortcut(ctx: Ctx, shortcut: CollectedShortcut): string {
+    const key = JSON.stringify(shortcut.key);
+
+    if (shortcut.active === null) {
+        return `useShortcut(${key}, ${shortcut.handler});`;
+    }
+
+    const activeText = typeof shortcut.active === 'string' ? shortcut.active : arrowText(ctx, shortcut.active);
+
+    return `useShortcut(${key}, ${shortcut.handler}, { active: ${activeText} });`;
+}
+
 /** Render phase — only valid once the `this` rewrite has run over the MagicString. */
 function renderMember(ctx: Ctx, member: CollectedMember): string {
     if (member.kind === 'writable-computed') {
@@ -1079,6 +1176,7 @@ function renderWatcher(ctx: Ctx, watcher: CollectedWatcher): string {
 
 export {
     type Collected,
+    type CollectedShortcut,
     type CollectedMember,
     type CollectedWatcher,
     type OptionHandler,
@@ -1086,9 +1184,11 @@ export {
     OPTION_HANDLERS,
     classifyOptions,
     collectOwnMemberNames,
+    collectShortcuts,
     collectWatchers,
     emitsEventNames,
     renderMember,
+    renderShortcut,
     renderWatcher,
     resolveMixins,
 };

@@ -194,7 +194,7 @@ class CustomFieldSetRepositoryTest extends TestCase
         static::assertCount(2, $event->getIds());
 
         $result = $this->repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities();
-        static::assertEmpty($result->getIds());
+        static::assertCount(0, $result->getIds());
     }
 
     public function testUpdate(): void

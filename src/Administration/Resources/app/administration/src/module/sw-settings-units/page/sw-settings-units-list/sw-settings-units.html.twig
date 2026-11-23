@@ -43,6 +43,7 @@
             >
                 <mt-empty-state
                     v-if="!isLoading && isEmpty"
+                    centered
                     :icon="$route.meta.$module.icon"
                     :headline="$t('sw-settings-units.empty-state.title')"
                     :description="$t('sw-settings-units.empty-state.subline')"
@@ -62,6 +63,12 @@
                         @inline-edit-save="saveUnit"
                         @inline-edit-cancel="cancelUnit"
                     >
+
+                        <template #column-uneceCode="{ item }">
+                            <template v-if="item.uneceCode">
+                                {{ getUneceCodeLabel(item.uneceCode) }}
+                            </template>
+                        </template>
 
                         <template #actions="{ item }">
                             <sw-context-menu-item

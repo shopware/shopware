@@ -90,8 +90,8 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
             });
 
             await test.step('Validate captured requests for product analytics', async () => {
-                // We expect 10 events in total, but they can be in multiple requests
-                // Login > Page View (Dashboard) > Link Click (Order) >
+                // We expect 11 events in total, but they can be in multiple requests
+                // Login > Session snapshot > Page View (Dashboard) > Link Click (Order) >
                 // Page View (Order listing) > Page View (Order listing with filters) >
                 // Page View (Order listing with filters and grid filter null) >
                 // Link Click (Order detail) > Page View (Order detail) >
@@ -102,16 +102,18 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
                 const getAnalyticsEvents = () =>
                     parseCapturedRequests(capturedTrackingEventRequests).flatMap((request) => request.events);
 
-                await waitForEventCount(getAnalyticsEvents, 10);
+                await waitForEventCount(getAnalyticsEvents, 11);
 
                 const events = getAnalyticsEvents();
 
                 const loginEvents = events.filter((e) => e.name === 'login');
+                const sessionSnapshots = events.filter((e) => e.name === 'admin_session_started');
                 const pageViewed = events.filter((e) => e.name === 'page_viewed');
                 const linkVisited = events.filter((e) => e.name === 'link_visited');
                 const buttonClicked = events.filter((e) => e.name === 'button_click');
 
                 expect(loginEvents).toHaveLength(1);
+                expect(sessionSnapshots).toHaveLength(1);
                 expect(pageViewed).toHaveLength(6);
                 expect(linkVisited).toHaveLength(2);
                 expect(buttonClicked).toHaveLength(1);
@@ -142,6 +144,15 @@ test.describe('Product Analytics - Validate events.', { tag: '@ProductAnalytics'
                 expect(loginEvents[0].properties.sw_page_name).toBe('sw.dashboard.index');
                 expect(loginEvents[0].properties.sw_page_path).toBe('/sw/dashboard/index');
                 expect(loginEvents[0].properties.sw_page_full_path).toBe('/sw/dashboard/index');
+
+                expect(sessionSnapshots[0].properties).toEqual(
+                    expect.objectContaining({
+                        source: 'admin',
+                        theme: 'light',
+                        theme_preference: 'light',
+                        module_icon_colors: false,
+                    }),
+                );
 
                 const pageViewedEvents = events.filter((e) => e.name === 'page_viewed');
 

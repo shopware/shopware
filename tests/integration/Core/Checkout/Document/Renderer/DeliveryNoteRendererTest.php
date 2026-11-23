@@ -8,13 +8,14 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -159,10 +161,9 @@ class DeliveryNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
-            ->addListener(DeliveryNoteOrdersEvent::class, static function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            });
+        EventHookDispatcher::fromContainer(static::getContainer())->on(DeliveryNoteOrdersEvent::class, static function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
 
         $processedTemplate = $this->deliveryNoteRenderer->render(
             [$orderId => $operation],
@@ -228,6 +229,71 @@ class DeliveryNoteRendererTest extends TestCase
         );
 
         static::assertNotSame($operationDelivery->getOrderVersionId(), Defaults::LIVE_VERSION);
+    }
+
+    public function testRenderListsOnlyTheLineItemsOfTheRequestedDelivery(): void
+    {
+        $cart = $this->generateDemoCart(3);
+        $firstLineItem = $cart->getLineItems()->first();
+        static::assertNotNull($firstLineItem);
+        $cart = $this->cartService->changeQuantity($cart, $firstLineItem->getId(), 3, $this->salesChannelContext);
+        $orderId = $this->persistCart($cart);
+        $orderDeliveryId = $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1], $this->createShippingMethod());
+
+        $html = $this->renderHtml($orderId, ['custom' => ['orderDeliveryId' => $orderDeliveryId]]);
+
+        static::assertSame(['p0' => '1', 'p2' => '1'], $this->renderedQuantities($html));
+        static::assertStringContainsString('Second Street 2', $html);
+        static::assertStringContainsString('test shipping method', $html);
+    }
+
+    public function testRenderListsEveryLineItemWithoutRequestedDelivery(): void
+    {
+        $cart = $this->generateDemoCart(3);
+        $firstLineItem = $cart->getLineItems()->first();
+        static::assertNotNull($firstLineItem);
+        $cart = $this->cartService->changeQuantity($cart, $firstLineItem->getId(), 3, $this->salesChannelContext);
+        $orderId = $this->persistCart($cart);
+        $this->addOrderDelivery($orderId, 'Second Street 2', ['p0' => 1, 'p2' => 1], $this->createShippingMethod());
+
+        $html = $this->renderHtml($orderId, []);
+
+        static::assertSame(['p0' => '3', 'p1' => '1', 'p2' => '1'], $this->renderedQuantities($html));
+        static::assertStringNotContainsString('Second Street 2', $html);
+        static::assertStringContainsString('<strong>Shipping method:</strong> Standard, test shipping method<br>', $html);
+    }
+
+    public function testRenderFailsForADeliveryOfAnotherOrder(): void
+    {
+        $cart = $this->generateDemoCart(1);
+        $orderId = $this->persistCart($cart);
+        $foreignDeliveryId = $this->addOrderDelivery($this->persistCart($cart), 'Second Street 2', ['p0' => 1]);
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, [
+            'custom' => ['orderDeliveryId' => $foreignDeliveryId],
+        ]);
+
+        $result = $this->deliveryNoteRenderer->render([$orderId => $operation], $this->context, new DocumentRendererConfig());
+
+        static::assertSame([], $result->getSuccess());
+        static::assertEquals(
+            DocumentException::orderDeliveryNotFound($foreignDeliveryId, $orderId),
+            $result->getErrors()[$orderId] ?? null,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function renderHtml(string $orderId, array $config): string
+    {
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, $config);
+
+        $result = $this->deliveryNoteRenderer->render([$orderId => $operation], $this->context, new DocumentRendererConfig());
+
+        static::assertArrayHasKey($orderId, $result->getSuccess(), (string) ($result->getErrors()[$orderId] ?? null)?->getMessage());
+
+        return $result->getSuccess()[$orderId]->getContent();
     }
 
     private function generateDemoCart(int $productsCount): Cart

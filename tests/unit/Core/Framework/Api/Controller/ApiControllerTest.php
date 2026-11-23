@@ -12,6 +12,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationDefin
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -206,6 +207,76 @@ class ApiControllerTest extends TestCase
         $controller->deleteVersion(Context::createDefaultContext(), 'parent-entity', $entityId, $versionId);
     }
 
+    public function testDeleteVersionDropsTheChangeSetInSystemScope(): void
+    {
+        $commitId = Uuid::randomHex();
+        $scopes = [];
+
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$scopes): EntityWrittenContainerEvent {
+                $scopes['entity'] = $context->getScope();
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $commitRepository = $this->createMock(EntityRepository::class);
+        $commitRepository->expects($this->once())->method('searchIds')
+            ->willReturnCallback(static fn (Criteria $criteria, Context $context): IdSearchResult => IdSearchResult::fromIds([$commitId], $criteria, $context));
+        $commitRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$scopes): EntityWrittenContainerEvent {
+                $scopes['commits'] = $context->getScope();
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $versionRepository = $this->createMock(EntityRepository::class);
+        $versionRepository->expects($this->once())->method('delete')
+            ->willReturnCallback(function (array $ids, Context $context) use (&$scopes): EntityWrittenContainerEvent {
+                $scopes['version'] = $context->getScope();
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+        $container->set(VersionCommitDefinition::ENTITY_NAME . '.repository', $commitRepository);
+        $container->set(VersionDefinition::ENTITY_NAME . '.repository', $versionRepository);
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class, VersionDefinition::class, VersionCommitDefinition::class]);
+
+        $controller->deleteVersion($this->createAdminApiContext(['version:delete']), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
+
+        static::assertSame([
+            'entity' => Context::CRUD_API_SCOPE,
+            'commits' => Context::SYSTEM_SCOPE,
+            'version' => Context::USER_SCOPE,
+        ], $scopes, 'only the change set may be removed without a privilege check');
+    }
+
+    public function testDeleteVersionRequiresVersionDeletePrivilegeBeforeAnythingIsRemoved(): void
+    {
+        $entityRepository = $this->createMock(EntityRepository::class);
+        $entityRepository->expects($this->never())->method('delete');
+
+        $commitRepository = $this->createMock(EntityRepository::class);
+        $commitRepository->expects($this->never())->method('delete');
+
+        $versionRepository = $this->createMock(EntityRepository::class);
+        $versionRepository->expects($this->never())->method('delete');
+
+        $container = new ContainerBuilder();
+        $container->set('parent_entity.repository', $entityRepository);
+        $container->set(VersionCommitDefinition::ENTITY_NAME . '.repository', $commitRepository);
+        $container->set(VersionDefinition::ENTITY_NAME . '.repository', $versionRepository);
+
+        $controller = $this->createControllerWithRegistry($container, [ParentDefinition::class, ChildDefinition::class, VersionDefinition::class, VersionCommitDefinition::class]);
+
+        $this->expectExceptionObject(ApiException::missingPrivileges(['version:delete']));
+
+        $controller->deleteVersion($this->createAdminApiContext(['parent_entity:read', 'parent_entity:delete']), 'parent-entity', Uuid::randomHex(), Uuid::randomHex());
+    }
+
     public function testCreateWithAnIdInThePathIsNotAllowed(): void
     {
         $entityId = Uuid::randomHex();
@@ -231,27 +302,6 @@ class ApiControllerTest extends TestCase
         ));
 
         $controller->create($request, Context::createDefaultContext(), static::createStub(ResponseFactoryInterface::class), 'parent-entity', '/' . $entityId);
-    }
-
-    /**
-     * @param list<class-string<EntityDefinition>> $definitions
-     */
-    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions): ApiController
-    {
-        $registry = new StaticDefinitionInstanceRegistry(
-            $definitions,
-            static::createStub(ValidatorInterface::class),
-            static::createStub(EntityWriteGatewayInterface::class),
-            $container
-        );
-
-        return new ApiController(
-            $registry,
-            static::createStub(DecoderInterface::class),
-            static::createStub(RequestCriteriaBuilder::class),
-            static::createStub(EntityProtectionValidator::class),
-            static::createStub(AclCriteriaValidator::class)
-        );
     }
 
     /**
@@ -297,6 +347,38 @@ class ApiControllerTest extends TestCase
         yield 'external url' => [['path' => 'https://cdn.example.com/photo.jpg']];
         yield 'regular file name' => [['fileName' => 'copied-media']];
         yield 'nested data without storage fields' => [['translations' => [['title' => 'copy']]]];
+    }
+
+    /**
+     * @param list<string> $permissions
+     */
+    private function createAdminApiContext(array $permissions): Context
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setPermissions($permissions);
+
+        return Context::createDefaultContext($source);
+    }
+
+    /**
+     * @param list<class-string<EntityDefinition>> $definitions
+     */
+    private function createControllerWithRegistry(ContainerBuilder $container, array $definitions): ApiController
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            $definitions,
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+            $container
+        );
+
+        return new ApiController(
+            $registry,
+            static::createStub(DecoderInterface::class),
+            static::createStub(RequestCriteriaBuilder::class),
+            static::createStub(EntityProtectionValidator::class),
+            static::createStub(AclCriteriaValidator::class)
+        );
     }
 
     /**

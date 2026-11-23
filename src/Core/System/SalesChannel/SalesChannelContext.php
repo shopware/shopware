@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\ProspectiveCustomer;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
@@ -42,6 +43,8 @@ class SalesChannelContext extends Struct
     protected bool $permissionsLocked = false;
 
     protected ?string $imitatingUserId = null;
+
+    protected ?ProspectiveCustomer $prospectiveCustomer = null;
 
     protected MeasurementUnits $measurementSystem;
 
@@ -132,6 +135,22 @@ class SalesChannelContext extends Struct
     public function getCustomer(): ?CustomerEntity
     {
         return $this->customer;
+    }
+
+    /**
+     * Only set while there is no customer, e.g. for a visitor who has entered an address in the checkout but is not registered yet
+     */
+    public function getProspectiveCustomer(): ?ProspectiveCustomer
+    {
+        return $this->prospectiveCustomer;
+    }
+
+    /**
+     * @internal
+     */
+    public function setProspectiveCustomer(?ProspectiveCustomer $prospectiveCustomer): void
+    {
+        $this->prospectiveCustomer = $prospectiveCustomer;
     }
 
     public function getPaymentMethod(): PaymentMethodEntity

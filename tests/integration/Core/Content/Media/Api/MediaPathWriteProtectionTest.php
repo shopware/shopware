@@ -241,6 +241,18 @@ class MediaPathWriteProtectionTest extends TestCase
         static::assertSame('legit', $this->findMedia($mediaId)?->getFileName());
     }
 
+    public function testTooLongFileNameIsRejectedWithItsOwnErrorCode(): void
+    {
+        $mediaId = $this->createMedia(path: 'media/ab/cd/legit.png');
+
+        $this->getBrowser()->jsonRequest('PATCH', '/api/media/' . $mediaId, [
+            'fileName' => str_repeat('a', 256),
+        ]);
+
+        $this->assertErrorResponse(MediaException::MEDIA_FILE_NAME_IS_TOO_LONG);
+        static::assertSame('legit', $this->findMedia($mediaId)?->getFileName());
+    }
+
     public function testWritingBackUnchangedFileNameThatPredatesTheValidationIsAllowed(): void
     {
         $mediaId = $this->createMedia(path: 'https://cdn.example.com/Ben%20%26%20Jerry%27s.jpg', fileName: 'Ben & Jerry\'s');

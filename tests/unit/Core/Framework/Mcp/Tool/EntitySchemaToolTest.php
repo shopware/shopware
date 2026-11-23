@@ -42,12 +42,12 @@ class EntitySchemaToolTest extends TestCase
         $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
-        $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = ($tool)('rich_test');
 
-        static::assertTrue($result['success']);
-        static::assertSame('rich_test', $result['data']['entity']);
+        static::assertFalse($result->isError());
+        static::assertSame('rich_test', $result->data['entity']);
 
-        $fields = $result['data']['fields'];
+        $fields = $result->data['fields'];
         $fieldMap = [];
         foreach ($fields as $field) {
             $fieldMap[$field['name']] = $field;
@@ -73,9 +73,9 @@ class EntitySchemaToolTest extends TestCase
         $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
-        $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = ($tool)('rich_test');
 
-        $associations = $result['data']['associations'];
+        $associations = $result->data['associations'];
         $assocMap = [];
         foreach ($associations as $assoc) {
             $assocMap[$assoc['name']] = $assoc;
@@ -101,9 +101,9 @@ class EntitySchemaToolTest extends TestCase
         $registry->method('getByEntityName')->willReturn($definition);
 
         $tool = new EntitySchemaTool($registry);
-        $result = json_decode(($tool)('rich_test'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = ($tool)('rich_test');
 
-        $fields = $result['data']['fields'];
+        $fields = $result->data['fields'];
         $activeField = null;
         foreach ($fields as $field) {
             if ($field['name'] === 'active') {
@@ -122,12 +122,12 @@ class EntitySchemaToolTest extends TestCase
         $registry->expects($this->never())->method('getByEntityName');
 
         $tool = new EntitySchemaTool($registry);
-        $result = json_decode(($tool)('unknown_entity'), true, 512, \JSON_THROW_ON_ERROR);
+        $result = ($tool)('unknown_entity');
 
-        static::assertFalse($result['success']);
-        static::assertStringContainsString('unknown_entity', $result['error']);
-        static::assertStringContainsString('shopware://entities', $result['error']);
-        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result['code']);
+        static::assertTrue($result->isError());
+        static::assertStringContainsString('unknown_entity', $result->error->message);
+        static::assertStringContainsString('shopware://entities', $result->error->message);
+        static::assertSame(McpToolError::INVALID_ARGUMENTS, $result->error->code);
     }
 }
 

@@ -168,6 +168,11 @@ shopware:
         transports: ["webhook", "async", "low_priority"]
 ```
 
+## `--no-validate` removed from `app:install` and `app:refresh`
+
+The option had no effect since 6.7.
+Passing it now fails with an unknown-option error.
+
 ## Minimum value constraints added to quantity fields in ProductPriceDefinition
 
 The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now require a minimum value of `1`.
@@ -928,7 +933,7 @@ Get the latest order transaction with `order.primaryOrderTransaction` so you sho
 
 The Administration's order detail no longer treats every delivery besides the primary one as a shipping discount.
 A delivery with negative shipping costs is a discount, every other delivery is a shipment, which matches how `Shopware\Core\Checkout\Cart\Order\RecalculationService` already tells the two apart.
-The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, the primary delivery first.
+The general tab shows one shipping cost row per shipment and the details tab one delivery card per shipment, sorted by delivery `position` like the storefront, mails and documents.
 The order overview, the order list, the state history and the bulk edit keep showing and changing the primary delivery.
 
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` run once per shipment and must use the loop variable `shipment` instead of the `delivery` computed, which still points at the primary delivery.
@@ -1489,6 +1494,42 @@ If you have a decorator that extends `AbstractTranslationLoader`, remove your `p
  ```
 
 The new method receives the exact locale being loaded, so the check can be scoped to that locale rather than treating any installed locale as a reason to skip all local snippet files.
+
+## MCP tools returning the legacy `{"success": …}` string deprecated
+
+Returning the `{"success": …}` JSON string from an MCP tool was deprecated, whether it was built with `McpToolResponse::success()`, `::error()` and the other string helpers or by hand.
+The string can't carry a summary or error details, and a PHP tool that returns it fails.
+The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` of `McpToolResponse` are removed.
+Return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead, built with the helper of the same name plus `Result`.
+Two helpers drop their `Error` suffix: `invalidCriteriaError()` becomes `invalidCriteriaResult()` and `missingPrivilegesError()` becomes `missingPrivilegesResult()`.
+
+```php
+// Before
+public function __invoke(string $id): string
+{
+    return $this->success(['id' => $id]);
+}
+
+// After
+public function __invoke(string $id): McpToolResult
+{
+    return $this->successResult(['id' => $id]);
+}
+```
+
+A PHP tool that returns any other string, such as plain text, fails as well.
+Return `McpToolResult::text('…')` for a result that is only text for the model; every client gets the text as is.
+App tools are not affected: their responses keep the `{"success": …}` envelope or plain text.
+
+**Troubleshooting:** a plugin tool that fails with `MCP tool "…" returned a string` or `returned the legacy {"success": …} JSON string` still returns a string.
+Change the return type of `__invoke()` to `McpToolResult` and return `McpToolResult::text()` or the `…Result()` helper instead.
+
+The counterparts are `successResult()`, `errorResult()`, `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
+App tools are not affected and keep their response format.
+
+The PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) moves from `core-rules.neon` to `rules.neon`.
+It reports a `#[McpTool]` method whose native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
+
 ## `MediaUploadService::validateExternalUrl()` deprecated
 
 Use the new `assertValidExternalUrl()` instance method instead:
@@ -1611,7 +1652,28 @@ The `$operator` parameter of `\Shopware\Core\Framework\DataAbstractionLayer\Sear
 
 The unused property was removed.
 
+## `ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM` removed
+
+The constant was unused.
+Use `'sha256'` directly if you computed the imitation token hash yourself.
+
 # Administration
+
+## Jest helper `test/_helper_/majorFeatureFlags` removed
+
+Extension Jest setups that require `src/Administration/Resources/app/administration/test/_helper_/majorFeatureFlags` to activate the major feature flags should run on the Jest harness of the extension tooling instead.
+It registers the feature flags of the installed Shopware version, including the major flags of a major run.
+
+```js
+import { shopwareAdminJestConfig } from './.shopware/jest.mjs';
+
+export default shopwareAdminJestConfig({
+    moduleNameMapper: { '^MyPlugin/(.*)$': '<rootDir>/src/$1' },
+});
+```
+
+`composer admin:setup-extension-tooling` generates the `.shopware/jest.mjs` bridge.
+See *Running specs with Jest* in `src/Administration/Resources/app/administration/extension-tooling/README.md` for the accepted options.
 
 ## Sales channel detail components load fewer visibilities and sales channels
 

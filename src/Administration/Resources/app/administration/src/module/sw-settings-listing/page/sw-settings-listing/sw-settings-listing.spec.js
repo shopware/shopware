@@ -690,7 +690,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         await defaultSortingSelectInput.setValue(null);
         await defaultSortingSelectInput.trigger('input');
 
-        await defaultSortingSelectInput.trigger('keydown.esc');
+        await defaultSortingSelectInput.trigger('keydown', { key: 'Escape' });
 
         await wrapper.find('.sw-settings-listing__save-action').trigger('click');
         await flushPromises();

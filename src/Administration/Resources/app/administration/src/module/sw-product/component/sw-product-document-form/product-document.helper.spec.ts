@@ -5,7 +5,7 @@ import { getSavedDocumentValues } from './product-document.helper';
 
 function createDocument(translated: { title: string; mediaId: string }) {
     const document = Shopware.Service('repositoryFactory').create('product_document').create();
-    document.translated = translated;
+    document.translated = translated as Entity<'product_document'>['translated'];
     return document;
 }
 

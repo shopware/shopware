@@ -2,11 +2,8 @@
 
 namespace Shopware\Tests\Integration\Elasticsearch\Product;
 
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -16,13 +13,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
-use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
-use Shopware\Elasticsearch\Product\ProductSearchQueryBuilder;
-use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticSalesChannelLanguageLoader;
 
 /**
  * @internal
@@ -109,53 +101,76 @@ class ElasticsearchProductFetchTest extends TestCase
         static::assertSame($expectedTags, $tags);
     }
 
-    public function testProductRowsBeforeGroupingDoNotMultiplyVisibilitiesWithTags(): void
+    public function testEveryProductOfABatchKeepsItsOwnVisibilitiesAndTags(): void
     {
-        $sql = $this->captureProductQuery();
-        static::assertStringContainsString('GROUP BY p.id', $sql);
-
-        $countSql = (string) preg_replace('/^SELECT.*?\nFROM product p\b/s', 'SELECT COUNT(*) FROM product p', $sql);
-        $countSql = str_replace('GROUP BY p.id', '', $countSql);
-
-        $rows = (int) static::getContainer()->get(Connection::class)->fetchOne(
-            $countSql,
-            [
-                'ids' => Uuid::fromHexToBytesList([$this->ids->get('product')]),
-                'liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
-            ],
-            ['ids' => ArrayParameterType::BINARY]
+        $this->createProducts(
+            (new ProductBuilder(ids: $this->ids, productNumber: 'second-product'))
+                ->price(gross: 10)
+                ->visibility(salesChannelId: $this->channelIds[1], visibility: ProductVisibilityDefinition::VISIBILITY_SEARCH)
+                ->tag(key: 'tag-d'),
         );
 
-        // one row per tag, not one row per tag and sales channel (3 x 3)
-        static::assertSame(3, $rows);
+        $documents = $this->fetch('product', 'second-product');
+
+        static::assertCount(2, $documents);
+
+        $second = $documents[$this->ids->get('second-product')];
+        static::assertSame(
+            [$this->channelIds[1] => ProductVisibilityDefinition::VISIBILITY_SEARCH],
+            array_column($second['visibilities'], 'visibility', 'salesChannelId')
+        );
+        static::assertSame([$this->ids->get('tag-d') => 'tag-d'], array_column($second['tags'], 'name', 'id'));
+
+        $first = $documents[$this->ids->get('product')];
+        static::assertCount(3, $first['visibilities']);
+        static::assertCount(3, $first['tags']);
+        static::assertArrayNotHasKey($this->ids->get('tag-d'), array_column($first['tags'], 'name', 'id'));
     }
 
-    private function captureProductQuery(): string
+    public function testProductWithoutTagsIsIndexedWithoutTags(): void
     {
-        $queries = [];
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociativeIndexed')->willReturnCallback(static function (string $sql) use (&$queries): array {
-            $queries[] = $sql;
-
-            return [];
-        });
-
-        $definition = new ElasticsearchProductDefinition(
-            new ProductDefinition(),
-            $connection,
-            static::createStub(ProductSearchQueryBuilder::class),
-            static::createStub(ElasticsearchFieldBuilder::class),
-            static::createStub(ElasticsearchFieldMapper::class),
-            new StaticSalesChannelLanguageLoader([Defaults::LANGUAGE_SYSTEM => []]),
-            false,
-            'test',
-            static::createStub(LanguageLoaderInterface::class)
+        $this->createProducts(
+            (new ProductBuilder(ids: $this->ids, productNumber: 'untagged-product'))
+                ->price(gross: 10)
+                ->visibility(salesChannelId: $this->channelIds[0], visibility: ProductVisibilityDefinition::VISIBILITY_ALL),
         );
 
-        $definition->fetch(Uuid::fromHexToBytesList([$this->ids->get('product')]), Context::createDefaultContext());
+        $document = $this->fetch('untagged-product')[$this->ids->get('untagged-product')];
 
-        static::assertArrayHasKey(0, $queries);
+        static::assertSame([], $document['tags']);
+        static::assertSame(ProductVisibilityDefinition::VISIBILITY_ALL, $document['visibility_' . $this->channelIds[0]]);
+    }
 
-        return $queries[0];
+    public function testProductWithoutVisibilitiesIsNotIndexed(): void
+    {
+        $this->createProducts(
+            (new ProductBuilder(ids: $this->ids, productNumber: 'invisible-product'))
+                ->price(gross: 10)
+                ->tag(key: 'tag-a'),
+        );
+
+        $documents = $this->fetch('product', 'invisible-product');
+
+        static::assertArrayHasKey($this->ids->get('product'), $documents);
+        static::assertArrayNotHasKey($this->ids->get('invisible-product'), $documents);
+    }
+
+    private function createProducts(ProductBuilder ...$builders): void
+    {
+        static::getContainer()->get('product.repository')->create(
+            array_map(static fn (ProductBuilder $builder) => $builder->build(), $builders),
+            Context::createDefaultContext()
+        );
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function fetch(string ...$keys): array
+    {
+        return static::getContainer()->get(ElasticsearchProductDefinition::class)->fetch(
+            Uuid::fromHexToBytesList(array_map(fn (string $key) => $this->ids->get($key), $keys)),
+            Context::createDefaultContext()
+        );
     }
 }

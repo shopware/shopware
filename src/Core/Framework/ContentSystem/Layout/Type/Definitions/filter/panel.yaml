@@ -54,7 +54,7 @@ properties:
     adminUI:
       component: "switch"
       breakpointAware: true
-      helpText: "Turn this on for the small breakpoints where the filters do not fit next to the content. From the first breakpoint that is turned off, the filters are shown directly on every larger breakpoint."
+      helpText: "When active, the filters are shown as a filter button that opens all filters in an Off-Canvas menu instead of showing them directly."
       helpTextSnippet: "sw-experience-studio.elements.filter-panel.showFiltersInOffcanvas.helpText"
     properties:
       xs:

@@ -158,12 +158,12 @@ export default {
          */
         schema: {
             handler(newSchema) {
-                if (this.isSyncingFromConfig) {
+                if (Shopware.Feature.isActive('V6_8_0_0') || this.isSyncingFromConfig) {
                     return;
                 }
 
                 this.isSyncingFromSchema = true;
-                this.config = this.schemaToConfig(newSchema);
+                this.config = this._schemaToConfig(newSchema);
                 this.$nextTick(() => {
                     this.isSyncingFromSchema = false;
                 });
@@ -176,12 +176,12 @@ export default {
          */
         config: {
             handler(newConfig) {
-                if (this.isSyncingFromSchema) {
+                if (Shopware.Feature.isActive('V6_8_0_0') || this.isSyncingFromSchema) {
                     return;
                 }
 
                 this.isSyncingFromConfig = true;
-                this.schema = this.configToSchema(newConfig, this.schema);
+                this.schema = this._configToSchema(newConfig, this.schema);
                 this.$nextTick(() => {
                     this.isSyncingFromConfig = false;
                 });
@@ -224,13 +224,14 @@ export default {
         },
 
         async readConfig() {
-            // @deprecated tag:v6.8.0 - The getSchemaForDomain method call will be replaced with this.systemConfigApiService.getSchema(this.domain).
-            const schema = await this.getSchemaForDomain();
-
-            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed without replacement.
-            this.assignConfigIds(schema);
-
-            this.schema = schema;
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                this.schema = await this.systemConfigApiService.getSchema(this.domain);
+            } else {
+                // @deprecated tag:v6.8.0 - The else branch will be removed together with config data prop.
+                const schema = await this._getSchemaForDomain();
+                this._assignConfigIds(schema);
+                this.schema = schema;
+            }
 
             this.schema.every((tab) => {
                 return tab?.cards.every((card) => {
@@ -258,6 +259,16 @@ export default {
                 'sw-system-config.getSchemaForDomain() is deprecated. Will be removed together with config data prop.',
             );
 
+            return this._getSchemaForDomain();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Unguarded implementation of getSchemaForDomain(), so core's own calls do not report the deprecation.
+         */
+        async _getSchemaForDomain() {
             const getConfig = this.systemConfigApiService.getConfig;
             const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
 
@@ -273,7 +284,7 @@ export default {
                 return schema;
             }
 
-            return this.configToSchema(config, schema);
+            return this._configToSchema(config, schema);
         },
 
         /**
@@ -290,6 +301,16 @@ export default {
                 'sw-system-config.assignConfigIds() is deprecated. Will be removed together with config data prop.',
             );
 
+            this._assignConfigIds(schema);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Unguarded implementation of assignConfigIds(), so core's own calls do not report the deprecation.
+         */
+        _assignConfigIds(schema) {
             (schema ?? []).forEach((tab) => {
                 (tab.cards ?? []).forEach((card) => {
                     card.__configId = utils.createId();
@@ -635,6 +656,16 @@ export default {
                 'sw-system-config.schemaToConfig() is deprecated. Will be removed together with config data prop.',
             );
 
+            return this._schemaToConfig(schema);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Unguarded implementation of schemaToConfig(), so core's own calls do not report the deprecation.
+         */
+        _schemaToConfig(schema) {
             return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
         },
 
@@ -654,6 +685,16 @@ export default {
                 'sw-system-config.getTabIndexByElementOverlap() is deprecated. Will be removed together with config data prop.',
             );
 
+            return this._getTabIndexByElementOverlap(card, elementNameToTabIndex);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Unguarded implementation of getTabIndexByElementOverlap(), so core's own calls do not report the deprecation.
+         */
+        _getTabIndexByElementOverlap(card, elementNameToTabIndex) {
             const voteCountByTabIndex = new Map();
 
             (card.elements ?? []).forEach((element) => {
@@ -695,6 +736,16 @@ export default {
                 'sw-system-config.configToSchema() is deprecated. Will be removed together with config data prop.',
             );
 
+            return this._configToSchema(config, previousSchema);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Unguarded implementation of configToSchema(), so core's own calls do not report the deprecation.
+         */
+        _configToSchema(config, previousSchema) {
             const cards = config ?? [];
             const previousTabs =
                 previousSchema && previousSchema.length > 0
@@ -731,7 +782,7 @@ export default {
                 if (idToTabIndex.has(card.__configId)) {
                     tabIndex = idToTabIndex.get(card.__configId);
                 } else {
-                    const overlapTabIndex = this.getTabIndexByElementOverlap(card, elementNameToTabIndex);
+                    const overlapTabIndex = this._getTabIndexByElementOverlap(card, elementNameToTabIndex);
                     if (overlapTabIndex !== null) {
                         tabIndex = overlapTabIndex;
                     }

@@ -15,8 +15,8 @@ blocks
     sw_order_create_promotion_modal_body
       sw_order_create_promotion_modal_message
       sw_order_create_promotion_modal_promotions
-        sw_order_create_promotion_modal_promotion_description
-        sw_order_create_promotion_modal_promotion_name
+        sw_order_create_promotion_modal_promotion_description  [scope: index, item]
+        sw_order_create_promotion_modal_promotion_name  [scope: index, item]
     sw_order_create_promotion_modal_footer
       sw_order_create_promotion_modal_footer_button_cancel
       sw_order_create_promotion_modal_footer_button_save

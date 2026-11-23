@@ -13,6 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
+    deprecated: {
+        version: 'v6.8.0.0',
+        comment: 'Will be removed without replacement.',
+    },
+
     inject: [
         'swOrderDetailAskAndSaveEdits',
         'orderService',

@@ -16,7 +16,7 @@ blocks
       sw_manufacturer_list_smart_bar_actions
     sw_manufacturer_list_content
       sw_manufacturer_list_empty_state
-      sw_manufacturer_list_grid
+      sw_manufacturer_list_grid  [after v-if]
         sw_manufacturer_list_grid_columns_name_preview
     sw_manufacturer_list_language_switch
     sw_manufacturer_list_search_bar
@@ -24,4 +24,7 @@ blocks
       sw_manufacturer_list_smart_bar_header_title
         sw_manufacturer_list_smart_bar_header_amount
         sw_manufacturer_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_manufacturer_list_empty_state -> sw_manufacturer_list_grid
 ```

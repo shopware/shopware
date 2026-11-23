@@ -12,5 +12,13 @@ component sw-price-rule-modal  public  js
   template src/module/sw-settings-shipping/component/sw-price-rule-modal/sw-price-rule-modal.html.twig
 
 blocks
-  sw_rule_modal_basic_info_description
+  sw_rule_modal  [inherited]
+    sw_rule_modal_basic_info  [inherited]
+      sw_rule_modal_basic_info_description  [replaced] [after v-if]
+      sw_rule_modal_basic_info_name  [inherited]
+      sw_rule_modal_basic_info_priority  [inherited]
+    sw_rule_modal_condition_tree  [inherited] [after v-if]
+    sw_rule_modal_footer  [inherited]
+      sw_rule_modal_footer_button_abort  [inherited]
+      sw_rule_modal_footer_button_save  [inherited]
 ```

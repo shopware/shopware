@@ -138,6 +138,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         hasMoreThanOneTab() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.hasMoreThanOneTab is deprecated and will be removed.',
+            );
+
             return Object.values(this.structuredThemeFields.tabs).length > 1;
         },
 
@@ -286,6 +291,11 @@ export default {
          * @deprecated tag:v6.8.0 - This method will be removed.
          */
         openMediaSidebar() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.openMediaSidebar() is deprecated and will be removed.',
+            );
+
             this.$refs.mediaSidebarItem.openContent();
         },
 
@@ -323,6 +333,11 @@ export default {
          * @deprecated tag:v6.8.0 - Will be removed without replacement
          */
         restoreMediaInheritance(currentValue) {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-theme-manager-detail.restoreMediaInheritance() is deprecated and will be removed without replacement.',
+            );
+
             return currentValue;
         },
 
@@ -757,6 +772,7 @@ export default {
          * @param {string} [fallback=''] - DEPRECATED: The fallback value to return if the snippet is not found.
          * @returns {string}
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, a used fallback triggers the deprecation itself
         getSnippet(key, fallback = '') {
             for (let themeName of this.inheritedSnippetPrefixes) {
                 const snippetKey = `sw-theme.${themeName}.${key}`;
@@ -835,6 +851,7 @@ export default {
         /**
          * @deprecated tag:v6.8.0 - Parameter `fallback` will be removed
          */
+        // eslint-disable-next-line sw-deprecation-rules/require-deprecation-guard -- only `fallback` is deprecated, getSnippet triggers it when a fallback is used
         getTabLabel(key, fallback = '') {
             const snippet = this.getSnippet(key, fallback);
             if (snippet.length >= 1) {

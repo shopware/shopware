@@ -17,5 +17,8 @@ blocks
     sw_settings_rule_add_assignment_modal_footer  [private]
       sw_settings_rule_add_assignment_modal_cancel  [private]
       sw_settings_rule_add_assignment_modal_confirm  [private]
-    sw_settings_rule_add_assignment_modal_listing  [private]
+    sw_settings_rule_add_assignment_modal_listing  [after v-if] [private]
+
+crossings
+  v-if  sw_settings_rule_add_assignment_modal_category_tree -> sw_settings_rule_add_assignment_modal_listing  [private]
 ```

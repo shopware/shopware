@@ -13,5 +13,5 @@ component sw-media-display-options  public  js
 blocks
   sw_media_display_options
     sw_media_display_options_presentation
-    sw_media_display_options_sorting
+    sw_media_display_options_sorting  [after v-if]
 ```

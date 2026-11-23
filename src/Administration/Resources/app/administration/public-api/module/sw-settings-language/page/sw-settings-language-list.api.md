@@ -28,9 +28,9 @@ blocks
             sw_settings_language_list_content_list_delete_action
             sw_settings_language_list_content_list_delete_confirm_action
           sw_settings_language_list_content_list_update_snippets_action
-        sw_settings_language_list_delete_modal
+        sw_settings_language_list_delete_modal  [after v-if]
           sw_settings_language_list_delete_modal_content
-          sw_settings_language_list_delete_modal_footer
+          sw_settings_language_list_delete_modal_footer  [after v-if]
       sw_settings_language_list_grid_sidebar
         sw_settings_language_list_grid_sidebar_filter
         sw_settings_language_list_grid_sidebar_filter_content
@@ -44,7 +44,7 @@ blocks
         sw_settings_language_list_grid_sidebar_refresh
       sw_settings_language_list_search_bar
       sw_settings_language_list_smart_bar_actions
-        sw_settings_language_list_smart_bar_actions_add
+        sw_settings_language_list_smart_bar_actions_add  [after v-if]
         sw_settings_language_list_smart_bar_actions_update_snippets
       sw_settings_language_list_smart_bar_header
         sw_settings_language_list_smart_bar_header_title

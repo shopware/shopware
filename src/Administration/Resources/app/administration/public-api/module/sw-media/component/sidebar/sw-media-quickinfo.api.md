@@ -13,33 +13,33 @@ component sw-media-quickinfo  public  js
 blocks
   sw_media_quickinfo
     sw_media_quickinfo_broken_file
-    sw_media_quickinfo_cover_modal
-    sw_media_quickinfo_custom_field_sets
-    sw_media_quickinfo_metadata
+    sw_media_quickinfo_cover_modal  [after v-if]
+    sw_media_quickinfo_custom_field_sets  [after v-if]
+    sw_media_quickinfo_metadata  [after v-if]
       sw_media_quickinfo_metadata_content
         sw_media_quickinfo_metadata_content_base
         sw_media_quickinfo_metadata_extension
         sw_media_quickinfo_metadata_specific_meta_data
           sw_media_quickinfo_metadata_content_image
-    sw_media_quickinfo_modal_delete
-    sw_media_quickinfo_modal_replace
-    sw_media_quickinfo_move_modal
-    sw_media_quickinfo_preview
+    sw_media_quickinfo_modal_delete  [after v-if]
+    sw_media_quickinfo_modal_replace  [after v-if]
+    sw_media_quickinfo_move_modal  [after v-if]
+    sw_media_quickinfo_preview  [after v-if]
       sw_media_quickinfo_preview_content
-        sw_media_quickinfo_preview_item
+        sw_media_quickinfo_preview_item  [after v-if]
           sw_model_editor_modal
         sw_media_quickinfo_unsupported_format_banner
-    sw_media_quickinfo_quickactions
+    sw_media_quickinfo_quickactions  [after v-if]
       sw_media_quickinfo_quickactions_content
-        sw_media_quickinfo_quickactions_copy_link
-        sw_media_quickinfo_quickactions_custom_action
-        sw_media_quickinfo_quickactions_delete
-        sw_media_quickinfo_quickactions_download
-        sw_media_quickinfo_quickactions_move
-        sw_media_quickinfo_quickactions_remove_cover
+        sw_media_quickinfo_quickactions_copy_link  [after v-if]
+        sw_media_quickinfo_quickactions_custom_action  [after v-if]
+        sw_media_quickinfo_quickactions_delete  [after v-if]
+        sw_media_quickinfo_quickactions_download  [after v-if]
+        sw_media_quickinfo_quickactions_move  [after v-if]
+        sw_media_quickinfo_quickactions_remove_cover  [after v-if]
         sw_media_quickinfo_quickactions_replace
         sw_media_quickinfo_quickactions_set_cover
-    sw_media_quickinfo_spatial_configuration
-    sw_media_quickinfo_tags
+    sw_media_quickinfo_spatial_configuration  [after v-if]
+    sw_media_quickinfo_tags  [after v-if]
     sw_media_quickinfo_usage
 ```

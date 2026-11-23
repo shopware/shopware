@@ -12,33 +12,33 @@ component sw-order-document-card  public  js
 
 blocks
   sw_order_document_card
-    sw_order_document_card_empty_state
+    sw_order_document_card_empty_state  [after v-if]
     sw_order_document_card_grid
       sw_order_document_card_grid_actions
-        sw_order_document_card_grid_action_delete
-          sw_order_document_card_grid_action_delete_label
-        sw_order_document_card_grid_action_download
-          sw_order_document_card_grid_action_download_label
-        sw_order_document_card_grid_action_mark_sent
-          sw_order_document_card_grid_action_mark_sent_label
-        sw_order_document_card_grid_action_mark_unsent
-          sw_order_document_card_grid_action_mark_unsent_label
-        sw_order_document_card_grid_action_open
-          sw_order_document_card_grid_action_open_label
-        sw_order_document_card_grid_action_send
-          sw_order_document_card_grid_action_send_label
-        sw_order_document_card_grid_actions_menu  [from v6.8.0]
+        sw_order_document_card_grid_action_delete  [scope: item]
+          sw_order_document_card_grid_action_delete_label  [scope: item]
+        sw_order_document_card_grid_action_download  [scope: item]
+          sw_order_document_card_grid_action_download_label  [scope: item]
+        sw_order_document_card_grid_action_mark_sent  [scope: item]
+          sw_order_document_card_grid_action_mark_sent_label  [scope: item]
+        sw_order_document_card_grid_action_mark_unsent  [scope: item]
+          sw_order_document_card_grid_action_mark_unsent_label  [scope: item]
+        sw_order_document_card_grid_action_open  [scope: item]
+          sw_order_document_card_grid_action_open_label  [scope: item]
+        sw_order_document_card_grid_action_send  [scope: item]
+          sw_order_document_card_grid_action_send_label  [scope: item]
+        sw_order_document_card_grid_actions_menu  [scope: item] [from v6.8.0]
       sw_order_document_card_grid_column_attach
-        sw_order_document_card_grid_column_attach_label
+        sw_order_document_card_grid_column_attach_label  [scope: item]
       sw_order_document_card_grid_column_avaiable_formats
-        sw_order_document_card_grid_column_available_formats_label
+        sw_order_document_card_grid_column_available_formats_label  [scope: item]
       sw_order_document_card_grid_column_date
-        sw_order_document_card_grid_column_date_label
+        sw_order_document_card_grid_column_date_label  [scope: item]
       sw_order_document_card_grid_column_sent
-        sw_order_document_card_grid_column_sent_label
+        sw_order_document_card_grid_column_sent_label  [scope: item]
       sw_order_document_card_grid_column_type
-    sw_order_document_card_grid_column_document_send_modal
-    sw_order_document_card_grid_column_document_type_modal
+    sw_order_document_card_grid_column_document_send_modal  [after v-if]
+    sw_order_document_card_grid_column_document_type_modal  [after v-if]
     sw_order_document_card_grid_column_modal
     sw_order_document_card_header
       sw_order_document_card_header_filter

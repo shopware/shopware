@@ -17,26 +17,26 @@ blocks
         sw_settings_salutations_list_columns
           sw_settings_salutation_list_action_modals
             sw_settings_snippet_list_delete_modal
-              sw_settings_snippet_list_delete_modal_footer
-                sw_settings_snippet_list_delete_modal_cancel
-                sw_settings_snippet_list_delete_modal_confirm
-              sw_settings_snippet_list_delete_modal_text
-                sw_settings_snippet_list_delete_modal_grid
-                  sw_settings_snippet_list_delete_modal_grid_template
-                    sw_settings_snippet_list_delete_modal_grid_name
-                    sw_settings_snippet_list_delete_modal_grid_origin
-                    sw_settings_snippet_list_delete_modal_grid_value
-                sw_settings_snippet_list_delete_modal_text_delete
-                sw_settings_snippet_list_delete_modal_text_reset
+              sw_settings_snippet_list_delete_modal_footer  [after v-if] [scope: item]
+                sw_settings_snippet_list_delete_modal_cancel  [scope: item]
+                sw_settings_snippet_list_delete_modal_confirm  [scope: item]
+              sw_settings_snippet_list_delete_modal_text  [scope: item]
+                sw_settings_snippet_list_delete_modal_grid  [scope: item]
+                  sw_settings_snippet_list_delete_modal_grid_template  [scope: item]
+                    sw_settings_snippet_list_delete_modal_grid_name  [scope: item]
+                    sw_settings_snippet_list_delete_modal_grid_origin  [scope: item]
+                    sw_settings_snippet_list_delete_modal_grid_value  [scope: item]
+                sw_settings_snippet_list_delete_modal_text_delete  [after v-if] [scope: item]
+                sw_settings_snippet_list_delete_modal_text_reset  [scope: item]
           sw_settings_snippet_list_column_id
-            sw_settings_snippet_list_column_id_content
-            sw_settings_snippet_list_column_id_inline_edit
+            sw_settings_snippet_list_column_id_content  [after v-if] [scope: isInlineEdit, item]
+            sw_settings_snippet_list_column_id_inline_edit  [scope: isInlineEdit, item]
           sw_settings_snippet_list_column_value
-            sw_settings_snippet_list_column_value_content
-            sw_settings_snippet_list_column_value_inline_edit
+            sw_settings_snippet_list_column_value_content  [after v-if] [scope: compact, isInlineEdit, item, set]
+            sw_settings_snippet_list_column_value_inline_edit  [scope: compact, isInlineEdit, item, set]
           sw_settings_snippet_list_grid_column_actions
-            sw_settings_snippet_list_grid_column_actions_delete
-            sw_settings_snippet_list_grid_column_actions_edit
+            sw_settings_snippet_list_grid_column_actions_delete  [scope: item]
+            sw_settings_snippet_list_grid_column_actions_edit  [scope: item]
         sw_settings_snippet_list_grid_pagination
       sw_settings_snippet_list_grid_sidebar
     sw_settings_snippet_list_smart_bar_actions
@@ -46,4 +46,9 @@ blocks
         sw_settings_snippet_list_smart_bar_header_amount
         sw_settings_snippet_list_smart_bar_header_title_text
     sw_settings_snippet_set_list_search_bar
+
+crossings
+  v-if  sw_settings_snippet_list_column_id_inline_edit -> sw_settings_snippet_list_column_id_content
+  v-if  sw_settings_snippet_list_column_value_inline_edit -> sw_settings_snippet_list_column_value_content
+  v-if  sw_settings_snippet_list_delete_modal_text_reset -> sw_settings_snippet_list_delete_modal_text_delete
 ```

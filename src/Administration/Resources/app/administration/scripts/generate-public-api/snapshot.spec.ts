@@ -101,6 +101,14 @@ describe('scripts/generate-public-api/snapshot', () => {
             expect(files[`${file}.api.md`]).toContain(`  source ${REGISTRY}\n`);
         });
 
+        it('reads a component that is passed as import() without an arrow function', () => {
+            const files = card('{% block sw_example_card %}{% endblock %}', {
+                [REGISTRY]: "Shopware.Component.register('sw-example-card', import('./component/sw-example-card'));",
+            });
+
+            expect(files[REPORT]).toContain(`  source ${CARD}/index.js\n`);
+        });
+
         it('names a component after its registration when the source is not an index file', () => {
             const files = snapshot({
                 [REGISTRY]: "Shopware.Component.register('sw-example-card', () => import('./component/card'));",
@@ -124,7 +132,7 @@ describe('scripts/generate-public-api/snapshot', () => {
                 '{% block sw_example_card %}{% block sw_example_tile_badge %}{% endblock %}{% endblock %}',
         });
 
-        it('prints an extend child with its parent and the blocks of its own template', () => {
+        it('prints an extend child with its parent', () => {
             expect(files['module/sw-example/component/sw-example-tile.api.md']).toContain(
                 'component sw-example-tile  public  js\n  extends sw-example-card\n',
             );
@@ -348,8 +356,8 @@ describe('scripts/generate-public-api/snapshot', () => {
             ).toEqual([
                 'sw_example_card',
                 'sw_example_card_body  [from v6.8.0]',
-                'sw_example_card_title  [from v6.8.0]',
-                'sw_example_card_title  [until v6.8.0]',
+                'sw_example_card_title  [after v-if] [from v6.8.0]',
+                'sw_example_card_title  [after v-if] [until v6.8.0]',
             ]);
         });
 
@@ -431,7 +439,7 @@ describe('scripts/generate-public-api/snapshot', () => {
             [
                 'a block tag inside an HTML tag',
                 '<div {% block sw_example_card %}{% endblock %}></div>',
-                'sw-example-card.html.twig: a {% block %} tag sits where the HTML parser cannot see it',
+                'sw-example-card.html.twig: a {% block %} or {% parent %} tag sits where the HTML parser cannot see it',
             ],
         ])('rejects %s', (_case, template, message) => {
             expect(() => card(template)).toThrow(message);

@@ -19,7 +19,7 @@ blocks
       sw_product_detail_specifications_essential_characteristics_content
     sw_product_detail_specifications_measurement
       sw_product_detail_specifications_measurement_content
-    sw_product_detail_specifications_measures_packaging
+    sw_product_detail_specifications_measures_packaging  [after v-if]
       sw_product_detail_specifications_measures_packaging_content
-    sw_product_detail_specifications_property
+    sw_product_detail_specifications_property  [after v-if]
 ```

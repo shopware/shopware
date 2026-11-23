@@ -13,7 +13,7 @@ component sw-extension-rating-modal  private  js  [private]
   visibility-source export  [private]
 
 blocks
-  sw_extension_review_creation  [private]
+  sw_extension_review_creation  [replaced] [private]
     sw_extension_rating_modal_slot_default  [private]
       sw_extension_rating_modal_slot_default_creation_inputs  [private]
     sw_extension_rating_modal_slot_footer  [private]

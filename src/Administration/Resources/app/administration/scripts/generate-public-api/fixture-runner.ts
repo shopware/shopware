@@ -8,10 +8,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
-import type { ClassifyChanges } from './break-check';
+import { BLOCK_ORIGINS } from './block-tree';
 import { elementKind } from './findings';
 import type { Finding } from './findings';
-import type { GenerateSnapshot } from './snapshot';
+import type { SnapshotOptions } from './model';
+import type { SnapshotFiles } from './snapshot';
 
 /**
  * @private
@@ -29,7 +30,6 @@ export interface FixtureCase {
     name: string;
     beforeRoot: string;
     afterRoot: string;
-    headVersion: string;
     majorFlags: string[];
     expected: CaseOutput;
 }
@@ -71,11 +71,12 @@ export interface ExpectedFailures {
 /**
  * @private
  *
- * The generator and the break check that the comparisons run.
+ * The generator and the break check that the comparisons run. The runner reads the files of a snapshot and
+ * hands the rest of it to the break check unseen.
  */
-export interface PublicApiTools {
-    generateSnapshot: GenerateSnapshot;
-    classifyChanges: ClassifyChanges;
+export interface PublicApiTools<Snapshot extends SnapshotFiles = SnapshotFiles> {
+    generateSnapshot: (administrationRoot: string, options: SnapshotOptions) => Snapshot;
+    classifyChanges: (base: Snapshot, head: Snapshot) => Finding[];
 }
 
 interface UnitKind {
@@ -99,8 +100,8 @@ const PART_LABELS: Record<keyof UnitKind, (value: string) => string> = {
 };
 
 /*
- * The markers of a block line other than its flag state, such as `[after v-if]` and `[scope: item]`, belong to
- * the block structure, not to the tree. The comparison moves them out of the `blocks` section and member into
+ * The markers of a block line other than its flag state and its origin in an extend child, such as `[after v-if]`
+ * and `[scope: item]`, belong to the block structure, not to the tree. The comparison moves them out of the `blocks` section and member into
  * parts of their own, which exist only here and not in the snapshot files.
  */
 const BLOCK_CONTEXT = { reportSection: 'block-context', contractMember: 'blockContext' } as const;
@@ -114,16 +115,16 @@ const UNIT_KINDS: Record<string, UnitKind> = {
     },
     'block-contract': {
         ...NO_PARTS,
-        contractMembers: ['blocks'],
+        contractMembers: [
+            'blocks',
+            BLOCK_CONTEXT.contractMember,
+            'crossings',
+        ],
     },
     'block-structure': {
         ...NO_PARTS,
         reportSections: [
             BLOCK_CONTEXT.reportSection,
-            'crossings',
-        ],
-        contractMembers: [
-            BLOCK_CONTEXT.contractMember,
             'crossings',
         ],
     },
@@ -141,14 +142,15 @@ const REPORT_OUTLINE = /```text\n([\s\S]*?)\n?```/;
 
 const LINE_MARKERS = /\s+\[[^\]]+\]/g;
 
-const FLAG_STATE_MARKER = /^\s+\[(?:from|until) v/;
+// The flag state of a block and how an extend child got it belong to the tree.
+const TREE_MARKER = new RegExp(`^\\s+\\[(?:(?:from|until) v|(?:${BLOCK_ORIGINS.join('|')})\\])`);
 
 function sectionName(section: string): string {
     return section.trimStart().split(/\s/, 1)[0];
 }
 
 function isContextMarker(marker: string): boolean {
-    return !FLAG_STATE_MARKER.test(marker);
+    return !TREE_MARKER.test(marker);
 }
 
 /**
@@ -223,9 +225,18 @@ function blockTypeArguments(block: ts.TypeElement, source: ts.SourceFile): strin
     return block.type.typeArguments?.map((argument) => argument.getText(source)) ?? [];
 }
 
+/** The facets of `Block<'sw_card', 'inherited' | 'afterIf'>`, which follow the parent as one union. */
+function blockFacets(typeArguments: string[]): string[] {
+    return typeArguments.flatMap((argument) => argument.split('|').map((facet) => facet.trim()));
+}
+
+function isOriginFacet(facet: string): boolean {
+    return BLOCK_ORIGINS.some((origin) => facet === `'${origin}'`);
+}
+
 /**
- * Splits `sw_card_title: Block<'sw_card', 'afterIf'>` into `sw_card_title: Block<'sw_card'>` for the tree and
- * `sw_card_title: 'afterIf'` for the structure.
+ * Splits `sw_card_title: Block<'sw_card', 'inherited' | 'afterIf'>` into `sw_card_title: Block<'sw_card', 'inherited'>`
+ * for the tree and `sw_card_title: 'afterIf'` for the structure.
  */
 function splitBlockContextMember(blocks: ts.TypeElement, source: ts.SourceFile): ContractMember[] {
     const treeLines = ['blocks: {'];
@@ -233,11 +244,17 @@ function splitBlockContextMember(blocks: ts.TypeElement, source: ts.SourceFile):
 
     for (const block of typeLiteralMembers(blocks)) {
         const name = block.name?.getText(source);
-        const [parent, ...context] = blockTypeArguments(block, source);
+        const [parent, ...facetArguments] = blockTypeArguments(block, source);
+        const facets = blockFacets(facetArguments);
+        const context = facets.filter((facet) => !isOriginFacet(facet));
 
-        treeLines.push(parent === undefined ? block.getText(source) : `${name}: Block<${parent}>;`);
+        treeLines.push(
+            parent === undefined
+                ? block.getText(source)
+                : `${name}: Block<${[parent, ...facets.filter(isOriginFacet)].join(', ')}>;`,
+        );
         if (context.length > 0) {
-            contextLines.push(`${name}: ${context.join(', ')};`);
+            contextLines.push(`${name}: ${context.join(' | ')};`);
         }
     }
 
@@ -357,15 +374,12 @@ export function loadFixtureCases(fixturesRoot: string): LoadedFixtureCase[] {
         .sort()
         .map((name) => {
             const caseRoot = path.join(fixturesRoot, name);
-            const { headVersion, majorFlags } = readJson<{ headVersion: string; majorFlags: string[] }>(
-                path.join(caseRoot, 'case.json'),
-            );
+            const { majorFlags } = readJson<{ majorFlags: string[] }>(path.join(caseRoot, 'case.json'));
 
             return {
                 name,
                 beforeRoot: path.join(caseRoot, 'before'),
                 afterRoot: path.join(caseRoot, 'after'),
-                headVersion,
                 majorFlags,
                 expected: {
                     before: readTree(path.join(caseRoot, 'expected/before')),
@@ -377,14 +391,14 @@ export function loadFixtureCases(fixturesRoot: string): LoadedFixtureCase[] {
         });
 }
 
-function runCase(fixture: FixtureCase, tools: PublicApiTools): CaseOutput {
+function runCase<Snapshot extends SnapshotFiles>(fixture: FixtureCase, tools: PublicApiTools<Snapshot>): CaseOutput {
     const before = tools.generateSnapshot(fixture.beforeRoot, { majorFlags: fixture.majorFlags });
     const after = tools.generateSnapshot(fixture.afterRoot, { majorFlags: fixture.majorFlags });
 
     return {
         before: before.files,
         after: after.files,
-        findings: tools.classifyChanges(before, after, { headVersion: fixture.headVersion }),
+        findings: tools.classifyChanges(before, after),
     };
 }
 
@@ -457,10 +471,10 @@ function expectedFailureProblems(expectedFailures: ExpectedFailures, tests: Fixt
  * The comparisons of every case: one per unit kind and one of the complete output. A comparison on the
  * expected-fail list is marked, and the caller asserts it with `it.failing`.
  */
-export function fixtureTests(
+export function fixtureTests<Snapshot extends SnapshotFiles>(
     cases: FixtureCase[],
     expectedFailures: ExpectedFailures,
-    tools: PublicApiTools,
+    tools: PublicApiTools<Snapshot>,
 ): FixtureTest[] {
     const tests = cases.flatMap((fixture) => {
         const output = once(() => runCase(fixture, tools));

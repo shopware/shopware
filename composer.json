@@ -257,6 +257,7 @@
     ],
     "scripts-descriptions": {
         "admin:check-extensions": "[EXPERIMENTAL] Type-checks and lints Administration extensions (interactive; -- --help for flags)",
+        "admin:check-public-api": "Compare the Administration public API of two commits and list the breaks (-- <base> <head>).",
         "admin:code-mods": "[DEPRECATED] Run admin code mods, use admin:upgrade-extensions instead",
         "admin:codemod:sfc-migration": "Convert Options API Administration components into native setup SFCs (-- <path> [--write] [--replace-originals])",
         "admin:create:test": "Create a admin test blueprint",
@@ -363,6 +364,7 @@
     },
     "scripts": {
         "admin:check-extensions": "@npm:admin:bin npm run extension-tooling:check --",
+        "admin:check-public-api": "@npm:admin run check-public-api --",
         "admin:code-mods": "@npm:admin run code-mods --",
         "admin:codemod:sfc-migration": "@npm:admin run codemod:sfc-migration --",
         "admin:create:test": "@npm:admin run create-test",

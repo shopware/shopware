@@ -29,4 +29,7 @@ blocks
         sw_customer_detail_content_tab_order  [until v6.8.0]
       sw_customer_detail_content_view
     sw_customer_detail_header
+
+crossings
+  v-if  sw_customer_detail_actions_edit -> sw_customer_detail_actions
 ```

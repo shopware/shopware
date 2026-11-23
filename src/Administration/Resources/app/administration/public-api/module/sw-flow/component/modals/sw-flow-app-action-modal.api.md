@@ -16,7 +16,7 @@ blocks
     sw_flow_app_action_modal_content  [private]
       sw_flow_app_action_modal_headcontent  [private]
         sw_flow_app_action_modal_headline  [private]
-        sw_flow_app_action_modal_paragraph  [private]
+        sw_flow_app_action_modal_paragraph  [after v-if] [private]
     sw_flow_app_action_modal_footer_cancel_button  [private]
     sw_flow_app_action_modal_footer_save_button  [private]
     sw_flow_app_action_modal_header  [private]

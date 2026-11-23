@@ -28,11 +28,11 @@ blocks
       sw_order_detail_details_payment_billing_address
       sw_order_detail_details_payment_billing_address_divider
       sw_order_detail_details_payment_method_select
-    sw_order_detail_details_shipping
-      sw_order_detail_details_shipping_address
-      sw_order_detail_details_shipping_address_divider
-      sw_order_detail_details_shipping_costs
-      sw_order_detail_details_shipping_date
-      sw_order_detail_details_shipping_method_select
-      sw_order_detail_details_shipping_tracking_codes
+    sw_order_detail_details_shipping  [after v-if]
+      sw_order_detail_details_shipping_address  [scope: index, shipment]
+      sw_order_detail_details_shipping_address_divider  [scope: index, shipment]
+      sw_order_detail_details_shipping_costs  [scope: index, shipment]
+      sw_order_detail_details_shipping_date  [after v-if] [scope: index, shipment]
+      sw_order_detail_details_shipping_method_select  [scope: index, shipment]
+      sw_order_detail_details_shipping_tracking_codes  [scope: index, shipment]
 ```

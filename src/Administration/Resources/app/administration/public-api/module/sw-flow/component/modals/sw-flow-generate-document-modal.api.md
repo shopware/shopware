@@ -14,9 +14,9 @@ component sw-flow-generate-document-modal  private  js  [private]
 blocks
   sw_flow_generate_document_modal  [private]
     sw_flow_generate_document_modal_document_type_multiple  [private]
-    sw_flow_generate_document_modal_document_type_single  [private]
-    sw_flow_generate_document_modal_file_formats  [private]
-    sw_flow_generate_document_modal_footer  [private]
+    sw_flow_generate_document_modal_document_type_single  [after v-if] [private]
+    sw_flow_generate_document_modal_file_formats  [after v-if] [private]
+    sw_flow_generate_document_modal_footer  [after v-if] [private]
       sw_flow_generate_document_modal_footer_cancel_button  [private]
       sw_flow_generate_document_modal_footer_save_button  [private]
 ```

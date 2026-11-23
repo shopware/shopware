@@ -23,9 +23,9 @@ blocks
       sw_prduct_cross_selling_form_sort_field
       sw_prduct_cross_selling_form_title_field
       sw_prduct_cross_selling_form_type
-      sw_product_detail_cross_selling_assignment
+      sw_product_detail_cross_selling_assignment  [after v-if]
       sw_product_detail_cross_selling_modal_preview_modal
-    sw_product_cross_selling_form_condition_tree_invisibly
+    sw_product_cross_selling_form_condition_tree_invisibly  [after v-if]
     sw_product_detail_cross_selling_form_modal_delete
       sw_product_detail_cross_selling_form_delete_text
       sw_product_detail_cross_selling_form_modal_delete_footer

@@ -1,0 +1,4 @@
+{
+    "description": "An extend child stops keeping the parent content of a block it redeclares",
+    "majorFlags": ["v6.8.0.0"]
+}

@@ -1,4 +1,6 @@
-# 6.7.17.0 (upcoming)
+# 6.7.18.0 (upcoming)
+
+# 6.7.17.0
 
 ## Critical Fixes
 
@@ -22,6 +24,16 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 `CmsSlotEntity` now accepts a PHPDoc type parameter, for example `CmsSlotEntity<ProductListingStruct>`, to describe the data exposed by `getData()` and accepted by `setData()`.
 The default remains `Struct` for existing annotations.
 Shopware's PHPStan setup infers data types for CMS slot lookups from registered resolver implementations.
+### Address-format snippets use Twig whitespace control
+
+The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.
+Whitespace between HTML tags within custom snippets is now preserved; use Twig whitespace control in those snippets when the tags must be adjacent.
+
+### JSON keys named extensions in DAL criteria
+
+DAL filters, sorting and aggregations preserve JSON keys named `extensions`, including paths such as `customFields.extensions.foo`.
+Previously, these paths could silently read a different JSON key.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
@@ -86,6 +98,12 @@ A migration updates these mail templates unless they were changed in the Adminis
 Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
 The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
+
+### Elasticsearch indexing uses bounded memory
+
+`es:index` and automatic reindexing after updates now dispatch batches while scanning the catalog, reducing PHP memory usage for large catalogs.
+This also applies when running `es:index --no-queue`.
+Queued indexing still requires sufficient message transport capacity.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -470,6 +488,17 @@ For `ProductListingResult`:
 For `ProductReviewResult`:
 
 - 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
+
+### New `ProductListingLoader::STATE_INCLUDE_INACTIVE` criteria state
+
+`ProductListingLoader` has a new criteria state `STATE_INCLUDE_INACTIVE`.
+Listings without this state are unchanged.
+With the state, `ProductListingLoader::load()` no longer hides sold-out closeout products and checks the products and the configured variants with the `ProductAvailableFilter` of the criteria.
+To include inactive products, add a `ProductAvailableFilter` without the active condition to the criteria.
+Each group then shows its configured variant or parent, even if the variant is inactive or a sold-out closeout product.
+
+The product stream preview in the Administration uses this state when "Keep matching variants grouped" is active, so each group shows the variant configured in the product's storefront presentation.
+
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
@@ -679,6 +708,46 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
 
+### Product documents
+
+Products can have documents, such as manuals, datasheets or certificates, in `product.documents`.
+A document can be uploaded per language with a translatable title and fall back to the default language.
+A variant can have its own documents or inherit those of its parent.
+The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
+The scheduled task `product_document.media.cleanup` runs about once a month and deletes files from the "Product Document Media" folder that no product document or other entity uses and that were uploaded more than a day ago.
+Keep files you link elsewhere, for example from a product description, in another folder.
+To turn the cleanup off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
+
+### Replacing a media file invalidates every cached page showing it
+
+Changing a media file used to invalidate only the product detail pages of products that use the media as product media.
+It now also invalidates the listings and dynamic product groups containing those products,
+categories using the media as category image,
+layouts using it as section or block background or in an image, image slider, image gallery, video or manufacturer logo element,
+product pages of manufacturers using it as logo,
+and categories, products and landing pages using it in their layout overrides.
+Replaced images show up on these pages without clearing the HTTP cache.
+
+The media of layouts are mapped in the new table `cms_page_media_usage`,
+the media of layout overrides in `category_translation_media_usage`, `product_translation_media_usage` and `landing_page_translation_media_usage`,
+so replacing a file does not have to search the JSON of the content.
+After the update, the indexers of the same names with the suffix `.indexer` fill the tables for the existing content.
+
+The media of an element are read by its media ids provider, a service implementing the new `CmsElementMediaIdsProviderInterface`.
+Services implementing it are tagged with `shopware.cms.element_media_ids_provider` automatically.
+The core registers providers for the image, image slider, image gallery, video, YouTube, Vimeo and manufacturer logo elements.
+Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
+The first provider supporting the element type is used, so a provider with a higher tag priority replaces the one of the core.
+Elements whose media ids can be found by paths in their config can register the `CmsElementMediaIdsProvider`.
+It takes the resolver of the element, which names the element type, and the paths to the media in the config.
+A path starts with the config field, `*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
+
+```php
+$services->set('my_plugin.cms.element_media_ids_provider.my_gallery', CmsElementMediaIdsProvider::class)
+    ->args([service(MyGalleryCmsElementResolver::class), ['slides.*.picture.media.*.id', 'background.mediaId']])
+    ->tag('shopware.cms.element_media_ids_provider');
+```
+
 ### Event before a media file is replaced
 
 `Shopware\Core\Content\Media\Event\BeforeMediaFileReplacedEvent` is dispatched before an upload replaces the file of a media.
@@ -814,6 +883,19 @@ The user and role endpoints keep accepting SSO sessions without the scope for no
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
 Send GET and HEAD requests with their actual HTTP method so routing and HTTP caches agree on the request semantics.
 HTML forms can continue to use POST with an override for PUT, PATCH and DELETE actions.
+### Webhooks created through the Admin API can be signed
+
+Webhooks created through the Admin API accept an optional, write-only `secret`.
+Deliveries are then signed in the `shopware-shop-signature` header, like app webhooks.
+Deliveries still queued for a deleted webhook without an app are no longer sent.
+
+Webhooks created by an app's integration are now signed with the app secret, like the app's manifest webhooks,
+so they can't have their own `secret`.
+
+```http
+PATCH /api/webhook/{id}
+{ "secret": "430eb48125a7e51ccf48371cc4a61fd2eeb6a888ec959a94854380c68d46a0ce" }
+```
 
 ### Criteria on fields the API does not expose is a bad request
 
@@ -891,6 +973,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
+
+### Product documents in the API
+
+The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product, each with its file in the requested language, or in the default language if it has none.
+CMS product pages return the same documents in the `documents` data of the description and reviews element (`product-description-reviews`).
 
 ### Media upload endpoints accept a title and an alt text
 
@@ -993,6 +1080,12 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
+
+### Product list filters by product documents
+
+The product list has a new "Documents" filter, registered as `product-documents-filter`.
+It finds the products with or without product documents; variants count the documents they inherit from their parent.
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
 
 ### The smart bar back button names its target
 
@@ -1134,6 +1227,11 @@ ui.mediaModal.open({
 // In the location "my-app-primitives-tab"
 ui.mediaModal.select({ selection: [{ id: 'cube' }] });
 ```
+### Webhooks in the settings
+
+The new page Settings > System > Webhooks lists all webhooks with their owner and the roles they are limited to, and shows the recent deliveries of each webhook.
+Users with the new "Webhooks" permissions can switch webhooks on and off and delete webhooks that do not belong to an app.
+The ownership rules of the Admin API still apply, so only the owner or an administrator can change a webhook.
 
 ### Text editor variables list all custom fields and are searchable
 
@@ -1361,6 +1459,12 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
+### Dynamic product groups filter by product documents
+
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No".
+It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
+
 ### Meteor Component Library updated to 5.10.0
 
 The Administration now uses Meteor Component Library `5.10.0`, Meteor Admin SDK `6.17.0` and Meteor Icon Kit `5.12.0`.
@@ -1371,6 +1475,10 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
+
+### Product documents in the Administration
+
+You can add documents on the product detail page, and they are saved in the public folder "Product Document Media" by default.
 
 ### TypeScript Administration scaffolding
 
@@ -1433,6 +1541,12 @@ Both are rendered inside their `User-agent` block with the value unchanged, for 
 A path in front of the `Content-Usage` preference gets the domain path like `Allow` and `Disallow`, for example `Content-usage: /de/blog/ train-ai=n`.
 `RobotsDirectiveType` has the new cases `CONTENT_USAGE` and `CONTENT_SIGNAL`;
 extensions that handled these lines through `RobotsUnknownDirectiveEvent` no longer receive that event for them.
+
+### Static theme compilation refreshes the theme runtime configuration
+
+With `StaticFileConfigLoader`, compiling a theme now refreshes the whole theme runtime configuration, including the script files and the import map, like the `DatabaseConfigLoader` does.
+Activating, updating or removing an extension with storefront JavaScript, or running `theme:compile`, updates the scripts the storefront loads, so running `theme:refresh` afterwards is no longer necessary.
+Without a reachable database, theme compilation still works and skips the runtime configuration refresh.
 
 ### Cookie provider removal postponed to 6.9
 
@@ -1673,7 +1787,18 @@ When maintenance mode was switched off, the redirect from the maintenance page i
 Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
+### New documents tab on the Storefront product detail page
+
+The product detail page has a new "Documents" tab that lists the documents of the product, which customers can click to download.
+
 ## Hosting & Configuration
+
+### Admin search reindexes products after queued inheritance updates
+
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin search index also reindexes the products whose inherited data the product indexer updates in the message queue.
+This covers the variants of product families with 50 or more products.
+A full `bin/console dal:refresh:index` leaves the products to the admin search index rebuild that runs after it.
+`ProductIndexerEvent::$isFullIndexing` tells whether the event comes from such a full indexing run.
 
 ### Password recovery is rate limited per IP
 

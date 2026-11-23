@@ -14,5 +14,8 @@ blocks
   sw_product_variants_delivery_order
     sw_product_variants_delivery_order_groups
       sw_product_variants_delivery_order_groups_sw_tree
-      sw_product_variants_delivery_order_loader
+      sw_product_variants_delivery_order_loader  [after v-if]
+
+crossings
+  v-if  sw_product_variants_delivery_order_groups_sw_tree -> sw_product_variants_delivery_order_loader
 ```

@@ -14,19 +14,19 @@ blocks
   sw_settings_search_searchable_content_general
     sw_settings_search_searchable_content_general_empty_state
       sw_settings_search_searchable_content_general_state_image
-    sw_settings_search_searchable_content_general_grid
+    sw_settings_search_searchable_content_general_grid  [after v-if]
       sw_settings_search_searchable_content_general_columns_actions
-        sw_settings_search_searchable_content_general_columns_actions_edit
+        sw_settings_search_searchable_content_general_columns_actions_edit  [scope: item]
       sw_settings_search_searchable_content_general_field
-        sw_settings_search_searchable_content_general_field_editor
-        sw_settings_search_searchable_content_general_field_label
+        sw_settings_search_searchable_content_general_field_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_general_field_label  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_general_pagination
       sw_settings_search_searchable_content_general_ranking
-        sw_settings_search_searchable_content_general_ranking_editor
+        sw_settings_search_searchable_content_general_ranking_editor  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_general_searchable
-        sw_settings_search_searchable_content_general_searchable_editor
-        sw_settings_search_searchable_content_general_searchable_label
+        sw_settings_search_searchable_content_general_searchable_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_general_searchable_label  [scope: isInlineEdit, item]
       sw_settings_search_searchable_content_general_tokenize
-        sw_settings_search_searchable_content_general_tokenize_editor
-        sw_settings_search_searchable_content_general_tokenize_label
+        sw_settings_search_searchable_content_general_tokenize_editor  [scope: isInlineEdit, item]
+        sw_settings_search_searchable_content_general_tokenize_label  [scope: isInlineEdit, item]
 ```

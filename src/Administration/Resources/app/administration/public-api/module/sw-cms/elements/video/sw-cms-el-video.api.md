@@ -14,6 +14,9 @@ component sw-cms-el-video  private  ts  [private]
 blocks
   sw_cms_element_video  [private]
     sw_cms_element_video_content  [private]
-      sw_cms_element_video_content_media  [private]
+      sw_cms_element_video_content_media  [after v-if] [private]
       sw_cms_element_video_content_placeholder  [private]
+
+crossings
+  v-if  sw_cms_element_video_content_placeholder -> sw_cms_element_video_content_media  [private]
 ```

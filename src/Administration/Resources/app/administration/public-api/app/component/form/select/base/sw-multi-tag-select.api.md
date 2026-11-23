@@ -15,13 +15,16 @@ blocks
   sw_multi_tag_select  [private]
     sw_multi_tag_select_base  [private]
       sw_multi_tag_select_base_selection  [private]
-        sw_multi_tag_select_base_selection_slot  [private]
-          sw_multi_tag_select_base_selection_list  [private]
-            sw_multi_tag_select_base_selection_list_label  [private]
-              sw_multi_tag_select_base_selection_list_label_inner  [private]
+        sw_multi_tag_select_base_selection_slot  [scope: collapse, disabled, error, expand, identification, size] [private]
+          sw_multi_tag_select_base_selection_list  [scope: collapse, disabled, error, expand, identification, size] [private]
+            sw_multi_tag_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
+              sw_multi_tag_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, identification, index, item, labelProperty, size, valueProperty] [private]
     sw_multi_tag_select_validation  [private]
-      sw_multi_tag_select_validation_invalid  [private]
+      sw_multi_tag_select_validation_invalid  [after v-if] [private]
         sw_multi_tag_select_validation_invalid_message  [private]
       sw_multi_tag_select_validation_valid  [private]
         sw_multi_tag_select_validation_valid_message  [private]
+
+crossings
+  v-if  sw_multi_tag_select_validation_valid -> sw_multi_tag_select_validation_invalid  [private]
 ```

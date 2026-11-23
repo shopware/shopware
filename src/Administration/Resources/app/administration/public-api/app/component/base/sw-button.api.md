@@ -13,4 +13,7 @@ component sw-button  private  js  [private]
 
 blocks
   sw_button  [private]
+
+crossings
+  v-if  sw_button -> (root)  [private]
 ```

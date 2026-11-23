@@ -25,7 +25,7 @@ blocks
         sw_duplicated_media_v2_body_preview_old_media
         sw_duplicated_media_v2_body_preview_separator
     sw_duplicated_media_v2_footer
-      sw_duplicated_media_v2_cancel_button
+      sw_duplicated_media_v2_cancel_button  [after v-if]
       sw_duplicated_media_v2_save_selection
       sw_duplicated_media_v2_upload_button
 ```

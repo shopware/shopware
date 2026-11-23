@@ -20,8 +20,8 @@ blocks
       sw_settings_tag_detail_modal_mt_tabs_content  [from v6.8.0]
         sw_settings_tag_detail_modal_mt_tabs_assignments_tab  [from v6.8.0]
         sw_settings_tag_detail_modal_mt_tabs_general_tab  [from v6.8.0]
-      sw_settings_tag_detail_modal_tabs_assignments  [until v6.8.0]
-      sw_settings_tag_detail_modal_tabs_assignments_tab  [until v6.8.0]
-      sw_settings_tag_detail_modal_tabs_general  [until v6.8.0]
-      sw_settings_tag_detail_modal_tabs_general_tab  [until v6.8.0]
+      sw_settings_tag_detail_modal_tabs_assignments  [scope: active] [until v6.8.0]
+      sw_settings_tag_detail_modal_tabs_assignments_tab  [scope: active] [until v6.8.0]
+      sw_settings_tag_detail_modal_tabs_general  [scope: active] [until v6.8.0]
+      sw_settings_tag_detail_modal_tabs_general_tab  [scope: active] [until v6.8.0]
 ```

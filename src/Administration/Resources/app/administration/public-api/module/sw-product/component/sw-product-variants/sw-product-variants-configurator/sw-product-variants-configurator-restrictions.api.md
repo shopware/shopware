@@ -15,9 +15,9 @@ blocks
     sw_product_variants_configurator_restrictions_grid_wrapper
       sw_product_variants_configurator_restrictions_data_grid
         sw_product_variants_configurator_restrictions_data_grid_actions
-          sw_product_variants_configurator_restrictions_data_grid_actions_items
+          sw_product_variants_configurator_restrictions_data_grid_actions_items  [scope: item]
         sw_product_variants_configurator_restrictions_data_grid_column_id
-    sw_product_variants_configurator_restrictions_loader
+    sw_product_variants_configurator_restrictions_loader  [after v-if]
     sw_product_variants_configurator_restrictions_modal
       sw_product_variants_configurator_restrictions_modal_footer
         sw_product_variants_configurator_restrictions_modal_footer_cancel

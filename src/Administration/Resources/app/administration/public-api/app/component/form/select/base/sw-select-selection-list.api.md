@@ -13,10 +13,10 @@ component sw-select-selection-list  private  js  [private]
 
 blocks
   sw_select_selection_list  [private]
-    sw_select_selection_list_input  [private]
+    sw_select_selection_list_input  [after v-if] [private]
     sw_select_selection_list_item  [private]
-      sw_select_selection_list_item_inner  [private]
-        sw_select_selection_list_item_text  [private]
-    sw_select_selection_list_load_more  [private]
+      sw_select_selection_list_item_inner  [scope: index, selection] [private]
+        sw_select_selection_list_item_text  [scope: index, selection] [private]
+    sw_select_selection_list_load_more  [after v-if] [private]
       sw_select_selection_list_load_more_item_button  [private]
 ```

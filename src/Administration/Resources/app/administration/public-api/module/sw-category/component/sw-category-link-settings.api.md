@@ -12,11 +12,11 @@ component sw-category-link-settings  public  js
 
 blocks
   sw_category_link_settings
-    sw_category_detail_link_field
-    sw_category_detail_link_new_tab
+    sw_category_detail_link_field  [after v-if]
+    sw_category_detail_link_new_tab  [after v-if]
     sw_category_detail_link_type_select_entity
-    sw_category_detail_link_type_select_entity_category
-    sw_category_detail_link_type_select_entity_landing_page
-    sw_category_detail_link_type_select_entity_product
+    sw_category_detail_link_type_select_entity_category  [after v-if]
+    sw_category_detail_link_type_select_entity_landing_page  [after v-if]
+    sw_category_detail_link_type_select_entity_product  [after v-if]
     sw_category_detail_link_type_select_main
 ```

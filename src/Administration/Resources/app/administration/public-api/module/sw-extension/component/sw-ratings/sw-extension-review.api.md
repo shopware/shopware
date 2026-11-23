@@ -14,7 +14,7 @@ component sw-extension-review  private  js  [private]
 blocks
   sw_extension_review  [private]
     sw_extension_review_headline  [private]
-    sw_extension_review_meta_data  [private]
+    sw_extension_review_meta_data  [after v-if] [private]
       sw_extension_review_meta_data_date  [private]
       sw_extension_review_meta_data_version  [private]
     sw_extension_review_replies  [private]

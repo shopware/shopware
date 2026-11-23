@@ -18,12 +18,15 @@ blocks
       sw_settings_salutation_list_card_content
         sw_settings_salutation_list_grid
           sw_settings_salutation_list_grid_columns_position
-            sw_settings_salutation_list_grid_columns_position_display
-            sw_settings_salutation_list_grid_columns_position_inline_edit
+            sw_settings_salutation_list_grid_columns_position_display  [after v-if] [scope: compact, isInlineEdit, item]
+            sw_settings_salutation_list_grid_columns_position_inline_edit  [scope: compact, isInlineEdit, item]
     sw_settings_salutation_list_language_switch
     sw_settings_salutation_list_search_bar
     sw_settings_salutation_list_smart_bar_header
       sw_settings_salutation_list_smart_bar_header_title
         sw_settings_salutation_list_smart_bar_header_amount
         sw_settings_salutation_list_smart_bar_header_title_text
+
+crossings
+  v-if  sw_settings_salutation_list_grid_columns_position_inline_edit -> sw_settings_salutation_list_grid_columns_position_display
 ```

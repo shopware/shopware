@@ -13,9 +13,9 @@ component sw-mail-template-list  public  js
 blocks
   sw_mail_template_list_grid
     sw_mail_template_list_grid_actions
-      sw_mail_template_list_grid_columns_actions_duplicate
+      sw_mail_template_list_grid_columns_actions_duplicate  [scope: item]
     sw_mail_template_list_grid_columns
     sw_mail_template_list_grid_empty_state
       sw_mail_template_list_grid_empty_state_button
-    sw_mail_template_list_grid_empty_state_icon
+    sw_mail_template_list_grid_empty_state_icon  [after v-if]
 ```

@@ -17,10 +17,10 @@ blocks
       sw_mail_template_detail_actions_save
     sw_mail_template_detail_content
       sw_mail_template_detail_attachments_info
-        sw_mail_template_detail_attachments_info_grid
-          sw_mail_template_detail_attachments_info_grid_actions
+        sw_mail_template_detail_attachments_info_grid  [after v-if]
+          sw_mail_template_detail_attachments_info_grid_actions  [scope: item]
           sw_mail_template_detail_attachments_info_grid_bulk
-          sw_mail_template_detail_attachments_info_grid_preview
+          sw_mail_template_detail_attachments_info_grid_preview  [scope: item]
         sw_mail_template_detail_attachments_info_upload
       sw_mail_template_detail_basic_info
         sw_mail_template_basic_form_description_field
@@ -28,7 +28,7 @@ blocks
       sw_mail_template_detail_content_language_info
       sw_mail_template_detail_mail_text_info
         sw_mail_template_detail_preview_modal
-          sw_mail_template_detail_preview_modal_footer  [until v6.8.0]
+          sw_mail_template_detail_preview_modal_footer  [after v-if] [until v6.8.0]
             sw_mail_template_detail_preview_modal_footer_cancel  [until v6.8.0]
         sw_mail_template_mail_text_form_content_html_field
         sw_mail_template_mail_text_form_content_plain_field
@@ -40,17 +40,17 @@ blocks
     sw_mail_template_detail_sidebar
       sw_mail_template_detail_sidebar_inner
         sw_mail_template_detail_sidebar_inner_media
-          sw_mail_template_detail_sidebar_add_attachment
+          sw_mail_template_detail_sidebar_add_attachment  [scope: media]
         sw_mail_template_detail_sidebar_inner_preview
         sw_mail_template_detail_sidebar_inner_test_mail
           sw_mail_template_mail_text_form_test_mail_button
-          sw_mail_template_mail_text_form_test_mail_field
+          sw_mail_template_mail_text_form_test_mail_field  [after v-if]
           sw_mail_template_mail_text_form_test_sales_channel_field
         sw_mail_template_detail_sidebar_inner_variables
           sw_mail_template_available_variables_tree
             sw_mail_template_available_variables_tree_headline
             sw_mail_template_available_variables_tree_items
-              sw_mail_template_available_variables_tree_items_item
-                sw_mail_template_available_variables_tree_items_item_actions
-                sw_mail_template_available_variables_tree_items_item_grip
+              sw_mail_template_available_variables_tree_items_item  [scope: disableContextMenu, draggedItem, onChangeRoute, sortable, treeItems]
+                sw_mail_template_available_variables_tree_items_item_actions  [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
+                sw_mail_template_available_variables_tree_items_item_grip  [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
 ```

@@ -799,6 +799,8 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
             overrideRegistry.get(componentName)!.map((overrideEntry) => overrideEntry.config()),
         );
 
+        reportReplacedDeprecatedMembers(componentName, config, resolvedEntries);
+
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
             (resolvedConfig) => () =>
                 Promise.resolve(typeof resolvedConfig === 'boolean' ? resolvedConfig : copyOverrideConfig(resolvedConfig)),
@@ -1230,6 +1232,241 @@ function enrichSuperChain(baseConfig: ComponentConfig, targetConfig: ComponentCo
             }
         });
     });
+}
+
+/**
+ * The leading `triggerDeprecationOrThrow` call of a deprecated member, which `require-deprecation-guard` enforces.
+ * `message` is `null` when the guard does not pass it as a plain string literal.
+ */
+type DeprecationGuard = {
+    flag: string;
+    message: string | null;
+};
+
+/**
+ * Which accessor of a member a function implements: `null` for a method, `get` or `set` for a computed.
+ */
+type MemberAccessor = 'get' | 'set' | null;
+
+/**
+ * A method, a computed or one of its accessors, of which only the source is read.
+ */
+type MemberFunction = (...args: never[]) => unknown;
+
+/**
+ * Matches the leading guard at the start of a function body, also in its minified forms, where esbuild merges it
+ * into the next statement, for example `return Shopware.Feature.triggerDeprecationOrThrow("V6_8_0_0","…"),this.x`.
+ */
+const LEADING_GUARD_PATTERN =
+    /^\s*(?:return\b\s*|(?:if|switch|while|for)\s*\()?[\w$.]+\.triggerDeprecationOrThrow\(\s*(['"`])(\w+)\1\s*(?:,\s*(['"`])((?:\\.|(?!\3)[^\\])*)\3\s*[,)])?/;
+
+/**
+ * Reports every override of `componentName` that replaces a deprecated `computed` or method of `baseConfig` without
+ * calling `this.$super()`. Only `$super` runs the member's own guard, so without this the extension never learns that
+ * its override stops working once the member is removed.
+ */
+function reportReplacedDeprecatedMembers(
+    componentName: string,
+    baseConfig: ComponentConfig,
+    overrideConfigs: (ComponentConfig | boolean)[],
+): void {
+    overrideConfigs.forEach((overrideConfig) => {
+        if (typeof overrideConfig === 'boolean') {
+            return;
+        }
+
+        (['computed', 'methods'] as const).forEach((section) => {
+            const members = (overrideConfig[section] ?? {}) as Record<string, unknown>;
+
+            Object.entries(members).forEach(([name, member]) => {
+                const guard = replacedDeprecationGuard(baseConfig, section, name, member);
+
+                if (!guard) {
+                    return;
+                }
+
+                const kind = section === 'methods' ? 'method' : 'computed';
+                const memberDeprecation = guard.message ? ` The ${kind} is deprecated with: ${guard.message}` : '';
+
+                Shopware.Feature.triggerDeprecationOrThrow(
+                    guard.flag,
+                    `Component.override('${componentName}') replaces the deprecated ${kind} "${name}" without calling this.$super(), so the override stops working once "${name}" is removed with ${guard.flag}.${memberDeprecation}`,
+                );
+            });
+        });
+    });
+}
+
+/**
+ * The guard of the deprecated base implementation that `member` replaces without calling `$super`, or `null`.
+ */
+function replacedDeprecationGuard(
+    baseConfig: ComponentConfig,
+    section: 'computed' | 'methods',
+    name: string,
+    member: unknown,
+): DeprecationGuard | null {
+    for (const [accessor, func] of memberAccessors(section, member)) {
+        if (isMemberFunction(func) && !callsSuper(func)) {
+            const guard = inheritedDeprecationGuard(baseConfig, section, name, accessor);
+
+            if (guard) {
+                return guard;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * The functions a member consists of, each with the accessor it implements.
+ *
+ * @example
+ * memberAccessors('computed', { get() {}, set(value) {} }); // [['get', get], ['set', set]]
+ */
+function memberAccessors(section: 'computed' | 'methods', member: unknown): [MemberAccessor, unknown][] {
+    if (section === 'methods') {
+        return [[null, member]];
+    }
+
+    if (typeof member === 'function') {
+        return [['get', member]];
+    }
+
+    if (!types.isPlainObject(member)) {
+        return [];
+    }
+
+    const accessors = member as { get?: unknown; set?: unknown };
+
+    return [
+        ['get', accessors.get],
+        ['set', accessors.set],
+    ];
+}
+
+/**
+ * Follows the `$super` chain of a member from `config` up to the first implementation that does not call `$super`,
+ * and returns the guard of the first guarded implementation on the way.
+ */
+function inheritedDeprecationGuard(
+    config: ComponentConfig,
+    section: 'computed' | 'methods',
+    name: string,
+    accessor: MemberAccessor,
+): DeprecationGuard | null {
+    let level: ComponentConfig | undefined = config;
+
+    while (level) {
+        const func = accessorOf(level, section, name, accessor);
+
+        if (isMemberFunction(func)) {
+            const guard = leadingDeprecationGuard(func);
+
+            if (guard) {
+                return guard;
+            }
+
+            if (!callsSuper(func)) {
+                return null;
+            }
+        }
+
+        level = typeof level.extends === 'object' ? level.extends : undefined;
+    }
+
+    return null;
+}
+
+/**
+ * The function that implements `accessor` of the member `name` in `config` itself, without its `extends`.
+ */
+function accessorOf(
+    config: ComponentConfig,
+    section: 'computed' | 'methods',
+    name: string,
+    accessor: MemberAccessor,
+): unknown {
+    const member = (config[section] as Record<string, unknown> | undefined)?.[name];
+
+    if (accessor === null || typeof member === 'function') {
+        return accessor === 'set' ? undefined : member;
+    }
+
+    return types.isPlainObject(member) ? (member as Record<string, unknown>)[accessor] : undefined;
+}
+
+/**
+ * Narrows a member value to a function, so its source can be read.
+ */
+function isMemberFunction(value: unknown): value is MemberFunction {
+    return typeof value === 'function';
+}
+
+/**
+ * Whether a member function calls `this.$super()`, the same check the `$super` chain uses.
+ */
+function callsSuper(func: MemberFunction): boolean {
+    return /\.\$super/.test(func.toString());
+}
+
+/**
+ * The guard a deprecated member calls as its first statement, read from its source, or `null` when it has none.
+ *
+ * @example
+ * leadingDeprecationGuard(function () { Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'x is deprecated.'); });
+ * // { flag: 'V6_8_0_0', message: 'x is deprecated.' }
+ */
+function leadingDeprecationGuard(func: MemberFunction): DeprecationGuard | null {
+    const source = func.toString();
+    const bodyStart = functionBodyStart(source);
+    const match = bodyStart === -1 ? null : LEADING_GUARD_PATTERN.exec(source.slice(bodyStart));
+
+    if (!match) {
+        return null;
+    }
+
+    const [
+        ,
+        ,
+        flag,
+        messageQuote,
+        rawMessage,
+    ] = match;
+    const isPlainLiteral = rawMessage !== undefined && !(messageQuote === '`' && rawMessage.includes('${'));
+
+    return {
+        flag,
+        message: isPlainLiteral ? rawMessage.replace(/\\(.)/g, '$1') : null,
+    };
+}
+
+/**
+ * The index right after the `{` that opens the body of a function source, or `-1` for an arrow function without a
+ * block body. It skips the parameter list by its parentheses, as a destructured parameter contains braces too.
+ *
+ * @example
+ * functionBodyStart('d(r,{foo:e}={}){return e}'); // 16
+ */
+function functionBodyStart(source: string): number {
+    let depth = 0;
+
+    for (let index = source.indexOf('('); index !== -1 && index < source.length; index += 1) {
+        if (source[index] === '(') {
+            depth += 1;
+        } else if (source[index] === ')') {
+            depth -= 1;
+        }
+
+        if (depth === 0) {
+            const opening = /^\s*(?:=>\s*)?\{/.exec(source.slice(index + 1));
+
+            return opening ? index + 1 + opening[0].length : -1;
+        }
+    }
+
+    return -1;
 }
 
 /**

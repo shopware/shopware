@@ -1,5 +1,27 @@
 # 6.7.18.0 (upcoming)
 
+## Administration
+
+### Overrides of deprecated component members report a deprecation
+
+A `Component.override()` that replaces a deprecated `computed` or method without calling `this.$super()` now triggers a deprecation when the component is built.
+Before, only the deprecated member itself reported its use, which such an override never runs, so the extension was not told that its override stops working once the member is removed.
+
+```js
+Shopware.Component.override('sw-promotion-v2-conditions', {
+    computed: {
+        // Reports: Component.override('sw-promotion-v2-conditions') replaces the deprecated computed "personaRuleFilter" without calling this.$super(), …
+        personaRuleFilter() {
+            return customCriteria;
+        },
+    },
+});
+```
+
+An override that calls `this.$super()` reports through the deprecated member itself, as before.
+Once the major flag is active, building the component throws.
+Move the override to the replacement the deprecation names.
+
 # 6.7.17.0
 
 ## Critical Fixes

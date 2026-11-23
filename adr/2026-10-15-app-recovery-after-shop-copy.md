@@ -35,30 +35,31 @@ flowchart LR
     style S5 fill:#c33,stroke:#333,color:#fff
 ```
 
-When Shopware notices it runs at a new URL, it asks the shop operator in the Administration what to do.
-"Move shop permanently" keeps the ShopId and registers every app again.
-That is right when production really moves to a new server, and wrong on a copy, where it takes the ShopId from production.
-`reinstall-apps` then gives the copy a new ShopId, and the apps register it as a new shop.
-In doing so, the copy deletes the secret the apps now expect from production, so nobody can talk to the apps as production any more.
+### How it happens
 
-Shop operators control their copies.
-Staging instructions and Shopware's copy detection, which compares the shop's fingerprints (APP_URL, installation path, sales channel domains) with the current ones, help but cannot guarantee that a copy leaves its ShopId before it does damage.
-Apps need a safe way to undo a takeover after it happened.
+When a shop runs at a new URL, Shopware asks the operator in the Administration what to do.
+"Move shop permanently" tells the apps "this is still the same shop, it just moved".
+That's right when production really moves to a new server.
+On a copy it's wrong, because the copy then takes over production's place at the apps.
 
-An old secret on its own cannot show which instance should own the ShopId:
+Later the operator usually notices and fixes the copy with `reinstall-apps`, which registers the copy as a new, separate shop.
+That doesn't help production: the apps still expect the secret the copy got during the takeover, and the copy has just thrown it away.
+Nobody can talk to the apps as production any more.
 
-- The copy holds the same old secrets as production.
-- Running `system:setup:staging` on a new copy, the correct way to set up staging, also leaves the ShopId.
-- When production moves to a new server, the old server often keeps running with the older secret.
+### What it takes to get production back
 
-The newest secret can.
-Only the instance that took the ShopId over holds `staging-secret`, and every app already accepts a registration signed with it.
-Today the copy loses `staging-secret` as soon as it gets a new ShopId or removes its apps:
+Production has to register with the apps again, and the apps must only accept that from someone allowed to do it.
 
-- `reinstall-apps` replaces it with the new ShopId's secret.
-- `uninstall-apps` keeps it in a list of deleted apps only until the next ShopId change.
+Production's old secret isn't proof enough.
+Every copy and backup of the database has it too, and so does an old server left running after a real move.
 
-That is why the [developer documentation](https://beta-developer.shopware.com/docs/guides/plugins/apps/lifecycle/app-secret-recovery.html) calls this case unrecoverable today.
+The secret the copy got during the takeover is proof enough.
+Only the copy has it, and apps already accept a new registration signed with it.
+The copy just has to keep it long enough to hand it to production.
+
+Today it doesn't keep it.
+`reinstall-apps` replaces it, and `uninstall-apps` only keeps it until the next ShopId change.
+That's why the [developer documentation](https://beta-developer.shopware.com/docs/guides/plugins/apps/lifecycle/app-secret-recovery.html) calls this case unrecoverable.
 
 ## Decision
 

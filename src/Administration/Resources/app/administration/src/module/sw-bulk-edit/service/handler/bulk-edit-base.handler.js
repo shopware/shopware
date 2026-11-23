@@ -176,6 +176,13 @@ class BulkEditBaseHandler {
             return;
         }
 
+        // Same per-variant computation for inherited ManyToMany associations, e.g. variant properties.
+        if (change.inheritedReferenceIds) {
+            await this._handleInheritedManyToManyChange(fieldDefinition, change);
+
+            return;
+        }
+
         const { mapping, entity, local, reference, localField, referenceField } = fieldDefinition;
 
         const isMappingField = !!mapping;
@@ -223,10 +230,6 @@ class BulkEditBaseHandler {
 
         if (isMappingField) {
             this._detectManyToManyChange(change, existAssociations);
-
-            if (type === bulkSyncTypes.ADD) {
-                this._materializeInheritedManyToMany(change, existAssociations);
-            }
         } else if (isOneToOne) {
             this._detectOneToOneChange(change, existAssociations);
         } else {
@@ -245,8 +248,9 @@ class BulkEditBaseHandler {
      * drop `change.removedSalesChannelIds`, merge in `change.addedVisibilities`, and persist
      * the result as the variant's own rows. Overriding variants keep their unrelated
      * overrides; inheriting variants get the inherited set materialized with the add/remove
-     * applied (so an ADD no longer collapses the variant to just the added channel). When the
-     * resulting set is empty the variant keeps no own rows and inherits the parent again.
+     * applied (so an ADD no longer collapses the variant to just the added channel). An
+     * inheriting variant whose set does not change keeps inheriting. When the resulting set is
+     * empty the variant keeps no own rows and inherits the parent again.
      *
      * @param {Object} fieldDefinition
      * @param {Object} change
@@ -268,54 +272,132 @@ class BulkEditBaseHandler {
         }
 
         const ownAssociations = await this._fetchOwnAssociations(fieldDefinition);
+        const inherited = new Map(inheritedVisibilities.map((item) => [item[mappingReferenceField], item.visibility]));
+        const added = new Map(addedVisibilities.map((item) => [item[mappingReferenceField], item.visibility]));
 
         this.entityIds.forEach((entityId) => {
             const ownRows = ownAssociations[entityId] ?? [];
-            const ownSalesChannelIds = ownRows.map((row) => row[mappingReferenceField]);
+            const own = new Map(ownRows.map((row) => [row[mappingReferenceField], row.visibility]));
 
-            const effective =
-                ownRows.length > 0
-                    ? ownRows.map((row) => ({
-                          [mappingReferenceField]: row[mappingReferenceField],
-                          visibility: row.visibility,
-                      }))
-                    : inheritedVisibilities;
+            const { deleteKeys, upsert } = this._resolveVariantSetChange(own, inherited, removedSalesChannelIds, added);
 
-            // Build the final set keyed by sales channel: start from the effective set
-            // minus the removed channels, then merge in the added channels (which win on
-            // their visibility value).
-            const finalByChannel = new Map();
-            effective.forEach((item) => {
-                if (!removedSalesChannelIds.includes(item[mappingReferenceField])) {
-                    finalByChannel.set(item[mappingReferenceField], item.visibility);
-                }
-            });
-            addedVisibilities.forEach((item) => {
-                finalByChannel.set(item[mappingReferenceField], item.visibility);
+            deleteKeys.forEach((salesChannelId) => {
+                const row = ownRows.find((ownRow) => ownRow[mappingReferenceField] === salesChannelId);
+                this.groupedPayload.delete[referenceEntity][`${salesChannelId}.${entityId}`] = [{ id: row.id }];
             });
 
-            // Drop own rows that are no longer part of the final set.
-            ownRows.forEach((row) => {
-                if (!finalByChannel.has(row[mappingReferenceField])) {
-                    const key = `${row[mappingReferenceField]}.${entityId}`;
-                    this.groupedPayload.delete[referenceEntity][key] = [{ id: row.id }];
-                }
-            });
-
-            // Materialize the channels the variant does not already own.
-            finalByChannel.forEach((visibility, salesChannelId) => {
-                if (!ownSalesChannelIds.includes(salesChannelId)) {
-                    const key = `${salesChannelId}.${entityId}`;
-                    this.groupedPayload.upsert[referenceEntity][key] = [
-                        {
-                            [referenceKey]: entityId,
-                            [mappingReferenceField]: salesChannelId,
-                            visibility,
-                        },
-                    ];
-                }
+            upsert.forEach((visibility, salesChannelId) => {
+                this.groupedPayload.upsert[referenceEntity][`${salesChannelId}.${entityId}`] = [
+                    {
+                        [referenceKey]: entityId,
+                        [mappingReferenceField]: salesChannelId,
+                        visibility,
+                    },
+                ];
             });
         });
+    }
+
+    /**
+     * @private
+     *
+     * Build the add/remove payload for an inherited ManyToMany association of variants
+     * (e.g. `product_property`), computed per variant like `_handleInheritedVisibilityChange`.
+     *
+     * Variants inherit the parent's set all-or-nothing unless they own mapping rows. For each
+     * variant we take its effective set (its own rows when it overrides, otherwise the inherited
+     * parent set in `change.inheritedReferenceIds`), drop `change.removedReferenceIds`, merge in
+     * `change.addedReferenceIds`, and persist the result as the variant's own rows. An ADD no
+     * longer collapses an inheriting variant to just the added entries, and a REMOVE also drops
+     * inherited entries. When the resulting set is empty the variant keeps no own rows and
+     * inherits the parent again.
+     *
+     * @param {Object} fieldDefinition
+     * @param {Object} change
+     */
+    async _handleInheritedManyToManyChange(fieldDefinition, change) {
+        const { mapping: referenceEntity, local: localKey, reference: referenceKey } = fieldDefinition;
+        const removedIds = change.removedReferenceIds ?? [];
+        const addedIds = change.addedReferenceIds ?? [];
+        const inheritedIds = change.inheritedReferenceIds ?? [];
+
+        this.groupedPayload.delete[referenceEntity] = {};
+        this.groupedPayload.upsert[referenceEntity] = {};
+
+        // Nothing selected (e.g. the field stayed inherited) — leave every variant untouched.
+        if (removedIds.length === 0 && addedIds.length === 0) {
+            return;
+        }
+
+        // Without a change type filter this fetches every own mapping row of the edited variants.
+        const ownAssociations = await this._fetchManyToManyAssociated(fieldDefinition, {});
+        const ownIdsByEntity = {};
+        Object.values(ownAssociations).forEach(([association]) => {
+            (ownIdsByEntity[association[localKey]] ??= []).push(association[referenceKey]);
+        });
+
+        const inherited = new Map(inheritedIds.map((id) => [id, undefined]));
+        const added = new Map(addedIds.map((id) => [id, undefined]));
+
+        this.entityIds.forEach((entityId) => {
+            const own = new Map((ownIdsByEntity[entityId] ?? []).map((id) => [id, undefined]));
+
+            const { deleteKeys, upsert } = this._resolveVariantSetChange(own, inherited, removedIds, added);
+
+            deleteKeys.forEach((referenceId) => {
+                this.groupedPayload.delete[referenceEntity][`${referenceId}.${entityId}`] = [
+                    {
+                        [localKey]: entityId,
+                        [referenceKey]: referenceId,
+                    },
+                ];
+            });
+
+            upsert.forEach((_, referenceId) => {
+                this.groupedPayload.upsert[referenceEntity][`${referenceId}.${entityId}`] = [
+                    {
+                        [referenceKey]: referenceId,
+                        [localKey]: entityId,
+                    },
+                ];
+            });
+        });
+    }
+
+    /**
+     * @private
+     *
+     * Per-variant set computation shared by the inherited association handlers.
+     *
+     * Variants inherit the parent's set all-or-nothing unless they own rows. The effective set is
+     * the variant's own set, or the inherited one when it has none. The removed keys are dropped
+     * from it and the added entries merged in, winning on their value. An inheriting variant whose
+     * set does not change keeps inheriting, so nothing is returned for it.
+     *
+     * @param {Map<string, *>} own - key → value of the variant's own rows
+     * @param {Map<string, *>} inherited - key → value of the parent's rows
+     * @param {string[]} removedKeys
+     * @param {Map<string, *>} added - key → value to add
+     * @return {{ deleteKeys: string[], upsert: Map<string, *> }} own keys to delete, entries to write as own rows
+     */
+    _resolveVariantSetChange(own, inherited, removedKeys, added) {
+        const effective = own.size > 0 ? own : inherited;
+        const final = new Map([...effective].filter(([key]) => !removedKeys.includes(key)));
+        added.forEach((value, key) => final.set(key, value));
+
+        const keepsInheriting =
+            own.size === 0 &&
+            final.size === inherited.size &&
+            [...inherited].every(([key, value]) => final.has(key) && final.get(key) === value);
+
+        if (keepsInheriting) {
+            return { deleteKeys: [], upsert: new Map() };
+        }
+
+        return {
+            deleteKeys: [...own.keys()].filter((key) => !final.has(key)),
+            upsert: new Map([...final].filter(([key]) => !own.has(key))),
+        };
     }
 
     /**
@@ -522,36 +604,6 @@ class BulkEditBaseHandler {
                 if (existAssociations[key]) {
                     delete this.groupedPayload.delete[referenceEntity][key];
 
-                    return;
-                }
-
-                this.groupedPayload.upsert[referenceEntity][key] = [
-                    {
-                        [referenceKey]: referenceValue,
-                        [localKey]: entityId,
-                    },
-                ];
-            });
-        });
-    }
-
-    /**
-     * @private
-     */
-    _materializeInheritedManyToMany(change, existAssociations) {
-        const { referenceEntity, referenceKey, localKey, inheritedValue, value } = change;
-
-        if (value.length === 0 || !Array.isArray(inheritedValue) || inheritedValue.length === 0) {
-            return;
-        }
-
-        const ownerIds = new Set(Object.values(existAssociations).map(([association]) => association[localKey]));
-
-        inheritedValue.forEach(({ id: referenceValue }) => {
-            this.entityIds.forEach((entityId) => {
-                const key = `${referenceValue}.${entityId}`;
-
-                if (ownerIds.has(entityId) || this.groupedPayload.upsert[referenceEntity][key]) {
                     return;
                 }
 

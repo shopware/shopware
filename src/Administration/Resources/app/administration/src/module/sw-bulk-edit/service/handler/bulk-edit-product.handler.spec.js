@@ -716,9 +716,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         action: 'upsert',
                         entity: 'product_visibility',
                         payload: [
-                            // product_1 inherits → materialize the whole inherited set.
-                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
-                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            // product_1 inherits and scn_1 is already inherited → its set does not
+                            // change, so it keeps inheriting.
                             // product_2 overrides (owns scn_2) → only scn_1 is added, scn_2 kept.
                             { productId: 'product_2', salesChannelId: 'scn_1', visibility: 30 },
                         ],
@@ -733,6 +732,38 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                             visibility: 30,
                         },
                     ],
+                },
+            ],
+            [
+                'add an inherited sales channel with another visibility to a variant materializes the set',
+                [
+                    {
+                        type: 'add',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [{ salesChannelId: 'scn_1', visibility: 10 }],
+                        removedSalesChannelIds: [],
+                        addedVisibilities: [{ salesChannelId: 'scn_1', visibility: 10 }],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 10 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            { productId: 'product_2', salesChannelId: 'scn_1', visibility: 10 },
+                            { productId: 'product_2', salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [],
                 },
             ],
             [
@@ -1389,7 +1420,9 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'add',
                         field: 'properties',
                         value: [{ id: 'option_new' }],
-                        inheritedValue: [{ id: 'option_parent' }],
+                        addedReferenceIds: ['option_new'],
+                        removedReferenceIds: [],
+                        inheritedReferenceIds: ['option_parent'],
                     },
                 ],
                 {
@@ -1397,52 +1430,95 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         action: 'upsert',
                         entity: 'product_property',
                         payload: [
-                            { productId: 'product_1', optionId: 'option_new' },
-                            { productId: 'product_2', optionId: 'option_new' },
                             // product_1 inherits → the parent's options are materialized next to the added one.
                             { productId: 'product_1', optionId: 'option_parent' },
+                            { productId: 'product_1', optionId: 'option_new' },
+                            // product_2 overrides with option_own, which stays untouched.
+                            { productId: 'product_2', optionId: 'option_new' },
                         ],
                     },
                 },
                 {
-                    // product_2 overrides with its own option, which must stay untouched.
                     product_property: [{ productId: 'product_2', optionId: 'option_own' }],
                 },
             ],
             [
-                'add properties to variants does not duplicate an inherited option that is added',
+                'add an already inherited property leaves inheriting variants untouched',
                 [
                     {
                         type: 'add',
                         field: 'properties',
                         value: [{ id: 'option_parent' }],
-                        inheritedValue: [{ id: 'option_parent' }, { id: 'option_parent_2' }],
+                        addedReferenceIds: ['option_parent'],
+                        removedReferenceIds: [],
+                        inheritedReferenceIds: ['option_parent', 'option_parent_2'],
                     },
                 ],
-                {
-                    'upsert-product_property': {
-                        action: 'upsert',
-                        entity: 'product_property',
-                        payload: [
-                            { productId: 'product_1', optionId: 'option_parent' },
-                            { productId: 'product_2', optionId: 'option_parent' },
-                            { productId: 'product_1', optionId: 'option_parent_2' },
-                            { productId: 'product_2', optionId: 'option_parent_2' },
-                        ],
-                    },
-                },
+                {},
                 {
                     product_property: [],
                 },
             ],
             [
-                'add no properties to variants leaves inheriting variants untouched',
+                'remove a property from variants drops it from the inherited and the own set',
+                [
+                    {
+                        type: 'remove',
+                        field: 'properties',
+                        value: [{ id: 'option_parent' }],
+                        addedReferenceIds: [],
+                        removedReferenceIds: ['option_parent'],
+                        inheritedReferenceIds: ['option_parent', 'option_parent_2'],
+                    },
+                ],
+                {
+                    // product_1 inherits → the inherited set minus the removed option is materialized.
+                    'upsert-product_property': {
+                        action: 'upsert',
+                        entity: 'product_property',
+                        payload: [{ productId: 'product_1', optionId: 'option_parent_2' }],
+                    },
+                    // product_2 overrides → only its own option_parent row is dropped, option_own stays.
+                    'delete-product_property': {
+                        action: 'delete',
+                        entity: 'product_property',
+                        payload: [{ productId: 'product_2', optionId: 'option_parent' }],
+                    },
+                },
+                {
+                    product_property: [
+                        { productId: 'product_2', optionId: 'option_parent' },
+                        { productId: 'product_2', optionId: 'option_own' },
+                    ],
+                },
+            ],
+            [
+                'remove a property the variants do not have leaves them untouched',
+                [
+                    {
+                        type: 'remove',
+                        field: 'properties',
+                        value: [{ id: 'option_other' }],
+                        addedReferenceIds: [],
+                        removedReferenceIds: ['option_other'],
+                        inheritedReferenceIds: ['option_parent'],
+                    },
+                ],
+                {},
+                {
+                    product_property: [],
+                },
+            ],
+            [
+                'change no properties of variants leaves them untouched',
                 [
                     {
                         type: 'add',
                         field: 'properties',
                         value: null,
-                        inheritedValue: [{ id: 'option_parent' }],
+                        addedReferenceIds: [],
+                        removedReferenceIds: [],
+                        inheritedReferenceIds: ['option_parent'],
                     },
                 ],
                 {},

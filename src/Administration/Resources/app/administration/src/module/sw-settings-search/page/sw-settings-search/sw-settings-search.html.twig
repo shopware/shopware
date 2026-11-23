@@ -57,8 +57,13 @@
                 {% endblock %}
             </template>
 
-            <template v-else>
-                <sw-tabs position-identifier="sw-settings-search-header">
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
+                <sw-tabs
+                    position-identifier="sw-settings-search-header"
+                >
                     {% block sw_setting_search_tabs_general %}
                     <sw-tabs-item
                         v-bind="$props"
@@ -82,7 +87,7 @@
 
                     {% block sw_setting_search_tabs_after %}{% endblock %}
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
             {% endblock %}
 
             {% block sw_settings_search_tabs_content %}

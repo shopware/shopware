@@ -24,6 +24,10 @@ class Migration1794221136AddProductDocumentMediaUsagePrivileges extends Migratio
                 'product_document:read',
                 'product_document_translation:read',
             ],
+            'media:read' => [
+                'product_document:read',
+                'product_document_translation:read',
+            ],
         ]);
     }
 }

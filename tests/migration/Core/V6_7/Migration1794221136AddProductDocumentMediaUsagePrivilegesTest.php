@@ -49,13 +49,29 @@ class Migration1794221136AddProductDocumentMediaUsagePrivilegesTest extends Test
         ], $privileges);
     }
 
-    public function testOtherRolesAreLeftAlone(): void
+    public function testRolesWithMediaReadFromAnotherModuleCanReadProductDocumentsAndTheirTranslations(): void
     {
-        $roleId = $this->createRole(['category.viewer']);
+        $roleId = $this->createRole(['cms.viewer', 'media:read', 'media_folder:read']);
+
+        $this->migration->update($this->connection);
+        $this->migration->update($this->connection);
+
+        static::assertSame([
+            'cms.viewer',
+            'media:read',
+            'media_folder:read',
+            'product_document:read',
+            'product_document_translation:read',
+        ], $this->fetchPrivileges($roleId));
+    }
+
+    public function testRolesWithoutMediaReadAreLeftAlone(): void
+    {
+        $roleId = $this->createRole(['category.viewer', 'category:read']);
 
         $this->migration->update($this->connection);
 
-        static::assertSame(['category.viewer'], $this->fetchPrivileges($roleId));
+        static::assertSame(['category.viewer', 'category:read'], $this->fetchPrivileges($roleId));
     }
 
     /**

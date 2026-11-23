@@ -1538,17 +1538,18 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * The write validator found no decoded tree for a command that writes the layout column. The field
-     * serializer memoizes one for every such command before the validation event fires, so the absence is a
-     * broken write-path invariant rather than a defect in the caller's payload: falling back to a second
-     * decode here would validate a tree other than the one being stored, and do it silently.
+     * The write validator found no tree in the write's memo for the layout value a record stores. The field
+     * serializer memoizes the tree behind every value it encodes for the layout column, keyed by that value,
+     * before the validation event fires, so the absence is a broken write-path invariant rather than a defect in
+     * the caller's payload: falling back to a second decode here would validate a tree other than the one being
+     * stored, and do it silently.
      */
     public static function layoutWriteMemoMissing(string $entityName, string $writePath): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::LAYOUT_WRITE_MEMO_MISSING,
-            'No decoded layout tree was memoized for the "{{ entityName }}" write at "{{ writePath }}".',
+            'The write memoized no layout tree for the layout value the "{{ entityName }}" record at "{{ writePath }}" stores.',
             ['entityName' => $entityName, 'writePath' => $writePath]
         );
     }

@@ -2,10 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout;
 
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\Exception as PdoException;
+use Doctrine\DBAL\Exception\DeadlockException;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
-use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
@@ -14,18 +17,21 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
- * The memo the layout field serializer leaves on the write `Context` is consumed by the write validator, so a
- * completed write leaves nothing on a caller-owned `Context`. These cases drive the real write paths, because
- * the memo's keying depends on how the DAL orders normalize against extract and on which `Context` instance
- * each stage sees — neither of which a unit test exercises.
+ * The memo the layout field serializer leaves on the write `Context` belongs to that one write, retries included,
+ * and the next write on the same `Context` replaces it. These cases drive the real write paths, because whether
+ * the validator finds the memo depends on which `Context` and `WriteContext` instance each stage sees, and on the
+ * DAL dispatching the validation event again when it retries a transaction, which no unit test exercises.
  *
  * @internal
  */
@@ -36,29 +42,26 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
 
     private IdsCollection $ids;
 
+    /**
+     * @var list<mixed>
+     */
+    private array $encodedLayouts = [];
+
+    private int $layoutValidationAttempts = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->ids = new IdsCollection();
     }
 
-    #[TestDox('leaves no memoized tree on the context after a repository write')]
-    public function testRepositoryWriteEmptiesTheMemo(): void
+    #[TestDox('leaves the memo of a sync write carrying several operations owned by that write, with every tree it encoded')]
+    public function testAWriteLeavesItsMemoOwnedByThatWrite(): void
     {
+        $this->captureEncodedLayouts();
         $context = Context::createDefaultContext();
+        $write = WriteContext::createFromContext($context);
 
-        $this->repository()->create([$this->layout('layout')], $context);
-
-        static::assertTrue($this->memoOf($context)->isEmpty());
-    }
-
-    #[TestDox('leaves no memoized tree on the context after a sync write carrying several operations')]
-    public function testSyncWriteWithSeveralOperationsEmptiesTheMemo(): void
-    {
-        $context = Context::createDefaultContext();
-
-        // The sync path is what makes the entity-plus-primary-key keying load-bearing: normalize sees a bare
-        // row index as its write path while the command the validator reads carries the operation key too.
         $this->writer()->sync(
             [
                 new SyncOperation('first', ContentLayoutDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [
@@ -69,90 +72,77 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
                     $this->layout('layout-c'),
                 ]),
             ],
-            WriteContext::createFromContext($context)
+            $write
         );
 
-        static::assertCount(3, $this->repository()->searchIds(
-            new Criteria([$this->ids->get('layout-a'), $this->ids->get('layout-b'), $this->ids->get('layout-c')]),
-            $context
-        )->getIds());
-        static::assertTrue($this->memoOf($context)->isEmpty());
+        $memo = $this->memoOf($context);
+        static::assertTrue($memo->ownedBy($write));
+        static::assertEqualsCanonicalizing(
+            [$this->ids->get('layout-a-element'), $this->ids->get('layout-b-element'), $this->ids->get('layout-c-element')],
+            $this->memoizedRootIds($memo)
+        );
     }
 
-    /**
-     * The DAL keeps a command per written row rather than collapsing rows that share a primary key, so one
-     * batch carrying the same layout id twice memoizes two trees under one key, and the gate takes the last.
-     */
-    #[TestDox('leaves no memoized tree on the context after one batch writes the same layout id twice')]
-    public function testBatchWritingOneLayoutIdTwiceEmptiesTheMemo(): void
+    #[TestDox('replaces the memo of a completed write when the next write on the same context encodes a layout')]
+    public function testTheNextWriteOnTheSameContextReplacesTheMemo(): void
     {
+        $this->captureEncodedLayouts();
         $context = Context::createDefaultContext();
+        $earlierWrite = WriteContext::createFromContext($context);
+        $laterWrite = WriteContext::createFromContext($context);
 
-        $edit = [
-            'id' => $this->ids->get('layout'),
-            'layout' => [[
-                'id' => $this->ids->get('layout-second-element'),
-                'component' => TestElementTypeLoader::RESOLVABLE,
-                'properties' => [],
-            ]],
-        ];
+        $this->writer()->upsert($this->definition(), [$this->layout('layout-a')], $earlierWrite);
+        $this->writer()->upsert($this->definition(), [$this->layout('layout-b')], $laterWrite);
 
-        $this->repository()->upsert([$this->layout('layout'), $edit], $context);
-
-        // The stored tree proves the second row really wrote the layout column, so both rows memoized a tree
-        // under this id and the gate drained the key.
-        $stored = $this->repository()->search(new Criteria([$this->ids->get('layout')]), $context)->getEntities()->first();
-        static::assertNotNull($stored);
-        static::assertSame([$this->ids->get('layout-second-element')], array_map(
-            static fn (StoredElement $element): string => $element->id,
-            $stored->getLayout()
-        ));
-        static::assertTrue($this->memoOf($context)->isEmpty());
+        $memo = $this->memoOf($context);
+        static::assertTrue($memo->ownedBy($laterWrite));
+        static::assertSame([null, $this->ids->get('layout-b-element')], $this->memoizedRootIds($memo));
     }
 
     /**
-     * `LayoutGate::SKIP_VALIDATION_STATE` is a third-party-facing escape hatch with no core producer — every
-     * site that adds the state today is a test, and nothing anywhere removes it — so this case is not dead:
-     * a memo leaking on that path would be a real defect for a plugin whose long-lived importer sets the state
-     * and reuses its `Context`.
+     * `LayoutGate::SKIP_VALIDATION_STATE` is a third-party-facing escape hatch with no core producer, so a plugin
+     * importer that sets it still runs the layout field serializer: the memo holds the tree its encode produced.
      */
-    #[TestDox('leaves no memoized tree on the context after a write carrying the skip state')]
-    public function testSkipStateWriteEmptiesTheMemo(): void
+    #[TestDox('memoizes the tree a write encodes even when the write carries the skip state')]
+    public function testAWriteUnderTheSkipStateStillMemoizesTheTreeItEncodes(): void
     {
+        $this->captureEncodedLayouts();
         $context = Context::createDefaultContext();
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
+        $write = WriteContext::createFromContext($context);
 
-        $this->repository()->create([$this->layout('layout')], $context);
+        $this->writer()->upsert($this->definition(), [$this->layout('layout')], $write);
 
-        static::assertTrue($this->memoOf($context)->isEmpty());
+        $memo = $this->memoOf($context);
+        static::assertTrue($memo->ownedBy($write));
+        static::assertSame([$this->ids->get('layout-element')], $this->memoizedRootIds($memo));
     }
 
     /**
-     * A write that dies during normalize never reaches the validation event, so its memoized trees stay on the
-     * caller's `Context`. The memo belongs to that write, so the next one on the same `Context` opens its own
-     * instead of reading the leftovers: without that, the second write's row would be gated against the first
-     * write's tree and an unresolvable layout would be stored.
+     * A write that dies before the validation event never reaches the validator, so its memoized trees stay on the
+     * caller's `Context`. The next write on the same `Context` opens its own memo instead of adding to the
+     * leftovers, and is judged on the tree behind the value it stores.
      */
     #[TestDox('judges a write against its own tree even when an earlier write on the same context died before the gate')]
     public function testWriteAfterAFailedWriteIsJudgedAgainstItsOwnTree(): void
     {
         $context = Context::createDefaultContext();
+        $failedWrite = WriteContext::createFromContext($context);
 
         $resolvable = $this->layout('layout');
 
         $aborted = false;
 
         try {
-            // Row two's layout is not a list, so normalize throws once row one is already memoized.
-            $this->repository()->create([$resolvable, ['id' => $this->ids->get('broken'), 'name' => 'memo-test-broken', 'version' => '1.0.0', 'rootSource' => 'none', 'layout' => 'not-a-tree']], $context);
+            // Row two's layout is not a list, so its encode throws once row one's encode has memoized a tree.
+            $this->writer()->insert($this->definition(), [$resolvable, ['id' => $this->ids->get('broken'), 'name' => 'memo-test-broken', 'version' => '1.0.0', 'rootSource' => 'none', 'layout' => 'not-a-tree']], $failedWrite);
         } catch (\Throwable) {
             // The abort is the fixture; which exception carries it is the serializer's business, not this test's.
             $aborted = true;
         }
 
-        static::assertTrue($aborted, 'Expected the malformed layout payload to abort the write during normalize.');
-
-        static::assertFalse($this->memoOf($context)->isEmpty(), 'The failed write is expected to leave its memo behind; that is the condition under test.');
+        static::assertTrue($aborted, 'Expected the malformed layout payload to abort the write before the gate.');
+        static::assertTrue($this->memoOf($context)->ownedBy($failedWrite), 'The failed write is expected to leave its memo behind; that is the condition under test.');
 
         $unresolvable = $resolvable;
         $unresolvable['layout'] = [[
@@ -170,6 +160,127 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
         static::assertNull(
             $this->repository()->searchIds(new Criteria([$this->ids->get('layout')]), $context)->firstId(),
             'The rejected write must not have stored the layout.'
+        );
+    }
+
+    /**
+     * The DAL retries a write's transaction on a deadlock and dispatches the validation event again without
+     * encoding the layout again, so the gate of the retry must find the same tree the first attempt judged.
+     * Retries run only outside an open transaction, so this case leaves the test's transaction.
+     */
+    #[TestDox('stores a valid layout whose write the database retried, gating it again on the same tree')]
+    public function testARetriedLayoutWriteIsGatedAgainOnTheSameTree(): void
+    {
+        $this->failTheFirstLayoutValidationWithADeadlock();
+        $context = Context::createDefaultContext();
+
+        $this->outsideTheTestTransaction(function () use ($context): void {
+            $this->repository()->create([$this->layout('layout')], $context);
+
+            static::assertSame(2, $this->layoutValidationAttempts);
+            static::assertSame(
+                $this->ids->get('layout'),
+                $this->repository()->searchIds(new Criteria([$this->ids->get('layout')]), $context)->firstId()
+            );
+        });
+    }
+
+    #[TestDox('rejects a gate-rejected layout whose write the database retried with the gate violation')]
+    public function testARetriedLayoutWriteIsRejectedByTheGateAgain(): void
+    {
+        $this->failTheFirstLayoutValidationWithADeadlock();
+        $context = Context::createDefaultContext();
+
+        $unresolvable = $this->layout('layout');
+        $unresolvable['layout'] = [[
+            'id' => $this->ids->get('layout-element'),
+            'component' => TestElementTypeLoader::UNRESOLVABLE,
+            'properties' => [],
+        ]];
+
+        $this->outsideTheTestTransaction(function () use ($context, $unresolvable): void {
+            try {
+                $this->repository()->create([$unresolvable], $context);
+                static::fail('Expected the retried write to be rejected by the gate.');
+            } catch (WriteException $exception) {
+                static::assertStringContainsString('Required property "target" is not deterministically resolvable', $exception->getMessage());
+            }
+
+            static::assertSame(2, $this->layoutValidationAttempts);
+            static::assertNull($this->repository()->searchIds(new Criteria([$this->ids->get('layout')]), $context)->firstId());
+        });
+    }
+
+    /**
+     * Records the layout value every layout command of a write carries, which is the key the serializer memoized
+     * the tree under.
+     */
+    private function captureEncodedLayouts(): void
+    {
+        $this->hooks()->on(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            foreach ($event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME) as $command) {
+                $this->encodedLayouts[] = $command->getPayload()[ContentLayoutDefinition::LAYOUT_FIELD] ?? null;
+            }
+        });
+    }
+
+    /**
+     * Throws a retryable deadlock after every validation listener of the first layout write attempt ran, the
+     * write gate included: hooks of {@see EventHookDispatcher} run after the listeners.
+     */
+    private function failTheFirstLayoutValidationWithADeadlock(): void
+    {
+        $this->hooks()->on(PreWriteValidationEvent::class, function (PreWriteValidationEvent $event): void {
+            if ($event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME) === []) {
+                return;
+            }
+
+            ++$this->layoutValidationAttempts;
+
+            if ($this->layoutValidationAttempts === 1) {
+                throw new DeadlockException(new PdoException('Deadlock found when trying to get lock', '40001', 1213), null);
+            }
+        });
+    }
+
+    /**
+     * Rolls back the transaction the test behaviour opened, runs the case, then deletes the layout rows the case
+     * may have committed and opens a transaction again for the behaviour's teardown.
+     */
+    private function outsideTheTestTransaction(\Closure $case): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->rollBack();
+
+        try {
+            $case();
+        } finally {
+            try {
+                $connection->executeStatement(
+                    'DELETE FROM `content_layout` WHERE `id` IN (:ids)',
+                    ['ids' => Uuid::fromHexToBytesList(array_values($this->ids->all()))],
+                    ['ids' => ArrayParameterType::BINARY]
+                );
+            } finally {
+                $connection->beginTransaction();
+            }
+        }
+    }
+
+    /**
+     * The first root id of the tree memoized under each captured layout value, `null` where the memo holds none.
+     *
+     * @return list<string|null>
+     */
+    private function memoizedRootIds(LayoutWriteContext $memo): array
+    {
+        return array_map(
+            static function (mixed $encoded) use ($memo): ?string {
+                static::assertIsString($encoded);
+
+                return $memo->treeFor($encoded)?->roots[0]->id;
+            },
+            $this->encodedLayouts
         );
     }
 
@@ -198,6 +309,19 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
                 'properties' => [],
             ]],
         ];
+    }
+
+    private function hooks(): EventHookDispatcher
+    {
+        return EventHookDispatcher::fromContainer($this->getContainer());
+    }
+
+    private function definition(): ContentLayoutDefinition
+    {
+        $definition = $this->getContainer()->get(ContentLayoutDefinition::class);
+        static::assertInstanceOf(ContentLayoutDefinition::class, $definition);
+
+        return $definition;
     }
 
     /**

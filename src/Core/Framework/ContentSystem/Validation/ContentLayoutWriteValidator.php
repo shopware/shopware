@@ -8,12 +8,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -23,15 +21,16 @@ use Symfony\Component\Validator\ConstraintViolationList;
  * The single ordered content_layout write gate: well-formedness on the decoded tree, then membership of the
  * record's root source in the registry, then resolvability of the tree against that source's root-ambient context,
  * then admissibility of the tree's data mappings against that same source.
- * Each layout record gets one verdict, on its state after the whole batch: the last tree the batch writes for it,
- * judged against its resulting root source, the created value or else the stored one.
+ * Each layout record gets one verdict, on its state after the whole batch: the tree behind the layout value the
+ * record stores, judged against its resulting root source, the created value or else the stored one.
  * The per-step rationale is inline in validateRecord().
  *
- * The tree is not decoded here. The layout field serializer decoded it, admitted it through the write boundary
- * and left it on the write `Context` ({@see LayoutWriteContext}), so this gate judges the tree that is about to
- * be stored rather than a second decode of the same column. Reading the memo consumes it, on the skip path as
- * well as the checking path, so a write that reaches this subscriber leaves nothing behind. Only the memo this
- * write opened is read: one left by an earlier write on the same `Context` counts as absent.
+ * The tree is not decoded here. The layout field serializer decoded it while encoding the column and left it on
+ * the write `Context` ({@see LayoutWriteContext}) under the encoded value, so this gate judges the tree that is
+ * about to be stored rather than a second decode of the same column. The gate only reads the memo and never
+ * removes an entry, because the DAL dispatches the validation event again when it retries the write's
+ * transaction, without encoding again: the retry finds the same trees and reaches the same verdict. Only the
+ * memo this write opened is read: one left by an earlier write on the same `Context` counts as absent.
  *
  * @internal
  *
@@ -60,20 +59,22 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     public function preValidate(PreWriteValidationEvent $event): void
     {
         $context = $event->getContext();
+
+        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
+            return;
+        }
+
         $extension = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
         $memo = $extension instanceof LayoutWriteContext && $extension->ownedBy($event->getWriteContext())
             ? $extension
             : null;
 
-        $layoutCommands = $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME);
+        $rows = $this->writeOutcome->touchedRows(
+            $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME),
+            [ContentLayoutDefinition::ROOT_SOURCE_FIELD, ContentLayoutDefinition::LAYOUT_FIELD]
+        );
 
-        if ($context->hasState(LayoutGate::SKIP_VALIDATION_STATE)) {
-            $this->drain($memo, $layoutCommands);
-
-            return;
-        }
-
-        foreach ($this->writeOutcome->touchedRows($layoutCommands, [ContentLayoutDefinition::ROOT_SOURCE_FIELD]) as $row) {
+        foreach ($rows as $row) {
             $this->validateRecord($event, $row, $context, $memo);
         }
     }
@@ -129,43 +130,26 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     }
 
     /**
-     * The last tree the batch writes for this record, taken out of the memo. Every write of the layout column put
-     * one there: the serializer memoizes before this event can fire, and a payload it could not decode aborted the
-     * write before any command existed. So an absent entry is a broken write path, not an input the gate could
-     * rule on: re-decoding the column instead would silently gate a tree other than the one the boundary produced,
-     * which is precisely the guarantee this gate exists to hold.
+     * The tree behind the layout value the record holds after the batch, looked up in the memo by that value.
+     * Every value the layout column is written with was put there: the serializer memoizes while encoding the
+     * column, before this event can fire. So an absent entry is a broken write path, not an input the gate could
+     * rule on: re-decoding the column instead would silently gate a tree other than the one the serializer encoded
+     * for storage, which is precisely the guarantee this gate exists to hold.
      */
     private function resultingTree(?LayoutWriteContext $memo, OutcomeRow $row): ?StoredTree
     {
-        $tree = $memo?->consume(ContentLayoutDefinition::ENTITY_NAME, Uuid::fromBytesToHex($row->primaryKey['id']));
+        $encoded = $row->getPayloadValue(ContentLayoutDefinition::LAYOUT_FIELD);
 
-        // Consumed either way: a tree written before the record's last delete is not one the batch stores.
-        if (!$row->payloadContainsAny(ContentLayoutDefinition::LAYOUT_FIELD)) {
+        if ($encoded === null) {
             return null;
         }
 
-        if ($tree === null) {
-            throw ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, $row->path);
+        if (!\is_string($encoded)) {
+            throw ContentSystemException::invalidFieldValueType(ContentLayoutDefinition::LAYOUT_FIELD, 'string', \get_debug_type($encoded));
         }
 
-        return $tree;
-    }
-
-    /**
-     * Consumes the memo entries of this event's layout commands without gating them, for the skip-state path.
-     * The state suppresses the checks; it does not make the write's memoized trees somebody else's to clear.
-     *
-     * @param list<WriteCommand> $layoutCommands
-     */
-    private function drain(?LayoutWriteContext $memo, array $layoutCommands): void
-    {
-        if ($memo === null) {
-            return;
-        }
-
-        foreach ($layoutCommands as $command) {
-            $memo->consume(ContentLayoutDefinition::ENTITY_NAME, $command->getDecodedPrimaryKey()['id']);
-        }
+        return $memo?->treeFor($encoded)
+            ?? throw ContentSystemException::layoutWriteMemoMissing(ContentLayoutDefinition::ENTITY_NAME, $row->path);
     }
 
     private function isRegistered(mixed $rootSource): bool

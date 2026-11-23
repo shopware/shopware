@@ -19,96 +19,53 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(LayoutWriteContext::class)]
 class LayoutWriteContextTest extends TestCase
 {
-    #[TestDox('hands back the tree remembered for an entity and primary key')]
-    public function testConsumeReturnsTheRememberedTree(): void
+    #[TestDox('hands back the tree remembered for the same encoded value')]
+    public function testTreeForReturnsTheTreeRememberedForTheSameBytes(): void
     {
         $tree = $this->tree('el-1');
         $memo = $this->memo();
 
-        $memo->remember('content_layout', 'layout-1', $tree);
+        $memo->remember('[{"id":"el-1"}]', $tree);
 
-        static::assertSame($tree, $memo->consume('content_layout', 'layout-1'));
+        static::assertSame($tree, $memo->treeFor('[{"id":"el-1"}]'));
     }
 
-    #[TestDox('removes the entry as it hands it out, so a second read finds nothing')]
-    public function testConsumeRemovesTheEntry(): void
+    #[TestDox('keeps the trees of different encoded values apart')]
+    public function testTreeForKeepsDifferentBytesApart(): void
     {
+        $first = $this->tree('el-1');
+        $second = $this->tree('el-2');
         $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
 
-        $memo->consume('content_layout', 'layout-1');
+        $memo->remember('[{"id":"el-1"}]', $first);
+        $memo->remember('[{"id":"el-2"}]', $second);
 
-        static::assertNull($memo->consume('content_layout', 'layout-1'));
+        static::assertSame([$first, $second], [$memo->treeFor('[{"id":"el-1"}]'), $memo->treeFor('[{"id":"el-2"}]')]);
     }
 
-    #[TestDox('is empty once the only entry has been consumed')]
-    public function testMemoIsEmptyAfterItsOnlyEntryIsConsumed(): void
+    #[TestDox('reports an encoded value no row yielded as null')]
+    public function testTreeForUnknownBytesReturnsNull(): void
     {
         $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
+        $memo->remember('[{"id":"el-1"}]', $this->tree('el-1'));
 
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertTrue($memo->isEmpty());
-    }
-
-    #[TestDox('reports an absent entry as null rather than as an error')]
-    public function testConsumeOfAnAbsentEntryReturnsNull(): void
-    {
-        $memo = $this->memo();
-
-        static::assertNull($memo->consume('content_layout', 'never-written'));
+        static::assertNull($memo->treeFor('[{"id":"el-2"}]'));
     }
 
     /**
-     * One batch may write the same layout more than once; the tree it stores is the one remembered last.
+     * A retried write dispatches the validation event again without encoding again, so a lookup must not take
+     * the entry out.
      */
-    #[TestDox('hands back the tree remembered last when the same entity and primary key are remembered twice')]
-    public function testRememberingTheSameKeyTwiceKeepsTheLastTree(): void
-    {
-        $last = $this->tree('el-2');
-        $memo = $this->memo();
-
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-        $memo->remember('content_layout', 'layout-1', $last);
-
-        static::assertSame($last, $memo->consume('content_layout', 'layout-1'));
-    }
-
-    #[TestDox('is empty after one read of a key that was remembered twice')]
-    public function testKeyRememberedTwiceIsEmptyAfterOneRead(): void
-    {
-        $memo = $this->memo();
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-1'));
-        $memo->remember('content_layout', 'layout-1', $this->tree('el-2'));
-
-        $memo->consume('content_layout', 'layout-1');
-
-        static::assertTrue($memo->isEmpty());
-    }
-
-    #[TestDox('matches an upper-case primary key against the lower-case one the command decodes')]
-    public function testPrimaryKeyMatchingIgnoresHexCasing(): void
+    #[TestDox('hands back the same tree on a second lookup of one encoded value')]
+    public function testTreeForLeavesTheEntryInPlace(): void
     {
         $tree = $this->tree('el-1');
         $memo = $this->memo();
+        $memo->remember('[{"id":"el-1"}]', $tree);
 
-        $memo->remember('content_layout', 'AABBCCDD', $tree);
+        $first = $memo->treeFor('[{"id":"el-1"}]');
 
-        static::assertSame($tree, $memo->consume('content_layout', 'aabbccdd'));
-    }
-
-    #[TestDox('keeps entries of different entities apart under the same primary key')]
-    public function testEntriesOfDifferentEntitiesDoNotCollide(): void
-    {
-        $layoutTree = $this->tree('el-1');
-        $memo = $this->memo();
-
-        $memo->remember('content_layout', 'shared-id', $layoutTree);
-        $memo->remember('other_entity', 'shared-id', $this->tree('el-2'));
-
-        static::assertSame($layoutTree, $memo->consume('content_layout', 'shared-id'));
-        static::assertFalse($memo->isEmpty());
+        static::assertSame([$tree, $tree], [$first, $memo->treeFor('[{"id":"el-1"}]')]);
     }
 
     #[TestDox('belongs to the write that opened it and to no other')]

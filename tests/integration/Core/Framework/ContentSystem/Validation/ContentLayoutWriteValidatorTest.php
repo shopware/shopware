@@ -6,15 +6,20 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
+use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -28,6 +33,8 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 class ContentLayoutWriteValidatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    private const UNREGISTERED_COMPONENT = 'Sw:Test:DefinitelyUnregistered';
 
     private IdsCollection $ids;
 
@@ -325,6 +332,55 @@ class ContentLayoutWriteValidatorTest extends TestCase
     }
 
     /**
+     * One Sync request updates a stored layout, deletes it and creates it again, with one of the two trees failing
+     * the gate. Which write the DAL runs last is its own business, so the outcome may be a rejection or an
+     * acceptance; either way the layout left in storage is one the gate accepts.
+     */
+    #[DataProvider('deleteAndReinsertWithOneRejectedTreeProvider')]
+    #[TestDox('never stores a layout tree the gate rejects when $_dataName')]
+    public function testAWriteNeverStoresATreeTheGateRejects(string $updateComponent, string $reinsertComponent): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+
+        $outcome = 'accepted';
+
+        try {
+            $this->syncUpdateDeleteReinsert($layoutId, $updateComponent, $reinsertComponent, $context);
+        } catch (WriteException $exception) {
+            $outcome = iterator_to_array($exception->getErrors(), false)[0]['code'];
+        }
+
+        static::assertContains($outcome, ['accepted', ViolationCode::UnregisteredComponent->value]);
+
+        $stored = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $stored);
+        static::assertSame([], $this->layoutGate()->wellFormedness($stored->getLayout())->intrinsicErrors());
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function deleteAndReinsertWithOneRejectedTreeProvider(): iterable
+    {
+        yield 'the update carries the rejected tree' => [self::UNREGISTERED_COMPONENT, TestElementTypeLoader::RESOLVABLE];
+        yield 'the reinsert carries the rejected tree' => [TestElementTypeLoader::RESOLVABLE, self::UNREGISTERED_COMPONENT];
+    }
+
+    #[TestDox('accepts one request that updates, deletes and recreates a stored layout with valid trees')]
+    public function testDeleteAndReinsertWithValidTreesIsAccepted(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+
+        $this->syncUpdateDeleteReinsert($layoutId, TestElementTypeLoader::RESOLVABLE, TestElementTypeLoader::RESOLVABLE, $context);
+
+        static::assertSame($layoutId, $this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+    }
+
+    /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
     public static function elementLocalWiringDefectProvider(): iterable
@@ -370,11 +426,49 @@ class ContentLayoutWriteValidatorTest extends TestCase
     /**
      * @return list<array<string, mixed>>
      */
-    private function tree(string $component): array
+    private function tree(string $component, string $elementKey = 'element'): array
     {
         return [
-            ['id' => $this->ids->get('element'), 'component' => $component, 'properties' => []],
+            ['id' => $this->ids->get($elementKey), 'component' => $component, 'properties' => []],
         ];
+    }
+
+    /**
+     * Distinct element ids keep the two trees' stored values apart even when both use the same component.
+     */
+    private function syncUpdateDeleteReinsert(string $layoutId, string $updateComponent, string $reinsertComponent, Context $context): void
+    {
+        $reinsert = $this->layout('none', $reinsertComponent, $layoutId);
+        $reinsert['layout'] = $this->tree($reinsertComponent, 'reinsert-element');
+
+        $this->writer()->sync(
+            [
+                new SyncOperation('update', ContentLayoutDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [
+                    ['id' => $layoutId, 'layout' => $this->tree($updateComponent, 'update-element')],
+                ]),
+                new SyncOperation('delete', ContentLayoutDefinition::ENTITY_NAME, SyncOperation::ACTION_DELETE, [
+                    ['id' => $layoutId],
+                ]),
+                new SyncOperation('reinsert', ContentLayoutDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [$reinsert]),
+            ],
+            WriteContext::createFromContext($context)
+        );
+    }
+
+    private function writer(): EntityWriter
+    {
+        $writer = $this->getContainer()->get(EntityWriter::class);
+        static::assertInstanceOf(EntityWriter::class, $writer);
+
+        return $writer;
+    }
+
+    private function layoutGate(): LayoutGate
+    {
+        $gate = $this->getContainer()->get(LayoutGate::class);
+        static::assertInstanceOf(LayoutGate::class, $gate);
+
+        return $gate;
     }
 
     /**

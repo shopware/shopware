@@ -784,7 +784,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ViolationConstraintMapper::class);
 
-    // Shared read of a layout's immutable root source (in-flight write batch first, then committed row)
+    // Shared read of a layout's immutable root source (a layout the batch writes from its state after the batch, others from the stored row)
     $services->set(LayoutRootSourceReader::class)
         ->args([
             service(WriteOutcome::class),

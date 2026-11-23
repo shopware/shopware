@@ -50,10 +50,7 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     /**
      * The write's first decode, and the admission that follows it. The payload is decoded into the typed tree,
      * the tree's global invariants are checked, {@see LayoutWriteBoundary} admits it, and the result is
-     * re-encoded to the arrays the DAL's constraint pass and {@see encode()} expect. The boundary-processed
-     * tree is then memoized on the write `Context` ({@see LayoutWriteContext}) so {@see PreWriteValidationEvent}
-     * gates the very tree that is about to be stored. That removes the gate's own decode, not {@see encode()}'s:
-     * a normal write decodes twice, here and again there.
+     * re-encoded to the arrays the DAL's constraint pass and {@see encode()} expect.
      *
      * A client defect raised in that chain is remapped exactly as {@see encode()} remaps a codec defect: the
      * DAL collects a {@see WriteConstraintViolationException} thrown from normalize onto the write. Internal
@@ -101,8 +98,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
 
         $data[$key] = $this->treeCodec->encode($tree);
 
-        $this->memoize($parameters, $data['id'] ?? null, $tree);
-
         return $data;
     }
 
@@ -115,6 +110,9 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
      * throws from the {@see StoredElement} constructor and a malformed container throws from decode, neither of
      * which is an internal fault. Both are remapped to a {@see WriteConstraintViolationException} carrying the
      * layout field's path, so the caller sees the same structured rejection the constraint pass produces.
+     *
+     * The decoded tree is memoized on the write `Context` ({@see LayoutWriteContext}) under the exact value
+     * yielded for the column, so {@see PreWriteValidationEvent} gates the tree behind the bytes a record stores.
      */
     public function encode(
         Field $field,
@@ -154,7 +152,11 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::layoutWriteRejection($exception, $data->getKey(), $data->getValue(), $parameters->getPath());
         }
 
-        yield $field->getStorageName() => Json::encode($this->treeCodec->encode($tree));
+        $encoded = Json::encode($this->treeCodec->encode($tree));
+
+        $this->memoize($parameters, $encoded, $tree);
+
+        yield $field->getStorageName() => $encoded;
     }
 
     /**
@@ -256,17 +258,11 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
-     * Hands the boundary-processed tree to the write's {@see LayoutWriteContext}, creating it on the first
-     * layout row of the write and replacing one an earlier write left behind ({@see LayoutWriteContext::ownedBy()}).
-     * The id is already minted at this point: the extractor normalizes every primary-key field before any other
-     * field.
+     * Hands the tree to the write's {@see LayoutWriteContext}, creating it on the first layout row of the write
+     * and replacing one an earlier write left behind ({@see LayoutWriteContext::ownedBy()}).
      */
-    private function memoize(WriteParameterBag $parameters, mixed $id, StoredTree $tree): void
+    private function memoize(WriteParameterBag $parameters, string $encoded, StoredTree $tree): void
     {
-        if (!\is_string($id)) {
-            throw ContentSystemException::invalidFieldValueType('id', 'string', get_debug_type($id));
-        }
-
         $writeContext = $parameters->getContext();
         $context = $writeContext->getContext();
         $memo = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
@@ -276,6 +272,6 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             $context->addExtension(LayoutWriteContext::EXTENSION_NAME, $memo);
         }
 
-        $memo->remember($parameters->getDefinition()->getEntityName(), $id, $tree);
+        $memo->remember($encoded, $tree);
     }
 }

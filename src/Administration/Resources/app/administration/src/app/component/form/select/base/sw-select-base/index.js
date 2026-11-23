@@ -188,7 +188,7 @@ export default {
                 return;
             }
 
-            if (this.expanded || event.target !== this.$refs.selectWrapper || event.isComposing) {
+            if (this.disabled || this.expanded || event.target !== this.$refs.selectWrapper || event.isComposing) {
                 return;
             }
 

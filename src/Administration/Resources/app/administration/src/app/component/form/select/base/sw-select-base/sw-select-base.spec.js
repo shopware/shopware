@@ -140,11 +140,11 @@ describe('components/sw-select-base', () => {
     describe('keyboard', () => {
         let wrapper;
 
-        async function createFocusedSelection(mocks = {}) {
+        async function createFocusedSelection(mocks = {}, props = {}) {
             const container = document.createElement('div');
             document.body.appendChild(container);
             wrapper = await createWrapper(
-                {},
+                props,
                 {},
                 {
                     mocks,
@@ -268,6 +268,15 @@ describe('components/sw-select-base', () => {
             expect(selection.attributes('aria-expanded')).toBe('false');
             expect(event.defaultPrevented).toBe(true);
             expect(wrapper.emitted('delete-key')).toHaveLength(1);
+        });
+
+        it('should not emit "delete-key" on a disabled select that got the focus by a click', async () => {
+            const selection = await createFocusedSelection({}, { disabled: true });
+
+            dispatchKeydown(selection.element, { key: 'Backspace' });
+            await flushPromises();
+
+            expect(wrapper.emitted('delete-key')).toBeUndefined();
         });
 
         describe('where ALT is the system key', () => {

@@ -87,6 +87,12 @@ Documents keep one shipping costs row with the shipping total of the order; this
 The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
 
+### Elasticsearch indexing uses bounded memory
+
+`es:index` and automatic reindexing after updates now dispatch batches while scanning the catalog, reducing PHP memory usage for large catalogs.
+This also applies when running `es:index --no-queue`.
+Queued indexing still requires sufficient message transport capacity.
+
 ### Services can be reset between requests in long running runtimes
 
 With the new `LONGRUNNING_ENVIRONMENT` feature flag, services tagged with `kernel.reset` are reset between two requests handled by the same kernel instance, as in a plain Symfony application.
@@ -470,6 +476,17 @@ For `ProductListingResult`:
 For `ProductReviewResult`:
 
 - 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
+
+### New `ProductListingLoader::STATE_INCLUDE_INACTIVE` criteria state
+
+`ProductListingLoader` has a new criteria state `STATE_INCLUDE_INACTIVE`.
+Listings without this state are unchanged.
+With the state, `ProductListingLoader::load()` no longer hides sold-out closeout products and checks the products and the configured variants with the `ProductAvailableFilter` of the criteria.
+To include inactive products, add a `ProductAvailableFilter` without the active condition to the criteria.
+Each group then shows its configured variant or parent, even if the variant is inactive or a sold-out closeout product.
+
+The product stream preview in the Administration uses this state when "Keep matching variants grouped" is active, so each group shows the variant configured in the product's storefront presentation.
+
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
@@ -678,6 +695,36 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+
+### Replacing a media file invalidates every cached page showing it
+
+Changing a media file used to invalidate only the product detail pages of products that use the media as product media.
+It now also invalidates the listings and dynamic product groups containing those products,
+categories using the media as category image,
+layouts using it as section or block background or in an image, image slider, image gallery, video or manufacturer logo element,
+product pages of manufacturers using it as logo,
+and categories, products and landing pages using it in their layout overrides.
+Replaced images show up on these pages without clearing the HTTP cache.
+
+The media of layouts are mapped in the new table `cms_page_media_usage`,
+the media of layout overrides in `category_translation_media_usage`, `product_translation_media_usage` and `landing_page_translation_media_usage`,
+so replacing a file does not have to search the JSON of the content.
+After the update, the indexers of the same names with the suffix `.indexer` fill the tables for the existing content.
+
+The media of an element are read by its media ids provider, a service implementing the new `CmsElementMediaIdsProviderInterface`.
+Services implementing it are tagged with `shopware.cms.element_media_ids_provider` automatically.
+The core registers providers for the image, image slider, image gallery, video, YouTube, Vimeo and manufacturer logo elements.
+Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
+The first provider supporting the element type is used, so a provider with a higher tag priority replaces the one of the core.
+Elements whose media ids can be found by paths in their config can register the `CmsElementMediaIdsProvider`.
+It takes the resolver of the element, which names the element type, and the paths to the media in the config.
+A path starts with the config field, `*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
+
+```php
+$services->set('my_plugin.cms.element_media_ids_provider.my_gallery', CmsElementMediaIdsProvider::class)
+    ->args([service(MyGalleryCmsElementResolver::class), ['slides.*.picture.media.*.id', 'background.mediaId']])
+    ->tag('shopware.cms.element_media_ids_provider');
+```
 
 ### Event before a media file is replaced
 

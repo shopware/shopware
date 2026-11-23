@@ -22,6 +22,9 @@
     * attributes (optional) - Additional attributes that are added to the textarea element.
 #}
 {% block component_form_textarea %}
+    {% types {
+        attributes?: 'array<string, scalar|null>'
+    } %}
 
     {% set isInvalid = false %}
 

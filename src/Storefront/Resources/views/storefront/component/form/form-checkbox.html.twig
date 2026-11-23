@@ -19,6 +19,10 @@
     * attributes (optional) - Additional attributes that are added to the input element.
 #}
 {% block component_form_checkbox %}
+    {% types {
+        attributes?: 'array<string, scalar|null>'
+    } %}
+
     {% if not (value ?? null) %}
         {% set value = '1' %}
     {% endif %}

@@ -10,6 +10,13 @@ const utils = Shopware.Utils;
 export default {
     template,
 
+    computed: {
+        // A theme can only be assigned to a saved sales channel.
+        activationNeedsTheme() {
+            return !this.isProductExportChannel && !this.isHeadlessSalesChannel;
+        },
+    },
+
     created() {
         this.createdComponent();
     },
@@ -27,6 +34,11 @@ export default {
 
         /** @deprecated tag:v6.8.0 - Will be removed */
         prefillAgenticCommerceDefaults() {
+            Shopware.Feature.triggerDeprecationOrThrow(
+                'V6_8_0_0',
+                'sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.',
+            );
+
             this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },
     },

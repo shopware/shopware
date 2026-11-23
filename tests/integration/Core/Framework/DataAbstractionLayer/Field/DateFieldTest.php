@@ -32,8 +32,9 @@ class DateFieldTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
 
+        $this->connection->executeStatement('DROP TABLE IF EXISTS _date_field_test');
+
         $nullableTable = <<<EOF
-DROP TABLE IF EXISTS _date_field_test;
 CREATE TABLE `_date_field_test` (
   `id` BINARY(16) NOT NULL,
   `date` DATE NOT NULL,

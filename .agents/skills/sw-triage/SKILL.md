@@ -1,12 +1,10 @@
 ---
 name: sw-triage
 description: >
-  Triage a Shopware 6 GitHub bug issue. Read the issue body, identify the affected
-  code area via rg/git/gh, check for related fixes or duplicates, then emit a
-  Markdown summary with disposition, severity, suggested domain labels, confidence,
-  reasoning, and supporting evidence. Use when the user asks to triage, classify,
-  label, or assess a Shopware issue, when they reference an issue by number
-  (e.g. "#16599"), or when a new issue arrives that needs an initial dispositioning.
+  Triage a Shopware 6 GitHub bug issue and produce a Markdown summary with disposition,
+  severity, suggested domain labels, confidence, reasoning, and evidence. Reads the
+  issue, finds the affected code via rg/git/gh, and checks for related fixes or
+  duplicates. Not for fixing the issue, writing code, or reviewing pull requests.
 disable-model-invocation: true
 license: MIT
 allowed-tools: Bash(rg:*) Bash(git log:*) Bash(git show:*) Bash(git diff:*) Bash(git blame:*) Bash(gh issue view:*) Bash(gh issue list:*) Bash(gh pr view:*) Bash(gh pr list:*) Bash(gh api repos/*/issues/*:*) Bash(gh api repos/*/pulls/*:*) Bash(find:*) Bash(ls:*) Read Glob Grep

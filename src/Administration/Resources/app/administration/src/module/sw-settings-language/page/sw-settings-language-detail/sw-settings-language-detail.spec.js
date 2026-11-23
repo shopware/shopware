@@ -281,7 +281,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         expect(wrapper.find('.sw-settings-language-detail__created-banner').exists()).toBe(false);
 
         wrapper.vm.justCreated = true;
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-settings-language-detail__created-banner').exists()).toBe(true);
     });

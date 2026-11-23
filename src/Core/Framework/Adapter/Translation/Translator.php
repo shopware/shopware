@@ -335,13 +335,17 @@ class Translator extends AbstractTranslator
             return $catalogue;
         }
 
-        if (\array_key_exists($snippetSetId, $this->isCustomized)) {
-            return $this->isCustomized[$snippetSetId];
+        // The merged catalogue contains the theme snippets of the sales channel, so it must not be shared between channels
+        $this->resolveSalesChannelId();
+        $key = \sprintf('%s.%s-%s', $this->salesChannelId ?: 'DEFAULT', $snippetSetId, $catalogue->getLocale());
+
+        if (\array_key_exists($key, $this->isCustomized)) {
+            return $this->isCustomized[$key];
         }
 
         $newCatalogue = $this->buildMergedCatalogue($catalogue, $snippetSetId, $fallbackLocale);
 
-        return $this->isCustomized[$snippetSetId] = $newCatalogue;
+        return $this->isCustomized[$key] = $newCatalogue;
     }
 
     /**

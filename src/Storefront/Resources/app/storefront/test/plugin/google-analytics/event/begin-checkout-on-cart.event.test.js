@@ -1,13 +1,31 @@
 import BeginCheckoutOnCartEvent from 'src/plugin/google-analytics/events/begin-checkout-on-cart.event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 
 describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
+        window.sessionStorage.clear();
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         jest.clearAllMocks();
+    });
+
+    test('clears the reported checkout steps so the new checkout reports them again', () => {
+        CheckoutStepHelper.markReported('add_shipping_info');
+        CheckoutStepHelper.markReported('add_payment_info');
+
+        document.body.innerHTML = `
+            <div class="hidden-line-items-information" data-currency="EUR"></div>
+            <button class="begin-checkout-btn"></button>
+        `;
+
+        new BeginCheckoutOnCartEvent().execute();
+        document.querySelector('.begin-checkout-btn').click();
+
+        expect(CheckoutStepHelper.hasReported('add_shipping_info')).toBe(false);
+        expect(CheckoutStepHelper.hasReported('add_payment_info')).toBe(false);
     });
 
     test('supports returns true on cart page', () => {
@@ -41,14 +59,47 @@ describe('plugin/google-analytics/events/begin-checkout-on-cart.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'begin_checkout', {
             'currency': 'EUR',
-            'value': '199.98',
+            'value': 199.98,
             'items': [
                 {
-                    id: 'product-123',
-                    name: 'Test Product',
-                    quantity: '2',
-                    price: '99.99',
-                    brand: null,
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 2,
+                    price: 99.99,
+                },
+            ],
+        });
+    });
+
+    test('reports the applied promotion codes as coupon', () => {
+        document.body.innerHTML = `
+            <button class="begin-checkout-btn">Checkout</button>
+            <div class="hidden-line-items-information" data-currency="EUR" data-value="90">
+                <span class="hidden-line-item"
+                    data-id="product-123"
+                    data-sku="product-123"
+                    data-name="Test Product"
+                    data-quantity="1"
+                    data-price="100">
+                </span>
+                <span class="hidden-line-item-coupon" data-code="SAVE10"></span>
+            </div>
+        `;
+
+        new BeginCheckoutOnCartEvent().execute();
+        document.querySelector('.begin-checkout-btn').click();
+
+        // the value is the position price after the discount, the item keeps its unit price
+        expect(window.gtag).toHaveBeenCalledWith('event', 'begin_checkout', {
+            'currency': 'EUR',
+            'value': 90,
+            'coupon': 'SAVE10',
+            'items': [
+                {
+                    item_id: 'product-123',
+                    item_name: 'Test Product',
+                    quantity: 1,
+                    price: 100,
                 },
             ],
         });

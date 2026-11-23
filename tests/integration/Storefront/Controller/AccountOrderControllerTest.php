@@ -837,7 +837,6 @@ class AccountOrderControllerTest extends TestCase
         $repo = static::getContainer()->get('customer.repository');
         $repo->create([$customer], $context);
 
-        /** @var CustomerEntity|null $customer */
         $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
 
         static::assertNotNull($customer);

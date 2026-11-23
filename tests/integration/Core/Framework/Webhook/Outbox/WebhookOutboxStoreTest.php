@@ -164,13 +164,15 @@ class WebhookOutboxStoreTest extends TestCase
         $entry = $this->toEntry($message);
         $this->store->recordOutboxEntry($entry);
 
-        $stored = $this->connection->fetchOne(
-            'SELECT serialized_webhook_message FROM webhook_event_log WHERE id = :id',
+        $stored = $this->connection->fetchAssociative(
+            'SELECT serialized_webhook_message, LOWER(HEX(webhook_id)) AS webhook_id FROM webhook_event_log WHERE id = :id',
             ['id' => $this->ids->getBytes('evt-1')]
         );
 
-        static::assertNotFalse($stored);
-        static::assertSame($entry->serializedMessage, $stored);
+        static::assertSame([
+            'serialized_webhook_message' => $entry->serializedMessage,
+            'webhook_id' => $this->ids->get('wh-1'),
+        ], $stored);
     }
 
     public function testEnsureOutboxEntryReturnsNullOnDuplicateInsert(): void
@@ -555,6 +557,7 @@ class WebhookOutboxStoreTest extends TestCase
 
         static::assertTrue($this->store->markFailed(
             new OutboxEntry(
+                webhookId: $this->ids->get('wh-1'),
                 webhookEventId: $this->ids->get('evt-1'),
                 sequence: $sequence,
                 executionCount: 1,

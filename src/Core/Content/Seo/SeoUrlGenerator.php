@@ -70,7 +70,6 @@ class SeoUrlGenerator
         }
 
         $criteria = new Criteria($ids);
-        $route->prepareCriteria($criteria, $salesChannel);
 
         $config = $route->getConfig();
 
@@ -89,6 +88,9 @@ class SeoUrlGenerator
         if ($this->loadTwigTemplate($config, $template)) {
             $associations = $this->getAssociations($template, $repository->getDefinition());
             $criteria->addAssociations($associations);
+
+            // after the associations of the template, so the route can restrict them, e.g. to the sales channel
+            $route->prepareCriteria($criteria, $salesChannel);
 
             $criteria->setLimit(50);
 

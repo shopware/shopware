@@ -148,11 +148,15 @@ class ShopConfigurator
                 'oldId' => $newDefaultCurrencyId,
             ]);
 
-            $conn->executeStatement(
-                'SET @fixFactor = (SELECT 1/factor FROM currency WHERE iso_code = :newDefault);
-                 UPDATE currency
-                 SET factor = IF(iso_code = :newDefault, 1, factor * @fixFactor);',
+            $fixFactor = $conn->fetchOne(
+                'SELECT 1/factor FROM currency WHERE iso_code = :newDefault',
                 ['newDefault' => $currencyCode]
+            );
+
+            $conn->executeStatement(
+                'UPDATE currency
+                 SET factor = IF(iso_code = :newDefault, 1, factor * :fixFactor);',
+                ['newDefault' => $currencyCode, 'fixFactor' => $fixFactor]
             );
         });
     }

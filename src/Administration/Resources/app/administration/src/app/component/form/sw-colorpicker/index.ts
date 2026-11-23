@@ -1,3 +1,4 @@
+/* eslint-disable sw-core-rules/require-explicit-emits -- the deprecated colorpicker's update:value reaches the parent only through $attrs */
 import template from './sw-colorpicker.html.twig';
 
 /**

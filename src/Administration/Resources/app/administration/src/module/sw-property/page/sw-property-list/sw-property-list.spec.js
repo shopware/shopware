@@ -103,7 +103,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.getComponent('.sw-property-list__button-create');
 
@@ -114,7 +114,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = ['property.creator'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const createButton = wrapper.getComponent('.sw-property-list__button-create');
 
@@ -125,7 +125,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.getComponent('.sw-property-list-grid');
 
@@ -136,7 +136,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = ['property.editor'];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.getComponent('.sw-property-list-grid');
         expect(entityListing.props('allowInlineEdit')).toBe(true);
@@ -189,7 +189,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -211,7 +211,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         global.activeAclRoles = [];
 
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -237,7 +237,7 @@ describe('module/sw-property/page/sw-property-list', () => {
             term: 'foo',
         });
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria(1, 25);
         });
@@ -262,7 +262,7 @@ describe('module/sw-property/page/sw-property-list', () => {
         await wrapper.setData({
             term: 'foo',
         });
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });

@@ -36,6 +36,9 @@ return [
         // Expected to be appended when a new internal route default is added; existing entries are never removed
         preg_quote('Value of constant Shopware\Core\PlatformRequest::ATTRIBUTE_INTERNAL_ROUTE_PARAMS', '/'),
 
+        // Expected to grow when new robots.txt directives are supported
+        preg_quote('ADDED: Case Shopware\Storefront\Page\Robots\Struct\RobotsDirectiveType::', '/') . '.* was added',
+
         // swagger-php 6.4 is required for OpenAPI 3.2 generation. The reported
         // BC changes are in the third-party OpenApi\Analysis API. Extensions
         // that only define OpenAPI annotations/attributes continue to work; code
@@ -140,6 +143,9 @@ return [
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntitySeoUrlRouteInterface was marked "@internal"', '/'),
         preg_quote('CHANGED: Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver was marked "@internal"', '/'),
 
+        // AppException is internal, but its methods are still compared through subclasses that are not marked internal
+        preg_quote('Shopware\Core\Framework\App\AppException', '/') . '(::|#|$)',
+
         // Only thrown during the legacy commercial license sync; all services
         // that used it have published versions using the new webhooks instead
         preg_quote('REMOVED: Constant Shopware\Core\Service\ServiceException::SERVICE_MISSING_APP_SECRET_INFO was removed', '/'),
@@ -151,5 +157,7 @@ return [
         // Not released yet, so safe to be removed again
         preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
         preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome#rows() was removed', '/'),
+        preg_quote('REMOVED: Method Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\OutcomeRow#isInPayload() was removed', '/'),
     ],
 ];

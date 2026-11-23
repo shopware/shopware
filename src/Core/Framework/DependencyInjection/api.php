@@ -14,6 +14,7 @@ use Shopware\Core\Content\Media\Upload\PresignedMediaUploadService;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\AclVersionMergeValidator;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\AllStoreApiSchemaMigrationScopeProvider;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\BundleSchemaPathCollection;
@@ -91,6 +92,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -104,6 +106,7 @@ use Shopware\Core\Framework\Sso\TokenService\ExternalTokenService;
 use Shopware\Core\Framework\Sso\UserService\UserService;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\Update\Services\VersionHistory;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
@@ -162,6 +165,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('api.request_criteria_builder'),
             service(EntityProtectionValidator::class),
             service(AclCriteriaValidator::class),
+            service(AclVersionMergeValidator::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -338,6 +342,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
+            service(VersionHistory::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -360,6 +365,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PublicClientRegistry::class),
             service('shopware.rate_limiter'),
             service('router'),
+            service(McpOAuthMetadata::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -381,6 +387,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PublicClientRegistry::class)
         ->args([
             param('shopware.api.oauth_clients'),
+            param('kernel.environment'),
         ]);
 
     $services->set(ClientRepository::class)
@@ -481,6 +488,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(UserService::class),
             service(ExternalTokenService::class),
             service(ClockInterface::class),
+            service(PublicClientRegistry::class),
             param('shopware.api.refresh_token_ttl'),
             param('shopware.api.auth_code_ttl'),
         ]);

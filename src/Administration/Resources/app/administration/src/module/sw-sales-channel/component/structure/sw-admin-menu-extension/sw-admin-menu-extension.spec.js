@@ -60,7 +60,7 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     it('should not show the sw-sales-channel-menu when privilege does not exist', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
         const swSalesChannelMenu = wrapper.find('sw-sales-channel-menu-stub');
 
         expect(swSalesChannelMenu.exists()).toBeFalsy();

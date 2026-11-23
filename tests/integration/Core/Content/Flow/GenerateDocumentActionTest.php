@@ -138,7 +138,6 @@ class GenerateDocumentActionTest extends TestCase
             $this->createInvoiceDocument($order->getId(), $config, $context, $multipleDoc);
         }
 
-        /** @var FlowFactory $flowFactory */
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
@@ -180,7 +179,6 @@ class GenerateDocumentActionTest extends TestCase
 
         $this->logger->pushHandler($handler);
 
-        /** @var FlowFactory $flowFactory */
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
@@ -234,7 +232,6 @@ class GenerateDocumentActionTest extends TestCase
         $before = $this->getDocumentId($order->getId());
         static::assertCount(0, $before);
 
-        /** @var FlowFactory $flowFactory */
         $flowFactory = static::getContainer()->get(FlowFactory::class);
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
@@ -269,7 +266,6 @@ class GenerateDocumentActionTest extends TestCase
         static::assertCount(0, $before);
 
         Feature::fake(['DOCUMENT_GENERATION_REWORK'], function () use ($event, $config, $subscriber): void {
-            /** @var FlowFactory $flowFactory */
             $flowFactory = static::getContainer()->get(FlowFactory::class);
             $flow = $flowFactory->create($event);
             $flow->setConfig($config);

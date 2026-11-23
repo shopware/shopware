@@ -9,6 +9,7 @@ import ConditionDataProviderService from 'src/app/service/rule-condition.service
 import fs from 'fs';
 import path from 'path';
 import ruleConditionsConfig from './_mocks/ruleConditionsConfig.json';
+import { allowDeprecation } from 'test/_helper_/deprecations';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';
 const conditionTypes = fs.readdirSync(path.join(adminPath, conditionTypesRootPath)).filter((conditionType) => {
@@ -61,8 +62,8 @@ async function createWrapperForComponent(componentName, props = {}) {
                 'sw-text-field': {
                     template: '<div class="sw-text-field"></div>',
                 },
-                'sw-tagged-field': {
-                    template: '<div class="sw-tagged-field"></div>',
+                'sw-multi-tag-select': {
+                    template: '<div class="sw-multi-tag-select"></div>',
                 },
                 'sw-single-select': {
                     template: '<div class="sw-single-select"></div>',
@@ -141,7 +142,7 @@ function getAllFields(wrapper) {
         wrapper.findAll('.sw-entity-multi-select'),
         wrapper.findAll('.sw-entity-single-select'),
         wrapper.findAll('.sw-text-field'),
-        wrapper.findAll('.sw-tagged-field'),
+        wrapper.findAll('.sw-multi-tag-select'),
         wrapper.findAll('.sw-single-select'),
         wrapper.findAll('.sw-entity-tag-select'),
         wrapper.findAll('.sw-datepicker'),
@@ -156,6 +157,8 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     });
 
     beforeEach(() => {
+        allowDeprecation('The component "sw-condition-line-item-in-category" is deprecated');
+        allowDeprecation('The component "sw-condition-line-item-purchase-price" is deprecated');
         Shopware.Store.get('ruleConditionsConfig').config = ruleConditionsConfig;
     });
 

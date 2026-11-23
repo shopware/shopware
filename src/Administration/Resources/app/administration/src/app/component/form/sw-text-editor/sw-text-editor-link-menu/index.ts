@@ -31,6 +31,8 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['repositoryFactory'],
 
+    emits: ['mounted', 'button-click'],
+
     props: {
         buttonConfig: {
             type: Object as () => TextEditorLinkMenuConfig,

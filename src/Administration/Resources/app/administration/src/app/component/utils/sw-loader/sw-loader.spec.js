@@ -3,6 +3,9 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
+
+const oldUsageDeprecation = 'The old usage of "sw-loader" is deprecated';
 
 async function createWrapper(additionalOptions = {}) {
     return mount(await wrapTestComponent('sw-loader', { sync: true }), {
@@ -18,10 +21,15 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-loader', () => {
+    beforeEach(() => {
+        allowDeprecation(oldUsageDeprecation);
+    });
+
     // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-loader implementation.
-    it.deprecated('v6.8.0.0')('should render the deprecated sw-loader', async () => {
+    it.deprecated('v6.8.0.0')('should render the deprecated sw-loader and report it as deprecated', async () => {
         const wrapper = await createWrapper();
 
+        expect(deprecations).toHaveTriggered(oldUsageDeprecation);
         expect(wrapper.html()).toContain('sw-loader-deprecated');
         expect(wrapper.html()).not.toContain('mt-loader');
     });
@@ -30,5 +38,6 @@ describe('src/app/component/base/sw-loader', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.html()).toContain('mt-loader');
+        expect(deprecations).not.toHaveTriggered(oldUsageDeprecation);
     });
 });

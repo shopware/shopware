@@ -75,6 +75,14 @@ class DeliveryCollection extends Collection
         );
     }
 
+    /**
+     * Returns the deliveries that are not shipping discounts, in collection order
+     */
+    public function getShipments(): self
+    {
+        return $this->filter(static fn (Delivery $delivery) => $delivery->getShippingCosts()->getTotalPrice() >= 0);
+    }
+
     public function getAddresses(): CustomerAddressCollection
     {
         $addresses = new CustomerAddressCollection();

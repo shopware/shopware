@@ -75,7 +75,10 @@
                 </template>
             </template>
 
-            <template v-else>
+            <sw-silence-deprecations
+                v-else
+                flag="V6_9_0_0"
+            >
                 <sw-tabs
                     class="sw-flow-list__tab"
                     position-identifier="sw-flow-listing"
@@ -121,7 +124,7 @@
                         </template>
                     </template>
                 </sw-tabs>
-            </template>
+            </sw-silence-deprecations>
         </sw-card-view>
 
         {% block sw_flow_index_modal_content_custom %}

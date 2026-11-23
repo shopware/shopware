@@ -21,15 +21,22 @@ const info = 'local';
 swDefineOverride({});
 </script>`;
 
-    it('declares the namespace symbol at module root, outside the override callback', () => {
+    it('declares the namespace symbol at module root, outside the setup script', () => {
         const result = transformShopwareSetupSfc(source, 'sw-thing.override.vue')?.code ?? '';
 
         expect(result).toContain("const __swSetupNamespace = Symbol('sw-thing.override');");
 
-        // Must sit before the callback: the callback runs once per base-component instance, so a symbol
-        // created inside it would differ every time and no state lookup would ever match.
-        expect(result.indexOf('const __swSetupNamespace')).toBeLessThan(
-            result.indexOf('Shopware.Component.overrideComponentSetup()'),
+        // `<script setup>` is the body of the hidden component's setup(), so a symbol created there would
+        // differ for every setup run and the block content of one run could not read the state of another.
+        expect(result.indexOf('const __swSetupNamespace')).toBeLessThan(result.indexOf('<script setup'));
+    });
+
+    it('takes the namespace of a hot-updated override from the global symbol registry, keyed by the file', () => {
+        const result =
+            transformShopwareSetupSfc(source, 'src/deep/path/sw-thing.override.vue', { hotUpdates: true })?.code ?? '';
+
+        expect(result).toContain(
+            "const __swSetupNamespace = Symbol.for('sw-thing.override:src/deep/path/sw-thing.override.vue');",
         );
     });
 

@@ -2,12 +2,12 @@
 
 namespace Shopware\Core\Framework\Webhook\Authorization\Policy;
 
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
-use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 use Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\Webhook\NotHookable;
 use Shopware\Core\Framework\Webhook\Webhook;
@@ -38,7 +38,7 @@ final class NotHookablePolicy implements Policy
     public function permitsSubscription(string $eventName, Subscriber $subscriber): bool
     {
         // @deprecated tag:v6.8.0 - Will always return false, apps can no longer subscribe to events that are not hookable
-        if ($subscriber->type !== SubscriberType::App || Feature::isActive('v6.8.0.0')) {
+        if ($subscriber->type !== IdentityType::App || Feature::isActive('v6.8.0.0')) {
             return false;
         }
 

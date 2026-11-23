@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Resource;
 
+use Mcp\Schema\Content\TextResourceContents;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -47,12 +48,13 @@ class CurrencyListResourceTest extends TestCase
         $repository->method('search')->willReturn($searchResult);
 
         $resource = new CurrencyListResource($repository);
-        $result = ($resource)();
+        $result = ($resource)()->contents[0];
+        static::assertInstanceOf(TextResourceContents::class, $result);
 
-        static::assertSame('shopware://currencies', $result['uri']);
-        static::assertSame('application/json', $result['mimeType']);
+        static::assertSame('shopware://currencies', $result->uri);
+        static::assertSame('application/json', $result->mimeType);
 
-        $data = json_decode($result['text'], true, 512, \JSON_THROW_ON_ERROR);
+        $data = json_decode($result->text, true, 512, \JSON_THROW_ON_ERROR);
         static::assertCount(1, $data);
         static::assertSame($id, $data[0]['id']);
         static::assertSame('EUR', $data[0]['isoCode']);

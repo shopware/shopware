@@ -134,14 +134,6 @@ Production gets a new secret, and the copy's secret stops working.
 
 Moving the secrets from the copy to production safely, for example through a password manager and not through chat or email, is the shop operator's job.
 
-### Does the app accept the registration?
-
-| Who registers as `shop-1`                           | Result                                        |
-|:----------------------------------------------------|:----------------------------------------------|
-| Production, given `staging-secret`                  | Accepted                                      |
-| Production, holding only `prod-secret`              | Rejected: the app accepts only `staging-secret` |
-| Production, more than 72 hours after the copy got a new ShopId | The copy deleted `staging-secret`, so there is nothing to pass on; see manual recovery |
-
 ### Manual recovery
 
 Every other case stays with the app operator, as today.

@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\AclRoleLoader;
 use Shopware\Core\Framework\Api\Acl\AclRoles;
 use Shopware\Core\Framework\Api\Acl\ApiCaller;
+use Shopware\Core\Framework\Api\Acl\IdentityRoleMap;
+use Shopware\Core\Framework\Api\Acl\IdentityType;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\RowLoader;
@@ -23,7 +25,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
-use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriberType;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionRefusals;
 use Shopware\Core\Framework\Webhook\Authorization\Subscription\SubscriptionValidator;
 use Shopware\Core\Framework\Webhook\Authorization\WriteAuthorizer;
@@ -64,14 +65,14 @@ class WriteAuthorizerTest extends TestCase
         $this->validator->method('validate')->willReturn(new SubscriptionRefusals());
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(false, ['role'])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
     }
 
     public function testAnAppsWebhookCannotBeModifiedEvenByAnAdmin(): void
     {
         $update = $this->updateWebhook(['url' => 'https://example.com']);
-        $this->storeWebhook($update, SubscriberType::App, Uuid::randomHex());
+        $this->storeWebhook($update, IdentityType::App, Uuid::randomHex());
 
         $this->assertViolation($this->authorize([$update]), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
         $this->assertViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
@@ -80,7 +81,7 @@ class WriteAuthorizerTest extends TestCase
     public function testOnlyAnAdminMaySwitchAnAppsWebhookOnOrOff(): void
     {
         $update = $this->updateWebhook(['active' => 1]);
-        $this->storeWebhook($update, SubscriberType::App, Uuid::randomHex());
+        $this->storeWebhook($update, IdentityType::App, Uuid::randomHex());
 
         static::assertSame([], $this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)));
         $this->assertViolation($this->authorize([$update]), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
@@ -89,7 +90,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAnAdminMayNotChangeMoreThanTheActiveFlagOfAnAppsWebhook(): void
     {
         $update = $this->updateWebhook(['active' => 1, 'url' => 'https://example.com']);
-        $this->storeWebhook($update, SubscriberType::App, Uuid::randomHex());
+        $this->storeWebhook($update, IdentityType::App, Uuid::randomHex());
 
         $this->assertViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)), WebhookException::APP_WEBHOOK_NOT_MODIFIABLE);
     }
@@ -97,7 +98,7 @@ class WriteAuthorizerTest extends TestCase
     public function testOnlyTheOwningUserMayModify(): void
     {
         $update = $this->updateWebhook(['url' => 'https://example.com']);
-        $this->storeWebhook($update, SubscriberType::User, self::USER_ID);
+        $this->storeWebhook($update, IdentityType::User, self::USER_ID);
 
         static::assertSame([], $this->authorize([$update]));
         $this->assertViolation($this->authorize([$update], $this->userContext(Uuid::randomHex())), WebhookException::WEBHOOK_NOT_OWNED);
@@ -107,7 +108,7 @@ class WriteAuthorizerTest extends TestCase
     {
         $integrationId = Uuid::randomHex();
         $update = $this->updateWebhook(['url' => 'https://example.com']);
-        $this->storeWebhook($update, SubscriberType::Integration, $integrationId);
+        $this->storeWebhook($update, IdentityType::Integration, $integrationId);
 
         static::assertSame([], $this->authorize([$update], new Context(new AdminApiSource(null, $integrationId))));
         $this->assertViolation($this->authorize([$update], new Context(new AdminApiSource(null, Uuid::randomHex()))), WebhookException::WEBHOOK_NOT_OWNED);
@@ -116,7 +117,7 @@ class WriteAuthorizerTest extends TestCase
     public function testADeleteIsCheckedLikeAnUpdate(): void
     {
         $delete = new DeleteCommand($this->webhookDefinition(), ['id' => Uuid::randomBytes()], static::createStub(EntityExistence::class));
-        $this->storeWebhook($delete, SubscriberType::User, Uuid::randomHex());
+        $this->storeWebhook($delete, IdentityType::User, Uuid::randomHex());
 
         $this->assertViolation($this->authorize([$delete]), WebhookException::WEBHOOK_NOT_OWNED);
     }
@@ -132,7 +133,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAnAdminMayModifyAWebhookItDoesNotOwn(): void
     {
         $update = $this->updateWebhook(['url' => 'https://example.com']);
-        $this->storeWebhook($update, SubscriberType::User, Uuid::randomHex());
+        $this->storeWebhook($update, IdentityType::User, Uuid::randomHex());
 
         static::assertSame([], $this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)));
     }
@@ -140,12 +141,35 @@ class WriteAuthorizerTest extends TestCase
     public function testARejectedModificationIsNotCheckedFurther(): void
     {
         $update = $this->updateWebhook(['event_name' => 'product.written']);
-        $this->storeWebhook($update, SubscriberType::User, Uuid::randomHex());
+        $this->storeWebhook($update, IdentityType::User, Uuid::randomHex());
 
         $this->validator = $this->createMock(SubscriptionValidator::class);
         $this->validator->expects($this->never())->method('validate');
 
         $this->assertViolation($this->authorize([$update]), WebhookException::WEBHOOK_NOT_OWNED);
+    }
+
+    public function testAnAppsIntegrationCannotGiveItsWebhookASecret(): void
+    {
+        $appIntegrationId = Uuid::randomHex();
+        $integrationId = Uuid::randomHex();
+
+        $this->assertSecretViolation($this->authorize(
+            [$this->insertWebhook(secret: 'my-secret', ownerType: IdentityType::AppIntegration, ownerId: $appIntegrationId)],
+            new Context(new AdminApiSource(null, $appIntegrationId))
+        ));
+        static::assertSame([], $this->authorize(
+            [$this->insertWebhook(secret: 'my-secret', ownerType: IdentityType::Integration, ownerId: $integrationId)],
+            new Context(new AdminApiSource(null, $integrationId))
+        ));
+    }
+
+    public function testASecretCannotBeSetOnAWebhookOfAnAppsIntegrationEvenByAnAdmin(): void
+    {
+        $update = $this->updateWebhook(['secret' => 'my-secret']);
+        $this->storeWebhook($update, IdentityType::AppIntegration, Uuid::randomHex());
+
+        $this->assertSecretViolation($this->authorize([$update], $this->userContext(Uuid::randomHex(), isAdmin: true)));
     }
 
     public function testAnEmptyAclRoleListIsRejected(): void
@@ -165,7 +189,7 @@ class WriteAuthorizerTest extends TestCase
     public function testOnlyEventAndAclRoleChangesAreChecked(): void
     {
         $update = $this->updateWebhook(['url' => 'https://example.com']);
-        $this->storeWebhook($update, SubscriberType::User, self::USER_ID);
+        $this->storeWebhook($update, IdentityType::User, self::USER_ID);
 
         $this->validator = $this->createMock(SubscriptionValidator::class);
         $this->validator->expects($this->never())->method('validate');
@@ -197,8 +221,8 @@ class WriteAuthorizerTest extends TestCase
 
         $this->validator = static::createStub(SubscriptionValidator::class);
         $this->validator->method('validate')->willReturn(new SubscriptionRefusals(
-            notHookable: [$product->getDecodedPrimaryKey()['id']],
-            notPermitted: [$order->getDecodedPrimaryKey()['id']],
+            notHookable: [$product->getDecodedPrimaryKey()['id'] => 'product.written'],
+            notPermitted: [$order->getDecodedPrimaryKey()['id'] => 'order.written'],
             missingPrivileges: [$customer->getDecodedPrimaryKey()['id'] => ['customer:read']],
         ));
 
@@ -216,9 +240,9 @@ class WriteAuthorizerTest extends TestCase
 
         $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
         $this->aclRoleLoader->expects($this->once())
-            ->method('getUserRoles')
-            ->with([self::USER_ID])
-            ->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
+            ->method('getRoles')
+            ->with([self::USER_ID], [])
+            ->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
             'role-a' => new AclPrivilegeCollection(['product:read', 'order:read']),
             'role-b' => new AclPrivilegeCollection(['order:read', 'customer:read']),
@@ -245,7 +269,7 @@ class WriteAuthorizerTest extends TestCase
         $insert = $this->insertWebhook();
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(true, [])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
 
         $this->validator = $this->createMock(SubscriptionValidator::class);
@@ -260,13 +284,13 @@ class WriteAuthorizerTest extends TestCase
     public function testAnUpdateIsCheckedWithTheStoredOwnersRolesAndTheNewEvent(): void
     {
         $update = $this->updateWebhook(['event_name' => 'order.written']);
-        $this->storeWebhook($update, SubscriberType::User, self::USER_ID);
+        $this->storeWebhook($update, IdentityType::User, self::USER_ID);
 
         $this->aclRoleLoader = $this->createMock(AclRoleLoader::class);
         $this->aclRoleLoader->expects($this->once())
-            ->method('getUserRoles')
-            ->with([self::USER_ID])
-            ->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+            ->method('getRoles')
+            ->with([self::USER_ID], [])
+            ->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(false, ['role'])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn(['role' => new AclPrivilegeCollection(['order:read'])]);
 
         $this->validator = $this->createMock(SubscriptionValidator::class);
@@ -283,7 +307,7 @@ class WriteAuthorizerTest extends TestCase
         $insert = $this->insertWebhook(aclRoleIds: ['role-a']);
 
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(false, ['role-a', 'role-b'])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
             'role-a' => new AclPrivilegeCollection(['product:read']),
             'role-b' => new AclPrivilegeCollection(['order:read']),
@@ -301,7 +325,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAclRolesTheOwnerDoesNotHoldAreRejected(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(false, ['role'])]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(false, ['role'])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([
             'role' => new AclPrivilegeCollection([]),
             'other-role' => new AclPrivilegeCollection([]),
@@ -315,7 +339,7 @@ class WriteAuthorizerTest extends TestCase
     public function testAnUnrestrictedOwnerMayListAnyExistingRole(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(true, [])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn(['any-role' => new AclPrivilegeCollection([])]);
 
         static::assertSame([], $this->authorize([$this->insertWebhook(aclRoleIds: ['any-role'])]));
@@ -324,7 +348,7 @@ class WriteAuthorizerTest extends TestCase
     public function testRolesThatDoNotExistAreRejectedEvenForAnUnrestrictedOwner(): void
     {
         $this->aclRoleLoader = static::createStub(AclRoleLoader::class);
-        $this->aclRoleLoader->method('getUserRoles')->willReturn([self::USER_ID => new AclRoles(true, [])]);
+        $this->aclRoleLoader->method('getRoles')->willReturn(new IdentityRoleMap([self::USER_ID => new AclRoles(true, [])], []));
         $this->aclRoleLoader->method('getPrivilegesForRoles')->willReturn([]);
 
         $violations = $this->authorize([$this->insertWebhook(aclRoleIds: ['missing-role'])]);
@@ -335,7 +359,7 @@ class WriteAuthorizerTest extends TestCase
     public function testStoredAclRolesAreOnlyRejectedWhenWritten(): void
     {
         $update = $this->updateWebhook(['event_name' => 'product.written']);
-        $this->storeWebhook($update, SubscriberType::User, self::USER_ID, 'order.written', ['role', 'lost-role']);
+        $this->storeWebhook($update, IdentityType::User, self::USER_ID, 'order.written', ['role', 'lost-role']);
 
         static::assertSame([], $this->authorize([$update]));
     }
@@ -354,27 +378,30 @@ class WriteAuthorizerTest extends TestCase
     /**
      * @param list<string>|null $aclRoleIds
      */
-    private function storeWebhook(WriteCommand $command, SubscriberType $ownerType, string $ownerId, string $eventName = 'product.written', ?array $aclRoleIds = null): void
+    private function storeWebhook(WriteCommand $command, IdentityType $ownerType, string $ownerId, string $eventName = 'product.written', ?array $aclRoleIds = null): void
     {
-        $ownerColumn = match ($ownerType) {
-            SubscriberType::App => 'app_id',
-            SubscriberType::Integration => 'owner_integration_id',
-            SubscriberType::User => 'owner_user_id',
-            SubscriberType::None => static::fail('A stored webhook needs an owner.'),
-        };
-
         $row = [
             'id' => $command->getPrimaryKey()['id'],
             'app_id' => null,
             'owner_integration_id' => null,
             'owner_user_id' => null,
+            'owner_type' => $ownerType->value,
             'event_name' => $eventName,
             'acl_role_ids' => $aclRoleIds === null ? null : json_encode($aclRoleIds, \JSON_THROW_ON_ERROR),
         ];
-        $row[$ownerColumn] = Uuid::fromHexToBytes($ownerId);
+        $row[$this->ownerColumn($ownerType)] = Uuid::fromHexToBytes($ownerId);
 
         $this->rowLoader = static::createStub(RowLoader::class);
         $this->rowLoader->method('load')->willReturn([$row]);
+    }
+
+    private function ownerColumn(IdentityType $ownerType): string
+    {
+        return match ($ownerType) {
+            IdentityType::App => 'app_id',
+            IdentityType::Integration, IdentityType::AppIntegration => 'owner_integration_id',
+            IdentityType::User => 'owner_user_id',
+        };
     }
 
     private function userContext(string $userId, bool $isAdmin = false): Context
@@ -396,12 +423,21 @@ class WriteAuthorizerTest extends TestCase
     /**
      * @param list<string>|null $aclRoleIds
      */
-    private function insertWebhook(string $eventName = 'product.written', ?array $aclRoleIds = null): InsertCommand
-    {
+    private function insertWebhook(
+        string $eventName = 'product.written',
+        ?array $aclRoleIds = null,
+        ?string $secret = null,
+        IdentityType $ownerType = IdentityType::User,
+        string $ownerId = self::USER_ID,
+    ): InsertCommand {
         $id = Uuid::randomBytes();
-        $payload = ['id' => $id, 'event_name' => $eventName, 'owner_user_id' => Uuid::fromHexToBytes(self::USER_ID)];
+        $payload = ['id' => $id, 'event_name' => $eventName, $this->ownerColumn($ownerType) => Uuid::fromHexToBytes($ownerId), 'owner_type' => $ownerType->value];
         if ($aclRoleIds !== null) {
             $payload['acl_role_ids'] = json_encode($aclRoleIds, \JSON_THROW_ON_ERROR);
+        }
+
+        if ($secret !== null) {
+            $payload['secret'] = $secret;
         }
 
         return new InsertCommand($this->webhookDefinition(), $payload, ['id' => $id], static::createStub(EntityExistence::class), '/insert');
@@ -428,6 +464,16 @@ class WriteAuthorizerTest extends TestCase
     {
         static::assertCount(1, $violations);
         static::assertSame($errorCode, $violations[0]->getErrorCode());
+    }
+
+    /**
+     * @param list<HttpException> $violations
+     */
+    private function assertSecretViolation(array $violations): void
+    {
+        static::assertCount(1, $violations);
+        static::assertInstanceOf(WriteConstraintViolationException::class, $violations[0]);
+        static::assertSame('/secret', $violations[0]->getViolations()->get(0)->getPropertyPath());
     }
 
     /**

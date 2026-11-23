@@ -184,7 +184,14 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
-            $requests[$message->getWebhookEventId()] = $this->webhookDeliveryService->buildRequest($message, $entry);
+            $request = $this->webhookDeliveryService->buildRequest($message, $entry);
+            if ($request === null) {
+                $this->webhookOutboxStore->markFailed($entry, null);
+
+                continue;
+            }
+
+            $requests[$message->getWebhookEventId()] = $request;
             $entries[$message->getWebhookEventId()] = $entry;
         }
 

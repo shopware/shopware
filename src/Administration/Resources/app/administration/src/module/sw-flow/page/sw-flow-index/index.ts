@@ -9,7 +9,6 @@ const { Criteria } = Shopware.Data;
  * @private
  * @sw-package after-sales
  */
-// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default Shopware.Component.wrapComponentConfig({
     template,
 

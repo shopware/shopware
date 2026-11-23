@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -1604,6 +1605,23 @@ class Configuration implements ConfigurationInterface
                     ->end()
                     ->booleanNode('enabled')->defaultFalse()->end()
                     ->scalarNode('replace_unknown_label_values_with')->defaultValue('other')->end()
+                    ->arrayNode('mappings')
+                        ->useAttributeAsKey('name')
+                        // keys are free-form identifiers (route names, FQCN prefixes, ...): the default key
+                        // normalization would rewrite `store-api.*` to `store_api.*` and break the lookup
+                        ->normalizeKeys(false)
+                        ->arrayPrototype()
+                            ->useAttributeAsKey('key')
+                            ->normalizeKeys(false)
+                            ->scalarPrototype()
+                                // a YAML `cache: 1` would otherwise only fail at runtime, inside the instrumented code path
+                                ->validate()
+                                    ->ifTrue(static fn ($value): bool => !\is_string($value))
+                                    ->thenInvalid('Telemetry label mapping values must be strings, %s given.')
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
                     ->arrayNode('definitions')
                         ->useAttributeAsKey('name')
                         ->arrayPrototype()
@@ -1623,24 +1641,38 @@ class Configuration implements ConfigurationInterface
                                     ->useAttributeAsKey('label_name')
                                     ->arrayPrototype()
                                         ->validate()
+                                            // the only invalid shape is an empty declaration; cross-source combinations
+                                            // should never fail the build, so third-party config cannot break a shop on a core
+                                            // update that changes how a label is served (see the ADR)
                                             ->ifTrue(static function (array $label): bool {
-                                                $hasAllowedValues = isset($label['allowed_values']) && $label['allowed_values'] !== [];
-                                                $hasPolicy = isset($label['policy']);
+                                                $hasValues = ($label['allowed_values'] ?? []) !== [] || ($label['add_allowed_values'] ?? []) !== [];
 
-                                                if ($hasPolicy && $label['policy'] === LabelPolicy::OPEN->value && $hasAllowedValues) {
-                                                    return true;
-                                                }
-                                                if (!$hasAllowedValues && !$hasPolicy) {
-                                                    return true;
-                                                }
-
-                                                return false;
+                                                return !$hasValues && !isset($label['policy']);
                                             })
-                                            ->thenInvalid('Each label must have either "allowed_values" or "policy: open", but not both. Missing both is also invalid.')
+                                            ->thenInvalid('Each label must declare values ("allowed_values" and/or "add_allowed_values") or a "policy".')
+                                        ->end()
+                                        ->validate()
+                                            // fold to the effective state: a present `allowed_values` is the complete,
+                                            // final list and locks the label - all `add_allowed_values` contributions
+                                            // are discarded; otherwise the deduplicated contributions are the list.
+                                            // The fold is policy-agnostic; on a `policy: open` label the folded values
+                                            // are inert at runtime and only visible in debug:config
+                                            ->always(static function (array $label): array {
+                                                if (($label['allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = [];
+                                                } elseif (($label['add_allowed_values'] ?? []) !== []) {
+                                                    $label['add_allowed_values'] = array_values(array_unique($label['add_allowed_values']));
+                                                }
+
+                                                return $label;
+                                            })
                                         ->end()
                                         ->children()
                                             ->arrayNode('allowed_values')
                                                 ->performNoDeepMerging()
+                                                ->scalarPrototype()->end()
+                                            ->end()
+                                            ->arrayNode('add_allowed_values')
                                                 ->scalarPrototype()->end()
                                             ->end()
                                             ->enumNode('policy')
@@ -1725,6 +1757,20 @@ class Configuration implements ConfigurationInterface
                     ->info('Additional Origin values accepted by the MCP endpoints, on top of the shop\'s own origins. An entry is an exact origin (https://chat.example), an origin with any port (http://localhost:*) or * for any origin. Accepts %env(csv:MCP_ALLOWED_ORIGINS)%.')
                     ->scalarPrototype()->end()
                     ->defaultValue([])
+                ->end()
+                ->arrayNode('protocol_era')
+                    ->info('MCP protocol revisions each endpoint serves. "legacy" serves the handshake revisions up to 2025-11-25. "auto" also serves the stateless 2026-07-28 revision, and the client picks.')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->enumNode('admin')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                        ->enumNode('store_api')
+                            ->values([McpServerBuilderCompilerPass::ERA_LEGACY, McpServerBuilderCompilerPass::ERA_AUTO])
+                            ->defaultValue(McpServerBuilderCompilerPass::ERA_LEGACY)
+                        ->end()
+                    ->end()
                 ->end()
                 ->integerNode('app_tool_timeout')
                     ->info('Timeout in seconds for app webhook MCP tool calls.')

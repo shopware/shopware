@@ -693,7 +693,8 @@ Shops that adjusted these rules themselves keep their rules, and should compare 
 ### Search config cache is kept per language
 
 `CachedSearchConfigLoader` now caches the search config per language id chain and tags each entry with `CachedSearchConfigLoader::CACHE_KEY`.
-Writing or deleting a search config, a search config field or a custom field invalidates that tag, and so does resetting the excluded terms in the Administration.
+It also adds that tag to the HTTP cache of the current request.
+Writing or deleting a search config or a search config field invalidates that tag, and so does removing a custom field from the search or resetting the excluded terms in the Administration.
 Deleting the cache item `CachedSearchConfigLoader::CACHE_KEY` no longer clears the cached config.
 Invalidate the tag instead.
 

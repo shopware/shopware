@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CachedSearchConfigLoader;
@@ -26,6 +27,8 @@ class CachedSearchConfigLoaderTest extends TestCase
      */
     private array $loadedLanguageIds = [];
 
+    private SearchConfigLoader $decorated;
+
     private TagAwareAdapter $cache;
 
     private CachedSearchConfigLoader $loader;
@@ -33,6 +36,7 @@ class CachedSearchConfigLoaderTest extends TestCase
     protected function setUp(): void
     {
         $decorated = static::createStub(SearchConfigLoader::class);
+        $this->decorated = $decorated;
         $decorated->method('load')->willReturnCallback(function (Context $context): array {
             $this->loadedLanguageIds[] = $context->getLanguageId();
 
@@ -48,7 +52,7 @@ class CachedSearchConfigLoaderTest extends TestCase
         });
 
         $this->cache = new TagAwareAdapter(new ArrayAdapter(), new ArrayAdapter());
-        $this->loader = new CachedSearchConfigLoader($decorated, $this->cache);
+        $this->loader = new CachedSearchConfigLoader($decorated, $this->cache, static::createStub(CacheTagCollector::class));
     }
 
     public function testLoadsTheConfigOncePerLanguage(): void
@@ -78,5 +82,19 @@ class CachedSearchConfigLoaderTest extends TestCase
         $this->loader->load($german);
 
         static::assertSame([Defaults::LANGUAGE_SYSTEM, $germanId], $this->loadedLanguageIds);
+    }
+
+    public function testAddsTheCacheTagToTheRequestOnEveryLoad(): void
+    {
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->exactly(2))
+            ->method('addTag')
+            ->with(CachedSearchConfigLoader::CACHE_KEY);
+
+        $loader = new CachedSearchConfigLoader($this->decorated, $this->cache, $cacheTagCollector);
+        $loader->load(Context::createDefaultContext());
+        $loader->load(Context::createDefaultContext());
+
+        static::assertSame([Defaults::LANGUAGE_SYSTEM], $this->loadedLanguageIds);
     }
 }

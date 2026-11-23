@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -22,7 +23,8 @@ class CachedSearchConfigLoader extends SearchConfigLoader
      */
     public function __construct(
         private readonly SearchConfigLoader $decorated,
-        private readonly CacheInterface $cache
+        private readonly CacheInterface $cache,
+        private readonly CacheTagCollector $cacheTagCollector
     ) {
     }
 
@@ -31,6 +33,8 @@ class CachedSearchConfigLoader extends SearchConfigLoader
      */
     public function load(Context $context): array
     {
+        $this->cacheTagCollector->addTag(self::CACHE_KEY);
+
         $key = self::CACHE_KEY . '-' . implode('-', $context->getLanguageIdChain());
 
         return $this->cache->get($key, function (ItemInterface $item) use ($context): array {

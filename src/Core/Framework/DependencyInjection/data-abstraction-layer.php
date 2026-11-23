@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchTermInterpreter;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Sync\SyncFkResolver;
@@ -290,6 +291,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CachedSearchConfigLoader::class . '.inner'),
             service('cache.object'),
+            service(CacheTagCollector::class),
         ]);
 
     $services->set(CriteriaArrayConverter::class)

@@ -8,6 +8,10 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
@@ -139,6 +143,8 @@ class CategoryIndexer extends EntityIndexer
                 $event->getContext(),
                 true
             );
+
+            $this->dispatchProductIndexing($idsWithChangedParentIds, $event->getContext());
         }
 
         if (!$runAllUpdaters && !$parentIdChanged && !$nameChanged && !$activeStateChanged) {
@@ -261,6 +267,79 @@ SQL;
 
         return $this->connection->fetchFirstColumn($sql, [
             'version' => Uuid::fromHexToBytes($versionId),
+            'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
+        ], [
+            'categoryIds' => ArrayParameterType::BINARY,
+        ]);
+    }
+
+    /**
+     * Products denormalize the path of their categories, so a moved category invalidates
+     * the category tree of every product assigned to it or to one of its descendants.
+     *
+     * @param array<string> $movedCategoryIds
+     */
+    private function dispatchProductIndexing(array $movedCategoryIds, Context $context): void
+    {
+        if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
+        $categoryIds = array_unique(array_merge(
+            $movedCategoryIds,
+            $this->fetchChildren($movedCategoryIds, $context->getVersionId())
+        ));
+
+        foreach (\array_chunk($this->fetchProductIds($categoryIds), self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
+            $message = new ProductIndexingMessage($chunk, null, $context);
+            $message->setIndexer('product.indexer');
+            $message->addSkip(
+                ProductIndexer::INHERITANCE_UPDATER,
+                ProductIndexer::STOCK_UPDATER,
+                ProductIndexer::VARIANT_LISTING_UPDATER,
+                ProductIndexer::CHILD_COUNT_UPDATER,
+                ProductIndexer::CHEAPEST_PRICE_UPDATER,
+                ProductIndexer::RATING_AVERAGE_UPDATER,
+                ProductIndexer::SEARCH_KEYWORD_UPDATER,
+            );
+            EntityIndexerRegistry::addSkips($message, $context);
+
+            $this->messageBus->dispatch($message);
+        }
+    }
+
+    /**
+     * Returns the products assigned to the given categories, including the variants inheriting that assignment.
+     *
+     * @param array<string> $categoryIds
+     *
+     * @return array<string>
+     */
+    private function fetchProductIds(array $categoryIds): array
+    {
+        $sql = <<<'SQL'
+SELECT LOWER(HEX(mapping.product_id))
+FROM product_category mapping
+WHERE mapping.category_id IN (:categoryIds)
+  AND mapping.category_version_id = :version
+  AND mapping.product_version_id = :version
+
+UNION
+
+SELECT LOWER(HEX(variant.id))
+FROM product_category mapping
+INNER JOIN product variant
+    ON variant.parent_id = mapping.product_id
+    AND variant.parent_version_id = mapping.product_version_id
+    AND variant.version_id = mapping.product_version_id
+    AND variant.categories = variant.parent_id
+WHERE mapping.category_id IN (:categoryIds)
+  AND mapping.category_version_id = :version
+  AND mapping.product_version_id = :version
+SQL;
+
+        return $this->connection->fetchFirstColumn($sql, [
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             'categoryIds' => Uuid::fromHexToBytesList($categoryIds),
         ], [
             'categoryIds' => ArrayParameterType::BINARY,

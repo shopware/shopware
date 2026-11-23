@@ -722,6 +722,14 @@ The update changes the default tax rules of Czechia, Estonia, Finland, Lithuania
 Only rules of the default tax groups that still have their original rate and were never edited are changed.
 Shops that adjusted these rules themselves keep their rules, and should compare them with the current rates.
 
+### Moving a category re-indexes its products
+
+Changing the `parentId` of a category now queues the product indexer for all products assigned to that category or one of its descendants.
+Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, so listings and "line item in category" rules were wrong until the products were re-indexed.
+Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
+The Administration category tree no longer sends these requests after a drag and drop.
+Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+
 ## API
 
 ### Checkout draft route

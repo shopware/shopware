@@ -12,7 +12,7 @@ component sw-media-preview-v2  public  js
 
 blocks
   sw_media_preview_v2
-    sw_media_preview_v2_file_types
+    sw_media_preview_v2_file_types  [after v-if]
       sw_media_preview_v2_file_type_check
         sw_media_preview_v2_file_type_audio
         sw_media_preview_v2_file_type_image
@@ -21,4 +21,7 @@ blocks
         sw_media_preview_v2_unsupported_format_warning
     sw_media_preview_v2_no_media
       sw_media_preview_v2_no_media_icon
+
+crossings
+  v-if  sw_media_preview_v2_no_media -> sw_media_preview_v2_file_types
 ```

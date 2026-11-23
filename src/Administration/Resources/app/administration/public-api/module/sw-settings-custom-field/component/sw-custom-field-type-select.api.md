@@ -18,9 +18,9 @@ blocks
       sw_custom_field_type_select_add_option
       sw_custom_field_type_select_multi
       sw_custom_field_type_select_options
-        sw_custom_field_type_select_options_container
-          sw_custom_field_type_select_options_container_labels
-          sw_custom_field_type_select_options_container_technical_name
-        sw_custom_field_type_select_options_delete
-        sw_custom_field_type_select_options_label
+        sw_custom_field_type_select_options_container  [scope: index, option]
+          sw_custom_field_type_select_options_container_labels  [scope: index, option]
+          sw_custom_field_type_select_options_container_technical_name  [scope: index, option]
+        sw_custom_field_type_select_options_delete  [scope: index, option]
+        sw_custom_field_type_select_options_label  [scope: index, option]
 ```

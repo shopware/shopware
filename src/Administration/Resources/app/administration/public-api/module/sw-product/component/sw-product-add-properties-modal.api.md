@@ -17,6 +17,6 @@ blocks
     sw_product_add_properties_modal_filled_state
       sw_product_add_properties_modal_filled_state_header
         sw_product_add_properties_modal_filled_state_search_field
-          sw_property_search_field
-            sw_productadd_properties_selection_search_field
+          sw_property_search_field  [scope: focus, input, searchTerm]
+            sw_productadd_properties_selection_search_field  [scope: focus, input, searchTerm]
 ```

@@ -14,9 +14,9 @@ blocks
   sw_media_folder_content
     sw_media_folder_content_folder_listing
       sw_media_folder_content_list_item
-        sw_media_folder_content_button_folder
-          sw_media_folder_content_button_folder_button
-            sw_media_folder_content_folder_button_icon
-          sw_media_folder_content_switch_button
+        sw_media_folder_content_button_folder  [scope: folder, index]
+          sw_media_folder_content_button_folder_button  [scope: folder, index]
+            sw_media_folder_content_folder_button_icon  [scope: folder, index]
+          sw_media_folder_content_switch_button  [scope: folder, index]
         sw_media_folder_content_folder_icon
 ```

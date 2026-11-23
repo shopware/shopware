@@ -6,6 +6,7 @@
  */
 import ts from 'typescript';
 import { isSameFlag, versionOfFlag } from '../feature-flags';
+import { byCodePoint } from './code-point-order';
 
 /** @private */
 export const FLAG_STATES = [
@@ -75,8 +76,30 @@ export function inBothStates(a: FlagStates, b: FlagStates): FlagStates {
 }
 
 /** @private */
-export function inAnyState(a: FlagStates, b: FlagStates): FlagStates {
+export function isMajorOnly(states: readonly FlagState[]): boolean {
+    return states.length === 1 && states[0] === 'major';
+}
+
+function inAnyState(a: FlagStates, b: FlagStates): FlagStates {
     return perState((state) => a[state] || b[state]);
+}
+
+/**
+ * @private
+ *
+ * One item per key, sorted by key, in the flag states of every item with that key. The first item of a key
+ * gives the rest of the entry.
+ */
+export function mergeStates<Item extends { states: FlagStates }>(items: Item[], key: (item: Item) => string): Item[] {
+    const merged = new Map<string, Item>();
+
+    items.forEach((item) => {
+        const known = merged.get(key(item));
+
+        merged.set(key(item), known ? { ...known, states: inAnyState(known.states, item.states) } : item);
+    });
+
+    return [...merged].sort(([a], [b]) => byCodePoint(a, b)).map(([, item]) => item);
 }
 
 function not(value: Truth): Truth {

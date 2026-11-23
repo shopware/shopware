@@ -14,13 +14,13 @@ blocks
   sw_product_feature_set_card
     sw_product_feature_set_card_empty_state
       sw_product_feature_set_card_empty_state_button
-    sw_product_feature_set_card_empty_state_image
-    sw_product_feature_set_card_empty_state_label
+    sw_product_feature_set_card_empty_state_image  [after v-if]
+    sw_product_feature_set_card_empty_state_label  [after v-if]
     sw_product_feature_set_card_grid
       sw_settings_product_feature_set_card_grid_column_name
       sw_settings_product_feature_set_card_grid_column_position
       sw_settings_product_feature_set_card_grid_column_type
-    sw_product_feature_set_card_grid_column_modal
+    sw_product_feature_set_card_grid_column_modal  [after v-if]
     sw_product_feature_set_toolbar
       sw_product_feature_set_toolbar_container
         sw_product_feature_set_toolbar_add

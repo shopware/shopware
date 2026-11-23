@@ -15,7 +15,7 @@ blocks
     sw_bulk_edit_product_content
       sw_bulk_edit_product_content_advanced_prices_card
         sw_bulk_edit_product_content_advanced_prices
-          sw_bulk_edit_product_content_advanced_prices_rule_selection
+          sw_bulk_edit_product_content_advanced_prices_rule_selection  [after v-if] [scope: entity, formField, index]
         sw_bulk_edit_product_content_advanced_prices_modal
           sw_bulk_edit_product_content_advanced_prices_modal_footer
       sw_bulk_edit_product_content_assignments_card
@@ -23,7 +23,7 @@ blocks
       sw_bulk_edit_product_content_deliverability_card
         sw_bulk_edit_product_content_deliverability
       sw_bulk_edit_product_content_essential_card
-      sw_bulk_edit_product_content_gereral_information_card
+      sw_bulk_edit_product_content_gereral_information_card  [after v-if]
         sw_bulk_edit_product_content_gereral_information
       sw_bulk_edit_product_content_guarantee_card
         sw_bulk_edit_product_content_guarantee
@@ -43,7 +43,7 @@ blocks
       sw_bulk_edit_product_content_selling_packaging_card
       sw_bulk_edit_product_content_seo_card
         sw_bulk_edit_product_content_seo
-      sw_bulk_edit_product_save_modal
+      sw_bulk_edit_product_save_modal  [after v-if]
     sw_bulk_edit_product_content_language_switch
     sw_bulk_edit_product_content_smart_bar_actions
       sw_bulk_edit_product_actions_save

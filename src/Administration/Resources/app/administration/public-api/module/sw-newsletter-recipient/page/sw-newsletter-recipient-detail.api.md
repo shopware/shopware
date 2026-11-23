@@ -15,7 +15,7 @@ blocks
     sw_newsletter_recipient_detail_actions
       sw_newsletter_recipient_detail_actions_edit
     sw_newsletter_recipient_detail_content
-      sw_newsletter_recipient_detail_custom_fields
+      sw_newsletter_recipient_detail_custom_fields  [after v-if]
       sw_newsletter_recipient_detail_form
         sw_newsletter_recipient_detail_form_city
         sw_newsletter_recipient_detail_form_email

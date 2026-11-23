@@ -13,24 +13,28 @@ component sw-media-folder-item  public  js
 blocks
   sw_media_folder_item
     sw_media_folder_item_context_menu
-      sw_media_folder_item_additional_context_menu_slot
-      sw_media_folder_item_context_group_quick_actions
-        sw_media_folder_item_context_item_delete
-        sw_media_folder_item_context_item_dissolve
-        sw_media_folder_item_context_item_move
-        sw_media_folder_item_context_item_rename_item
-        sw_media_folder_item_context_item_show_settings
-      sw_media_folder_item_context_item_show_media
+      sw_media_folder_item_additional_context_menu_slot  [scope: allowDelete, allowEdit, item, startInlineEdit]
+      sw_media_folder_item_context_group_quick_actions  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_folder_item_context_item_delete  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_folder_item_context_item_dissolve  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_folder_item_context_item_move  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_folder_item_context_item_rename_item  [scope: allowDelete, allowEdit, item, startInlineEdit]
+        sw_media_folder_item_context_item_show_settings  [scope: allowDelete, allowEdit, item, startInlineEdit]
+      sw_media_folder_item_context_item_show_media  [scope: allowDelete, allowEdit, item, startInlineEdit]
     sw_media_folder_item_preview
-      sw_media_folder_default_icon
-      sw_media_folder_folder_icon
-      sw_media_folder_parent_icon
+      sw_media_folder_default_icon  [after v-if] [scope: item]
+      sw_media_folder_folder_icon  [after v-if] [scope: item]
+      sw_media_folder_parent_icon  [scope: item]
     sw_media_folder_meta_data
     sw_media_folder_modal_windows
-      sw_media_folder_delete_modal
-      sw_media_folder_dissolve_modal
-      sw_media_folder_move_modal
-      sw_media_folder_settings_modal
+      sw_media_folder_delete_modal  [after v-if] [scope: allowDelete, allowEdit, item]
+      sw_media_folder_dissolve_modal  [after v-if] [scope: allowDelete, allowEdit, item]
+      sw_media_folder_move_modal  [after v-if] [scope: allowDelete, allowEdit, item]
+      sw_media_folder_settings_modal  [scope: allowDelete, allowEdit, item]
     sw_media_folder_name
-      sw_media_base_item_name
+      sw_media_base_item_name  [scope: endInlineEdit, isInlineEdit, item, startInlineEdit]
+
+crossings
+  v-if  sw_media_folder_default_icon -> sw_media_folder_folder_icon
+  v-if  sw_media_folder_parent_icon -> sw_media_folder_default_icon
 ```

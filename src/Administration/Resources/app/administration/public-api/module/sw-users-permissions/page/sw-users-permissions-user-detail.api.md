@@ -32,8 +32,8 @@ blocks
           sw_settings_user_detail_key_grid
             sw_settings_user_detail_key_grid_content
               sw_settings_user_detail_grid_columns_actions
-                sw_settings_user_detail_grid_columns_actions_delete
-                sw_settings_user_detail_grid_columns_actions_edit
+                sw_settings_user_detail_grid_columns_actions_delete  [scope: item]
+                sw_settings_user_detail_grid_columns_actions_edit  [scope: item]
         sw_setting_user_detail_card_mcp_allowlist
         sw_setting_user_detail_card_roles_permissions
           sw_settings_user_detail_roles_permissions_grid
@@ -43,24 +43,27 @@ blocks
         sw_setting_user_detail_card_user_interface
           sw_settings_user_detail_user_interface_grid
             sw_settings_user_detail_grid_content_language
-            sw_settings_user_detail_grid_content_module_icon_colors
+            sw_settings_user_detail_grid_content_module_icon_colors  [after v-if]
             sw_settings_user_detail_grid_content_theme
             sw_settings_user_detail_grid_content_timezone
         sw_settings_user_detail_content_confirm_password_modal
-      sw_settings_user_detail_detail_modal
+      sw_settings_user_detail_detail_modal  [after v-if]
         sw_settings_user_detail_detail_modal_inner
           sw_settings_user_detail_detail_modal_inner_field_access_key
           sw_settings_user_detail_detail_modal_inner_field_secret_access_key
-            sw_settings_user_detail_detail_modal_inner_field_help_text
+            sw_settings_user_detail_detail_modal_inner_field_help_text  [after v-if]
             sw_settings_user_detail_detail_modal_inner_field_secret_access_key_button
             sw_settings_user_detail_detail_modal_inner_field_secret_access_key_field
           sw_settings_user_detail_detail_modal_inner_footer
             sw_settings_user_detail_detail_modal_inner_footer_apply
             sw_settings_user_detail_detail_modal_inner_footer_cancel
-          sw_settings_user_detail_detail_modal_inner_help_text
-      sw_settings_user_detail_grid_inner_slot_delete_modal
+          sw_settings_user_detail_detail_modal_inner_help_text  [after v-if]
+      sw_settings_user_detail_grid_inner_slot_delete_modal  [after v-if]
         sw_settings_user_detail_grid_inner_slot_delete_modal_confirm_text
         sw_settings_user_detail_grid_inner_slot_delete_modal_footer
       sw_settings_user_detail_grid_inner_slot_media_modal
     sw_settings_user_detail_header
+
+crossings
+  v-if  sw_settings_user_detail_detail_modal_inner_field_help_text -> sw_settings_user_detail_detail_modal_inner_help_text
 ```

@@ -14,12 +14,12 @@ blocks
   sw_settings_listing_option_base
     sw_settings_listing_option_base_content
       sw_settings_listing_option_base_smart_content
-        sw_settings_listing_option_base_content_criteria_grid
-          sw_settings_listing_option_base_smart_bar_actions_grid
-        sw_settings_listing_option_base_content_delete_modal
-          sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal
-        sw_settings_listing_option_base_content_general_info
-          sw_settings_listing_option_base_smart_content_general_info
+        sw_settings_listing_option_base_content_criteria_grid  [after v-if]
+          sw_settings_listing_option_base_smart_bar_actions_grid  [after v-if]
+        sw_settings_listing_option_base_content_delete_modal  [after v-if]
+          sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal  [after v-if]
+        sw_settings_listing_option_base_content_general_info  [after v-if]
+          sw_settings_listing_option_base_smart_content_general_info  [after v-if]
         sw_settings_listing_option_base_content_locked_info
     sw_settings_listing_option_base_language_switch
     sw_settings_listing_option_base_smart_bar_actions

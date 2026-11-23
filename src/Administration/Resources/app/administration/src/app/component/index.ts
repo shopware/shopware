@@ -375,6 +375,10 @@ export default () => {
         () => import('src/app/component/extension-api/sw-extension-component-section/index'),
     );
     Shopware.Component.register(
+        'sw-extension-floating-section',
+        () => import('src/app/component/extension-api/sw-extension-floating-section/index'),
+    );
+    Shopware.Component.register(
         'sw-product-stream-grid-preview',
         () => import('src/app/component/entity/sw-product-stream-grid-preview/index'),
     );

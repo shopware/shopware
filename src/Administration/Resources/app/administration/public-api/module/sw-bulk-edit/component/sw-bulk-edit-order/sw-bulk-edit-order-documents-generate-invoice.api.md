@@ -12,7 +12,7 @@ component sw-bulk-edit-order-documents-generate-invoice  public  js
 
 blocks
   sw_bulk_edit_order_documents_generate_invoice
-    sw_bulk_edit_order_documents_generate_invoice_datepicker
+    sw_bulk_edit_order_documents_generate_invoice_datepicker  [after v-if]
     sw_bulk_edit_order_documents_generate_invoice_file_formats
     sw_bulk_edit_order_documents_generate_invoice_placeholder
     sw_bulk_edit_order_documents_generate_invoice_textarea

@@ -32,12 +32,15 @@ import { GENERATED_HELPER_NAMES, HELPER_SETUP_LINES, RESERVED_BINDING, type Repo
 import { type Ctx, arrowText, report, snip, unwrapOptions } from './ast';
 import {
     type Collected,
+    type CollectedShortcut,
     type CollectedWatcher,
     type ResolvedComposable,
     classifyOptions,
+    collectShortcuts,
     collectWatchers,
     emitsEventNames,
     renderMember,
+    renderShortcut,
     renderWatcher,
     resolveMixins,
 } from './option-handlers';
@@ -159,6 +162,7 @@ function renderScript(
     ctx: Ctx,
     collected: Collected,
     watchers: CollectedWatcher[],
+    shortcuts: CollectedShortcut[],
     composables: ResolvedComposable[],
 ): string {
     const usesEmit = ctx.helpers.has('emit');
@@ -188,6 +192,7 @@ function renderScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
+        shortcuts.length > 0 ? "import useShortcut from 'src/app/composables/use-shortcut';" : null,
         ...composableImports(composables),
     ]
         .filter(Boolean)
@@ -273,6 +278,7 @@ function renderScript(
         dataBlock || null,
         refBlock || null,
         ...watchers.map((watcher) => renderWatcher(ctx, watcher)),
+        ...shortcuts.map((shortcut) => renderShortcut(ctx, shortcut)),
         ...collected.hooks.map(({ hook, fn }) => `${hook}(${arrowText(ctx, fn)});`),
         collected.createdFn ? `void (${arrowText(ctx, collected.createdFn)})();` : null,
         ...siteTodos.map(todoBlock),
@@ -341,6 +347,7 @@ function transformScript(
     const collected = classifyOptions(ctx, options);
     const composables = resolveMixins(ctx, collected, options, collectTopLevelBindings(body, exportDefault));
     const watchers = collectWatchers(ctx, collected);
+    const shortcuts = collectShortcuts(ctx, collected);
 
     // --- name safety checks --------------------------------------------------------------------
 
@@ -447,7 +454,7 @@ function transformScript(
     // --- render ------------------------------------------------------------------------------------
 
     return {
-        script: renderScript(ctx, collected, watchers, composables),
+        script: renderScript(ctx, collected, watchers, shortcuts, composables),
         moduleScript,
         reasons: reasonsOf('todo'),
     };

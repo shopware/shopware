@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MariaDBPlatform;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,10 +22,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -431,6 +434,121 @@ class EntitySearcherTest extends TestCase
             [['productId' => $ids->get('mapped'), 'categoryId' => $ids->get('sports')]],
             $result->getIds()
         );
+    }
+
+    public function testScoredExactTotalCountCountsEveryMatch(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('parentId', [$ids->get('parent-a'), $ids->get('parent-b')]));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
+        $criteria->addSorting(new FieldSorting(Criteria::SCORE_FIELD, FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
+        $criteria->setLimit(2);
+        $criteria->setOffset(2);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(5, $result->getTotal());
+        static::assertSame([$ids->get('a1'), $ids->get('a2')], $result->getIds());
+        static::assertArrayNotHasKey('_total', $result->getDataOfId($ids->get('a1')));
+    }
+
+    public function testScoreRankedExactTotalCountCountsEveryGroup(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Premium'), score: 300));
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Green'), score: 500));
+        $criteria->setLimit(1);
+        $criteria->setOffset(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame([$ids->get('a3')], $result->getIds());
+    }
+
+    public function testScoreRankedExactTotalCountOfAnEmptyPagePastTheEnd(): void
+    {
+        $ids = $this->createSportProducts();
+
+        $criteria = $this->createScoreRankedCriteria($ids);
+        $criteria->addQuery(new ScoreQuery(new ContainsFilter('name', 'Sport'), score: 100));
+        $criteria->setLimit(1);
+        $criteria->setOffset(5);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->searchProducts($criteria);
+
+        static::assertSame(2, $result->getTotal());
+        static::assertSame([], $result->getIds());
+    }
+
+    public function testScoredExactTotalCountWithAnAssociationScoreFieldSurvivesJoinBufferedPlans(): void
+    {
+        $ids = $this->createSportProducts();
+        $this->createSearchKeywords($ids, keyword: 'needle', rankings: ['a1' => 1, 'a2' => 2, 'a3' => 3, 'b1' => 0]);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('parentId', [$ids->get('parent-a'), $ids->get('parent-b')]));
+        $criteria->addQuery(new ScoreQuery(new EqualsFilter('searchKeywords.keyword', 'needle'), score: 100, scoreField: 'searchKeywords.ranking'));
+        $criteria->setLimit(2);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $isMariaDb = $connection->getDatabasePlatform() instanceof MariaDBPlatform;
+        if ($isMariaDb) {
+            $connection->executeStatement('SET SESSION join_cache_level = 4');
+        }
+
+        try {
+            $result = $this->searchProducts($criteria);
+        } finally {
+            if ($isMariaDb) {
+                $connection->executeStatement('SET SESSION join_cache_level = DEFAULT');
+            }
+        }
+
+        static::assertSame(3, $result->getTotal());
+        static::assertSame([$ids->get('a3'), $ids->get('a2')], $result->getIds());
+    }
+
+    private function searchProducts(Criteria $criteria): IdSearchResult
+    {
+        return $this->entitySearcher->search(
+            static::getContainer()->get(ProductDefinition::class),
+            $criteria,
+            Context::createDefaultContext(),
+        );
+    }
+
+    /**
+     * @param array<string, float> $rankings
+     */
+    private function createSearchKeywords(IdsCollection $ids, string $keyword, array $rankings): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $now = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+
+        foreach ($rankings as $product => $ranking) {
+            $connection->insert('product_search_keyword', [
+                'id' => Uuid::randomBytes(),
+                'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'product_id' => Uuid::fromHexToBytes($ids->get($product)),
+                'keyword' => $keyword,
+                'ranking' => $ranking,
+                'created_at' => $now,
+            ]);
+        }
     }
 
     private function createSportProducts(): IdsCollection

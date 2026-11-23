@@ -17,13 +17,13 @@ blocks
     sw_settings_customer_group_list_cardview
       sw_settings_customer_group_list_card_content
         sw_settings_customer_group_list_grid
-          sw_settings_customer_group_list_empty_state
+          sw_settings_customer_group_list_empty_state  [after v-if]
           sw_settings_customer_group_list_grid_column_display_gross
-            sw_settings_customer_group_list_grid_column_display_gross_inner
+            sw_settings_customer_group_list_grid_column_display_gross_inner  [scope: item]
           sw_settings_customer_group_list_grid_column_price_basis
-            sw_settings_customer_group_list_grid_column_price_basis_inner
+            sw_settings_customer_group_list_grid_column_price_basis_inner  [scope: item]
           sw_settings_customer_group_list_grid_column_registration_active
-            sw_settings_customer_group_list_grid_column_registration_active_inner
+            sw_settings_customer_group_list_grid_column_registration_active_inner  [scope: item]
     sw_settings_customer_group_list_language_switch
     sw_settings_customer_group_list_search_bar
     sw_settings_customer_group_list_smart_bar_header

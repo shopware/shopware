@@ -20,7 +20,7 @@ blocks
         sw_settings_tax_detail_content_field_default_tax_rate
         sw_settings_tax_detail_content_field_name
         sw_settings_tax_detail_content_field_tax_rate
-      sw_settings_tax_detail_custom_field_sets
+      sw_settings_tax_detail_custom_field_sets  [after v-if]
       sw_settings_tax_detail_rule_card
     sw_settings_tax_detail_header
 ```

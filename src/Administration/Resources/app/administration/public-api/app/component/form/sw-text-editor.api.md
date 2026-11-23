@@ -13,9 +13,9 @@ component sw-text-editor  private  js  [private]
 
 blocks
   sw_text_editor  [private]
-    sw_text_editor_box  [private]
-      sw_text_editor_box_content  [private]
-      sw_text_editor_box_table_toolbar  [private]
+    sw_text_editor_box  [after v-if] [private]
+      sw_text_editor_box_content  [after v-if] [private]
+      sw_text_editor_box_table_toolbar  [after v-if] [private]
       sw_text_editor_box_toolbar  [private]
       sw_text_editor_box_word_count  [private]
     sw_text_editor_label  [private]

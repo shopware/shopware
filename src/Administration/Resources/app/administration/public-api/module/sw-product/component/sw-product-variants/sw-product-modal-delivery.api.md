@@ -16,9 +16,9 @@ blocks
       sw_product_modal_delivery_footer_button_cancel
       sw_product_modal_delivery_footer_button_save
     sw_product_modal_delivery_main
-      sw_product_modal_delivery_listing
+      sw_product_modal_delivery_listing  [after v-if]
       sw_product_modal_delivery_main_order
-      sw_product_modal_delivery_media
+      sw_product_modal_delivery_media  [after v-if]
     sw_product_modal_delivery_sidebar
       sw_product_modal_delivery_sidebar_descriptions
       sw_product_modal_delivery_sidebar_tabs

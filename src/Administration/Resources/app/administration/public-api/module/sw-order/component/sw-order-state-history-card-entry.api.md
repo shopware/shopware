@@ -14,8 +14,8 @@ blocks
   sw_order_state_card_entry
     sw_order_state_card_entry_headline
     sw_order_state_card_entry_history
-      sw_order_state_card_entry_date
-      sw_order_state_card_entry_description
-      sw_order_state_card_entry_icon
+      sw_order_state_card_entry_date  [scope: entry, index]
+      sw_order_state_card_entry_description  [scope: entry, index]
+      sw_order_state_card_entry_icon  [scope: entry, index]
     sw_order_state_card_entry_state_select
 ```

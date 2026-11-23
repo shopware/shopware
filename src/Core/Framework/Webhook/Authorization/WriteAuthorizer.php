@@ -31,7 +31,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('framework')]
 class WriteAuthorizer
 {
-    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id', 'owner_type'];
+    private const COLUMNS = ['event_name', 'acl_role_ids', 'app_id', 'owner_integration_id', 'owner_user_id', 'owner_type', 'secret'];
 
     public function __construct(
         private readonly SubscriptionValidator $subscriptionValidator,
@@ -60,6 +60,7 @@ class WriteAuthorizer
         }
 
         $violations = $this->getModificationViolations(array_filter($rows, $this->changesStoredWebhook(...)), $context);
+        $violations += $this->getSecretViolations(array_diff_key($rows, $violations));
 
         $written = array_filter($rows, static fn (OutcomeRow $row): bool => $row->payloadContainsAny('event_name', 'acl_role_ids'));
         $violations += $this->getAclRoleIdsViolations(array_diff_key($written, $violations));
@@ -103,6 +104,30 @@ class WriteAuthorizer
     }
 
     /**
+     * A webhook of an app's integration is signed with the app secret, so it can't have its own secret.
+     *
+     * @param array<string, OutcomeRow> $rows keyed by webhook id
+     *
+     * @return array<string, HttpException> keyed by webhook id
+     */
+    private function getSecretViolations(array $rows): array
+    {
+        $violations = [];
+        foreach ($rows as $webhookId => $row) {
+            if ($row->getPayloadValue('secret') !== null
+                && $row->getResultingValue('owner_type') === IdentityType::AppIntegration->value) {
+                $violations[$webhookId] = $this->writeViolation(
+                    $row,
+                    '/secret',
+                    'Webhooks of an app are signed with the app secret, so secret can\'t be set.'
+                );
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
      * aclRoleIds is either left out, to use all of the owner's roles, or a list of role ids.
      *
      * @param array<string, OutcomeRow> $rows keyed by webhook id
@@ -127,13 +152,21 @@ class WriteAuthorizer
                 continue;
             }
 
-            $violations[$webhookId] = new WriteConstraintViolationException(
-                new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, '/aclRoleIds', $aclRoleIds)]),
-                $row->path
-            );
+            $violations[$webhookId] = $this->writeViolation($row, '/aclRoleIds', $message, $aclRoleIds);
         }
 
         return $violations;
+    }
+
+    /**
+     * @param list<string>|null $invalidValue
+     */
+    private function writeViolation(OutcomeRow $row, string $path, string $message, ?array $invalidValue = null): WriteConstraintViolationException
+    {
+        return new WriteConstraintViolationException(
+            new ConstraintViolationList([new ConstraintViolation($message, $message, [], null, $path, $invalidValue)]),
+            $row->path,
+        );
     }
 
     /**

@@ -21,8 +21,8 @@ blocks
         sw_condition_base_field_delete_action  [inherited] [private]
       sw_condition_base_field_condition  [inherited] [private]
       sw_condition_value_before_content  [replaced] [private]
-      sw_condition_value_content  [inherited] [private]
+      sw_condition_value_content  [inherited] [after v-if] [private]
         sw_condition_generic_field_operator  [inherited] [private]
-        sw_condition_generic_fields  [inherited] [private]
+        sw_condition_generic_fields  [inherited] [after v-if] [private]
     sw_condition_base_error  [inherited] [private]
 ```

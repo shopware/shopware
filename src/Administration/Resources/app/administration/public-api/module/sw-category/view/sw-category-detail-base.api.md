@@ -12,14 +12,14 @@ component sw-category-detail-base  public  js
 
 blocks
   sw_category_detail_base
-    sw_category_detail_attribute_sets
+    sw_category_detail_attribute_sets  [after v-if]
     sw_category_detail_entry_point
     sw_category_detail_information
       sw_category_detail_information_active
       sw_category_detail_information_name
       sw_category_detail_information_tags
-      sw_category_detail_information_type
+      sw_category_detail_information_type  [after v-if]
         sw_category_detail_information_type_select
-    sw_category_detail_link
+    sw_category_detail_link  [after v-if]
     sw_category_detail_menu
 ```

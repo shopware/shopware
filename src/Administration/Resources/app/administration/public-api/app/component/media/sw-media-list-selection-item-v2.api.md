@@ -13,11 +13,14 @@ component sw-media-list-selection-item-v2  private  js  [private]
 
 blocks
   sw_media_list_selection_item_v2  [private]
-    sw_media_list_selection_item_v2_placeholder  [private]
+    sw_media_list_selection_item_v2_placeholder  [after v-if] [private]
       sw_media_list_selection_item_v2_placeholder_icon  [private]
     sw_media_list_selection_item_v2_preview  [private]
       sw_media_list_selection_item_v2_preview_actions  [private]
         sw_media_list_selection_item_v2_context  [private]
           sw_media_list_selection_item_v2_context_delete_action  [private]
       sw_media_list_selection_item_v2_preview_media  [private]
+
+crossings
+  v-if  sw_media_list_selection_item_v2_preview -> sw_media_list_selection_item_v2_placeholder  [private]
 ```

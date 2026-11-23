@@ -20,10 +20,6 @@ class Migration1794221136AddProductDocumentMediaUsagePrivileges extends Migratio
     public function update(Connection $connection): void
     {
         $this->addAdditionalPrivileges($connection, [
-            'media.viewer' => [
-                'product_document:read',
-                'product_document_translation:read',
-            ],
             'media:read' => [
                 'product_document:read',
                 'product_document_translation:read',

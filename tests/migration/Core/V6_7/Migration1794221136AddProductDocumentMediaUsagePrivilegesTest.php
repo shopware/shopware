@@ -36,7 +36,7 @@ class Migration1794221136AddProductDocumentMediaUsagePrivilegesTest extends Test
 
     public function testMediaViewersCanReadProductDocumentsAndTheirTranslations(): void
     {
-        $roleId = $this->createRole(['media.viewer']);
+        $roleId = $this->createRole(['media.viewer', 'media:read']);
 
         $this->migration->update($this->connection);
         $this->migration->update($this->connection);
@@ -44,6 +44,7 @@ class Migration1794221136AddProductDocumentMediaUsagePrivilegesTest extends Test
         $privileges = $this->fetchPrivileges($roleId);
         static::assertSame([
             'media.viewer',
+            'media:read',
             'product_document:read',
             'product_document_translation:read',
         ], $privileges);

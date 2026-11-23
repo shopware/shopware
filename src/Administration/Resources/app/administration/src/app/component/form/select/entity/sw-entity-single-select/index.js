@@ -299,15 +299,13 @@ export default {
                 .get(
                     this.value,
                     { ...this.context, inheritance: true },
-                    this.criteria,
+                    Criteria.fromCriteria(this.criteria),
                     this.getCacheOptions(['selected', this.value]),
                 )
                 .then((item) => {
                     if (!item && !this.disabled) {
                         this.$emit('update:value', null);
                     }
-
-                    this.criteria.setIds([]);
 
                     this.singleSelection = item;
                     this.isLoading = false;

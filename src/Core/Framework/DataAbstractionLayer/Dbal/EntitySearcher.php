@@ -147,7 +147,7 @@ class EntitySearcher implements EntitySearcherInterface
 
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void
     {
-        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES || $criteria->getLimit() === null) {
             return;
         }
 
@@ -159,7 +159,8 @@ class EntitySearcher implements EntitySearcherInterface
      */
     private function getTotalCount(Criteria $criteria, QueryBuilder $query, array $data): int
     {
-        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT
+            && ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES || $criteria->getLimit() !== null)) {
             return \count($data);
         }
 

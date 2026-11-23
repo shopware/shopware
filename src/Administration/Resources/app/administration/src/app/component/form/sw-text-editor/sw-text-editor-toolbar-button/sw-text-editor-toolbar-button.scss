@@ -70,6 +70,33 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 50%);
         overflow: auto;
     }
 
+    &-search {
+        display: block;
+        padding: 8px 8px 4px;
+        max-width: 300px;
+    }
+
+    &-search .mt-field {
+        margin-bottom: 0;
+    }
+
+    &-search .mt-field__label {
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        height: 1px;
+        margin: 0;
+        overflow: hidden;
+        position: absolute;
+        white-space: nowrap;
+        width: 1px;
+    }
+
+    &-empty {
+        margin: 4px;
+        padding: 8px;
+        color: var(--color-text-secondary-default);
+    }
+
     &.is--left {
         left: unset;
         right: -10px;

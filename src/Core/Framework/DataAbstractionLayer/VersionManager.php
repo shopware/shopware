@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
@@ -16,9 +17,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\NoConstraint;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -40,21 +43,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneIdMap;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -76,7 +83,10 @@ class VersionManager
         private readonly VersionCommitDefinition $versionCommitDefinition,
         private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
         private readonly VersionDefinition $versionDefinition,
-        private readonly LockFactory $lockFactory
+        private readonly LockFactory $lockFactory,
+        private readonly WriteCommandExtractor $writeCommandExtractor,
+        private readonly AclWriteValidator $aclWriteValidator,
+        private readonly LanguageLoaderInterface $languageLoader
     ) {
     }
 
@@ -259,8 +269,13 @@ class VersionManager
 
         $keepIds = $newId === $id;
 
-        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
+        $clonedIds = new CloneIdMap();
+        $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext(), $clonedIds);
         $data['id'] = $newId;
+
+        if (!$clonedIds->isEmpty()) {
+            $data = $this->remapForeignKeys($definition, $data, $clonedIds);
+        }
 
         $createdAtField = $definition->getField('createdAt');
         $updatedAtField = $definition->getField('updatedAt');
@@ -277,11 +292,11 @@ class VersionManager
             }
         }
 
-        $this->validateOverwriteWriteProtection($definition, $behavior->getOverwrites(), $context->getContext());
-
         $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
+        $this->validateCloneOverwrites($definition, $data, $behavior->getOverwrites(), $versionContext);
+
         $result = null;
         $versionContext->scope(Context::SYSTEM_SCOPE, function (WriteContext $context) use ($definition, $data, &$result): void {
             $result = $this->entityWriter->insert($definition, [$data], $context);
@@ -296,48 +311,73 @@ class VersionManager
     }
 
     /**
+     * @param array<string, mixed> $data
      * @param array<string, mixed> $overwrites
      */
-    private function validateOverwriteWriteProtection(EntityDefinition $definition, array $overwrites, Context $context): void
+    private function validateCloneOverwrites(EntityDefinition $definition, array $data, array $overwrites, WriteContext $context): void
     {
-        foreach ($overwrites as $propertyName => $value) {
-            $field = $definition->getFields()->get($propertyName);
-            $writeProtection = $field?->getFlag(WriteProtected::class);
-
-            if ($writeProtection === null || $writeProtection->isAllowed($context->getScope())) {
-                continue;
-            }
-
-            $message = 'This field is write-protected.';
-            $allowedScopes = implode(' or ', $writeProtection->getAllowedScopes());
-
-            if ($allowedScopes !== '') {
-                $message .= ' (Got: "%s" scope and "%s" is required)';
-            }
-
-            throw DataAbstractionLayerException::invalidWriteConstraintViolation(
-                new ConstraintViolationList([
-                    new ConstraintViolation(
-                        \sprintf($message, $context->getScope(), $allowedScopes),
-                        $message,
-                        [$context->getScope(), $allowedScopes],
-                        $value,
-                        $propertyName,
-                        $value
-                    ),
-                ]),
-                '/' . $propertyName
-            );
+        if ($overwrites === [] || $context->getContext()->getScope() === Context::SYSTEM_SCOPE) {
+            return;
         }
+
+        $validationContext = WriteContext::createFromContext(clone $context->getContext());
+        $validationContext->setLanguages($this->languageLoader->loadLanguages());
+        $queue = new WriteCommandQueue();
+        $parameters = new WriteParameterBag($definition, $validationContext, '/0', $queue);
+        $overwrites = $this->writeCommandExtractor->normalizeSingle($definition, array_replace(['id' => $data['id']], $overwrites), $parameters);
+        $validationContext->getExceptions()->tryToThrow();
+
+        // Normalize caller input first so generated IDs agree in both dry-run extractions.
+        $validationData = array_replace_recursive($data, $overwrites);
+        // A: queue the complete candidate in system scope; copied protected fields are legitimate.
+        $validationContext->scope(Context::SYSTEM_SCOPE, function () use ($definition, $validationData, $parameters, $validationContext): void {
+            $validationContext->resetPaths();
+            $validationData = $this->writeCommandExtractor->normalizeSingle($definition, $validationData, $parameters);
+            $this->entityWriteGateway->prefetchExistences($parameters);
+            $this->writeCommandExtractor->extract($validationData, $parameters);
+        });
+        $validationContext->getExceptions()->tryToThrow();
+        $cloneCommands = $queue->getCommands();
+        $commandsByPath = [];
+        foreach ($cloneCommands as $entity => $entityCommands) {
+            foreach ($entityCommands as $command) {
+                $commandsByPath[$entity][$command->getPath()][] = $command;
+            }
+        }
+
+        // B: caller-only extraction checks field protection, using queued inserts for required copied fields.
+        $validationContext->resetPaths();
+        $this->writeCommandExtractor->extract($overwrites, $parameters);
+        $validationContext->getExceptions()->tryToThrow();
+
+        $commands = [];
+        foreach ($queue->getCommands() as $entity => $entityCommands) {
+            foreach (\array_slice($entityCommands, \count($cloneCommands[$entity] ?? [])) as $command) {
+                // Use A's actual operation at each caller path: root clone=create, existing tax=update.
+                foreach ($commandsByPath[$entity][$command->getPath()] ?? [$command] as $cloneCommand) {
+                    $commands[spl_object_id($cloneCommand)] = $cloneCommand;
+                }
+            }
+        }
+
+        $this->aclWriteValidator->preValidate(new PreWriteValidationEvent($validationContext, array_values($commands)));
+        // Discard this queue; the original writer performs the sole real write after validation.
     }
 
     /**
-     * @param array<string, array<string, mixed|null>|null> $data
+     * @param array<string, mixed> $data
      *
-     * @return array<string, array<string, mixed|null>|string|null>
+     * @return array<string, mixed>
      */
-    private function filterPropertiesForClone(EntityDefinition $definition, array $data, bool $keepIds, string $cloneId, EntityDefinition $cloneDefinition, Context $context): array
-    {
+    private function filterPropertiesForClone(
+        EntityDefinition $definition,
+        array $data,
+        bool $keepIds,
+        string $cloneId,
+        EntityDefinition $cloneDefinition,
+        Context $context,
+        CloneIdMap $clonedIds
+    ): array {
         $extensions = [];
         $payload = [];
 
@@ -423,10 +463,10 @@ class VersionManager
 
                 $nested = [];
                 foreach ($value as $item) {
-                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context);
+                    $nestedItem = $this->filterPropertiesForClone($reference, $item, $keepIds, $cloneId, $cloneDefinition, $context, $clonedIds);
 
                     if (!$keepIds) {
-                        $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                        $nestedItem = $this->replacePrimaryKey($field, $nestedItem, $clonedIds);
                     }
 
                     $nested[] = $nestedItem;
@@ -461,10 +501,10 @@ class VersionManager
             if ($field instanceof OneToOneAssociationField && $value) {
                 $reference = $field->getReferenceDefinition();
 
-                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context);
+                $nestedItem = $this->filterPropertiesForClone($reference, $value, $keepIds, $cloneId, $cloneDefinition, $context, $clonedIds);
 
                 if (!$keepIds) {
-                    $nestedItem = $this->removePrimaryKey($field, $nestedItem);
+                    $nestedItem = $this->replacePrimaryKey($field, $nestedItem, $clonedIds);
                 }
 
                 $payloadCursor[$field->getPropertyName()] = $nestedItem;
@@ -611,15 +651,18 @@ class VersionManager
     }
 
     /**
-     * @param array<string, array<string, mixed>|string|null> $nestedItem
+     * Gives a cloned nested row a new id and records it, so references to the row can be rewritten once the whole
+     * payload is built. Primary keys that are not an id are removed and set by the parent.
      *
-     * @return array<string, array<string, mixed>|string|null>
+     * @param array<string, mixed> $nestedItem
+     *
+     * @return array<string, mixed>
      */
-    private function removePrimaryKey(AssociationField $field, array $nestedItem): array
+    private function replacePrimaryKey(AssociationField $field, array $nestedItem, CloneIdMap $clonedIds): array
     {
-        $pkFields = $field->getReferenceDefinition()->getPrimaryKeys();
+        $reference = $field->getReferenceDefinition();
 
-        foreach ($pkFields as $pkField) {
+        foreach ($reference->getPrimaryKeys() as $pkField) {
             /*
              * `EntityTranslationDefinition`s dont have an `id`, they use a composite primary key consisting of the
              * entity id and the `languageId`. When cloning the entity we want to copy the `languageId`. The entity id
@@ -633,12 +676,117 @@ class VersionManager
                 continue;
             }
 
-            if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
-                unset($nestedItem[$pkField->getPropertyName()]);
+            $property = $pkField->getPropertyName();
+            if (!\array_key_exists($property, $nestedItem)) {
+                continue;
             }
+
+            $sourceId = $nestedItem[$property];
+            if ($pkField instanceof IdField && \is_string($sourceId)) {
+                $nestedItem[$property] = $clonedIds->cloneIdFor($reference->getEntityName(), $sourceId);
+
+                continue;
+            }
+
+            unset($nestedItem[$property]);
         }
 
         return $nestedItem;
+    }
+
+    /**
+     * Points every foreign key that referenced a cloned row at the clone of that row. The source order's
+     * delivery, for example, references the source order's address; the cloned delivery has to reference the
+     * cloned address.
+     *
+     * A constrained reference to a row nested below the referring row keeps the source's row: both rows would wait
+     * for each other on insert, like a state machine and its initial state.
+     *
+     * @param array<string, mixed> $payload
+     * @param array<string, array<string, true>>|null $nestedIds ids of the rows nested below this row, by entity name
+     *
+     * @return array<string, mixed>
+     */
+    private function remapForeignKeys(EntityDefinition $definition, array $payload, CloneIdMap $clonedIds, ?array $nestedIds = null): array
+    {
+        $nestedIds ??= $this->collectNestedIds($definition, $payload);
+
+        foreach ($definition->getFields() as $field) {
+            $property = $field->getPropertyName();
+            if (!\array_key_exists($property, $payload)) {
+                continue;
+            }
+
+            $value = $payload[$property];
+
+            if ($field instanceof FkField && !$field instanceof ReferenceVersionField) {
+                $entityName = $field->getReferenceDefinition()->getEntityName();
+                $clonedId = \is_string($value) ? $clonedIds->findCloneId($entityName, $value) : null;
+                if ($clonedId !== null && ($field->is(NoConstraint::class) || !isset($nestedIds[$entityName][$clonedId]))) {
+                    $payload[$property] = $clonedId;
+                }
+
+                continue;
+            }
+
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            if ($field instanceof OneToManyAssociationField) {
+                $payload[$property] = array_map(
+                    fn (array $item): array => $this->remapForeignKeys($field->getReferenceDefinition(), $item, $clonedIds),
+                    array_filter($value, \is_array(...))
+                );
+
+                continue;
+            }
+
+            if ($field instanceof OneToOneAssociationField) {
+                $payload[$property] = $this->remapForeignKeys($field->getReferenceDefinition(), $value, $clonedIds);
+            }
+        }
+
+        // Extension associations sit one level down, under the same property names.
+        if (isset($payload['extensions']) && \is_array($payload['extensions'])) {
+            $payload['extensions'] = $this->remapForeignKeys($definition, $payload['extensions'], $clonedIds, $nestedIds);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, array<string, true>>
+     */
+    private function collectNestedIds(EntityDefinition $definition, array $payload): array
+    {
+        $nestedIds = [];
+
+        foreach ($definition->getFields() as $field) {
+            if (!$field instanceof OneToManyAssociationField && !$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
+            $value = $field->is(Extension::class)
+                ? ($payload['extensions'][$field->getPropertyName()] ?? null)
+                : ($payload[$field->getPropertyName()] ?? null);
+            if (!\is_array($value)) {
+                continue;
+            }
+
+            $reference = $field->getReferenceDefinition();
+            foreach (array_filter($field instanceof OneToOneAssociationField ? [$value] : $value, \is_array(...)) as $item) {
+                if (\is_string($item['id'] ?? null)) {
+                    $nestedIds[$reference->getEntityName()][$item['id']] = true;
+                }
+
+                $nestedIds = array_replace_recursive($nestedIds, $this->collectNestedIds($reference, $item));
+            }
+        }
+
+        return $nestedIds;
     }
 
     private function addCloneAssociations(

@@ -7,6 +7,7 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailAttachmentsBuilder;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
+use Shopware\Core\Content\Media\Util\ExternalMediaUrl;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -41,6 +42,10 @@ class MailerTransportDecorator implements TransportInterface, \Stringable
         }
 
         foreach ($message->getAttachmentUrls() as $url) {
+            if (ExternalMediaUrl::isExternal($url)) {
+                continue;
+            }
+
             try {
                 $mimeType = $this->filesystem->mimeType($url);
             } catch (UnableToRetrieveMetadata) {

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Media\Util\PathHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -86,7 +87,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
             $parsed = parse_url((string) $url);
             if (!$parsed) {
-                throw new \RuntimeException('Error parsing media URL: ' . $url);
+                throw new \RuntimeException('Error parsing media URL: ' . PathHelper::stripCredentials((string) $url));
             }
 
             $pathInfo = pathinfo($parsed['path'] ?? '');

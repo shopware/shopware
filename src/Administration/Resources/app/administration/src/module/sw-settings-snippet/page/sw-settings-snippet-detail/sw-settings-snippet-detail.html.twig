@@ -101,7 +101,7 @@
                             :key="snippet.setId"
                             v-model:value="snippet.value"
                             v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
-                            name="sw-field--snippet-value"
+                            :name="`sw-field--snippet-value-${snippet.setId}`"
                             :class="`sw-settings-snippet-detail__translation-field--${index}`"
                             :disabled="!acl.can('snippet.editor') || isLoadingSnippets"
                             :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"

@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
+use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedEvent as StorefrontProductReviewsLoadedEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +44,8 @@ class CmsController extends StorefrontController
         private readonly AbstractProductDetailRoute $productRoute,
         private readonly AbstractProductReviewLoader $productReviewLoader,
         private readonly AbstractFindProductVariantRoute $findVariantRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly GenericPageLoaderInterface $genericPageLoader
     ) {
     }
 
@@ -75,10 +77,19 @@ class CmsController extends StorefrontController
     #[Route(path: '/page/cms/{id}', name: 'frontend.cms.page.full', defaults: ['XmlHttpRequest' => true, '_httpCache' => true], methods: ['GET', 'POST'])]
     public function pageFull(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
-        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
-        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
+        $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+        $this->hook(new CmsPageLoadedHook($cmsPage, $salesChannelContext));
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => ['cmsPage' => $page]]);
+        $page = ['cmsPage' => $cmsPage];
+
+        if (!Feature::isActive('cache_rework')) {
+            // Without the cache rework, the base template renders the header and footer from the page data instead of loading them via ESI
+            $genericPage = $this->genericPageLoader->load($request, $salesChannelContext);
+            $page['header'] = $genericPage->getHeader();
+            $page['footer'] = $genericPage->getFooter();
+        }
+
+        return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
     /**

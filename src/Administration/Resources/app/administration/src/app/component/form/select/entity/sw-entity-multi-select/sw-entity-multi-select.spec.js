@@ -358,21 +358,34 @@ describe('components/sw-entity-multi-select', () => {
             },
         });
 
-        wrapper.vm.searchTerm = 'first';
-        wrapper.vm.search();
-        wrapper.vm.searchTerm = 'third';
-        wrapper.vm.search();
+        jest.useFakeTimers();
+
+        await wrapper.find('.sw-select__selection').trigger('click');
+        pendingSearches[0](getPropertyCollection());
+        await flushPromises();
+
+        await wrapper.find('input').setValue('first');
+        await wrapper.find('input').trigger('change');
+        jest.advanceTimersByTime(400);
+
+        await wrapper.find('input').setValue('third');
+        await wrapper.find('input').trigger('change');
+        jest.advanceTimersByTime(400);
 
         const newerResult = getPropertyCollection();
         newerResult.remove(propertyFixture[0].id);
         newerResult.remove(propertyFixture[1].id);
 
-        pendingSearches[1](newerResult);
+        pendingSearches[2](newerResult);
         await flushPromises();
-        pendingSearches[0](getPropertyCollection());
+        pendingSearches[1](getPropertyCollection());
         await flushPromises();
 
-        expect(wrapper.vm.resultCollection.getIds()).toEqual([propertyFixture[2].id]);
-        expect(wrapper.vm.isLoading).toBe(false);
+        const results = new DOMWrapper(document.body).findAll('.sw-select-result-list__item-list li');
+        expect(results).toHaveLength(1);
+        expect(results.at(0).find('.sw-select-result__result-item-text').text()).toBe('third');
+        expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(false);
+
+        jest.useRealTimers();
     });
 });

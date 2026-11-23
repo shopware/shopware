@@ -15,13 +15,7 @@ import type { ExpectedFailures } from './fixture-runner';
 export const EXPECTED_FAILURES: ExpectedFailures = {
     views: [
         'block-contract',
-        'block-structure',
         'complete',
     ],
-    comparisons: [
-        'block-context/block-findings',
-        'block-moved/block-findings',
-        'block-renamed-major-only/block-findings',
-        'element-crosses-block/block-findings',
-    ],
+    comparisons: [],
 };

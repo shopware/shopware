@@ -13,10 +13,10 @@ component sw-product-visibility-detail  public  js
 blocks
   sw_product_visibility_detail
     sw_product_visibility_detail_columns
-      sw_product_visibility_detail_columns_all
-      sw_product_visibility_detail_columns_link_only
-      sw_product_visibility_detail_columns_sales_channel
-        sw_product_visibility_detail_columns_sales_channel_label
-      sw_product_visibility_detail_columns_search_only
+      sw_product_visibility_detail_columns_all  [scope: item]
+      sw_product_visibility_detail_columns_link_only  [scope: item]
+      sw_product_visibility_detail_columns_sales_channel  [scope: item]
+        sw_product_visibility_detail_columns_sales_channel_label  [scope: item]
+      sw_product_visibility_detail_columns_search_only  [scope: item]
     sw_product_visibility_detail_pagination
 ```

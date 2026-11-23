@@ -17,6 +17,11 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ## Core
 
+### JSON keys named extensions in DAL criteria
+
+DAL filters, sorting and aggregations preserve JSON keys named `extensions`, including paths such as `customFields.extensions.foo`.
+Previously, these paths could silently read a different JSON key.
+
 ### Cart deliveries and transactions carry a payload into the order
 
 Cart deliveries and transactions have a `payload`, which the order stores in the new `payload` field of `order_delivery` and `order_transaction` and keeps through order edits.
@@ -81,6 +86,12 @@ A migration updates these mail templates unless they were changed in the Adminis
 Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
 The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
+
+### Elasticsearch indexing uses bounded memory
+
+`es:index` and automatic reindexing after updates now dispatch batches while scanning the catalog, reducing PHP memory usage for large catalogs.
+This also applies when running `es:index --no-queue`.
+Queued indexing still requires sufficient message transport capacity.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -171,8 +182,8 @@ Webhooks created through the Admin API without an app now belong to the user or 
   ```
 
   The list must not be empty or contain empty entries, every role must exist, and every role must be held by the owner unless the owner is an administrator. Otherwise the write is rejected with `FRAMEWORK__WRITE_CONSTRAINT_VIOLATION` on `aclRoleIds`. If the event is not covered by the listed roles, `FRAMEWORK__WEBHOOK_EVENT_PRIVILEGES_MISSING` is returned, also when an administrator changes somebody else's webhook.
-* **Deleted roles:** A deleted role is removed from the `aclRoleIds` of every webhook.
-  A webhook whose last listed role is deleted keeps an empty list instead of falling back to all of its owner's roles.
+* **Deleting a role:** A role that is listed in the `aclRoleIds` of a webhook cannot be deleted.
+  The deletion is rejected with `FRAMEWORK__WEBHOOK_ACL_ROLE_USED_BY_WEBHOOK`; remove the role from the webhook first.
 * **Event log:** `webhook_event_log` entries are only returned to administrators and to the owner of the webhook that wrote them. An app's integration sees the entries of its app's webhooks. Entries written before the update, and entries of deleted webhooks, are only returned to administrators.
 * **Refused deliveries are logged:** When a webhook's roles do not permit an event it subscribes to, the event is not sent and a `webhook_event_log` entry with the delivery status `not_permitted` and no request content is written instead.
   These entries are removed after the same lifetime as successful and failed ones.
@@ -253,7 +264,7 @@ Tool results of `/api/_mcp` and `/store-api/_mcp` now take their format from the
 * **Clients on 2024-11-05 and 2025-03-26** keep the `{"success": …}` envelope as the only text block, unchanged.
   This legacy envelope is deprecated as a wire format.
   It is kept for these clients and is not removed in 6.8.0.
-  `McpToolResponse::success()` and `::error()` stay; tools don't need to change.
+  Tools that still return the `{"success": …}` string keep working; see "MCP tools return `McpToolResult`; the legacy string is deprecated" for the result object.
 
 ### Large MCP results in the result envelope are stored and linked for every tool
 
@@ -261,6 +272,7 @@ The MCP result renderer now decides whether a tool result is too large to return
 It renders every result in the `{"success": …}` envelope, meaning a JSON string with a boolean `success`, no matter whether it comes from `McpToolResponse::success()`, an app tool, or a plugin tool that builds the string by hand.
 Such results, which were always returned inline unless they came from `McpToolResponse::success()`, are now stored when they are too large and sent as a `resource_link` (2025-06-18 and later) or with `_meta.resourceUri` in the envelope (before 2025-06-18).
 A tool result that is not in this envelope, such as plain text, is passed through unchanged and is never stored.
+A PHP tool that returns plain text triggers a deprecation; it returns `McpToolResult::text('…')` instead, which sends the same text block to every client.
 On 2025-06-18 and later, results of a tool that declares an `outputSchema` are never stored, because a link carries no `structuredContent` that could match the schema; such a tool has to keep its results small itself.
 The model reads stored results with `resources/read`.
 `McpToolResponse::success()` itself no longer stores anything and always returns the full data, so a tool called outside of an MCP request gets its complete result.
@@ -320,6 +332,11 @@ With `shopware.media.remote_thumbnails.enable`, SVGs now have an empty `thumbnai
 Before, their `srcset` claimed widths that the returned original file did not have, so browsers rendered small SVG logos far too small.
 Media loaded without the `mediaType` field keep their thumbnail URLs, as the type can't be checked.
 
+### Media uploads can set a title and an alt text
+
+`MediaUploadParameters` has the new optional properties `title` and `alt`.
+`MediaUploadService` writes them when it creates the media, so a separate media update for them is no longer needed.
+
 ### Units have a standard unit code
 
 The `unit` entity has a new optional field `uneceCode` for the unit's UN/ECE Recommendation 20 or 21 code, for example `H87` for piece, `KGM` for kilogram or `XBX` for box. The field is not translated and is available in the Admin API and the Store API.
@@ -351,6 +368,44 @@ Plugins that add their own toolset should set it on one tool of the group:
 
 Existing `#[McpToolGroup('<group>')]` declarations keep working and keep the generated description.
 Plugins can add tools to a core toolset such as `entity`, but cannot change its description.
+
+### MCP tools return `McpToolResult`; the legacy string is deprecated
+
+All core MCP tools now return a `Shopware\Core\Framework\Mcp\Result\McpToolResult` instead of the `{"success": …}` JSON string.
+What clients receive is unchanged on every protocol revision.
+
+`McpToolResponse` has new helpers that return the result object: `successResult()`, which also takes an optional summary for the model, and `errorResult()`, which also takes error details.
+The other helpers have a counterpart as well: `requirePrivilegeResult()`, `missingPrivilegesResult()`, `invalidCriteriaResult()`, `decodeJsonOrErrorResult()` and `executeWithDryRunResult()`.
+
+Returning the legacy string from a plugin or bundle tool, built with `success()`, `error()` and the other string helpers or by hand, is deprecated.
+It keeps working in 6.7, including for tools that declare `__invoke(): string`, but it can't carry a summary or error details.
+The string helpers `success()`, `error()`, `requirePrivilege()`, `missingPrivilegesError()`, `invalidCriteriaError()`, `decodeJsonOrError()` and `executeWithDryRun()` are marked `@deprecated tag:v6.8.0`.
+They trigger a deprecation when called and throw once the `v6.8.0.0` feature flag is active, so run your tests with the flag to find the calls that are left.
+A PHP tool that returns the string, built by hand or with the helpers, triggers the same deprecation.
+Switch a tool by declaring `__invoke(): McpToolResult` and using the `…Result` helpers:
+
+```php
+public function __invoke(string $id): McpToolResult
+{
+    if ($error = $this->requirePrivilegeResult($this->contextProvider->getContext(), 'product:read')) {
+        return $error;
+    }
+
+    return $this->successResult(['id' => $id], ['total' => 1]);
+}
+```
+
+App tools keep the `{"success": …}` envelope as their response format.
+
+The new PHPStan rule `McpToolLegacyStringResultRule` (identifier `shopware.mcpToolLegacyStringResult`) reports a `#[McpTool]` method whose native return type is `string`, `?string`, a union containing `string`, `mixed`, or missing.
+For now it is registered in `core-rules.neon` only, which the Shopware PHPStan extension doesn't load for extensions by default, so it does not fail your build in 6.7.
+It moves to `rules.neon` with 6.8.0.
+To check your tools today, add it to the `rules` of your `phpstan.neon`:
+
+```neon
+rules:
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\McpToolLegacyStringResultRule
+```
 
 ### MCP servers run on `mcp/sdk` 0.9 and `symfony/mcp-bundle` 0.15
 
@@ -497,6 +552,22 @@ A `0` is no longer replaced by the mapping's default value and satisfies a requi
 Empty cells behave as before.
 Check import files that relied on `0` being ignored.
 
+### Rules match the address of a visitor without a customer
+
+A visitor who is neither logged in nor registered can now send an address, which is stored on the context as `SalesChannelContext::getProspectiveCustomer()`.
+No customer or address is written, and `SalesChannelContext::getCustomer()` stays `null`.
+The addresses are available as `ProspectiveAddress` structs with readonly properties.
+The shipping location of such a context contains the address, so zip code, city and street rules and zip code tax rules match before registration.
+
+Rule matching sees a customer that only exists for the rules: a guest of the default customer group without order history, with the sent shipping and billing address.
+This affects `CheckoutRuleScope::getCustomer()` and therefore guest, active, order history and billing address rules.
+Company, newsletter recipient and "created by admin" rules set to "no", and customer custom field rules with "not equal", match as well.
+Rules that need contact or account data, such as e-mail, tags or birthday, do not match before registration.
+Custom rules that load the customer by its id find no customer.
+
+Shops with such rules see them apply earlier in the checkout once their frontend sends an address.
+Contexts without an address behave as before.
+The prospective customer is removed when the visitor logs in or registers.
 ### Manifest validation runs on every app install and update
 
 Manifest validation now also runs when an app is installed or updated from the store, the Administration or as a service, not only through the CLI.
@@ -518,6 +589,13 @@ Replace `EntityRepository<EntityCollection<ImportExportFileEntity>>` annotations
 
 The property is unused and will be removed in 6.8.
 `--no-validate` on `app:install` and `app:refresh` is deprecated and will be removed in 6.8.
+
+### System config cache is invalidated per sales channel
+
+Saving the system config of one sales channel now only drops the cached config of that sales channel.
+A change of the global config still drops the cached config of all sales channels.
+`CachedSystemConfigLoader` tags each cached sales channel config additionally with `CachedSystemConfigLoader::buildSalesChannelTag($salesChannelId)`.
+Invalidating `CachedSystemConfigLoader::CACHE_TAG` still drops the whole cached config.
 
 ### MCP answers carry cache hints on the 2026-07-28 revision
 
@@ -646,6 +724,33 @@ Shops that adjusted these rules themselves keep their rules, and should compare 
 
 ## API
 
+### Checkout draft route
+
+`GET /store-api/checkout/draft` returns the calculated cart together with the available shipping and payment methods and the stored address of a visitor without a customer.
+`PATCH /store-api/checkout/draft` accepts every field of `PATCH /store-api/context`, applies the change through that route and returns the same response.
+Unlike `PATCH /store-api/context`, unknown fields are rejected with HTTP 400.
+
+The flags `methods`, `shippingCosts`, `checkoutGateway` and `taxed` control the optional, more expensive parts; `contextGateway` with `appName` runs an app Context Gateway on `PATCH`.
+Changes of an address or a method are rate limited per context token, configurable as `shopware.api.rate_limiter.checkout_draft`.
+
+### Address of a visitor without a customer on `PATCH /store-api/context`
+
+`PATCH /store-api/context` accepts `shippingAddress` and `billingAddress` for visitors who are not logged in.
+Only `countryId` is required, the country of the shipping address also becomes the context country, and `null` removes the address.
+Logged-in customers keep using `shippingAddressId` and `billingAddressId`; sending an address for them fails with HTTP 400 and code `SYSTEM__PROSPECTIVE_ADDRESS_WITH_CUSTOMER`.
+A `shippingAddress` together with `countryId` or `countryStateId` fails with HTTP 400 and code `SYSTEM__PROSPECTIVE_ADDRESS_WITH_COUNTRY`.
+A later `countryId` or `countryStateId` that differs from the stored shipping address removes the stored addresses.
+`GET /store-api/context` returns the stored address as `prospectiveCustomer`.
+
+Headless clients should note that `shippingLocation.address` and `cart.deliveries[].location.address` now contain an address for such a visitor, while `customer` is `null`.
+Its ids stay the same for a context token, but it is not a stored customer address and can not be sent as `shippingAddressId`.
+Check `customer` or `prospectiveCustomer` before treating it as a customer address.
+
+### Rate limit responses contain `Retry-After`
+
+Admin API and Store API responses with HTTP 429 now contain a `Retry-After` header with the seconds to wait.
+It is listed in `Access-Control-Expose-Headers`, so browser clients on another origin can read it.
+
 ### MCP clients can log in with OAuth
 
 MCP clients can now discover how to log in to `/api/_mcp` and get a token that only works there.
@@ -707,6 +812,13 @@ Remove surrounding whitespace before submitting a username.
 Existing usernames are not changed automatically; updates that omit `username` remain possible.
 Duplicate usernames are reported with HTTP 400 and code `USER__USERNAME_NOT_UNIQUE`.
 
+### Error responses no longer expose database connection errors
+
+With `APP_DEBUG=0`, a failed database connection, for example invalid credentials or an unreachable database server, is no longer rendered with its raw exception message.
+Requests that prefer HTML, like a storefront request while the database is not reachable, get Symfony's generic error page.
+Other requests get a JSON error with `Internal Server Error` as detail.
+The original exception is still logged.
+
 ### SSO logins can carry the `user-verified` scope
 
 The SSO re-authentication (`/api/oauth/sso/auth` with `usePromptLogin=1`) now sends `max_age=0` next to `prompt=login`, so the identity provider performs a fresh login and reports its time in the id token (`auth_time`).
@@ -719,6 +831,19 @@ The user and role endpoints keep accepting SSO sessions without the scope for no
 POST requests can now override their method only to PUT, PATCH or DELETE through the `X-HTTP-Method-Override` header or `_method` parameter.
 Send GET and HEAD requests with their actual HTTP method so routing and HTTP caches agree on the request semantics.
 HTML forms can continue to use POST with an override for PUT, PATCH and DELETE actions.
+### Webhooks created through the Admin API can be signed
+
+Webhooks created through the Admin API accept an optional, write-only `secret`.
+Deliveries are then signed in the `shopware-shop-signature` header, like app webhooks.
+Deliveries still queued for a deleted webhook without an app are no longer sent.
+
+Webhooks created by an app's integration are now signed with the app secret, like the app's manifest webhooks,
+so they can't have their own `secret`.
+
+```http
+PATCH /api/webhook/{id}
+{ "secret": "430eb48125a7e51ccf48371cc4a61fd2eeb6a888ec959a94854380c68d46a0ce" }
+```
 
 ### Criteria on fields the API does not expose is a bad request
 
@@ -797,6 +922,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Media upload endpoints accept a title and an alt text
+
+`POST /api/_action/media/upload`, `POST /api/_action/media/upload_by_url` and `POST /api/_action/media/external-link` accept the optional fields `title` and `alt`.
+The new media is created with them, so a separate `PATCH /api/media/{id}` is no longer needed.
+
 ### Order deliveries have a `position` field
 
 Order deliveries in the Admin API and Store API have a new integer `position` field with the order of the deliveries in the cart the order was placed from, starting at 1.
@@ -812,6 +942,18 @@ A price definition written to a price definition field, for example `priceDefini
 
 Before, such a definition was stored and every later read of the entity failed, or a missing `percentage`, `net` or `gross` was read as 0. A numeric string as `price` of an `absolute` or as `percentage` of a `percentage` price definition, which was already accepted on write, can now be read as well.
 The same applies to `"quantity": null` and `"isCalculated": null` of a `quantity` price definition, which are now read as `1` and `false`.
+
+### Customer group registration SEO URLs for headless sales channels
+
+Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0).
+The rows are written with the route name `store-api.customer-group-registration.config` (the Store API route a headless frontend calls to render the registration form) — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`.
+Headless sales channels without an external storefront domain keep getting no rows;
+storefront sales channels are unaffected.
+
+The headless rows are maintained by the Core (`CustomerGroupRegistrationSeoUrlSubscriber`), so they are also written in headless installations without the Storefront bundle.
+They additionally react to domain changes:
+toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
+The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
 
 ## Features
 
@@ -882,16 +1024,47 @@ Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-
 
 ## Administration
 
+### The smart bar back button names its target
+
+The back button of `sw-page` shows the title of the module its parent route belongs to, e.g. "Products" on a product detail page.
+Without a resolvable title it shows only the icon, labelled "Go back".
+Pages whose route hierarchy does not lead back to where users expect can pass the new optional `backRoute` and `backLabel` props of `sw-page`.
+### Custom fields on the customer create page
+
+The customer create page now shows the custom field sets assigned to customers, so custom fields can be filled in when a customer is created.
+They are rendered in the new block `sw_customer_create_custom_field_sets` in `sw-customer-create.html.twig`.
+
 ### `blocks-list.json` is replaced by the public API snapshot
 
 The Administration no longer ships `blocks-list.json`.
 The block names are now in `public-api/index.json`, listed per component.
-All `blocks` arrays of that file together hold the names of the old list.
+A component that extends another one also lists the blocks it inherits.
+All `blocks` arrays of that file together hold the names of the old list, except eight blocks of extend templates that the Administration never rendered.
 Beside it, one `.api.md` report per component shows its blocks with their nesting, for the current release and for the next major.
 
 Tools that read `blocks-list.json` have to read `public-api/index.json` instead.
 The format of the files in `public-api/` can still change while the snapshot is being built.
 Core contributors run `composer admin:generate-public-api` instead of `composer admin:generate-blocks-list` after changing a block.
+### Experimental: `Feature.silence()` and `sw-silence-deprecations`
+
+Both silence the deprecations of a major on the pre-major side of a feature-flag branch, so an extension can support both sides of a major without warnings:
+
+```js
+if (!Shopware.Feature.isActive('V6_8_0_0')) {
+    Shopware.Feature.silence('V6_8_0_0', () => this.legacyLoad());
+}
+```
+
+```html
+<sw-silence-deprecations v-if="!feature.isActive('V6_8_0_0')" flag="V6_8_0_0">
+    <sw-deprecated-component />
+</sw-silence-deprecations>
+```
+
+The component silences the first level of components inside of it, ignoring plain HTML, and everything they render themselves.
+Event handlers, watchers and code after an `await` need `Feature.silence()`.
+Once the major is active, both silence nothing.
+
 ### Administration HTTP client runs on a single Axios 1.x transport
 
 The Administration `httpClient` is now one Axios 1.x instance (1.20.0).
@@ -991,6 +1164,11 @@ ui.mediaModal.open({
 // In the location "my-app-primitives-tab"
 ui.mediaModal.select({ selection: [{ id: 'cube' }] });
 ```
+### Webhooks in the settings
+
+The new page Settings > System > Webhooks lists all webhooks with their owner and the roles they are limited to, and shows the recent deliveries of each webhook.
+Users with the new "Webhooks" permissions can switch webhooks on and off and delete webhooks that do not belong to an app.
+The ownership rules of the Admin API still apply, so only the owner or an administrator can change a webhook.
 
 ### Text editor variables list all custom fields and are searchable
 
@@ -1092,17 +1270,17 @@ The separate `Extensions` process and the port per extension are gone.
 The `vite.config` of an extension can no longer change the address of its dev server.
 The watcher ignores `server.port`, `server.host`, `server.ws` and the connection options of `server.hmr` (`protocol`, `host`, `port`, `clientPort`, `path` and `server`) there.
 
-### Customer group registration SEO URLs for headless sales channels
+To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
+It bundles the Administration and its plugins, but not apps.
+Changes to plugin files reload the page instead of using HMR.
 
-Customer groups with an activated registration form now also get SEO URLs for headless (API type) registration sales channels, for every language that has a domain flagged as external storefront (see "SEO URLs for headless sales channels" in 6.7.14.0).
-The rows are written with the route name `store-api.customer-group-registration.config` (the Store API route a headless frontend calls to render the registration form) — separate from the storefront's `frontend.account.customer-group-registration.page` — and can be resolved by headless frontends via `GET /store-api/seo-url`.
-Headless sales channels without an external storefront domain keep getting no rows;
-storefront sales channels are unaffected.
+Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
+Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
+`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
+Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
+If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
 
-The headless rows are maintained by the Core (`CustomerGroupRegistrationSeoUrlSubscriber`), so they are also written in headless installations without the Storefront bundle.
-They additionally react to domain changes:
-toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
-The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
+For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ### Rule Builder: free-text list conditions use `sw-multi-tag-select`
 
@@ -1173,6 +1351,18 @@ Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_ro
 
 The "Show empty snippets only" filter in the snippet list now only lists snippets without a value.
 A snippet whose value is `0` counts as translated and is no longer listed.
+### Administration deprecation notices go through the feature lifecycle
+
+The hand-rolled deprecation warnings in the Administration now go through `Shopware.Feature.triggerDeprecationOrThrow()`, so they throw once their major flag is active instead of staying a console message forever.
+This covers `sw-tabs`, `sw-loader`, `sw-popover`, `sw-skeleton-bar`, the `items` prop of `sw-entity-listing`, the Options API compatibility shim and the legacy theme config labels and help texts in `sw-theme-manager-detail`.
+
+Deprecation notices for the legacy Twig override shim and for deprecated extension SDK position identifiers and data sets still only warn and do not throw, because no removal version exists for them yet.
+
+### Deprecated Administration APIs warn when they are used
+
+Deprecated Administration JavaScript APIs now call `Shopware.Feature.triggerDeprecationOrThrow()` when they are used: deprecated `Shopware.*` globals including `Shopware.State`, services, exported functions, component `methods` and `computed` members, also through `this.$super()`, as well as deprecated components and props.
+In development builds, a use logs a warning naming the API and its replacement.
+With the next major flag active, it throws unless baselined.
 
 ### Unused runtime packages removed from the Administration
 
@@ -1217,6 +1407,13 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
 
+### TypeScript Administration scaffolding
+
+`bin/console plugin:create --create-admin-module` now generates `main.ts` and TypeScript module and page implementations.
+Generated modules and components are checked against the installed Administration types.
+After installing and activating the plugin, run `bin/console bundle:dump`, `composer admin:setup-extension-tooling` and `composer admin:check-extensions -- --only=YourPlugin --fail-on-skipped` in a platform checkout to typecheck and lint it.
+Existing plugin files are unchanged.
+
 ### Order detail shows every shipment in 6.8
 
 With the major feature flag `v6.8.0.0`, the order detail tells shipments and shipping discounts apart by their shipping costs.
@@ -1224,20 +1421,6 @@ A delivery with negative shipping costs is a discount, every other delivery is a
 Until now, every delivery besides the primary one was shown as a shipping discount.
 The general tab lists the shipping costs of each shipment with its number and shipping method, and the details tab shows one delivery card per shipment, sorted like `OrderDeliveryCollection::getShipments()`.
 Overrides of the Twig blocks inside `sw_order_detail_details_shipping` of `sw-order-detail-details` render once per shipment, see `UPGRADE-6.8.md`.
-
-## API
-
-To try the experimental [bundled dev mode](https://vite.dev/blog/announcing-vite8-1#experimental-bundled-dev-mode) of Vite 8, also set `SHOPWARE_ADMIN_BUNDLED_DEV=1`.
-It bundles the Administration and its plugins, but not apps.
-Changes to plugin files reload the page instead of using HMR.
-
-Vite 8 does not match extglob patterns like `!(*.spec)` in `import.meta.glob`.
-Replace them with negated patterns like `['./**/*.{j,t}s', '!./**/*.spec.{j,t}s']`.
-`administration:check-extensions` warns about them, and `administration:upgrade-extensions` rewrites them.
-Until 6.8, Shopware rewrites them when the flag is active and logs a warning for each one.
-If your Jest setup uses `babel-plugin-shopware-vite-meta-glob`, update it to 0.0.6 or newer, because older versions ignore negated patterns.
-
-For the other changes, see "Administration build updated to Vite 8" in `UPGRADE-6.8.md`.
 
 ## Storefront
 
@@ -1250,6 +1433,11 @@ Deliveries with negative shipping costs are shipping discounts and are not liste
 Carts and orders with one shipment render as before.
 The new component `@Storefront/storefront/component/checkout/shipment.html.twig` renders a single shipment.
 The lists sit in the new blocks `page_checkout_confirm_address_shipping_shipments`, `page_checkout_finish_address_shipping_shipments`, `page_checkout_finish_order_dispatch_method_shipments` and `page_account_order_item_detail_shipments`.
+
+### Guest customers can create an account from the account menu
+
+The header account menu now shows a "Create account" button for guest customers in the new block `layout_header_actions_account_widget_dropdown_guest_convert` in `storefront/layout/header/account-menu.html.twig`.
+It leads to the guest conversion page (`frontend.account.convert.page`), which was previously only linked from the checkout finish page.
 
 ### New shipping method blocks added
 
@@ -1272,6 +1460,12 @@ Both are rendered inside their `User-agent` block with the value unchanged, for 
 A path in front of the `Content-Usage` preference gets the domain path like `Allow` and `Disallow`, for example `Content-usage: /de/blog/ train-ai=n`.
 `RobotsDirectiveType` has the new cases `CONTENT_USAGE` and `CONTENT_SIGNAL`;
 extensions that handled these lines through `RobotsUnknownDirectiveEvent` no longer receive that event for them.
+
+### Static theme compilation refreshes the theme runtime configuration
+
+With `StaticFileConfigLoader`, compiling a theme now refreshes the whole theme runtime configuration, including the script files and the import map, like the `DatabaseConfigLoader` does.
+Activating, updating or removing an extension with storefront JavaScript, or running `theme:compile`, updates the scripts the storefront loads, so running `theme:refresh` afterwards is no longer necessary.
+Without a reachable database, theme compilation still works and skips the runtime configuration refresh.
 
 ### Cookie provider removal postponed to 6.9
 

@@ -12,7 +12,16 @@ component sw-property-create  public  js
   template src/module/sw-property/page/sw-property-create/sw-property-create.html.twig
 
 blocks
-  sw_property_detail_content_language_info
-  sw_property_detail_content_option_list
-  sw_property_detail_language_switch
+  sw_property_detail  [inherited]
+    sw_property_detail_content  [inherited]
+      sw_property_detail_content_detail_base  [inherited]
+      sw_property_detail_content_language_info  [replaced]
+      sw_property_detail_content_option_list  [replaced] [after v-if]
+      sw_property_detail_custom_field_sets  [inherited]
+    sw_property_detail_language_switch  [replaced]
+    sw_property_detail_smart_bar_actions  [inherited]
+      sw_property_detail_smart_bar_actions_cancel  [inherited]
+      sw_property_detail_smart_bar_actions_save  [inherited]
+    sw_property_detail_smart_bar_header  [inherited]
+      sw_property_detail_smart_bar_header_title  [inherited]
 ```

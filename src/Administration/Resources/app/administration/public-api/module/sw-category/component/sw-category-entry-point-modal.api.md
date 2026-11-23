@@ -13,14 +13,14 @@ component sw-category-entry-point-modal  public  js
 blocks
   sw_category_entry_point_modal
     sw_category_entry_point_modal_discard_changes_modal
-    sw_category_entry_point_modal_footer
+    sw_category_entry_point_modal_footer  [after v-if]
       sw_category_entry_point_modal_footer_apply_button
       sw_category_entry_point_modal_footer_cancel_button
     sw_category_entry_point_modal_sales_channel_selection
     sw_category_entry_point_modal_selected_sales_channel
       sw_category_entry_point_modal_selected_sales_channel_layout_headline
       sw_category_entry_point_modal_selected_sales_channel_layout_selection
-        sw_category_entry_point_modal_layout_desc
+        sw_category_entry_point_modal_layout_desc  [after v-if]
           sw_category_entry_point_modal_layout_desc_actions
             sw_category_entry_point_modal_layout_desc_actions_designer
             sw_category_entry_point_modal_layout_desc_actions_layout

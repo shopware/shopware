@@ -12,7 +12,7 @@ component sw-order-nested-line-items-modal  public  js
 
 blocks
   sw_order_nested_line_item_modal
-    sw_order_nested_line_item_modal_container
+    sw_order_nested_line_item_modal_container  [after v-if]
       sw_order_nested_line_item_modal_content
       sw_order_nested_line_item_modal_header_container
         sw_order_nested_line_item_modal_header_label
@@ -23,4 +23,7 @@ blocks
     sw_order_nested_line_item_modal_footer
       sw_order_nested_line_item_modal_footer_content
     sw_order_nested_line_item_modal_loader
+
+crossings
+  v-if  sw_order_nested_line_item_modal_loader -> sw_order_nested_line_item_modal_container
 ```

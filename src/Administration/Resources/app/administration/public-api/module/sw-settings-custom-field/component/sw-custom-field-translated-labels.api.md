@@ -13,11 +13,14 @@ component sw-custom-field-translated-labels  public  js
 blocks
   sw_custom_field_translated_labels
     sw_custom_field_translated_labels_single
-    sw_custom_field_translated_labels_translated
+    sw_custom_field_translated_labels_translated  [after v-if]
       sw_custom_field_translated_labels_translated_content  [until v6.8.0]
-        sw_custom_field_translated_labels_translated_content_field  [until v6.8.0]
+        sw_custom_field_translated_labels_translated_content_field  [scope: active, locale] [until v6.8.0]
       sw_custom_field_translated_labels_translated_mt_content  [from v6.8.0]
-        sw_custom_field_translated_labels_translated_mt_content_field  [from v6.8.0]
+        sw_custom_field_translated_labels_translated_mt_content_field  [scope: locale] [from v6.8.0]
       sw_custom_field_translated_labels_translated_mt_tabs  [from v6.8.0]
       sw_custom_field_translated_labels_translated_tabs  [until v6.8.0]
+
+crossings
+  v-if  sw_custom_field_translated_labels_single -> sw_custom_field_translated_labels_translated
 ```

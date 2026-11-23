@@ -12,10 +12,10 @@ component sw-customer-imitate-customer-modal  public  js
 
 blocks
   sw_customer_imitate_customer_modal
-    sw_customer_imitate_customer_modal_alert
-    sw_customer_imitate_customer_modal_body
+    sw_customer_imitate_customer_modal_alert  [after v-if]
+    sw_customer_imitate_customer_modal_body  [after v-if]
       sw_customer_imitate_customer_modal_sales_channel_domain_items
-    sw_customer_imitate_customer_modal_description
+    sw_customer_imitate_customer_modal_description  [after v-if]
     sw_customer_imitate_customer_modal_footer
       sw_customer_imitate_customer_modal_footer_cancel
 ```

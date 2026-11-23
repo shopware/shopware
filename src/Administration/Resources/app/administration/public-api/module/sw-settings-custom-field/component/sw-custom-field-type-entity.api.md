@@ -12,10 +12,25 @@ component sw-custom-field-type-entity  public  js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-entity/sw-custom-field-type-entity.html.twig
 
 blocks
-  sw_custom_field_type_base_content
-    sw_custom_field_type_entity_multi
-    sw_custom_field_type_entity_type
-    sw_custom_field_type_select_add_option
-    sw_custom_field_type_select_multi
-    sw_custom_field_type_select_options
+  sw_custom_field_type_base  [inherited]
+    sw_custom_field_type_base_content  [keepsParent]
+      sw_custom_field_type_base_labels  [inherited]
+      sw_custom_field_type_entity_multi
+      sw_custom_field_type_entity_type  [after v-if]
+      sw_custom_field_type_select_add_option
+      sw_custom_field_type_select_add_option  [inherited]
+      sw_custom_field_type_select_multi
+      sw_custom_field_type_select_multi  [inherited]
+      sw_custom_field_type_select_options
+        sw_custom_field_type_select_options_container  [inherited] [scope: index, option]
+          sw_custom_field_type_select_options_container_labels  [inherited] [scope: index, option]
+          sw_custom_field_type_select_options_container_technical_name  [inherited] [scope: index, option]
+        sw_custom_field_type_select_options_delete  [inherited] [scope: index, option]
+        sw_custom_field_type_select_options_label  [inherited] [scope: index, option]
+      sw_custom_field_type_select_options  [inherited]
+        sw_custom_field_type_select_options_container  [inherited] [scope: index, option]
+          sw_custom_field_type_select_options_container_labels  [inherited] [scope: index, option]
+          sw_custom_field_type_select_options_container_technical_name  [inherited] [scope: index, option]
+        sw_custom_field_type_select_options_delete  [inherited] [scope: index, option]
+        sw_custom_field_type_select_options_label  [inherited] [scope: index, option]
 ```

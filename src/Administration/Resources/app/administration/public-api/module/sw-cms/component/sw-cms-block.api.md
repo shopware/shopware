@@ -12,7 +12,7 @@ component sw-cms-block  public  ts
 
 blocks
   sw_cms_block
-    sw_cms_block_content
+    sw_cms_block_content  [after v-if]
       sw_cms_block_slot_default
-    sw_cms_block_overlay
+    sw_cms_block_overlay  [after v-if]
 ```

@@ -12,10 +12,10 @@ component sw-product-media-form  public  js
 
 blocks
   sw_product_media_form
-    sw_product_media_form_grid
+    sw_product_media_form_grid  [after v-if]
       sw_product_media_form_cover_preview
         sw_product_media_form_cover_image
       sw_product_media_form_grid_items
-        sw_product_media_form_grid_item
+        sw_product_media_form_grid_item  [scope: mediaItem]
     sw_product_media_form_upload
 ```

@@ -13,11 +13,11 @@ component sw-flow-set-order-state-modal  private  js  [private]
 
 blocks
   sw_flow_set_order_state_modal  [private]
-    sw_flow_set_order_state_modal_content  [private]
+    sw_flow_set_order_state_modal_content  [after v-if] [private]
       sw_flow_set_order_state_modal_delivery_status  [private]
       sw_flow_set_order_state_modal_force_transition  [private]
       sw_flow_set_order_state_modal_order_status  [private]
-      sw_flow_set_order_state_modal_payment_status  [private]
+      sw_flow_set_order_state_modal_payment_status  [after v-if] [private]
     sw_flow_set_order_state_modal_footer  [private]
       sw_flow_set_order_state_modal_footer_cancel_button  [private]
       sw_flow_set_order_state_modal_footer_save_button  [private]

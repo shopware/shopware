@@ -10,4 +10,7 @@ component sw-select-number-field  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/form/sw-select-number-field/index.js  [private]
   visibility-source export  [private]
+
+blocks
+  sw_block_field  [inherited] [private]
 ```

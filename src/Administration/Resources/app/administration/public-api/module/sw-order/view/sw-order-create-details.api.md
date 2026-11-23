@@ -19,7 +19,7 @@ blocks
       sw_order_create_details_phone_number
       sw_order_create_details_switch_disable_auto_promotion
       sw_order_create_details_voucher_field
-    sw_order_create_details_payment
-    sw_order_create_details_promotion_modal
+    sw_order_create_details_payment  [after v-if]
+    sw_order_create_details_promotion_modal  [after v-if]
     sw_order_create_details_shipping
 ```

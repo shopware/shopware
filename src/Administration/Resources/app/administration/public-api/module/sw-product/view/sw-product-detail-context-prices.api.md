@@ -15,33 +15,36 @@ blocks
     sw_product_detail_prices_price_card
       sw_product_detail_prices_price_card_price_group_add_price_rule
         sw_product_detail_prices_price_card_price_group_add_price_rule_button
-      sw_product_detail_prices_price_card_price_group_empty_state
-        sw_product_detail_prices_price_card_price_group_empty_state_warning
-      sw_product_detail_prices_price_card_price_group_grid
-        sw_product_detail_prices_price_card_price_group_grid_actions
-          sw_product_detail_prices_price_card_price_group_grid_actions_delete
-        sw_product_detail_prices_price_card_price_group_grid_currencies_list
-          sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field
-          sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field
-        sw_product_detail_prices_price_card_price_group_grid_quantity_end
-          sw_product_detail_prices_price_card_price_group_grid_quantity_end_field
-        sw_product_detail_prices_price_card_price_group_grid_quantity_start
-          sw_product_detail_prices_price_card_price_group_grid_quantity_start_field
-        sw_product_detail_prices_price_card_price_group_grid_settings
-          sw_product_detail_prices_price_card_price_group_grid_settings_list_prices
-        sw_product_detail_prices_price_card_price_group_grid_type
-      sw_product_detail_prices_price_card_toolbar
-        sw_product_detail_prices_price_card_toolbar_add_price_rule
-        sw_product_detail_prices_price_card_toolbar_rule_delete
-        sw_product_detail_prices_price_card_toolbar_rule_selection
+      sw_product_detail_prices_price_card_price_group_empty_state  [after v-if] [scope: index, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_empty_state_warning  [scope: index, key, priceGroup]
+      sw_product_detail_prices_price_card_price_group_grid  [scope: index, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_grid_actions  [scope: index, key, priceGroup]
+          sw_product_detail_prices_price_card_price_group_grid_actions_delete  [scope: index, item, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_grid_currencies_list  [scope: index, key, priceGroup]
+          sw_product_detail_prices_price_card_price_group_grid_currencies_list_inherit_field  [scope: column, compact, currency, index, item, key, priceGroup]
+          sw_product_detail_prices_price_card_price_group_grid_currencies_list_price_field  [after v-if] [scope: column, compact, currency, index, item, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_grid_quantity_end  [scope: index, key, priceGroup]
+          sw_product_detail_prices_price_card_price_group_grid_quantity_end_field  [scope: compact, index, item, itemIndex, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_grid_quantity_start  [scope: index, key, priceGroup]
+          sw_product_detail_prices_price_card_price_group_grid_quantity_start_field  [scope: compact, index, item, itemIndex, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_grid_settings  [scope: index, key, priceGroup]
+          sw_product_detail_prices_price_card_price_group_grid_settings_list_prices  [scope: index, key, priceGroup]
+        sw_product_detail_prices_price_card_price_group_grid_type  [scope: index, key, priceGroup]
+      sw_product_detail_prices_price_card_toolbar  [scope: index, key, priceGroup]
+        sw_product_detail_prices_price_card_toolbar_add_price_rule  [scope: index, key, priceGroup]
+        sw_product_detail_prices_price_card_toolbar_rule_delete  [after v-if] [scope: index, key, priceGroup]
+        sw_product_detail_prices_price_card_toolbar_rule_selection  [scope: index, key, priceGroup]
       sw_product_detail_prices_price_empty_state
         sw_product_detail_prices_empty_state_image
         sw_product_detail_prices_price_empty_state__inherit_switch
-        sw_product_detail_prices_price_empty_state_select_rule
+        sw_product_detail_prices_price_empty_state_select_rule  [after v-if]
         sw_product_detail_prices_price_empty_state_text
           sw_product_detail_prices_price_empty_state_text_child
             sw_product_detail_prices_price_empty_state_text_inherited
               sw_product_detail_prices_price_empty_state_text_link
             sw_product_detail_prices_price_empty_state_text_not_inherited
           sw_product_detail_prices_price_empty_state_text_empty
+
+crossings
+  v-if  sw_product_detail_prices_price_card_price_group_grid -> sw_product_detail_prices_price_card_price_group_empty_state
 ```

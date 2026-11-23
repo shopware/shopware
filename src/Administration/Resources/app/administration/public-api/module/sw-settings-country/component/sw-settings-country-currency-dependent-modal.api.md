@@ -14,7 +14,7 @@ blocks
   sw_settings_country_currency_dependent_modal
     sw_settings_country_currency_dependent_modal_content
       sw_settings_country_currency_dependent_column_actions
-        sw_settings_country_currency_dependent_grid_column_action_delete
+        sw_settings_country_currency_dependent_grid_column_action_delete  [scope: item]
       sw_settings_country_currency_dependent_grid_column_is_base_currency
       sw_settings_country_currency_dependent_grid_column_value
       sw_settings_country_currency_dependent_modal_content_currency_name

@@ -14,8 +14,8 @@ blocks
   sw_mail_header_footer_list_grid
     sw_mail_header_footer_list_grid_empty_state
       sw_mail_header_footer_list_grid_empty_state_button
-    sw_mail_header_footer_list_grid_empty_state_icon
-    sw_mail_template_list_grid
-      sw_mail_header_footer_list_grid_columns_actions_duplicate
-      sw_mail_template_list_columns_sales_channels_label
+    sw_mail_header_footer_list_grid_empty_state_icon  [after v-if]
+    sw_mail_template_list_grid  [after v-if]
+      sw_mail_header_footer_list_grid_columns_actions_duplicate  [scope: item]
+      sw_mail_template_list_columns_sales_channels_label  [scope: item]
 ```

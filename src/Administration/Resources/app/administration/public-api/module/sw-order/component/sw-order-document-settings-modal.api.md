@@ -12,8 +12,8 @@ component sw-order-document-settings-modal  public  js
 
 blocks
   sw_order_document_settings_modal
-    sw_order_document_settings_modal_form_additional_content
-    sw_order_document_settings_modal_form_document_comment
+    sw_order_document_settings_modal_form_additional_content  [after v-if]
+    sw_order_document_settings_modal_form_document_comment  [after v-if]
     sw_order_document_settings_modal_form_document_footer
       sw_order_document_settings_modal_form_document_footer_cancel
       sw_order_document_settings_modal_form_document_footer_preview
@@ -29,5 +29,5 @@ blocks
     sw_order_document_settings_modal_form_first_row
       sw_order_document_settings_modal_form_document_date
       sw_order_document_settings_modal_form_document_number
-    sw_order_document_settings_modal_media_modal
+    sw_order_document_settings_modal_media_modal  [after v-if]
 ```

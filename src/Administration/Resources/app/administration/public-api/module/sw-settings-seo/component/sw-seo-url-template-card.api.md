@@ -12,13 +12,13 @@ component sw-seo-url-template-card  public  js
 
 blocks
   sw_seo_url_template_card
-    sw_seo_url_template_card_entries
-      sw_seo_url_template_card_entries_input_wrapper
-        sw_seo_url_template_card_entries_input
-          sw_seo_url_template_card_entries_input_suffix
-      sw_seo_url_template_card_entries_preview
-        sw_seo_url_template_card_entries_preview_item
-        sw_seo_url_template_card_entries_preview_label
-      sw_seo_url_template_card_entries_variables
+    sw_seo_url_template_card_entries  [after v-if]
+      sw_seo_url_template_card_entries_input_wrapper  [scope: index, seoUrlTemplate]
+        sw_seo_url_template_card_entries_input  [scope: index, props, seoUrlTemplate]
+          sw_seo_url_template_card_entries_input_suffix  [scope: index, props, seoUrlTemplate]
+      sw_seo_url_template_card_entries_preview  [scope: index, seoUrlTemplate]
+        sw_seo_url_template_card_entries_preview_item  [scope: index, seoUrlTemplate]
+        sw_seo_url_template_card_entries_preview_label  [scope: index, seoUrlTemplate]
+      sw_seo_url_template_card_entries_variables  [scope: index, seoUrlTemplate]
     sw_seo_url_template_card_info_box
 ```

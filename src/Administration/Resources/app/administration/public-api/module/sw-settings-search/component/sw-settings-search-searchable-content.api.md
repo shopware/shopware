@@ -14,16 +14,16 @@ blocks
   sw_settings_search_searchable_content
     sw_settings_search_searchable_actions
       sw_settings_search_searchable_add_item
-      sw_settings_search_searchable_reset_default
-      sw_settings_search_searchable_show_example
-        sw_settings_search_searchable_show_example_link_element
-          sw_settings_search_searchable_show_example_link
+      sw_settings_search_searchable_reset_default  [after v-if]
+      sw_settings_search_searchable_show_example  [after v-if]
+        sw_settings_search_searchable_show_example_link_element  [after v-if]
+          sw_settings_search_searchable_show_example_link  [after v-if]
       sw_settings_search_searchable_show_example_modal
     sw_settings_search_searchable_content_tabs
-      sw_settings_search_searchable_content_general_tab_item  [until v6.8.0]
-      sw_settings_search_searchable_content_general_tab_title  [until v6.8.0]
+      sw_settings_search_searchable_content_general_tab_item  [scope: active] [until v6.8.0]
+      sw_settings_search_searchable_content_general_tab_title  [scope: active] [until v6.8.0]
       sw_settings_search_searchable_content_mt_content  [from v6.8.0]
-        sw_settings_search_searchable_content_mt_customfields_tab_item  [from v6.8.0]
+        sw_settings_search_searchable_content_mt_customfields_tab_item  [after v-if] [from v6.8.0]
         sw_settings_search_searchable_content_mt_general_tab_item  [from v6.8.0]
       sw_settings_search_searchable_content_mt_tabs  [from v6.8.0]
     sw_settings_search_searchable_content_title

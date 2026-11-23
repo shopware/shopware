@@ -17,44 +17,44 @@ blocks
         sw_product_variant_modal_body_delete_modal_body_multiple
           sw_product_variant_modal_body_delete_modal_body_multiple_subline
           sw_product_variant_modal_body_delete_modal_body_multiple_text
-        sw_product_variant_modal_body_delete_modal_body_single
+        sw_product_variant_modal_body_delete_modal_body_single  [after v-if]
         sw_product_variant_modal_body_delete_modal_footer
           sw_product_variant_modal_body_delete_modal_footer_close
           sw_product_variant_modal_body_delete_modal_footer_confirm
-      sw_product_variant_modal_body_empty_state
+      sw_product_variant_modal_body_empty_state  [after v-if]
       sw_product_variant_modal_body_grid
         sw_product_variant_modal_body_grid_actions
-          sw_product_variant_modal_body_grid_actions_delete
-          sw_product_variant_modal_body_grid_actions_edit
+          sw_product_variant_modal_body_grid_actions_delete  [scope: item]
+          sw_product_variant_modal_body_grid_actions_edit  [scope: item]
         sw_product_variant_modal_body_grid_bulk
-          sw_product_variant_modal_body_grid_bulk_delete
+          sw_product_variant_modal_body_grid_bulk_delete  [after v-if]
           sw_product_variant_modal_body_grid_bulk_edit
         sw_product_variant_modal_body_grid_column_active
-          sw_product_variant_modal_body_grid_column_active_content
-            sw_product_variant_modal_body_grid_column_active_content_icon_active
-            sw_product_variant_modal_body_grid_column_active_content_icon_not_active
-          sw_product_variant_modal_body_grid_column_active_inline_edit
+          sw_product_variant_modal_body_grid_column_active_content  [after v-if] [scope: isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_active_content_icon_active  [scope: isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_active_content_icon_not_active  [after v-if] [scope: isInlineEdit, item]
+          sw_product_variant_modal_body_grid_column_active_inline_edit  [scope: isInlineEdit, item]
         sw_product_variant_modal_body_grid_column_media
-          sw_product_variant_modal_body_grid_column_media_inline_edit
-            sw_product_variant_modal_body_grid_column_media_content
-            sw_product_variant_modal_body_grid_column_media_inherit
+          sw_product_variant_modal_body_grid_column_media_inline_edit  [scope: compact, isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_media_content  [scope: compact, isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_media_inherit  [scope: compact, isInlineEdit, item]
         sw_product_variant_modal_body_grid_column_name
-          sw_product_variant_modal_body_grid_column_name_content
-            sw_product_variant_modal_body_grid_column_name_content_media_preview
-            sw_product_variant_modal_body_grid_column_name_content_name
-            sw_product_variant_modal_body_grid_column_name_content_options
-          sw_product_variant_modal_body_grid_column_name_inline_edit
+          sw_product_variant_modal_body_grid_column_name_content  [after v-if] [scope: isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_name_content_media_preview  [scope: isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_name_content_name  [scope: isInlineEdit, item]
+            sw_product_variant_modal_body_grid_column_name_content_options  [scope: isInlineEdit, item]
+          sw_product_variant_modal_body_grid_column_name_inline_edit  [scope: isInlineEdit, item]
         sw_product_variant_modal_body_grid_column_price
         sw_product_variant_modal_body_grid_column_stock
-          sw_product_variant_modal_body_grid_column_stock_content
-          sw_product_variant_modal_body_grid_column_stock_inline_edit
+          sw_product_variant_modal_body_grid_column_stock_content  [after v-if] [scope: isInlineEdit, item]
+          sw_product_variant_modal_body_grid_column_stock_inline_edit  [scope: isInlineEdit, item]
         sw_product_variant_modal_body_grid_pagination
         sw_product_variant_modal_bulk_edit_modal
-          sw_product_variant_modal_bulk_edit_modal_column_active
-          sw_product_variant_modal_bulk_edit_modal_column_media
-          sw_product_variant_modal_bulk_edit_modal_column_name
-          sw_product_variant_modal_bulk_edit_modal_column_price
-          sw_product_variant_modal_bulk_edit_modal_column_stock
+          sw_product_variant_modal_bulk_edit_modal_column_active  [scope: selection]
+          sw_product_variant_modal_bulk_edit_modal_column_media  [scope: selection]
+          sw_product_variant_modal_bulk_edit_modal_column_name  [scope: selection]
+          sw_product_variant_modal_bulk_edit_modal_column_price  [scope: selection]
+          sw_product_variant_modal_bulk_edit_modal_column_stock  [scope: selection]
       sw_product_variant_modal_toolbar
         sw_product_variant_modal_toolbar_container
           sw_product_variant_modal_body_label_search
@@ -65,7 +65,16 @@ blocks
                 sw_product_variant_modal_option_list_toolbar_container_button_update_list
               sw_product_variant_modal_option_list_toolbar_container_filter_tree
             sw_product_variant_modal_option_list_toolbar_container_filter_list_button
-    sw_product_variant_modal_footer
+    sw_product_variant_modal_footer  [after v-if]
       sw_product_variant_modal_footer_close_button
       sw_product_variant_modal_footer_visit_main_product
+
+crossings
+  v-if  sw_product_variant_modal_body_delete_modal_body_multiple -> sw_product_variant_modal_body_delete_modal_body_single
+  v-if  sw_product_variant_modal_body_grid -> sw_product_variant_modal_body_empty_state
+  v-if  sw_product_variant_modal_body_grid_column_active_content_icon_active -> sw_product_variant_modal_body_grid_column_active_content_icon_not_active
+  v-if  sw_product_variant_modal_body_grid_column_active_content_icon_not_active -> sw_product_variant_modal_body_grid_column_active_content
+  v-if  sw_product_variant_modal_body_grid_column_active_inline_edit -> sw_product_variant_modal_body_grid_column_active_content
+  v-if  sw_product_variant_modal_body_grid_column_name_inline_edit -> sw_product_variant_modal_body_grid_column_name_content
+  v-if  sw_product_variant_modal_body_grid_column_stock_inline_edit -> sw_product_variant_modal_body_grid_column_stock_content
 ```

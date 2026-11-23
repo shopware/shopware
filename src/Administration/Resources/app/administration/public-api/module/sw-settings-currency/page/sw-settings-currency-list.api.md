@@ -15,14 +15,14 @@ blocks
     sw_settings_currency_index
       sw_settings_currency_list_content
         sw_settings_currency_list_grid_action_modals
-          sw_settings_currency_list_delete_modal
-            sw_settings_currency_list_delete_modal_confirm_delete_text
-            sw_settings_currency_list_delete_modal_footer
-              sw_settings_currency_list_delete_modal_cancel
-              sw_settings_currency_list_delete_modal_confirm
+          sw_settings_currency_list_delete_modal  [scope: item]
+            sw_settings_currency_list_delete_modal_confirm_delete_text  [scope: item]
+            sw_settings_currency_list_delete_modal_footer  [scope: item]
+              sw_settings_currency_list_delete_modal_cancel  [scope: item]
+              sw_settings_currency_list_delete_modal_confirm  [scope: item]
         sw_settings_currency_list_grid_columns_actions
-          sw_settings_currency_list_grid_columns_actions_delete
-          sw_settings_currency_list_grid_columns_actions_edit
+          sw_settings_currency_list_grid_columns_actions_delete  [scope: item]
+          sw_settings_currency_list_grid_columns_actions_edit  [scope: item]
       sw_settings_currency_list_language_switch
       sw_settings_currency_list_search_bar
       sw_settings_currency_list_smart_bar_actions

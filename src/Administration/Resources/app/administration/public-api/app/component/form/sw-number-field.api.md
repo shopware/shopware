@@ -13,4 +13,7 @@ component sw-number-field  private  ts  [private]
 
 blocks
   sw_number_field  [private]
+
+crossings
+  v-if  sw_number_field -> (root)  [private]
 ```

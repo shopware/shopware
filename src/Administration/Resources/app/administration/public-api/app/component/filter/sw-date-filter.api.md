@@ -13,7 +13,7 @@ component sw-date-filter  private  js  [private]
 
 blocks
   sw_date_filter  [private]
-    sw_date_filter_from_field  [private]
+    sw_date_filter_from_field  [after v-if] [private]
     sw_date_filter_timeframe  [private]
     sw_date_filter_to_field  [private]
 ```

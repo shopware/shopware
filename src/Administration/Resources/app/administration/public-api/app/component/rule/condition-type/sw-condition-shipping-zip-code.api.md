@@ -12,8 +12,17 @@ component sw-condition-shipping-zip-code  public  js
   template src/app/component/rule/condition-type/sw-condition-shipping-zip-code/sw-condition-shipping-zip-code.html.twig
 
 blocks
-  sw_condition_value_content
-    sw_condition_shipping_zip_code_field_numeric
-    sw_condition_shipping_zip_code_field_operator
-    sw_condition_shipping_zip_code_field_zip_codes
+  sw_condition_base  [inherited]
+    sw_condition_base_content  [inherited]
+      sw_condition_base_field_actions  [inherited]
+        sw_condition_base_field_create_after_action  [inherited]
+        sw_condition_base_field_create_before_action  [inherited]
+        sw_condition_base_field_delete_action  [inherited]
+      sw_condition_base_field_condition  [inherited]
+      sw_condition_value_before_content  [inherited]
+      sw_condition_value_content  [replaced]
+        sw_condition_shipping_zip_code_field_numeric
+        sw_condition_shipping_zip_code_field_operator
+        sw_condition_shipping_zip_code_field_zip_codes
+    sw_condition_base_error  [inherited]
 ```

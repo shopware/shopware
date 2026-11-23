@@ -14,7 +14,7 @@ blocks
   sw_settings_country_currency_hamburger_menu
     sw_country_currency_hamburger_menu_list
       sw_country_currency_hamburger_menu_item
-        sw_country_currency_hamburger_menu_item_visibility_checkbox
+        sw_country_currency_hamburger_menu_item_visibility_checkbox  [scope: item]
     sw_settings_country_currency_hamburger_menu_loader
     sw_settings_country_currency_hamburger_menu_trigger
       sw_country_currency_hamburger_menu_icon

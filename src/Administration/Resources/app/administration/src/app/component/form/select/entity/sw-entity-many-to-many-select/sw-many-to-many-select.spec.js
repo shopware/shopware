@@ -63,6 +63,10 @@ const createSelect = async (
 };
 
 describe('components/sw-entity-many-to-many-select', () => {
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
     // @deprecated tag:v6.8.0 - The test will be removed with sw-entity-many-to-many-select.
     it.deprecated('v6.8.0.0')('should use the provided associations in the criteria', async () => {
         const criteria = new Criteria(1, 25);
@@ -168,8 +172,6 @@ describe('components/sw-entity-many-to-many-select', () => {
             expect(results).toHaveLength(1);
             expect(results.at(0).find('.sw-select-result__result-item-text').text()).toBe('newer entry');
             expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(false);
-
-            jest.useRealTimers();
         },
     );
 
@@ -246,8 +248,65 @@ describe('components/sw-entity-many-to-many-select', () => {
             expect(results).toHaveLength(1);
             expect(results.at(0).find('.sw-select-result__result-item-text').text()).toBe('newer entry');
             expect(wrapper.find('sw-loader-deprecated-stub').exists()).toBe(false);
+        },
+    );
 
-            jest.useRealTimers();
+    // @deprecated tag:v6.8.0 - The test will be removed with sw-entity-many-to-many-select.
+    it.deprecated('v6.8.0.0')(
+        'should display all pages when pages are loaded while an earlier page is pending',
+        async () => {
+            const pendingSearches = [];
+            const wrapper = await createSelect({
+                props: {},
+                global: {
+                    provide: {
+                        repositoryFactory: {
+                            create: () => {
+                                return {
+                                    search: (criteria, context) => {
+                                        if (context !== Shopware.Context.api) {
+                                            return Promise.resolve(getCollection());
+                                        }
+
+                                        return new Promise((resolve) => {
+                                            pendingSearches.push(resolve);
+                                        });
+                                    },
+                                    searchIds: () => Promise.resolve({ data: [] }),
+                                };
+                            },
+                        },
+                    },
+                },
+            });
+            const getPage = (name) => {
+                return new EntityCollection(
+                    '/test-entity',
+                    'testEntity',
+                    null,
+                    new Criteria(1, 25),
+                    [{ id: utils.createId(), name }],
+                    100,
+                    null,
+                );
+            };
+            await flushPromises();
+
+            await wrapper.find('.sw-select__selection').trigger('click');
+            pendingSearches[0](getPage('page one'));
+            await flushPromises();
+
+            const listContent = wrapper.find('.sw-select-result-list__content');
+            await listContent.trigger('scroll');
+            await listContent.trigger('scroll');
+
+            pendingSearches[1](getPage('page two'));
+            await flushPromises();
+            pendingSearches[2](getPage('page three'));
+            await flushPromises();
+
+            const results = wrapper.findAll('.sw-select-result__result-item-text');
+            expect(results.map((result) => result.text())).toEqual(['page one', 'page two', 'page three']);
         },
     );
 });

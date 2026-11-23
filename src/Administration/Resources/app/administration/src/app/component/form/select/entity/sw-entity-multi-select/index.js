@@ -247,7 +247,12 @@ export default {
 
         loadData() {
             this.isLoading = true;
-            const requestId = ++this.latestRequestId;
+
+            // Only a reset of the results starts a new request, pagination appends to the current one
+            if (!this.resultCollection) {
+                this.latestRequestId += 1;
+            }
+            const requestId = this.latestRequestId;
 
             return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
                 if (requestId !== this.latestRequestId) {

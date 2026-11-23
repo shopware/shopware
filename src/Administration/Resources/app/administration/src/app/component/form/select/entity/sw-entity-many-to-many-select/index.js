@@ -225,7 +225,12 @@ export default {
 
         sendSearchRequest() {
             this.isLoading = true;
-            const requestId = ++this.latestRequestId;
+
+            // Only a reset of the results starts a new request, pagination appends to the current one
+            if (!this.resultCollection) {
+                this.latestRequestId += 1;
+            }
+            const requestId = this.latestRequestId;
 
             if (this.criteria) {
                 this.searchCriteria.filters = this.criteria.filters;
@@ -249,11 +254,12 @@ export default {
                     return Promise.resolve(searchResult);
                 }
 
-                return this.findAssignedEntities(searchResult.getIds(), searchResult, requestId);
+                return this.findAssignedEntities(searchResult.getIds(), searchResult);
             });
         },
 
-        findAssignedEntities(ids, searchResult, requestId) {
+        findAssignedEntities(ids, searchResult) {
+            const requestId = this.latestRequestId;
             const criteria = new Criteria(1, 25);
             criteria.setIds(ids);
 

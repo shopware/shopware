@@ -1,4 +1,22 @@
-# 6.7.17.0 (upcoming)
+# 6.7.18.0 (upcoming)
+
+## API
+
+### Store API returns the text of the legal guarantee notice
+
+`GET /store-api/legal-guarantee-notice` now also returns `text`: the notice's text as HTML, in the language of `svg`.
+The SVG is marked `aria-hidden`, so headless frontends should render `text` as its text alternative, for example visually hidden next to the SVG.
+
+## Storefront
+
+### The legal guarantee notice has a text alternative
+
+The legal guarantee notice SVGs are now hidden from assistive technology, and the new Twig filter `sw_legal_guarantee_notice_text` renders the notice's text in the language of the SVG.
+On the checkout confirm page and in the privacy notice modal, the notice link is labelled with the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
+The link is described by the notice text, which the new blocks `page_checkout_confirm_legal_guarantee_notice_inline_text`, `page_checkout_confirm_legal_guarantee_notice_modal_text` and `component_privacy_legal_guarantee_notice_modal_text` render visually hidden.
+If your theme overrides the notice link blocks, add the `aria-label` and `aria-describedby` attributes there as well.
+
+# 6.7.17.0
 
 ## Critical Fixes
 
@@ -16,6 +34,11 @@ For that, `ThemeService::updateTheme()` skips the compile when the context has t
 Classes overriding `updateTheme()` without calling the parent method should handle that state.
 
 ## Core
+
+### Address-format snippets use Twig whitespace control
+
+The shared address-format renderer uses Twig whitespace control instead of the deprecated `spaceless` filter.
+Whitespace between HTML tags within custom snippets is now preserved; use Twig whitespace control in those snippets when the tags must be adjacent.
 
 ### JSON keys named extensions in DAL criteria
 
@@ -86,6 +109,12 @@ A migration updates these mail templates unless they were changed in the Adminis
 Documents keep one shipping costs row with the shipping total of the order; this row and the shipping method line name each shipping method of the shipments once.
 The invoice shows the shipping address of the primary delivery.
 Orders with one shipment render as before.
+
+### Elasticsearch indexing uses bounded memory
+
+`es:index` and automatic reindexing after updates now dispatch batches while scanning the catalog, reducing PHP memory usage for large catalogs.
+This also applies when running `es:index --no-queue`.
+Queued indexing still requires sufficient message transport capacity.
 
 ### Services can be reset between requests in long running runtimes
 
@@ -470,6 +499,17 @@ For `ProductListingResult`:
 For `ProductReviewResult`:
 
 - 6.7.13.0 announced that its properties become `readonly` in v6.8.0. That is cancelled too. Its setters are still deprecated and will be removed in v6.8.0, so build the result with `ProductReviewResult::fromSearchResult()`.
+
+### New `ProductListingLoader::STATE_INCLUDE_INACTIVE` criteria state
+
+`ProductListingLoader` has a new criteria state `STATE_INCLUDE_INACTIVE`.
+Listings without this state are unchanged.
+With the state, `ProductListingLoader::load()` no longer hides sold-out closeout products and checks the products and the configured variants with the `ProductAvailableFilter` of the criteria.
+To include inactive products, add a `ProductAvailableFilter` without the active condition to the criteria.
+Each group then shows its configured variant or parent, even if the variant is inactive or a sold-out closeout product.
+
+The product stream preview in the Administration uses this state when "Keep matching variants grouped" is active, so each group shows the variant configured in the product's storefront presentation.
+
 ### Address validation per billing and shipping address
 
 During registration and on the checkout confirm page, the address validation definition is now also dispatched as `framework.validation.address.create.billing` and `framework.validation.address.create.shipping`, after `framework.validation.address.create`.
@@ -678,6 +718,46 @@ Decorating `CartRestorer` just to copy an extension over is no longer needed.
 `payload.value` of promotion line items with an absolute, fixed or fixed unit discount now contains the value in the cart currency, using the advanced price of the currency or the currency factor.
 Orders placed before this change still contain the default currency value.
 Extensions and headless frontends that convert `payload.value` into the cart currency themselves must remove that conversion.
+
+### Product documents
+
+Products can have documents, such as manuals, datasheets or certificates, in `product.documents`.
+A document can be uploaded per language with a translatable title and fall back to the default language.
+A variant can have its own documents or inherit those of its parent.
+The settings `shopware.product_documents.allowed_extensions` and `shopware.product_documents.max_file_size` limit the files, by default to PDF, DOCX, JPG and PNG up to 20 MB.
+The scheduled task `product_document.media.cleanup` runs about once a month and deletes files from the "Product Document Media" folder that no product document or other entity uses and that were uploaded more than a day ago.
+Keep files you link elsewhere, for example from a product description, in another folder.
+To turn the cleanup off, run `bin/console scheduled-task:deactivate product_document.media.cleanup`.
+
+### Replacing a media file invalidates every cached page showing it
+
+Changing a media file used to invalidate only the product detail pages of products that use the media as product media.
+It now also invalidates the listings and dynamic product groups containing those products,
+categories using the media as category image,
+layouts using it as section or block background or in an image, image slider, image gallery, video or manufacturer logo element,
+product pages of manufacturers using it as logo,
+and categories, products and landing pages using it in their layout overrides.
+Replaced images show up on these pages without clearing the HTTP cache.
+
+The media of layouts are mapped in the new table `cms_page_media_usage`,
+the media of layout overrides in `category_translation_media_usage`, `product_translation_media_usage` and `landing_page_translation_media_usage`,
+so replacing a file does not have to search the JSON of the content.
+After the update, the indexers of the same names with the suffix `.indexer` fill the tables for the existing content.
+
+The media of an element are read by its media ids provider, a service implementing the new `CmsElementMediaIdsProviderInterface`.
+Services implementing it are tagged with `shopware.cms.element_media_ids_provider` automatically.
+The core registers providers for the image, image slider, image gallery, video, YouTube, Vimeo and manufacturer logo elements.
+Elements showing media should register a provider as well, so replacing those media invalidates the pages showing them.
+The first provider supporting the element type is used, so a provider with a higher tag priority replaces the one of the core.
+Elements whose media ids can be found by paths in their config can register the `CmsElementMediaIdsProvider`.
+It takes the resolver of the element, which names the element type, and the paths to the media in the config.
+A path starts with the config field, `*` stands for every entry of a list, so `sliderItems.*.mediaId` reads the `mediaId` of every slider item:
+
+```php
+$services->set('my_plugin.cms.element_media_ids_provider.my_gallery', CmsElementMediaIdsProvider::class)
+    ->args([service(MyGalleryCmsElementResolver::class), ['slides.*.picture.media.*.id', 'background.mediaId']])
+    ->tag('shopware.cms.element_media_ids_provider');
+```
 
 ### Event before a media file is replaced
 
@@ -905,6 +985,11 @@ To remove such an app, uninstall it and remove its package with Composer.
 The experimental `/store-api/cookie-groups` route now also returns `cookieHashes`, which maps each cookie name to a hash of its configuration, including the data of every group that lists it.
 Clients can compare these hashes to find out which cookies were added or changed when the configuration `hash` changes.
 
+### Product documents in the API
+
+The new `GET|POST /store-api/product/{productId}/documents` route returns the documents of a product, each with its file in the requested language, or in the default language if it has none.
+CMS product pages return the same documents in the `documents` data of the description and reviews element (`product-description-reviews`).
+
 ### Media upload endpoints accept a title and an alt text
 
 `POST /api/_action/media/upload`, `POST /api/_action/media/upload_by_url` and `POST /api/_action/media/external-link` accept the optional fields `title` and `alt`.
@@ -937,11 +1022,6 @@ The headless rows are maintained by the Core (`CustomerGroupRegistrationSeoUrlSu
 They additionally react to domain changes:
 toggling the external storefront flag of a domain (or adding/removing domains) creates or removes the affected rows without re-saving the customer group.
 The storefront rows are untouched by this and keep being maintained by the Storefront bundle.
-
-### Store API returns the text of the legal guarantee notice
-
-`GET /store-api/legal-guarantee-notice` now also returns `text`: the notice's text as HTML, in the language of `svg`.
-The SVG is marked `aria-hidden`, so headless frontends should render `text` as its text alternative, for example visually hidden next to the SVG.
 
 ## Features
 
@@ -1011,6 +1091,12 @@ Invalid JSON, malformed messages or resource contents, and `{"success":false,"er
 Iframes of app modules declared in `manifest.xml` (`<module source>` and `<main-module source>`) now receive the signed `color-scheme` query parameter with the resolved Administration theme, `light` or `dark`, like Admin SDK locations already do.
 
 ## Administration
+
+### Product list filters by product documents
+
+The product list has a new "Documents" filter, registered as `product-documents-filter`.
+It finds the products with or without product documents; variants count the documents they inherit from their parent.
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, run `bin/console es:admin:index` after the update.
 
 ### The smart bar back button names its target
 
@@ -1384,6 +1470,12 @@ The CMS layout selection modal (`sw-cms-layout-modal`) uses them instead of chec
 
 `bulkEditStatus()` waits for every selected status field and loads at most 100 order IDs per request, with at most five orders transitioning concurrently. Successful responses are returned in ID-batch order, repository-result order within each batch, then selected status-field order. Failures identify the order and status field and distinguish unavailable orders, loading failures, and transition failures; failed HTTP transitions are not automatically replayed. When a status change fails, `bulkEditStatus()` rejects with a `BulkEditOrderStatusError` instead of the api error: its `failures` list every failed order and status field, with the api error in `failures[].error`, and its `response` is the response of the first failed request.
 
+### Dynamic product groups filter by product documents
+
+Dynamic product groups have a new "Has documents" condition with the values "Yes" and "No".
+It stores a filter on `documents.id` being null or not null; variants count the documents they inherit from their parent.
+With Elasticsearch, run `bin/console es:index` after the update; until then the condition gives wrong results.
+
 ### Meteor Component Library updated to 5.10.0
 
 The Administration now uses Meteor Component Library `5.10.0`, Meteor Admin SDK `6.17.0` and Meteor Icon Kit `5.12.0`.
@@ -1394,6 +1486,10 @@ Check your Administration extensions for these changes:
 - `mt-radio-group-root` is labelled by its `label` and described by its `hint` and `error`.
 - `mt-radio-group-item`, `mt-radio-group-card-item`, `mt-radio-group-custom-item` and `mt-status-dot` have a new `disabled` prop.
 - New component `mt-extension-icon`.
+
+### Product documents in the Administration
+
+You can add documents on the product detail page, and they are saved in the public folder "Product Document Media" by default.
 
 ### TypeScript Administration scaffolding
 
@@ -1694,14 +1790,18 @@ When maintenance mode was switched off, the redirect from the maintenance page i
 Switching maintenance mode on again then sent every visitor not on the IP allowlist back and forth between the shop and that cached redirect (`ERR_TOO_MANY_REDIRECTS`) until the entry expired.
 The redirect is no longer cached. A shop that is already in this state gets out of it by running `bin/console cache:clear:http`.
 
-### The legal guarantee notice has a text alternative
+### New documents tab on the Storefront product detail page
 
-The legal guarantee notice SVGs are now hidden from assistive technology, and the new Twig filter `sw_legal_guarantee_notice_text` renders the notice's text in the language of the SVG.
-On the checkout confirm page and in the privacy notice modal, the notice link is labelled with the new snippet `checkout.confirmLegalGuaranteeNoticeYourEuropeLink`, which says that it opens a new tab.
-The link is described by the notice text, which the new blocks `page_checkout_confirm_legal_guarantee_notice_inline_text`, `page_checkout_confirm_legal_guarantee_notice_modal_text` and `component_privacy_legal_guarantee_notice_modal_text` render visually hidden.
-If your theme overrides the notice link blocks, add the `aria-label` and `aria-describedby` attributes there as well.
+The product detail page has a new "Documents" tab that lists the documents of the product, which customers can click to download.
 
 ## Hosting & Configuration
+
+### Admin search reindexes products after queued inheritance updates
+
+With `ENABLE_OPENSEARCH_FOR_ADMIN_API`, the admin search index also reindexes the products whose inherited data the product indexer updates in the message queue.
+This covers the variants of product families with 50 or more products.
+A full `bin/console dal:refresh:index` leaves the products to the admin search index rebuild that runs after it.
+`ProductIndexerEvent::$isFullIndexing` tells whether the event comes from such a full indexing run.
 
 ### Password recovery is rate limited per IP
 

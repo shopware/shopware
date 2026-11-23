@@ -3,9 +3,20 @@
  */
 import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import type BulkEditOrderHandler from '../bulk-edit-order.handler';
 
-function getBulkEditOrderHandler(orders) {
-    const handler = new BulkEditApiFactory().getHandler('order');
+type BulkEditOrderHandlerTestDouble = Omit<BulkEditOrderHandler, 'orderRepository' | 'orderStateMachineService'> & {
+    orderRepository: {
+        search: jest.Mock;
+    };
+    orderStateMachineService: {
+        transitionOrderDeliveryState: jest.Mock;
+        transitionOrderTransactionState: jest.Mock;
+    };
+};
+
+function getBulkEditOrderHandler(orders: unknown[]) {
+    const handler = new BulkEditApiFactory().getHandler('order') as BulkEditOrderHandlerTestDouble;
 
     handler.orderRepository = {
         search: jest.fn(() => Promise.resolve(orders)),
@@ -18,33 +29,33 @@ function getBulkEditOrderHandler(orders) {
     return handler;
 }
 
-function createOrder(primaryOrderDeliveryId, deliveryIds) {
+function createOrder(primaryOrderDeliveryId: string | null, deliveryIds: string[]) {
     return {
         id: 'order-id',
         primaryOrderDeliveryId,
         deliveries: new EntityCollection(
             '/order-delivery',
             'order_delivery',
+            Shopware.Context.api,
             null,
-            null,
-            deliveryIds.map((id) => ({ id })),
+            deliveryIds.map((id) => ({ id })) as Entity<'order_delivery'>[],
         ),
     };
 }
 
-function createOrderWithTransactions(primaryOrderTransactionId, transactionStates) {
+function createOrderWithTransactions(primaryOrderTransactionId: string | null, transactionStates: Record<string, string>) {
     return {
         id: 'order-id',
         primaryOrderTransactionId,
         transactions: new EntityCollection(
             '/order-transaction',
             'order_transaction',
-            null,
+            Shopware.Context.api,
             null,
             Object.entries(transactionStates).map(([id, technicalName]) => ({
                 id,
                 stateMachineState: { technicalName },
-            })),
+            })) as unknown as Entity<'order_transaction'>[],
         ),
     };
 }

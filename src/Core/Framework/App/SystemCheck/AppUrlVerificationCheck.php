@@ -17,12 +17,18 @@ use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 #[Package('framework')]
 class AppUrlVerificationCheck extends BaseCheck
 {
-    public function __construct(private readonly AppUrlVerifier $appUrlVerifier)
-    {
+    public function __construct(
+        private readonly AppUrlVerifier $appUrlVerifier,
+        private readonly bool $appUrlCheckDisabled,
+    ) {
     }
 
     public function run(): Result
     {
+        if ($this->appUrlCheckDisabled) {
+            return new Result($this->name(), Status::SKIPPED, 'APP_URL check is disabled');
+        }
+
         $state = $this->appUrlVerifier->forceVerify();
 
         $extra = [

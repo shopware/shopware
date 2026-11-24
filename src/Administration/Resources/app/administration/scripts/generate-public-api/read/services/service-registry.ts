@@ -5,15 +5,16 @@
  * which register under the name their constructor sets.
  */
 import ts from 'typescript';
-import type { FlagContext, FlagStates } from '../../model/flag-states';
+import type { FlagContext } from '../../model/flag-states';
 import { BOTH_STATES } from '../../model/flag-states';
 import type { ServiceUnit } from '../../model/model';
-import type { SourceLine } from '../../model/source-line';
 import type { SourceTree } from '../../source/source-tree';
 import type { Declarations } from '../declarations';
-import { guardStates } from '../flag-conditions';
 import { isScriptFile } from '../modules';
-import { lineOf } from '../script-nodes';
+import { findRegistrations } from '../registered-units';
+import type { Registered } from '../registered-units';
+import { isMethodCall, lineOf } from '../script-nodes';
+import type { MethodCall } from '../script-nodes';
 import { thisAssignments } from './object-members';
 import { providedBy } from './provided-object';
 import type { ProvidedObject } from './provided-object';
@@ -21,33 +22,18 @@ import type { ProvidedObject } from './provided-object';
 /**
  * @private
  *
- * One registered service with the object behind it. `at` is the line of the registration.
+ * One registered service with the object behind it.
  */
-export interface ServiceRegistration {
-    name: string;
+export interface ServiceRegistration extends Registered {
     registration: ServiceUnit['registration'];
-    registeredIn: string;
-    at: SourceLine;
-    states: FlagStates;
     provided: ProvidedObject;
 }
 
-// Only saves parsing the files without a registration. The syntax tree decides what counts as one.
-const PROVIDER_CALL = /\baddServiceProvider\s*\(|\bService\s*\(\s*\)\s*\.\s*register\s*\(/;
-
 const SERVICE_ACCESSOR = /(?:^|\.)Service$/;
 
-/*
- * These two pass a service on under a name they get at runtime: the first registers every API service, which
- * `apiServices` reads below, and the second is `Shopware.Service().register` itself.
- */
-const FORWARDING_FILES = ['src/app/init-pre/api-services.init.ts', 'src/core/factory/service.factory.ts'];
-
-type ProviderCall = ts.CallExpression & { expression: ts.PropertyAccessExpression };
-
 /** `<application>.addServiceProvider(...)` or `Service().register(...)`. */
-function isProviderCall(node: ts.Node): node is ProviderCall {
-    if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) {
+function isProviderCall(node: ts.Node): node is MethodCall {
+    if (!isMethodCall(node)) {
         return false;
     }
 
@@ -65,47 +51,30 @@ function isProviderCall(node: ts.Node): node is ProviderCall {
     );
 }
 
-function providerCallsIn(node: ts.Node): ProviderCall[] {
-    const calls: ProviderCall[] = isProviderCall(node) ? [node] : [];
-
-    ts.forEachChild(node, (child) => {
-        calls.push(...providerCallsIn(child));
-    });
-
-    return calls;
-}
-
 function providers(tree: SourceTree, declarations: Declarations, flags: FlagContext): ServiceRegistration[] {
-    return tree.files
-        .filter((file) => isScriptFile(file) && PROVIDER_CALL.test(tree.read(file)))
-        .flatMap((file) => {
-            const source = declarations.parse(file);
-
-            return providerCallsIn(source).flatMap((call): ServiceRegistration[] => {
-                const [name, provider] = call.arguments;
-
-                if (name !== undefined && provider !== undefined && ts.isStringLiteralLike(name)) {
-                    return [
-                        {
-                            name: name.text,
-                            registration: 'provider',
-                            registeredIn: file,
-                            at: lineOf(call.expression.name, source),
-                            states: guardStates(call, flags),
-                            provided: providedBy(provider, source, declarations),
-                        },
-                    ];
-                }
-
-                if (FORWARDING_FILES.includes(file)) {
-                    return [];
-                }
-
-                throw new Error(
-                    `${file}:${lineOf(call, source).line}: a service needs a literal name and a provider, so the snapshot can name it.`,
-                );
-            });
-        });
+    return findRegistrations(
+        {
+            mention: /\baddServiceProvider\s*\(|\bService\s*\(\s*\)\s*\.\s*register\s*\(/,
+            isCall: isProviderCall,
+            read: ({ arguments: [name, provider] }, source) =>
+                name !== undefined && provider !== undefined && ts.isStringLiteralLike(name)
+                    ? {
+                          name: name.text,
+                          registration: 'provider' as const,
+                          provided: providedBy(provider, source, declarations),
+                      }
+                    : undefined,
+            /*
+             * The first registers every API service, which `apiServices` reads below, and the second is
+             * `Shopware.Service().register` itself.
+             */
+            forwardingFiles: ['src/app/init-pre/api-services.init.ts', 'src/core/factory/service.factory.ts'],
+            needs: 'a service needs a literal name and a provider',
+        },
+        tree,
+        declarations,
+        flags,
+    );
 }
 
 const API_SERVICE_FOLDER = 'src/core/service/api/';

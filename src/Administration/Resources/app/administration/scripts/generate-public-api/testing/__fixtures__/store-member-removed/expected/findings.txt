@@ -1,0 +1,7 @@
+Public API check failed: 1 unannounced break.
+
+Break (1)
+  action_missing  store:exampleSidebar/action:removeSidebar  current, major
+    The action is gone, so plugin code that calls Shopware.Store.get('exampleSidebar').removeSidebar() throws at runtime.
+    Fix: pattern "Removal". Keep the action and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+    At: src/app/store/example-sidebar.store.ts:24

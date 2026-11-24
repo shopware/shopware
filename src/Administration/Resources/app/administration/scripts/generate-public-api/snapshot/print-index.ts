@@ -2,15 +2,15 @@
  * @sw-package framework
  *
  * Prints `index.json` for tools: the components with their file, visibility, parent and block names, and the
- * services with their file and visibility.
+ * services and stores with their file and visibility.
  */
 import { byCodePoint } from '../helpers/code-point-order';
 import type { Model } from '../model/model';
+import { registeredIndexEntries } from './print-registered-reports';
 
 /** @private */
-export function printIndex({ components, services }: Model): string {
-    const serviceEntries = services.map(({ name, file, visibility }): [string, object] => [name, { file, visibility }]);
-    const entries = components.map((unit): [string, object] => [
+export function printIndex(model: Model): string {
+    const entries = model.components.map((unit): [string, object] => [
         unit.name,
         {
             file: unit.file,
@@ -21,7 +21,10 @@ export function printIndex({ components, services }: Model): string {
     ]);
 
     return `${JSON.stringify(
-        { components: Object.fromEntries(entries), services: Object.fromEntries(serviceEntries) },
+        {
+            components: Object.fromEntries(entries),
+            ...registeredIndexEntries(model),
+        },
         null,
         4,
     )}\n`;

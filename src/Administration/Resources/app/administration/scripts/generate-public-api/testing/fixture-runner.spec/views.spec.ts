@@ -13,6 +13,8 @@ import {
     NO_FAILURES,
     SERVICE_FINDING,
     SERVICE_METHOD_FINDING,
+    STORE_ACTION_FINDING,
+    STORE_FINDING,
     VIEWS,
     failingViews,
     withBlockFinding,
@@ -123,6 +125,8 @@ describe('fixtureTests views', () => {
                 'member-contract',
                 'service-units',
                 'service-members',
+                'store-units',
+                'store-members',
                 'complete',
             ],
         ],
@@ -173,6 +177,27 @@ describe('fixtureTests views', () => {
             'a finding on a method of a service',
             withFinding(SERVICE_METHOD_FINDING, { group: 'Private' }),
             ['service-members', 'complete'],
+        ],
+        [
+            'the header of a store in the report',
+            withFile('app/store/example.store.api.md', 'typed  options', 'typed  setup'),
+            ['store-units', 'complete'],
+        ],
+        [
+            'an action of a store in the report',
+            withFile('app/store/example.store.api.md', 'addItem(item: string)', 'addItem()'),
+            ['store-members', 'complete'],
+        ],
+        [
+            'a store in the index',
+            withFile('index.json', '"app/store/example.store"', '"app/store/other.store"'),
+            ['store-units', 'complete'],
+        ],
+        ['a finding on a store', withFinding(STORE_FINDING, { group: 'Private' }), ['store-units', 'complete']],
+        [
+            'a finding on an action of a store',
+            withFinding(STORE_ACTION_FINDING, { group: 'Private' }),
+            ['store-members', 'complete'],
         ],
     ])('fails only the views that cover a difference in %s', (_, output, expectedFailingViews) => {
         expect(failingViews(output)).toEqual(expectedFailingViews);

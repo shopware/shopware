@@ -1,0 +1,18 @@
+Public API check failed: 4 unannounced breaks.
+
+Break (4)
+  getter_missing  store:exampleCart/getter:isEmpty  current, major
+    The getter is gone, so plugin code that reads Shopware.Store.get('exampleCart').isEmpty gets undefined.
+    Fix: pattern "Removal". Keep the getter and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+    At: src/app/composables/use-example-cart.ts:18
+  param_now_required  store:exampleCart/action:addItem/param:quantity  current, major
+    The action has a new required parameter quantity, so plugin calls of Shopware.Store.get('exampleCart').addItem() that pass the old arguments leave it undefined.
+    Fix: pattern "New required parameter". Keep quantity optional, call triggerDeprecationOrThrow when it is missing, and mark the action @bc-change NewRequiredParameter version:v6.8.0 parameter:quantity.
+    At: src/app/composables/use-example-cart.ts:9
+  state_missing  store:exampleCart/state:discount  current, major
+    The state property is gone, so plugin code that reads Shopware.Store.get('exampleCart').discount gets undefined.
+    Fix: pattern "Removal". Keep the state property and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.
+    At: src/app/composables/use-example-cart.ts:18
+  store_missing  store:exampleLegacy  current, major
+    The store is gone, so plugin code that calls Shopware.Store.get('exampleLegacy') throws at runtime.
+    Fix: pattern "Removal". Keep the store and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.

@@ -15,6 +15,7 @@
         }
     },
     "services": {},
+    "stores": {},
     "mixins": {},
     "modules": {},
     "positionIdentifiers": {},

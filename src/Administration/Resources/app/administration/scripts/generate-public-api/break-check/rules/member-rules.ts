@@ -8,15 +8,24 @@
  */
 import type { BcChangeKind, Marker } from '../../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagContext } from '../../model/flag-states';
-import { isTemplateMember, KINDS, MEMBER_KINDS, memberId, namePath, parameterId, propType } from '../../model/members';
-import type { DefaultValue, Member, MemberKind, Parameter } from '../../model/members';
+import {
+    CALLABLE_KINDS,
+    isTemplateMember,
+    KINDS,
+    MEMBER_KINDS,
+    memberId,
+    namePath,
+    parameterId,
+    propType,
+} from '../../model/members';
+import type { CallableKind, DefaultValue, Member, MemberKind, Parameter } from '../../model/members';
 import type { SourceLine } from '../../model/source-line';
 import { coveringDeprecation } from '../facts/block-facts';
 import type { BlockFacts } from '../facts/block-facts';
 import type { UnitFacts } from '../facts/unit-facts';
 import { sectionLine } from '../facts/member-facts';
 import type { PluginUse } from '../plugin-use';
-import { rule } from './rule';
+import { rule, worded } from './rule';
 import {
     ADDITION_FIX,
     additionText,
@@ -27,7 +36,7 @@ import {
     isBcChange,
     removalFix,
 } from './texts';
-import type { FindingTexts, Rule, RuleDefinition, TextContext } from './rule';
+import type { FindingTexts, Rule, RuleDefinition, TextContext, Worded } from './rule';
 
 /** The first place of every member of the kind. What a rule compares of all places, it reads from the facts. */
 function membersOf<Kind extends MemberKind>(facts: UnitFacts, kind: Kind): Member<Kind>[] {
@@ -74,7 +83,10 @@ function onlyIn<Kind extends MemberKind>(facts: UnitFacts, other: UnitFacts, kin
 }
 
 /** The member as the element of a change, or something `below` it such as `/param:item`. */
-function memberElement({ kind, name, at, isPrivate }: Member, below = '') {
+function memberElement<Kind extends MemberKind>(member: Member<Kind>, below = '') {
+    const { name, at, isPrivate } = member;
+    const kind: Kind = member.kind;
+
     return { element: `${memberId({ kind, name })}${below}`, at, isPrivate, kind, name };
 }
 
@@ -82,7 +94,7 @@ function memberElement({ kind, name, at, isPrivate }: Member, below = '') {
  * The element of a change to a member that both commits have. Its line is the one at the head. Whether it is
  * private is decided at the base: a member that becomes `@private` with the change was public API until then.
  */
-function keptElement({ was, now }: Kept, below = '') {
+function keptElement<Kind extends MemberKind>({ was, now }: Kept<Kind>, below = '') {
     return { ...memberElement(now, below), isPrivate: was.isPrivate };
 }
 
@@ -129,7 +141,7 @@ interface RemovalPolicy {
 }
 
 /** A member of the options object can stay beside its replacement, with a marker that announces its removal. */
-const DECLARED: RemovalPolicy = {
+const IN_SCRIPT: RemovalPolicy = {
     markers: announcingMarkers,
     gone: (kind) => `The ${label(kind)} is gone`,
     fix: ({ kind, name, rename }, flags) =>
@@ -140,7 +152,7 @@ const DECLARED: RemovalPolicy = {
 };
 
 /** The line of a finding about a member of the template is that of a block, so the finding names the member. */
-const RENDERED: RemovalPolicy = {
+const IN_TEMPLATE: RemovalPolicy = {
     markers: enclosingDeprecations,
     gone: (kind, name) => `The ${label(kind)} ${name} is gone`,
     fix: ({ kind }, flags) =>
@@ -157,58 +169,73 @@ const COMING_AND_GOING: Record<
 > = {
     mixin: {
         effect: (name) => `plugin overrides that use a member of ${name} through this fail`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     inject: {
         effect: (name) => `plugin overrides that read this.${name} get undefined`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     provide: {
         effect: (name) => `plugin components that inject ${name} get undefined`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     prop: {
         effect: (name) =>
             `a value that plugin templates pass as ${name} falls through as an HTML attribute, and plugin overrides that read this.${name} get undefined`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     emit: {
         effect: (name) => `listeners that plugin templates add with @${name} are no longer called by the component`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     slot: {
         effect: (name) => `content that plugin templates pass to the slot ${name} is no longer rendered`,
-        removal: RENDERED,
+        removal: IN_TEMPLATE,
         isAddition: true,
     },
     data: {
         effect: (name) => `plugin overrides that read or set this.${name} work on a value the component ignores`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     computed: {
         effect: (name) => `plugin overrides that call $super('${name}') throw at runtime`,
-        removal: DECLARED,
+        removal: IN_SCRIPT,
+        isAddition: true,
+    },
+    state: {
+        effect: (name, use) => use.withoutProperty(name),
+        removal: IN_SCRIPT,
+        isAddition: true,
+    },
+    getter: {
+        effect: (name, use) => use.withoutProperty(name),
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     property: {
         effect: (name, use) => use.withoutProperty(name),
-        removal: DECLARED,
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     method: {
         effect: (name, use) => use.withoutMethod(name),
-        removal: DECLARED,
+        removal: IN_SCRIPT,
+        isAddition: true,
+    },
+    action: {
+        effect: (name, use) => use.withoutMethod(name),
+        removal: IN_SCRIPT,
         isAddition: true,
     },
     ref: {
         effect: (name) => `plugin overrides that read this.$refs.${name} get undefined`,
-        removal: RENDERED,
+        removal: IN_TEMPLATE,
         isAddition: false,
     },
 };
@@ -393,7 +420,7 @@ function defaultChanged<Change extends DefaultChange & Pick<Member, 'kind' | 'na
     changes: RuleDefinition<Change>['changes'];
     subject: (change: Change) => string;
     callers: (change: Change, context: TextContext) => string;
-    marker: { kind: BcChangeKind; holder: string; keys: (change: Change) => Record<string, string> };
+    marker: { kind: BcChangeKind; holder: Worded<Change>; keys: (change: Change) => Record<string, string> };
 }): Rule {
     const markerKeys = (change: Change) => ({ ...marker.keys(change), default: markerDefault(change.to) });
 
@@ -406,11 +433,11 @@ function defaultChanged<Change extends DefaultChange & Pick<Member, 'kind' | 'na
                 change.to === null
                     ? `The ${subject(change)} no longer has a default, so ${callers(change, context)} leave it undefined.`
                     : `The default of the ${subject(change)} changed from ${change.from} to ${change.to}, so ${callers(change, context)} get another value.`,
-            fix: `keep the default, or mark the ${marker.holder} @bc-change ${marker.kind} version:${context.flags.majorVersion} ${markerKeysText(markerKeys(change))}.`,
+            fix: `keep the default, or mark the ${worded(marker.holder, change)} @bc-change ${marker.kind} version:${context.flags.majorVersion} ${markerKeysText(markerKeys(change))}.`,
         }),
         announcement: {
             rule: 'announced_change',
-            subject: `The ${marker.holder}`,
+            subject: (change) => `The ${worded(marker.holder, change)}`,
             markers: (change, facts) => announcingMarkers(change, facts),
             matches: (change, found) => isBcChange(found, marker.kind, markerKeys(change)),
         },
@@ -440,20 +467,42 @@ function declaredTypes<Kind extends MemberKind>(members: Kept<Kind>[], typeOf: (
     });
 }
 
-type TypedKind = 'prop' | 'computed' | 'property' | 'method';
+/** The kinds that declare a type: those whose details hold a `type` or a `returns`, and a prop, which holds its type in two places. */
+type TypedKind =
+    | {
+          [Kind in MemberKind]: Member<Kind> extends { type: string | null } | { returns: string | null } ? Kind : never;
+      }[MemberKind]
+    | 'prop';
 
-/** The kinds that declare a type, with where each one holds it. A method declares what it returns. */
-const DECLARED_TYPE: { [Kind in TypedKind]: (member: Member<Kind>) => string | null } = {
-    prop: propType,
-    computed: ({ type }) => type,
-    property: ({ type }) => type,
-    method: ({ returns }) => returns,
+/** What a plugin holds of a member whose type is no return type: the value it reads or sets. */
+function heldValue(name: string): string {
+    return `plugin code that reads or sets ${name} may no longer fit`;
+}
+
+/**
+ * Where each typed kind holds its type, and what another type means: `returned` for a kind whose type is what
+ * it returns, which `return_type_changed` reports, and otherwise who holds a value of the old type, for
+ * `type_changed`. A kind that is missing here does not compile.
+ */
+const TYPED: {
+    [Kind in TypedKind]: {
+        typeOf: (member: Member<Kind>) => string | null;
+        retyped: 'returned' | ((name: string) => string);
+    };
+} = {
+    prop: { typeOf: propType, retyped: (name) => `values that plugin templates pass as ${name} may no longer fit` },
+    computed: { typeOf: ({ type }) => type, retyped: 'returned' },
+    state: { typeOf: ({ type }) => type, retyped: heldValue },
+    getter: { typeOf: ({ type }) => type, retyped: 'returned' },
+    property: { typeOf: ({ type }) => type, retyped: heldValue },
+    method: { typeOf: ({ returns }) => returns, retyped: 'returned' },
+    action: { typeOf: ({ returns }) => returns, retyped: 'returned' },
 };
 
-const TYPED_KINDS = Object.keys(DECLARED_TYPE) as TypedKind[];
+const TYPED_KINDS = Object.keys(TYPED) as TypedKind[];
 
 function typeChanges<Kind extends TypedKind>(base: UnitFacts, head: UnitFacts, kind: Kind) {
-    return declaredTypes(inBoth(base, head, kind), DECLARED_TYPE[kind] as (member: Member<Kind>) => string | null);
+    return declaredTypes(inBoth(base, head, kind), TYPED[kind].typeOf as (member: Member<Kind>) => string | null);
 }
 
 function isRetyped({ transition }: { transition: Transition }): boolean {
@@ -465,23 +514,17 @@ function markerType(type: string | null): string {
     return (type ?? '').replace(/\s+/g, '');
 }
 
-/** Who holds a value of the old type, per kind that holds a value plugins pass or read directly. */
-const RETYPED = {
-    prop: (name: string) => `values that plugin templates pass as ${name} may no longer fit`,
-    property: (name: string) => `plugin code that reads or sets ${name} may no longer fit`,
-};
-
 /*
  * Whether another type still fits what plugins pass or read needs the type checker. The rules compare the text
  * of the declaration, so every other text is a break until a reviewer has checked it.
  */
-function typeChanged(kind: keyof typeof RETYPED): Rule {
+function typeChanged(kind: TypedKind, holder: (name: string) => string): Rule {
     return rule({
         id: 'type_changed',
         group: 'Break',
         changes: (base, head) => typeChanges(base, head, kind).filter(isRetyped),
         texts: ({ name, from, to }) => ({
-            explanation: `The declared type of the ${label(kind)} changed from ${from} to ${to}, so ${RETYPED[kind](name)}.`,
+            explanation: `The declared type of the ${label(kind)} changed from ${from} to ${to}, so ${holder(name)}.`,
             fix: `pattern "Rename". Keep ${name} with the type ${from} and add a ${label(kind)} with the new type under a new name.`,
         }),
     });
@@ -489,7 +532,7 @@ function typeChanged(kind: keyof typeof RETYPED): Rule {
 
 const RETURN_TYPE_MARKERS: readonly BcChangeKind[] = ['ReturnTypeNarrowing', 'ReturnTypeWidening'];
 
-function returnTypeChanged(kind: 'computed' | 'method'): Rule {
+function returnTypeChanged(kind: TypedKind): Rule {
     return rule({
         id: 'return_type_changed',
         group: 'Break',
@@ -506,6 +549,12 @@ function returnTypeChanged(kind: 'computed' | 'method'): Rule {
                 RETURN_TYPE_MARKERS.some((markerKind) => isBcChange(marker, markerKind, { type: markerType(to) })),
         },
     });
+}
+
+function retyped(kind: TypedKind): Rule {
+    const holder = TYPED[kind].retyped;
+
+    return holder === 'returned' ? returnTypeChanged(kind) : typeChanged(kind, holder);
 }
 
 const WIDENED_TEXT: Record<
@@ -546,7 +595,7 @@ interface Placed {
  * - `reordered`: the kept parameters stand in another order.
  */
 interface ParameterChanges {
-    method: Kept<'method'>;
+    method: Kept<CallableKind>;
     removed: { parameter: Parameter; moved: string[] }[];
     appended: Parameter[];
     inserted: { parameter: Parameter; before: string }[];
@@ -561,7 +610,7 @@ function names(parameters: Parameter[]): string[] {
     return parameters.map(parameterId);
 }
 
-function compareParameters(method: Kept<'method'>, before: Parameter[], after: Parameter[]): ParameterChanges {
+function compareParameters(method: Kept<CallableKind>, before: Parameter[], after: Parameter[]): ParameterChanges {
     const find = (parameters: Parameter[], parameter: Parameter) =>
         parameters.find((candidate) => parameterId(candidate) === parameterId(parameter));
     const kept = before.flatMap((was) => {
@@ -609,9 +658,14 @@ function compareParameters(method: Kept<'method'>, before: Parameter[], after: P
     };
 }
 
-/** The methods that both commits declare with parameters the source names. */
+/** The methods and actions that both commits declare. */
+function callablesInBoth(base: UnitFacts, head: UnitFacts): Kept<CallableKind>[] {
+    return CALLABLE_KINDS.flatMap((kind): Kept<CallableKind>[] => inBoth(base, head, kind));
+}
+
+/** Those of them with parameters the source names. */
 function parameterChanges(base: UnitFacts, head: UnitFacts): ParameterChanges[] {
-    return inBoth(base, head, 'method').flatMap((method) =>
+    return callablesInBoth(base, head).flatMap((method) =>
         method.was.parameters === null || method.now.parameters === null
             ? []
             : [compareParameters(method, method.was.parameters, method.now.parameters)],
@@ -622,7 +676,7 @@ function isRequired({ optional, rest }: Parameter): boolean {
     return !optional && !rest;
 }
 
-function parameterElement(method: Kept<'method'>, parameter: Parameter) {
+function parameterElement(method: Kept<CallableKind>, parameter: Parameter) {
     const id = parameterId(parameter);
 
     return { ...keptElement(method, `/param:${id}`), parameter: id };
@@ -634,22 +688,24 @@ type SignatureChange =
     | { change: 'order'; before: string; after: string }
     | { change: 'inserted'; parameter: string; before: string };
 
-function signatureTexts(change: SignatureChange, name: string, use: PluginUse): FindingTexts {
+function signatureTexts(change: SignatureChange, kind: CallableKind, name: string, use: PluginUse): FindingTexts {
+    const callable = label(kind);
+
     switch (change.change) {
         case 'promise':
             return change.nowReturnsPromise
                 ? {
-                      explanation: `The method now returns a Promise, so ${use.gettingPromise(name)}.`,
-                      fix: 'keep the method sync and add an async method under a new name.',
+                      explanation: `The ${callable} now returns a Promise, so ${use.gettingPromise(name)}.`,
+                      fix: `keep the ${callable} sync and add an async ${callable} under a new name.`,
                   }
                 : {
-                      explanation: `The method no longer returns a Promise, so ${use.losingPromise(name)}.`,
-                      fix: 'keep returning a Promise and add a sync method under a new name.',
+                      explanation: `The ${callable} no longer returns a Promise, so ${use.losingPromise(name)}.`,
+                      fix: `keep returning a Promise and add a sync ${callable} under a new name.`,
                   };
         case 'order':
             return {
-                explanation: `The parameters of the method changed their order from (${change.before}) to (${change.after}), so ${use.calls(name)} pass their values in the wrong place.`,
-                fix: 'keep the order of the parameters and add a method under a new name.',
+                explanation: `The parameters of the ${callable} changed their order from (${change.before}) to (${change.after}), so ${use.calls(name)} pass their values in the wrong place.`,
+                fix: `keep the order of the parameters and add a ${callable} under a new name.`,
             };
         case 'inserted':
             return {
@@ -669,7 +725,7 @@ const methodSignatureChanged = rule({
     id: 'method_signature_changed',
     group: 'Break',
     changes: (base, head) => [
-        ...inBoth(base, head, 'method').flatMap((method) => {
+        ...callablesInBoth(base, head).flatMap((method) => {
             const { was, now } = method;
             // Two declared return types are compared by `return_type_changed`, which a marker can announce.
             const isDeclaredTwice = was.returns !== null && now.returns !== null;
@@ -700,7 +756,7 @@ const methodSignatureChanged = rule({
             ),
         ]),
     ],
-    texts: ({ name, signature }, { use }) => signatureTexts(signature, name, use),
+    texts: ({ kind, name, signature }, { use }) => signatureTexts(signature, kind, name, use),
 });
 
 const paramMissing = rule({
@@ -710,16 +766,16 @@ const paramMissing = rule({
         parameterChanges(base, head).flatMap(({ method, removed }) =>
             removed.map(({ parameter, moved }) => ({ ...parameterElement(method, parameter), moved })),
         ),
-    texts: ({ name, parameter, moved }, { flags, use }) => ({
+    texts: ({ kind, name, parameter, moved }, { flags, use }) => ({
         explanation:
             moved.length === 0
                 ? `The parameter ${parameter} is gone, so ${use.withoutParameter(name)}.`
                 : `The parameter ${parameter} is gone and ${moved.join(', ')} moved up, so ${use.calls(name)} pass their values in the wrong place.`,
-        fix: `pattern "Parameter removal". Keep ${parameter}, mark the method @bc-change ParameterRemoval version:${flags.majorVersion} parameter:${parameter}, and remove it in the major.`,
+        fix: `pattern "Parameter removal". Keep ${parameter}, mark the ${label(kind)} @bc-change ParameterRemoval version:${flags.majorVersion} parameter:${parameter}, and remove it in the major.`,
     }),
     announcement: {
         rule: 'announced_change',
-        subject: 'The method',
+        subject: ({ kind }) => `The ${label(kind)}`,
         markers: (change, facts) => announcingMarkers(change, facts),
         matches: ({ parameter }, marker) => isBcChange(marker, 'ParameterRemoval', { parameter }),
     },
@@ -735,15 +791,15 @@ const paramNowRequired = rule({
                 .filter(({ was, now }) => !isRequired(was) && isRequired(now))
                 .map(({ now }) => ({ ...parameterElement(method, now), isNew: false })),
         ]),
-    texts: ({ name, parameter, isNew }, { flags, use }) => ({
+    texts: ({ kind, name, parameter, isNew }, { flags, use }) => ({
         explanation: isNew
-            ? `The method has a new required parameter ${parameter}, so ${use.calls(name)} that pass the old arguments leave it undefined.`
+            ? `The ${label(kind)} has a new required parameter ${parameter}, so ${use.calls(name)} that pass the old arguments leave it undefined.`
             : `The parameter ${parameter} lost its default, so ${use.calls(name)} that do not pass it leave it undefined.`,
-        fix: `pattern "New required parameter". Keep ${parameter} optional, call triggerDeprecationOrThrow when it is missing, and mark the method @bc-change NewRequiredParameter version:${flags.majorVersion} parameter:${parameter}.`,
+        fix: `pattern "New required parameter". Keep ${parameter} optional, call triggerDeprecationOrThrow when it is missing, and mark the ${label(kind)} @bc-change NewRequiredParameter version:${flags.majorVersion} parameter:${parameter}.`,
     }),
     announcement: {
         rule: 'announced_change',
-        subject: 'The method',
+        subject: ({ kind }) => `The ${label(kind)}`,
         markers: (change, facts) => announcingMarkers(change, facts),
         matches: ({ parameter }, marker) => isBcChange(marker, 'NewRequiredParameter', { parameter }),
     },
@@ -762,7 +818,11 @@ const paramDefaultChanged = defaultChanged({
         ),
     subject: ({ parameter }) => `parameter ${parameter}`,
     callers: ({ name }, { use }) => `${use.calls(name)} that do not pass it`,
-    marker: { kind: 'ParameterDefaultValueChange', holder: 'method', keys: ({ parameter }) => ({ parameter }) },
+    marker: {
+        kind: 'ParameterDefaultValueChange',
+        holder: ({ kind }) => label(kind),
+        keys: ({ parameter }) => ({ parameter }),
+    },
 });
 
 const paramAdded = rule({
@@ -867,10 +927,7 @@ export const MEMBER_RULES: readonly Rule[] = [
     ...KINDS.filter((kind) => !MEMBER_KINDS[kind].fromTemplate).map(memberBecamePrivate),
     propNowRequired,
     propDefaultChanged,
-    typeChanged('prop'),
-    typeChanged('property'),
-    returnTypeChanged('computed'),
-    returnTypeChanged('method'),
+    ...TYPED_KINDS.map(retyped),
     typeWidened,
     methodSignatureChanged,
     paramMissing,

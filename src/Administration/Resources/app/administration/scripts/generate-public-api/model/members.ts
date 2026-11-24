@@ -77,12 +77,18 @@ interface OptionDetails {
 }
 
 /**
- * What a kind of a plain object knows besides the name, as the object behind a service has them. A component
- * declares its values as `data` and `computed` instead. `property.type` is the annotation of the property, or
- * what its getter declares to return.
+ * What a kind of a plain object knows besides the name. A component declares its values as `data` and
+ * `computed` instead.
+ *
+ * - `property`: a property of the object behind a service. Its type is the annotation of the property, or what
+ *   its getter declares to return.
+ * - `state`, `getter` and `action`: what a store holds. An action has the details of a method.
  */
 interface ObjectDetails {
     property: { type: string | null };
+    state: { type: string | null };
+    getter: { type: string | null };
+    action: OptionDetails['method'];
 }
 
 /**
@@ -144,13 +150,36 @@ export const MEMBER_KINDS: {
     slot: { heading: 'slots', label: 'slot', placement: 'beforeBlocks', fromTemplate: true },
     data: { heading: 'data', label: 'data property', placement: 'beforeBlocks', fromTemplate: false },
     computed: { heading: 'computed', label: 'computed property', placement: 'beforeBlocks', fromTemplate: false },
+    state: { heading: 'state', label: 'state property', placement: 'beforeBlocks', fromTemplate: false },
+    getter: { heading: 'getters', label: 'getter', placement: 'beforeBlocks', fromTemplate: false },
     property: { heading: 'properties', label: 'property', placement: 'beforeBlocks', fromTemplate: false },
     method: { heading: 'methods', label: 'method', placement: 'beforeBlocks', fromTemplate: false },
+    action: { heading: 'actions', label: 'action', placement: 'beforeBlocks', fromTemplate: false },
     ref: { heading: 'refs', label: 'template ref', placement: 'afterBlocks', fromTemplate: true },
 };
 
 /** @private */
 export const KINDS = Object.keys(MEMBER_KINDS) as MemberKind[];
+
+/**
+ * @private
+ *
+ * The kinds that plugin code calls, with parameters and a return value.
+ */
+export const CALLABLE_KINDS = [
+    'method',
+    'action',
+] as const satisfies readonly MemberKind[];
+
+/** @private */
+export type CallableKind = (typeof CALLABLE_KINDS)[number];
+
+/**
+ * @private
+ *
+ * The kinds that a script declares, which `sections` of a unit can hold a line for.
+ */
+export const DECLARED_KINDS = KINDS.filter((kind): kind is DeclaredKind => !MEMBER_KINDS[kind].fromTemplate);
 
 interface MemberBase {
     name: string;

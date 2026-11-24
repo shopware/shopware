@@ -1,0 +1,4 @@
+{
+    "description": "A setup store lost a state property and a getter, an action got a required parameter, and another store is gone",
+    "majorFlags": ["v6.8.0.0"]
+}

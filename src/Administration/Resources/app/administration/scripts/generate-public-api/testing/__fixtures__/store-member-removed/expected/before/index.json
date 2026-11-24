@@ -1,0 +1,17 @@
+{
+    "components": {},
+    "services": {},
+    "stores": {
+        "exampleSidebar": {
+            "file": "app/store/example-sidebar.store",
+            "visibility": "public"
+        }
+    },
+    "mixins": {},
+    "modules": {},
+    "positionIdentifiers": {},
+    "dynamicPositionIdentifiers": {},
+    "dataSets": {},
+    "virtualModules": {},
+    "announcements": []
+}

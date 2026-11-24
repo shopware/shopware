@@ -7,7 +7,7 @@ import { byCodePoint } from '../helpers/code-point-order';
 import { blockLabel } from '../model/blocks';
 import type { FlagContext } from '../model/flag-states';
 import { isKind, KINDS, MEMBER_KINDS, namePath, propType } from '../model/members';
-import type { DefaultValue, Member, MemberKind, Parameter } from '../model/members';
+import type { CallableKind, DefaultValue, Member, MemberKind, Parameter } from '../model/members';
 import { flagStateMarker, line, markerLabels } from './report-outline';
 import type { Line, Section } from './report-outline';
 
@@ -49,7 +49,7 @@ function parametersText(parameters: Parameter[] | null): string {
     return parameters === null ? `...args: ${UNTYPED}[]` : parameters.map(parameterText).join(', ');
 }
 
-function returnText({ returns, returnsPromise }: Member<'method'>): string {
+function returnText({ returns, returnsPromise }: Member<CallableKind>): string {
     return returns ?? (returnsPromise ? `Promise<${UNTYPED}>` : UNTYPED);
 }
 
@@ -58,6 +58,14 @@ function dataText(member: Member<'data'>): string {
     const path = namePath(member);
 
     return `${'  '.repeat(path.length - 1)}${path.at(-1)}: ${member.nested ? 'object' : UNTYPED}`;
+}
+
+function valueText({ name, type }: { name: string; type: string | null }): string {
+    return `${name}: ${type ?? UNTYPED}`;
+}
+
+function callableText(callable: Member<CallableKind>): string {
+    return `${callable.name}(${parametersText(callable.parameters)}): ${returnText(callable)}`;
 }
 
 const MEMBER_TEXTS: { [Kind in MemberKind]: (member: Member<Kind>) => string } = {
@@ -69,9 +77,12 @@ const MEMBER_TEXTS: { [Kind in MemberKind]: (member: Member<Kind>) => string } =
     slot: ({ name, scope, block }) =>
         `${name}  ${scope.length === 0 ? '{}' : `{ ${scope.join(', ')} }`}  block=${blockLabel(block)}`,
     data: dataText,
-    computed: ({ name, type }) => `${name}: ${type ?? UNTYPED}`,
-    property: ({ name, type }) => `${name}: ${type ?? UNTYPED}`,
-    method: (method) => `${method.name}(${parametersText(method.parameters)}): ${returnText(method)}`,
+    computed: valueText,
+    state: valueText,
+    getter: valueText,
+    property: valueText,
+    method: callableText,
+    action: callableText,
     ref: ({ name, target, list, block }) => `${name}  -> ${target}${list ? '  list' : ''}  block=${blockLabel(block)}`,
 };
 

@@ -1,0 +1,14 @@
+[
+    {
+        "group": "Break",
+        "rule": "action_missing",
+        "explanation": "The action is gone, so plugin code that calls Shopware.Store.get('exampleSidebar').removeSidebar() throws at runtime.",
+        "fix": "pattern \"Removal\". Keep the action and mark it /** @deprecated tag:v6.8.0 - Will be removed. */.",
+        "element": "store:exampleSidebar/action:removeSidebar",
+        "states": [
+            "current",
+            "major"
+        ],
+        "at": "src/app/store/example-sidebar.store.ts:24"
+    }
+]

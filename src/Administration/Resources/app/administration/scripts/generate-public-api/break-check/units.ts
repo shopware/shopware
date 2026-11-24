@@ -6,16 +6,16 @@
  */
 import type { Marker } from '../../../eslint-rules/deprecation-rules/utils/api-markers';
 import type { FlagState, FlagStates } from '../model/flag-states';
-import type { ComponentUnit, Model } from '../model/model';
+import type { ComponentUnit, RegisteredUnit, Model } from '../model/model';
 import type { SourceLine } from '../model/source-line';
 import { withInheritedMembers } from './facts/member-facts';
 import { factsOf } from './facts/unit-facts';
 import type { UnitFacts } from './facts/unit-facts';
-import { componentUse, serviceUse } from './plugin-use';
+import { componentUse, serviceUse, storeUse } from './plugin-use';
 import type { PluginUse } from './plugin-use';
 
 /** @private */
-export type UnitKind = 'component' | 'service';
+export type UnitKind = 'component' | 'service' | 'store';
 
 /**
  * What a kind says about one of its units. `parent` is the name of the unit it inherits its elements from,
@@ -35,7 +35,7 @@ interface UnitOfKind {
 /**
  * @private
  *
- * One unit of a commit. `id` starts every element id of the unit, `component:sw-card` or `service:acl`, and
+ * One unit of a commit. `id` starts every element id of the unit, such as `component:sw-card` or `service:acl`, and
  * `parent` is the id of its parent.
  */
 export interface CheckedUnit extends UnitOfKind {
@@ -68,8 +68,9 @@ function components(model: Model): UnitOfKind[] {
     }));
 }
 
-function services(model: Model): UnitOfKind[] {
-    return model.services.map((unit) => ({
+/** A unit that a script declares brings its own comment and line, and it inherits from no other unit. */
+function declared(units: RegisteredUnit[]): UnitOfKind[] {
+    return units.map((unit) => ({
         name: unit.name,
         parent: null,
         visibility: unit.visibility,
@@ -87,7 +88,8 @@ function services(model: Model): UnitOfKind[] {
  */
 export const UNIT_KINDS: Record<UnitKind, UnitKindDefinition> = {
     component: { units: components, use: componentUse, reportedAsWhole: false },
-    service: { units: services, use: serviceUse, reportedAsWhole: true },
+    service: { units: ({ services }) => declared(services), use: serviceUse, reportedAsWhole: true },
+    store: { units: ({ stores }) => declared(stores), use: storeUse, reportedAsWhole: true },
 };
 
 function unitId(kind: UnitKind, name: string): string {

@@ -32,7 +32,7 @@ methods
   initData(): any  [private]
   onItemSelect(item: any): any  [private]
   onSelectCollapsed(): any  [private]
-  paginateGrid(arg0?: any): any  [private]
+  paginateGrid(arg0?: any = this.gridCriteria): any  [private]
   removeFromGrid(item: any): any  [private]
   removeItem(item: any): Promise<any>  [private]
   searchItems(): Promise<any>  [private]
@@ -60,9 +60,9 @@ blocks
         sw_cms_product_assignment_grid_footer_content  [private]
 
 refs
-  searchInput  -> input  [private]
-  selectBase  -> sw-select-base  [private]
-  swSelectResultList  -> sw-select-result-list  [private]
+  searchInput  -> input  block=sw_cms_product_assignment_search_field  [private]
+  selectBase  -> sw-select-base  block=sw_cms_product_assignment_select  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_cms_product_assignment_results_list  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

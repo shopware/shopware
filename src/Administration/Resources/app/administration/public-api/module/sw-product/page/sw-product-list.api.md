@@ -109,7 +109,7 @@ crossings
   v-if  sw_product_list_grid_columns_stock_inline_edit -> sw_product_list_grid_columns_stock_content
 
 refs
-  swProductGrid  -> sw-entity-listing
+  swProductGrid  -> sw-entity-listing  block=sw_product_list_grid
 
 notes
   unresolved data data() { const data = { products: null, currencies: [], sortBy: 'createdAt', sor...

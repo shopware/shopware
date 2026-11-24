@@ -11,10 +11,10 @@ component sw-settings-search-view-live-search  public  js
   template src/module/sw-settings-search/view/sw-settings-search-view-live-search/sw-settings-search-view-live-search.html.twig
 
 props
-  currentSalesChannelId?: string  default=literal
-  isLoading?: boolean  default=literal
+  currentSalesChannelId?: string  default=null
+  isLoading?: boolean  default=false
   searchResults?: object  default=factory
-  searchTerms?: string  default=literal
+  searchTerms?: string  default=null
 
 computed
   storefrontEsEnable: any

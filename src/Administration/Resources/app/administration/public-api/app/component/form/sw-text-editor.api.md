@@ -15,19 +15,19 @@ inject
   feature  [private]
 
 props
-  allowInlineDataMapping?: boolean  default=literal  [private]
+  allowInlineDataMapping?: boolean  default=false  [private]
   buttonConfig?: any[]  default=factory  [private]
-  disabled?: boolean  default=literal  [private]
-  enableTransparentBackground?: boolean  default=literal  [private]
-  error?: object  default=literal  [private]
-  isInlineEdit?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  sanitizeFieldName?: string  default=literal  [private]
-  sanitizeInfoWarn?: boolean  default=literal  [private]
-  sanitizeInput?: boolean  default=literal  [private]
-  value?: any  default=literal  [private]
-  verticalAlign?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  enableTransparentBackground?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  isInlineEdit?: boolean  default=false  [private]
+  label?: string  default=''  [private]
+  placeholder?: string  default=''  [private]
+  sanitizeFieldName?: string  default=null  [private]
+  sanitizeInfoWarn?: boolean  default=false  [private]
+  sanitizeInput?: boolean  default=false  [private]
+  value?: null | string  default=null  [private]
+  verticalAlign?: string  default=''  [private]
 
 emits
   update:value(...args: any[])  [private]
@@ -75,7 +75,7 @@ methods
   emptyCheck(value: any): any  [private]
   expandSelectionToNearestEndBracket(): any  [private]
   expandSelectionToNearestStartBracket(): any  [private]
-  fixWrongNodes(replaceDivNodes?: any): any  [private]
+  fixWrongNodes(replaceDivNodes?: any = false): any  [private]
   getContentValue(): any  [private]
   getDataMappingButtonChildren(): any  [private]
   getPath(event: any): any  [private]
@@ -125,7 +125,7 @@ blocks
     sw_text_editor_label  [private]
 
 refs
-  codeEditor  -> sw-code-editor  [private]
-  text-editor-toolbar  -> sw-text-editor-toolbar  [private]
-  textEditor  -> div  [private]
+  codeEditor  -> sw-code-editor  block=sw_text_editor_box_content  [private]
+  text-editor-toolbar  -> sw-text-editor-toolbar  block=sw_text_editor_box_toolbar  [private]
+  textEditor  -> div  block=sw_text_editor_box_content  [private]
 ```

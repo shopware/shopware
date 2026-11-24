@@ -14,8 +14,8 @@ inject
   acl
 
 props
-  cmsPage?: object  default=literal
-  product?: object  default=literal
+  cmsPage?: object  default=null
+  product?: object  default=null
 
 emits
   button-delete-click(...args: any[])

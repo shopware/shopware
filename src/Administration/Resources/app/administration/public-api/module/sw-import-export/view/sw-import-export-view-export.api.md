@@ -22,5 +22,5 @@ blocks
     sw_import_export_view_export_exporter  [private]
 
 refs
-  activityGrid  -> sw-import-export-activity  [private]
+  activityGrid  -> sw-import-export-activity  block=sw_import_export_view_export_activity_grid  [private]
 ```

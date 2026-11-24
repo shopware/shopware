@@ -19,7 +19,7 @@ props
   currencyDependsValue: any[]
   isLoading: boolean
   menuOptions: any[]
-  taxFreeType?: string  default=literal
+  taxFreeType?: string  default=''
   userConfig: object
   userConfigValues: object
 

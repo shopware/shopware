@@ -31,7 +31,7 @@ methods
   displayNotification(section: Entity<'cms_section'>, block: Entity<'cms_block'>): any  [private]
   displaySectionType(block: Entity<'cms_block'>): boolean  [private]
   getBlockTitle(block: Entity<'cms_block'>): string  [private]
-  getDeviceActive(viewport: string, section: Entity<'cms_section'>, block?: Entity<'cms_block'> | null): any  [private]
+  getDeviceActive(viewport: string, section: Entity<'cms_section'>, block?: Entity<'cms_block'> | null = null): any  [private]
   getSectionName(section: Entity<'cms_section'>): any  [private]
   getSectionPosition(block: Entity<'cms_block'>): any  [private]
   initVisibility(entity: Entity<'cms_section'> | Entity<'cms_block'>): any  [private]

@@ -18,9 +18,9 @@ inject
   repositoryFactory
 
 props
-  currentSalesChannelId?: string  default=literal
-  searchResults?: object  default=literal
-  searchTerms?: string  default=literal
+  currentSalesChannelId?: string  default=null
+  searchResults?: object  default=null
+  searchTerms?: string  default=null
 
 emits
   live-search-results-change(...args: any[])

@@ -85,5 +85,5 @@ blocks
           sw_settings_tax_list_smart_bar_header_title_text
 
 refs
-  swSettingsTaxGrid  -> sw-entity-listing
+  swSettingsTaxGrid  -> sw-entity-listing  block=sw_settings_tax_list_grid
 ```

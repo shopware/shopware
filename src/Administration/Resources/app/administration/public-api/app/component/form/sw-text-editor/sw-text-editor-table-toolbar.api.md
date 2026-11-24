@@ -12,7 +12,7 @@ component sw-text-editor-table-toolbar  private  js  [private]
   visibility-source export  [private]
 
 props
-  selection?: any  default=literal  [private]
+  selection?: any  default=null  [private]
 
 emits
   table-delete(...args: any[])  [private]
@@ -28,8 +28,8 @@ methods
   deleteCells(rows: any, colIdx: any): any  [private]
   fillRowWithCells(row: any, colCount: any, newFirstRow: any): any  [private]
   getNode(): any  [private]
-  getVariables(mode?: any): any  [private]
-  insertNewCellsForColumn(rows: any, colIdx: any, addResizeHanlde?: any): any  [private]
+  getVariables(mode?: any = 'td'): any  [private]
+  insertNewCellsForColumn(rows: any, colIdx: any, addResizeHanlde?: any = false): any  [private]
   keepSelection(): any  [private]
   onAddColumn(position: any): any  [private]
   onAddRow(position: any): any  [private]

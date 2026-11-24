@@ -58,5 +58,5 @@ methods
   resolveVisibility(): Promise<any>  [private]
 
 refs
-  compare  -> div  [private]
+  compare  -> div  block=(root)  [private]
 ```

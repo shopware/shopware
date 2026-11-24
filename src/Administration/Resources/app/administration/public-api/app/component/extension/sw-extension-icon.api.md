@@ -12,7 +12,7 @@ component sw-extension-icon  private  ts  [private]
   visibility-source export  [private]
 
 props
-  alt?: string  default=literal  [private]
+  alt?: string  default=''  [private]
   src: string  [private]
 
 blocks

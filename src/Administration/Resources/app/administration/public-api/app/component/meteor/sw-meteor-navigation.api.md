@@ -12,7 +12,7 @@ component sw-meteor-navigation  private  ts  [private]
   visibility-source export  [private]
 
 props
-  fromLink?: RouteLocationNamedRaw | null  default=literal  [private]
+  fromLink?: RouteLocationNamedRaw | null  default=null  [private]
 
 computed
   hasParentRoute: boolean  [private]

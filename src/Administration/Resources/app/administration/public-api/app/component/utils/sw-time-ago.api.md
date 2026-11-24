@@ -13,7 +13,7 @@ component sw-time-ago  private  ts  [private]
 
 props
   date: Date | string  [private]
-  dateTimeFormat?: Intl.DateTimeFormatOptions  default=literal  [private]
+  dateTimeFormat?: Intl.DateTimeFormatOptions  default={}  [private]
 
 data
   formattedRelativeTime: any  [private]

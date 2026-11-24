@@ -18,7 +18,7 @@ inject
 
 props
   criteria?: object  default=factory  [private]
-  domain?: string  default=literal  [private]
+  domain?: string  default=''  [private]
   value?: object  [private]
 
 emits

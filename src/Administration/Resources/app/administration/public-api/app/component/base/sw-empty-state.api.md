@@ -12,14 +12,14 @@ component sw-empty-state  private  js  [private]
   visibility-source export  [private]
 
 props
-  absolute?: boolean  default=literal  [private]
-  autoHeight?: boolean  default=literal  [private]
-  color?: string  default=literal  [private]
-  emptyModule?: boolean  default=literal  [private]
-  icon?: string  default=literal  [private]
-  showDescription?: boolean  default=literal  [private]
-  subline?: string  default=literal  [private]
-  title: string  default=literal  [private]
+  absolute?: boolean  default=true  [private]
+  autoHeight?: boolean  default=false  [private]
+  color?: string  default=null  [private]
+  emptyModule?: boolean  default=false  [private]
+  icon?: string  default=null  [private]
+  showDescription?: boolean  default=true  [private]
+  subline?: string  default=null  [private]
+  title: string  default=null  [private]
 
 slots
   actions  {}  block=sw_empty_state_actions  [private]

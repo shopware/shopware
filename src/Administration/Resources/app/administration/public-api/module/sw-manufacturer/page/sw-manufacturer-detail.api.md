@@ -21,7 +21,7 @@ inject
   repositoryFactory
 
 props
-  manufacturerId?: string  default=literal
+  manufacturerId?: string  default=null
 
 data
   customFieldSets: any

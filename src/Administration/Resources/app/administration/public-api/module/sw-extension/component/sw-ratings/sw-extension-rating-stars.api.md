@@ -15,9 +15,9 @@ inject
   feature  [private]
 
 props
-  editable?: boolean  default=literal  [private]
-  rating?: number  default=literal  [private]
-  size?: number  default=literal  [private]
+  editable?: boolean  default=false  [private]
+  rating?: number  default=0  [private]
+  size?: number  default=8  [private]
 
 emits
   update:rating(...args: any[])  [private]

@@ -21,9 +21,9 @@ provide
 
 props
   domain: string
-  inherit?: boolean  default=literal
-  salesChannelId?: string  default=literal
-  salesChannelSwitchable?: boolean  default=literal
+  inherit?: boolean  default=true
+  salesChannelId?: string  default=null
+  salesChannelSwitchable?: boolean  default=false
 
 emits
   config-changed(...args: any[])

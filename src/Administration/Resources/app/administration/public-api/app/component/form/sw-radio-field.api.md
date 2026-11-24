@@ -18,9 +18,9 @@ inject
   feature  [private]
 
 props
-  block?: boolean  default=literal  [private]
-  bordered?: boolean  default=literal  [private]
-  description?: string  default=literal  [private]
+  block?: boolean  default=false  [private]
+  bordered?: boolean  default=false  [private]
+  description?: string  default=null  [private]
   options?: any[]  default=factory  [private]
   value?: any  [private]
 

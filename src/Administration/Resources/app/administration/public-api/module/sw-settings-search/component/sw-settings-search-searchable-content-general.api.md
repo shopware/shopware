@@ -20,7 +20,7 @@ props
   columns: any[]
   fieldConfigs: any[]
   isEmpty: boolean
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   repository: object
   searchConfigs?: any[]  default=factory
 
@@ -62,5 +62,5 @@ blocks
         sw_settings_search_searchable_content_general_tokenize_label  [scope: isInlineEdit, item]
 
 refs
-  swSettingsSearchableContentGrid  -> sw-entity-listing
+  swSettingsSearchableContentGrid  -> sw-entity-listing  block=sw_settings_search_searchable_content_general_grid
 ```

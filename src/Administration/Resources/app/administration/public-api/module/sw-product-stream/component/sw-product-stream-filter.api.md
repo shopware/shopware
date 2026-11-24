@@ -33,7 +33,7 @@ methods
   changeEmptyValue(arg0: any): any  [private]
   changeType(arg0: any): any  [private]
   copyParameters(arg0: any): any  [private]
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [private]
   handleWrapForTypeNull(type: any, parameters: any): any  [private]
   isCustomField(fieldName: any): any  [private]
   unwrapNot(condition: any, newType: any, parameters: any): any  [private]

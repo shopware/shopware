@@ -21,7 +21,7 @@ inject
   repositoryFactory  [private]
 
 props
-  flowId?: string  default=literal  [private]
+  flowId?: string  default=null  [private]
 
 data
   isLoading: any  [private]

@@ -34,5 +34,5 @@ blocks
       sw_settings_media_actions_save
 
 refs
-  systemConfig  -> sw-system-config
+  systemConfig  -> sw-system-config  block=sw_settings_media_content
 ```

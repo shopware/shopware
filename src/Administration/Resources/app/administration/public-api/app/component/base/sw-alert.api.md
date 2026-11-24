@@ -12,7 +12,7 @@ component sw-alert  private  ts  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
 
 slots
   actions  {}  block=(root)  [private]

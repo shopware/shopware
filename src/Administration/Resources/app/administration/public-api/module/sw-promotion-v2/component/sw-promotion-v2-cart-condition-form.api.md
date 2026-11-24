@@ -16,7 +16,7 @@ inject
   repositoryFactory
 
 props
-  promotion?: object  default=literal
+  promotion?: object  default=null
   restrictedRules?: any[]  default=factory
 
 data

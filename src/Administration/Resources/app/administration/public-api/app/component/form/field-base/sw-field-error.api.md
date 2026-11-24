@@ -12,7 +12,7 @@ component sw-field-error  private  js  [private]
   visibility-source export  [private]
 
 props
-  error?: object  default=literal  [private]
+  error?: object  default=null  [private]
 
 computed
   errorMessage: any  [private]

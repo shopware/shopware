@@ -15,9 +15,9 @@ inject
   repositoryFactory  [private]
 
 props
-  seoMetaDescription?: string | null  default=literal  [private]
-  seoMetaTitle?: string | null  default=literal  [private]
-  seoUrl?: string | null  default=literal  [private]
+  seoMetaDescription?: string | null  default=''  [private]
+  seoMetaTitle?: string | null  default=''  [private]
+  seoUrl?: string | null  default=''  [private]
 
 emits
   update:seo-meta-description(...args: any[])  [private]

@@ -23,8 +23,8 @@ inject
 props
   criteriaAggregations?: any[]  default=factory  [private]
   criteriaFilters?: any[]  default=factory  [private]
-  disablePreviews?: boolean  default=literal  [private]
-  emptyIcon?: string  default=literal  [private]
+  disablePreviews?: boolean  default=false  [private]
+  emptyIcon?: string  default='solid-content'  [private]
   emptyImagePath?: string  [deprecated tag:v6.8.0] [private]
   entityAssociations?: any[]  default=factory  [private]
   entityColumns: any[]  [private]
@@ -34,8 +34,8 @@ props
   entityName: string  [private]
   initialSearchTerm?: string  default=factory  [private]
   initialSelection?: any[]  default=factory  [private]
-  isRecordSelectableCallback?: (...args: any[]) => any  default=literal  [private]
-  isSingleSelect?: boolean  default=literal  [private]
+  isRecordSelectableCallback?: (...args: any[]) => any  default=undefined  [private]
+  isSingleSelect?: boolean  default=false  [private]
   storeKey: string  [private]
 
 emits
@@ -92,7 +92,7 @@ crossings
   v-if  sw_entity_advanced_selection_modal_list_grid -> sw_entity_advanced_selection_modal_list_empty_state  [private]
 
 refs
-  filterPanel  -> sw-filter-panel  [private]
+  filterPanel  -> sw-filter-panel  block=sw_entity_advanced_selection_modal_toolbar_filter_panel_filters  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

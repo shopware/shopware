@@ -49,7 +49,7 @@ methods
   redirectToOrderList(): void
   removeInvalidCode(): any
   saveFinish(): void
-  showError(error?: unknown): any
+  showError(error?: unknown = null): any
 
 blocks
   sw_order_create

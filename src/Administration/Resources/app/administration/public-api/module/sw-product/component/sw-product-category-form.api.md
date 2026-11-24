@@ -19,7 +19,7 @@ inject
   systemConfigApiService
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 data
   defaultVisibility: any
@@ -59,6 +59,6 @@ blocks
     sw_product_category_form_visibility_title
 
 refs
-  productVisibilitiesInheritance  -> sw-inherit-wrapper
-  productVisibility  -> sw-product-visibility-select
+  productVisibilitiesInheritance  -> sw-inherit-wrapper  block=sw_product_category_form_visibility_field
+  productVisibility  -> sw-product-visibility-select  block=sw_product_category_form_visibility_field
 ```

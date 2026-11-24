@@ -21,15 +21,15 @@ provide
   swUnregisterGridDisableInlineEditListener: any  [private]
 
 props
-  allowInlineEdit?: boolean  default=literal  [private]
-  header?: boolean  default=literal  [private]
-  isFullpage?: boolean  default=literal  [private]
-  items?: any[]  default=literal  [private]
-  selectable?: boolean  default=literal  [private]
-  sortBy?: string  default=literal  [private]
-  sortDirection?: string  default=literal  [private]
-  table?: boolean  default=literal  [private]
-  variant?: string  default=literal  [private]
+  allowInlineEdit?: boolean  default=true  [private]
+  header?: boolean  default=true  [private]
+  isFullpage?: boolean  default=false  [private]
+  items?: any[]  default=null  [private]
+  selectable?: boolean  default=true  [private]
+  sortBy?: string  default=null  [private]
+  sortDirection?: string  default='ASC'  [private]
+  table?: boolean  default=false  [private]
+  variant?: string  default='normal'  [private]
 
 emits
   inline-edit-cancel(...args: any[])  [private]
@@ -112,6 +112,6 @@ crossings
   v-if  sw_grid_slot_header_cell_icon_label -> sw_grid_slot_header_cell_label  [private]
 
 refs
-  rowRefs  -> sw-grid-row  list  [private]
-  swGridBody  -> div  [private]
+  rowRefs  -> sw-grid-row  list  block=sw_grid_body_slot_items  [private]
+  swGridBody  -> div  block=sw_grid_slot_body  [private]
 ```

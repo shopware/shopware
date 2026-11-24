@@ -80,5 +80,5 @@ blocks
       sw_sales_channel_detail_base_general_input_shipping_methods  [inherited] [after v-if]
 
 refs
-  salesChannelDomains  -> sw-sales-channel-detail-domains
+  salesChannelDomains  -> sw-sales-channel-detail-domains  block=sw_sales_channel_detail_base_options_domains
 ```

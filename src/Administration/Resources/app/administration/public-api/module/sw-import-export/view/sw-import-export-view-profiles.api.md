@@ -67,5 +67,5 @@ blocks
         sw_import_export_view_profile_profiles_toolbar_search_field  [private]
 
 refs
-  listing  -> sw-entity-listing  [private]
+  listing  -> sw-entity-listing  block=sw_import_export_view_profile_profiles_listing  [private]
 ```

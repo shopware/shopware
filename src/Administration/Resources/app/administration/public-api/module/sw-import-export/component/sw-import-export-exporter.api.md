@@ -20,7 +20,7 @@ inject
   repositoryFactory  [private]
 
 props
-  sourceEntity?: string  default=literal  [private]
+  sourceEntity?: string  default=''  [private]
 
 emits
   export-started(...args: any[])  [private]

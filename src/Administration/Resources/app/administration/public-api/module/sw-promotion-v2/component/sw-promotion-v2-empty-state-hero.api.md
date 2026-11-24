@@ -12,9 +12,9 @@ component sw-promotion-v2-empty-state-hero  private  js  [private]
   visibility-source export  [private]
 
 props
-  assetPath?: string  default=literal  [private]
-  description?: string  default=literal  [private]
-  hideDescription?: boolean  default=literal  [private]
+  assetPath?: string  default=''  [private]
+  description?: string  default=''  [private]
+  hideDescription?: boolean  default=false  [private]
   title: string  [private]
 
 slots

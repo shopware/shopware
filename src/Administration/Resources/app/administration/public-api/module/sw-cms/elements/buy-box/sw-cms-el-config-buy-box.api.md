@@ -63,5 +63,6 @@ blocks
       sw_cms_element_buy_box_config_tab_option  [scope: active] [until v6.8.0] [private]
 
 refs
-  cmsProductSelection  -> sw-entity-single-select  [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_buy_box_config_mt_product_select  [from v6.8.0] [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_buy_box_config_product_select  [until v6.8.0] [private]
 ```

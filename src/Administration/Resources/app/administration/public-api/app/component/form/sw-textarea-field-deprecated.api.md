@@ -19,8 +19,8 @@ inject
 
 props
   ariaLabel?: string  default=factory  [private]
-  placeholder?: string  default=literal  [private]
-  value?: string  default=literal  [private]
+  placeholder?: string  default=null  [private]
+  value?: string  default=null  [private]
 
 emits
   change(...args: any[])  [private]

@@ -69,8 +69,8 @@ methods
   getFilterSettings(): Promise<any>
   getList(): any
   getName(list: any, id: any): any
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any
-  initializeSnippetSet(filter?: any): any
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any
+  initializeSnippetSet(filter?: any = this.filter): any
   inlineSaveErrorMessage(key: any): any
   inlineSaveSuccessMessage(key: any): any  [deprecated tag:v6.8.0]
   onChange(field: any): any

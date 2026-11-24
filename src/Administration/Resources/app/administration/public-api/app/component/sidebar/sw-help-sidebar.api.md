@@ -15,8 +15,8 @@ inject
   shortcutService  [private]
 
 props
-  focusTrigger?: number  default=literal  [private]
-  selector?: string  default=literal  [private]
+  focusTrigger?: number  default=0  [private]
+  selector?: string  default='body'  [private]
 
 data
   viewportWidth: any  [private]
@@ -48,5 +48,5 @@ blocks
       sw_help_sidebar_support_placeholder  [private]
 
 refs
-  container  -> div  [private]
+  container  -> div  block=sw_help_sidebar  [private]
 ```

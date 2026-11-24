@@ -12,12 +12,12 @@ component sw-pagination  private  js  [private]
   visibility-source export  [private]
 
 props
-  autoHide?: boolean  default=literal  [private]
+  autoHide?: boolean  default=true  [private]
   limit: number  [private]
   page: number  [private]
   steps?: any[]  default=factory  [private]
   total: number  [private]
-  totalVisible?: number  default=literal  [private]
+  totalVisible?: number  default=7  [private]
 
 emits
   page-change(...args: any[])  [private]

@@ -12,14 +12,14 @@ component sw-button-deprecated  private  js  [private]
   visibility-source export  [private]
 
 props
-  block?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  link?: string  default=literal  [private]
+  block?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  link?: string  default=null  [private]
   routerLink?: object  [private]
-  size?: string  default=literal  [private]
-  square?: boolean  default=literal  [private]
-  variant?: string  default=literal  [private]
+  size?: string  default=''  [private]
+  square?: boolean  default=false  [private]
+  variant?: string  default=''  [private]
 
 slots
   default  {}  block=sw_button_button_content  [private]

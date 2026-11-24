@@ -16,7 +16,7 @@ inject
   repositoryFactory  [private]
 
 props
-  isLoading?: boolean  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
   salesChannel: any  [private]
 
 methods

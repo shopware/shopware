@@ -14,10 +14,10 @@ inject
   stateStyleDataProviderService
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   history: any[]
   stateMachineName: string
-  title?: string  default=literal
+  title?: string  default=''
   transitionOptions: any[]
 
 computed

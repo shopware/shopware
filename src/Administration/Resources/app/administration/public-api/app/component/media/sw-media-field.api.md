@@ -15,11 +15,11 @@ inject
   repositoryFactory
 
 props
-  defaultFolder?: string  default=literal
-  disabled?: boolean  default=literal
-  fileAccept?: string  default=literal
-  label?: string  default=literal
-  value?: any  default=literal
+  defaultFolder?: string  default=null
+  disabled?: boolean  default=false
+  fileAccept?: string  default='*/*'
+  label?: string  default=null
+  value?: null | string  default=null
 
 emits
   update:value(...args: any[])
@@ -52,7 +52,7 @@ methods
   computePickerPositionAndStyle(): any
   createdComponent(): any
   exposeNewId(arg0: any): any
-  fetchItem(id?: any): Promise<any>
+  fetchItem(id?: any = this.mediaId): Promise<any>
   fetchSuggestions(): Promise<any>
   mediaItemChanged(newMediaId: any): any
   onPageChange(arg0: any): any

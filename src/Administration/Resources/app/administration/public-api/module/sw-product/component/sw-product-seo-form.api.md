@@ -17,7 +17,7 @@ inject
   repositoryFactory
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 data
   canonicalProductSwitchEnabled: any
@@ -81,5 +81,5 @@ blocks
       sw_product_seo_form_og_title
 
 refs
-  canonicalProductSelect  -> sw-single-select
+  canonicalProductSelect  -> sw-single-select  block=sw_product_seo_form_canonical_url_select
 ```

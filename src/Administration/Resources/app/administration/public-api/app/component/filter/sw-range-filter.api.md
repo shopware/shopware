@@ -15,7 +15,7 @@ inject
   feature  [private]
 
 props
-  isShowDivider?: boolean  default=literal  [private]
+  isShowDivider?: boolean  default=true  [private]
   property: string  [private]
   value: object  [private]
 

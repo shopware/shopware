@@ -15,7 +15,7 @@ inject
   feature  [private]
 
 props
-  value?: number  default=literal  [private]
+  value?: number  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]

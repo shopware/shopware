@@ -14,7 +14,7 @@ props
   address: object  default=factory
   customFieldSets: any[]
   customer: object
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 emits
   default-address-change(...args: any[])

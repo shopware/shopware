@@ -12,7 +12,7 @@ component sw-flow-sequence-modal  private  js  [private]
   visibility-source export  [private]
 
 props
-  action?: string  default=literal  [private]
+  action?: string  default=null  [private]
   modalName: string  [private]
   sequence: object  [private]
 

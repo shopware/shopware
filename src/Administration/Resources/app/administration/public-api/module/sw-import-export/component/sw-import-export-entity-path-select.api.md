@@ -21,13 +21,13 @@ props
   currencies?: any[]  default=factory  [private]
   customFieldSets?: any[]  default=factory  [private]
   entityType: string  [private]
-  highlightSearchTerm?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  isLoading?: boolean  default=false  [private]
   languages?: any[]  default=factory  [private]
-  placeholder?: string  default=literal  [private]
+  placeholder?: string  default=''  [private]
   searchFunction?: (...args: any[]) => any  default=factory  [private]
   value: any  [private]
-  valueProperty?: string  default=literal  [private]
+  valueProperty?: string  default='value'  [private]
 
 emits
   before-selection-clear(...args: any[])  [private]
@@ -105,7 +105,7 @@ methods
   processTranslations(arg0: any): any  [private]
   processVisibilities(arg0: any): any  [private]
   propertyFilter(property: any): any  [private]
-  resetActiveItem(pos?: any): any  [private]
+  resetActiveItem(pos?: any = 0): any  [private]
   search(): any  [private]
   setValue(item: any): any  [private]
   sortOptions(a: any, b: any): any  [private]
@@ -129,7 +129,7 @@ blocks
             sw_import_export_entity_path_select_single_selection_inner_label  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
 
 refs
-  resultsList  -> sw-select-result-list  [private]
-  selectBase  -> sw-select-base  [private]
-  swSelectInput  -> input  [private]
+  resultsList  -> sw-select-result-list  block=sw_import_export_entity_path_select_base_results_slot  [private]
+  selectBase  -> sw-select-base  block=sw_import_export_entity_path_select  [private]
+  swSelectInput  -> input  block=sw_import_export_entity_path_select_single_selection_inner_input  [private]
 ```

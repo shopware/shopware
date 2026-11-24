@@ -20,7 +20,7 @@ inject
   repositoryFactory
 
 props
-  currencyId?: string  default=literal
+  currencyId?: string  default=null
 
 data
   currency: any

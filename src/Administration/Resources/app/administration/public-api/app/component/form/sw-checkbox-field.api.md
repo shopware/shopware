@@ -12,9 +12,9 @@ component sw-checkbox-field  private  ts  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
-  modelValue?: string  default=literal  [private]
-  value?: boolean  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=null  [private]
+  value?: boolean  default=null  [private]
 
 slots
   default  {}  block=sw_checkbox_field  [private]

@@ -18,7 +18,7 @@ inject
   repositoryFactory
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 data
   mediaDefaultFolderId: any

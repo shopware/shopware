@@ -11,13 +11,13 @@ component sw-settings-snippet-filter-switch  public  js
   template src/module/sw-settings-snippet/component/sidebar/sw-settings-snippet-filter-switch/sw-settings-snippet-filter-switch.html.twig
 
 props
-  borderBottom?: boolean  default=literal
-  borderTop?: boolean  default=literal
-  group?: string  default=literal
-  label?: string  default=literal
+  borderBottom?: boolean  default=false
+  borderTop?: boolean  default=false
+  group?: string  default=null
+  label?: string  default=''
   name: string
-  type?: string  default=literal
-  value?: boolean  default=literal
+  type?: string  default='small'
+  value?: boolean  default=false
 
 emits
   update:value(...args: any[])

@@ -20,7 +20,7 @@ inject
   ruleConditionDataProviderService
 
 props
-  shippingMethodId?: string  default=literal
+  shippingMethodId?: string  default=null
 
 data
   currenciesLoading: any
@@ -106,6 +106,6 @@ crossings
   v-if  sw_settings_shipping_detail_tax_cost -> sw_settings_shipping_detail_content
 
 refs
-  mediaSidebarItem  -> sw-sidebar-media-item
-  priceMatrices  -> sw-settings-shipping-price-matrices
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_setting_shipping_detail_sidebar_media_item
+  priceMatrices  -> sw-settings-shipping-price-matrices  block=sw_settings_shipping_detail_price_matrices
 ```

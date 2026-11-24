@@ -15,9 +15,9 @@ inject
   repositoryFactory  [private]
 
 props
-  changeLanguageOnParentClick?: boolean  default=literal  [private]
-  entityDescription?: string  default=literal  [private]
-  isNewEntity?: boolean  default=literal  [private]
+  changeLanguageOnParentClick?: boolean  default=true  [private]
+  entityDescription?: string  default=''  [private]
+  isNewEntity?: boolean  default=false  [private]
 
 data
   parentLanguage: object  [private]

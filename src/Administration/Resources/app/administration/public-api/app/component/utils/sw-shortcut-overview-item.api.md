@@ -16,7 +16,7 @@ inject
 
 props
   content: string  [private]
-  privilege?: string  default=literal  [private]
+  privilege?: string  default=null  [private]
   title: string  [private]
 
 computed

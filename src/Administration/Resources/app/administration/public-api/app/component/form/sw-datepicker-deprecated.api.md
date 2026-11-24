@@ -18,12 +18,12 @@ inject
 
 props
   config?: object  default=factory
-  dateType?: string  default=literal
-  disabled?: boolean  default=literal
-  hideHint?: boolean  default=literal
-  placeholder?: string  default=literal
-  required?: boolean  default=literal
-  value?: string  default=literal
+  dateType?: string  default='date'
+  disabled?: boolean  default=false
+  hideHint?: boolean  default=false
+  placeholder?: string  default=''
+  required?: boolean  default=false
+  value?: string  default=null
 
 emits
   inheritance-remove(...args: any[])
@@ -72,5 +72,5 @@ blocks
   sw_datepicker
 
 refs
-  flatpickrInput  -> input
+  flatpickrInput  -> input  block=sw_datepicker
 ```

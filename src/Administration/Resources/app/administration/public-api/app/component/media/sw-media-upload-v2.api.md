@@ -21,26 +21,26 @@ inject
   repositoryFactory
 
 props
-  addFilesOnMultiselect?: boolean  default=literal
-  allowMultiSelect?: boolean  default=literal
-  buttonLabel?: string  default=literal
-  defaultFolder?: string  default=literal
-  disabled?: boolean  default=literal
-  extensionAccept?: string  default=literal
+  addFilesOnMultiselect?: boolean  default=false
+  allowMultiSelect?: boolean  default=true
+  buttonLabel?: string  default=''
+  defaultFolder?: string  default=null
+  disabled?: boolean  default=false
+  extensionAccept?: string  default=null
   extensionMimeTypesByExtension?: object  default=factory
-  fileAccept?: string  default=literal
-  helpText?: string  default=literal
-  label?: string  default=literal
-  maxFileSize?: number  default=literal
-  onMediaUploadSidebarOpen?: (...args: any[]) => any  default=literal
-  privateFilesystem?: boolean  default=literal
-  required?: boolean  default=literal
-  source?: any  default=literal
-  sourceContext?: object  default=literal
-  targetFolderId?: string  default=literal
+  fileAccept?: string  default='*/*'
+  helpText?: string  default=null
+  label?: string  default=null
+  maxFileSize?: number  default=null
+  onMediaUploadSidebarOpen?: (...args: any[]) => any  default=null
+  privateFilesystem?: boolean  default=false
+  required?: boolean  default=false
+  source?: File | object | string  default=null
+  sourceContext?: object  default=null
+  targetFolderId?: string  default=null
   uploadTag: string
-  useFileData?: boolean  default=literal
-  variant?: string  default=literal
+  useFileData?: boolean  default=false
+  variant?: string  default='regular'
 
 emits
   media-drop(...args: any[])
@@ -130,7 +130,7 @@ crossings
   v-if  sw_media_upload_v2_regular_preview_file -> sw_media_upload_v2_regular_preview_fallback
 
 refs
-  dropzone  -> div
-  fileForm  -> form
-  fileInput  -> input
+  dropzone  -> div  block=sw_media_upload_v2_regular_drop_zone
+  fileForm  -> form  block=sw_media_upload_v2_file_input
+  fileInput  -> input  block=sw_media_upload_v2_file_input
 ```

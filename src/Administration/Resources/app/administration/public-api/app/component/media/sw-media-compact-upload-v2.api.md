@@ -12,13 +12,13 @@ component sw-media-compact-upload-v2  public  js
   template src/app/component/media/sw-media-compact-upload-v2/sw-media-compact-upload-v2.html.twig
 
 props
-  allowMultiSelect?: boolean  default=literal
+  allowMultiSelect?: boolean  default=false
   disableDeletionForLastItem?: object  default=factory
-  fileAccept?: string  default=literal
-  removeButtonLabel?: string  default=literal
-  source?: object | string  default=literal
+  fileAccept?: string  default='image/*'
+  removeButtonLabel?: string  default=''
+  source?: object | string  default=''
   sourceMultiselect?: any[]  default=factory
-  variant?: string  default=literal
+  variant?: string  default='regular'
 
 emits
   delete-item(...args: any[])
@@ -62,7 +62,7 @@ blocks
       sw_media_upload_v2_regular_header
 
 refs
-  dropzone  -> div
-  fileForm  -> form
-  fileInput  -> input
+  dropzone  -> div  block=sw_media_upload_v2_regular_drop_zone
+  fileForm  -> form  block=sw_media_upload_v2_file_input
+  fileInput  -> input  block=sw_media_upload_v2_file_input
 ```

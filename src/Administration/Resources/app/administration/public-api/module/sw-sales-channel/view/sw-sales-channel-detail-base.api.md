@@ -24,13 +24,13 @@ inject
 props
   agenticCommerceExportConfig?: any[]  default=factory
   customFieldSets: any[]
-  isLoading?: boolean  default=literal
-  productComparisonAccessUrl?: string  default=literal
+  isLoading?: boolean  default=false
+  productComparisonAccessUrl?: string  default=''
   productExport: object
   salesChannel: any
-  showTemplateModal?: boolean  default=literal
-  storefrontSalesChannelCriteria?: any
-  templateName?: string  default=literal
+  showTemplateModal?: boolean  default=false
+  storefrontSalesChannelCriteria?: Criteria
+  templateName?: string  default=null
   templateOptions?: any[]  default=factory
 
 emits
@@ -129,15 +129,15 @@ computed
 
 methods
   addLanguageToSalesChannel(language: any): any
-  buildDisabledPaymentAlert(snippet: any, collection: any, property?: any): any
-  buildDisabledShippingAlert(snippet: any, collection: any, property?: any): any
-  buildUnservedLanguagesAlert(snippet: any, collection: any, property?: any): any
+  buildDisabledPaymentAlert(snippet: any, collection: any, property?: any = 'name'): any
+  buildDisabledShippingAlert(snippet: any, collection: any, property?: any = 'name'): any
+  buildUnservedLanguagesAlert(snippet: any, collection: any, property?: any = 'name'): any
   changeInterval(value: any): any
   copyToClipboard(): Promise<any>
   createCategoriesCollection(criteria: any, collectionName: any): Promise<any>
   createCategoryCollections(): any
   deleteSalesChannel(salesChannelId: any): Promise<any>
-  extractFkInfo(detail?: any): any
+  extractFkInfo(detail?: any = ''): any
   getAgenticCommerceExportCardPositionIdentifier(configEntry: any): any  [deprecated tag:v6.8.0]
   getAgenticCommerceExportCardTitle(configEntry: any): any  [deprecated tag:v6.8.0]
   getAgenticCommerceExportElementBind(element: any): any  [deprecated tag:v6.8.0]
@@ -153,7 +153,7 @@ methods
   onFooterSelectionAdd(item: any): any
   onFooterSelectionRemove(): any
   onGenerateKeys(): any
-  onGenerateProductExportKey(displaySaveNotification?: any): any
+  onGenerateProductExportKey(displaySaveNotification?: any = true): any
   onMainSelectionAdd(item: any): any
   onMainSelectionRemove(): any
   onServiceSelectionAdd(item: any): any
@@ -232,6 +232,6 @@ blocks
       sw_sales_channel_detail_base_general_input_shipping_methods  [after v-if]
 
 refs
-  modal  -> sw-modal
-  salesChannelDomains  -> sw-sales-channel-detail-domains
+  modal  -> sw-modal  block=sw_sales_channel_detail_base_options_delete_modal
+  salesChannelDomains  -> sw-sales-channel-detail-domains  block=sw_sales_channel_detail_base_options_domains
 ```

@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  productId?: string  default=literal
+  productId?: string  default=null
 
 data
   mediaDefaultFolderId: any
@@ -84,5 +84,5 @@ blocks
       sw_product_detail_deliverability_info_form
 
 refs
-  productMediaInheritance  -> sw-inherit-wrapper
+  productMediaInheritance  -> sw-inherit-wrapper  block=sw_product_detail_base_media
 ```

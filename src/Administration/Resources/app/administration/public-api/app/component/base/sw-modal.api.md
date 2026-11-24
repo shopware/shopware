@@ -15,16 +15,16 @@ inject
   shortcutService  [private]
 
 props
-  closable?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  selector?: string  default=literal  [private]
-  showFooter?: boolean  default=literal  [private]
-  showHeader?: boolean  default=literal  [private]
-  size?: string  default=literal  [private]
-  subtitle?: string  default=literal  [private]
-  title?: string  default=literal  [private]
-  variant?: string  default=literal  [private]
-  zIndex?: number  default=literal  [private]
+  closable?: boolean  default=true  [private]
+  isLoading?: boolean  default=false  [private]
+  selector?: string  default='body'  [private]
+  showFooter?: boolean  default=true  [private]
+  showHeader?: boolean  default=true  [private]
+  size?: string  default=''  [private]
+  subtitle?: string  default=null  [private]
+  title?: string  default=''  [private]
+  variant?: string  default='default'  [private]
+  zIndex?: number  default=null  [private]
 
 emits
   modal-close(...args: any[])  [private]
@@ -73,5 +73,5 @@ blocks
               sw_modal_close_icon  [private]
 
 refs
-  dialog  -> div  [private]
+  dialog  -> div  block=sw_modal_dialog  [private]
 ```

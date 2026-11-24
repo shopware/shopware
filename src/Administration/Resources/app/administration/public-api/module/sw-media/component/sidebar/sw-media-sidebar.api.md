@@ -17,8 +17,8 @@ inject
   repositoryFactory
 
 props
-  currentFolderId?: string  default=literal
-  editable?: boolean  default=literal
+  currentFolderId?: string  default=null
+  editable?: boolean  default=false
   items: any[]
 
 emits

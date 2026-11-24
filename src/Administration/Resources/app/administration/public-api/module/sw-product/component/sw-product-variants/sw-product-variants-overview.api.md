@@ -22,7 +22,7 @@ inject
 props
   productEntity: object
   productStates?: any[]  default=factory  [deprecated tag:v6.8.0]
-  productType?: string  default=literal
+  productType?: string  default='all'
   selectedGroups: any[]
 
 emits
@@ -151,5 +151,5 @@ crossings
   v-if  sw_product_variants_overview_data_grid_column_stock_inline_edit_field -> sw_product_variants_overview_data_grid_column_stock_preview
 
 refs
-  variantGrid  -> sw-data-grid
+  variantGrid  -> sw-data-grid  block=sw_product_variants_overview_data_grid
 ```

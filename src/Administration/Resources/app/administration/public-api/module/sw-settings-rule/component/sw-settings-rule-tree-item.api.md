@@ -14,7 +14,7 @@ component sw-settings-rule-tree-item  private  js  [private]
 
 props
   association: string  [private]
-  hideActions?: boolean  default=literal  [private]
+  hideActions?: boolean  default=false  [private]
 
 slots
   actions  { add-element, add-sub-element, delete-element, is-disabled, item, on-change-route, on-duplicate, open-tree-item, tool-tip }  block=sw_tree_item_element_actions  [private]
@@ -55,5 +55,5 @@ crossings
   v-if  sw_tree_items_item_content_edit -> sw_tree_items_item_content_default  [private]
 
 refs
-  item  -> div  [private]
+  item  -> div  block=sw_tree_item_element_content  [private]
 ```

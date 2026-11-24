@@ -26,7 +26,7 @@ provide
   productTypes: any  [private]
 
 props
-  productStreamId?: string  default=literal  [private]
+  productStreamId?: string  default=null  [private]
 
 data
   customFieldSets: any  [private]
@@ -67,11 +67,11 @@ methods
   createProductStream(): any  [private]
   createdComponent(): any  [private]
   getCustomFieldLabel(customField: any): any  [private]
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [private]
   getProductCustomFields(): any  [private]
   loadCustomFieldSets(): any  [private]
   loadEntityData(productStreamId: any): Promise<any>  [private]
-  loadFilters(collection?: any): Promise<any>  [private]
+  loadFilters(collection?: any = null): Promise<any>  [private]
   loadProductCustomFields(): Promise<any>  [private]
   loadProductTypes(): any  [private]
   mapCustomFieldType(customField: any): any  [private]
@@ -109,5 +109,5 @@ blocks
     sw_product_stream_detail_language_switch  [private]
 
 refs
-  modalPreview  -> sw-product-stream-modal-preview  [private]
+  modalPreview  -> sw-product-stream-modal-preview  block=sw_prouct_stream_detail_preview_modal  [private]
 ```

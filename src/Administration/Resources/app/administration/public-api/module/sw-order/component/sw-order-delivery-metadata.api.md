@@ -15,9 +15,9 @@ inject
 
 props
   delivery: object  default=factory
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   order: object  default=factory
-  title?: string  default=literal
+  title?: string  default=null
 
 data
   formattingAddress: any

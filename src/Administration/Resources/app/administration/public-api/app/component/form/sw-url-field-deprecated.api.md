@@ -16,10 +16,10 @@ inject
   feature  [private]
 
 props
-  addTrailingSlash?: boolean  default=literal  [private]
-  error?: object  default=literal  [private]
-  omitUrlHash?: boolean  default=literal  [private]
-  omitUrlSearch?: boolean  default=literal  [private]
+  addTrailingSlash?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  omitUrlHash?: boolean  default=false  [private]
+  omitUrlSearch?: boolean  default=false  [private]
 
 emits
   inheritance-remove(...args: any[])  [private]

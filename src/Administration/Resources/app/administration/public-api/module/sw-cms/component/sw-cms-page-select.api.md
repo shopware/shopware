@@ -16,7 +16,7 @@ mixins
 
 props
   pageType: string  [private]
-  value?: string  default=literal  [private]
+  value?: string  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]
@@ -36,5 +36,5 @@ blocks
   sw_cms_page_select  [private]
 
 refs
-  component  -> sw-entity-single-select  [private]
+  component  -> sw-entity-single-select  block=sw_cms_page_select  [private]
 ```

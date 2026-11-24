@@ -18,9 +18,9 @@ inject
 props
   columns?: any[]  default=factory  [private]
   criteria?: object  default=factory  [private]
-  displayAsGroup?: boolean  default=literal  [private]
+  displayAsGroup?: boolean  default=true  [private]
   filters: any  [private]
-  showSelection?: boolean  default=literal  [private]
+  showSelection?: boolean  default=false  [private]
 
 emits
   selection-change(...args: any[])  [private]

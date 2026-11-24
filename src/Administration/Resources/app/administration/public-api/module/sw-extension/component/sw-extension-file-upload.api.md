@@ -49,6 +49,6 @@ blocks
       sw_extension_file_upload_form  [private]
 
 refs
-  fileForm  -> form  [private]
-  fileInput  -> input  [private]
+  fileForm  -> form  block=sw_extension_file_upload_form  [private]
+  fileInput  -> input  block=sw_extension_file_upload_form  [private]
 ```

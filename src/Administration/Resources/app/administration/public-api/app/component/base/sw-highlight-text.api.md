@@ -11,8 +11,8 @@ component sw-highlight-text  private  js  [private]
   visibility-source export  [private]
 
 props
-  searchTerm?: string  default=literal  [private]
-  text?: string  default=literal  [private]
+  searchTerm?: string  default=null  [private]
+  text?: string  default=null  [private]
 
 methods
   escapeRegExp(string: any): any  [private]

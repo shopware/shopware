@@ -15,21 +15,21 @@ inject
   feature  [private]
 
 props
-  alwaysShowPlaceholder?: boolean  default=literal  [private]
-  autocomplete?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  enableSearch?: boolean  default=literal  [private]
-  hideLabels?: boolean  default=literal  [private]
-  inputLabel?: string  default=literal  [private]
-  invisibleCount?: number  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  labelProperty?: string  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  searchTerm?: string  default=literal  [private]
+  alwaysShowPlaceholder?: boolean  default=false  [private]
+  autocomplete?: string  default=undefined  [private]
+  disabled?: boolean  default=false  [private]
+  enableSearch?: boolean  default=true  [private]
+  hideLabels?: boolean  default=false  [private]
+  inputLabel?: string  default=undefined  [private]
+  invisibleCount?: number  default=0  [private]
+  isLoading?: boolean  default=false  [private]
+  labelProperty?: string  default='label'  [private]
+  placeholder?: string  default=''  [private]
+  searchTerm?: string  default=''  [private]
   selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
   selections?: any[]  default=factory  [private]
-  size?: string  default=literal  [private]
-  valueProperty?: string  default=literal  [private]
+  size?: string  default=null  [private]
+  valueProperty?: string  default='value'  [private]
 
 emits
   item-remove(...args: any[])  [private]
@@ -69,5 +69,5 @@ blocks
       sw_select_selection_list_load_more_item_button  [private]
 
 refs
-  swSelectInput  -> input  [private]
+  swSelectInput  -> input  block=sw_select_selection_list_input  [private]
 ```

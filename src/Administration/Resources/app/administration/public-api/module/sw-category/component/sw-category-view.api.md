@@ -18,8 +18,8 @@ inject
   feature
 
 props
-  isLoading: boolean  default=literal
-  type?: string  default=literal
+  isLoading: boolean  default=false
+  type?: string  default='page'
 
 computed
   category: any

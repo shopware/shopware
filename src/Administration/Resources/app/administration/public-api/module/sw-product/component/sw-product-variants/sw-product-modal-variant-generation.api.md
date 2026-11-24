@@ -20,7 +20,7 @@ inject
   swProductDetailLoadAll
 
 props
-  actualStatus?: string  default=literal
+  actualStatus?: string  default='is-physical'
   groups: any[]
   product: object
   selectedGroups: any[]

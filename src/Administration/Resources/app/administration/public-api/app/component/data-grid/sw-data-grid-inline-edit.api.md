@@ -16,7 +16,7 @@ inject
 
 props
   column: object  default=factory  [private]
-  compact?: boolean  default=literal  [private]
+  compact?: boolean  default=false  [private]
   value: any  [private]
 
 emits

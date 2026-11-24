@@ -16,17 +16,17 @@ inject
 
 props
   additionalContextMenuClasses?: object  default=factory  [private]
-  ariaLabel?: string  default=literal  [private]
-  autoClose?: boolean  default=literal  [private]
-  autoCloseOutsideClick?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  icon?: string  default=literal  [private]
-  iconSize?: string  default=literal  [private]
-  menuHorizontalAlign?: string  default=literal  [private]
-  menuVerticalAlign?: string  default=literal  [private]
-  menuWidth?: number  default=literal  [private]
-  showMenuOnStartup?: boolean  default=literal  [private]
-  zIndex?: number  default=literal  [private]
+  ariaLabel?: string  default='sw-context-button.ariaLabel'  [private]
+  autoClose?: boolean  default=true  [private]
+  autoCloseOutsideClick?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  icon?: string  default='solid-ellipsis-h-s'  [private]
+  iconSize?: string  default='var(--scale-size-14)'  [private]
+  menuHorizontalAlign?: string  default='right'  [private]
+  menuVerticalAlign?: string  default='bottom'  [private]
+  menuWidth?: number  default=220  [private]
+  showMenuOnStartup?: boolean  default=false  [private]
+  zIndex?: number  default=1100  [private]
 
 emits
   on-open-change(...args: any[])  [private]
@@ -60,6 +60,6 @@ blocks
       sw_context_button_menu_slot_default  [private]
 
 refs
-  swContextButton  -> button  [private]
-  swContextMenu  -> sw-context-menu  [private]
+  swContextButton  -> button  block=sw_context_button  [private]
+  swContextMenu  -> sw-context-menu  block=sw_context_button_menu  [private]
 ```

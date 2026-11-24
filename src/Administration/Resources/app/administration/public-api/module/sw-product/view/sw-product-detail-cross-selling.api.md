@@ -15,7 +15,7 @@ inject
   repositoryFactory
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 data
   crossSelling: any

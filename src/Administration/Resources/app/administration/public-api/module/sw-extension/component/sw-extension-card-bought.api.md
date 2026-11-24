@@ -16,7 +16,7 @@ mixins
   sw-extension-error  [private]
 
 props
-  extension?: object  default=literal  [private]
+  extension?: object  default=null  [private]
 
 data
   installationFailedError: any  [private]

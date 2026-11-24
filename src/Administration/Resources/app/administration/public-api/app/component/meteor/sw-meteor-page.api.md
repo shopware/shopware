@@ -15,10 +15,10 @@ inject
   feature  [private]
 
 props
-  fromLink?: RouteLocationNamedRaw | null  default=literal  [private]
-  fullWidth?: boolean  default=literal  [private]
-  hideIcon?: boolean  default=literal  [private]
-  hideSmartBar?: boolean  default=literal  [private]
+  fromLink?: RouteLocationNamedRaw | null  default=null  [private]
+  fullWidth?: boolean  default=false  [private]
+  hideIcon?: boolean  default=false  [private]
+  hideSmartBar?: boolean  default=false  [private]
 
 emits
   new-item-active(...args: any[])  [private]
@@ -72,6 +72,6 @@ blocks
     sw_meteor_page_smart_bar_title  [private]
 
 refs
-  pageBody  -> div  [private]
-  pageHeader  -> header  [private]
+  pageBody  -> div  block=sw_meteor_page  [private]
+  pageHeader  -> header  block=sw_meteor_page  [private]
 ```

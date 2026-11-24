@@ -12,9 +12,9 @@ component sw-card-filter  private  js  [private]
   visibility-source export  [private]
 
 props
-  delay?: number  default=literal  [private]
-  initialSearchTerm?: string  default=literal  [private]
-  placeholder?: string  default=literal  [private]
+  delay?: number  default=500  [private]
+  initialSearchTerm?: string  default=''  [private]
+  placeholder?: string  default=''  [private]
 
 emits
   sw-card-filter-term-change(...args: any[])  [private]

@@ -12,9 +12,9 @@ component sw-text-field  private  ts  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
-  modelValue?: string  default=literal  [private]
-  value?: string  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=null  [private]
+  value?: string  default=null  [private]
 
 slots
   default  {}  block=sw_text_field  [private]

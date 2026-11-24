@@ -53,7 +53,7 @@ computed
   today: any
 
 methods
-  aggregateByDateTime(dateTimeString: any, aggregateByHour: any, data: any, aggregationArray?: any): any
+  aggregateByDateTime(dateTimeString: any, aggregateByHour: any, data: any, aggregationArray?: any = []): any
   createdComponent(): any
   dateAgoValue(range: any): any
   extractHistoryCustomerData(data: any): any
@@ -61,12 +61,12 @@ methods
   extractTurnoverData(data: any): any
   fetchData(): Promise<any>
   formatChartHeadlineDate(date: any): any
-  formatCustomerDataArray(array: any, groupByHour?: any): any
+  formatCustomerDataArray(array: any, groupByHour?: any = false): any
   formatDate(date: any): any
-  formatDateStringToAggregationTime(dateString: any, aggregateByHour?: any): any
-  formatOrderDataArray(array: any, groupByHour?: any): any
+  formatDateStringToAggregationTime(dateString: any, aggregateByHour?: any = false): any
+  formatOrderDataArray(array: any, groupByHour?: any = false): any
   formatTooltipDate(value: any, range: any): any
-  getChartOptions(range: any, useCurrency?: any): any
+  getChartOptions(range: any, useCurrency?: any = false): any
   getChartRangeSubtitle(range: any): any
   getHistoryCustomerCountData(): Promise<any>
   getHistoryOrderCountData(): Promise<any>

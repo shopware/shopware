@@ -113,6 +113,6 @@ crossings
   v-if  sw_customer_list_grid_inline_edit_name -> sw_customer_list_grid_columns_name_link
 
 refs
-  bulkEditModal  -> sw-bulk-edit-modal
-  swCustomerGrid  -> sw-entity-listing
+  bulkEditModal  -> sw-bulk-edit-modal  block=sw_customer_list_bulk_edit_modal
+  swCustomerGrid  -> sw-entity-listing  block=sw_customer_list_grid
 ```

@@ -54,7 +54,7 @@ methods
   fetchSalesChannel(salesChannelId: any): Promise<any>
   fetchSalesChannels(): any
   fetchSeoUrlPreview(entity: any): any
-  fetchSeoUrlTemplates(salesChannelId?: any): any
+  fetchSeoUrlTemplates(salesChannelId?: any = null): any
   getLabel(seoUrlTemplate: any): any
   getPlaceholder(seoUrlTemplate: any): any
   getTemplatesForSalesChannel(salesChannelId: any): any
@@ -64,7 +64,7 @@ methods
   onSalesChannelChanged(salesChannelId: any): Promise<any>
   onSelectInput(propertyName: any, entity: any): any
   removeSeoUrlTemplatesOfRoute(routeName: any): any
-  setErrorMessagesForEntity(entity: any, value?: any): any
+  setErrorMessagesForEntity(entity: any, value?: any = null): any
 
 blocks
   sw_seo_url_template_card

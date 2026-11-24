@@ -12,11 +12,11 @@ component sw-context-menu-item  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  icon?: string  default=literal  [private]
-  routerLink?: object  default=literal  [private]
-  target?: string  default=literal  [private]
-  variant?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  icon?: string  default=null  [private]
+  routerLink?: object  default=null  [private]
+  target?: string  default=null  [private]
+  variant?: string  default=''  [private]
 
 slots
   default  {}  block=sw_context_menu_item_entry_text  [private]

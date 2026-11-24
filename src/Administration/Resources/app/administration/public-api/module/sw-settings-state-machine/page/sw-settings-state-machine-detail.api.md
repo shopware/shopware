@@ -57,5 +57,5 @@ crossings
   v-if  sw_settings_state_machine_detail_content_card -> sw_settings_state_machine_detail_content
 
 refs
-  stateMachineStateList  -> sw-settings-state-machine-state-list
+  stateMachineStateList  -> sw-settings-state-machine-state-list  block=sw_settings_state_machine_detail_content_list
 ```

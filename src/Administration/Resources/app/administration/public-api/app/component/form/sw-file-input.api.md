@@ -18,11 +18,11 @@ inject
   feature  [private]
 
 props
-  allowedFileExtensions?: any[]  default=literal  [private]
-  allowedMimeTypes?: any[]  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  maxFileSize?: number  default=literal  [private]
+  allowedFileExtensions?: any[]  default=null  [private]
+  allowedMimeTypes?: any[]  default=null  [private]
+  disabled?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  maxFileSize?: number  default=null  [private]
   value?: any  [private]
 
 emits
@@ -67,7 +67,7 @@ blocks
         sw_file_input_regular_header_label  [private]
 
 refs
-  dropzone  -> div  [private]
-  fileForm  -> form  [private]
-  fileInput  -> input  [private]
+  dropzone  -> div  block=sw_file_input_regular_drop_zone  [private]
+  fileForm  -> form  block=sw_file_input_hidden_form  [private]
+  fileInput  -> input  block=sw_file_input_hidden_form  [private]
 ```

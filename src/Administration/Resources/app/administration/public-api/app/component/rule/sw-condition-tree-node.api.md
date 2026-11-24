@@ -19,11 +19,11 @@ inject
 
 props
   condition: object  [private]
-  disabled?: boolean  default=literal  [private]
-  insertAfter?: (...args: any[]) => any  default=literal  [private]
-  insertBefore?: (...args: any[]) => any  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  insertAfter?: (...args: any[]) => any  default=null  [private]
+  insertBefore?: (...args: any[]) => any  default=null  [private]
   level: number  [private]
-  parentCondition?: object  default=literal  [private]
+  parentCondition?: object  default=null  [private]
 
 computed
   conditionNodeComponent: any  [private]

@@ -16,7 +16,7 @@ inject
 
 props
   addOnKey?: any[]  default=factory  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   placeholder?: string  default=factory  [private]
   value?: any[]  default=factory  [private]
 
@@ -50,5 +50,5 @@ blocks
         sw_tagged_field_input  [scope: error, identification, isFieldDisabled, removeFocusClass, setFocusClass, size] [private]
 
 refs
-  taggedFieldInput  -> input  [private]
+  taggedFieldInput  -> input  block=sw_tagged_field_input  [private]
 ```

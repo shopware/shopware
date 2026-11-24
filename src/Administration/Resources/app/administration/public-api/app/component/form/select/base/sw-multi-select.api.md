@@ -18,17 +18,17 @@ inject
   feature  [private]
 
 props
-  autocomplete?: string  default=literal  [private]
-  highlightSearchTerm?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  labelProperty?: string  default=literal  [private]
+  autocomplete?: string  default=undefined  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  isLoading?: boolean  default=false  [private]
+  label?: string  default=undefined  [private]
+  labelProperty?: string  default='label'  [private]
   options: any[]  [private]
-  placeholder?: string  default=literal  [private]
+  placeholder?: string  default=''  [private]
   searchFunction?: (...args: any[]) => any  default=factory  [private]
   value: any  [private]
-  valueLimit?: number  default=literal  [private]
-  valueProperty?: string  default=literal  [private]
+  valueLimit?: number  default=5  [private]
+  valueProperty?: string  default='value'  [private]
 
 emits
   display-values-expand(...args: any[])  [private]
@@ -87,6 +87,6 @@ blocks
               sw_multi_select_base_selection_list_label_inner  [scope: collapse, disabled, error, expand, identification, index, item, labelProperty, size, valueProperty] [private]
 
 refs
-  selectionList  -> sw-select-selection-list  [private]
-  swSelectResultList  -> sw-select-result-list  [private]
+  selectionList  -> sw-select-selection-list  block=sw_multi_select_base_selection_slot  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_multi_select_base_results_slot  [private]
 ```

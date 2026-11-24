@@ -19,9 +19,9 @@ inject
   repositoryFactory  [private]
 
 props
-  config?: object  default=literal  [private]
-  error?: object  default=literal  [private]
-  type?: string  default=literal  [private]
+  config?: object  default=null  [private]
+  error?: object  default=null  [private]
+  type?: string  default=null  [private]
   value: any  [private]
 
 emits
@@ -52,9 +52,9 @@ methods
   createdComponent(): any  [private]
   emitUpdate(data: any): any  [private]
   fetchSystemCurrency(): Promise<any>  [private]
-  getComponentFromType(customType?: any): any  [private]
+  getComponentFromType(customType?: any = undefined): any  [private]
   getScopedSlots(): any  [private]
-  getTranslations(componentName: any, config?: any, translatableFields?: any): any  [private]
+  getTranslations(componentName: any, config?: any = this.config, translatableFields?: any = ['label', 'placeholder', 'helpText']): any  [private]
 
 blocks
   sw_form_field_renderer  [private]
@@ -63,7 +63,7 @@ blocks
     sw_form_field_renderer_scope_slots  [private]
 
 refs
-  component  -> component  [private]
+  component  -> component  block=sw_form_field_renderer  [private]
 
 notes
   dynamic-slot slotName  [private]

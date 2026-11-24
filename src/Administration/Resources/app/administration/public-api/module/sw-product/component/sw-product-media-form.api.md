@@ -19,9 +19,9 @@ inject
   systemConfigApiService
 
 props
-  disabled?: boolean  default=literal
-  fileAccept?: string  default=literal
-  isInherited?: boolean  default=literal
+  disabled?: boolean  default=false
+  fileAccept?: string  default='*/*'
+  isInherited?: boolean  default=false
 
 emits
   media-open(...args: any[])

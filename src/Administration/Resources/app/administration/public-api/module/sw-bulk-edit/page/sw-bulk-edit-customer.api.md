@@ -40,7 +40,7 @@ computed
 methods
   closeModal(): any
   createdComponent(): any
-  defineBulkEditData(name: any, value?: any, type?: any, isChanged?: any): any
+  defineBulkEditData(name: any, value?: any = null, type?: any = 'overwrite', isChanged?: any = false): any
   loadBulkEditData(): any
   loadCustomFieldSets(): Promise<any>
   onChangeLanguage(languageId: any): any

@@ -18,7 +18,7 @@ inject
   feature
 
 props
-  isLoading: boolean  default=literal
+  isLoading: boolean  default=false
 
 computed
   cmsPage: any

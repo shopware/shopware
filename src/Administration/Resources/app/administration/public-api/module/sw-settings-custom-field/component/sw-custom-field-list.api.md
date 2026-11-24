@@ -56,7 +56,7 @@ methods
   onInlineEditCancel(customField: any): any
   onInlineEditFinish(item: any): any
   onPageChange(event: any): any
-  onSaveCustomField(field?: any): Promise<any>
+  onSaveCustomField(field?: any = this.currentCustomField): Promise<any>
   onSearchTermChange(): any
   removeEmptyProperties(config: any): any
   selectionChanged(selection: any): any
@@ -91,5 +91,5 @@ crossings
   v-if  sw_custom_field_list_grid_column_actions_reset_delete -> sw_custom_field_list_grid_column_actions_delete
 
 refs
-  grid  -> sw-grid
+  grid  -> sw-grid  block=sw_custom_field_list_grid
 ```

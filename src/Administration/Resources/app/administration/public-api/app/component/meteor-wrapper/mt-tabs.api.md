@@ -12,12 +12,12 @@ component mt-tabs  private  ts  [private]
   visibility-source export  [private]
 
 props
-  defaultItem?: string  default=literal  [private]
+  defaultItem?: string  default=''  [private]
   items: TabItem[]  [private]
-  positionIdentifier: string  default=literal  [private]
-  small?: boolean  default=literal  [private]
-  useRoutesForExtensions?: boolean  default=literal  [private]
-  vertical?: boolean  default=literal  [private]
+  positionIdentifier: string  default=null  [private]
+  small?: boolean  default=false  [private]
+  useRoutesForExtensions?: boolean  default=undefined  [private]
+  vertical?: boolean  default=false  [private]
 
 emits
   new-item-active(...args: any[])  [private]
@@ -44,5 +44,5 @@ blocks
   mt_tabs  [private]
 
 refs
-  mtTabsOriginal  -> mt-tabs-original  [private]
+  mtTabsOriginal  -> mt-tabs-original  block=mt_tabs  [private]
 ```

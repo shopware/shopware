@@ -33,7 +33,7 @@ provide
   swOrderDetailOnSaveEdits: any
 
 props
-  orderId?: string  default=literal
+  orderId?: string  default=null
 
 data
   askForSaveBeforehand: any
@@ -70,8 +70,8 @@ computed
   versionContext: any
 
 methods
-  askAndSaveEdits(reason?: any): Promise<any>
-  beforeDestroyComponent(useKeepalive?: any): any
+  askAndSaveEdits(reason?: any = 'status'): Promise<any>
+  beforeDestroyComponent(useKeepalive?: any = false): any
   convertMissingProductLineItems(): any
   createNewVersionId(): any
   createdComponent(): any
@@ -92,8 +92,8 @@ methods
   onStartEditing(): any  [deprecated tag:v6.8.0]
   onUpdateEditing(editingValue: any): any  [deprecated tag:v6.8.0]
   onUpdateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
-  reloadEntityData(isSaved?: any): Promise<any>
-  saveAndReload(afterSaveFn?: any): Promise<any>
+  reloadEntityData(isSaved?: any = true): Promise<any>
+  saveAndReload(afterSaveFn?: any = null): Promise<any>
   saveEditsFinish(): any
   updateCreatedById(createdById: any): any  [deprecated tag:v6.8.0]
   updateEditing(value: any): any
@@ -125,5 +125,5 @@ crossings
   v-if  sw_order_detail_header_title -> sw_order_detail_header_title_new
 
 refs
-  baseComponent  -> router-view
+  baseComponent  -> router-view  block=sw_order_detail_content_view
 ```

@@ -45,7 +45,7 @@ methods
   createdComponent(): any
   getBreadcrumb(item: any): any
   getProductFromCategories(categories: any): any
-  getTreeItems(parentId?: any): Promise<any>
+  getTreeItems(parentId?: any = null): Promise<any>
   isSearchItemChecked(itemId: any): any
   onChangeSearchTerm(searchTerm: any): any
   onCheckItem(item: any): any
@@ -85,7 +85,7 @@ crossings
   v-if  sw_sales_channel_product_assignment_categories_tree_result -> sw_sales_channel_product_assignment_categories_search_results
 
 refs
-  alert  -> mt-banner
-  cardSectionSecondary  -> sw-card-section
-  swTree  -> sw-tree
+  alert  -> mt-banner  block=sw_sales_channel_product_assignment_categories_info
+  cardSectionSecondary  -> sw-card-section  block=sw_sales_channel_products_assignment_single_products_secondary
+  swTree  -> sw-tree  block=sw_sales_channel_product_assignment_categories_tree_result
 ```

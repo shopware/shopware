@@ -17,7 +17,7 @@ inject
   repositoryFactory
 
 props
-  autoUpload?: boolean  default=literal
+  autoUpload?: boolean  default=false
   uploadTag: string
 
 data

@@ -12,7 +12,7 @@ component sw-bulk-edit-document-generation-failed-list  private  js  [private]
   visibility-source export  [private]
 
 props
-  itemsPerPage?: number  default=literal  [private]
+  itemsPerPage?: number  default=5  [private]
   rows?: any[]  default=factory  [private]
 
 data

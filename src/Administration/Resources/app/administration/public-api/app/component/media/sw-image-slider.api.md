@@ -11,23 +11,23 @@ component sw-image-slider  public  js
   template src/app/component/media/sw-image-slider/sw-image-slider.html.twig
 
 props
-  arrowStyle?: string  default=literal
-  autoWidth?: boolean  default=literal
-  bordered?: boolean  default=literal
-  buttonStyle?: string  default=literal
-  canvasHeight?: number  default=literal
-  canvasWidth?: number  default=literal
-  displayMode?: string  default=literal
-  elementPadding?: number  default=literal
-  enableDescriptions?: boolean  default=literal
-  gap?: number  default=literal
+  arrowStyle?: string  default='inside'
+  autoWidth?: boolean  default=false
+  bordered?: boolean  default=true
+  buttonStyle?: string  default='outside'
+  canvasHeight?: number  default=0
+  canvasWidth?: number  default=0
+  displayMode?: string  default='cover'
+  elementPadding?: number  default=0
+  enableDescriptions?: boolean  default=false
+  gap?: number  default=20
   images: any[]
-  initialIndex?: number  default=literal
-  itemPerPage?: number  default=literal
-  navigationType?: string  default=literal
-  overflow?: string  default=literal
-  rewind?: boolean  default=literal
-  rounded?: boolean  default=literal
+  initialIndex?: number  default=0
+  itemPerPage?: number  default=1
+  navigationType?: string  default='arrow'
+  overflow?: string  default='hidden'
+  rewind?: boolean  default=false
+  rounded?: boolean  default=true
 
 emits
   image-change(...args: any[])

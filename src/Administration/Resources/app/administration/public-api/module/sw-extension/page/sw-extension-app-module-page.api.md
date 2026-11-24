@@ -17,7 +17,7 @@ inject
 
 props
   appName: string  [private]
-  moduleName?: string  default=literal  [private]
+  moduleName?: string  default=null  [private]
 
 data
   appLoaded: any  [private]

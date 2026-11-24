@@ -19,7 +19,7 @@ inject
   repositoryFactory  [private]
 
 props
-  profile?: object  default=literal  [private]
+  profile?: object  default=null  [private]
   systemRequiredFields?: object  default=factory  [private]
 
 emits

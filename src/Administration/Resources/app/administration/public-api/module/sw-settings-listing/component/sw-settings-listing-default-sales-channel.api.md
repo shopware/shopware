@@ -53,5 +53,5 @@ crossings
   v-if  sw_settings_listing_default_sales_channel_loader -> sw_settings_listing_default_sales_channel
 
 refs
-  visibilityConfig  -> sw-settings-listing-visibility-detail
+  visibilityConfig  -> sw-settings-listing-visibility-detail  block=sw_settings_listing_default_sales_channel_select_visibiliy_modal
 ```

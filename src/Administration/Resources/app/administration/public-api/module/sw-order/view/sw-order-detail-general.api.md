@@ -23,7 +23,7 @@ inject
   swOrderDetailOnSaveEdits
 
 props
-  isSaveSuccessful?: boolean  default=literal  [deprecated tag:v6.8.0]
+  isSaveSuccessful?: boolean  default=false  [deprecated tag:v6.8.0]
   orderId: string
 
 emits
@@ -64,7 +64,7 @@ methods
   onShippingChargeEdited(): any
   onShippingChargeUpdated(amount: any): any
   recalculateAndReload(): any
-  reloadEntityData(isSaved?: any): any
+  reloadEntityData(isSaved?: any = true): any
   saveAndRecalculate(): any
   saveAndReload(): any
   showError(error: any): any
@@ -88,7 +88,7 @@ blocks
             sw_order_detail_general_line_items_summary_taxes  [after v-if]
 
 refs
-  editShippingCosts  -> sw-order-saveable-field
-  sw-order-line-item-grid  -> sw-order-line-items-grid
-  swOrderGeneralInfo  -> sw-order-general-info
+  editShippingCosts  -> sw-order-saveable-field  block=sw_order_detail_general_line_items_summary_shipping_cost
+  sw-order-line-item-grid  -> sw-order-line-items-grid  block=sw_order_detail_general_line_items_grid
+  swOrderGeneralInfo  -> sw-order-general-info  block=sw_order_detail_general_info
 ```

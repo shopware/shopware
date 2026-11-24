@@ -105,5 +105,5 @@ crossings
   v-if  sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_true -> sw_promotion_v2_individual_codes_behavior_grid_redeemed_icon_false
 
 refs
-  individualCodesGrid  -> sw-one-to-many-grid
+  individualCodesGrid  -> sw-one-to-many-grid  block=sw_promotion_v2_individual_codes_behavior_grid
 ```

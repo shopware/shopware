@@ -22,10 +22,10 @@ inject
   repositoryFactory
 
 props
-  demoEntity?: string  default=literal
-  demoEntityIdProp?: string  default=literal
-  disabled?: boolean  default=literal
-  isDefaultLayout?: boolean  default=literal
+  demoEntity?: string  default=null
+  demoEntityIdProp?: string  default=null
+  disabled?: boolean  default=false
+  isDefaultLayout?: boolean  default=false
   page: Entity<'cms_page'>
 
 emits
@@ -173,9 +173,9 @@ blocks
         sw_cms_sidebar_page_settings_header
 
 refs
-  blockNavigator  -> sw-sidebar-item
-  blockSelectionSidebar  -> sw-sidebar-item
-  itemConfigSidebar  -> sw-sidebar-item
-  layoutAssignment  -> sw-sidebar-item
-  pageConfigSidebar  -> sw-sidebar-item
+  blockNavigator  -> sw-sidebar-item  block=sw_cms_sidebar_navigator
+  blockSelectionSidebar  -> sw-sidebar-item  block=sw_cms_sidebar_block_overview
+  itemConfigSidebar  -> sw-sidebar-item  block=sw_cms_sidebar_block_and_section_settings
+  layoutAssignment  -> sw-sidebar-item  block=sw_cms_sidebar_layout_assignment
+  pageConfigSidebar  -> sw-sidebar-item  block=sw_cms_sidebar_page_settings
 ```

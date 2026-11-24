@@ -62,5 +62,5 @@ blocks
         sw_product_detail_reviews_modal_delete_button_confirm
 
 refs
-  gridReview  -> sw-data-grid
+  gridReview  -> sw-data-grid  block=sw_product_detail_reviews_data
 ```

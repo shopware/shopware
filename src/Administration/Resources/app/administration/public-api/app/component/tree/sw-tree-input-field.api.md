@@ -13,7 +13,7 @@ component sw-tree-input-field  private  js  [private]
 
 props
   currentValue?: string  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
 
 emits
   new-item-create(...args: any[])  [private]

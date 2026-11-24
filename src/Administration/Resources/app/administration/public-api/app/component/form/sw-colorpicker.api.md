@@ -12,9 +12,9 @@ component sw-colorpicker  private  ts  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
-  modelValue?: number  default=literal  [private]
-  value?: number | string  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
+  modelValue?: number  default=undefined  [private]
+  value?: number | string  default=null  [private]
 
 slots
   default  {}  block=sw_colorpicker  [private]

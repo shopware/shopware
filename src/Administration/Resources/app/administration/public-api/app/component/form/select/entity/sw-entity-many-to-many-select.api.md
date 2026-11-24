@@ -16,17 +16,17 @@ inject
   repositoryFactory  [private]
 
 props
-  advancedSelectionComponent?: string  default=literal  [private]
+  advancedSelectionComponent?: string  default=''  [private]
   advancedSelectionParameters?: object  default=factory  [private]
   context?: object  default=factory  [private]
   criteria?: object  default=factory  [private]
   entityCollection: any[]  [private]
-  highlightSearchTerm?: boolean  default=literal  [private]
-  labelProperty?: string  default=literal  [private]
-  localMode?: boolean  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  resultLimit?: number  default=literal  [private]
-  valueLimit?: number  default=literal  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  labelProperty?: string  default='name'  [private]
+  localMode?: boolean  default=false  [private]
+  placeholder?: string  default=''  [private]
+  resultLimit?: number  default=25  [private]
+  valueLimit?: number  default=5  [private]
 
 emits
   item-add(...args: any[])  [private]
@@ -109,7 +109,7 @@ blocks
             sw_entity_many_to_many_select_base_selection_list_label  [scope: collapse, disabled, error, expand, identification, size] [private]
 
 refs
-  selectBase  -> sw-select-base  [private]
-  selectionList  -> sw-select-selection-list  [private]
-  swSelectResultList  -> sw-select-result-list  [private]
+  selectBase  -> sw-select-base  block=sw_entity_many_to_many_select  [private]
+  selectionList  -> sw-select-selection-list  block=sw_entity_many_to_many_select_base_selection_slot  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_many_to_many_select_base_results_slot  [private]
 ```

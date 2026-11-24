@@ -49,5 +49,5 @@ crossings
   v-if  sw_import_export_edit_profile_general_container_type_result_highlight -> sw_import_export_edit_profile_general_container_type_result_text
 
 refs
-  objectTypeSelect  -> sw-single-select
+  objectTypeSelect  -> sw-single-select  block=sw_import_export_edit_profile_general_container_object_type_select
 ```

@@ -50,7 +50,7 @@ blocks
     sw_bulk_edit_modal_grid_footer  [private]
 
 refs
-  bulkEditGrid  -> sw-data-grid  [private]
+  bulkEditGrid  -> sw-data-grid  block=sw_bulk_edit_modal_grid  [private]
 
 notes
   dynamic-slot slot  [private]

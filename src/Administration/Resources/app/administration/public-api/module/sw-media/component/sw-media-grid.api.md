@@ -12,7 +12,7 @@ component sw-media-grid  private  js  [private]
   visibility-source export  [private]
 
 props
-  presentation?: string  default=literal  [private]
+  presentation?: string  default='medium-preview'  [private]
 
 emits
   media-grid-selection-clear(...args: any[])  [private]

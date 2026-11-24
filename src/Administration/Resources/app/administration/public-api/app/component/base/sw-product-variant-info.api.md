@@ -15,13 +15,13 @@ inject
   feature  [private]
 
 props
-  highlighted?: boolean  default=literal  [private]
-  ommitParenthesis?: boolean  default=literal  [private]
-  searchTerm?: string  default=literal  [private]
-  seperator?: string  default=literal  [private]
-  showTooltip?: boolean  default=literal  [private]
-  titleTerm?: string  default=literal  [private]
-  variations?: any[]  default=literal  [private]
+  highlighted?: boolean  default=false  [private]
+  ommitParenthesis?: boolean  default=false  [private]
+  searchTerm?: string  default=''  [private]
+  seperator?: string  default=' | '  [private]
+  showTooltip?: boolean  default=true  [private]
+  titleTerm?: string  default=null  [private]
+  variations?: any[]  default=null  [private]
 
 slots
   default  {}  block=sw_product_variant_info_product_name  [private]

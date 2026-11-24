@@ -12,10 +12,10 @@ component sw-select-option  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   index: number  [private]
   item: object  [private]
-  selected?: boolean  default=literal  [private]
+  selected?: boolean  default=false  [private]
 
 slots
   default  {}  block=sw_single_select_option_item_text  [private]

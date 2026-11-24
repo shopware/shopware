@@ -20,7 +20,7 @@ inject
   repositoryFactory  [private]
 
 props
-  sourceEntity?: string  default=literal  [private]
+  sourceEntity?: string  default=''  [private]
 
 emits
   import-started(...args: any[])  [private]
@@ -44,7 +44,7 @@ methods
   handleProgress(log: any): any  [private]
   onProfileSelect(profileId: any, profile: any): any  [private]
   onStartDryRunProcess(): any  [private]
-  onStartProcess(dryRun?: any): any  [private]
+  onStartProcess(dryRun?: any = false): any  [private]
   setImportModalProfile(profileName: any): any  [private]
 
 blocks

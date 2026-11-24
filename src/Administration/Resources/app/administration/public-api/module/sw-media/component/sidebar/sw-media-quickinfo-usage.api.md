@@ -15,7 +15,7 @@ inject
 
 props
   item: object
-  routerLinkTarget?: string  default=literal
+  routerLinkTarget?: string  default=''
 
 data
   avatarUsers: any

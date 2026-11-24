@@ -12,9 +12,9 @@ component sw-card-section  private  js  [private]
   visibility-source export  [private]
 
 props
-  divider?: string  default=literal  [private]
-  secondary?: boolean  default=literal  [private]
-  slim?: boolean  default=literal  [private]
+  divider?: string  default=''  [private]
+  secondary?: boolean  default=false  [private]
+  slim?: boolean  default=false  [private]
 
 slots
   default  {}  block=sw_card_section  [private]

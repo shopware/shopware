@@ -17,7 +17,7 @@ inject
   repositoryFactory
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   priceGroup: object
 
 emits

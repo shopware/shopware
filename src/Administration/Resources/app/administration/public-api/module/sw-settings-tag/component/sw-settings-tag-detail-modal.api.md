@@ -21,9 +21,9 @@ inject
 
 props
   counts?: object  default=factory
-  editedTag?: object  default=literal
-  entity?: string  default=literal
-  property?: string  default=literal
+  editedTag?: object  default=null
+  entity?: string  default=null
+  property?: string  default=null
 
 emits
   close(...args: any[])

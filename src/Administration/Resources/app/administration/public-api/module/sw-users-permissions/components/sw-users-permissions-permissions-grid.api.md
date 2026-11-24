@@ -14,9 +14,9 @@ inject
   privileges
 
 props
-  disabled?: boolean  default=literal
-  isLoading?: boolean  default=literal
-  role?: object  default=literal
+  disabled?: boolean  default=false
+  isLoading?: boolean  default=false
+  role?: object  default=null
 
 computed
   parentOrder: any
@@ -34,7 +34,7 @@ methods
   allRolesLabel(): any
   areAllChildrenRolesSelected(parentKey: any, roleKey: any): any
   areAllChildrenWithAllRolesSelected(parentKey: any): any
-  areSomeChildrenRolesSelected(parentKey: any, roleKey: any, ignoreMissingPrivilege?: any): any
+  areSomeChildrenRolesSelected(parentKey: any, roleKey: any, ignoreMissingPrivilege?: any = true): any
   areSomeChildrenWithAllRolesSelected(parentKey: any): any
   changeAllPermissionsForKey(permissionKey: any): any
   changePermission(permissionKey: any, permissionRole: any): any

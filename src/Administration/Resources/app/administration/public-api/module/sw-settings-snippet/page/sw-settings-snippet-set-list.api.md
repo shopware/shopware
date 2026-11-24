@@ -51,7 +51,7 @@ methods
   createInlineSuccessNote(name: any): any
   createNotEditableErrorNote(): any
   getList(): Promise<any>
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [deprecated tag:v6.8.0]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [deprecated tag:v6.8.0]
   loadBaseFiles(): Promise<any>
   onAddSnippetSet(): Promise<any>
   onClone(id: any): any  [deprecated tag:v6.8.0]
@@ -113,5 +113,5 @@ blocks
         sw_settings_snippet_set_list_smart_bar_header_title_text
 
 refs
-  snippetSetList  -> sw-entity-listing
+  snippetSetList  -> sw-entity-listing  block=sw_settings_snippet_set_list_card_list_grid
 ```

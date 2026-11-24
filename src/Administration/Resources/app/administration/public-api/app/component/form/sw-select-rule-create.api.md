@@ -19,11 +19,11 @@ inject
 props
   restrictedRuleIds?: any[]  default=factory  [private]
   restrictedRuleIdsTooltipLabel?: string  default=factory  [private]
-  ruleAwareGroupKey?: string  default=literal  [private]
+  ruleAwareGroupKey?: string  default=null  [private]
   ruleFilter?: object  default=factory  [private]
-  ruleId?: string  default=literal  [private]
-  rules?: any[]  default=literal  [private]
-  size?: string  default=literal  [private]
+  ruleId?: string  default=null  [private]
+  rules?: any[]  default=null  [private]
+  size?: string  default='default'  [private]
 
 emits
   dismiss-rule(...args: any[])  [private]

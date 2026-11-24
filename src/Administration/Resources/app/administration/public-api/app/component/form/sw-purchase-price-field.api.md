@@ -12,11 +12,11 @@ component sw-purchase-price-field  private  js  [private]
   visibility-source export  [private]
 
 props
-  compact?: boolean  default=literal  [private]
+  compact?: boolean  default=false  [private]
   currency: object  [private]
-  disabled?: any  default=literal  [private]
-  error?: object  default=literal  [private]
-  label?: any  default=literal  [private]
+  disabled?: any  default=false  [private]
+  error?: object  default=null  [private]
+  label?: any  default=true  [private]
   price: any[]  [private]
   taxRate: object  [private]
 

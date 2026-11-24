@@ -16,8 +16,8 @@ inject
   cmsService  [private]
 
 props
-  active?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
+  active?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
   element: Entity<'cms_slot'>  [private]
 
 data
@@ -79,5 +79,5 @@ crossings
   v-if  sw_cms_slot_content_component -> sw_cms_slot_content  [private]
 
 refs
-  elementComponentRef  -> component  [private]
+  elementComponentRef  -> component  block=sw_cms_slot_content_settings_modal_component  [private]
 ```

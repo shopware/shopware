@@ -12,8 +12,8 @@ component sw-text-preview  public  js
 
 props
   maximumLength: number
-  maximumNewLines?: number  default=literal
-  modalTitle?: string  default=literal
+  maximumNewLines?: number  default=0
+  modalTitle?: string  default=''
   text: string
 
 data

@@ -49,7 +49,7 @@ methods
   getExceededAssignmentLimit(idLists: any): any
   getProducts(): Promise<any>
   isProductRemovable(product: any): any
-  onAddProducts(products: any, selection?: any): Promise<any>
+  onAddProducts(products: any, selection?: any = null): Promise<any>
   onChangePage(data: any): any
   onChangeSearchTerm(searchTerm: any): any
   onDeleteProduct(product: any): Promise<any>
@@ -85,5 +85,5 @@ crossings
   v-if  sw_sales_channel_detail_products_card_section_primary_filled_state -> sw_sales_channel_detail_products_card_section_primary_empty_state
 
 refs
-  entityListing  -> sw-entity-listing
+  entityListing  -> sw-entity-listing  block=sw_sales_channel_detail_products_card_section_primary_filled_state
 ```

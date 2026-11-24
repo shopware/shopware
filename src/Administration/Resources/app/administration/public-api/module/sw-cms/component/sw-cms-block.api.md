@@ -11,11 +11,11 @@ component sw-cms-block  public  ts
   template src/module/sw-cms/component/sw-cms-block/sw-cms-block.html.twig
 
 props
-  active?: boolean  default=literal
+  active?: boolean  default=false
   block: Entity<'cms_block'>
-  disabled?: boolean  default=literal
-  hasErrors?: boolean  default=literal
-  hasWarnings?: boolean  default=literal
+  disabled?: boolean  default=false
+  hasErrors?: boolean  default=false
+  hasWarnings?: boolean  default=false
 
 emits
   block-overlay-click(...args: any[])

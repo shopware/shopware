@@ -13,7 +13,7 @@ component sw-switch-field  private  js  [private]
 
 props
   checked?: boolean  [private]
-  deprecated?: boolean  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
   value?: boolean  [private]
 
 emits

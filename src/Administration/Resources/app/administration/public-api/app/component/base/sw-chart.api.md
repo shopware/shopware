@@ -15,11 +15,11 @@ inject
   feature  [private]
 
 props
-  fillEmptyValues?: string  default=literal  [private]
-  height?: number  default=literal  [private]
+  fillEmptyValues?: string  default=null  [private]
+  height?: number  default=400  [private]
   options: object  [private]
   series: any[]  [private]
-  sort?: boolean  default=literal  [private]
+  sort?: boolean  default=false  [private]
   type: string  [private]
 
 data

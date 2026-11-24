@@ -20,9 +20,9 @@ inject
   shopwareExtensionService  [private]
 
 props
-  bulkLoading?: boolean  default=literal  [private]
+  bulkLoading?: boolean  default=false  [private]
   extension: object  [private]
-  selected?: boolean  default=literal  [private]
+  selected?: boolean  default=false  [private]
 
 emits
   select-change(...args: any[])  [private]
@@ -98,7 +98,7 @@ methods
   openRemovalModal(): any  [private]
   openUninstallModal(): any  [private]
   removeExtension(removeData: any): Promise<any>  [private]
-  updateExtension(allowNewPermissions?: any): Promise<any>  [private]
+  updateExtension(allowNewPermissions?: any = false): Promise<any>  [private]
 
 blocks
   sw_extension_card_base_activation_switch  [private]

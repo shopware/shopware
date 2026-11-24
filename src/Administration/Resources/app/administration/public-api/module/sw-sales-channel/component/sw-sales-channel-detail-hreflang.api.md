@@ -11,7 +11,7 @@ component sw-sales-channel-detail-hreflang  public  js
   template src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang/sw-sales-channel-detail-hreflang.html.twig
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   salesChannel: any
 
 computed

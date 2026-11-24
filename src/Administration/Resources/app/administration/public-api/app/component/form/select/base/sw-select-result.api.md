@@ -16,12 +16,12 @@ inject
   setActiveItemIndex  [private]
 
 props
-  ariaLabel?: string  default=literal  [private]
-  descriptionPosition?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
+  ariaLabel?: string  default=undefined  [private]
+  descriptionPosition?: string  default='right'  [private]
+  disabled?: boolean  default=false  [private]
   index: number  [private]
   item: object  [private]
-  selected?: boolean  default=literal  [private]
+  selected?: boolean  default=false  [private]
 
 slots
   default  {}  block=sw_select_result_item_text  [private]
@@ -36,7 +36,7 @@ computed
   resultClasses: any  [private]
 
 methods
-  checkIfActive(activeItemIndex: any, arg1?: any): any  [private]
+  checkIfActive(activeItemIndex: any, arg1?: any = { shouldFocus: false }): any  [private]
   checkIfSelected(selectedItemIndex: any): any  [private]
   createdComponent(): any  [private]
   destroyedComponent(): any  [private]

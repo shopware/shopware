@@ -46,7 +46,7 @@ blocks
     sw_mail_templates_list_search_bar
 
 refs
-  mailHeaderFooterList  -> sw-mail-header-footer-list  [until v6.8.0]
-  mailTemplateList  -> sw-mail-template-list  [until v6.8.0]
-  tabContent  -> component  [from v6.8.0]
+  mailHeaderFooterList  -> sw-mail-header-footer-list  block=sw_mail_template_list_content_card  [until v6.8.0]
+  mailTemplateList  -> sw-mail-template-list  block=sw_mail_template_list_content_card  [until v6.8.0]
+  tabContent  -> component  block=sw_mail_template_list_router_view  [from v6.8.0]
 ```

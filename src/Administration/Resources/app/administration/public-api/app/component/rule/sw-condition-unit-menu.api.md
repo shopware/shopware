@@ -13,8 +13,8 @@ component sw-condition-unit-menu  private  js  [private]
 
 props
   type: string  [private]
-  value?: Date | number  default=literal  [private]
-  visibleValue?: Date | number  default=literal  [private]
+  value?: Date | number  default=undefined  [private]
+  visibleValue?: Date | number  default=undefined  [private]
 
 emits
   change-unit(...args: any[])  [private]

@@ -18,10 +18,10 @@ inject
   syncService
 
 props
-  allowCreate?: boolean  default=literal
-  allowDelete?: boolean  default=literal
-  allowEdit?: boolean  default=literal
-  categoryId?: string  default=literal
+  allowCreate?: boolean  default=true
+  allowDelete?: boolean  default=true
+  allowEdit?: boolean  default=true
+  categoryId?: string  default=null
   currentLanguageId: string
 
 emits
@@ -54,15 +54,15 @@ methods
   changeCategory(category: any): any
   checkedElementsCount(count: any): any
   createNewCategory(name: any, parentId: any): any
-  createNewElement(contextItem: any, parentId: any, name?: any): any
+  createNewElement(contextItem: any, parentId: any, name?: any = ''): any
   createdComponent(): any
   deleteCheckedItems(checkedItems: any): Promise<any>
   entryPointWarningMessage(category: any): any
-  fixSortingForCategories(categories: any, isSorted?: any): any
+  fixSortingForCategories(categories: any, isSorted?: any = false): any
   getCategoryUrl(category: any): any
   getChildrenFromParent(parentId: any): any
   getDeletedIds(idToDelete: any): any
-  getNextCategory(category: any, key?: any): any
+  getNextCategory(category: any, key?: any = 'id'): any
   indexProducts(ids: any): any
   isErrorNavigationEntryPoint(category: any): any
   isHighlighted(arg0: any): any
@@ -81,5 +81,5 @@ blocks
     sw_category_tree_items
 
 refs
-  categoryTree  -> sw-tree
+  categoryTree  -> sw-tree  block=sw_category_tree
 ```

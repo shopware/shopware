@@ -56,5 +56,5 @@ blocks
       sw_settings_custom_field_set_detail_content_detail_custom_field_list
 
 refs
-  customFieldList  -> sw-custom-field-list
+  customFieldList  -> sw-custom-field-list  block=sw_settings_custom_field_set_detail_content_detail_custom_field_list
 ```

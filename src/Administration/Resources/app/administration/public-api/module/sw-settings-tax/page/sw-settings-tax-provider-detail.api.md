@@ -19,7 +19,7 @@ inject
   repositoryFactory  [private]
 
 props
-  taxProviderId?: EntityKey<'tax_provider'>  default=literal  [private]
+  taxProviderId?: EntityKey<'tax_provider'>  default=''  [private]
 
 data
   isLoading: any  [private]

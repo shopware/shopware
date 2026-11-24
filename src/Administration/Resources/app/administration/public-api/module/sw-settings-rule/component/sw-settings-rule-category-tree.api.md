@@ -17,8 +17,8 @@ inject
 props
   association: string  [private]
   categoriesCollection: any[]  [private]
-  hideHeadline?: boolean  default=literal  [private]
-  hideSearch?: boolean  default=literal  [private]
+  hideHeadline?: boolean  default=false  [private]
+  hideSearch?: boolean  default=false  [private]
   rule: object  [private]
 
 emits
@@ -34,7 +34,7 @@ computed
   treeCriteria: any  [private]
 
 methods
-  getTreeItems(parentId?: any, term?: any, withTermFilter?: any): Promise<any>  [private]
+  getTreeItems(parentId?: any = null, term?: any = null, withTermFilter?: any = false): Promise<any>  [private]
   onCheckItem(checkedItems: any): any  [private]
   searchTreeItems(term: any): any  [private]
 
@@ -46,5 +46,5 @@ blocks
     sw_settings_rule_category_tree_toolbar  [private]
 
 refs
-  swTree  -> sw-settings-rule-tree  [private]
+  swTree  -> sw-settings-rule-tree  block=sw_settings_rule_category_tree_component  [private]
 ```

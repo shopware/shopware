@@ -17,13 +17,13 @@ inject
   feature
 
 props
-  description?: string  default=literal
-  disabled?: boolean  default=literal
-  label?: string  default=literal
-  linkable?: boolean  default=literal
-  step?: number  default=literal
+  description?: string  default=''
+  disabled?: boolean  default=false
+  label?: string  default=''
+  linkable?: boolean  default=false
+  step?: number  default=null
   value: object
-  variant?: string  default=literal
+  variant?: string  default='colored'
 
 emits
   input-change(...args: any[])

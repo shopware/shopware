@@ -16,14 +16,14 @@ inject
   repositoryFactory
 
 props
-  allowMultiSelect?: boolean  default=literal
-  defaultTab?: string  default=literal
-  entityContext?: string  default=literal
-  extensionBaseUrl?: string  default=literal
+  allowMultiSelect?: boolean  default=true
+  defaultTab?: string  default='library'
+  entityContext?: string  default=null
+  extensionBaseUrl?: string  default=null
   extensionTabs?: any[]  default=factory
-  fileAccept?: string  default=literal
-  initialFolderId?: string  default=literal
-  isOpen?: boolean  default=literal
+  fileAccept?: string  default='image/*'
+  initialFolderId?: string  default=null
+  isOpen?: boolean  default=true
 
 emits
   media-modal-selection-change(...args: any[])
@@ -110,6 +110,7 @@ blocks
       sw_media_modal_v2_button_confirm_selection
 
 refs
-  mediaLibrary  -> sw-media-library
-  swMediaModal  -> mt-modal
+  mediaLibrary  -> sw-media-library  block=sw_media_modal_v2_media_library  [until v6.8.0]
+  mediaLibrary  -> sw-media-library  block=sw_media_modal_v2_mt_media_library  [from v6.8.0]
+  swMediaModal  -> mt-modal  block=sw_media_modal_v2
 ```

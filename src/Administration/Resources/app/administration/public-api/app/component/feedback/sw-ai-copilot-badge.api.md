@@ -12,7 +12,7 @@ component sw-ai-copilot-badge  private  ts  [private]
   visibility-source export  [private]
 
 props
-  label?: boolean  default=literal  [private]
+  label?: boolean  default=true  [private]
 
 blocks
   sw_ai_copilot_badge  [private]

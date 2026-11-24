@@ -35,7 +35,7 @@ methods
   loadCurrencies(): any
   mountedComponent(): any
   onSearchTermChange(): any
-  resetSurcharges(option: any, force?: any): any
+  resetSurcharges(option: any, force?: any = false): any
 
 blocks
   sw_product_variants_configurator_prices

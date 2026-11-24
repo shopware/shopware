@@ -13,11 +13,11 @@ component sw-text-editor-toolbar  private  js  [private]
 
 props
   buttonConfig: any[]  [private]
-  isCodeEdit?: boolean  default=literal  [private]
-  isInlineEdit?: boolean  default=literal  [private]
-  isTableEdit?: boolean  default=literal  [private]
-  parentIsActive?: boolean  default=literal  [private]
-  selection?: any  default=literal  [private]
+  isCodeEdit?: boolean  default=false  [private]
+  isInlineEdit?: boolean  default=false  [private]
+  isTableEdit?: boolean  default=false  [private]
+  parentIsActive?: boolean  default=false  [private]
+  selection?: any  default=null  [private]
 
 emits
   created-el(...args: any[])  [private]
@@ -58,7 +58,7 @@ methods
   isOverlayingLeft(): any  [private]
   keepSelection(keepRange: any): any  [private]
   mountedComponent(): any  [private]
-  onButtonClick(button: any, parent?: any): any  [private]
+  onButtonClick(button: any, parent?: any = null): any  [private]
   onMouseUp(event: any): any  [private]
   onToggleMenu(event: any, button: any): any  [private]
   setActiveTags(): any  [private]

@@ -47,7 +47,7 @@ methods
   createdComponent(): any
   getProductStreamFilter(id: any): Promise<any>
   getProductStreams(): Promise<any>
-  getProducts(filter?: any): Promise<any>
+  getProducts(filter?: any = this.productStreamFilter): Promise<any>
   getProductsFromProductStreams(productStreams: any): Promise<any>
   onOpen(productStream: any): any
   onPaginate(data: any): any
@@ -70,7 +70,7 @@ blocks
           sw_sales_channel_products_assignment_dynamic_product_groups_listing_search
 
 refs
-  alert  -> mt-banner
-  cardSectionSecondary  -> sw-card-section
-  productStreamListing  -> sw-entity-listing
+  alert  -> mt-banner  block=sw_sales_channel_products_assignment_dynamic_product_groups_info_text
+  cardSectionSecondary  -> sw-card-section  block=sw_sales_channel_products_assignment_dynamic_product_groups_listing_section
+  productStreamListing  -> sw-entity-listing  block=sw_sales_channel_products_assignment_dynamic_product_groups_listing_entity
 ```

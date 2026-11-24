@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  isInherited?: boolean  default=literal
+  isInherited?: boolean  default=false
   parentProduct: object
   source: object
 
@@ -83,7 +83,7 @@ crossings
   v-if  sw_product_variants_media_upload_actions_regular -> sw_product_variants_media_upload_actions_compact
 
 refs
-  dropzone  -> div
-  fileForm  -> form
-  fileInput  -> input
+  dropzone  -> div  block=sw_product_variants_media_upload_drop_zone
+  fileForm  -> form  block=sw_product_variants_media_upload_file_input
+  fileInput  -> input  block=sw_product_variants_media_upload_file_input
 ```

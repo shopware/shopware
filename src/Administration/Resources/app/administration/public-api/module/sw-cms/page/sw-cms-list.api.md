@@ -98,7 +98,7 @@ methods
   onConfirmPageRename(): any
   onCreateNewLayout(): any
   onDeleteCmsPage(page: any): any
-  onDuplicateCmsPage(page: any, behavior?: any): any
+  onDuplicateCmsPage(page: any, behavior?: any = { overwrites: {} }): any
   onListItemClick(page: any): any
   onListModeChange(): any
   onModalClose(): any
@@ -108,13 +108,13 @@ methods
   onPreviewImageChange(arg0: any): any
   onPreviewImageRemove(page: any): any
   onRenameCmsPage(page: any): any
-  onSearch(value?: any): any
-  onSortPageType(value?: any): any
+  onSearch(value?: any = null): any
+  onSortPageType(value?: any = null): any
   onSortingChanged(value: any): any
   optionContextDeleteDisabled(page: any): any
   registerLayoutResizeObserver(): any
   resetList(): any
-  saveCmsPage(page: any, context?: any): Promise<any>
+  saveCmsPage(page: any, context?: any = Shopware.Context.api): Promise<any>
   saveGridUserSettings(): any
   setPageContext(): any
   showDefaultLayoutContextMenu(cmsPage: any): any

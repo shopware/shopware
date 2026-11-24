@@ -11,7 +11,7 @@ component sw-product-feature-set-form  public  js
   template src/module/sw-product/component/sw-product-feature-set-form/sw-product-feature-set-form.html.twig
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 computed
   isLoading: any

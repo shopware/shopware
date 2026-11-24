@@ -15,17 +15,17 @@ inject
   feature  [private]
 
 props
-  customInheritationCheckFunction?: (...args: any[]) => any  default=literal  [private]
-  customRemoveInheritanceFunction?: (...args: any[]) => any  default=literal  [private]
-  customRestoreInheritanceFunction?: (...args: any[]) => any  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  error?: object  default=literal  [private]
-  hasParent?: boolean  default=literal  [private]
-  helpText?: string  default=literal  [private]
+  customInheritationCheckFunction?: (...args: any[]) => any  default=null  [private]
+  customRemoveInheritanceFunction?: (...args: any[]) => any  default=null  [private]
+  customRestoreInheritanceFunction?: (...args: any[]) => any  default=null  [private]
+  disabled?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  hasParent?: boolean  default=undefined  [private]
+  helpText?: string  default=null  [private]
   inheritedValue: any  [private]
-  isAssociation?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  required?: boolean  default=literal  [private]
+  isAssociation?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  required?: boolean  default=false  [private]
   value: any  [private]
 
 emits
@@ -46,7 +46,7 @@ computed
   labelClasses: any  [private]
 
 methods
-  removeInheritance(newValue?: any): any  [private]
+  removeInheritance(newValue?: any = this.currentValue): any  [private]
   restoreInheritance(): any  [private]
   toggleInheritance(): any  [private]
   updateCurrentValue(value: any): any  [private]

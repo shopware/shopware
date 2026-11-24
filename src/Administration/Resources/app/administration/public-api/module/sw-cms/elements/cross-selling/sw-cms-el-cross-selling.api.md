@@ -46,5 +46,5 @@ blocks
     sw_cms_element_cross_selling_title  [private]
 
 refs
-  productHolder  -> div  [private]
+  productHolder  -> div  block=sw_cms_element_cross_selling_product_holder  [private]
 ```

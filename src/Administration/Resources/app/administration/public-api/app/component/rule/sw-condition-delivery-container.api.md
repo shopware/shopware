@@ -16,7 +16,7 @@ provide
 
 props
   condition: RuleConditionNode  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   level: number  [private]
   parentCondition: RuleConditionNode  [private]
 

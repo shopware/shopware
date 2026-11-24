@@ -29,7 +29,7 @@ computed
 
 methods
   createdComponent(): Promise<any>
-  enrichNestedLineItems(nestedLineItems: any, nestingLevel?: any): Promise<any>
+  enrichNestedLineItems(nestedLineItems: any, nestingLevel?: any = 1): Promise<any>
   naturalSort(a: any, b: any): any
   onCloseModal(): any
 

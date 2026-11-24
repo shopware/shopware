@@ -32,7 +32,7 @@ computed
 
 methods
   getList(): Promise<any>  [private]
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [private]
   getProductStreamColumns(): any  [private]
   onChangeLanguage(): any  [private]
   onDeleteItemFailed(arg0: any): any  [private]
@@ -66,5 +66,5 @@ crossings
   v-if  sw_product_stream_list_empty_state -> sw_product_stream_list_grid  [private]
 
 refs
-  swProductStreamGrid  -> sw-entity-listing  [private]
+  swProductStreamGrid  -> sw-entity-listing  block=sw_product_stream_list_grid  [private]
 ```

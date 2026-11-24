@@ -16,8 +16,8 @@ inject
   repositoryFactory
 
 props
-  isLoading?: boolean  default=literal
-  role?: object  default=literal
+  isLoading?: boolean  default=false
+  role?: object  default=null
 
 data
   mcpIntegrations: any

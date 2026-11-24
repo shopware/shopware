@@ -19,8 +19,8 @@ inject
   repositoryFactory
 
 props
-  isExcludedTermsLoading?: boolean  default=literal
-  searchConfigs?: object  default=literal
+  isExcludedTermsLoading?: boolean  default=false
+  searchConfigs?: object  default=null
 
 emits
   data-load(...args: any[])
@@ -79,6 +79,6 @@ blocks
         sw_settings_search_excluded_search_terms_filter
 
 refs
-  dataGrid  -> sw-data-grid
-  itemFilter  -> sw-card-filter
+  dataGrid  -> sw-data-grid  block=sw_settings_search_excluded_search_terms_grid_list
+  itemFilter  -> sw-card-filter  block=sw_settings_search_excluded_search_terms_filter
 ```

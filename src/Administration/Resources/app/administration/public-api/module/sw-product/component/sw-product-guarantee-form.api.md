@@ -11,7 +11,7 @@ component sw-product-guarantee-form  public  js
   template src/module/sw-product/component/sw-product-guarantee-form/sw-product-guarantee-form.html.twig
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 data
   guaranteeMonthsWasTyped: any
@@ -50,5 +50,5 @@ blocks
       sw_product_guarantee_form_guarantee_terms_url_field
 
 refs
-  requirementsNotice  -> mt-banner
+  requirementsNotice  -> mt-banner  block=sw_product_guarantee_form_requirements_notice
 ```

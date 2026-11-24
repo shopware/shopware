@@ -127,6 +127,6 @@ crossings
   v-if  sw_settings_tag_list_grid -> sw_settings_tag_list_empty_state
 
 refs
-  swCardFilter  -> sw-card-filter
-  swSettingsTagGrid  -> sw-entity-listing
+  swCardFilter  -> sw-card-filter  block=sw_settings_tag_list_grid_toolbar_search
+  swSettingsTagGrid  -> sw-entity-listing  block=sw_settings_tag_list_grid
 ```

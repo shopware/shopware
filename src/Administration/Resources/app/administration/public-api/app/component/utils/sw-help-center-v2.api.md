@@ -29,5 +29,5 @@ blocks
         sw_help_sidebar_support_placeholder  [private]
 
 refs
-  shortcutModal  -> sw-shortcut-overview  [private]
+  shortcutModal  -> sw-shortcut-overview  block=sw_help_center  [private]
 ```

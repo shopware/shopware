@@ -14,13 +14,13 @@ inject
   stateStyleDataProviderService
 
 props
-  backgroundStyle?: string  default=literal  [deprecated tag:v6.8.0]
-  disabled?: boolean  default=literal
-  label?: string  default=literal
-  placeholder?: string  default=literal
-  roundedStyle?: boolean  default=literal  [deprecated tag:v6.8.0]
-  small?: boolean  default=literal
-  stateName?: string  default=literal
+  backgroundStyle?: string  default=''  [deprecated tag:v6.8.0]
+  disabled?: boolean  default=false
+  label?: string  default=null
+  placeholder?: string  default=null
+  roundedStyle?: boolean  default=false  [deprecated tag:v6.8.0]
+  small?: boolean  default=true
+  stateName?: string  default=null
   stateType: string
   transitionOptions?: any[]  default=factory
 

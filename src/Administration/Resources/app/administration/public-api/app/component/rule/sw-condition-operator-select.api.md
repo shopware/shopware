@@ -13,9 +13,9 @@ component sw-condition-operator-select  private  js  [private]
 
 props
   condition: object  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   operators: any[]  [private]
-  plural?: boolean  default=literal  [private]
+  plural?: boolean  default=false  [private]
 
 emits
   change(...args: any[])  [private]

@@ -16,7 +16,7 @@ inject
 
 props
   button: CustomButton  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   editor: Editor  [private]
 
 data

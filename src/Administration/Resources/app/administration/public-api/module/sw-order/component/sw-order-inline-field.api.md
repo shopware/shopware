@@ -11,10 +11,10 @@ component sw-order-inline-field  public  js
   template src/module/sw-order/component/sw-order-inline-field/sw-order-inline-field.html.twig
 
 props
-  displayValue: string  default=literal
-  editable: boolean  default=literal
-  required?: boolean  default=literal
-  value?: string  default=literal
+  displayValue: string  default=''
+  editable: boolean  default=false
+  required?: boolean  default=false
+  value?: string  default=''
 
 emits
   update:value(...args: any[])

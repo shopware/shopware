@@ -13,11 +13,11 @@ component sw-language-switch  private  js  [private]
 
 props
   abortChangeFunction?: (...args: any[]) => any  default=factory  [private]
-  allowEdit?: boolean  default=literal  [private]
-  changeGlobalLanguage?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
+  allowEdit?: boolean  default=true  [private]
+  changeGlobalLanguage?: boolean  default=true  [private]
+  disabled?: boolean  default=false  [private]
   saveChangesFunction?: (...args: any[]) => any  default=factory  [private]
-  savePermission?: boolean  default=literal  [private]
+  savePermission?: boolean  default=true  [private]
 
 emits
   on-change(...args: any[])  [private]

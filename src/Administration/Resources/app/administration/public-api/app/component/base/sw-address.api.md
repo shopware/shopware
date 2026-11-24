@@ -13,10 +13,10 @@ component sw-address  private  ts  [private]
 
 props
   address?: Address  default=factory  [private]
-  editLink?: RouteLocationNamedRaw | null  default=literal  [private]
-  formattingAddress?: string  default=literal  [private]
-  headline?: string  default=literal  [private]
-  showEditButton?: boolean  default=literal  [private]
+  editLink?: RouteLocationNamedRaw | null  default=null  [private]
+  formattingAddress?: string  default=null  [private]
+  headline?: string  default=''  [private]
+  showEditButton?: boolean  default=false  [private]
 
 computed
   addressClasses: Record<string, boolean | string>  [private]

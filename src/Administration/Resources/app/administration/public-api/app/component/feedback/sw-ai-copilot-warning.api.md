@@ -12,7 +12,7 @@ component sw-ai-copilot-warning  private  ts  [private]
   visibility-source export  [private]
 
 props
-  text?: string  default=literal  [private]
+  text?: string  default=''  [private]
 
 computed
   warningText: string  [private]

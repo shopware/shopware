@@ -12,8 +12,8 @@ component sw-loader  private  js  [private]
   visibility-source export  [private]
 
 props
-  modelValue?: string  default=literal  [private]
-  value?: string  default=literal  [private]
+  modelValue?: string  default=null  [private]
+  value?: string  default=null  [private]
 
 slots
   default  {}  block=sw_loader  [private]

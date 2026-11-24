@@ -70,5 +70,5 @@ crossings
   v-if  sw_review_list_empty_state -> sw_review_list_content_list
 
 refs
-  listing  -> sw-entity-listing
+  listing  -> sw-entity-listing  block=sw_review_list_content_list
 ```

@@ -14,17 +14,17 @@ inject
   systemConfigApiService
 
 props
-  allowDelete?: boolean  default=literal
-  allowEdit?: boolean  default=literal
-  allowMultiSelect?: boolean  default=literal
-  disabled?: boolean  default=literal
-  editable?: boolean  default=literal
-  isList?: boolean  default=literal
+  allowDelete?: boolean  default=true
+  allowEdit?: boolean  default=true
+  allowMultiSelect?: boolean  default=true
+  disabled?: boolean  default=false
+  editable?: boolean  default=true
+  isList?: boolean  default=false
   item: object
-  selected?: boolean  default=literal
-  showContextMenuButton?: boolean  default=literal
-  showSelectionIndicator?: boolean  default=literal
-  truncateRight?: boolean  default=literal
+  selected?: boolean  default=false
+  showContextMenuButton?: boolean  default=true
+  showSelectionIndicator?: boolean  default=false
+  truncateRight?: boolean  default=false
 
 emits
   media-item-click(...args: any[])
@@ -77,5 +77,5 @@ blocks
     sw_media_base_item_selected_indicator
 
 refs
-  swContextButton  -> sw-context-button
+  swContextButton  -> sw-context-button  block=sw_media_base_item_context_menu
 ```

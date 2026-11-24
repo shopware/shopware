@@ -21,8 +21,8 @@ provide
   conditionType: any  [private]
 
 props
-  condition?: object  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
+  condition?: object  default=null  [private]
+  disabled?: boolean  default=false  [private]
 
 emits
   condition-delete(...args: any[])  [private]

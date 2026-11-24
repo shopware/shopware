@@ -13,8 +13,8 @@ component sw-product-variants-price-field  public  js
 props
   currency: object
   price: object
-  readonly?: boolean  default=literal
-  taxRate?: string  default=literal
+  readonly?: boolean  default=false
+  taxRate?: string  default=null
 
 emits
   change(...args: any[])

@@ -21,7 +21,7 @@ inject
   unitUneceCodeService  [private]
 
 props
-  unitId?: EntityKey<'unit'> | null  default=literal  [private]
+  unitId?: EntityKey<'unit'> | null  default=null  [private]
 
 data
   customFieldSets: any  [private]

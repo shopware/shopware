@@ -28,9 +28,9 @@ provide
   swProductDetailLoadAll: any
 
 props
-  creationStates?: any[]  default=literal  [deprecated tag:v6.8.0]
-  creationType?: string  default=literal
-  productId?: string  default=literal
+  creationStates?: any[]  default=null  [deprecated tag:v6.8.0]
+  creationType?: string  default='physical'
+  productId?: string  default=null
 
 data
   cloning: any

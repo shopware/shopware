@@ -34,5 +34,5 @@ blocks
     sw_sidebar_filter_panel_headline  [private]
 
 refs
-  filterPanel  -> sw-filter-panel  [private]
+  filterPanel  -> sw-filter-panel  block=sw_sidebar_filter_panel_content  [private]
 ```

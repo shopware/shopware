@@ -16,7 +16,7 @@ inject
   feature  [private]
 
 props
-  groupIdProperty?: string  default=literal  [private]
+  groupIdProperty?: string  default='id'  [private]
   groups: any[]  [private]
 
 slots
@@ -51,7 +51,7 @@ blocks
             sw_single_select_single_selection_inner_label  [inherited] [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
 
 refs
-  resultsList  -> sw-select-result-list  [private]
-  selectBase  -> sw-select-base  [private]
-  swSelectInput  -> input  [private]
+  resultsList  -> sw-select-result-list  block=sw_single_select_base_results_slot  [private]
+  selectBase  -> sw-select-base  block=sw_single_select  [private]
+  swSelectInput  -> input  block=sw_single_select_single_selection_inner_input  [private]
 ```

@@ -15,7 +15,7 @@ inject
   extensionHelperService  [private]
 
 props
-  insideModal?: boolean  default=literal  [private]
+  insideModal?: boolean  default=false  [private]
 
 data
   activationStatus: any  [private]

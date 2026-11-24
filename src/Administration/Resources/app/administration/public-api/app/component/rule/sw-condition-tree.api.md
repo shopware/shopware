@@ -26,17 +26,17 @@ provide
   restrictedConditions: any  [private]
 
 props
-  allowedTypes?: any[]  default=literal  [private]
-  associationEntity?: object  default=literal  [private]
+  allowedTypes?: any[]  default=null  [private]
+  associationEntity?: object  default=null  [private]
   associationField: string  [private]
   associationValue: string  [private]
-  childAssociationField?: string  default=literal  [private]
+  childAssociationField?: string  default='children'  [private]
   conditionDataProviderService: object  [private]
-  conditionRepository?: object  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  initialConditions?: any[]  default=literal  [private]
-  rootCondition?: object  default=literal  [private]
-  scopes?: any[]  default=literal  [private]
+  conditionRepository?: object  default=null  [private]
+  disabled?: boolean  default=false  [private]
+  initialConditions?: any[]  default=null  [private]
+  rootCondition?: object  default=null  [private]
+  scopes?: any[]  default=null  [private]
 
 emits
   conditions-changed(...args: any[])  [private]

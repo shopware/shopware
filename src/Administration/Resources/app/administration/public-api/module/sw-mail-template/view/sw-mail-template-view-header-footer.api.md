@@ -19,5 +19,5 @@ blocks
     sw_mail_template_view_header_footer_list  [private]
 
 refs
-  mailHeaderFooterList  -> sw-mail-header-footer-list  [private]
+  mailHeaderFooterList  -> sw-mail-header-footer-list  block=sw_mail_template_view_header_footer_list  [private]
 ```

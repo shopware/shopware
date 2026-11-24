@@ -12,10 +12,10 @@ component sw-image-preview-modal  private  js  [private]
   visibility-source export  [private]
 
 props
-  activeItemId?: string  default=literal  [private]
-  itemPerPage?: number  default=literal  [private]
+  activeItemId?: string  default=''  [private]
+  itemPerPage?: number  default=10  [private]
   mediaItems: any[]  [private]
-  zoomSteps?: number  default=literal  [private]
+  zoomSteps?: number  default=5  [private]
 
 emits
   modal-close(...args: any[])  [private]
@@ -66,7 +66,7 @@ blocks
       sw_image_preview_modal_thumbnail_slider  [after v-if] [private]
 
 refs
-  btnReset  -> button  [private]
-  btnZoomIn  -> button  [private]
-  btnZoomOut  -> button  [private]
+  btnReset  -> button  block=sw_image_preview_modal_button_zoom_reset  [private]
+  btnZoomIn  -> button  block=sw_image_preview_modal_button_zoom_in  [private]
+  btnZoomOut  -> button  block=sw_image_preview_modal_button_zoom_out  [private]
 ```

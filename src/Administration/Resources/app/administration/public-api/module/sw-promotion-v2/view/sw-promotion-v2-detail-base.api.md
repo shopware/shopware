@@ -20,7 +20,7 @@ inject
 
 props
   isCreateMode: boolean
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   promotion?: object  default=factory
 
 emits

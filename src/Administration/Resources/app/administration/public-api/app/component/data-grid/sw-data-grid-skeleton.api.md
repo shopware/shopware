@@ -13,10 +13,10 @@ component sw-data-grid-skeleton  private  js  [private]
 
 props
   currentColumns: any[]  default=factory  [private]
-  hasResizeColumns: boolean  default=literal  [private]
-  itemAmount?: number  default=literal  [private]
-  showActions?: boolean  default=literal  [private]
-  showSelection?: boolean  default=literal  [private]
+  hasResizeColumns: boolean  default=false  [private]
+  itemAmount?: number  default=7  [private]
+  showActions?: boolean  default=true  [private]
+  showSelection?: boolean  default=true  [private]
 
 methods
   getRandomLength(): any  [private]

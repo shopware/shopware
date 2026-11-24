@@ -14,7 +14,7 @@ mixins
   placeholder
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 computed
   loading: any

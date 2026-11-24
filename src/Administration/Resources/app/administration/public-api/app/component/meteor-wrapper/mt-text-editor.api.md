@@ -14,7 +14,7 @@ component mt-text-editor  private  ts  [private]
 props
   customButtons?: CustomButton[]  default=factory  [private]
   excludedButtons?: string[]  default=factory  [private]
-  modelValue?: string  default=literal  [private]
+  modelValue?: string  default=''  [private]
 
 emits
   update:modelValue(...args: any[])  [private]
@@ -33,7 +33,7 @@ blocks
   mt_text_editor_original  [private]
 
 refs
-  mtTextEditorOriginal  -> mt-text-editor-original  [private]
+  mtTextEditorOriginal  -> mt-text-editor-original  block=mt_text_editor_original  [private]
 
 notes
   dynamic-slot name  [private]

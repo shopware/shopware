@@ -20,7 +20,7 @@ inject
   repositoryFactory
 
 props
-  customerGroupId?: string  default=literal
+  customerGroupId?: string  default=null
 
 data
   customFieldSets: any

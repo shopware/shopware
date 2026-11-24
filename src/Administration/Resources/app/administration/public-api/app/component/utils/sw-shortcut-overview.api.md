@@ -15,7 +15,7 @@ inject
   shortcutService  [private]
 
 props
-  showModal?: boolean  default=literal  [private]
+  showModal?: boolean  default=false  [private]
 
 emits
   shortcut-close(...args: any[])  [private]

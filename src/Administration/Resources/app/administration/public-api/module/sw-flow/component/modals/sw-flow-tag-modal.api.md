@@ -20,7 +20,7 @@ inject
   repositoryFactory  [private]
 
 props
-  action?: string  default=literal  [private]
+  action?: string  default=null  [private]
   sequence: object  [private]
 
 emits

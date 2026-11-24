@@ -65,5 +65,5 @@ blocks
         sw_settings_customer_group_list_smart_bar_header_title_text
 
 refs
-  listing  -> sw-entity-listing
+  listing  -> sw-entity-listing  block=sw_settings_customer_group_list_grid
 ```

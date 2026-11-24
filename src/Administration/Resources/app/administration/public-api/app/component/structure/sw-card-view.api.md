@@ -12,7 +12,7 @@ component sw-card-view  private  js  [private]
   visibility-source export  [private]
 
 props
-  showErrorSummary?: boolean  default=literal  [private]
+  showErrorSummary?: boolean  default=true  [private]
 
 slots
   default  {}  block=sw_card_view_content  [private]

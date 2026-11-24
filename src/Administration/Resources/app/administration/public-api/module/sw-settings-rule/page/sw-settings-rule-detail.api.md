@@ -22,7 +22,7 @@ inject
   ruleConditionsConfigApiService  [private]
 
 props
-  ruleId?: string  default=literal  [private]
+  ruleId?: string  default=null  [private]
 
 data
   conditionTree: any  [private]
@@ -63,7 +63,7 @@ methods
   getChildrenConditions(condition: any): any  [private]
   invalidDateRangeConditions(): any  [private]
   loadConditionData(): Promise<any>  [private]
-  loadConditions(conditions?: any): Promise<any>  [private]
+  loadConditions(conditions?: any = null): Promise<any>  [private]
   loadEntityData(ruleId: any): Promise<any>  [private]
   onCancel(): any  [private]
   onChangeLanguage(languageId: any): any  [private]
@@ -73,7 +73,7 @@ methods
   onSave(): any  [private]
   saveOnLanguageChange(): any  [private]
   saveRule(): any  [private]
-  saveRuleChanges(arg0?: any): Promise<any>  [private]
+  saveRuleChanges(arg0?: any = {}): Promise<any>  [private]
   setTreeFinishedLoading(): any  [private]
   showErrorNotification(): any  [private]
   syncConditions(): Promise<any>  [private]

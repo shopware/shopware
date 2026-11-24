@@ -15,7 +15,7 @@ inject
 
 props
   currentCustomField: object
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   set: object
 
 data

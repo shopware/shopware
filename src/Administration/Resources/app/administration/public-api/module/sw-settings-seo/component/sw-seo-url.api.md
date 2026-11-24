@@ -14,11 +14,11 @@ inject
   repositoryFactory
 
 props
-  disabled?: boolean  default=literal
-  hasDefaultTemplate?: boolean  default=literal
-  isLoading?: boolean  default=literal
-  resultLimit?: number  default=literal
-  salesChannelId?: string  default=literal
+  disabled?: boolean  default=false
+  hasDefaultTemplate?: boolean  default=true
+  isLoading?: boolean  default=false
+  resultLimit?: number  default=25
+  salesChannelId?: string  default=null
   urls?: any[]  default=factory
 
 emits
@@ -64,5 +64,5 @@ blocks
       sw_seo_url_card_toolbar
 
 refs
-  salesChannelSwitch  -> sw-sales-channel-switch
+  salesChannelSwitch  -> sw-sales-channel-switch  block=sw_seo_url_card_toolbar
 ```

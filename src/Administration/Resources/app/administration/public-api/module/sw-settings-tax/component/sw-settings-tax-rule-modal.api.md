@@ -14,7 +14,7 @@ inject
   repositoryFactory
 
 props
-  currentRule?: object  default=literal
+  currentRule?: object  default=null
   tax: object
 
 emits

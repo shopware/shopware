@@ -61,7 +61,7 @@ methods
   getProductGroupContainerStyle(): any
   mountedComponent(): any
   onAddProducts(): any
-  onChangeSelection(products: any, type: any, selection?: any): any
+  onChangeSelection(products: any, type: any, selection?: any = null): any
   onCloseModal(): any
   setProductLoading(isProductLoading: any): any
 
@@ -83,7 +83,10 @@ blocks
       sw_sales_channel_products_assignment_modal_tabs_single_products  [scope: active] [until v6.8.0]
 
 refs
-  category  -> sw-sales-channel-product-assignment-categories
-  product  -> sw-sales-channel-products-assignment-single-products
-  productGroup  -> sw-sales-channel-products-assignment-dynamic-product-groups
+  category  -> sw-sales-channel-product-assignment-categories  block=sw_sales_channel_products_assignment_modal_mt_tab_content_categories  [from v6.8.0]
+  category  -> sw-sales-channel-product-assignment-categories  block=sw_sales_channel_products_assignment_modal_tab_content_categories  [until v6.8.0]
+  product  -> sw-sales-channel-products-assignment-single-products  block=sw_sales_channel_products_assignment_modal_mt_tab_content_single_products  [from v6.8.0]
+  product  -> sw-sales-channel-products-assignment-single-products  block=sw_sales_channel_products_assignment_modal_tab_content_single_products  [until v6.8.0]
+  productGroup  -> sw-sales-channel-products-assignment-dynamic-product-groups  block=sw_sales_channel_products_assignment_modal_mt_tab_content_dynamic_product_groups  [from v6.8.0]
+  productGroup  -> sw-sales-channel-products-assignment-dynamic-product-groups  block=sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups  [until v6.8.0]
 ```

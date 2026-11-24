@@ -15,14 +15,14 @@ inject
   repositoryFactory  [private]
 
 props
-  allowedTypes?: any[]  default=literal  [private]
+  allowedTypes?: any[]  default=null  [private]
   categoriesCollection: any[]  [private]
-  categoryCriteria?: any  default=factory  [private]
-  disabled?: boolean  default=literal  [private]
-  isCategoriesLoading?: boolean  default=literal  [private]
-  pageId?: string  default=literal  [private]
+  categoryCriteria?: Criteria  default=factory  [private]
+  disabled?: boolean  default=false  [private]
+  isCategoriesLoading?: boolean  default=false  [private]
+  pageId?: string  default=null  [private]
   placeholder: string  [private]
-  singleSelect?: boolean  default=literal  [private]
+  singleSelect?: boolean  default=false  [private]
 
 emits
   categories-load-more(...args: any[])  [private]
@@ -59,19 +59,19 @@ computed
   visibleTags: any  [private]
 
 methods
-  changeSearchSelection(type?: any): any  [private]
+  changeSearchSelection(type?: any = 'next'): any  [private]
   closeDropdown(): any  [private]
   closeDropdownOnClickOutside(event: any): any  [private]
   createdComponent(): any  [private]
   destroyedComponent(): any  [private]
   disableCategories(categories: any): any  [private]
   emitCategoriesCollectionUpdate(): any  [private]
-  findTreeItemVNodeById(itemId?: any, children?: any): any  [private]
+  findTreeItemVNodeById(itemId?: any = this.selectedTreeItem.id, children?: any = this.$refs.swTree.$children): any  [private]
   getBreadcrumb(item: any): any  [private]
-  getFirstChildById(itemId: any, children?: any): any  [private]
+  getFirstChildById(itemId: any, children?: any = this.$refs.swTree.treeItems): any  [private]
   getLabelName(item: any): any  [private]
-  getSibling(isNext: any, item: any, children?: any): any  [private]
-  getTreeItems(parentId?: any): Promise<any>  [private]
+  getSibling(isNext: any, item: any, children?: any = this.$refs.swTree.treeItems): any  [private]
+  getTreeItems(parentId?: any = null): Promise<any>  [private]
   handleArrowKeyEvents(event: any): any  [private]
   handleGeneralKeyEvents(event: any): any  [private]
   isSearchItemChecked(itemId: any): any  [private]
@@ -119,7 +119,7 @@ crossings
   v-if  sw_category_tree_field_input_results_tree -> sw_category_tree_field_input_results_search_results  [private]
 
 refs
-  searchInput  -> input  [private]
-  swCategoryTreeField  -> div  [private]
-  swTree  -> sw-tree  [private]
+  searchInput  -> input  block=sw_category_tree_field_input_field  [private]
+  swCategoryTreeField  -> div  block=sw_category_tree_field  [private]
+  swTree  -> sw-tree  block=sw_category_tree_field_input_results_tree  [private]
 ```

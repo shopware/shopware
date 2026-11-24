@@ -19,7 +19,7 @@ inject
   salesChannelFileApiService
 
 props
-  salesChannel?: object  default=literal
+  salesChannel?: object  default=null
 
 data
   files: any

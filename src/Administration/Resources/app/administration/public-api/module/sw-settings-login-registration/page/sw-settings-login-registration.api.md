@@ -42,6 +42,6 @@ blocks
         sw_settings_login_registration_smart_bar_header_title_text
 
 refs
-  systemConfig  -> sw-system-config
-  systemConfigSystemWide  -> sw-system-config
+  systemConfig  -> sw-system-config  block=sw_setting_login_registration_system_config
+  systemConfigSystemWide  -> sw-system-config  block=sw_setting_login_registration_system_wide
 ```

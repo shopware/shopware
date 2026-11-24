@@ -17,7 +17,7 @@ inject
 
 props
   context: object
-  editable?: boolean  default=literal
+  editable?: boolean  default=true
   order: object
 
 emits
@@ -81,7 +81,7 @@ methods
   showTaxRulesInlineEdit(item: any): any
   showTaxValue(item: any): any
   tooltipTaxDetail(item: any): any
-  updateItemQuantity(item: any, newQuantity?: any): any
+  updateItemQuantity(item: any, newQuantity?: any = undefined): any
 
 blocks
   sw_order_line_items_grid
@@ -141,6 +141,6 @@ crossings
   v-if  sw_order_line_items_grid_grid_columns_unit_price_inline_edit -> sw_order_line_items_grid_grid_columns_unit_price_content
 
 refs
-  dataGrid  -> sw-data-grid
-  itemFilter  -> sw-card-filter
+  dataGrid  -> sw-data-grid  block=sw_order_line_items_grid_grid
+  itemFilter  -> sw-card-filter  block=sw_order_line_items_grid_line_item_filter
 ```

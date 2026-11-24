@@ -15,7 +15,7 @@ inject
 
 props
   newProperties: any[]
-  propertiesAvailable?: boolean  default=literal
+  propertiesAvailable?: boolean  default=true
 
 emits
   modal-cancel(...args: any[])
@@ -49,6 +49,6 @@ blocks
             sw_productadd_properties_selection_search_field  [scope: focus, input, searchTerm]
 
 refs
-  propertySearch  -> sw-property-search
-  searchField  -> sw-simple-search-field
+  propertySearch  -> sw-property-search  block=sw_product_add_properties_modal_filled_state_search_field
+  searchField  -> sw-simple-search-field  block=sw_productadd_properties_selection_search_field
 ```

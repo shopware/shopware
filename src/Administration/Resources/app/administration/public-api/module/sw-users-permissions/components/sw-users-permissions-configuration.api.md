@@ -23,5 +23,5 @@ blocks
   sw_users_permissions_configuration
 
 refs
-  systemConfig  -> sw-system-config
+  systemConfig  -> sw-system-config  block=sw_users_permissions_configuration
 ```

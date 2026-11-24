@@ -21,7 +21,7 @@ inject
   salesChannelService
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   productExport: any
   salesChannel: any
 

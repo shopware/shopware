@@ -17,9 +17,9 @@ inject
 
 props
   definition: object  [private]
-  disabled?: boolean  default=literal  [private]
-  field?: string  default=literal  [private]
-  hasError?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  field?: string  default=null  [private]
+  hasError?: boolean  default=false  [private]
   index: number  [private]
 
 emits

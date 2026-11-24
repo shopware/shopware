@@ -17,8 +17,8 @@ inject
 
 props
   allowedPageTypes?: string[]  default=factory  [private]
-  cmsPageId?: EntityKey<'cms_page'> | null  default=literal  [private]
-  slotOverrides?: CmsSlotOverrides  default=literal  [private]
+  cmsPageId?: EntityKey<'cms_page'> | null  default=null  [private]
+  slotOverrides?: CmsSlotOverrides  default=null  [private]
 
 emits
   create-layout(...args: any[])  [private]

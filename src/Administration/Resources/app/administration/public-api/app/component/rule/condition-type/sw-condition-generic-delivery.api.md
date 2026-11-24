@@ -23,7 +23,7 @@ inject
 
 props
   condition: RuleCondition  [private]
-  parentCondition?: RuleCondition | null  default=literal  [private]
+  parentCondition?: RuleCondition | null  default=null  [private]
 
 computed
   allowAppliesTo: boolean  [private]

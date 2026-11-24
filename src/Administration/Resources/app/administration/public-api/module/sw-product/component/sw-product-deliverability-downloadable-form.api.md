@@ -15,7 +15,7 @@ mixins
   placeholder  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
 
 data
   enteredOrderQuantity: any  [private]

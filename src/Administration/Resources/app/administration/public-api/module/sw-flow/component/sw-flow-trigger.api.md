@@ -16,10 +16,10 @@ inject
   repositoryFactory  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   eventName: string  [private]
-  isUnknownTrigger?: boolean  default=literal  [private]
-  overlay?: boolean  default=literal  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+  overlay?: boolean  default=true  [private]
 
 emits
   option-select(...args: any[])  [private]
@@ -50,11 +50,11 @@ computed
 
 methods
   beforeDestroyComponent(): any  [private]
-  changeSearchSelection(type?: any): any  [private]
+  changeSearchSelection(type?: any = 'next'): any  [private]
   changeTrigger(item: any): any  [private]
   closeDropdown(): any  [private]
   createdComponent(): any  [private]
-  findTreeItemVNodeById(itemId?: any, children?: any): any  [private]
+  findTreeItemVNodeById(itemId?: any = this.selectedTreeItem.id, children?: any = this.$refs.flowTriggerTree?.$?.subTree?.children): any  [private]
   getBreadcrumb(eventName: any): any  [private]
   getClosestSiblingAncestor(parentId: any): any  [private]
   getClosestSiblingDescendant(item: any): any  [private]
@@ -62,9 +62,9 @@ methods
   getEventName(eventName: any): any  [private]
   getEventNameTranslated(eventName: any): any  [private]
   getEventTree(events: any): any  [private]
-  getFirstChildById(itemId: any, children?: any): any  [private]
+  getFirstChildById(itemId: any, children?: any = this.$refs.flowTriggerTree.treeItems): any  [private]
   getLastEventName(arg0: any): any  [private]
-  getSibling(isNext: any, item: any, children?: any): any  [private]
+  getSibling(isNext: any, item: any, children?: any = this.$refs.flowTriggerTree.treeItems): any  [private]
   handleArrowKeyEvents(event: any): any  [private]
   handleClickEvent(event: any): any  [private]
   handleGeneralKeyEvents(event: any): any  [private]
@@ -102,6 +102,6 @@ crossings
   v-if  sw_flow_trigger_select_tree -> sw_flow_trigger_search_list  [private]
 
 refs
-  flowTriggerTree  -> sw-tree  [private]
-  searchInput  -> input  [private]
+  flowTriggerTree  -> sw-tree  block=sw_flow_trigger_select_tree  [private]
+  searchInput  -> input  block=sw_flow_trigger_select_field_input  [private]
 ```

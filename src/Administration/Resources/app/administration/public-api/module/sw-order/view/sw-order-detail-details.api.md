@@ -23,7 +23,7 @@ inject
   swOrderDetailOnSaveEdits
 
 props
-  isSaveSuccessful?: boolean  default=literal  [deprecated tag:v6.8.0]
+  isSaveSuccessful?: boolean  default=false  [deprecated tag:v6.8.0]
   orderId: string
 
 emits
@@ -73,7 +73,7 @@ methods
   shipmentCardTitle(index: any): any
   showError(error: any): any
   updateLoading(loadingValue: any): any  [deprecated tag:v6.8.0]
-  validateTrackingCode(searchTerm: any, delivery?: any): any
+  validateTrackingCode(searchTerm: any, delivery?: any = this.delivery): any
 
 blocks
   sw_order_detail_details

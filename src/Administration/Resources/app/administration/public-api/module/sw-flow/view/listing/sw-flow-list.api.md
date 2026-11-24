@@ -19,7 +19,7 @@ inject
   repositoryFactory  [private]
 
 props
-  searchTerm?: string  default=literal  [private]
+  searchTerm?: string  default=''  [private]
 
 emits
   on-update-total(...args: any[])  [private]

@@ -14,7 +14,7 @@ inject
   repositoryFactory
 
 props
-  promotion?: object  default=literal
+  promotion?: object  default=null
 
 data
   salesChannels: any

@@ -16,15 +16,15 @@ inject
   feature  [private]
 
 props
-  collapsibleText?: boolean  default=literal  [private]
-  displayIcon?: boolean  default=literal  [private]
+  collapsibleText?: boolean  default=true  [private]
+  displayIcon?: boolean  default=true  [private]
   entry: object  [private]
-  flyoutActive?: boolean  default=literal  [private]
-  iconSize?: string  default=literal  [private]
-  isExpanded?: boolean  default=literal  [private]
-  menuDepth?: number  default=literal  [private]
-  showActiveState?: boolean  default=literal  [private]
-  sidebarExpanded?: boolean  default=literal  [private]
+  flyoutActive?: boolean  default=false  [private]
+  iconSize?: string  default='16px'  [private]
+  isExpanded?: boolean  default=false  [private]
+  menuDepth?: number  default=1  [private]
+  showActiveState?: boolean  default=true  [private]
+  sidebarExpanded?: boolean  default=true  [private]
 
 emits
   branch-toggle(...args: any[])  [private]
@@ -78,7 +78,7 @@ methods
   forwardMenuItemHover(entry: any, target: any): any  [private]
   forwardNavigationLinkClick(): any  [private]
   getElementClasses(menuItemName: any): any  [private]
-  getIconName(name: any, isActive?: any): any  [private]
+  getIconName(name: any, isActive?: any = false): any  [private]
   hasAccessToRoute(path: any): any  [private]
   onCollapsedParentKeydown(event: any): any  [private]
   onCollapsibleOpenUpdate(open: any): any  [private]

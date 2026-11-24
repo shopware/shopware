@@ -15,9 +15,9 @@ inject
   repositoryFactory  [private]
 
 props
-  ogDescription?: string | null  default=literal  [private]
-  ogImageId?: EntityKey<'media'> | null  default=literal  [private]
-  ogTitle?: string | null  default=literal  [private]
+  ogDescription?: string | null  default=''  [private]
+  ogImageId?: EntityKey<'media'> | null  default=null  [private]
+  ogTitle?: string | null  default=''  [private]
 
 emits
   update:og-description(...args: any[])  [private]

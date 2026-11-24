@@ -128,5 +128,5 @@ blocks
           sw_settings_language_list_smart_bar_header_title_text
 
 refs
-  languageGrid  -> sw-entity-listing
+  languageGrid  -> sw-entity-listing  block=sw_settings_language_list_content
 ```

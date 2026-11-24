@@ -21,7 +21,7 @@ inject
   repositoryFactory
 
 props
-  documentConfigId?: string  default=literal
+  documentConfigId?: string  default=null
 
 data
   alreadyAssignedSalesChannelIdsToType: any

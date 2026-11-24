@@ -63,5 +63,5 @@ blocks
           sw_settings_currency_list_smart_bar_header_title_text
 
 refs
-  swSettingsCurrencyGrid  -> sw-entity-listing
+  swSettingsCurrencyGrid  -> sw-entity-listing  block=sw_settings_currency_list_content
 ```

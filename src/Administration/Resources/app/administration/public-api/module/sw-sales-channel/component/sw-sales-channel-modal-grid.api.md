@@ -15,8 +15,8 @@ inject
 
 props
   addChannelAction: object
-  productStreamsExist?: boolean  default=literal
-  productStreamsLoading?: boolean  default=literal
+  productStreamsExist?: boolean  default=true
+  productStreamsLoading?: boolean  default=false
 
 emits
   grid-channel-add(...args: any[])

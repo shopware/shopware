@@ -13,7 +13,7 @@ component sw-settings-country-preview-template  private  ts  [private]
 
 props
   formattingAddress: string  [private]
-  isLoading?: boolean  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
 
 computed
   displayFormattingAddress: string  [private]

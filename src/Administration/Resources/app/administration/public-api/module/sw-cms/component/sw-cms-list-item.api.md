@@ -14,10 +14,10 @@ inject
   feature
 
 props
-  active?: boolean  default=literal
-  disabled?: boolean  default=literal
-  isDefault?: boolean  default=literal
-  page?: Entity<'cms_page'>  default=literal
+  active?: boolean  default=false
+  disabled?: boolean  default=false
+  isDefault?: boolean  default=false
+  page?: Entity<'cms_page'>  default=null
 
 emits
   cms-page-delete(...args: any[])

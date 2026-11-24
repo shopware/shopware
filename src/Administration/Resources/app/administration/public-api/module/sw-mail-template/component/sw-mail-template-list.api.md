@@ -18,7 +18,7 @@ inject
   repositoryFactory
 
 props
-  searchTerm?: string  default=literal  [deprecated tag:v6.8.0]
+  searchTerm?: string  default=''  [deprecated tag:v6.8.0]
 
 data
   isLoading: any

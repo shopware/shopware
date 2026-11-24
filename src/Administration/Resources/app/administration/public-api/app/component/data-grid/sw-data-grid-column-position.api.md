@@ -15,10 +15,10 @@ mixins
   position  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  field?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  field?: string  default='position'  [private]
   item: object  [private]
-  showValue?: boolean  default=literal  [private]
+  showValue?: boolean  default=false  [private]
   value: any[]  [private]
 
 emits

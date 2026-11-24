@@ -12,7 +12,7 @@ component sw-cms-el-form-template-revocation-request  private  js  [private]
   visibility-source export  [private]
 
 props
-  formSettings: object  default=literal  [private]
+  formSettings: object  default=null  [private]
 
 blocks
   sw_cms_el_form_revocation_request  [private]

@@ -108,5 +108,5 @@ blocks
     sw_order_create_promotion_modal  [after v-if]
 
 refs
-  sw-order-line-item-grid-sales-channel  -> sw-order-line-items-grid-sales-channel
+  sw-order-line-item-grid-sales-channel  -> sw-order-line-items-grid-sales-channel  block=sw_order_create_base_line_items_grid
 ```

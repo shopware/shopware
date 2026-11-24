@@ -12,12 +12,12 @@ component sw-container  private  js  [private]
   visibility-source export  [private]
 
 props
-  align?: string  default=literal  [private]
+  align?: string  default='stretch'  [private]
   breakpoints?: object  default=factory  [private]
-  columns?: string  default=literal  [private]
-  gap?: string  default=literal  [private]
-  justify?: string  default=literal  [private]
-  rows?: string  default=literal  [private]
+  columns?: string  default=''  [private]
+  gap?: string  default=''  [private]
+  justify?: string  default='stretch'  [private]
+  rows?: string  default=''  [private]
 
 slots
   default  {}  block=sw_container  [private]
@@ -27,7 +27,7 @@ data
 
 methods
   buildCssGrid(): any  [private]
-  buildCssGridProps(currentBreakpoint?: any): any  [private]
+  buildCssGridProps(currentBreakpoint?: any = {}): any  [private]
   createdComponent(): any  [private]
   cssGridDefaults(): any  [private]
   registerResizeListener(): any  [private]

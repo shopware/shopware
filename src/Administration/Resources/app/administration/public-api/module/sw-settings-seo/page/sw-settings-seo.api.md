@@ -32,6 +32,6 @@ blocks
         sw_settings_seo_smart_bar_header_title_text
 
 refs
-  seoUrlTemplateCard  -> sw-seo-url-template-card
-  systemConfig  -> sw-system-config
+  seoUrlTemplateCard  -> sw-seo-url-template-card  block=sw_settings_seo_content_inner_seo_url_template
+  systemConfig  -> sw-system-config  block=sw_settings_seo_content_inner_redirect
 ```

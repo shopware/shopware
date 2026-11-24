@@ -13,8 +13,8 @@ component sw-text-editor-toolbar-button  private  js  [private]
 
 props
   buttonConfig: object  [private]
-  disabled?: boolean  default=literal  [private]
-  isInlineEdit?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isInlineEdit?: boolean  default=false  [private]
 
 emits
   button-click(...args: any[])  [private]
@@ -38,7 +38,7 @@ methods
   childActive(child: any): any  [private]
   getDropdownClasses(buttonConfig: any): any  [private]
   getTooltipConfig(buttonConfig: any, child: any): any  [private]
-  handleButtonClick(button: any, parent?: any): any  [private]
+  handleButtonClick(button: any, parent?: any = null): any  [private]
   handleChildClick(child: any): any  [private]
   mountedComponent(): any  [private]
   onChildMounted(): any  [private]
@@ -66,6 +66,6 @@ crossings
   v-if  sw_text_editor_toolbar_button_name -> sw_text_editor_toolbar_button_color  [private]
 
 refs
-  flyoutLinkMenu  -> div  [private]
-  flyoutMenu  -> div  [private]
+  flyoutLinkMenu  -> div  block=sw_text_editor_toolbar_button_link_menu  [private]
+  flyoutMenu  -> div  block=sw_text_editor_toolbar_button_table  [private]
 ```

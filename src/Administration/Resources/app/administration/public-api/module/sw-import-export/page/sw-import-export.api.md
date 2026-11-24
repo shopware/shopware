@@ -27,5 +27,5 @@ blocks
       sw_import_export_tabs_profiles  [until v6.8.0] [private]
 
 refs
-  tabContent  -> router-view  [private]
+  tabContent  -> router-view  block=sw_import_export  [private]
 ```

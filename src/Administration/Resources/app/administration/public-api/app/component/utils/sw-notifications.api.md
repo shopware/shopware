@@ -18,9 +18,9 @@ inject
   feature  [private]
 
 props
-  notificationsGap?: string  default=literal  [private]
-  notificationsTopGap?: string  default=literal  [private]
-  position?: string  default=literal  [private]
+  notificationsGap?: string  default='20px'  [private]
+  notificationsTopGap?: string  default='165px'  [private]
+  position?: string  default='topRight'  [private]
 
 computed
   notifications: any  [private]

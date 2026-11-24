@@ -11,7 +11,7 @@ component sw-settings-search-view-general  public  js
   template src/module/sw-settings-search/view/sw-settings-search-view-general/sw-settings-search-view-general.html.twig
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   productSearchConfigs?: object  default=factory
 
 emits

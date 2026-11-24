@@ -12,10 +12,10 @@ component sw-system-config-media-upload  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  name?: string  default=literal  [private]
-  value?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  label?: string  default=null  [private]
+  name?: string  default=null  [private]
+  value?: string  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]

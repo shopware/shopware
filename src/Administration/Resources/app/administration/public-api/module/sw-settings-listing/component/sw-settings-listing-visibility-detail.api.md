@@ -15,7 +15,7 @@ inject
 
 props
   config: any[]
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 data
   items: any

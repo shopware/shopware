@@ -16,7 +16,7 @@ inject
   snippetSetService  [private]
 
 props
-  fieldType?: string  default=literal  [private]
+  fieldType?: string  default='text'  [private]
   snippet: string  [private]
 
 data

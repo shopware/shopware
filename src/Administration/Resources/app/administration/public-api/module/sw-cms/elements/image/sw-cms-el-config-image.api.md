@@ -46,7 +46,7 @@ methods
   onImageUpload(arg0: any): Promise<any>  [private]
   onOpenMediaModal(): any  [private]
   onSelectionChanges(mediaEntity: any): any  [private]
-  updateElementData(media?: any): any  [private]
+  updateElementData(media?: any = null): any  [private]
 
 blocks
   sw_cms_element_image_config  [private]

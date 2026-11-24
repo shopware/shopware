@@ -15,9 +15,9 @@ inject
   repositoryFactory
 
 props
-  currentFolderId?: string  default=literal
-  disabled?: boolean  default=literal
-  small?: boolean  default=literal
+  currentFolderId?: string  default=null
+  disabled?: boolean  default=false
+  small?: boolean  default=false
 
 emits
   update:currentFolderId(...args: any[])

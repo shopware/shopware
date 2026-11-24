@@ -21,7 +21,7 @@ provide
   productCustomFields: any
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
   crossSelling: object
 
 data
@@ -94,5 +94,5 @@ blocks
         sw_product_detail_cross_selling_modal_delete_action_cancel
 
 refs
-  modalPreview  -> sw-product-stream-modal-preview
+  modalPreview  -> sw-product-stream-modal-preview  block=sw_product_detail_cross_selling_modal_preview_modal
 ```

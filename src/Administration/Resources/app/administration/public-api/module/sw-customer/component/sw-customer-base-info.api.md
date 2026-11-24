@@ -15,8 +15,8 @@ inject
 
 props
   customer: object
-  customerEditMode: boolean  default=literal
-  isLoading?: boolean  default=literal
+  customerEditMode: boolean  default=false
+  isLoading?: boolean  default=false
 
 data
   currencyCode: any

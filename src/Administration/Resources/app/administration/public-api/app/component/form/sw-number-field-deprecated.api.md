@@ -16,16 +16,16 @@ inject
   feature  [private]
 
 props
-  allowEmpty?: boolean  default=literal  [private]
+  allowEmpty?: boolean  default=false  [private]
   ariaLabel?: string  default=factory  [private]
-  digits?: number  default=literal  [private]
-  fillDigits?: boolean  default=literal  [private]
-  max?: number  default=literal  [private]
-  min?: number  default=literal  [private]
-  numberAlignEnd?: boolean  default=literal  [private]
-  numberType?: string  default=literal  [private]
-  step?: number  default=literal  [private]
-  value?: number  default=literal  [private]
+  digits?: number  default=2  [private]
+  fillDigits?: boolean  default=false  [private]
+  max?: number  default=null  [private]
+  min?: number  default=null  [private]
+  numberAlignEnd?: boolean  default=false  [private]
+  numberType?: string  default='float'  [private]
+  step?: number  default=null  [private]
+  value?: number  default=null  [private]
 
 emits
   ends-with-decimal-separator(...args: any[])  [private]

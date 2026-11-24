@@ -16,9 +16,9 @@ inject
   repositoryFactory  [private]
 
 props
-  defaultLimit?: number  default=literal  [private]
-  defaultSorting?: string  default=literal  [private]
-  displayAsGroup?: boolean  default=literal  [private]
+  defaultLimit?: number  default=25  [private]
+  defaultSorting?: string  default=null  [private]
+  displayAsGroup?: boolean  default=false  [private]
   filters: any[]  [private]
 
 emits
@@ -54,7 +54,7 @@ methods
   loadEntityData(): any  [private]
   loadSalesChannelById(): Promise<any>  [private]
   loadSalesChannels(): Promise<any>  [private]
-  mapFiltersForSearch(filters?: any, parentType?: any): any  [private]
+  mapFiltersForSearch(filters?: any = [], parentType?: any = null): any  [private]
   onPageChange(arg0: any): any  [private]
   onSalesChannelChange(): any  [private]
   onSearchTermChange(searchTerm: any): any  [private]

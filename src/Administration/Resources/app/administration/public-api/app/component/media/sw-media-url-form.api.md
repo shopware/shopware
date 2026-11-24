@@ -11,7 +11,7 @@ component sw-media-url-form  public  js
   template src/app/component/media/sw-media-url-form/sw-media-url-form.html.twig
 
 props
-  variant: string  default=literal
+  variant: string  default='inline'
 
 emits
   media-url-form-submit(...args: any[])

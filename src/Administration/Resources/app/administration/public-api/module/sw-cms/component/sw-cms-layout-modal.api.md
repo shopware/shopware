@@ -22,7 +22,7 @@ inject
 
 props
   cmsPageTypes?: any[]  default=factory  [private]
-  headline?: string  default=literal  [private]
+  headline?: string  default=''  [private]
   preSelection?: object  default=factory  [private]
 
 emits

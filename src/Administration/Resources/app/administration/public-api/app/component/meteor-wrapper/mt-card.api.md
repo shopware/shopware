@@ -12,7 +12,7 @@ component mt-card  private  ts  [private]
   visibility-source export  [private]
 
 props
-  positionIdentifier: string  default=literal  [private]
+  positionIdentifier: string  default=null  [private]
 
 slots
   after-card  {}  block=mt_card  [private]

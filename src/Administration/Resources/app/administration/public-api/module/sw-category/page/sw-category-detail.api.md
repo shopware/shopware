@@ -22,8 +22,8 @@ inject
   systemConfigApiService
 
 props
-  categoryId?: string  default=literal
-  landingPageId?: string  default=literal
+  categoryId?: string  default=null
+  landingPageId?: string  default=null
 
 data
   categoryCheckedItem: any
@@ -130,9 +130,9 @@ blocks
       sw_category_smart_bar_save_landing_page  [after v-if]
 
 refs
-  categoryTree  -> sw-category-tree
-  categoryView  -> sw-category-view
-  landingPageTree  -> sw-landing-page-tree
-  landingPageView  -> sw-landing-page-view
-  searchBar  -> sw-search-bar
+  categoryTree  -> sw-category-tree  block=sw_category_tree
+  categoryView  -> sw-category-view  block=sw_category_content_view
+  landingPageTree  -> sw-landing-page-tree  block=sw_landing_page_tree
+  landingPageView  -> sw-landing-page-view  block=sw_landing_page_content_view
+  searchBar  -> sw-search-bar  block=sw_category_search_bar
 ```

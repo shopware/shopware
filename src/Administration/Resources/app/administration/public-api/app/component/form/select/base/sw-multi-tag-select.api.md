@@ -18,15 +18,15 @@ inject
   feature  [private]
 
 props
-  autocomplete?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  invalidMessage?: string  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  validMessage?: string  default=literal  [private]
+  autocomplete?: string  default=undefined  [private]
+  disabled?: boolean  default=false  [private]
+  invalidMessage?: string  default=''  [private]
+  isLoading?: boolean  default=false  [private]
+  placeholder?: string  default=''  [private]
+  validMessage?: string  default=''  [private]
   validate?: (...args: any[]) => any  default=factory  [private]
   value: any[]  [private]
-  valueLimit?: number  default=literal  [private]
+  valueLimit?: number  default=5  [private]
 
 emits
   add-item-is-valid(...args: any[])  [private]
@@ -60,7 +60,7 @@ methods
   onSelectionListKeyDownEnter(): any  [private]
   remove(arg0: any): any  [private]
   removeLastItem(): any  [private]
-  setDropDown(open?: any): any  [private]
+  setDropDown(open?: any = true): any  [private]
 
 blocks
   sw_multi_tag_select  [private]
@@ -80,5 +80,5 @@ crossings
   v-if  sw_multi_tag_select_validation_valid -> sw_multi_tag_select_validation_invalid  [private]
 
 refs
-  selectionList  -> sw-select-selection-list  [private]
+  selectionList  -> sw-select-selection-list  block=sw_multi_tag_select_base_selection_slot  [private]
 ```

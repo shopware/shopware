@@ -11,9 +11,9 @@ component sw-arrow-field  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  primary?: string  default=literal  [private]
-  secondary?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  primary?: string  default='#ffffff'  [private]
+  secondary?: string  default='#d1d9e0'  [private]
 
 computed
   arrowFill: any  [private]

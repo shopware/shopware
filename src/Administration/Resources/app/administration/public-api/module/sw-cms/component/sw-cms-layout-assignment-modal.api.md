@@ -85,7 +85,7 @@ methods
   onExtraCategories(): Promise<any>  [private]
   onInputSalesChannelSelect(): any  [private]
   onKeepEditing(): any  [private]
-  onModalClose(saveAfterClose?: any): any  [private]
+  onModalClose(saveAfterClose?: any = false): any  [private]
   openConfirmChangesModal(): any  [private]
   saveShopPages(): Promise<any>  [private]
   validateCategories(): Promise<any>  [private]

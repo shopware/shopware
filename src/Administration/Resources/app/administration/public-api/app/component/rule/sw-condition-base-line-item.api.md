@@ -22,7 +22,7 @@ inject
   unwrapAllLineItemsCondition
 
 props
-  parentCondition?: object  default=literal
+  parentCondition?: object  default=null
 
 computed
   allowMatchesAll: any

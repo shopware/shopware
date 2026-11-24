@@ -15,7 +15,7 @@ inject
 
 props
   customer: object
-  customerEditMode?: boolean  default=literal
+  customerEditMode?: boolean  default=false
 
 data
   formattingBillingAddress: any

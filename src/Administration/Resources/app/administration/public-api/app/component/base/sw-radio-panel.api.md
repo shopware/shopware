@@ -15,15 +15,15 @@ inject
   feature  [private]
 
 props
-  description?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  icon?: string  default=literal  [private]
+  description?: string  default=''  [private]
+  disabled?: boolean  default=false  [private]
+  icon?: string  default=''  [private]
   id?: string  default=factory  [private]
   modelValue?: string  [private]
-  name?: string  default=literal  [private]
-  required?: boolean  default=literal  [private]
-  title?: string  default=literal  [private]
-  truncate?: boolean  default=literal  [private]
+  name?: string  default=null  [private]
+  required?: boolean  default=false  [private]
+  title?: string  default=''  [private]
+  truncate?: boolean  default=false  [private]
   value?: string  [private]
 
 emits

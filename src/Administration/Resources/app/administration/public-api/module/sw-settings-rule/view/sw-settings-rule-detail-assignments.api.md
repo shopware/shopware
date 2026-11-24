@@ -21,8 +21,8 @@ inject
   ruleConditionDataProviderService  [private]
 
 props
-  conditions?: any[]  default=literal  [private]
-  detailPageLoading?: boolean  default=literal  [private]
+  conditions?: any[]  default=null  [private]
+  detailPageLoading?: boolean  default=false  [private]
   rule: object  [private]
 
 data
@@ -51,7 +51,7 @@ methods
   createdComponent(): any  [private]
   disableAdd(entity: any): any  [private]
   doDeleteItem(): Promise<any>  [private]
-  getRouterLink(item: any, detailRoute: any, column?: any): any  [private]
+  getRouterLink(item: any, detailRoute: any, column?: any = null): any  [private]
   getTooltipConfig(entity: any): any  [private]
   hasRoute(item: any, column: any): any  [private]
   loadAssociationData(): Promise<any>  [private]

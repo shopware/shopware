@@ -17,17 +17,17 @@ inject
   feature
 
 props
-  criteria?: object  default=literal
+  criteria?: object  default=undefined
   defaultPropertyLabel: string
   defaultPropertyName: string
-  disabled?: boolean  default=literal
-  disabledTooltipMessage?: string  default=literal
-  helpText?: string  default=literal
+  disabled?: boolean  default=false
+  disabledTooltipMessage?: string  default=''
+  helpText?: string  default=null
   propertyLabel: string
   propertyName: string
-  propertyNameInDomain?: string  default=literal
-  salesChannel?: object  default=literal
-  shouldShowActiveState?: boolean  default=literal
+  propertyNameInDomain?: string  default=null
+  salesChannel?: object  default=null
+  shouldShowActiveState?: boolean  default=false
 
 computed
   defaultId: any

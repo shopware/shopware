@@ -72,5 +72,5 @@ blocks
         sw_property_option_list_toolbar_search
 
 refs
-  grid  -> sw-one-to-many-grid
+  grid  -> sw-one-to-many-grid  block=sw_property_option_list_grid
 ```

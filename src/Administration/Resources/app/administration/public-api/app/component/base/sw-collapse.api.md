@@ -12,7 +12,7 @@ component sw-collapse  private  js  [private]
   visibility-source export  [private]
 
 props
-  expandOnLoading?: boolean  default=literal  [private]
+  expandOnLoading?: boolean  default=false  [private]
 
 slots
   content  {}  block=sw_collapse_panel_content  [private]

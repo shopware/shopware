@@ -66,5 +66,5 @@ blocks
       sw_settings_product_feature_set_list_smart_bar_language_switch
 
 refs
-  swSettingsProductFeatureSetsGrid  -> sw-entity-listing
+  swSettingsProductFeatureSetsGrid  -> sw-entity-listing  block=sw_settings_product_feature_set_list_content
 ```

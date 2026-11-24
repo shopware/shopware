@@ -13,7 +13,7 @@ component sw-extension-bulk-uninstall-modal  private  js  [private]
 
 props
   extensions: any[]  [private]
-  isLoading?: boolean  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
 
 emits
   confirm(...args: any[])  [private]

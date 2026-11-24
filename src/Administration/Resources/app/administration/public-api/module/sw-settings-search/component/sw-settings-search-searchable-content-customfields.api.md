@@ -20,7 +20,7 @@ inject
 props
   columns: any[]
   isEmpty: boolean
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   repository: object
   searchConfigs?: any[]  default=factory
 
@@ -77,5 +77,5 @@ crossings
   v-if  sw_settings_search_searchable_content_customfields_empty_state -> sw_settings_search_searchable_content_customfields_grid
 
 refs
-  customGrid  -> sw-entity-listing
+  customGrid  -> sw-entity-listing  block=sw_settings_search_searchable_content_customfields_grid
 ```

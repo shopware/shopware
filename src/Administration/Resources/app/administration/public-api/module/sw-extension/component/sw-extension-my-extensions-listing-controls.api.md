@@ -12,7 +12,7 @@ component sw-extension-my-extensions-listing-controls  private  js  [private]
   visibility-source export  [private]
 
 props
-  sortingOption?: string  default=literal  [private]
+  sortingOption?: string  default='updated-at'  [private]
 
 emits
   update:active-state(...args: any[])  [private]

@@ -44,5 +44,5 @@ blocks
     sw_settings_payment_detail_language_switch  [replaced]
 
 refs
-  mediaSidebarItem  -> sw-sidebar-media-item
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_settings_payment_detail
 ```

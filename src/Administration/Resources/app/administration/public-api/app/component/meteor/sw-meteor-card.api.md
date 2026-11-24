@@ -15,11 +15,11 @@ inject
   feature  [private]
 
 props
-  defaultTab?: string  default=literal  [private]
-  hero?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  large?: boolean  default=literal  [private]
-  title?: string  default=literal  [private]
+  defaultTab?: string  default=null  [private]
+  hero?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  large?: boolean  default=false  [private]
+  title?: string  default=null  [private]
 
 slots
   action  {}  block=sw_meteor_card_header_action_inner  [private]

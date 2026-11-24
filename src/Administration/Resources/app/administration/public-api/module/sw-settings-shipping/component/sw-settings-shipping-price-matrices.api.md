@@ -18,7 +18,7 @@ inject
   ruleConditionDataProviderService
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 computed
   isLoaded: any

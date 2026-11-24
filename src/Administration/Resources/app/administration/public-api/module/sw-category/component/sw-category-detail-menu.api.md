@@ -17,7 +17,7 @@ inject
 
 props
   category: object
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
 
 data
   showMediaModal: any

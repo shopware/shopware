@@ -18,11 +18,11 @@ inject
 
 props
   conditionRepository: object  [private]
-  conditions?: any[]  default=literal  [private]
+  conditions?: any[]  default=null  [private]
   isLoading: boolean  [private]
   rule: object  [private]
-  ruleNameError?: object  default=literal  [private]
-  rulePriorityError?: object  default=literal  [private]
+  ruleNameError?: object  default=null  [private]
+  rulePriorityError?: object  default=null  [private]
 
 emits
   conditions-changed(...args: any[])  [private]

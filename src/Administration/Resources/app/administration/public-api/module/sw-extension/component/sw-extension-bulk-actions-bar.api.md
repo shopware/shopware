@@ -13,7 +13,7 @@ component sw-extension-bulk-actions-bar  private  js  [private]
 
 props
   applicableCounts: object  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   selectedCount: number  [private]
 
 emits

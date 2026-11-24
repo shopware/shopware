@@ -22,13 +22,13 @@ inject
   swOrderDetailAskAndSaveEdits
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   entity: object
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   order: object
-  position?: string  default=literal
-  stateLabel?: string  default=literal
-  title?: string  default=literal
+  position?: string  default=''
+  stateLabel?: string  default=''
+  title?: string  default=''
 
 emits
   save-edits(...args: any[])
@@ -64,7 +64,7 @@ methods
   getLastChange(): any
   getTransitionOptions(): Promise<any>
   onLeaveModalClose(): any
-  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
   onShowStatusHistory(): any
   onStateSelected(stateType: any, actionName: any): Promise<any>
 

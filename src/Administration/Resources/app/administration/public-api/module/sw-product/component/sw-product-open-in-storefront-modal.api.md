@@ -18,8 +18,8 @@ inject
   systemConfigApiService  [private]
 
 props
-  hasUnsavedChanges?: boolean  default=literal  [private]
-  parentProduct?: Entity<'product'> | null  default=literal  [private]
+  hasUnsavedChanges?: boolean  default=false  [private]
+  parentProduct?: Entity<'product'> | null  default=null  [private]
   product: Entity<'product'>  [private]
   productName: string  [private]
   salesChannels: Entity<'sales_channel'>[]  [private]

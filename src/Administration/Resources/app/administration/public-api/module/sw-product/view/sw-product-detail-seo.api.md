@@ -42,5 +42,5 @@ blocks
           sw_product_detail_seo_urls_content_seo_additional_edit  [scope: currentValue, isInherited, props]
 
 refs
-  seoForm  -> sw-product-seo-form
+  seoForm  -> sw-product-seo-form  block=sw_product_detail_seo_general_content
 ```

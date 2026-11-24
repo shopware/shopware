@@ -12,7 +12,7 @@ component sw-skeleton  private  ts  [private]
   visibility-source export  [private]
 
 props
-  variant?: string  default=literal  [private]
+  variant?: string  default='detail'  [private]
 
 computed
   classList: any  [private]

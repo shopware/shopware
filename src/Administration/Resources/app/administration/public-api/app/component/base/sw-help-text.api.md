@@ -12,11 +12,11 @@ component sw-help-text  private  js  [private]
   visibility-source export  [private]
 
 props
-  hideDelay?: number  default=literal  [private]
-  showDelay?: number  default=literal  [private]
-  text: string  default=literal  [private]
-  tooltipPosition?: string  default=literal  [private]
-  width?: number  default=literal  [private]
+  hideDelay?: number  default=100  [private]
+  showDelay?: number  default=100  [private]
+  text: string  default=''  [private]
+  tooltipPosition?: string  default='top'  [private]
+  width?: number  default=200  [private]
 
 blocks
   sw_help_text  [private]

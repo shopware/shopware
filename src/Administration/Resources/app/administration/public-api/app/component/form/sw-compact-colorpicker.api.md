@@ -43,5 +43,5 @@ blocks
         sw_compact_colorpicker_preview  [private]
 
 refs
-  colorPicker  -> div  [private]
+  colorPicker  -> div  block=sw_colorpicker_selection  [private]
 ```

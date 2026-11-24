@@ -15,14 +15,14 @@ inject
   feature  [private]
 
 props
-  aiBadge?: boolean  default=literal  [private]
-  contentPadding?: boolean  default=literal  [private]
-  hero?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  large?: boolean  default=literal  [private]
-  positionIdentifier: string  default=literal  [private]
-  subtitle?: string  default=literal  [private]
-  title?: string  default=literal  [private]
+  aiBadge?: boolean  default=false  [private]
+  contentPadding?: boolean  default=true  [private]
+  hero?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  large?: boolean  default=false  [private]
+  positionIdentifier: string  default=null  [private]
+  subtitle?: string  default=''  [private]
+  title?: string  default=''  [private]
 
 slots
   avatar  {}  block=sw_card  [private]

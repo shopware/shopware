@@ -22,8 +22,8 @@ inject
   repositoryFactory
 
 props
-  attachView?: boolean  default=literal
-  isLoading?: boolean  default=literal
+  attachView?: boolean  default=false
+  isLoading?: boolean  default=false
   order: object
 
 emits
@@ -95,7 +95,7 @@ methods
   onCloseSelectDocumentTypeModal(persist: any): any
   onCloseSendDocumentModal(): any
   onCloseUploadDocumentModal(): any
-  onCreateDocument(params: any, additionalAction: any, referencedDocumentId?: any, file?: any): Promise<any>
+  onCreateDocument(params: any, additionalAction: any, referencedDocumentId?: any = null, file?: any = null): Promise<any>
   onDeleteDocument(id: any): Promise<any>
   onDocumentSent(): any
   onDownload(id: any, deepLink: any, fileType: any): any
@@ -112,7 +112,7 @@ methods
   onShowDeleteDocumentModal(id: any): any
   onShowSelectDocumentTypeModal(): any
   onShowUploadDocumentModal(): any
-  onUploadDocument(params: any, additionalAction: any, file?: any): Promise<any>
+  onUploadDocument(params: any, additionalAction: any, file?: any = null): Promise<any>
   openDocument(documentId: any, documentDeepLink: any, fileType: any): any  [deprecated tag:v6.9.0]
   resolveDownloadFileType(document: any): any
   resolveOpenFileType(document: any): any
@@ -154,5 +154,5 @@ blocks
           sw_order_document_card_header_create_document_button_label
 
 refs
-  entityListing  -> sw-entity-listing
+  entityListing  -> sw-entity-listing  block=sw_order_document_card_grid
 ```

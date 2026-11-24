@@ -22,8 +22,8 @@ provide
   swCmsSectionEmitPageConfigOpen: any  [private]
 
 props
-  active?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
+  active?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
   page: Entity<'cms_page'>  [private]
   section: Entity<'cms_section'>  [private]
 
@@ -64,7 +64,7 @@ methods
   createdComponent(): any  [private]
   emitPageConfigOpen(arg: string): any  [private]
   getBlockComponent(type: string): any  [private]
-  getDropData(index: number, sectionPosition?: any): any  [private]
+  getDropData(index: number, sectionPosition?: any = 'main'): any  [private]
   hasBlockErrors(block: Entity<'cms_block'>): any  [private]
   hasSlotConfigErrors(block: Entity<'cms_block'>): any  [private]
   hasUniqueBlockErrors(block: Entity<'cms_block'>): any  [private]

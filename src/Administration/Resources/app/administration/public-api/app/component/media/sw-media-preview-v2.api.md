@@ -15,13 +15,13 @@ inject
   repositoryFactory
 
 props
-  autoplay?: boolean  default=literal
-  hideTooltip?: boolean  default=literal
-  mediaIsPrivate?: boolean  default=literal
-  showControls?: boolean  default=literal
+  autoplay?: boolean  default=false
+  hideTooltip?: boolean  default=true
+  mediaIsPrivate?: boolean  default=false
+  showControls?: boolean  default=false
   source: any
-  transparency?: boolean  default=literal
-  useThumbnails?: boolean  default=literal
+  transparency?: boolean  default=true
+  useThumbnails?: boolean  default=true
 
 emits
   click(...args: any[])
@@ -93,6 +93,6 @@ crossings
   v-if  sw_media_preview_v2_no_media -> sw_media_preview_v2_file_types
 
 refs
-  mediaElement  -> audio
-  mediaElement  -> video
+  mediaElement  -> audio  block=sw_media_preview_v2_file_type_audio
+  mediaElement  -> video  block=sw_media_preview_v2_file_type_video
 ```

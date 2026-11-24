@@ -21,8 +21,8 @@ inject
   repositoryFactory  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  isInherited?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isInherited?: boolean  default=false  [private]
 
 emits
   media-open(...args: any[])  [private]
@@ -56,7 +56,7 @@ methods
   onUploadFailed(uploadTask: any): any  [private]
   removeFile(productMedia: any): any  [private]
   successfulUpload(arg0: any): Promise<any>  [private]
-  triggerDownload(url: any, fileName?: any): any  [private]
+  triggerDownload(url: any, fileName?: any = null): any  [private]
   updateMediaItemPositions(): any  [private]
 
 blocks

@@ -15,18 +15,18 @@ inject
   ssoSettingsService
 
 props
-  avatarMediaItem?: object  default=literal
+  avatarMediaItem?: object  default=null
   isDisabled: boolean
   isUserLoading: boolean
-  languageId?: string  default=literal
+  languageId?: string  default=null
   languages: any[]
-  newPassword?: string  default=literal
-  newPasswordConfirm?: string  default=literal
+  newPassword?: string  default=null
+  newPasswordConfirm?: string  default=null
   timezoneOptions: any[]
   user: object
-  userModuleIconColors?: boolean  default=literal
+  userModuleIconColors?: boolean  default=false
   userRepository: object
-  userTheme?: string  default=literal
+  userTheme?: string  default='system'
 
 emits
   media-open(...args: any[])

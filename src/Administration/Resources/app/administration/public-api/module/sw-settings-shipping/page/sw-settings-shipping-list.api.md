@@ -79,5 +79,5 @@ crossings
   v-if  sw_settings_shipping_list_grid_columns_tax_type_inline_edit -> sw_settings_shipping_list_grid_columns_tax_type_content
 
 refs
-  swSettingsTaxGrid  -> sw-entity-listing
+  swSettingsTaxGrid  -> sw-entity-listing  block=sw_settings_shipping_list_grid
 ```

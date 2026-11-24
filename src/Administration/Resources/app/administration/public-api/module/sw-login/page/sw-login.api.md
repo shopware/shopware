@@ -12,7 +12,7 @@ component sw-login  private  ts  [private]
   visibility-source export  [private]
 
 props
-  hash?: string  default=literal  [private]
+  hash?: string  default=null  [private]
 
 data
   isLoading: any  [private]

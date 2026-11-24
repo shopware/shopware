@@ -15,10 +15,10 @@ inject
   shopwareExtensionService  [private]
 
 props
-  detail?: string  default=literal  [private]
-  documentationLink?: string  default=literal  [private]
+  detail?: string  default=null  [private]
+  documentationLink?: string  default=null  [private]
   extensionName: string  [private]
-  title?: string  default=literal  [private]
+  title?: string  default=null  [private]
 
 emits
   close(...args: any[])  [private]

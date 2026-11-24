@@ -12,7 +12,7 @@ component sw-media-add-thumbnail-form  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
 
 emits
   on-input(...args: any[])  [private]

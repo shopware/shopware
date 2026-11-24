@@ -68,5 +68,5 @@ blocks
           sw_app_action_modal_confirm_footer_continue  [private]
 
 refs
-  innerFrame  -> iframe  [private]
+  innerFrame  -> iframe  block=sw_app_action_modal_iframe  [private]
 ```

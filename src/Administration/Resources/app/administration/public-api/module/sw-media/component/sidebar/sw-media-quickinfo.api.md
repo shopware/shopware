@@ -21,7 +21,7 @@ inject
   systemConfigApiService
 
 props
-  editable?: boolean  default=literal
+  editable?: boolean  default=false
   item: object
 
 emits
@@ -82,7 +82,7 @@ methods
   runAppAction(action: any): any
   saveFinish(): any
   toggleAR(newValue: any): any
-  triggerDownload(url: any, fileName?: any): any
+  triggerDownload(url: any, fileName?: any = null): any
 
 blocks
   sw_media_quickinfo
@@ -118,8 +118,8 @@ blocks
     sw_media_quickinfo_usage
 
 refs
-  inlineEditFieldAlt  -> sw-confirm-field
-  inlineEditFieldName  -> sw-confirm-field
-  inlineEditFieldTitle  -> sw-confirm-field
-  modelEditorRef  -> sw-model-editor
+  inlineEditFieldAlt  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  inlineEditFieldName  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  inlineEditFieldTitle  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  modelEditorRef  -> sw-model-editor  block=sw_model_editor_modal
 ```

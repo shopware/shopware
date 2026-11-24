@@ -15,11 +15,11 @@ inject
   feature  [private]
 
 props
-  helpText?: string  default=literal  [private]
-  label?: string  default=literal  [private]
-  placeholder?: string  default=literal  [private]
+  helpText?: string  default=''  [private]
+  label?: string  default=''  [private]
+  placeholder?: string  default=''  [private]
   type: string  [private]
-  value?: unknown  default=literal  [private]
+  value?: unknown  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]

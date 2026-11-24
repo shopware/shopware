@@ -32,7 +32,7 @@ methods
   createdComponent(): any  [private]
   getPlaceholderItems(): any  [private]
   mountedComponent(): any  [private]
-  onChangeGalleryImage(mediaItem: any, index?: any): any  [private]
+  onChangeGalleryImage(mediaItem: any, index?: any = 0): any  [private]
   setGalleryLimit(): any  [private]
 
 blocks
@@ -44,5 +44,5 @@ blocks
     sw_cms_element_image_gallery_slider  [private]
 
 refs
-  galleryItemHolder  -> div  [private]
+  galleryItemHolder  -> div  block=sw_cms_element_image_gallery_grid  [private]
 ```

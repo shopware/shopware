@@ -18,12 +18,12 @@ provide
   setActiveItemIndex: any  [private]
 
 props
-  emptyMessage?: string  default=literal  [private]
-  focusEl?: any  default=factory  [private]
-  isLoading?: boolean  default=literal  [private]
+  emptyMessage?: string  default=null  [private]
+  focusEl?: HTMLDocument | HTMLElement  default=factory  [private]
+  isLoading?: boolean  default=false  [private]
   options?: any[]  default=factory  [private]
   popoverClasses?: any[]  default=factory  [private]
-  popoverResizeWidth?: boolean  default=literal  [private]
+  popoverResizeWidth?: boolean  default=true  [private]
 
 emits
   active-item-change(...args: any[])  [private]
@@ -49,7 +49,7 @@ methods
   beforeDestroyedComponent(): any  [private]
   checkOutsideClick(event: any): any  [private]
   createdComponent(): any  [private]
-  emitActiveItemIndex(shouldFocus?: any): any  [private]
+  emitActiveItemIndex(shouldFocus?: any = false): any  [private]
   emitClicked(): any  [private]
   getBottomDistance(element: any): any  [private]
   navigate(arg0: any): any  [private]
@@ -67,5 +67,5 @@ blocks
     sw_select_result_list_empty_text  [private]
 
 refs
-  popoverContent  -> div  [private]
+  popoverContent  -> div  block=sw_select_result_list  [private]
 ```

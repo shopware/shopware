@@ -53,12 +53,12 @@ methods
   createdComponent(): any
   doChange(): any
   getCustomList(): any
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any
   getPlaceholder(snippet: any): any
   getSnippetState(snippet: any): any
   initializeSnippet(): any
   onChange(snippet: any, value: any): any
-  onNewKeyRedirect(isNewOrigin?: any): any
+  onNewKeyRedirect(isNewOrigin?: any = false): any
   onRemoveInheritance(snippet: any): any
   onResetSnippet(snippet: any): any
   onSave(): any

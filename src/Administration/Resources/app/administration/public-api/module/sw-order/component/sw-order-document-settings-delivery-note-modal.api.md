@@ -28,8 +28,8 @@ computed
   documentPreconditionsFulfilled: any
 
 methods
-  onCreateDocument(additionalAction?: any): any
-  onPreview(fileType?: any): any
+  onCreateDocument(additionalAction?: any = false): any
+  onPreview(fileType?: any = 'pdf'): any
 
 blocks
   sw_order_document_settings_modal  [inherited]
@@ -54,5 +54,5 @@ blocks
     sw_order_document_settings_modal_media_modal  [inherited] [after v-if]
 
 refs
-  fileInput  -> sw-media-upload-v2
+  fileInput  -> sw-media-upload-v2  block=sw_order_document_settings_modal_form_file_upload_input
 ```

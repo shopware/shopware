@@ -46,5 +46,5 @@ blocks
         sw_multi_tag_select_validation_valid_message  [replaced] [private]
 
 refs
-  selectionList  -> sw-select-selection-list  [private]
+  selectionList  -> sw-select-selection-list  block=sw_multi_tag_select_base_selection_slot  [private]
 ```

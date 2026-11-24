@@ -14,7 +14,7 @@ mixins
   placeholder
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 data
   displayMaintainCurrencies: any
@@ -55,5 +55,5 @@ blocks
     sw_product_price_form_maintain_currencies_modal
 
 refs
-  taxIdInheritation  -> sw-inherit-wrapper
+  taxIdInheritation  -> sw-inherit-wrapper  block=sw_product_price_form_tax_field
 ```

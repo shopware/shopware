@@ -11,9 +11,9 @@ component sw-media-display-options  public  js
   template src/module/sw-media/component/sw-media-display-options/sw-media-display-options.html.twig
 
 props
-  disabled?: boolean  default=literal
-  hidePresentation?: boolean  default=literal
-  presentation?: string  default=literal
+  disabled?: boolean  default=false
+  hidePresentation?: boolean  default=false
+  presentation?: string  default='medium-preview'
   sorting?: object  default=factory
 
 emits

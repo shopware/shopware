@@ -70,5 +70,5 @@ blocks
           sw_settings_number_range_list_smart_bar_header_title_text
 
 refs
-  swSettingsNumberRangeGrid  -> sw-entity-listing
+  swSettingsNumberRangeGrid  -> sw-entity-listing  block=sw_settings_number_range_list_grid_inner
 ```

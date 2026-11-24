@@ -14,7 +14,7 @@ mixins
   placeholder
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 data
   isLoading: any
@@ -41,5 +41,5 @@ blocks
     sw_settings_shipping_detail_shipping_cost_tax_select
 
 refs
-  taxIdSelection  -> sw-entity-single-select
+  taxIdSelection  -> sw-entity-single-select  block=sw_settings_shipping_detail_shipping_cost_tax_rate_select
 ```

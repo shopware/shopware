@@ -54,7 +54,7 @@ blocks
               sw_entity_multi_select_base_selection_list_label_inner  [replaced] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty]
 
 refs
-  selectBase  -> sw-select-base
-  selectionList  -> sw-select-selection-list
-  swSelectResultList  -> sw-select-result-list
+  selectBase  -> sw-select-base  block=sw_entity_multi_select
+  selectionList  -> sw-select-selection-list  block=sw_entity_multi_select_base_selection_slot
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_multi_select_base_results_slot
 ```

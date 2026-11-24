@@ -27,7 +27,7 @@ props
   entityIconName: string  [private]
   index: number  [private]
   item?: object  default=factory  [private]
-  searchTerm?: string  default=literal  [private]
+  searchTerm?: string  default=null  [private]
   type: string  [private]
 
 emits
@@ -56,7 +56,7 @@ methods
   checkActiveState(arg0: any): any  [private]
   createdComponent(): any  [private]
   destroyedComponent(): any  [private]
-  onClickSearchResult(entity: any, id: any, payload?: any): any  [private]
+  onClickSearchResult(entity: any, id: any, payload?: any = {}): any  [private]
   onEnter(index: any, column: any): any  [private]
   onMouseEnter(originalDomEvent: any): any  [private]
   registerEvents(): any  [private]
@@ -107,5 +107,14 @@ crossings
   v-if  sw_search_bar_item_product -> sw_search_bar_item_category  [private]
 
 refs
-  routerLink  -> router-link  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_category  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_cms_page  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_custom_route  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_customer  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_landing_page  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_media  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_module  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_order  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_other_entity  [private]
+  routerLink  -> router-link  block=sw_search_bar_item_product  [private]
 ```

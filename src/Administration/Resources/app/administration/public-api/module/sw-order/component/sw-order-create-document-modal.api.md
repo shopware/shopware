@@ -19,7 +19,7 @@ inject
   numberRangeService  [private]
 
 props
-  documentType?: { technicalName: string }  default=literal  [private]
+  documentType?: { technicalName: string }  default=null  [private]
   isLoadingDocument: boolean  [private]
   isLoadingPreview: boolean  [private]
   order: Entity<'order'>  [private]
@@ -60,10 +60,10 @@ methods
   createdComponent(): Promise<void>  [private]
   getReferencedDocumentId(): string | null  [private]
   onCancel(): void  [private]
-  onCreateDocument(additionalAction?: any): void  [private]
+  onCreateDocument(additionalAction?: any = ''): void  [private]
   onDocumentTypeChange(technicalName: string | null): Promise<void>  [private]
-  onPreview(format?: string | null): void  [private]
-  reserveDocumentNumber(technicalName: string, isPreview?: any): Promise<string>  [private]
+  onPreview(format?: string | null = null): void  [private]
+  reserveDocumentNumber(technicalName: string, isPreview?: any = false): Promise<string>  [private]
 
 blocks
   sw_order_create_document_modal  [private]

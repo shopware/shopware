@@ -15,8 +15,8 @@ inject
   feature  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
-  deprecationMessage?: string  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
+  deprecationMessage?: string  default=''  [private]
   positionIdentifier: string  [private]
 
 data

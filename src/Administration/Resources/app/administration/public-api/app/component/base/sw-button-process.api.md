@@ -15,7 +15,7 @@ inject
   feature  [private]
 
 props
-  animationTimeout?: number  default=literal  [private]
+  animationTimeout?: number  default=1250  [private]
   processSuccess: boolean  [private]
 
 emits

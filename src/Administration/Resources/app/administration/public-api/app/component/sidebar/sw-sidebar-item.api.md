@@ -15,12 +15,12 @@ inject
   registerSidebarItem  [private]
 
 props
-  badge?: number  default=literal  [private]
-  badgeType?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  hasSimpleBadge?: boolean  default=literal  [private]
+  badge?: number  default=0  [private]
+  badgeType?: string  default='info'  [private]
+  disabled?: boolean  default=false  [private]
+  hasSimpleBadge?: boolean  default=false  [private]
   icon: string  [private]
-  position?: string  default=literal  [private]
+  position?: string  default='top'  [private]
   title: string  [private]
   tooltipShortcut?: any[]  default=factory  [private]
 

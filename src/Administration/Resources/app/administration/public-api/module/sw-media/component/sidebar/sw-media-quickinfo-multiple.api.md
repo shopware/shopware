@@ -14,7 +14,7 @@ mixins
   media-sidebar-modal-mixin
 
 props
-  editable?: boolean  default=literal
+  editable?: boolean  default=false
   items: any[]
 
 emits

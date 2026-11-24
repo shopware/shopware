@@ -21,7 +21,7 @@ props
   availableGroups?: any[]  default=factory  [private]
   availableTypes: any[]  [private]
   condition: object  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
 
 data
   typeSearchTerm: any  [private]

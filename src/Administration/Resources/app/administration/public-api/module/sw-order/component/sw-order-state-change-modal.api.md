@@ -28,7 +28,7 @@ computed
 
 methods
   onCancel(): any
-  onDocsConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onDocsConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
 
 blocks
   sw_order_state_change_modal

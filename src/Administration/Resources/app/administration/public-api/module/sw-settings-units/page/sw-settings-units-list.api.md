@@ -53,5 +53,5 @@ blocks
   sw_settings_units  [private]
 
 refs
-  swDataGrid  -> sw-data-grid  [private]
+  swDataGrid  -> sw-data-grid  block=sw_settings_units  [private]
 ```

@@ -65,7 +65,7 @@ methods
   getTransitionOptions(): Promise<any>
   loadHistory(): any
   onLeaveModalClose(): any
-  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
   onStateSelected(stateType: any, actionName: any): Promise<any>
   onTagAdd(item: any): any
   onTagRemove(item: any): any

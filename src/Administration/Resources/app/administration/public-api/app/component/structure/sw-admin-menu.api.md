@@ -76,9 +76,9 @@ methods
   closeNavigationOverlays(): any  [private]
   closeOffCanvas(): any  [private]
   collapseAdminMenu(): any  [private]
-  collapseInactiveBranches(exceptEntry?: any): any  [private]
+  collapseInactiveBranches(exceptEntry?: any = null): any  [private]
   createdComponent(): any  [private]
-  deactivateFlyoutFocusTrap(returnFocus?: any): any  [private]
+  deactivateFlyoutFocusTrap(returnFocus?: any = true): any  [private]
   deactivateOffCanvasFocusTrap(): any  [private]
   dismissOffCanvas(): any  [private]
   expandAdminMenu(): any  [private]
@@ -143,7 +143,7 @@ blocks
     sw_admin_menu_off_canvas_backdrop  [private]
 
 refs
-  swAdminMenu  -> aside  [private]
-  swAdminMenuBody  -> div  [private]
-  swAdminMenuFlyout  -> div  [private]
+  swAdminMenu  -> aside  block=sw_admin_menu  [private]
+  swAdminMenuBody  -> div  block=sw_admin_menu_body  [private]
+  swAdminMenuFlyout  -> div  block=sw_admin_menu_flyout_transition  [private]
 ```

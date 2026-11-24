@@ -18,13 +18,13 @@ inject
   feature  [private]
 
 props
-  alpha?: boolean  default=literal  [private]
-  colorLabels?: boolean  default=literal  [private]
-  colorOutput?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  readonly?: boolean  default=literal  [private]
-  value?: string  default=literal  [private]
-  zIndex?: any  default=literal  [private]
+  alpha?: boolean  default=true  [private]
+  colorLabels?: boolean  default=true  [private]
+  colorOutput?: string  default='auto'  [private]
+  disabled?: boolean  default=false  [private]
+  readonly?: boolean  default=false  [private]
+  value?: string  default=''  [private]
+  zIndex?: null | number  default=null  [private]
 
 emits
   inheritance-remove(...args: any[])  [private]
@@ -75,7 +75,7 @@ methods
   outsideClick(e: any): any  [private]
   removeDragging(): any  [private]
   removeOutsideClickEvent(): any  [private]
-  roundingFloat(num: any, digits?: any): any  [private]
+  roundingFloat(num: any, digits?: any = 2): any  [private]
   setDragging(event: any): any  [private]
   setHslaValues(hue: any, saturation: any, luminance: any, alpha: any): any  [private]
   setOutsideClickEvent(): any  [private]
@@ -104,5 +104,5 @@ blocks
           sw_colorpicker_selector  [private]
 
 refs
-  colorPicker  -> div  [private]
+  colorPicker  -> div  block=sw_colorpicker_selection  [private]
 ```

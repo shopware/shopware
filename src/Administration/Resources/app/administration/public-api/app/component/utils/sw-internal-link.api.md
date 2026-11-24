@@ -12,12 +12,12 @@ component sw-internal-link  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  hideIcon?: boolean  default=literal  [private]
-  icon?: string  default=literal  [private]
-  inline?: boolean  default=literal  [private]
-  routerLink?: object  default=literal  [private]
-  target?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  hideIcon?: boolean  default=false  [private]
+  icon?: string  default='regular-long-arrow-right'  [private]
+  inline?: boolean  default=false  [private]
+  routerLink?: object  default=undefined  [private]
+  target?: string  default=null  [private]
 
 emits
   click(...args: any[])  [private]

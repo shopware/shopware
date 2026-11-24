@@ -21,7 +21,7 @@ inject
   translationService
 
 props
-  languageId?: string  default=literal
+  languageId?: string  default=null
 
 data
   builtInLocales: any

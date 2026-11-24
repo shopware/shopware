@@ -11,9 +11,9 @@ component sw-settings-search-live-search-keyword  public  js
   template src/module/sw-settings-search/component/sw-settings-search-live-search-keyword/sw-settings-search-live-search-keyword.html.twig
 
 props
-  highlightClass?: string  default=literal
-  searchTerm: string  default=literal
-  text: string  default=literal
+  highlightClass?: string  default='sw-settings-search-live-search-keyword__highlight'
+  searchTerm: string  default=null
+  text: string  default=null
 
 computed
   parsedMsg: any

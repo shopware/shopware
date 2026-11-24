@@ -16,14 +16,14 @@ inject
   swGridColumns  [private]
 
 props
-  align?: string  default=literal  [private]
-  dataIndex?: string  default=literal  [private]
-  editable?: boolean  default=literal  [private]
-  flex?: any  default=literal  [private]
-  iconLabel?: string  default=literal  [private]
-  label?: string  default=literal  [private]
-  sortable?: boolean  default=literal  [private]
-  truncate?: boolean  default=literal  [private]
+  align?: string  default='left'  [private]
+  dataIndex?: string  default=''  [private]
+  editable?: boolean  default=false  [private]
+  flex?: any  default=1  [private]
+  iconLabel?: string  default=null  [private]
+  label?: string  default=null  [private]
+  sortable?: boolean  default=false  [private]
+  truncate?: boolean  default=false  [private]
 
 slots
   default  {}  block=sw_grid_column_content  [private]

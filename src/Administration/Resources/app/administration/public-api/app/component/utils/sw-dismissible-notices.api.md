@@ -16,7 +16,7 @@ inject
 
 props
   notices: DismissibleNotice[]  [private]
-  variant?: 'neutral' | 'info' | 'attention' | 'critical' | 'positive'  default=literal  [private]
+  variant?: 'neutral' | 'info' | 'attention' | 'critical' | 'positive'  default='info'  [private]
 
 data
   dismissedNotices: any  [private]

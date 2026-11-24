@@ -15,9 +15,9 @@ inject
 
 props
   detailedPrivileges: any[]
-  disabled?: boolean  default=literal
-  isLoading?: boolean  default=literal
-  role?: object  default=literal
+  disabled?: boolean  default=false
+  isLoading?: boolean  default=false
+  role?: object  default=null
 
 computed
   allEntities: any

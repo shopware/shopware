@@ -11,7 +11,7 @@ component sw-agentic-commerce-tracking-config  public  js
   template src/module/sw-sales-channel/component/sw-agentic-commerce-tracking-config/sw-agentic-commerce-tracking-config.html.twig
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   salesChannel: object
 
 emits

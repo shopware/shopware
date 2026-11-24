@@ -12,8 +12,8 @@ component sw-popover  private  ts  [private]
   visibility-source export  [private]
 
 props
-  isOpened?: boolean  default=literal  [private]
-  resizeWidth?: boolean  default=literal  [deprecated tag:v6.8.0] [private]
+  isOpened?: boolean  default=true  [private]
+  resizeWidth?: boolean  default=false  [deprecated tag:v6.8.0] [private]
 
 slots
   default  {}  block=sw_popover_deprecated  [private]

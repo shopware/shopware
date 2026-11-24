@@ -70,5 +70,5 @@ crossings
   v-if  sw_import_export_new_profile_wizard_footer_right_button_finish -> sw_import_export_new_profile_wizard_footer_right_button
 
 refs
-  wizard  -> sw-wizard
+  wizard  -> sw-wizard  block=sw_import_export_new_profile_wizard
 ```

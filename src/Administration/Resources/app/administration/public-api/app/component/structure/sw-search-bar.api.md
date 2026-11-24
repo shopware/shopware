@@ -29,11 +29,11 @@ provide
   searchBarUnregisterKeyupEnterHandler: any  [private]
 
 props
-  entitySearchColor?: string  default=literal  [private]
-  initialSearch?: string  default=literal  [private]
-  initialSearchType?: string  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  typeSearchAlwaysInContainer?: boolean  default=literal  [private]
+  entitySearchColor?: string  default=''  [private]
+  initialSearch?: string  default=''  [private]
+  initialSearchType?: string  default=''  [private]
+  placeholder?: string  default=''  [private]
+  typeSearchAlwaysInContainer?: boolean  default=Context.app.adminEsEnable ?? false  [private]
 
 emits
   active-item-index-select(...args: any[])  [private]
@@ -102,10 +102,10 @@ methods
   getEntityIcon(entityName: any): any  [private]
   getEntityIconColor(entityName: any): any  [private]
   getEntityIconName(entityName: any): any  [private]
-  getFrequentlyUsedModules(checkNonExistentKeys?: any): Promise<any>  [private]
+  getFrequentlyUsedModules(checkNonExistentKeys?: any = true): Promise<any>  [private]
   getInfoModuleFrequentlyUsed(key: any): any  [private]
   getLabelSearchType(type: any): any  [private]
-  getModuleEntities(searchTerm: any, limit?: any): any  [private]
+  getModuleEntities(searchTerm: any, limit?: any = 5): any  [private]
   getRecentlySearch(): Promise<any>  [private]
   getSalesChannelTypesBySearchTerm(regex: any): any  [private]
   getSearchTypeManifest(entityName: any): any  [private]
@@ -122,7 +122,7 @@ methods
   navigateUpResults(): any  [private]
   onBlur(): any  [private]
   onClickFieldWrapper(event: any): any  [private]
-  onClickSearchResult(entity: any, id: any, payload?: any): any  [private]
+  onClickSearchResult(entity: any, id: any, payload?: any = {}): any  [private]
   onClickType(type: any): any  [private]
   onFocusInput(): any  [private]
   onKeyUpEnter(): any  [private]
@@ -197,6 +197,6 @@ crossings
   v-if  sw_search_bar_results_empty_state -> sw_search_bar_results_content  [private]
 
 refs
-  resultsContainer  -> div  [private]
-  searchInput  -> input  [private]
+  resultsContainer  -> div  block=sw_search_bar_results  [private]
+  searchInput  -> input  block=sw_search_bar_slot_input  [private]
 ```

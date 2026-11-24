@@ -12,12 +12,12 @@ component sw-product-image  private  js  [private]
   visibility-source export  [private]
 
 props
-  isArReady?: boolean  default=literal  [private]
-  isCover?: boolean  default=literal  [private]
-  isPlaceholder?: boolean  default=literal  [private]
-  isSpatial?: boolean  default=literal  [private]
+  isArReady?: boolean  default=false  [private]
+  isCover?: boolean  default=false  [private]
+  isPlaceholder?: boolean  default=false  [private]
+  isSpatial?: boolean  default=false  [private]
   mediaId: string  [private]
-  showCoverLabel?: boolean  default=literal  [private]
+  showCoverLabel?: boolean  default=true  [private]
 
 emits
   sw-product-image-cover(...args: any[])  [private]

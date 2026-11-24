@@ -12,8 +12,8 @@ component sw-flow-sequence  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  isUnknownTrigger?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
   sequence: object  [private]
 
 computed

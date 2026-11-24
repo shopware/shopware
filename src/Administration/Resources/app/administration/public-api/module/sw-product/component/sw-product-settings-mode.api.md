@@ -11,7 +11,7 @@ component sw-product-settings-mode  public  js  [until v6.8.0]
   template src/module/sw-product/component/sw-product-settings-mode/sw-product-settings-mode.html.twig
 
 props
-  isLoading?: boolean  default=literal  [until v6.8.0]
+  isLoading?: boolean  default=true  [until v6.8.0]
   modeSettings: object  [until v6.8.0]
 
 emits

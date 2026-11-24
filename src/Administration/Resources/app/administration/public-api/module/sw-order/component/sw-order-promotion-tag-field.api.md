@@ -13,7 +13,7 @@ component sw-order-promotion-tag-field  public  js
 
 props
   currency: object
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 emits
   on-remove-code(...args: any[])
@@ -39,5 +39,5 @@ blocks
           sw_order_promotion_tag_field_tag_item  [scope: disabled, error, identification, index, item, removeFocusClass, setFocusClass, size]
 
 refs
-  taggedFieldInput  -> input
+  taggedFieldInput  -> input  block=sw_order_promotion_tag_field_input
 ```

@@ -14,8 +14,8 @@ inject
   repositoryFactory
 
 props
-  allowEdit?: boolean  default=literal
-  disabled?: boolean  default=literal
+  allowEdit?: boolean  default=true
+  disabled?: boolean  default=false
   isLoading: boolean
   productFeatureSet: object
 
@@ -72,5 +72,5 @@ blocks
         sw_product_feature_set_toolbar_search
 
 refs
-  columnPosition  -> sw-data-grid-column-position
+  columnPosition  -> sw-data-grid-column-position  block=sw_settings_product_feature_set_card_grid_column_position
 ```

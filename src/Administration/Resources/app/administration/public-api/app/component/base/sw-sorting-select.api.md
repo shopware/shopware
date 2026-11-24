@@ -13,8 +13,8 @@ component sw-sorting-select  private  js  [private]
 
 props
   additionalSortOptions?: any[]  default=factory  [private]
-  sortBy?: string  default=literal  [private]
-  sortDirection?: string  default=literal  [private]
+  sortBy?: string  default='createdAt'  [private]
+  sortDirection?: string  default='DESC'  [private]
 
 emits
   sorting-changed(...args: any[])  [private]

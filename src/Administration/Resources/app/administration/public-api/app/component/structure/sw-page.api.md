@@ -16,11 +16,11 @@ provide
   setSwPageSidebarOffset: any  [private]
 
 props
-  backLabel?: string  default=literal  [private]
-  backRoute?: object | string  default=literal  [private]
-  headerBorderColor?: string  default=literal  [private]
-  showSearchBar?: boolean  default=literal  [private]
-  showSmartBar?: boolean  default=literal  [private]
+  backLabel?: string  default=''  [private]
+  backRoute?: object | string  default=null  [private]
+  headerBorderColor?: string  default=''  [private]
+  showSearchBar?: boolean  default=true  [private]
+  showSmartBar?: boolean  default=true  [private]
 
 slots
   content  {}  block=sw_page_content  [private]
@@ -96,5 +96,5 @@ blocks
           sw_page_top_bar_app_button  [private]
 
 refs
-  swPageContent  -> div  [private]
+  swPageContent  -> div  block=sw_page_content  [private]
 ```

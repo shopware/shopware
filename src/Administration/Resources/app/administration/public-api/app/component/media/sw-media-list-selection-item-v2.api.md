@@ -12,9 +12,9 @@ component sw-media-list-selection-item-v2  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  hideActions?: boolean  default=literal  [private]
-  hideTooltip?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  hideActions?: boolean  default=false  [private]
+  hideTooltip?: boolean  default=false  [private]
   item: any  [private]
 
 emits

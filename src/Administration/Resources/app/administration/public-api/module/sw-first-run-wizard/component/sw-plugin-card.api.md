@@ -21,7 +21,7 @@ inject
 
 props
   plugin: RecommendedPlugin  [private]
-  showDescription?: boolean  default=literal  [private]
+  showDescription?: boolean  default=true  [private]
 
 emits
   extension-activated(...args: any[])  [private]

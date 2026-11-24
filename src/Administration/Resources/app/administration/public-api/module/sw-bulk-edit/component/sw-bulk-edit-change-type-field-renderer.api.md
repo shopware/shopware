@@ -15,7 +15,7 @@ inject
 
 props
   bulkEditData: object
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   entity: object
   formFields: any[]
 
@@ -36,7 +36,7 @@ methods
   getConfigValue(formField: any, key: any): any
   hasFormFieldConfig(formField: any): any
   onChangeToggle(value: any, fieldName: any): any
-  onChangeValue(value: any, fieldName: any, valueChange?: any): any
+  onChangeValue(value: any, fieldName: any, valueChange?: any = true): any
   onInheritanceRemove(item: any): any
   onInheritanceRestore(item: any): any
   showSelectBoxType(formField: any): any

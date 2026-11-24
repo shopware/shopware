@@ -35,5 +35,5 @@ blocks
         sw_settings_newsletter_smart_bar_header_title_text
 
 refs
-  systemConfig  -> sw-system-config
+  systemConfig  -> sw-system-config  block=sw_setting_newsletter_system_config
 ```

@@ -16,7 +16,7 @@ inject
   repositoryFactory  [private]
 
 props
-  profile?: object  default=literal  [private]
+  profile?: object  default=null  [private]
 
 data
   currencies: any  [private]

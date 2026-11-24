@@ -15,8 +15,8 @@ mixins
   notification  [private]
 
 props
-  copyableText?: string  default=literal  [private]
-  tooltip?: boolean  default=literal  [private]
+  copyableText?: string  default=null  [private]
+  tooltip?: boolean  default=false  [private]
 
 data
   wasCopied: any  [private]

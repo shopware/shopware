@@ -11,11 +11,11 @@ component sw-block  private  ts  [private]
   visibility-source export  [private]
 
 props
-  data?: ComponentInternalInstance['proxy']  default=literal  [private]
+  data?: ComponentInternalInstance['proxy']  default=null  [private]
   extends?: string  [private]
   name?: string  [private]
   swInternalComponentName: string  [private]
-  swInternalLegacyShim?: boolean  default=literal  [private]
+  swInternalLegacyShim?: boolean  default=true  [private]
 
 notes
   unresolved options setup  [private]

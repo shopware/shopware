@@ -15,7 +15,7 @@ inject
 
 props
   order: object
-  value?: object  default=literal
+  value?: object  default=null
 
 emits
   modal-close(...args: any[])

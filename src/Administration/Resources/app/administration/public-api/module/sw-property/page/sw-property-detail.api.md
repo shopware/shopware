@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  groupId?: string  default=literal
+  groupId?: string  default=null
 
 data
   customFieldSets: any
@@ -63,5 +63,5 @@ blocks
       sw_property_detail_smart_bar_header_title
 
 refs
-  optionListing  -> sw-property-option-list
+  optionListing  -> sw-property-option-list  block=sw_property_detail_content_option_list
 ```

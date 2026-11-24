@@ -122,5 +122,5 @@ blocks
       sw_promotion_discount_max_value_field  [private]
 
 refs
-  selectFieldScope  -> mt-select  [private]
+  selectFieldScope  -> mt-select  block=sw_promotion_discount_component_scope  [private]
 ```

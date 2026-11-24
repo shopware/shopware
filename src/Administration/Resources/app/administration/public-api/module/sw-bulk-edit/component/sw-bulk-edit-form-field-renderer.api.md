@@ -28,7 +28,8 @@ blocks
       sw_form_field_renderer_scope_slots  [inherited]
 
 refs
-  component  -> component
+  component  -> component  block=sw_form_field_renderer
+  component  -> component  block=sw_form_field_renderer_inner
 
 notes
   dynamic-slot slotName

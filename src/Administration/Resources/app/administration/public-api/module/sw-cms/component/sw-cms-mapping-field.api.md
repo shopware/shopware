@@ -17,10 +17,10 @@ inject
 
 props
   config: { source: 'static' | 'mapped' | 'default'; value: unknown; [key: string]: unknown; }  default=factory  [private]
-  disabled?: boolean  default=literal  [private]
-  entity?: Extract<keyof EntitySchema.EntityKeys, string> | null  default=literal  [private]
-  label?: string  default=literal  [private]
-  valueTypes?: any[] | string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  entity?: Extract<keyof EntitySchema.EntityKeys, string> | null  default=null  [private]
+  label?: string  default=''  [private]
+  valueTypes?: any[] | string  default='string'  [private]
 
 slots
   default  {}  block=sw_cms_mapping_field_content  [private]

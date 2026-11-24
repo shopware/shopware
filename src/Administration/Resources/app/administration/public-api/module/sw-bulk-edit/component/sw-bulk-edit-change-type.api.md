@@ -14,10 +14,10 @@ inject
   feature
 
 props
-  allowAdd?: boolean  default=literal
-  allowClear?: boolean  default=literal
-  allowOverwrite?: boolean  default=literal
-  allowRemove?: boolean  default=literal
+  allowAdd?: boolean  default=false
+  allowClear?: boolean  default=false
+  allowOverwrite?: boolean  default=false
+  allowRemove?: boolean  default=false
   value: string
 
 emits

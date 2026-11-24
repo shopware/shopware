@@ -35,5 +35,5 @@ blocks
         sw_settings_store_smart_bar_header_title_text  [private]
 
 refs
-  systemConfig  -> sw-system-config  [private]
+  systemConfig  -> sw-system-config  block=sw_settings_store_content  [private]
 ```

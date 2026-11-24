@@ -34,5 +34,5 @@ blocks
         sw_settings_basic_information_smart_bar_header_title_text
 
 refs
-  systemConfig  -> sw-system-config
+  systemConfig  -> sw-system-config  block=sw_settings_basic_information_content
 ```

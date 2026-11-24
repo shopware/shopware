@@ -11,7 +11,7 @@ component sw-product-settings-form  public  js
   template src/module/sw-product/component/sw-product-settings-form/sw-product-settings-form.html.twig
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
 
 computed
   parentProduct: any

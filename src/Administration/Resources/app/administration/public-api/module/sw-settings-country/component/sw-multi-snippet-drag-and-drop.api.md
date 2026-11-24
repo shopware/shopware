@@ -15,13 +15,13 @@ inject
   feature  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   dragConfig?: object  default=factory  [private]
   dropConfig?: object  default=factory  [private]
-  externalDragPreview?: ExternalDragPreview | null  default=literal  [private]
+  externalDragPreview?: ExternalDragPreview | null  default=null  [private]
   getLabelProperty?: (...args: any[]) => any  default=factory  [private]
-  isLoading?: boolean  default=literal  [private]
-  isSnippetDragging?: boolean  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
+  isSnippetDragging?: boolean  default=false  [private]
   linePosition: number  [private]
   selectionDisablingMethod?: (...args: any[]) => any  default=factory  [private]
   totalLines: number  [private]
@@ -67,7 +67,7 @@ methods
   addNewLineAt(position: number): any  [private]
   isDragPreviewSource(index: number): boolean  [private]
   isSelectionDisabled(selection: $TSFixMe): boolean  [private]
-  moveToNewPosition(position?: any): any  [private]
+  moveToNewPosition(position?: any = null): any  [private]
   onClickDismiss(index: number): any  [private]
   onDelete(): any  [private]
   onDragEnter(dragData: DragItem | null, dropData: DragItem | null): any  [private]
@@ -82,5 +82,5 @@ blocks
   sw_multi_snippet_drag_and_drop  [private]
 
 refs
-  selectionList  -> ul  [private]
+  selectionList  -> ul  block=sw_multi_snippet_drag_and_drop  [private]
 ```

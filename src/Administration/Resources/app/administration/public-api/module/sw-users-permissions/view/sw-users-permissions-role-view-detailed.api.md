@@ -15,8 +15,8 @@ inject
 
 props
   detailedPrivileges: any[]
-  isLoading?: boolean  default=literal
-  role?: object  default=literal
+  isLoading?: boolean  default=false
+  role?: object  default=null
 
 blocks
   sw_users_permissions_role_role_view_general_card_view_additional_permissions  [after v-if]

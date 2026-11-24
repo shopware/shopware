@@ -30,7 +30,7 @@ methods
   checkTagExists(term: any): Promise<any>  [private]
   createNewTag(): any  [private]
   filterSearchGeneratedTags(): any  [private]
-  resetActiveItem(position?: any): any  [private]
+  resetActiveItem(position?: any = 0): any  [private]
   search(searchTerm: any): any  [private]
 
 blocks
@@ -55,7 +55,7 @@ blocks
               sw_entity_multi_select_base_selection_list_label_inner  [inherited] [scope: collapse, disabled, error, expand, getKey, identification, index, item, labelProperty, size, valueProperty] [private]
 
 refs
-  selectBase  -> sw-select-base  [private]
-  selectionList  -> sw-select-selection-list  [private]
-  swSelectResultList  -> sw-select-result-list  [private]
+  selectBase  -> sw-select-base  block=sw_entity_multi_select  [private]
+  selectionList  -> sw-select-selection-list  block=sw_entity_multi_select_base_selection_slot  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_multi_select_base_results_slot  [private]
 ```

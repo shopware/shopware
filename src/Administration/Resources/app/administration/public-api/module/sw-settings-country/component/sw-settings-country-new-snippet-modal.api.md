@@ -14,7 +14,7 @@ component sw-settings-country-new-snippet-modal  private  ts  [private]
 props
   addressFormat: Array<string[]>  [private]
   currentPosition: number  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   getLabelProperty?: (...args: any[]) => any  default=factory  [private]
   selections?: Selection[]  default=factory  [private]
 
@@ -48,6 +48,6 @@ blocks
   sw_settings_country_new_snippet_modal  [private]
 
 refs
-  searchInput  -> input  [private]
-  selectionList  -> ul  [private]
+  searchInput  -> input  block=sw_settings_country_new_snippet_modal  [private]
+  selectionList  -> ul  block=sw_settings_country_new_snippet_modal  [private]
 ```

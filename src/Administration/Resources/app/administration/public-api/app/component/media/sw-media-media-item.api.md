@@ -84,5 +84,5 @@ blocks
     sw_media_media_item_preview
 
 refs
-  itemName  -> div
+  itemName  -> div  block=sw_media_media_item_name_container
 ```

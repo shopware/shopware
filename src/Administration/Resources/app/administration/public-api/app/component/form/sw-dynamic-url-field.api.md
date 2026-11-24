@@ -15,8 +15,8 @@ inject
   repositoryFactory  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  value?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  value?: string  default=''  [private]
 
 emits
   update:value(...args: any[])  [private]

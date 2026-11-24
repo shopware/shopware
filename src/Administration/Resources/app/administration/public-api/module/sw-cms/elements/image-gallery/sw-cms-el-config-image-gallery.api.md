@@ -125,5 +125,6 @@ crossings
   v-if  sw_cms_element_image_gallery_config_mt_media_preview_list -> sw_cms_element_image_gallery_config_mt_media_preview_info  [from v6.8.0] [private]
 
 refs
-  demoMediaGrid  -> div  [private]
+  demoMediaGrid  -> div  block=sw_cms_element_image_gallery_config_media_preview_list  [until v6.8.0] [private]
+  demoMediaGrid  -> div  block=sw_cms_element_image_gallery_config_mt_media_preview_list  [from v6.8.0] [private]
 ```

@@ -15,8 +15,8 @@ inject
   userActivityService  [private]
 
 props
-  maxValue?: number  default=literal  [private]
-  value?: number  default=literal  [private]
+  maxValue?: number  default=100  [private]
+  value?: number  default=0  [private]
 
 computed
   progressClasses: any  [private]

@@ -12,7 +12,7 @@ component sw-icon  private  js  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
   name: string  [private]
 
 slots

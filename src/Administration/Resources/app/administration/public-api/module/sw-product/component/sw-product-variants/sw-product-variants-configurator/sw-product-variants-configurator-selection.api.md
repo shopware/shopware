@@ -64,8 +64,8 @@ crossings
   v-if  sw_property_search_option_search_grid -> sw_property_search_empty
 
 refs
-  groupGrid  -> sw-grid
-  optionGrid  -> sw-grid
-  optionSearchGrid  -> sw-grid
-  searchField  -> sw-simple-search-field
+  groupGrid  -> sw-grid  block=sw_property_search_tree_group_grid
+  optionGrid  -> sw-grid  block=sw_property_search_tree_option_grid
+  optionSearchGrid  -> sw-grid  block=sw_property_search_option_search_grid
+  searchField  -> sw-simple-search-field  block=sw_product_variants_configurator_selection_search_field
 ```

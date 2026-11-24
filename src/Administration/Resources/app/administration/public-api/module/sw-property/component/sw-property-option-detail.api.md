@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
   currentOption?: object  default=factory
 
 emits

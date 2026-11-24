@@ -15,8 +15,8 @@ inject
   feature  [private]
 
 props
-  activityType?: string  default=literal  [private]
-  disableButton?: boolean  default=literal  [private]
+  activityType?: string  default='import'  [private]
+  disableButton?: boolean  default=true  [private]
 
 emits
   process-start(...args: any[])  [private]

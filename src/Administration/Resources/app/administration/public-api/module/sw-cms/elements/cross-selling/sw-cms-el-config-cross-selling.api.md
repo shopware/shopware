@@ -76,5 +76,6 @@ crossings
   v-if  sw_cms_element_cross_selling_config_content -> sw_cms_element_cross_selling_config_options  [until v6.8.0] [private]
 
 refs
-  cmsProductSelection  -> sw-entity-single-select  [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_cross_selling_config_content_products  [until v6.8.0] [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_cross_selling_config_mt_content_products  [from v6.8.0] [private]
 ```

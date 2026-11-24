@@ -62,7 +62,7 @@ computed
 
 methods
   buildVariantName(variant: any): any
-  buildVariantOptions(variant: any, seperator?: any, ommitParenthesis?: any, ommitOptionGroupName?: any): any
+  buildVariantOptions(variant: any, seperator?: any = ', ', ommitParenthesis?: any = false, ommitOptionGroupName?: any = false): any
   canVariantsBeDeleted(): Promise<any>
   closeDeleteModal(): any
   createdComponent(): Promise<any>
@@ -74,7 +74,7 @@ methods
   filterOptionChecked(option: any): any
   getDefaultPriceForVariant(variant: any): any
   getItemMedia(item: any): any
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any
   getOptionsForGroup(groupId: any): any
   getVariantPrice(variant: any): any
   isMediaFieldInherited(variant: any): any
@@ -167,6 +167,6 @@ crossings
   v-if  sw_product_variant_modal_body_grid_column_stock_inline_edit -> sw_product_variant_modal_body_grid_column_stock_content
 
 refs
-  pagination  -> sw-pagination
-  variantGrid  -> sw-data-grid
+  pagination  -> sw-pagination  block=sw_product_variant_modal_body_grid_pagination
+  variantGrid  -> sw-data-grid  block=sw_product_variant_modal_body_grid
 ```

@@ -56,5 +56,5 @@ crossings
   v-if  sw_sales_channel_products_assignment_single_products_primary_listing -> sw_sales_channel_products_assignment_single_products_primary_empty_state
 
 refs
-  cardSectionSecondary  -> sw-card-section
+  cardSectionSecondary  -> sw-card-section  block=sw_sales_channel_products_assignment_single_products_secondary
 ```

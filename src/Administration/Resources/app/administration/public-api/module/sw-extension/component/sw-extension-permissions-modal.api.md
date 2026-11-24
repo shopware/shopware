@@ -12,13 +12,13 @@ component sw-extension-permissions-modal  private  js  [private]
   visibility-source export  [private]
 
 props
-  actionLabel?: string  default=literal  [private]
-  closeLabel?: string  default=literal  [private]
-  description?: string  default=literal  [private]
+  actionLabel?: string  default=null  [private]
+  closeLabel?: string  default=null  [private]
+  description?: string  default=null  [private]
   domains?: any[]  default=factory  [private]
   extensionLabel: string  [private]
   permissions: object  [private]
-  title?: string  default=literal  [private]
+  title?: string  default=null  [private]
 
 emits
   close-with-action(...args: any[])  [private]

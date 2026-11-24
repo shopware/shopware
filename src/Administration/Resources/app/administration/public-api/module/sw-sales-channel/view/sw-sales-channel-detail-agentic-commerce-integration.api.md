@@ -14,8 +14,8 @@ inject
   acl
 
 props
-  isLoading?: boolean  default=literal
-  productComparisonAccessUrl?: string  default=literal
+  isLoading?: boolean  default=false
+  productComparisonAccessUrl?: string  default=''
   productExport: any
   salesChannel: any
 

@@ -15,11 +15,11 @@ inject
   repositoryFactory
 
 props
-  disabled?: boolean  default=literal
-  emptyStateDescription?: string  default=literal
-  emptyStateTitle?: string  default=literal
-  isAssociation?: boolean  default=literal
-  showInheritanceSwitcher?: boolean  default=literal
+  disabled?: boolean  default=false
+  emptyStateDescription?: string  default=null
+  emptyStateTitle?: string  default=null
+  isAssociation?: boolean  default=true
+  showInheritanceSwitcher?: boolean  default=true
 
 data
   groupIds: any
@@ -82,5 +82,5 @@ blocks
           sw_product_properties_filled_state_header_form_control  [scope: isInheritField, isInherited, removeInheritance, restoreInheritance, updateCurrentValue]
 
 refs
-  entityListing  -> sw-entity-listing
+  entityListing  -> sw-entity-listing  block=sw_product_properties_filled_state_body_filled_state
 ```

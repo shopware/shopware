@@ -12,8 +12,8 @@ component sw-order-product-select  public  js
 
 props
   item: object
-  salesChannelId: string  default=literal
-  taxStatus: string  default=literal
+  salesChannelId: string  default=''
+  taxStatus: string  default=''
 
 slots
   result-item  { ...{ item, index } }  block=sw_order_product_select_existing_product

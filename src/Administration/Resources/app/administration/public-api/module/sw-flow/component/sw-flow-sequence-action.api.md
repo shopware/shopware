@@ -20,8 +20,8 @@ inject
   repositoryFactory  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  isUnknownTrigger?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
   sequence: object  [private]
 
 data
@@ -115,5 +115,5 @@ crossings
   v-if  sw_flow_sequence_action_actions_empty -> sw_flow_sequence_action_actions_list  [private]
 
 refs
-  contextButton  -> sw-context-button  list  [private]
+  contextButton  -> sw-context-button  list  block=sw_flow_sequence_action_actions_item_context_button  [private]
 ```

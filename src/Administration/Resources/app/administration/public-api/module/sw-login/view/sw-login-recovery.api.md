@@ -47,5 +47,5 @@ blocks
     sw_login_recovery_link_expired  [after v-if] [private]
 
 refs
-  swLoginRecoveryEmailField  -> mt-text-field  [private]
+  swLoginRecoveryEmailField  -> mt-text-field  block=sw_login_recovery_form_email_field  [private]
 ```

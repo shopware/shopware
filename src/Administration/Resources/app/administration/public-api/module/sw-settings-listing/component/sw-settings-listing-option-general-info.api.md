@@ -12,9 +12,9 @@ component sw-settings-listing-option-general-info  public  js
 
 props
   isDefaultSorting: boolean
-  labelError?: object  default=literal
+  labelError?: object  default={}
   sortingOption: object
-  technicalNameError?: object  default=literal
+  technicalNameError?: object  default={}
 
 blocks
   sw_settings_listing_option_general_info

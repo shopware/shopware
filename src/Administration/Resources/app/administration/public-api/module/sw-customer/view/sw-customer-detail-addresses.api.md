@@ -98,5 +98,5 @@ blocks
         sw_customer_detail_addresses_add_button
 
 refs
-  addressGrid  -> sw-one-to-many-grid
+  addressGrid  -> sw-one-to-many-grid  block=sw_customer_detail_addresses_grid
 ```

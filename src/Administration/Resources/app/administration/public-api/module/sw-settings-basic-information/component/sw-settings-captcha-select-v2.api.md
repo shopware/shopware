@@ -18,7 +18,7 @@ inject
   feature
 
 props
-  value?: object  default=literal
+  value?: object  default=null
 
 emits
   update:value(...args: any[])

@@ -12,8 +12,8 @@ component sw-button-group  private  js  [private]
   visibility-source export  [private]
 
 props
-  block?: boolean  default=literal  [private]
-  splitButton?: boolean  default=literal  [private]
+  block?: boolean  default=false  [private]
+  splitButton?: boolean  default=false  [private]
 
 slots
   default  {}  block=sw_button_group  [private]

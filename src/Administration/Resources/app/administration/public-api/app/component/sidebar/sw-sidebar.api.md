@@ -19,7 +19,7 @@ provide
   registerSidebarItem: any  [private]
 
 props
-  propagateWidth?: boolean  default=literal  [private]
+  propagateWidth?: boolean  default=false  [private]
 
 emits
   item-click(...args: any[])  [private]

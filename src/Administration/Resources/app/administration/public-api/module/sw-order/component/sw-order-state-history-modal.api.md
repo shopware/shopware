@@ -18,7 +18,7 @@ inject
   stateStyleDataProviderService
 
 props
-  isLoading?: boolean  default=literal  [deprecated tag:v6.8.0]
+  isLoading?: boolean  default=false  [deprecated tag:v6.8.0]
   order: Entity<'order'>
 
 emits
@@ -41,7 +41,7 @@ computed
 
 methods
   buildStateHistory(allEntries: EntityCollection<'state_machine_history'>): StateMachineHistoryData[]
-  createEntry(states: CombinedStates, entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>, hideUser?: any): StateMachineHistoryData
+  createEntry(states: CombinedStates, entry: Entity<'state_machine_history'> | Entity<'order'> | Entity<'order_transaction'>, hideUser?: any = false): StateMachineHistoryData
   createdComponent(): void
   enumerateTransaction(item: StateMachineHistoryData): string
   getStateChangeAuthor(item: StateMachineHistoryData): string

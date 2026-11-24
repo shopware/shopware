@@ -12,14 +12,14 @@ component sw-avatar  private  js  [private]
   visibility-source export  [private]
 
 props
-  color?: string  default=literal  [private]
-  firstName?: string  default=literal  [private]
-  imageUrl?: string  default=literal  [private]
-  lastName?: string  default=literal  [private]
-  placeholder?: boolean  default=literal  [private]
-  size?: string  default=literal  [private]
-  sourceContext?: object  default=literal  [private]
-  variant?: string  default=literal  [private]
+  color?: string  default=''  [private]
+  firstName?: string  default=''  [private]
+  imageUrl?: string  default=null  [private]
+  lastName?: string  default=''  [private]
+  placeholder?: boolean  default=false  [private]
+  size?: string  default=null  [private]
+  sourceContext?: object  default=null  [private]
+  variant?: string  default='circle'  [private]
 
 slots
   default  {}  block=sw_avatar  [private]
@@ -48,5 +48,5 @@ blocks
     sw_avatar_slot_placeholder  [after v-if] [private]
 
 refs
-  swAvatar  -> span  [private]
+  swAvatar  -> span  block=sw_avatar  [private]
 ```

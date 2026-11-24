@@ -14,12 +14,12 @@ inject
   repositoryFactory
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
   categories: any[]
-  currentSalesChannelId?: string  default=literal
-  isLoading?: boolean  default=literal
+  currentSalesChannelId?: string  default=null
+  isLoading?: boolean  default=false
   mainCategories: any[]
-  overwriteLabel?: boolean  default=literal
+  overwriteLabel?: boolean  default=false
 
 emits
   main-category-add(...args: any[])

@@ -19,10 +19,10 @@ inject
 
 props
   ariaLabel?: string  default=factory  [private]
-  copyable?: boolean  default=literal  [private]
-  copyableTooltip?: boolean  default=literal  [private]
+  copyable?: boolean  default=false  [private]
+  copyableTooltip?: boolean  default=false  [private]
   idSuffix?: string  default=factory  [private]
-  placeholder?: string  default=literal  [private]
+  placeholder?: string  default=''  [private]
   value?: any  [private]
 
 emits

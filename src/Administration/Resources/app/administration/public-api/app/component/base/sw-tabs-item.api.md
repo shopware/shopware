@@ -19,14 +19,14 @@ inject
   unregisterNewTabItem  [private]
 
 props
-  active?: boolean  default=literal  [private]
-  activeTab?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
+  active?: boolean  default=false  [private]
+  activeTab?: string  default=''  [private]
+  disabled?: boolean  default=false  [private]
   errorTooltip?: string  default=factory  [private]
-  hasError?: boolean  default=literal  [private]
-  hasWarning?: boolean  default=literal  [private]
-  name?: string  default=literal  [private]
-  route?: object | string  default=literal  [private]
+  hasError?: boolean  default=false  [private]
+  hasWarning?: boolean  default=false  [private]
+  name?: string  default=''  [private]
+  route?: object | string  default=''  [private]
   warningTooltip?: string  default=factory  [private]
 
 emits
@@ -58,5 +58,5 @@ blocks
     sw_tabs_item_slot_native  [private]
 
 refs
-  sw-tabs-item  -> component  [private]
+  sw-tabs-item  -> component  block=sw_side_navigation_item  [private]
 ```

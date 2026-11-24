@@ -19,8 +19,8 @@ inject
 
 props
   config: object
-  disabled?: boolean  default=literal
-  locales: any[]  default=literal
+  disabled?: boolean  default=false
+  locales: any[]  default=[]
   propertyNames: object
 
 data

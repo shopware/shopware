@@ -14,8 +14,8 @@ component sw-switch-field-deprecated  private  js  [private]
 
 props
   ariaLabel?: string  default=factory  [private]
-  noMarginTop?: boolean  default=literal  [private]
-  size?: string  default=literal  [private]
+  noMarginTop?: boolean  default=false  [private]
+  size?: string  default='default'  [private]
 
 emits
   inheritance-remove(...args: any[])  [private]

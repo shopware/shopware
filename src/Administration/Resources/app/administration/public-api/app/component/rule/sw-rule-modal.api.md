@@ -21,8 +21,8 @@ inject
   ruleConditionsConfigApiService  [private]
 
 props
-  allowedRuleScopes?: any[]  default=literal  [private]
-  ruleAwareGroupKey?: string  default=literal  [private]
+  allowedRuleScopes?: any[]  default=null  [private]
+  ruleAwareGroupKey?: string  default=null  [private]
 
 emits
   modal-close(...args: any[])  [private]

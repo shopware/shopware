@@ -67,5 +67,5 @@ blocks
           sw_settings_country_list_smart_bar_header_title_text
 
 refs
-  swSettingsCountryGrid  -> sw-entity-listing
+  swSettingsCountryGrid  -> sw-entity-listing  block=sw_settings_country_list_grid_inner
 ```

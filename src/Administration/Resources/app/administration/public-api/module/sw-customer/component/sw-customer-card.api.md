@@ -20,8 +20,8 @@ inject
 
 props
   customer: object
-  editMode?: boolean  default=literal
-  isLoading?: boolean  default=literal
+  editMode?: boolean  default=false
+  isLoading?: boolean  default=false
   title: string
 
 slots

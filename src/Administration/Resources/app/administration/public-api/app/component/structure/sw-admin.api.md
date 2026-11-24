@@ -32,5 +32,5 @@ blocks
   sw_admin  [private]
 
 refs
-  notifications  -> sw-notifications  [private]
+  notifications  -> sw-notifications  block=sw_admin  [private]
 ```

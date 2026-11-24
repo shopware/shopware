@@ -15,7 +15,7 @@ inject
 
 props
   bulkEditProduct: object
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 data
   displayVisibilityDetail: any
@@ -36,6 +36,6 @@ blocks
     sw_bulk_edit_product_visibility_select
 
 refs
-  productVisibilitiesInheritance  -> sw-inherit-wrapper
-  productVisibility  -> sw-product-visibility-select
+  productVisibilitiesInheritance  -> sw-inherit-wrapper  block=sw_bulk_edit_product_visibility_select
+  productVisibility  -> sw-product-visibility-select  block=sw_bulk_edit_product_visibility_select
 ```

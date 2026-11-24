@@ -21,8 +21,8 @@ computed
 
 methods
   createdComponent(): any  [private]
-  getGreetingTimeKey(type?: any): any  [private]
-  getGreetings(type?: any): any  [private]
+  getGreetingTimeKey(type?: any = 'daytimeHeadline'): any  [private]
+  getGreetings(type?: any = 'daytimeHeadline'): any  [private]
 
 blocks
   sw_dashboard_index  [private]

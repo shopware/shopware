@@ -11,9 +11,9 @@ component sw-settings-mailer-smtp  public  js
   template src/module/sw-settings-mailer/component/sw-settings-mailer-smtp/sw-settings-mailer-smtp.html.twig
 
 props
-  hostError?: object  default=literal
+  hostError?: object  default=null
   mailerSettings: object
-  portError?: object  default=literal
+  portError?: object  default=null
 
 emits
   host-changed(...args: any[])

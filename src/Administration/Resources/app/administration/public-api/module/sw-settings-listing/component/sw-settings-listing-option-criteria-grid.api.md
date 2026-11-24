@@ -57,7 +57,7 @@ methods
   getCustomFieldLabelByCriteriaName(criteriaName: any): any
   getCustomFieldName(customField: any): any
   getOrderSnippet(order: any): any
-  getProductSortingFieldsByName(customField?: any): any
+  getProductSortingFieldsByName(customField?: any = null): any
   isItemACustomField(fieldName: any): any
   onAddCriteria(fieldName: any): any
   onCancelInlineEdit(item: any): any
@@ -89,6 +89,6 @@ crossings
   v-if  sw_settings_listing_option_criteria_card_grid_column_order_text -> sw_settings_listing_option_criteria_card_grid_column_order_select
 
 refs
-  customFieldSelection  -> sw-entity-single-select
-  dataGrid  -> sw-data-grid
+  customFieldSelection  -> sw-entity-single-select  block=sw_settings_listing_option_criteria_card_grid_column_field_select
+  dataGrid  -> sw-data-grid  block=sw_settings_listing_option_criteria_card_grid
 ```

@@ -16,7 +16,7 @@ inject
 
 props
   set: object  default=factory
-  technicalNameError?: object  default=literal
+  technicalNameError?: object  default=null
 
 emits
   reset-errors(...args: any[])

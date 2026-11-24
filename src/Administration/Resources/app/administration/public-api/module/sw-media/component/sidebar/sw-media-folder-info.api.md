@@ -18,7 +18,7 @@ inject
   repositoryFactory
 
 props
-  editable?: boolean  default=literal
+  editable?: boolean  default=false
   mediaFolder: object
 
 emits
@@ -51,5 +51,5 @@ blocks
         sw_media_quickinfo_folder_quickactions_settings
 
 refs
-  inlineEditFieldName  -> sw-confirm-field
+  inlineEditFieldName  -> sw-confirm-field  block=sw_media_quickinfo_folder_metadata_content_base
 ```

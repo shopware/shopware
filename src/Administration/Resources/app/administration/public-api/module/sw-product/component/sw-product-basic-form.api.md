@@ -17,8 +17,8 @@ inject
   feature
 
 props
-  allowEdit?: boolean  default=literal
-  showSettingsInformation?: boolean  default=literal
+  allowEdit?: boolean  default=true
+  showSettingsInformation?: boolean  default=true
 
 data
   hideCoverImageDescriptionHint: any

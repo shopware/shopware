@@ -48,7 +48,7 @@ blocks
     sw_condition_base_error  [inherited]
 
 refs
-  selectedField  -> sw-entity-single-select
+  selectedField  -> sw-entity-single-select  block=sw_condition_customer_custom_field_field
 
 notes
   unresolved mixins Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)

@@ -79,11 +79,11 @@ computed
 
 methods
   abortOnLanguageChange(): any  [private]
-  addError(arg0?: any): any  [private]
+  addError(arg0?: any = {}): any  [private]
   beforeDestroyedComponent(): any  [private]
   checkRequiredSlotConfigField(slot: any, block: any): any  [private]
   checkSlotMappings(): any  [private]
-  closeLayoutAssignmentModal(saveAfterClose?: any): any  [private]
+  closeLayoutAssignmentModal(saveAfterClose?: any = false): any  [private]
   createdComponent(): any  [private]
   debouncedPageSave(): any  [private]
   deleteEntityAndRequiredConfigKey(sections: any): any  [private]
@@ -99,7 +99,7 @@ methods
   loadDemoProduct(entityId: any): Promise<any>  [private]
   loadPage(pageId: any): Promise<any>  [private]
   missingFieldsValidation(): any  [private]
-  onAddSection(type: any, index: any, persist?: any): any  [private]
+  onAddSection(type: any, index: any, persist?: any = false): any  [private]
   onBlockDuplicate(block: any, arg1: any): Promise<any>  [private]
   onChangeDontRemindCheckbox(): any  [private]
   onChangeLanguage(languageId: any): any  [private]
@@ -112,7 +112,7 @@ methods
   onDeviceViewChange(view: any): any  [private]
   onOpenLayoutAssignment(): any  [private]
   onOpenLayoutSetAsDefault(): any  [private]
-  onPageSave(debounced?: any): any  [private]
+  onPageSave(debounced?: any = false): any  [private]
   onPageTypeChange(pageType: any): any  [private]
   onPageUpdate(): any  [private]
   onSave(): any  [private]
@@ -120,7 +120,7 @@ methods
   onSaveMissingElementModal(): any  [private]
   onSectionDuplicate(section: any): Promise<any>  [private]
   openLayoutAssignmentModal(): any  [private]
-  pageConfigOpen(mode?: any): any  [private]
+  pageConfigOpen(mode?: any = null): any  [private]
   pageIsValid(): any  [private]
   pageSectionCountValidation(): any  [private]
   processBlock(block: any, blockType: any): any  [private]
@@ -134,7 +134,7 @@ methods
   saveOnLanguageChange(): any  [private]
   setDefaultLayout(): Promise<any>  [private]
   setPageContext(): any  [private]
-  setSelectedBlock(sectionId: any, block?: any): any  [private]
+  setSelectedBlock(sectionId: any, block?: any = null): any  [private]
   slotValidation(): any  [private]
   updateBlockPositions(section: any): any  [private]
   updateDataMapping(): any  [private]
@@ -182,5 +182,5 @@ crossings
   v-if  sw_cms_detail_stage_form_view -> sw_cms_detail_stage_wrapper  [private]
 
 refs
-  cmsSidebar  -> sw-cms-sidebar  [private]
+  cmsSidebar  -> sw-cms-sidebar  block=sw_cms_detail_sidebar  [private]
 ```

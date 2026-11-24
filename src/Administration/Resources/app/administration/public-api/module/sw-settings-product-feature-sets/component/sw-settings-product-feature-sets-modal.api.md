@@ -102,6 +102,6 @@ blocks
         sw_settings_product_feature_sets_modal_property_list_toolbar_search
 
 refs
-  customFieldGrid  -> sw-data-grid
-  propertyGroupGrid  -> sw-data-grid
+  customFieldGrid  -> sw-data-grid  block=sw_settings_product_feature_sets_modal_custom_field_list
+  propertyGroupGrid  -> sw-data-grid  block=sw_settings_product_feature_sets_modal_property_list
 ```

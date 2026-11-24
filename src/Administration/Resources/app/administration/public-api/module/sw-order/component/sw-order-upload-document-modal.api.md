@@ -20,7 +20,7 @@ inject
   repositoryFactory  [private]
 
 props
-  documentType?: { technicalName: string }  default=literal  [private]
+  documentType?: { technicalName: string }  default=null  [private]
   isLoadingDocument: boolean  [private]
   order: Entity<'order'>  [private]
 
@@ -58,9 +58,9 @@ methods
   onAddDocument(data: Entity<'media'>[]): void  [private]
   onCancel(): void  [private]
   onDocumentTypeChange(technicalName: string | null): Promise<void>  [private]
-  onUploadDocument(additionalAction?: any): Promise<void>  [private]
+  onUploadDocument(additionalAction?: any = ''): Promise<void>  [private]
   removeCustomDocument(): void  [private]
-  reserveDocumentNumber(technicalName: string, isPreview?: any): Promise<string>  [private]
+  reserveDocumentNumber(technicalName: string, isPreview?: any = false): Promise<string>  [private]
   successfulUploadFromUrl(res: { targetId: EntityKey<'media'> }): void  [private]
   validateFile(response: Entity<'media'>): void  [private]
 
@@ -68,5 +68,5 @@ blocks
   sw_order_upload_document_modal  [private]
 
 refs
-  fileInput  -> sw-media-upload-v2  [private]
+  fileInput  -> sw-media-upload-v2  block=sw_order_upload_document_modal  [private]
 ```

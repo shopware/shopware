@@ -41,5 +41,5 @@ blocks
   sw_extension_config  [private]
 
 refs
-  systemConfig  -> sw-system-config  [private]
+  systemConfig  -> sw-system-config  block=sw_extension_config  [private]
 ```

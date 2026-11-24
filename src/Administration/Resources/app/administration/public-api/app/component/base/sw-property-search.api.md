@@ -15,10 +15,10 @@ inject
   repositoryFactory  [private]
 
 props
-  collapsible?: boolean  default=literal  [private]
-  isAddOnly?: boolean  default=literal  [private]
+  collapsible?: boolean  default=true  [private]
+  isAddOnly?: boolean  default=false  [private]
   options: any[]  default=factory  [private]
-  overlay?: boolean  default=literal  [private]
+  overlay?: boolean  default=true  [private]
 
 emits
   option-select(...args: any[])  [private]
@@ -99,8 +99,8 @@ crossings
   v-if  sw_property_search_option_search_grid -> sw_property_search_empty  [private]
 
 refs
-  groupGrid  -> sw-grid  [private]
-  optionGrid  -> sw-grid  [private]
-  optionSearchGrid  -> sw-grid  [private]
-  searchField  -> mt-text-field  [private]
+  groupGrid  -> sw-grid  block=sw_property_search_tree_group_grid  [private]
+  optionGrid  -> sw-grid  block=sw_property_search_tree_option_grid  [private]
+  optionSearchGrid  -> sw-grid  block=sw_property_search_option_search_grid  [private]
+  searchField  -> mt-text-field  block=sw_property_search_field  [private]
 ```

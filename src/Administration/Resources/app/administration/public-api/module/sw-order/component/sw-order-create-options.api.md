@@ -14,7 +14,7 @@ props
   context: ContextSwitchParameters
   disabledAutoPromotion: boolean
   promotionCodes: string[]
-  sendOrderConfirmationMail?: boolean  default=literal
+  sendOrderConfirmationMail?: boolean  default=true
 
 emits
   auto-promotion-toggle(...args: any[])

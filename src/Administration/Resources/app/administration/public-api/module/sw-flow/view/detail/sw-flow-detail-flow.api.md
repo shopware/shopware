@@ -18,10 +18,10 @@ inject
   ruleConditionDataProviderService  [private]
 
 props
-  isLoading?: boolean  default=literal  [private]
-  isNewFlow?: boolean  default=literal  [private]
-  isTemplate?: boolean  default=literal  [private]
-  isUnknownTrigger?: boolean  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
+  isNewFlow?: boolean  default=false  [private]
+  isTemplate?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
 
 data
   flowContainerStyle: any  [private]

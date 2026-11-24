@@ -16,10 +16,10 @@ mixins
 
 props
   columns: any[]  default=factory  [private]
-  compact: boolean  default=literal  [private]
-  disabled: boolean  default=literal  [private]
-  enablePreviews: boolean  default=literal  [private]
-  previews: boolean  default=literal  [private]
+  compact: boolean  default=false  [private]
+  disabled: boolean  default=false  [private]
+  enablePreviews: boolean  default=false  [private]
+  previews: boolean  default=false  [private]
 
 emits
   change-column-order(...args: any[])  [private]

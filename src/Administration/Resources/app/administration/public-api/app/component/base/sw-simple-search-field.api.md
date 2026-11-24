@@ -12,11 +12,11 @@ component sw-simple-search-field  private  js  [private]
   visibility-source export  [private]
 
 props
-  delay?: number  default=literal  [private]
-  icon?: string  default=literal  [private]
-  size?: string  default=literal  [private]
-  value?: string  default=literal  [private]
-  variant?: string  default=literal  [private]
+  delay?: number  default=400  [private]
+  icon?: string  default='regular-search-s'  [private]
+  size?: string  default='default'  [private]
+  value?: string  default=null  [private]
+  variant?: string  default='default'  [private]
 
 emits
   search-term-change(...args: any[])  [private]

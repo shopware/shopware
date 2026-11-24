@@ -16,9 +16,9 @@ inject
 
 props
   category: object
-  cmsPage?: object  default=literal
-  headline?: string  default=literal
-  isLoading?: boolean  default=literal
+  cmsPage?: object  default=null
+  headline?: string  default=''
+  isLoading?: boolean  default=false
   pageTypes?: any[]  default=factory
 
 data

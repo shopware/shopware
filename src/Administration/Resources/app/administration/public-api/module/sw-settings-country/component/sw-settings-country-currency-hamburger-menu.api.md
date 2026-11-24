@@ -14,7 +14,7 @@ inject
   acl
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   options: any[]
 
 emits

@@ -12,14 +12,14 @@ component sw-label  private  js  [private]
   visibility-source export  [private]
 
 props
-  appearance?: string  default=literal  [private]
-  caps?: boolean  default=literal  [private]
-  dismissable?: boolean  default=literal  [private]
-  ghost?: boolean  default=literal  [private]
-  light?: boolean  default=literal  [private]
-  onDismiss?: (...args: any[]) => any  default=literal  [private]
-  size?: string  default=literal  [private]
-  variant?: string  default=literal  [private]
+  appearance?: string  default='default'  [private]
+  caps?: boolean  default=false  [private]
+  dismissable?: boolean  default=true  [private]
+  ghost?: boolean  default=false  [private]
+  light?: boolean  default=false  [private]
+  onDismiss?: (...args: any[]) => any  default=null  [private]
+  size?: string  default='default'  [private]
+  variant?: string  default=''  [private]
 
 emits
   dismiss(...args: any[])  [private]

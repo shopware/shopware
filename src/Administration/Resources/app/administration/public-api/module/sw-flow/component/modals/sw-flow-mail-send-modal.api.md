@@ -128,5 +128,5 @@ blocks
       sw_event_action_detail_recipients_grid_column_name  [private]
 
 refs
-  recipientsGrid  -> sw-data-grid  [private]
+  recipientsGrid  -> sw-data-grid  block=sw_flow_mail_send_modal_recipient_emails_grid  [private]
 ```

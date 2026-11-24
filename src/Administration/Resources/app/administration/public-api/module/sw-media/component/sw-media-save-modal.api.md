@@ -14,9 +14,9 @@ inject
   repositoryFactory
 
 props
-  fileType?: string  default=literal
-  initialFileName?: string  default=literal
-  initialFolderId?: string  default=literal
+  fileType?: string  default='png'
+  initialFileName?: string  default=null
+  initialFolderId?: string  default=null
 
 emits
   modal-close(...args: any[])
@@ -58,6 +58,6 @@ blocks
       sw_media_save_modal_input_file_name
 
 refs
-  mediaLibrary  -> sw-media-library
-  swMediaModal  -> sw-modal
+  mediaLibrary  -> sw-media-library  block=sw_media_save_modal_media_library
+  swMediaModal  -> sw-modal  block=sw_media_modal_v2
 ```

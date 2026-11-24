@@ -12,7 +12,7 @@ component sw-mail-template-preview-modal  private  js  [private]
   visibility-source export  [private]
 
 props
-  isLoading?: boolean  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
   mailPreview: object  [private]
 
 emits

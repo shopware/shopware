@@ -13,7 +13,7 @@ component sw-sidebar-collapse  private  js  [private]
   visibility-source export  [private]
 
 props
-  expandChevronDirection?: string  default=literal  [private]
+  expandChevronDirection?: string  default='right'  [private]
 
 emits
   change-expanded(...args: any[])  [private]

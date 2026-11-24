@@ -15,7 +15,7 @@ inject
   extensionSdkService  [private]
 
 props
-  fullScreen?: boolean  default=literal  [private]
+  fullScreen?: boolean  default=false  [private]
   locationId: string  [private]
   src: string  [private]
 
@@ -48,5 +48,5 @@ blocks
   sw_iframe_renderer  [private]
 
 refs
-  iframe  -> iframe  [private]
+  iframe  -> iframe  block=sw_iframe_renderer  [private]
 ```

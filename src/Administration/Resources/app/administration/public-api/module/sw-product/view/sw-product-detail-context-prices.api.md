@@ -19,8 +19,8 @@ inject
   repositoryFactory
 
 props
-  canSetLoadingRules?: boolean  default=literal
-  isSetDefaultPrice?: boolean  default=literal
+  canSetLoadingRules?: boolean  default=true
+  isSetDefaultPrice?: boolean  default=false
 
 data
   isInherited: any
@@ -55,7 +55,7 @@ methods
   canCreatePriceRule(priceGroup: any): any
   convertPrice(value: any, currency: any): any
   createPriceRule(priceGroup: any): any
-  duplicatePriceRule(referencePrice: any, ruleId?: any): any
+  duplicatePriceRule(referencePrice: any, ruleId?: any = null): any
   findDefaultPriceOfRule(rule: any): any
   findPricesByRuleId(ruleId: any): any
   findRuleById(ruleId: any): any
@@ -63,7 +63,7 @@ methods
   getStartQuantityTooltip(itemIndex: any, quantity: any): any
   isPriceFieldInherited(rule: any, currency: any): any
   mountedComponent(): any
-  onAddNewPriceGroup(ruleId?: any): Promise<any>
+  onAddNewPriceGroup(ruleId?: any = null): Promise<any>
   onChangeShowListPrices(value: any, ruleId: any): any
   onInheritanceRemove(rule: any, currency: any): any
   onInheritanceRestore(rule: any, currency: any): any

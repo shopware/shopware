@@ -63,6 +63,6 @@ blocks
       sw_flow_create_mail_template_modal_footer_save_button  [private]
 
 refs
-  htmlEditor  -> sw-code-editor  [private]
-  plainEditor  -> sw-code-editor  [private]
+  htmlEditor  -> sw-code-editor  block=sw_flow_create_mail_template_modal_html_content  [private]
+  plainEditor  -> sw-code-editor  block=sw_flow_create_mail_template_modal_plain_content  [private]
 ```

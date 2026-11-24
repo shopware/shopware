@@ -17,7 +17,7 @@ inject
   repositoryFactory  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   sequence: object  [private]
 
 data

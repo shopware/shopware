@@ -12,10 +12,10 @@ component sw-select-base  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  showClearableButton?: boolean  default=literal  [private]
-  size?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isLoading?: boolean  default=false  [private]
+  showClearableButton?: boolean  default=undefined  [private]
+  size?: string  default='default'  [private]
 
 emits
   clear(...args: any[])  [private]
@@ -52,5 +52,5 @@ blocks
   sw_select_base  [private]
 
 refs
-  selectWrapper  -> div  [private]
+  selectWrapper  -> div  block=sw_select_base  [private]
 ```

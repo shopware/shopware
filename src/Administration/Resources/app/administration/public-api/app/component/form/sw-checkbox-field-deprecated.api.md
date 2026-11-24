@@ -19,16 +19,16 @@ inject
 
 props
   ariaLabel?: string  default=factory  [private]
-  bordered?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  error?: object  default=literal  [private]
-  ghostValue?: boolean  default=literal  [private]
+  bordered?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  ghostValue?: boolean  default=null  [private]
   id?: string  default=factory  [private]
-  inheritedValue?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  padded?: boolean  default=literal  [private]
-  partlyChecked?: boolean  default=literal  [private]
-  value?: boolean  default=literal  [private]
+  inheritedValue?: boolean  default=null  [private]
+  label?: string  default=undefined  [private]
+  padded?: boolean  default=false  [private]
+  partlyChecked?: boolean  default=false  [private]
+  value?: boolean  default=null  [private]
 
 emits
   inheritance-remove(...args: any[])  [private]

@@ -83,7 +83,7 @@ methods
   convertWidth(unit: any): any
   createPriceRuleEntry(rule: any): any
   createdComponent(): Promise<any>
-  defineBulkEditData(name: any, value?: any, type?: any, isChanged?: any): any
+  defineBulkEditData(name: any, value?: any = null, type?: any = 'overwrite', isChanged?: any = false): any
   definePricesBulkEdit(): any
   getBulkEditFormGroups(): any
   getParentProduct(): Promise<any>
@@ -95,7 +95,7 @@ methods
   loadRules(): Promise<any>
   loadTaxes(): Promise<any>
   onChangeLanguage(languageId: any): any
-  onChangePrices(item: any, value?: any): any
+  onChangePrices(item: any, value?: any = null): any
   onCustomFieldsChange(value: any): any
   onInheritanceRemove(item: any): any
   onInheritanceRestore(item: any): any
@@ -110,7 +110,7 @@ methods
   savePreferenceUnits(): any
   setBulkEditProductValue(): any
   setDefaultBooleanProductValues(): any
-  setProductAssociation(entityName: any, parentProduct?: any): any
+  setProductAssociation(entityName: any, parentProduct?: any = null): any
   setProductPrice(price: any): any
   setProductSearchKeywords(): any
   setRouteMetaModule(): any

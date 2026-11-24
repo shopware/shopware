@@ -25,14 +25,14 @@ provide
   getParentEntity: any  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   entity: object  [private]
-  isLoading?: boolean  default=literal  [private]
-  isSaveSuccessful?: boolean  default=literal  [private]
-  parentEntity?: object  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
+  isSaveSuccessful?: boolean  default=false  [private]
+  parentEntity?: object  default=null  [private]
   sets: any[]  [private]
-  showCustomFieldSetSelection?: boolean  default=literal  [private]
-  variant?: string  default=literal  [private]
+  showCustomFieldSetSelection?: boolean  default=false  [private]
+  variant?: string  default='tabs'  [private]
 
 emits
   change-active-selection(...args: any[])  [private]
@@ -112,5 +112,5 @@ crossings
   v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media  [private]
 
 refs
-  tabComponent  -> sw-tabs  [until v6.8.0] [private]
+  tabComponent  -> sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0] [private]
 ```

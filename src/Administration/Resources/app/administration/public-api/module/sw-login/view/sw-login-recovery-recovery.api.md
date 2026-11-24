@@ -50,5 +50,5 @@ blocks
       sw_login_recovery_recovery_text  [private]
 
 refs
-  swLoginRecoveryRecoveryNewPasswordField  -> mt-password-field  [private]
+  swLoginRecoveryRecoveryNewPasswordField  -> mt-password-field  block=sw_login_recovery_recovery_form_new_password_field  [private]
 ```

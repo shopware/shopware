@@ -13,8 +13,8 @@ component sw-circle-icon  private  js  [private]
 
 props
   iconName: string  [private]
-  size?: number  default=literal  [private]
-  variant?: string  default=literal  [private]
+  size?: number  default=50  [private]
+  variant?: string  default=''  [private]
 
 computed
   backgroundStyles: any  [private]

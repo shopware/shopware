@@ -111,6 +111,6 @@ crossings
   v-if  sw_settings_listing_content_card_view_options_card_grid -> sw_settings_listing_content_card_view_options_card_empty_state
 
 refs
-  defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel
-  systemConfig  -> sw-system-config
+  defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel  block=sw_settings_listing_content_card_view_default_sales_channel
+  systemConfig  -> sw-system-config  block=sw_settings_listing_content_card_view_system_config
 ```

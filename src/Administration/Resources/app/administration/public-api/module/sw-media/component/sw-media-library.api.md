@@ -20,16 +20,16 @@ inject
   searchRankingService
 
 props
-  allowCreateFolder?: boolean  default=literal
-  allowMultiSelect?: boolean  default=literal
-  compact?: boolean  default=literal
-  disabled?: boolean  default=literal
-  editable?: boolean  default=literal
-  folderId?: string  default=literal
-  limit?: number  default=literal
+  allowCreateFolder?: boolean  default=false
+  allowMultiSelect?: boolean  default=true
+  compact?: boolean  default=false
+  disabled?: boolean  default=false
+  editable?: boolean  default=false
+  folderId?: string  default=null
+  limit?: number  default=100
   pendingUploads?: any[]  default=factory
   selection: any[]
-  term?: string  default=literal
+  term?: string  default=''
 
 emits
   media-folder-change(...args: any[])
@@ -103,6 +103,6 @@ blocks
         sw_media_library_media_item_list  [after v-if]
 
 refs
-  mediaGrid  -> sw-media-grid
-  scrollContainer  -> div
+  mediaGrid  -> sw-media-grid  block=sw_media_library_media_grid
+  scrollContainer  -> div  block=sw_media_library_scroll_container
 ```

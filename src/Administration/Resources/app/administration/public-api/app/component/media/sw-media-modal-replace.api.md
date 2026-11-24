@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  itemToReplace?: object  default=literal
+  itemToReplace?: object  default=null
 
 emits
   media-replace-modal-close(...args: any[])

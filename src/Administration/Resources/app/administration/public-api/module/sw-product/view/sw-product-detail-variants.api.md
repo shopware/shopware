@@ -78,5 +78,5 @@ blocks
     sw_product_properties_add_properties_modal  [after v-if]
 
 refs
-  generatedVariants  -> sw-product-variants-overview
+  generatedVariants  -> sw-product-variants-overview  block=sw_product_detail_variants_sw_card_generated_variants_overview
 ```

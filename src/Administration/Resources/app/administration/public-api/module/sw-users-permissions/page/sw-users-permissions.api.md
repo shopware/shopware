@@ -36,7 +36,7 @@ blocks
       sw_users_permissions_smart_bar_header_title_text
 
 refs
-  configuration  -> sw-users-permissions-configuration
-  roleListing  -> sw-users-permissions-role-listing
-  userListing  -> sw-users-permissions-user-listing
+  configuration  -> sw-users-permissions-configuration  block=sw_users_permissions_content_user_list
+  roleListing  -> sw-users-permissions-role-listing  block=sw_users_permissions_content_user_list
+  userListing  -> sw-users-permissions-user-listing  block=sw_users_permissions_content_user_list
 ```

@@ -12,8 +12,8 @@ component mt-datepicker  private  ts  [private]
   visibility-source export  [private]
 
 props
-  dateType?: 'date' | 'datetime' | 'time'  default=literal  [private]
-  format?: (...args: any[]) => any  default=literal  [private]
+  dateType?: 'date' | 'datetime' | 'time'  default='datetime'  [private]
+  format?: (...args: any[]) => any  default=undefined  [private]
   is24?: boolean  [private]
   locale?: string  [private]
   timeZone?: string  [private]

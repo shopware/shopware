@@ -14,7 +14,7 @@ component sw-extension-permissions-details-modal  private  js  [private]
 props
   modalTitle: string  [private]
   permissions: object  [private]
-  selectedEntity?: string  default=literal  [private]
+  selectedEntity?: string  default=''  [private]
 
 emits
   modal-close(...args: any[])  [private]

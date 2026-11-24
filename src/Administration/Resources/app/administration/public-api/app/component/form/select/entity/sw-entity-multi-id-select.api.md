@@ -20,9 +20,9 @@ inject
 props
   context?: object  default=factory  [private]
   criteria?: object  default=factory  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   repository: object  [private]
-  value?: any  default=literal  [private]
+  value?: any[] | null  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]
@@ -46,7 +46,7 @@ computed
 
 methods
   createdComponent(): Promise<any>  [private]
-  displayLabelProperty(item: any, labelProperty: any, getKey?: any): any  [private]
+  displayLabelProperty(item: any, labelProperty: any, getKey?: any = get): any  [private]
   updateIds(collection: any): any  [private]
 
 blocks

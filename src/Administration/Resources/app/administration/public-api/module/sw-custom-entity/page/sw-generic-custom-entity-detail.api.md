@@ -43,7 +43,7 @@ computed
 
 methods
   createdComponent(): void  [private]
-  getFieldTranslation(namespace: string, name: string, suffix?: any, checkExistence?: any): string  [private]
+  getFieldTranslation(namespace: string, name: string, suffix?: any = '', checkExistence?: any = false): string  [private]
   getHelpText(namespace: string, name: string): string  [private]
   getLabel(namespace: string, name: string): string  [private]
   getPlaceholder(namespace: string, name: string): string  [private]

@@ -25,7 +25,7 @@ inject
   swOrderDetailOnSaveAndReload
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
 
 emits
   error(...args: any[])
@@ -69,7 +69,7 @@ methods
   onRemoveExistingCode(removedItem: any): Promise<any>
   onSubmitCode(code: any): Promise<any>
   saveAndRecalculate(): Promise<any>
-  saveAndReload(afterSaveFn?: any): Promise<any>
+  saveAndReload(afterSaveFn?: any = null): Promise<any>
   toggleAutomaticPromotions(state: any): Promise<any>  [deprecated tag:v6.8.0]
 
 blocks

@@ -12,13 +12,13 @@ component sw-alert-deprecated  private  ts  [private]
   visibility-source export  [private]
 
 props
-  appearance?: AppearanceType  default=literal  [private]
-  closable?: boolean  default=literal  [private]
-  icon?: string  default=literal  [private]
-  notificationIndex?: string  default=literal  [private]
-  showIcon?: boolean  default=literal  [private]
-  title?: string  default=literal  [private]
-  variant?: NotificationVariant  default=literal  [private]
+  appearance?: AppearanceType  default='default'  [private]
+  closable?: boolean  default=false  [private]
+  icon?: string  default=null  [private]
+  notificationIndex?: string  default=null  [private]
+  showIcon?: boolean  default=true  [private]
+  title?: string  default=''  [private]
+  variant?: NotificationVariant  default='info'  [private]
 
 emits
   close(...args: any[])  [private]

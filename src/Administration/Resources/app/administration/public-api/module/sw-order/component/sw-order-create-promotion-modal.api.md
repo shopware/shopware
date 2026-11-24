@@ -12,7 +12,7 @@ component sw-order-create-promotion-modal  public  js
 
 props
   currency: object
-  salesChannelId?: string  default=literal
+  salesChannelId?: string  default=null
 
 emits
   close(...args: any[])

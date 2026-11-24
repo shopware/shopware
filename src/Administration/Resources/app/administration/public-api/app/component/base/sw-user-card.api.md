@@ -12,8 +12,8 @@ component sw-user-card  private  js  [private]
   visibility-source export  [private]
 
 props
-  isLoading?: boolean  default=literal  [private]
-  title: string  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
+  title: string  default=''  [private]
   user: object  default=factory  [private]
 
 slots

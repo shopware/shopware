@@ -12,9 +12,9 @@ component sw-color-badge  private  js  [private]
   visibility-source export  [private]
 
 props
-  color?: string  default=literal  [private]
-  rounded?: boolean  default=literal  [private]
-  variant?: string  default=literal  [private]
+  color?: string  default=''  [private]
+  rounded?: boolean  default=false  [private]
+  variant?: string  default='default'  [private]
 
 slots
   default  {}  block=sw_color_badge  [private]

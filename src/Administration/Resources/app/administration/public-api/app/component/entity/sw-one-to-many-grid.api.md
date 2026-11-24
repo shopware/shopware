@@ -16,10 +16,10 @@ inject
   repositoryFactory  [private]
 
 props
-  allowDelete?: boolean  default=literal  [private]
+  allowDelete?: boolean  default=true  [private]
   collection: any[]  [private]
   dataSource?: any[] | object  default=factory  [private]
-  localMode?: boolean  default=literal  [private]
+  localMode?: boolean  default=true  [private]
   tooltipDelete?: object  default=factory  [private]
 
 emits
@@ -133,9 +133,9 @@ crossings
   v-if  sw_data_grid_sort_indicator_icon_asc -> sw_data_grid_sort_indicator_icon_desc  [private]
 
 refs
-  column  -> th  list  [private]
-  table  -> table  [private]
-  wrapper  -> div  [private]
+  column  -> th  list  block=sw_data_grid_header_columns  [private]
+  table  -> table  block=sw_data_grid_table  [private]
+  wrapper  -> div  block=sw_data_grid_wrapper  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

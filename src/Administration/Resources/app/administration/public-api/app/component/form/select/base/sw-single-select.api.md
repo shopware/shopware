@@ -18,18 +18,18 @@ inject
   feature  [private]
 
 props
-  autocomplete?: string  default=literal  [private]
-  disableSearchFunction?: boolean  default=literal  [private]
-  highlightSearchTerm?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  labelProperty?: string  default=literal  [private]
+  autocomplete?: string  default=undefined  [private]
+  disableSearchFunction?: boolean  default=false  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  isLoading?: boolean  default=false  [private]
+  label?: string  default=undefined  [private]
+  labelProperty?: string  default='label'  [private]
   options: any[]  [private]
-  placeholder?: string  default=literal  [private]
+  placeholder?: string  default=''  [private]
   popoverClasses?: any[]  default=factory  [private]
   searchFunction?: (...args: any[]) => any  default=factory  [private]
   value: any  [private]
-  valueProperty?: string  default=literal  [private]
+  valueProperty?: string  default='value'  [private]
 
 emits
   before-selection-clear(...args: any[])  [private]
@@ -70,7 +70,7 @@ methods
   onInputSearchTerm(): any  [private]
   onSelectCollapsed(): any  [private]
   onSelectExpanded(): any  [private]
-  resetActiveItem(pos?: any): any  [private]
+  resetActiveItem(pos?: any = 0): any  [private]
   search(): any  [private]
   setValue(item: any): any  [private]
   tryGetSearchText(option: any): any  [private]
@@ -92,7 +92,7 @@ blocks
             sw_single_select_single_selection_inner_label  [scope: disabled, error, identification, removeFocusClass, setFocusClass, size] [private]
 
 refs
-  resultsList  -> sw-select-result-list  [private]
-  selectBase  -> sw-select-base  [private]
-  swSelectInput  -> input  [private]
+  resultsList  -> sw-select-result-list  block=sw_single_select_base_results_slot  [private]
+  selectBase  -> sw-select-base  block=sw_single_select  [private]
+  swSelectInput  -> input  block=sw_single_select_single_selection_inner_input  [private]
 ```

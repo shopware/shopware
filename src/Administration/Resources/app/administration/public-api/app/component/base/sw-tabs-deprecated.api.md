@@ -21,11 +21,11 @@ provide
   unregisterNewTabItem: any  [private]
 
 props
-  alignRight?: boolean  default=literal  [private]
-  defaultItem?: string  default=literal  [private]
-  isVertical?: boolean  default=literal  [private]
-  positionIdentifier: string  default=literal  [private]
-  small?: boolean  default=literal  [private]
+  alignRight?: boolean  default=false  [private]
+  defaultItem?: string  default=''  [private]
+  isVertical?: boolean  default=false  [private]
+  positionIdentifier: string  default=null  [private]
+  small?: boolean  default=true  [private]
 
 emits
   new-item-active(...args: any[])  [private]
@@ -86,5 +86,5 @@ blocks
     sw_tabs_custom_content  [private]
 
 refs
-  swTabContent  -> div  [private]
+  swTabContent  -> div  block=sw_tabs_content  [private]
 ```

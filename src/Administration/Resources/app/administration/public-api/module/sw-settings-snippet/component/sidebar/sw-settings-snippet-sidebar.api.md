@@ -13,7 +13,7 @@ component sw-settings-snippet-sidebar  public  js
 props
   authorFilters: any[]
   filterItems: any[]
-  filterSettings?: object  default=literal
+  filterSettings?: object  default=null
 
 emits
   change(...args: any[])

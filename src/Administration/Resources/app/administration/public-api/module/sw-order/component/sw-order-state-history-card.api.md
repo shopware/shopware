@@ -22,7 +22,7 @@ inject
   swOrderDetailAskAndSaveEdits
 
 props
-  isLoading?: boolean  default=literal
+  isLoading?: boolean  default=false
   order: object
   title: string
 
@@ -65,7 +65,7 @@ methods
   onCancelCreation(): any
   onDeliveryStateSelected(actionName: any): Promise<any>
   onLeaveModalClose(): any
-  onLeaveModalConfirm(docIds: any, sendMail?: any, internalComment?: any): any
+  onLeaveModalConfirm(docIds: any, sendMail?: any = true, internalComment?: any = null): any
   onOrderStateSelected(actionName: any): Promise<any>
   onTransactionStateSelected(actionName: any): Promise<any>
   stateMachineStateCriteria(): any

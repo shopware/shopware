@@ -18,10 +18,10 @@ inject
   feature  [private]
 
 props
-  aside?: boolean  default=literal  [private]
-  options?: any[]  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  value?: string  default=literal  [private]
+  aside?: boolean  default=false  [private]
+  options?: any[]  default=null  [private]
+  placeholder?: string  default=null  [private]
+  value?: string  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]

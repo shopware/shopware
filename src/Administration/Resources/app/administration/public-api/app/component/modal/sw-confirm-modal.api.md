@@ -12,11 +12,11 @@ component sw-confirm-modal  private  js  [private]
   visibility-source export  [private]
 
 props
-  text?: string  default=literal  [private]
-  textConfirm?: string  default=literal  [private]
-  title?: string  default=literal  [private]
-  type?: string  default=literal  [private]
-  variant?: string  default=literal  [private]
+  text?: string  default=''  [private]
+  textConfirm?: string  default=''  [private]
+  title?: string  default=''  [private]
+  type?: string  default='confirm'  [private]
+  variant?: string  default='small'  [private]
 
 emits
   cancel(...args: any[])  [private]

@@ -19,7 +19,7 @@ inject
 
 methods
   createdComponent(): any  [private]
-  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any): any  [private]
+  getNoPermissionsTooltip(role: any, showOnDisabledElements?: any = true): any  [private]
   onAddOrContainer(): any  [private]
   onAddPlaceholder(): any  [private]
   onDeleteAll(): any  [private]

@@ -11,9 +11,9 @@ component sw-settings-item  public  js
   template src/module/sw-settings/component/sw-settings-item/sw-settings-item.html.twig
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   label: string
-  showNewBadge?: boolean  default=literal
+  showNewBadge?: boolean  default=false
   to: object  default=factory
 
 slots

@@ -16,7 +16,7 @@ inject
 props
   address: object  default=factory
   customer: object
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 slots
   default  { ...{ disabled } }  block=sw_customer_address_form_container

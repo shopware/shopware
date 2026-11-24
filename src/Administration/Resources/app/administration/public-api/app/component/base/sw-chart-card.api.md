@@ -13,12 +13,12 @@ component sw-chart-card  private  js  [private]
 
 props
   availableRanges?: any[]  default=factory  [private]
-  cardSubtitle?: string  default=literal  [private]
-  cardTitle?: string  default=literal  [private]
+  cardSubtitle?: string  default=''  [private]
+  cardTitle?: string  default=''  [private]
   defaultRangeIndex?: number  default=factory  [private]
   helpText?: object | string  default=factory  [private]
-  isLoading?: boolean  default=literal  [private]
-  positionIdentifier: string  default=literal  [private]
+  isLoading?: boolean  default=false  [private]
+  positionIdentifier: string  default=''  [private]
 
 emits
   sw-chart-card-range-update(...args: any[])  [private]

@@ -15,9 +15,9 @@ inject
   repositoryFactory  [private]
 
 props
-  allowedTypes?: any[]  default=literal  [private]
-  childAssociationField?: string  default=literal  [private]
-  condition?: object  default=literal  [private]
+  allowedTypes?: any[]  default=null  [private]
+  childAssociationField?: string  default='children'  [private]
+  condition?: object  default=null  [private]
   conditionDataProviderService: object  [private]
   scopes?: any[]  default=factory  [private]
 

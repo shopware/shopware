@@ -71,5 +71,5 @@ crossings
   v-if  sw_promotion_v2_list_empty_state -> sw_promotion_v2_list_grid
 
 refs
-  listing  -> sw-entity-listing
+  listing  -> sw-entity-listing  block=sw_promotion_v2_list_grid
 ```

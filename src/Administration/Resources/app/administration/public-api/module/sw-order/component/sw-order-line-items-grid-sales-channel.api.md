@@ -13,11 +13,11 @@ component sw-order-line-items-grid-sales-channel  public  js
 props
   cart: object
   currency: object
-  isCustomerActive?: boolean  default=literal
-  isLoading?: boolean  default=literal
-  positionIdentifier?: string  default=literal
-  salesChannelId: string  default=literal
-  title?: string  default=literal
+  isCustomerActive?: boolean  default=false
+  isLoading?: boolean  default=false
+  positionIdentifier?: string  default='sw-order-line-items-grid-sales-channel'
+  salesChannelId: string  default=''
+  title?: string  default=''
 
 emits
   on-remove-items(...args: any[])
@@ -119,6 +119,6 @@ crossings
   v-if  sw_order_line_items_grid_sales_channel_grid_no_items -> sw_order_line_items_grid_sales_channel_grid_item_table
 
 refs
-  dataGrid  -> sw-data-grid
-  itemFilter  -> sw-card-filter
+  dataGrid  -> sw-data-grid  block=sw_order_line_items_grid_sales_channel_grid_item_table
+  itemFilter  -> sw-card-filter  block=sw_order_line_items_grid_sales_channel_line_item_filter
 ```

@@ -17,8 +17,8 @@ inject
   repositoryFactory
 
 props
-  fileAccept?: string  default=literal
-  routeFolderId?: string  default=literal
+  fileAccept?: string  default='*/*'
+  routeFolderId?: string  default=null
 
 data
   currentFolder: any
@@ -46,10 +46,10 @@ methods
   onMediaFoldersDissolved(ids: any): any
   onMediaUnselect(arg0: any): any
   onSearch(value: any): any
-  onUploadCanceled(arg0?: any): any
-  onUploadFailed(arg0?: any): any
-  onUploadFinished(arg0?: any): any
-  onUploadsAdded(arg0?: any): Promise<any>
+  onUploadCanceled(arg0?: any = {}): any
+  onUploadFailed(arg0?: any = {}): any
+  onUploadFinished(arg0?: any = {}): any
+  onUploadsAdded(arg0?: any = {}): Promise<any>
   reloadList(): any
   updateFolder(): Promise<any>
   updateRoute(newFolderId: any): any
@@ -71,5 +71,5 @@ blocks
     sw_media_list_search_bar
 
 refs
-  mediaLibrary  -> sw-media-library
+  mediaLibrary  -> sw-media-library  block=sw_media_index_listing_grid
 ```

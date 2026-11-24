@@ -12,10 +12,10 @@ component sw-url-field  private  ts  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
-  modelValue?: string  default=literal  [private]
-  placeholder?: string  default=literal  [private]
-  value?: string  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
+  modelValue?: string  default=undefined  [private]
+  placeholder?: string  default=undefined  [private]
+  value?: string  default=undefined  [private]
 
 emits
   update:modelValue(...args: any[])  [private]

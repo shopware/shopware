@@ -16,24 +16,24 @@ inject
   feature  [private]
 
 props
-  allowBulkEdit?: boolean  default=literal  [private]
-  allowColumnEdit?: boolean  default=literal  [private]
-  allowDelete?: boolean  default=literal  [private]
-  allowEdit?: boolean  default=literal  [private]
-  allowInlineEdit?: boolean  default=literal  [private]
-  allowView?: boolean  default=literal  [private]
+  allowBulkEdit?: boolean  default=false  [private]
+  allowColumnEdit?: boolean  default=true  [private]
+  allowDelete?: boolean  default=true  [private]
+  allowEdit?: boolean  default=true  [private]
+  allowInlineEdit?: boolean  default=true  [private]
+  allowView?: boolean  default=false  [private]
   bulkGridEditColumns?: any[]  default=factory  [private]
-  criteriaLimit?: number  default=literal  [private]
+  criteriaLimit?: number  default=25  [private]
   dataSource?: any[] | object  [private]
-  detailRoute?: string  default=literal  [private]
-  disableDataFetching?: boolean  default=literal  [private]
-  fullPage?: boolean  default=literal  [private]
-  items?: any[]  default=literal  [deprecated tag:v6.8.0] [private]
-  maximumSelectItems?: number  default=literal  [private]
-  naturalSorting?: boolean  default=literal  [private]
+  detailRoute?: string  default=null  [private]
+  disableDataFetching?: boolean  default=false  [private]
+  fullPage?: boolean  default=true  [private]
+  items?: any[]  default=null  [deprecated tag:v6.8.0] [private]
+  maximumSelectItems?: number  default=1000  [private]
+  naturalSorting?: boolean  default=false  [private]
   repository: object  [private]
-  showBulkEditModal?: boolean  default=literal  [private]
-  showSettings?: boolean  default=literal  [private]
+  showBulkEditModal?: boolean  default=false  [private]
+  showSettings?: boolean  default=true  [private]
   steps?: any[]  default=factory  [private]
 
 emits
@@ -181,9 +181,9 @@ crossings
   v-if  sw_data_grid_sort_indicator_icon_asc -> sw_data_grid_sort_indicator_icon_desc  [private]
 
 refs
-  column  -> th  list  [private]
-  table  -> table  [private]
-  wrapper  -> div  [private]
+  column  -> th  list  block=sw_data_grid_header_columns  [private]
+  table  -> table  block=sw_data_grid_table  [private]
+  wrapper  -> div  block=sw_data_grid_wrapper  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

@@ -23,7 +23,7 @@ blocks
     sw_text_editor_label  [inherited]
 
 refs
-  codeEditor  -> sw-code-editor
-  text-editor-toolbar  -> sw-text-editor-toolbar
-  textEditor  -> div
+  codeEditor  -> sw-code-editor  block=sw_text_editor_box_content
+  text-editor-toolbar  -> sw-text-editor-toolbar  block=sw_text_editor_box_toolbar
+  textEditor  -> div  block=sw_text_editor_box_content
 ```

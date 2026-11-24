@@ -16,8 +16,8 @@ inject
   restoreInheritanceHandler  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  isInherited: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isInherited: boolean  default=false  [private]
 
 emits
   inheritance-remove(...args: any[])  [private]

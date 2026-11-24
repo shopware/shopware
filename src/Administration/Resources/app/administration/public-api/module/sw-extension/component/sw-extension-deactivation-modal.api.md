@@ -13,7 +13,7 @@ component sw-extension-deactivation-modal  private  js  [private]
 
 props
   extensionName: string  [private]
-  hasDeletableFiles?: boolean  default=literal  [private]
+  hasDeletableFiles?: boolean  default=true  [private]
   isLicensed: boolean  [private]
   isLoading: boolean  [private]
 

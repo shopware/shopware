@@ -46,7 +46,7 @@ methods
   onClickAdvancedPrices(): any
   onCloseAdvancedPricesModal(): any
   onMaxValueChanged(value: any): any
-  prepareAdvancedPrices(currency: any, basePrice?: any): any
+  prepareAdvancedPrices(currency: any, basePrice?: any = 0.0): any
   setCurrencyForDiscountPrices(currency: any): any
 
 blocks

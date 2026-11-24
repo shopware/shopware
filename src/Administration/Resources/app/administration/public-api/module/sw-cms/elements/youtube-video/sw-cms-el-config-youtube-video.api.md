@@ -44,7 +44,7 @@ methods
   onSelectionChanges(mediaEntity: any): any  [private]
   setTimeValue(value: any, type: any): any  [private]
   shortenLink(link: any): any  [private]
-  updateElementData(media?: any): any  [private]
+  updateElementData(media?: any = null): any  [private]
 
 blocks
   sw_cms_element_youtube_video_config  [private]

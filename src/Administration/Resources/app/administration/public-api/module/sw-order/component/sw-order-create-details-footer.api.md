@@ -15,8 +15,8 @@ inject
 
 props
   cart: object
-  customer?: object  default=literal
-  isCustomerActive?: boolean  default=literal
+  customer?: object  default=null
+  isCustomerActive?: boolean  default=false
 
 emits
   loading-change(...args: any[])

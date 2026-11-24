@@ -15,7 +15,7 @@ inject
   repositoryFactory
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   isLoading: boolean
   tax: object
 

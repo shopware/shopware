@@ -41,7 +41,7 @@ methods
   onSelectionChanges(mediaEntity: Entity<'media'>[]): any  [private]
   onVideoRemove(): any  [private]
   onVideoUpload(arg0: { targetId: EntityKey<'media'> }): Promise<void>  [private]
-  updateElementData(media?: Entity<'media'> | null): any  [private]
+  updateElementData(media?: Entity<'media'> | null = null): any  [private]
 
 blocks
   sw_cms_element_video_config  [private]

@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  salutationId?: string  default=literal
+  salutationId?: string  default=null
 
 data
   customFieldSets: any

@@ -13,7 +13,7 @@ component sw-error  private  js  [private]
 
 props
   errorObject?: object  default=factory  [private]
-  linkText?: string  default=literal  [private]
+  linkText?: string  default=''  [private]
   routerLink?: object  default=factory  [private]
 
 slots

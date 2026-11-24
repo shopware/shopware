@@ -12,7 +12,7 @@ component sw-extension-sdk-module  private  js  [private]
   visibility-source export  [private]
 
 props
-  back?: string  default=literal  [private]
+  back?: string  default=null  [private]
   id: string  [private]
 
 data
@@ -44,5 +44,5 @@ crossings
   v-if  sw_extension_sdk_module_content_iframe_renderer -> sw_extension_sdk_module_content_loader  [private]
 
 refs
-  iframeRenderer  -> sw-iframe-renderer  [private]
+  iframeRenderer  -> sw-iframe-renderer  block=sw_extension_sdk_module_content_iframe_renderer  [private]
 ```

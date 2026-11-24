@@ -31,5 +31,5 @@ blocks
     sw_cms_el_text_config_tab_options  [inherited] [scope: active] [until v6.8.0] [private]
 
 refs
-  swCmsTextEditor  -> mt-text-editor  [from v6.8.0] [private]
+  swCmsTextEditor  -> mt-text-editor  block=sw_cms_el_text_config_mt_content_field  [from v6.8.0] [private]
 ```

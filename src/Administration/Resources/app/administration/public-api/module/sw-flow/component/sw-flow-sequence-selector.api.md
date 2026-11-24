@@ -12,7 +12,7 @@ component sw-flow-sequence-selector  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   sequence: object  [private]
 
 slots

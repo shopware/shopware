@@ -19,7 +19,7 @@ inject
 
 props
   defaultSorting: object  [private]
-  disabled?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
   modelValue: any[]  [private]
 
 emits

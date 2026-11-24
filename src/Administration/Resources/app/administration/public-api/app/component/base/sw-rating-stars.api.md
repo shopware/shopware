@@ -12,9 +12,9 @@ component sw-rating-stars  private  js  [private]
   visibility-source export  [private]
 
 props
-  displayFractions?: number  default=literal  [private]
-  iconSize?: number  default=literal  [private]
-  maxStars?: number  default=literal  [private]
+  displayFractions?: number  default=4  [private]
+  iconSize?: number  default=16  [private]
+  maxStars?: number  default=5  [private]
   value: number  [private]
 
 computed

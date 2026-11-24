@@ -15,11 +15,11 @@ inject
   mcpToolService
 
 props
-  allowlist?: object  default=literal
-  disabled?: boolean  default=literal
+  allowlist?: object  default=null
+  disabled?: boolean  default=false
   grantedPrivileges?: any[]  default=factory
-  isAdmin?: boolean  default=literal
-  unrestrictedWhenUnset?: boolean  default=literal
+  isAdmin?: boolean  default=false
+  unrestrictedWhenUnset?: boolean  default=false
 
 emits
   update:allowlist(...args: any[])

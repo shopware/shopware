@@ -11,7 +11,7 @@ component sw-product-visibility-detail  public  js
   template src/module/sw-product/component/sw-product-visibility-detail/sw-product-visibility-detail.html.twig
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
 
 data
   items: any

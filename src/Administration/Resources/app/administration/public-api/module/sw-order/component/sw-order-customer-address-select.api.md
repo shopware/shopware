@@ -15,8 +15,8 @@ inject
 
 props
   customer: Entity<'customer'>
-  disabled?: boolean  default=literal
-  sameAddressLabel?: string  default=literal
+  disabled?: boolean  default=false
+  sameAddressLabel?: string  default=''
   sameAddressValue: string
   value: string
 

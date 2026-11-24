@@ -11,7 +11,7 @@ component sw-sales-channel-modal-detail  public  js
   template src/module/sw-sales-channel/component/sw-sales-channel-modal-detail/sw-sales-channel-modal-detail.html.twig
 
 props
-  detailType?: object  default=literal
+  detailType?: object  default=null
 
 blocks
   sw_sales_channel_modal_detail

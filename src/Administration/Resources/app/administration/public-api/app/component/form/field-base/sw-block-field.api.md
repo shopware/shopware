@@ -12,7 +12,7 @@ component sw-block-field  private  js  [private]
   visibility-source export  [private]
 
 props
-  size?: string  default=literal  [private]
+  size?: string  default='default'  [private]
 
 slots
   hint  {}  block=sw_block_field  [private]

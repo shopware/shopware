@@ -16,7 +16,7 @@ inject
 
 props
   product: object
-  productNumberPreview?: string  default=literal
+  productNumberPreview?: string  default=''
 
 emits
   clone-finish(...args: any[])

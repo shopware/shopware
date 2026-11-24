@@ -87,5 +87,5 @@ blocks
         sw_order_customer_grid_add_new_customer
 
 refs
-  customerFilter  -> sw-card-filter
+  customerFilter  -> sw-card-filter  block=sw_order_customer_grid_search_input
 ```

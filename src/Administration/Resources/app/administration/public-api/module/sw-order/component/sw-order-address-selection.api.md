@@ -19,10 +19,10 @@ inject
 
 props
   address?: object  default=factory
-  addressId?: string  default=literal
-  disabled?: boolean  default=literal
-  label?: string  default=literal
-  type?: string  default=literal
+  addressId?: string  default=null
+  disabled?: boolean  default=false
+  label?: string  default=''
+  type?: string  default=''
 
 emits
   change-address(...args: any[])
@@ -58,7 +58,7 @@ methods
   getCustomFieldSet(): Promise<any>
   getCustomer(): any
   isValidAddress(address: any): any
-  onAddressChange(customerAddressId: any, edited?: any): any
+  onAddressChange(customerAddressId: any, edited?: any = false): any
   onChangeDefaultAddress(data: any): any
   onCreateNewAddress(): any
   onEditAddress(id: any): any

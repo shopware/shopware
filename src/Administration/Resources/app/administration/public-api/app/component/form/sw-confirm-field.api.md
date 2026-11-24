@@ -12,12 +12,12 @@ component sw-confirm-field  private  js  [private]
   visibility-source export  [private]
 
 props
-  compact?: boolean  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  error?: object  default=literal  [private]
-  preventEmptySubmit?: boolean  default=literal  [private]
-  required?: boolean  default=literal  [private]
-  value?: string  default=literal  [private]
+  compact?: boolean  default=false  [private]
+  disabled?: boolean  default=false  [private]
+  error?: object  default=null  [private]
+  preventEmptySubmit?: boolean  default=false  [private]
+  required?: boolean  default=false  [private]
+  value?: string  default=''  [private]
 
 emits
   blur(...args: any[])  [private]

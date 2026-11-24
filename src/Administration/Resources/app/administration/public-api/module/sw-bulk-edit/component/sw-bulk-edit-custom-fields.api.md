@@ -44,5 +44,5 @@ crossings
   v-if  sw_custom_field_set_renderer_card -> sw_custom_field_set_renderer_media
 
 refs
-  tabComponent  -> sw-tabs  [until v6.8.0]
+  tabComponent  -> sw-tabs  block=sw_custom_field_set_renderer_card  [until v6.8.0]
 ```

@@ -13,8 +13,8 @@ component sw-sales-channel-switch  private  js  [private]
 
 props
   abortChangeFunction?: (...args: any[]) => any  [private]
-  disabled?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  label?: string  default=''  [private]
   salesChannelCriteria?: object  default=factory  [private]
   saveChangesFunction?: (...args: any[]) => any  [private]
 
@@ -47,5 +47,5 @@ blocks
     sw_sales_channel_switch_select  [after v-if] [private]
 
 refs
-  salesChannelSelect  -> sw-entity-single-select  [private]
+  salesChannelSelect  -> sw-entity-single-select  block=sw_sales_channel_switch_select  [private]
 ```

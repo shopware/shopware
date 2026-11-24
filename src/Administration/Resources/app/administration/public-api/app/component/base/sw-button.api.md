@@ -12,8 +12,8 @@ component sw-button  private  js  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
-  routerLink?: object | string  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
+  routerLink?: object | string  default=null  [private]
 
 slots
   default  {}  block=sw_button  [private]

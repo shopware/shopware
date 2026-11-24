@@ -21,8 +21,8 @@ inject
   swUnregisterGridDisableInlineEditListener  [private]
 
 props
-  allowInlineEdit?: boolean  default=literal  [private]
-  index?: number  default=literal  [private]
+  allowInlineEdit?: boolean  default=true  [private]
+  index?: number  default=null  [private]
   item: object  [private]
 
 emits
@@ -51,5 +51,5 @@ blocks
     sw_grid_row_slot_default  [private]
 
 refs
-  swGridRow  -> div  [private]
+  swGridRow  -> div  block=sw_grid_row  [private]
 ```

@@ -80,7 +80,7 @@ methods
   getMediaColumns(): any
   getPreviewMailHeaderFooterParts(): Promise<any>
   getTriggerEventNameTranslated(eventName: any): any
-  hasPreviewErrors(mailPreview?: any): any
+  hasPreviewErrors(mailPreview?: any = this.mailPreview): any
   isToManyAssociationVariable(variable: any): any
   loadAvailableVariables(variable: any): any
   loadEntityData(): any
@@ -157,7 +157,7 @@ blocks
                 sw_mail_template_available_variables_tree_items_item_grip  [scope: disableContextMenu, draggedItem, item, onChangeRoute, sortable, treeItems]
 
 refs
-  htmlEditor  -> sw-code-editor
-  mediaSidebarItem  -> sw-sidebar-media-item
-  plainEditor  -> sw-code-editor
+  htmlEditor  -> sw-code-editor  block=sw_mail_template_mail_text_form_content_html_field
+  mediaSidebarItem  -> sw-sidebar-media-item  block=sw_mail_template_detail_sidebar_inner_media
+  plainEditor  -> sw-code-editor  block=sw_mail_template_mail_text_form_content_plain_field
 ```

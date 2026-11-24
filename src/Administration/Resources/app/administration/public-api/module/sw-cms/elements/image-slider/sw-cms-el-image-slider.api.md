@@ -18,7 +18,7 @@ inject
   feature  [private]
 
 props
-  activeMedia?: any  default=literal  [private]
+  activeMedia?: null | object  default=null  [private]
 
 emits
   active-image-change(...args: any[])  [private]
@@ -47,7 +47,7 @@ computed
 methods
   activeButtonClass(url: any): any  [private]
   createdComponent(): any  [private]
-  setSliderArrowItem(direction?: any): any  [private]
+  setSliderArrowItem(direction?: any = 1): any  [private]
   setSliderItem(mediaItem: any, index: any): any  [private]
 
 blocks

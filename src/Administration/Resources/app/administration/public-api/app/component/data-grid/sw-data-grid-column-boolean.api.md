@@ -12,8 +12,8 @@ component sw-data-grid-column-boolean  private  js  [private]
   visibility-source export  [private]
 
 props
-  disabled?: boolean  default=literal  [private]
-  isInlineEdit?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  isInlineEdit?: boolean  default=false  [private]
   value: any  [private]
 
 emits

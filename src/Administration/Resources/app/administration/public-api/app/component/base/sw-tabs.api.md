@@ -13,7 +13,7 @@ component sw-tabs  private  ts  [private]
 
 props
   items?: TabItem[]  [private]
-  useMeteorComponent?: boolean  default=literal  [private]
+  useMeteorComponent?: boolean  default=false  [private]
 
 slots
   content  { ...{ active: activeItem } }  block=sw_tabs  [private]
@@ -39,8 +39,8 @@ crossings
   v-if  sw_tabs -> sw_tabs_deprecated  [private]
 
 refs
-  tabComponent  -> mt-tabs  [private]
-  tabComponent  -> sw-tabs-deprecated  [private]
+  tabComponent  -> mt-tabs  block=sw_tabs  [private]
+  tabComponent  -> sw-tabs-deprecated  block=sw_tabs_deprecated  [private]
 
 notes
   dynamic-slot name  [private]

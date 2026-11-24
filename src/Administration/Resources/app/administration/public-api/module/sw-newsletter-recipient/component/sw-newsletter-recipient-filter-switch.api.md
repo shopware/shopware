@@ -11,9 +11,9 @@ component sw-newsletter-recipient-filter-switch  public  js
   template src/module/sw-newsletter-recipient/component/sw-newsletter-recipient-filter-switch/sw-newsletter-recipient-filter-switch.html.twig
 
 props
-  group?: string  default=literal
+  group?: string  default=null
   id: string
-  label?: string  default=literal
+  label?: string  default=''
 
 emits
   update:value(...args: any[])

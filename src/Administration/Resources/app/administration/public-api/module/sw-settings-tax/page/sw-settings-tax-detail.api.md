@@ -20,7 +20,7 @@ inject
   systemConfigApiService
 
 props
-  taxId?: string  default=literal
+  taxId?: string  default=null
 
 data
   changeDefaultTaxRate: any

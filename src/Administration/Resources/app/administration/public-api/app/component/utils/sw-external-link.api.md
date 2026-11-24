@@ -12,9 +12,9 @@ component sw-external-link  private  js  [private]
   visibility-source export  [private]
 
 props
-  icon?: string  default=literal  [private]
-  rel?: string  default=literal  [private]
-  small?: boolean  default=literal  [private]
+  icon?: string  default='regular-external-link-s'  [private]
+  rel?: string  default='noopener'  [private]
+  small?: boolean  default=false  [private]
 
 emits
   click(...args: any[])  [private]

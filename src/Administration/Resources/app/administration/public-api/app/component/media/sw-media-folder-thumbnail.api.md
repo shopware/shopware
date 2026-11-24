@@ -12,8 +12,8 @@ component sw-media-folder-thumbnail  private  ts  [private]
   visibility-source export  [private]
 
 props
-  color?: string  default=literal  [private]
-  variant?: string  default=literal  [private]
+  color?: string  default=null  [private]
+  variant?: string  default='default'  [private]
 
 computed
   colorStyle: Record<string, string> | null  [private]

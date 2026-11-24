@@ -12,10 +12,10 @@ component sw-popover-deprecated  private  js  [private]
   visibility-source export  [private]
 
 props
-  popoverClass?: any[] | object | string  default=literal  [private]
-  popoverConfigExtension?: object  default=literal  [private]
-  resizeWidth?: boolean  default=literal  [private]
-  zIndex?: any  default=literal  [private]
+  popoverClass?: any[] | object | string  default=''  [private]
+  popoverConfigExtension?: object  default=null  [private]
+  resizeWidth?: boolean  default=false  [private]
+  zIndex?: null | number  default=null  [private]
 
 slots
   default  {}  block=sw_popover  [private]

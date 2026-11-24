@@ -30,8 +30,8 @@ computed
 
 methods
   createdComponent(): any
-  onCreateDocument(additionalAction?: any): Promise<any>
-  reserveDocumentNumber(isPreview?: any): Promise<any>
+  onCreateDocument(additionalAction?: any = false): Promise<any>
+  reserveDocumentNumber(isPreview?: any = false): Promise<any>
 
 blocks
   sw_order_document_settings_modal  [inherited]
@@ -56,5 +56,5 @@ blocks
     sw_order_document_settings_modal_media_modal  [inherited] [after v-if]
 
 refs
-  fileInput  -> sw-media-upload-v2
+  fileInput  -> sw-media-upload-v2  block=sw_order_document_settings_modal_form_file_upload_input
 ```

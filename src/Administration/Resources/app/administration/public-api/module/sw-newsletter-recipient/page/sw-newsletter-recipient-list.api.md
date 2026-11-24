@@ -106,5 +106,5 @@ crossings
   v-if  sw_newsletter_recipientlist_list_grid_status_optOut -> sw_newsletter_recipientlist_list_grid_status_direct
 
 refs
-  swNewsletterRecipientGrid  -> sw-entity-listing
+  swNewsletterRecipientGrid  -> sw-entity-listing  block=sw_newsletter_recipientlist_list_grid
 ```

@@ -14,9 +14,9 @@ component sw-maintain-currencies-modal  private  js  [private]
 props
   currencies?: any[]  default=factory  [private]
   defaultPrice: object  [private]
-  disabled?: boolean  default=literal  [private]
-  hideListPrices?: any  default=literal  [private]
-  hideRegulationPrices?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  hideListPrices?: any  default=false  [private]
+  hideRegulationPrices?: boolean  default=false  [private]
   prices: any[]  [private]
   taxRate: object  [private]
 

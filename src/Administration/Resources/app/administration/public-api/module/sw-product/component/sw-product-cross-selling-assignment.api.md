@@ -14,7 +14,7 @@ inject
   repositoryFactory
 
 props
-  allowEdit?: boolean  default=literal
+  allowEdit?: boolean  default=true
   assignedProducts: any[]
   crossSellingId: string
 
@@ -56,5 +56,5 @@ blocks
           sw_entity_single_select_base_results_list_result_label  [scope: index, item] [deprecated tag:v6.8.0]
 
 refs
-  columnPosition  -> sw-data-grid-column-position
+  columnPosition  -> sw-data-grid-column-position  block=sw_product_cross_selling_assignment_option_grid_column_position
 ```

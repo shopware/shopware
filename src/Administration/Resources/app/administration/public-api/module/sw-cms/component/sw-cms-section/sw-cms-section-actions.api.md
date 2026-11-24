@@ -15,7 +15,7 @@ inject
   swCmsSectionEmitPageConfigOpen
 
 props
-  disabled?: boolean  default=literal
+  disabled?: boolean  default=false
   section: Entity<'cms_section'>
 
 computed

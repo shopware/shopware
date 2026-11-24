@@ -15,12 +15,12 @@ inject
   feature  [private]
 
 props
-  color?: string  default=literal  [private]
-  decorative?: boolean  default=literal  [private]
-  large?: boolean  default=literal  [private]
+  color?: string  default=null  [private]
+  decorative?: boolean  default=false  [private]
+  large?: boolean  default=false  [private]
   name: string  [private]
-  size?: string  default=literal  [private]
-  small?: boolean  default=literal  [private]
+  size?: string  default=null  [private]
+  small?: boolean  default=false  [private]
 
 data
   iconSvgData: any  [private]

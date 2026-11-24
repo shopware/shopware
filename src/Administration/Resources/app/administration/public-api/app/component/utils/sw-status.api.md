@@ -12,7 +12,7 @@ component sw-status  private  js  [private]
   visibility-source export  [private]
 
 props
-  color?: string  default=literal  [private]
+  color?: string  default='green'  [private]
 
 slots
   default  {}  block=sw_status  [private]

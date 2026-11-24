@@ -14,8 +14,8 @@ mixins
   placeholder
 
 props
-  allowEdit?: boolean  default=literal
-  isLoading?: boolean  default=literal
+  allowEdit?: boolean  default=true
+  isLoading?: boolean  default=false
   propertyGroup: object  default=factory
 
 data

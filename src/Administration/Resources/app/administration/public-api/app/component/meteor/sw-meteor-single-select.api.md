@@ -18,14 +18,14 @@ inject
   feature  [private]
 
 props
-  highlightSearchTerm?: boolean  default=literal  [private]
-  isLoading?: boolean  default=literal  [private]
-  label?: string  default=literal  [private]
-  labelProperty?: string  default=literal  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  isLoading?: boolean  default=false  [private]
+  label?: string  default=''  [private]
+  labelProperty?: string  default='label'  [private]
   options: any[]  [private]
-  placeholder?: string  default=literal  [private]
+  placeholder?: string  default=''  [private]
   value: any  [private]
-  valueProperty?: string  default=literal  [private]
+  valueProperty?: string  default='value'  [private]
 
 emits
   paginate(...args: any[])  [private]
@@ -69,5 +69,5 @@ blocks
     sw_meteor_single_select_result_list  [private]
 
 refs
-  searchField  -> sw-simple-search-field  [private]
+  searchField  -> sw-simple-search-field  block=sw_meteor_single_select_result_list  [private]
 ```

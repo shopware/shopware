@@ -21,7 +21,7 @@ inject
   ruleConditionsConfigApiService  [private]
 
 props
-  ruleId?: string  default=literal  [private]
+  ruleId?: string  default=null  [private]
 
 emits
   modal-close(...args: any[])  [private]
@@ -57,7 +57,7 @@ methods
   createdComponent(): any  [private]
   getRuleDetail(): any  [private]
   loadConditionData(): Promise<any>  [private]
-  loadConditions(conditions?: any): Promise<any>  [private]
+  loadConditions(conditions?: any = null): Promise<any>  [private]
   loadRule(ruleId: any): Promise<any>  [private]
   onClose(): any  [private]
   onConditionsChanged(arg0: any): any  [private]

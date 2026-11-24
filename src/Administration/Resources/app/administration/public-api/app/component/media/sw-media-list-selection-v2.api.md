@@ -18,11 +18,11 @@ inject
   repositoryFactory
 
 props
-  defaultFolderName?: string  default=literal
-  disabled?: boolean  default=literal
+  defaultFolderName?: string  default=null
+  disabled?: boolean  default=false
   entity: object
   entityMediaItems: any[]
-  uploadTag?: string  default=literal
+  uploadTag?: string  default=null
 
 emits
   item-remove(...args: any[])
@@ -62,5 +62,5 @@ blocks
     sw_media_list_selection_v2_upload
 
 refs
-  grid  -> div
+  grid  -> div  block=sw_media_list_selection_v2_grid
 ```

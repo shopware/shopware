@@ -42,7 +42,7 @@ computed
 methods
   beforeDestroyComponent(): any
   createdComponent(): any
-  emitUploadFinished(uploadTag: any, targetId: any, originalTargetId?: any): any
+  emitUploadFinished(uploadTag: any, targetId: any, originalTargetId?: any = null): any
   handleMediaServiceUploadEvent(arg0: any): any
   isDuplicatedNameError(error: any): any
   keepFile(uploadTask: any): Promise<any>

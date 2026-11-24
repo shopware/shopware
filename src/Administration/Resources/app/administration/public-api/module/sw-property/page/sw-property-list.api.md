@@ -70,5 +70,5 @@ crossings
   v-if  sw_property_list_grid_columns_filterable_inline_edit -> sw_property_list_grid_columns_filterable_content
 
 refs
-  propertyList  -> sw-entity-listing
+  propertyList  -> sw-entity-listing  block=sw_property_list_grid
 ```

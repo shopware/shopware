@@ -46,5 +46,5 @@ blocks
           sw_product_variants_delivery_media_data_grid_column_option_media_upload  [scope: compact, isInlineEdit, item]
 
 refs
-  variantsMedia  -> sw-data-grid
+  variantsMedia  -> sw-data-grid  block=sw_product_variants_delivery_media_data_grid
 ```

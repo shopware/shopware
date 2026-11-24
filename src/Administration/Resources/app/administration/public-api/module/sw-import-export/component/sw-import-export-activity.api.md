@@ -20,7 +20,7 @@ inject
   repositoryFactory  [private]
 
 props
-  type?: string  default=literal  [private]
+  type?: string  default='import'  [private]
 
 data
   activitiesReloadIntervall: any  [private]

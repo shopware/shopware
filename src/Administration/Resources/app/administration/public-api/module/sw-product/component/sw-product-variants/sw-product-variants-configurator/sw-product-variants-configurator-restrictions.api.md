@@ -59,5 +59,5 @@ blocks
       sw_product_variants_configurator_restrictions_search_field
 
 refs
-  swDataGrid  -> sw-data-grid
+  swDataGrid  -> sw-data-grid  block=sw_product_variants_configurator_restrictions_data_grid
 ```

@@ -51,7 +51,7 @@ crossings
   v-if  sw_media_upload_v2_regular_preview_file -> sw_media_upload_v2_regular_preview_fallback
 
 refs
-  dropzone  -> div
-  fileForm  -> form
-  fileInput  -> input
+  dropzone  -> div  block=sw_media_upload_v2_regular_drop_zone
+  fileForm  -> form  block=sw_media_upload_v2_file_input
+  fileInput  -> input  block=sw_media_upload_v2_file_input
 ```

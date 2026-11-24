@@ -14,10 +14,10 @@ inject
   feature  [private]
 
 props
-  bordered?: boolean  default=literal  [private]
+  bordered?: boolean  default=false  [private]
   labelOptionFalse: string  [private]
   labelOptionTrue: string  [private]
-  value?: boolean  default=literal  [private]
+  value?: boolean  default=true  [private]
 
 emits
   update:value(...args: any[])  [private]

@@ -14,9 +14,9 @@ inject
   repositoryFactory
 
 props
-  disabled?: boolean  default=literal
-  initialFolderId?: string  default=literal
-  isParentLoading?: boolean  default=literal
+  disabled?: boolean  default=false
+  initialFolderId?: string  default=null
+  isParentLoading?: boolean  default=false
 
 slots
   context-menu-items  { media-item }  block=sw_sidebar_media_item_context_items
@@ -65,5 +65,5 @@ blocks
       sw_sidebar_media_item_search_field
 
 refs
-  sidebarItem  -> sw-sidebar-item
+  sidebarItem  -> sw-sidebar-item  block=sw_sidebar_media_item
 ```

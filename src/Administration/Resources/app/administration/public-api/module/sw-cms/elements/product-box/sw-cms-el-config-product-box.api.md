@@ -47,5 +47,5 @@ blocks
     sw_cms_element_product_box_config_settings_vertical_align  [private]
 
 refs
-  cmsProductSelection  -> sw-entity-single-select  [private]
+  cmsProductSelection  -> sw-entity-single-select  block=sw_cms_element_product_box_config_product_select  [private]
 ```

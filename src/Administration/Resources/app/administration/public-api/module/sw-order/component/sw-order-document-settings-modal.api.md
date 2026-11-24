@@ -56,15 +56,15 @@ computed
 
 methods
   addAdditionalInformationToDocument(): any
-  callDocumentCreate(additionalAction: any, referencedDocumentId?: any): any
+  callDocumentCreate(additionalAction: any, referencedDocumentId?: any = null): any
   closeMediaModal(): any
   createdComponent(): Promise<any>
   onAddDocument(data: any): any
   onAddMediaFromLibrary(media: any): Promise<any>
   onCancel(): any
   onConfirm(): any
-  onCreateDocument(additionalAction?: any): Promise<any>
-  onPreview(fileType?: any): any
+  onCreateDocument(additionalAction?: any = false): Promise<any>
+  onPreview(fileType?: any = 'pdf'): any
   openMediaModal(): any
   removeCustomDocument(): any
   reserveDocumentNumber(isPreview: any): Promise<any>
@@ -93,5 +93,5 @@ blocks
     sw_order_document_settings_modal_media_modal  [after v-if]
 
 refs
-  fileInput  -> sw-media-upload-v2
+  fileInput  -> sw-media-upload-v2  block=sw_order_document_settings_modal_form_file_upload_input
 ```

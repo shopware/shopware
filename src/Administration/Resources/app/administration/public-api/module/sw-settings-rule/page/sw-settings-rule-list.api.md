@@ -75,5 +75,5 @@ crossings
   v-if  sw_settings_rule_list_grid -> sw_settings_rule_list_empty_message  [private]
 
 refs
-  swRuleGrid  -> sw-entity-listing  [private]
+  swRuleGrid  -> sw-entity-listing  block=sw_settings_rule_list_grid  [private]
 ```

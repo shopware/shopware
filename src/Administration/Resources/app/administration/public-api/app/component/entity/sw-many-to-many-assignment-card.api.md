@@ -18,16 +18,16 @@ inject
 props
   columns: any[]  [private]
   criteria?: object  default=factory  [private]
-  disabled?: boolean  default=literal  [private]
-  displayVariants?: boolean  default=literal  [private]
+  disabled?: boolean  default=false  [private]
+  displayVariants?: boolean  default=false  [private]
   entityCollection: any[]  [private]
-  highlightSearchTerm?: boolean  default=literal  [private]
-  labelProperty?: string  default=literal  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  labelProperty?: string  default='name'  [private]
   localMode: boolean  [private]
   placeholder?: string  default=factory  [private]
-  resultLimit?: number  default=literal  [private]
+  resultLimit?: number  default=25  [private]
   searchableFields?: any[]  default=factory  [private]
-  selectLabel?: string  default=literal  [private]
+  selectLabel?: string  default=''  [private]
 
 emits
   paginate(...args: any[])  [private]
@@ -81,7 +81,7 @@ methods
   onSearchTermChange(input: any): any  [private]
   onSelectCollapsed(): any  [private]
   onSelectExpanded(): any  [private]
-  paginateGrid(arg0?: any): any  [private]
+  paginateGrid(arg0?: any = this.gridCriteria): any  [private]
   paginateResult(): any  [private]
   removeFromGrid(item: any): any  [private]
   removeItem(item: any): Promise<any>  [private]
@@ -114,9 +114,9 @@ crossings
   v-if  sw_entity_many_to_many_assignment_card_grid_footer_remote_mode -> sw_entity_many_to_many_assignment_card_grid_footer_local_mode  [private]
 
 refs
-  searchInput  -> input  [private]
-  selectBase  -> sw-select-base  [private]
-  swSelectResultList  -> sw-select-result-list  [private]
+  searchInput  -> input  block=sw_entity_many_to_many_assignment_card_search_field  [private]
+  selectBase  -> sw-select-base  block=sw_entity_many_to_many_assignment_card_select  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_many_to_many_assignment_card_results_list  [private]
 
 notes
   dynamic-slot `column-${column.property}`  [private]

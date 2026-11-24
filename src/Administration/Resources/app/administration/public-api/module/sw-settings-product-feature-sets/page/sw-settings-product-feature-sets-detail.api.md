@@ -19,7 +19,7 @@ inject
   repositoryFactory
 
 props
-  productFeatureSetId?: string  default=literal
+  productFeatureSetId?: string  default=null
 
 data
   isLoading: any

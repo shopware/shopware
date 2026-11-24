@@ -45,5 +45,5 @@ blocks
     sw_first_run_wizard_defaults_sales_channel_card  [private]
 
 refs
-  defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel  [private]
+  defaultSalesChannelCard  -> sw-settings-listing-default-sales-channel  block=sw_first_run_wizard_defaults_sales_channel_card  [private]
 ```

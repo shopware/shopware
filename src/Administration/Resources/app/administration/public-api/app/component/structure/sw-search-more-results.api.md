@@ -15,8 +15,8 @@ inject
   searchTypeService  [private]
 
 props
-  entity: string  default=literal  [private]
-  term?: string  default=literal  [private]
+  entity: string  default=''  [private]
+  term?: string  default=null  [private]
 
 slots
   content  {}  block=sw_search_more_results_content  [private]

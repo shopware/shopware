@@ -17,7 +17,7 @@ inject
   repositoryFactory
 
 props
-  isParent?: boolean  default=literal
+  isParent?: boolean  default=false
 
 emits
   media-folder-changed(...args: any[])
@@ -99,5 +99,5 @@ crossings
   v-if  sw_media_folder_parent_icon -> sw_media_folder_default_icon
 
 refs
-  itemName  -> div
+  itemName  -> div  block=sw_media_base_item_name
 ```

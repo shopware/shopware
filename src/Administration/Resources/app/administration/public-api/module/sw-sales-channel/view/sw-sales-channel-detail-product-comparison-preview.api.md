@@ -11,7 +11,7 @@ component sw-sales-channel-detail-product-comparison-preview  public  js
   template src/module/sw-sales-channel/view/sw-sales-channel-detail-product-comparison-preview/sw-sales-channel-detail-product-comparison-preview.html.twig
 
 props
-  content?: string  default=literal
+  content?: string  default=null
   errors?: any[]  default=factory
 
 emits
@@ -32,5 +32,5 @@ blocks
       sw_sales_channel_detail_product_comparison_preview_modal_errors
 
 refs
-  previewEditor  -> sw-code-editor
+  previewEditor  -> sw-code-editor  block=sw_sales_channel_detail_product_comparison_preview_modal_content
 ```

@@ -17,9 +17,9 @@ inject
   repositoryFactory
 
 props
-  entity?: string  default=literal
+  entity?: string  default=null
   initialCounts?: object  default=factory
-  property?: string  default=literal
+  property?: string  default=null
   tag: object
   toBeAdded: object
   toBeDeleted: object
@@ -54,7 +54,7 @@ computed
   totalAssignments: any
 
 methods
-  addTagAggregations(criteria: any, filter?: any): any
+  addTagAggregations(criteria: any, filter?: any = true): any
   countDecrease(propertyName: any): any
   countIncrease(propertyName: any): any
   getCount(propertyName: any): any

@@ -34,5 +34,5 @@ blocks
     sw_order_state_change_modal_attach_documents_internal_comment
 
 refs
-  attachDocuments  -> sw-order-document-card
+  attachDocuments  -> sw-order-document-card  block=sw_order_state_change_modal_attach_documents_documents_grid
 ```

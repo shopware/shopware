@@ -12,7 +12,7 @@ component sw-description-list  private  js  [private]
   visibility-source export  [private]
 
 props
-  grid?: string  default=literal  [private]
+  grid?: string  default='1fr'  [private]
 
 slots
   default  {}  block=sw_description_list  [private]

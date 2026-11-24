@@ -19,11 +19,11 @@ inject
   syncService
 
 props
-  allowCreate?: boolean  default=literal
-  allowDelete?: boolean  default=literal
-  allowEdit?: boolean  default=literal
+  allowCreate?: boolean  default=true
+  allowDelete?: boolean  default=true
+  allowEdit?: boolean  default=true
   currentLanguageId: string
-  landingPageId?: string  default=literal
+  landingPageId?: string  default=null
 
 emits
   landing-page-checked-elements-count(...args: any[])
@@ -53,7 +53,7 @@ methods
   addLandingPages(landingPages: any): any
   changeLandingPage(landingPage: any): any
   checkedElementsCount(count: any): any
-  createNewElement(contextItem: any, parentId: any, name?: any): any
+  createNewElement(contextItem: any, parentId: any, name?: any = ''): any
   createNewLandingPage(name: any): any
   createdComponent(): any
   deleteCheckedItems(checkedItems: any): Promise<any>
@@ -83,5 +83,5 @@ crossings
   v-if  sw_landing_page_tree_inner -> sw_landing_page_tree
 
 refs
-  landingPageTree  -> sw-tree
+  landingPageTree  -> sw-tree  block=sw_landing_page_tree_inner
 ```

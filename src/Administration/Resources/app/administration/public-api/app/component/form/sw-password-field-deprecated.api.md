@@ -13,9 +13,9 @@ component sw-password-field-deprecated  private  js  [private]
   visibility-source export  [private]
 
 props
-  autocomplete?: string  default=literal  [private]
-  passwordToggleAble?: boolean  default=literal  [private]
-  placeholderIsPassword?: boolean  default=literal  [private]
+  autocomplete?: string  default=null  [private]
+  passwordToggleAble?: boolean  default=true  [private]
+  placeholderIsPassword?: boolean  default=false  [private]
 
 emits
   inheritance-remove(...args: any[])  [private]

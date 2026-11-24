@@ -12,9 +12,9 @@ component sw-condition-value-between-date  private  js  [private]
   visibility-source export  [private]
 
 props
-  dateType?: string  default=literal  [private]
-  disabled?: boolean  default=literal  [private]
-  value?: object  default=literal  [private]
+  dateType?: string  default='date'  [private]
+  disabled?: boolean  default=false  [private]
+  value?: object  default=null  [private]
 
 emits
   update:value(...args: any[])  [private]

@@ -16,7 +16,7 @@ mixins
 
 props
   extension: object  [private]
-  isInstalledAndLicensed?: boolean  default=literal  [private]
+  isInstalledAndLicensed?: boolean  default=false  [private]
   producerName: string  [private]
 
 emits
@@ -38,7 +38,7 @@ computed
 
 methods
   createdComponent(): any  [private]
-  fetchReviews(isLoadingMore?: any): Promise<any>  [private]
+  fetchReviews(isLoadingMore?: any = false): Promise<any>  [private]
   getReviews(): Promise<any>  [private]
   loadMoreReviews(): Promise<any>  [private]
 

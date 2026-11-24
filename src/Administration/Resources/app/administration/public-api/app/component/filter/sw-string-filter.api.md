@@ -13,7 +13,7 @@ component sw-string-filter  private  ts  [private]
 
 props
   active: boolean  [private]
-  criteriaFilterType?: 'contains' | 'equals' | 'equalsAny' | 'prefix' | 'suffix'  default=literal  [private]
+  criteriaFilterType?: 'contains' | 'equals' | 'equalsAny' | 'prefix' | 'suffix'  default='contains'  [private]
   filter: object  [private]
 
 emits

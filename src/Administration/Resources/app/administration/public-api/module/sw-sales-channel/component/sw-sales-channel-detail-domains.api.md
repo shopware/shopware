@@ -17,7 +17,7 @@ inject
   repositoryFactory
 
 props
-  disableEdit?: boolean  default=literal
+  disableEdit?: boolean  default=false
   salesChannel: any
 
 data
@@ -80,7 +80,7 @@ methods
   onClickAddNewDomain(): Promise<any>
   onClickDeleteDomain(domain: any): any
   onClickEditDomain(domain: any): any
-  onClickOpenCreateDomainModal(arg0?: any): any
+  onClickOpenCreateDomainModal(arg0?: any = {}): any
   onCloseCreateDomainModal(): any
   onCloseDeleteDomainModal(): any
   onConfirmDeleteDomain(domain: any): any
@@ -91,8 +91,8 @@ methods
   preselectSnippetSet(languageId: any): any
   resetCurrentDomainToBackup(): any
   setCurrentDomainBackup(domain: any): any
-  setInitialCurrency(domain: any, currencyId?: any): any
-  setInitialLanguage(domain: any, languageId?: any): any
+  setInitialCurrency(domain: any, currencyId?: any = null): any
+  setInitialLanguage(domain: any, languageId?: any = null): any
   setInitialMeasurementUnits(domain: any): any
   snippetSetSearchFunction(arg0: any): any
   sortColumns(column: any): any
@@ -134,5 +134,5 @@ crossings
   <template>  sw_sales_channel_detail_domains -> sw_sales_channel_detail_domains_grid
 
 refs
-  gridDomains  -> sw-data-grid
+  gridDomains  -> sw-data-grid  block=sw_sales_channel_detail_domains_grid
 ```

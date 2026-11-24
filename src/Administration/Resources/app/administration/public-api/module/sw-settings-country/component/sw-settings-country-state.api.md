@@ -19,8 +19,8 @@ inject
 
 props
   country: object
-  countryStateRepository?: object  default=literal
-  isLoading?: boolean  default=literal
+  countryStateRepository?: object  default=null
+  isLoading?: boolean  default=false
 
 data
   countryStateLoading: any
@@ -59,5 +59,5 @@ blocks
     sw_settings_country_state_list_toolbar_delete
 
 refs
-  countryStateGrid  -> sw-one-to-many-grid
+  countryStateGrid  -> sw-one-to-many-grid  block=sw_settings_country_state_list_listing
 ```

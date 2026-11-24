@@ -15,8 +15,8 @@ inject
   repositoryFactory
 
 props
-  selectedId?: string  default=literal
-  startFolderId?: string  default=literal
+  selectedId?: string  default=null
+  startFolderId?: string  default=null
 
 emits
   selected(...args: any[])

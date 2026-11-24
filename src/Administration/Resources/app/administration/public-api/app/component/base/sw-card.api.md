@@ -12,7 +12,7 @@ component sw-card  private  ts  [private]
   visibility-source export  [private]
 
 props
-  deprecated?: boolean  default=literal  [private]
+  deprecated?: boolean  default=false  [private]
 
 slots
   default  {}  block=sw_card  [private]

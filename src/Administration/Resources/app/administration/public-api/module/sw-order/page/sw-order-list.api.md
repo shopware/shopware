@@ -123,8 +123,8 @@ crossings
   v-if  sw_order_list_empty_state -> sw_order_list_grid
 
 refs
-  bulkEditModal  -> sw-bulk-edit-modal
-  orderGrid  -> sw-data-grid
+  bulkEditModal  -> sw-bulk-edit-modal  block=sw_order_list_bulk_edit_modal_inner
+  orderGrid  -> sw-data-grid  block=sw_order_list_grid
 
 notes
   unresolved computed ...deprecatedComputed

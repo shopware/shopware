@@ -12,7 +12,7 @@ component sw-order-create-details-body  public  js
 
 props
   customer?: object
-  isCustomerActive?: boolean  default=literal
+  isCustomerActive?: boolean  default=false
 
 emits
   on-edit-billing-address(...args: any[])

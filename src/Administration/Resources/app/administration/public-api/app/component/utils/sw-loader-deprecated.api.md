@@ -12,7 +12,7 @@ component sw-loader-deprecated  private  js  [private]
   visibility-source export  [private]
 
 props
-  size?: string  default=literal  [private]
+  size?: string  default='50px'  [private]
 
 computed
   borderWidth: any  [private]

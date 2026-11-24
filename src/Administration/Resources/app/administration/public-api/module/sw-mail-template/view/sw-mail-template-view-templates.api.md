@@ -19,5 +19,5 @@ blocks
     sw_mail_template_view_templates_list  [private]
 
 refs
-  mailTemplateList  -> sw-mail-template-list  [private]
+  mailTemplateList  -> sw-mail-template-list  block=sw_mail_template_view_templates_list  [private]
 ```

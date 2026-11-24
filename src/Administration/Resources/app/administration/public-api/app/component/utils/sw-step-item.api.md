@@ -16,7 +16,7 @@ inject
   feature  [private]
 
 props
-  disabledIcon?: string  default=literal  [private]
+  disabledIcon?: string  default='regular-circle-xs'  [private]
 
 slots
   default  {}  block=sw_step_item_description  [private]

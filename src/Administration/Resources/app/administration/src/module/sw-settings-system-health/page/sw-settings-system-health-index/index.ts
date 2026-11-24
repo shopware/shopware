@@ -1,6 +1,7 @@
 import template from './sw-settings-system-health-index.html.twig';
 import './sw-settings-system-health-index.scss';
 import { needsAttention, type SystemHealthCheck } from '../../types';
+import tagLabel from '../../tag-label';
 
 // SystemChecker runs categories in this order; a failing SYSTEM check skips the rest
 const CATEGORY_ORDER = [
@@ -11,10 +12,12 @@ const CATEGORY_ORDER = [
 ];
 const GROUPS = ['attention', 'passed', 'not-run'];
 const POLL_INTERVAL_MS = 2000;
+const ALL = '';
 
 /**
  * Lists the system checks with their last result. Running checks happens in the background: the page asks the
- * API for the results again until every check it started has a new result.
+ * API for the results again until every check it started has a new result. The tag filter is in the route query
+ * (?tag=apps), so a filtered view can be linked.
  *
  * @sw-package framework
  * @private
@@ -49,6 +52,32 @@ export default Shopware.Component.wrapComponentConfig({
             return Object.keys(this.running).length > 0;
         },
 
+        tag(): string {
+            const tag = this.$route.query.tag;
+
+            return typeof tag === 'string' ? tag : ALL;
+        },
+
+        filteredChecks(): SystemHealthCheck[] {
+            return this.tag === ALL ? this.checks : this.checks.filter((check) => check.tags.includes(this.tag));
+        },
+
+        tagOptions(): Array<{ value: string; label: string }> {
+            const tags = [...new Set(this.checks.flatMap((check) => check.tags))].sort();
+
+            return [
+                { value: ALL, label: this.$t('sw-settings-system-health.index.filter-all') },
+                ...tags.map((tag) => ({
+                    value: tag,
+                    label: tagLabel(
+                        tag,
+                        (key) => this.$t(key),
+                        (key) => this.$te(key),
+                    ),
+                })),
+            ];
+        },
+
         // the checks by state: problems first and open, passed and not run folded away
         groups(): Array<{ key: string; checks: SystemHealthCheck[] }> {
             const groupOf = (check: SystemHealthCheck): string => {
@@ -59,7 +88,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return needsAttention(check) ? 'attention' : 'passed';
             };
 
-            const sorted = [...this.checks].sort(
+            const sorted = [...this.filteredChecks].sort(
                 (a, b) => CATEGORY_ORDER.indexOf(a.category) - CATEGORY_ORDER.indexOf(b.category),
             );
 
@@ -159,6 +188,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         toggleCheck(name: string): void {
             this.openCheck = this.openCheck === name ? null : name;
+        },
+
+        setTag(tag: string | null): void {
+            void this.$router.replace({ query: { ...this.$route.query, tag: tag || undefined } });
         },
 
         notifyError(): void {

@@ -8,7 +8,9 @@
             "loading-error": "Die Systemprüfungen konnten nicht geladen werden.",
             "checks-title": "Prüfungen",
             "checks-subtitle": "Das letzte Ergebnis jeder Prüfung.",
-            "run-all": "Alle ausführen"
+            "run-all": "Alle ausführen",
+            "filter-tag": "Tag",
+            "filter-all": "Alle"
         },
         "status": {
             "OK": "OK",
@@ -40,7 +42,8 @@
             "run": "Prüfung ausführen",
             "not-run": "Diese Prüfung lief noch nicht.",
             "category-line": "Prüfung der Kategorie {category}",
-            "checked-at": "Zuletzt {date}"
+            "checked-at": "Zuletzt {date}",
+            "tags": "Tag: {tags}"
         },
         "check": {
             "LocalesReadiness": "Sprachen und Locales",
@@ -141,6 +144,9 @@
         "locales": {
             "summary": "{count} Locale-Code ist ungültig. | {count} Locale-Codes sind ungültig.",
             "codes": "Ungültige Locale-Codes"
+        },
+        "tag": {
+            "apps": "Apps"
         }
     },
     "sw-privileges": {

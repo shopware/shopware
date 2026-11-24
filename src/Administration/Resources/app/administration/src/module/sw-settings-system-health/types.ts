@@ -26,6 +26,7 @@ export type SystemHealthResult = {
 export type SystemHealthCheck = {
     name: string;
     category: string;
+    tags: string[];
     // null until the check ran for the first time
     result: SystemHealthResult | null;
 };

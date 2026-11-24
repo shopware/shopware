@@ -15342,6 +15342,8 @@
                 "sw_settings_system_health_index",
                 "sw_settings_system_health_index_checks",
                 "sw_settings_system_health_index_content",
+                "sw_settings_system_health_index_sidebar",
+                "sw_settings_system_health_index_sidebar_filter",
                 "sw_settings_system_health_index_smart_bar_header"
             ]
         },

@@ -30,4 +30,8 @@
         padding: var(--scale-size-20) 0;
         color: var(--color-text-secondary-default);
     }
+
+    .sw-sidebar .sw-collapse__content {
+        padding: 0 var(--scale-size-24) var(--scale-size-16);
+    }
 }

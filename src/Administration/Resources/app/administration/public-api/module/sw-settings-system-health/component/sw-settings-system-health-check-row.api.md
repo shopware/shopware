@@ -34,6 +34,7 @@ computed
   resultComponent: string  [private]
   statusColor: string  [private]
   statusLabel: string  [private]
+  tags: string  [private]
 
 methods
   toggle(): void  [private]

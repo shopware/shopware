@@ -30,6 +30,9 @@
                     {{ $t('sw-settings-system-health.check-row.category-line', { category: categoryName }) }}
                 </span>
 
+                <span v-if="tags">
+                    · {{ $t('sw-settings-system-health.check-row.tags', { tags }) }}
+                </span>
             </span>
         </span>
 

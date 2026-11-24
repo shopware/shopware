@@ -23,8 +23,11 @@ data
   running: any  [private]
 
 computed
+  filteredChecks: SystemHealthCheck[]  [private]
   groups: Array<{ key: string; checks: SystemHealthCheck[] }>  [private]
   isRunning: boolean  [private]
+  tag: string  [private]
+  tagOptions: Array<{ value: string; label: string }>  [private]
 
 methods
   loadChecks(): Promise<void>  [private]
@@ -32,6 +35,7 @@ methods
   poll(): Promise<void>  [private]
   run(name?: string | null = null): Promise<void>  [private]
   schedulePoll(): void  [private]
+  setTag(tag: string | null): void  [private]
   stopPolling(): void  [private]
   toggleCheck(name: string): void  [private]
   toggleGroup(key: string): void  [private]
@@ -40,5 +44,7 @@ blocks
   sw_settings_system_health_index  [private]
     sw_settings_system_health_index_content  [private]
       sw_settings_system_health_index_checks  [private]
+    sw_settings_system_health_index_sidebar  [private]
+      sw_settings_system_health_index_sidebar_filter  [private]
     sw_settings_system_health_index_smart_bar_header  [private]
 ```

@@ -43,6 +43,7 @@ class DocumentConfigurationFactoryTest extends TestCase
         $logo->setId('0196aefd34097365b48db03283350286');
         $logo->setUrl('https://shop.example/media/logo.png');
         $logo->addExtension('foreignKeys', new ArrayEntity(['mediaFolderId' => null]));
+        $logo->addArrayExtension('myPlugin', ['field' => 'value']);
 
         $companyCountry = new CountryEntity();
         $companyCountry->setId('0196aefd34097365b48db03283350285');
@@ -62,12 +63,15 @@ class DocumentConfigurationFactoryTest extends TestCase
         $mergedLogo = $mergedConfig->getLogo();
         static::assertInstanceOf(MediaEntity::class, $mergedLogo);
         static::assertSame('https://shop.example/media/logo.png', $mergedLogo->getUrl());
-        static::assertSame([], $mergedLogo->getExtensions());
+        $pluginData = $mergedLogo->getExtension('myPlugin');
+        static::assertInstanceOf(ArrayStruct::class, $pluginData);
+        static::assertSame('value', $pluginData->get('field'));
+        static::assertSame('value', $encodedConfig['logo']['extensions']['myPlugin']['field'] ?? null);
 
         $mergedCompanyCountry = $mergedConfig->getCompanyCountry();
         static::assertInstanceOf(CountryEntity::class, $mergedCompanyCountry);
         static::assertSame('0196aefd34097365b48db03283350285', $mergedCompanyCountry->getId());
-        static::assertSame([], $mergedCompanyCountry->getExtensions());
+        static::assertInstanceOf(ArrayStruct::class, $mergedCompanyCountry->getExtension('foreignKeys'));
     }
 
     public function testMergeConfigurationKeepsStructExtensionsOfAnEntityArray(): void
@@ -84,7 +88,8 @@ class DocumentConfigurationFactoryTest extends TestCase
 
         $mergedLogo = $mergedConfig->getLogo();
         static::assertInstanceOf(MediaEntity::class, $mergedLogo);
-        static::assertSame(['pluginData' => $extension], $mergedLogo->getExtensions());
+        static::assertSame($extension, $mergedLogo->getExtension('pluginData'));
+        static::assertEquals(new ArrayStruct(['mediaFolderId' => null]), $mergedLogo->getExtension('foreignKeys'));
     }
 
     public function testMergeConfigurationWithEntityObjectAndUseSetterMethod(): void

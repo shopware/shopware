@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseC
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
@@ -115,9 +116,12 @@ class DocumentConfigurationFactory
     private static function createStruct(string $typeName, array $value): Struct
     {
         // The config stored with a document holds JSON-encoded entities, whose extensions are plain arrays.
-        // Assigned back, they break Struct::getExtension(), for example when the config is encoded again.
+        // Wrapped in ArrayStruct, as addArrayExtension() does, they keep their data and Struct::getExtension() works again.
         if (\is_array($value['extensions'] ?? null)) {
-            $value['extensions'] = array_filter($value['extensions'], static fn (mixed $extension): bool => $extension instanceof Struct);
+            $value['extensions'] = array_map(
+                static fn (mixed $extension): mixed => \is_array($extension) ? new ArrayStruct($extension) : $extension,
+                $value['extensions'],
+            );
         }
 
         return (new $typeName())->assign($value);

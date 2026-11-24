@@ -28,7 +28,8 @@ class LayoutRootSourceReader
 
     /**
      * The root source of each layout, keyed by the id as passed. A layout the batch deletes, one that is neither
-     * written nor stored, or a hex id not in the lowercase form the DAL stores, is left out.
+     * written nor stored, or a hex id not in the lowercase form the DAL stores, is left out. An id that is neither
+     * 16 bytes nor hex throws.
      *
      * @param list<string> $layoutIds hex ids, or 16 binary bytes as in a foreign-key payload
      * @param list<WriteCommand> $layoutCommands the batch's content_layout commands, empty outside a write
@@ -48,7 +49,7 @@ class LayoutRootSourceReader
         $rootSources = [];
         foreach ($bytesById as $layoutId => $bytes) {
             $rootSource = $written[$bytes] ?? $stored[$bytes] ?? null;
-            $isStoredForm = \strlen($layoutId) === 16 || $layoutId === Uuid::fromBytesToHex($bytes);
+            $isStoredForm = \strlen($layoutId) === 16 || $layoutId === bin2hex($bytes);
 
             if ($isStoredForm && \is_string($rootSource)) {
                 $rootSources[$layoutId] = $rootSource;

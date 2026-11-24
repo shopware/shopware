@@ -156,6 +156,16 @@ class LayoutRootSourceReaderTest extends TestCase
         static::assertSame([], $reader->rootSources([strtoupper($layoutId)], []));
     }
 
+    #[TestDox('leaves out a hex id of the wrong length instead of throwing, as for any id that matches no layout')]
+    public function testLeavesOutAHexIdOfTheWrongLength(): void
+    {
+        $layoutId = $this->ids->get('layout');
+
+        $reader = new LayoutRootSourceReader($this->outcome(), $this->rowLoaderReturning([$this->storedRow($layoutId, 'category')]));
+
+        static::assertSame([], $reader->rootSources([substr($layoutId, 0, 30)], []));
+    }
+
     /**
      * @param list<array<string, mixed>> $storedRows the rows the write outcome loads for the batch's stored layouts
      */

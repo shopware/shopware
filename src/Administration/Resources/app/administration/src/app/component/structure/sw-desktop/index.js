@@ -12,7 +12,12 @@ const { hasOwnProperty } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['shopIdChangeService', 'userActivityApiService', 'snackbarService', 'acl'],
+    inject: [
+        'shopIdChangeService',
+        'userActivityApiService',
+        'snackbarService',
+        'acl',
+    ],
 
     shortcuts: {
         CT: 'onCycleTheme',

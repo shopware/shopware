@@ -9,28 +9,28 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\V6_7\Migration1794988092AddPaymentViewerToShopwarePaymentsViewer;
+use Shopware\Core\Migration\V6_7\Migration1794988092UpdateShopwarePaymentsRolePrivileges;
 use Shopware\Tests\Migration\MigrationTestTrait;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(Migration1794988092AddPaymentViewerToShopwarePaymentsViewer::class)]
-class Migration1794988092AddPaymentViewerToShopwarePaymentsViewerTest extends TestCase
+#[CoversClass(Migration1794988092UpdateShopwarePaymentsRolePrivileges::class)]
+class Migration1794988092UpdateShopwarePaymentsRolePrivilegesTest extends TestCase
 {
     use MigrationTestTrait;
 
     private Connection $connection;
 
-    private Migration1794988092AddPaymentViewerToShopwarePaymentsViewer $migration;
+    private Migration1794988092UpdateShopwarePaymentsRolePrivileges $migration;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->connection = KernelLifecycleManager::getConnection();
-        $this->migration = new Migration1794988092AddPaymentViewerToShopwarePaymentsViewer();
+        $this->migration = new Migration1794988092UpdateShopwarePaymentsRolePrivileges();
     }
 
     public function testGetCreationTimestamp(): void
@@ -53,17 +53,26 @@ class Migration1794988092AddPaymentViewerToShopwarePaymentsViewerTest extends Te
         static::assertNotContains('payment_method:update', $privileges);
     }
 
-    public function testShopwarePaymentsEditorRolesDoNotGetPaymentEditorPrivileges(): void
+    public function testRemovesShopwarePaymentsEditorAndCreatorFromRolesWithoutPaymentEditor(): void
     {
-        $roleId = $this->createRole(['sw-payments.viewer', 'sw-payments.editor', 'payment_method:read']);
+        $roleId = $this->createRole(['sw-payments.viewer', 'sw-payments.editor', 'sw-payments.creator', 'payment_method:read']);
 
+        $this->migration->update($this->connection);
         $this->migration->update($this->connection);
 
         $privileges = $this->fetchPrivileges($roleId);
 
-        static::assertContains('payment.viewer', $privileges);
-        static::assertNotContains('payment.editor', $privileges);
-        static::assertNotContains('payment_method:update', $privileges);
+        static::assertSame(['sw-payments.viewer', 'payment_method:read', 'payment.viewer'], $privileges);
+    }
+
+    public function testKeepsShopwarePaymentsEditorOnRolesWithPaymentEditor(): void
+    {
+        $storedPrivileges = ['sw-payments.viewer', 'sw-payments.editor', 'payment.viewer', 'payment.editor', 'payment_method:update'];
+        $roleId = $this->createRole($storedPrivileges);
+
+        $this->migration->update($this->connection);
+
+        static::assertSame($storedPrivileges, $this->fetchPrivileges($roleId));
     }
 
     public function testUnrelatedRolesAreNotUpdated(): void

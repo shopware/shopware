@@ -1,0 +1,4 @@
+{
+    "description": "Method got a required and an optional parameter and became async",
+    "majorFlags": ["v6.8.0.0"]
+}

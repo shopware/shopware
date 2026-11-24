@@ -10,6 +10,31 @@ component sw-order-create-details-header  public  js
   source src/module/sw-order/component/sw-order-create-details-header/index.js
   template src/module/sw-order/component/sw-order-create-details-header/sw-order-create-details-header.html.twig
 
+props
+  cartPrice?: object
+  currency?: object
+  customer?: object
+  orderDate: string
+
+emits
+  on-select-existing-customer(...args: any[])
+
+slots
+  default  {}  block=sw_order_create_details_header_profile
+
+data
+  showNewCustomerModal: any
+
+computed
+  currencyFilter: any
+  customerCriteria: any
+  customerId: any
+
+methods
+  onCloseNewCustomerModal(): any
+  onSelectExistingCustomer(customerId: any): any
+  onShowNewCustomerModal(): any
+
 blocks
   sw_order_create_details_header
     sw_order_create_details_header_profile  [after v-if]

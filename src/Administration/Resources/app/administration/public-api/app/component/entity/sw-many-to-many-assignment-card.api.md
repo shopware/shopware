@@ -11,6 +11,85 @@ component sw-many-to-many-assignment-card  private  js  [private]
   template src/app/component/entity/sw-many-to-many-assignment-card/sw-many-to-many-assignment-card.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  feature  [private]
+  repositoryFactory  [private]
+
+props
+  columns: any[]  [private]
+  criteria?: object  default=factory  [private]
+  disabled?: boolean  default=false  [private]
+  displayVariants?: boolean  default=false  [private]
+  entityCollection: any[]  [private]
+  highlightSearchTerm?: boolean  default=true  [private]
+  labelProperty?: string  default='name'  [private]
+  localMode: boolean  [private]
+  placeholder?: string  default=factory  [private]
+  resultLimit?: number  default=25  [private]
+  searchableFields?: any[]  default=factory  [private]
+  selectLabel?: string  default=''  [private]
+
+emits
+  paginate(...args: any[])  [private]
+  update:entityCollection(...args: any[])  [private]
+
+slots
+  after-item-list  {}  block=sw_entity_many_to_many_assignment_card_results_list_after  [private]
+  before-item-list  {}  block=sw_entity_many_to_many_assignment_card_results_list_before  [private]
+  data-grid  {}  block=sw_entity_many_to_many_assignment_card_grid  [private]
+  empty-state  {}  block=sw_entity_many_to_many_assignment_card_grid_footer_local_mode  [private]
+  empty-state  {}  block=sw_entity_many_to_many_assignment_card_grid_footer_remote_mode  [private]
+  prepend-select  {}  block=sw_entity_many_to_many_assignment_card_pre_select  [private]
+  result-item  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey } }  block=sw_entity_many_to_many_assignment_card_results_list_result  [private]
+  result-label-property  { ...{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey } }  block=sw_entity_many_to_many_assignment_card_results_list_list_item_label  [private]
+  select  {}  block=sw_entity_many_to_many_assignment_card_select  [private]
+
+data
+  gridCriteria: any  [private]
+  gridData: any  [private]
+  isLoadingGrid: any  [private]
+  isLoadingResults: any  [private]
+  loadingGridState: any  [private]
+  resultCollection: any  [private]
+  resultRequestId: any  [private]
+  searchCriteria: any  [private]
+  searchTerm: any  [private]
+  selectedIds: any  [private]
+  totalAssigned: any  [private]
+
+computed
+  assignmentRepository: any  [private]
+  context: any  [private]
+  focusEl: any  [private]
+  languageId: any  [private]
+  limit: any  [private]
+  originalFilters: any  [private]
+  page: any  [private]
+  searchRepository: any  [private]
+  total: any  [private]
+
+methods
+  addContainsFilter(criteria: any): any  [private]
+  createdComponent(): any  [private]
+  debouncedSearch(): any  [private]
+  getKey(object: any, keyPath: any, defaultValue: any): any  [private]
+  initData(): any  [private]
+  isSelected(item: any): any  [private]
+  loadResultCollection(): Promise<any>  [private]
+  onClear(): any  [private]
+  onItemSelect(item: any): any  [private]
+  onSearchTermChange(input: any): any  [private]
+  onSelectCollapsed(): any  [private]
+  onSelectExpanded(): any  [private]
+  paginateGrid(arg0?: any = this.gridCriteria): any  [private]
+  paginateResult(): any  [private]
+  removeFromGrid(item: any): any  [private]
+  removeItem(item: any): Promise<any>  [private]
+  resetActiveItem(): any  [private]
+  resetSearchCriteria(): any  [private]
+  searchItems(): Promise<any>  [private]
+  setGridFilter(): any  [private]
+
 blocks
   sw_entity_many_to_many_assignment_card  [private]
     sw_entity_many_to_many_assignment_card_content  [private]
@@ -33,4 +112,12 @@ blocks
 
 crossings
   v-if  sw_entity_many_to_many_assignment_card_grid_footer_remote_mode -> sw_entity_many_to_many_assignment_card_grid_footer_local_mode  [private]
+
+refs
+  searchInput  -> input  block=sw_entity_many_to_many_assignment_card_search_field  [private]
+  selectBase  -> sw-select-base  block=sw_entity_many_to_many_assignment_card_select  [private]
+  swSelectResultList  -> sw-select-result-list  block=sw_entity_many_to_many_assignment_card_results_list  [private]
+
+notes
+  dynamic-slot `column-${column.property}`  [private]
 ```

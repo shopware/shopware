@@ -12,6 +12,29 @@ component sw-password-field-deprecated  private  js  [private]
   template src/app/component/form/sw-password-field-deprecated/sw-password-field-deprecated.html.twig  [private]
   visibility-source export  [private]
 
+props
+  autocomplete?: string  default=null  [private]
+  passwordToggleAble?: boolean  default=true  [private]
+  placeholderIsPassword?: boolean  default=false  [private]
+
+emits
+  inheritance-remove(...args: any[])  [private]
+  inheritance-restore(...args: any[])  [private]
+
+slots
+  hint  {}  block=sw_text_field  [private]
+  label  {}  block=sw_text_field  [private]
+
+data
+  showPassword: any  [private]
+
+computed
+  passwordPlaceholder: any  [private]
+  typeFieldClass: any  [private]
+
+methods
+  onTogglePasswordVisibility(disabled: any): any  [private]
+
 blocks
   sw_text_field  [replaced] [private]
 ```

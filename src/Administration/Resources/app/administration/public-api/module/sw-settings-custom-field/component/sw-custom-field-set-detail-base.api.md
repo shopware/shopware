@@ -10,6 +10,33 @@ component sw-custom-field-set-detail-base  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base/sw-custom-field-set-detail-base.html.twig
 
+inject
+  acl
+  customFieldDataProviderService
+
+props
+  set: object  default=factory
+  technicalNameError?: object  default=null
+
+emits
+  reset-errors(...args: any[])
+
+data
+  propertyNames: object
+    label: any
+
+computed
+  customFieldSetRelationRepository: any
+  locales: any
+  relationEntityNames: any
+  selectedRelationEntityNames: any
+
+methods
+  onAddRelation(relation: any): any
+  onRemoveRelation(relationToRemove: any): any
+  onTechnicalNameChange(): any
+  searchRelationEntityNames(arg0: any): any
+
 blocks
   sw_settings_custom_field_set_detail_base
     sw_settings_custom_field_set_detail_base_entities

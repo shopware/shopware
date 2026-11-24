@@ -11,6 +11,11 @@ component sw-mail-header-footer-create  public  js
   source src/module/sw-mail-template/page/sw-mail-header-footer-create/index.js
   template src/module/sw-mail-template/page/sw-mail-header-footer-create/sw-mail-header-footer-create.html.twig
 
+methods
+  createdComponent(): any
+  onSave(): any
+  saveFinish(): any
+
 blocks
   sw_mail_header_footer_detail  [inherited]
     sw_mail_header_footer_detail_actions  [inherited]

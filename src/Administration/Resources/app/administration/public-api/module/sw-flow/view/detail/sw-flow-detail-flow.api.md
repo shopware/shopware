@@ -11,6 +11,42 @@ component sw-flow-detail-flow  private  js  [private]
   template src/module/sw-flow/view/detail/sw-flow-detail-flow/sw-flow-detail-flow.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  flowActionService  [private]
+  repositoryFactory  [private]
+  ruleConditionDataProviderService  [private]
+
+props
+  isLoading?: boolean  default=false  [private]
+  isNewFlow?: boolean  default=false  [private]
+  isTemplate?: boolean  default=false  [private]
+  isUnknownTrigger?: boolean  default=false  [private]
+
+data
+  flowContainerStyle: any  [private]
+
+computed
+  availableActions: any  [private]
+  flow: any  [private]
+  formatSequences: any  [private]
+  hasAvailableAction: any  [private]
+  rootSequences: any  [private]
+  sequenceRepository: any  [private]
+  sequences: any  [private]
+  showActionWarning: any  [private]
+  triggerActions: any  [private]
+
+methods
+  convertSequenceData(): any  [private]
+  convertToTreeData(sequences: any): any  [private]
+  createSequence(): any  [private]
+  createdComponent(): any  [private]
+  getSequenceId(sequence: any): any  [private]
+  getTriggerActions(): Promise<any>  [private]
+  onAddRootSequence(): any  [private]
+  onEventChange(eventName: any): any  [private]
+
 blocks
   sw_flow_detail_flow  [private]
     sw_flow_detail_flow_content  [private]

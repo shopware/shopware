@@ -210,6 +210,18 @@ export default class Feature {
     }
 
     /**
+     * The majors that `Feature.silence()` silences right now, spelled as by `silenceKey()`. For code that reports a
+     * deprecation later than it is registered, like `Component.override()`, to keep the silence of the registration.
+     *
+     * @private
+     * @example
+     * Feature.silence('V6_8_0_0', () => Feature.getSilencedMajors()); // ['V6_8_0_0']
+     */
+    static getSilencedMajors(): string[] {
+        return [...this.silencedMajors.keys()];
+    }
+
+    /**
      * Guards a deprecated API where it is used, like the PHP `Feature::triggerDeprecationOrThrow()`:
      * warns while `majorFlag` is inactive, throws once it is active. A message listed in
      * `src/core/deprecation-baseline.json` is known core debt, so it logs an error instead of throwing.

@@ -23,6 +23,21 @@ Once the major flag is active, building the component throws there.
 Production builds skip the check.
 Move the override to the replacement the deprecation names.
 
+To keep an override for older Shopware versions next to the new one, register it inside `Feature.silence()` of the major, which skips the report for it.
+`Feature.silence()` exists since 6.7.17.0, so fall back to a plain call before that:
+
+```js
+const registerLegacyOverride = () => Shopware.Component.override('sw-promotion-v2-conditions', legacyOverride);
+
+if (Shopware.Feature.isActive('v6.8.0.0')) {
+    Shopware.Component.override('sw-promotion-v2-conditions', override);
+} else if (Shopware.Feature.silence) {
+    Shopware.Feature.silence('v6.8.0.0', registerLegacyOverride);
+} else {
+    registerLegacyOverride();
+}
+```
+
 ## API
 
 ### Store API media schema allows `null` where responses send it

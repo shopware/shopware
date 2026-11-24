@@ -7,6 +7,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import types from 'src/core/service/utils/types.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 import { indexTwigBlocksFromTemplate } from 'src/core/factory/twig-block-index';
+import { silenceKey } from 'src/core/feature';
 import type {
     AllowedComponentProps,
     ComponentCustomProps,
@@ -98,6 +99,8 @@ const componentRegistry = new Map<string, AwaitedComponentConfig>();
 export type IndexedAwaitedComponentConfig = {
     index: number;
     config: AwaitedComponentConfig;
+    /** The majors `Feature.silence()` silenced while the override was registered, empty in production. */
+    silencedMajors?: string[];
 };
 /**
  * Registry which holds all component overrides
@@ -693,6 +696,7 @@ function override(
     overrides.push({
         index: overrideIndex !== null ? overrideIndex : 0,
         config: configResolveMethod,
+        silencedMajors: process.env.NODE_ENV === 'production' ? [] : Shopware.Feature.getSilencedMajors(),
     });
     overrides.sort((a, b) => a.index - b.index);
     overrideRegistry.set(componentName, overrides);
@@ -795,11 +799,10 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
 
     if (overrideRegistry.has(componentName)) {
         // Resolve all override configs in parallel, then separate by type
-        const resolvedEntries = await Promise.all(
-            overrideRegistry.get(componentName)!.map((overrideEntry) => overrideEntry.config()),
-        );
+        const overrideEntries = overrideRegistry.get(componentName)!;
+        const resolvedEntries = await Promise.all(overrideEntries.map((overrideEntry) => overrideEntry.config()));
 
-        reportReplacedDeprecatedMembers(componentName, config, resolvedEntries);
+        reportReplacedDeprecatedMembers(componentName, config, overrideEntries, resolvedEntries);
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
             (resolvedConfig) => () =>
@@ -1262,22 +1265,27 @@ const LEADING_GUARD_PATTERN =
 /**
  * Reports every override of `componentName` that replaces a deprecated `computed` or method of `baseConfig` without
  * calling `this.$super()`. Only `$super` runs the member's own guard, so without this the extension never learns that
- * its override stops working once the member is removed.
+ * its override stops working once the member is removed. An override registered inside `Feature.silence()` of the
+ * member's major is not reported, so an extension can keep a backward compatible override for older versions.
  * Development only: production builds drop it, and a throwing guard there would break the whole component.
+ * `overrideConfigs` are the resolved configs of `overrideEntries`, in the same order.
  */
 function reportReplacedDeprecatedMembers(
     componentName: string,
     baseConfig: ComponentConfig,
+    overrideEntries: IndexedAwaitedComponentConfig[],
     overrideConfigs: (ComponentConfig | boolean)[],
 ): void {
     if (process.env.NODE_ENV === 'production') {
         return;
     }
 
-    overrideConfigs.forEach((overrideConfig) => {
+    overrideConfigs.forEach((overrideConfig, index) => {
         if (typeof overrideConfig === 'boolean') {
             return;
         }
+
+        const silencedMajors = overrideEntries[index].silencedMajors ?? [];
 
         (['computed', 'methods'] as const).forEach((section) => {
             const members = (overrideConfig[section] ?? {}) as Record<string, unknown>;
@@ -1285,7 +1293,7 @@ function reportReplacedDeprecatedMembers(
             Object.entries(members).forEach(([name, member]) => {
                 const guard = replacedDeprecationGuard(baseConfig, section, name, member);
 
-                if (!guard) {
+                if (!guard || silencedMajors.includes(silenceKey(guard.flag))) {
                     return;
                 }
 

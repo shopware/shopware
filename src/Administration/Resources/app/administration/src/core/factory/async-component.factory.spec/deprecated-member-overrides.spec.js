@@ -295,6 +295,69 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         expect(deprecations.entries).toHaveLength(0);
     });
 
+    /**
+     * @deprecated tag:v6.8.0 - Feature.silence() silences nothing once V6_8_0_0 is active.
+     */
+    it.deprecated('v6.8.0.0')(
+        'does not report an override registered inside Feature.silence() of the major of the member',
+        async () => {
+            registerComponentWithDeprecatedMembers('sw-silenced-override');
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                ComponentFactory.override('sw-silenced-override', {
+                    methods: {
+                        oldMethod() {
+                            return 'overridden';
+                        },
+                    },
+                });
+            });
+
+            await ComponentFactory.build('sw-silenced-override');
+
+            expect(deprecations.entries).toHaveLength(0);
+        },
+    );
+
+    it('reports an override registered inside Feature.silence() of another major', async () => {
+        registerComponentWithDeprecatedMembers('sw-other-major-silenced');
+        Shopware.Feature.silence('V6_9_0_0', () => {
+            ComponentFactory.override('sw-other-major-silenced', {
+                methods: {
+                    oldMethod() {
+                        return 'overridden';
+                    },
+                },
+            });
+        });
+
+        await ComponentFactory.build('sw-other-major-silenced');
+
+        expect(deprecations).toHaveTriggered(
+            'Component.override(\'sw-other-major-silenced\') replaces the deprecated method "oldMethod"',
+        );
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])(
+        'throws for an override registered inside Feature.silence() once the major flag is active',
+        async () => {
+            useProductionDeprecationGuard();
+            registerComponentWithDeprecatedMembers('sw-silenced-active-major');
+            Shopware.Feature.silence('V6_8_0_0', () => {
+                ComponentFactory.override('sw-silenced-active-major', {
+                    methods: {
+                        oldMethod() {
+                            return 'overridden';
+                        },
+                    },
+                });
+            });
+
+            await expect(ComponentFactory.build('sw-silenced-active-major')).rejects.toThrow(
+                'Tried to access deprecated functionality: Component.override(\'sw-silenced-active-major\') replaces the deprecated method "oldMethod"',
+            );
+        },
+    );
+
     it.activeFeatureFlags(['v6.8.0.0'])('throws once the major flag is active', async () => {
         useProductionDeprecationGuard();
         registerComponentWithDeprecatedMembers('sw-active-major');

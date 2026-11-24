@@ -42,6 +42,17 @@ final class FeatureFlagGuard
 
         $statements = $function?->getStmts() ?? [];
         $finder = new NodeFinder();
+        if (($function instanceof Expr\Closure || $function instanceof Expr\ArrowFunction)
+            && $finder->findFirst($nodes, fn (Node $node): bool => $node instanceof Expr\StaticCall
+                && $node->class instanceof Node\Name && $node->class->toString() === Feature::class
+                && $node->name instanceof Node\Identifier && \in_array($node->name->toString(), ['callSilentIfInactive', 'ifNotActive'], true)
+                && !$node->isFirstClassCallable()
+                && ($node->getArgs()[1]->value ?? null) === $function
+                && ($node->getArgs()[0]->value ?? null) instanceof Node\Scalar\String_
+                && Feature::normalizeName($node->getArgs()[0]->value->value) === $this->major) !== null
+        ) {
+            return true;
+        }
         foreach ($finder->findInstanceOf($statements, Expr\AssignRef::class) as $reference) {
             $this->references[] = $reference->var;
             $this->references[] = $reference->expr;
@@ -188,7 +199,7 @@ final class FeatureFlagGuard
                 && ($receiver->getArgs()[0]->value ?? null) instanceof Node\Scalar\String_
                 && $receiver->getArgs()[0]->value->value === FeatureFlagExtension::class;
         }
-        if (!$feature || !($expression->getArgs()[0]->value ?? null) instanceof Node\Scalar\String_) {
+        if (!$feature || $expression->isFirstClassCallable() || !($expression->getArgs()[0]->value ?? null) instanceof Node\Scalar\String_) {
             return $unknown;
         }
         $flag = Feature::normalizeName($expression->getArgs()[0]->value->value);

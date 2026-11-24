@@ -67,6 +67,20 @@ class FeatureGuardedDeprecationExtensionTest extends TestCase
      */
     public static function guards(): iterable
     {
+        foreach (['method.deprecatedInterface', 'classConstant.deprecated', 'classConstant.deprecatedClass', 'classConstant.deprecatedInterface', 'property.deprecated', 'property.deprecatedClass', 'catch.deprecatedClass', 'instanceof.deprecatedClass'] as $identifier) {
+            yield $identifier . ' in matching legacy branch' => [$identifier, 'v6.8.0', 'if (!Feature::isActive("v6.8.0.0")) { $api->old(); }', true];
+        }
+        yield 'silent inactive callback' => ['method.deprecated', 'v6.8.0', 'Feature::callSilentIfInactive("v6.8.0.0", static function () use ($api) { $api->old(); });', true];
+        yield 'inactive arrow callback' => ['method.deprecated', 'v6.8.0', 'Feature::ifNotActive("v6.8.0.0", static fn () => $api->old());', true];
+        yield 'inactive callback with wrong version' => ['method.deprecated', 'v6.8.0', 'Feature::callSilentIfInactive("v6.9.0.0", static fn () => $api->old());', false];
+        yield 'inactive callback with dynamic flag' => ['method.deprecated', 'v6.8.0', 'Feature::callSilentIfInactive($flag, static fn () => $api->old());', false];
+        yield 'inactive callback with named flag only' => ['method.deprecated', 'v6.8.0', 'Feature::ifNotActive("TWIGSTAN_LEGACY_TEST", static fn () => $api->old());', false];
+        yield 'active callback is not a legacy guard' => ['method.deprecated', 'v6.8.0', 'Feature::ifActive("v6.8.0.0", static fn () => $api->old());', false];
+        yield 'silencing alone does not prove inactive' => ['method.deprecated', 'v6.8.0', 'Feature::silent("v6.8.0.0", static fn () => $api->old());', false];
+        yield 'nested deferred callback is not covered' => ['method.deprecated', 'v6.8.0', 'Feature::callSilentIfInactive("v6.8.0.0", static fn () => static fn () => $api->old());', false];
+        yield 'unrelated inactive wrapper is not covered' => ['method.deprecated', 'v6.8.0', 'Other::callSilentIfInactive("v6.8.0.0", static fn () => $api->old());', false];
+        yield 'wrapper callable reference does not interfere' => ['method.deprecated', 'v6.8.0', '$callback = Feature::callSilentIfInactive(...); Feature::callSilentIfInactive("v6.8.0.0", static fn () => $api->old());', true];
+        yield 'feature callable reference is not a guard' => ['method.deprecated', 'v6.8.0', '$check = Feature::isActive(...); if (!$check) { $api->old(); }', false];
         yield 'matching major is disabled' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("v6.8.0.0")) { $api->old(); }', true];
         yield 'deprecated class with four-part version' => ['method.deprecatedClass', 'v6.8.0.0', 'if (!Feature::isActive("v6.8.0.0")) { $api->old(); }', true];
         yield 'deprecated static method' => ['staticMethod.deprecated', 'v6.8.0', 'if (!Feature::isActive("v6.8.0.0")) { $api->old(); }', true];

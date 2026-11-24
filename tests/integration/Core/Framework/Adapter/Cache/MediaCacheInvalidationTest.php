@@ -99,7 +99,8 @@ class MediaCacheInvalidationTest extends TestCase
                 'stock' => 0,
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'parent_id' => $parent === null ? null : Uuid::fromHexToBytes($parent),
-                'parent_version_id' => $parent === null ? null : Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                // Cross a page boundary from NULL to a real parent version in the same family.
+                'parent_version_id' => $parent === null || $i < 10000 ? null : Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ]);
             if (!$variants) {
                 $queue->addInsert('product_media', [
@@ -119,9 +120,14 @@ class MediaCacheInvalidationTest extends TestCase
 
         $this->subscriber->invalidateMedia(new MediaIndexerEvent([$media], Context::createDefaultContext()));
 
-        static::assertCount($variants ? 100001 : 100000, $this->batches[0]);
-        static::assertCount($variants ? 2 : 1, $this->batches[1]);
-        $productTags = array_merge($this->batches[0], $this->batches[1]);
+        if (Feature::isActive('CACHE_REWORK')) {
+            $expected[] = MediaRoute::buildName($media);
+        }
+        static::assertGreaterThan(1, \count($this->batches));
+        foreach ($this->batches as $batch) {
+            static::assertLessThanOrEqual(10000, \count($batch));
+        }
+        $productTags = array_merge(...$this->batches);
         static::assertEqualsCanonicalizing($expected, array_values(array_unique($productTags)));
     }
 
@@ -143,20 +149,20 @@ class MediaCacheInvalidationTest extends TestCase
         static::assertSame(Feature::isActive('CACHE_REWORK') ? [[MediaRoute::buildName($media)]] : [], $this->batches);
     }
 
-    public function testDuplicatePairsAtTheBoundaryDoNotHideTheFollowingProduct(): void
+    public function testDuplicateAssignmentsAcrossAVersionBoundaryDoNotHideTheFollowingProduct(): void
     {
         $media = $this->createMedia();
         $otherMedia = $this->createMedia();
         $otherProduct = $this->createProduct();
         $this->assignMedia($otherProduct, $otherMedia);
-        $products = [$this->createProduct(), $this->createProduct()];
-        sort($products);
-        [$parent, $following] = $products;
+        $parent = $this->createProduct();
+        $following = $this->createProduct();
         $variant = $this->createProduct($parent);
         $queue = new MultiInsertQueryQueue($this->connection, chunkSize: 1000);
-        for ($i = 0; $i < 100001; ++$i) {
+        $prefix = substr(Uuid::randomBytes(), 0, 12);
+        for ($i = 0; $i < 10000; ++$i) {
             $queue->addInsert('product_media', [
-                'id' => Uuid::randomBytes(),
+                'id' => $prefix . pack('N', $i),
                 'version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
                 'product_id' => Uuid::fromHexToBytes($parent),
                 'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
@@ -168,7 +174,16 @@ class MediaCacheInvalidationTest extends TestCase
             }
         }
         $queue->execute();
-        $this->assignMedia($following, $media);
+        $draft = "\xff" . substr(Uuid::randomBytes(), 1);
+        $this->connection->insert('version', ['id' => $draft, 'name' => 'Draft media assignment', 'created_at' => '2026-01-01 00:00:00']);
+        $this->connection->insert('product_media', [
+            'id' => $prefix . pack('N', 9999),
+            'version_id' => $draft,
+            'product_id' => Uuid::fromHexToBytes($following),
+            'product_version_id' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'media_id' => Uuid::fromHexToBytes($media),
+            'created_at' => '2026-01-01 00:00:00',
+        ]);
 
         $this->subscriber->invalidateMedia(new MediaIndexerEvent([$media, $otherMedia], Context::createDefaultContext()));
 

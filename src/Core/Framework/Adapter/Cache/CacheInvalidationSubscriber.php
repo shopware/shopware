@@ -73,6 +73,8 @@ use Shopware\Core\System\Tax\TaxDefinition;
  */
 class CacheInvalidationSubscriber
 {
+    private const MEDIA_BATCH_SIZE = 10000;
+
     /**
      * @internal
      */
@@ -360,12 +362,10 @@ class CacheInvalidationSubscriber
 
     public function invalidateMedia(MediaIndexerEvent $event): void
     {
-        foreach ($this->getMediaProductBatches($event->getIds()) as $rows) {
-            $productIds = array_unique(array_column($rows, 'product_id'));
-            $variantIds = array_filter(array_column($rows, 'variant_id'));
+        foreach ($this->getMediaProductBatches($event->getIds()) as $ids) {
             $tags = array_map(
                 static fn (string $id) => ProductDetailRoute::buildName(Uuid::fromBytesToHex($id)),
-                array_merge($productIds, $variantIds)
+                array_unique($ids)
             );
 
             $this->cacheInvalidator->invalidate($tags);
@@ -475,73 +475,90 @@ class CacheInvalidationSubscriber
     }
 
     /**
-     * The fast path reads up to 100,000 joined rows for all requested media without sorting.
-     * A result below the limit is complete and can be yielded directly.
-     * Reaching the limit may truncate the result, so the probe is discarded and each media item
-     * is read using ordered keyset pagination over product and variant IDs.
-     * This scopes sorting to one media item's matches and lets the caller invalidate each batch
-     * before fetching the next, keeping PHP memory bounded as the number of matches grows.
-     * Duplicate cursor pairs produce identical tags and can safely be skipped on subsequent pages.
-     *
      * @param list<string> $mediaIds
      *
-     * @return \Generator<int, list<array{product_id: string, variant_id: string|null}>>
+     * @return \Generator<int, list<string>>
      */
     private function getMediaProductBatches(array $mediaIds): \Generator
     {
-        $query = 'SELECT pm.product_id, variant.id as variant_id
-            FROM product_media AS pm
-            LEFT JOIN product AS variant ON (pm.product_id = variant.parent_id)
-            WHERE pm.media_id IN (:ids)';
-
-        /** @var list<array{product_id: string, variant_id: string|null}> $rows */
-        $rows = $this->connection->fetchAllAssociative(
-            $query . ' LIMIT 100000',
+        // Small media updates need only one query, even if several media changed together.
+        $probe = $this->connection->fetchAllAssociative(
+            'SELECT pm.product_id, variant.id AS variant_id
+             FROM product_media pm LEFT JOIN product variant ON variant.parent_id = pm.product_id
+             WHERE pm.media_id IN (:ids) LIMIT ' . self::MEDIA_BATCH_SIZE,
             ['ids' => Uuid::fromHexToBytesList($mediaIds)],
-            ['ids' => ArrayParameterType::STRING]
+            ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (\count($rows) < 100000) {
-            if ($rows !== []) {
-                yield $rows;
+        if (\count($probe) < self::MEDIA_BATCH_SIZE) {
+            if ($probe !== []) {
+                yield array_merge(array_column($probe, 'product_id'), array_filter(array_column($probe, 'variant_id')));
             }
 
             return;
         }
 
-        unset($rows);
+        unset($probe);
 
-        // Sort one media item's matches at a time instead of repeatedly sorting the combined result.
-        foreach ($mediaIds as $mediaId) {
-            $lastProductId = '';
-            $lastVariantId = null;
-
+        foreach (Uuid::fromHexToBytesList($mediaIds) as $mediaId) {
+            $id = $version = '';
             do {
-                /** @var list<array{product_id: string, variant_id: string|null}> $rows */
+                // The media FK index contains the assignment primary key (id, version_id).
                 $rows = $this->connection->fetchAllAssociative(
-                    $query . ' AND (pm.product_id > :lastProductId
-                        OR (pm.product_id = :lastProductId AND variant.id > :lastVariantId))
-                        ORDER BY pm.product_id, variant.id LIMIT 100000',
-                    [
-                        'ids' => [Uuid::fromHexToBytes($mediaId)],
-                        'lastProductId' => $lastProductId,
-                        'lastVariantId' => $lastVariantId,
-                    ],
-                    ['ids' => ArrayParameterType::STRING]
+                    'SELECT pm.id, pm.version_id, pm.product_id,
+                            EXISTS(SELECT 1 FROM product v WHERE v.parent_id = pm.product_id) AS has_variants
+                     FROM product_media pm IGNORE INDEX (PRIMARY)
+                     WHERE pm.media_id = :media AND (pm.id > :id OR (pm.id = :id AND pm.version_id > :version))
+                     ORDER BY pm.id, pm.version_id LIMIT ' . self::MEDIA_BATCH_SIZE,
+                    ['media' => $mediaId, 'id' => $id, 'version' => $version]
                 );
-
                 if ($rows === []) {
                     break;
                 }
 
-                $lastRow = $rows[array_key_last($rows)];
-                $lastProductId = $lastRow['product_id'];
-                $lastVariantId = $lastRow['variant_id'];
+                yield array_column($rows, 'product_id');
 
-                // Equal cursor pairs produce the same tags and can be skipped on the next page.
-                yield $rows;
-            } while (\count($rows) === 100000);
+                $parents = array_column(array_filter($rows, static fn (array $row): bool => (bool) $row['has_variants']), 'product_id');
+                if ($parents !== []) {
+                    yield from $this->getMediaVariantBatches(array_values(array_unique($parents)));
+                }
+
+                $last = $rows[array_key_last($rows)];
+                $id = $last['id'];
+                $version = $last['version_id'];
+            } while (\count($rows) === self::MEDIA_BATCH_SIZE);
         }
+    }
+
+    /**
+     * @param list<string> $parents
+     *
+     * @return \Generator<int, list<string>>
+     */
+    private function getMediaVariantBatches(array $parents): \Generator
+    {
+        $params = ['parents' => $parents];
+        $after = '';
+        do {
+            $rows = $this->connection->fetchAllAssociative(
+                'SELECT parent_id, parent_version_id, id FROM product WHERE parent_id IN (:parents)' . $after .
+                ' ORDER BY parent_id, parent_version_id, id LIMIT ' . self::MEDIA_BATCH_SIZE,
+                $params,
+                ['parents' => ArrayParameterType::BINARY]
+            );
+            if ($rows === []) {
+                return;
+            }
+
+            yield array_column($rows, 'id');
+
+            // Follow the parent FK index, including nullable parent versions. Equal IDs have the same cache tag.
+            $last = $rows[array_key_last($rows)];
+            $params = ['parents' => $parents, 'parent' => $last['parent_id'], 'version' => $last['parent_version_id'], 'id' => $last['id']];
+            $after = ' AND (parent_id > :parent OR (parent_id = :parent AND (
+                parent_version_id > :version OR (parent_version_id IS NOT NULL AND :version IS NULL)
+                OR (parent_version_id <=> :version AND id > :id))))';
+        } while (\count($rows) === self::MEDIA_BATCH_SIZE);
     }
 
     /**

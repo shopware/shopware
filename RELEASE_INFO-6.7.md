@@ -19,7 +19,7 @@ Classes overriding `updateTheme()` without calling the parent method should hand
 
 ### Media cache invalidation uses bounded batches
 
-Reindexing or updating media shared by many products invalidates affected product caches in batches of up to 100,000 joined rows, reducing worker memory usage.
+Reindexing or updating media shared by many products reads media assignments and affected variants in batches of up to 10,000 rows to bound worker memory usage.
 Delayed invalidation still requires enough capacity to store and process the resulting tags.
 
 ### Cart deliveries and transactions carry a payload into the order

@@ -34,7 +34,7 @@ Every table name comes from its definition's `ENTITY_NAME`. Header and footer ar
 the Storefront hands those two to the subscriber through the container parameter
 `shopware.content_system.section_assignment_entities`; Core declares it empty.
 
-`MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. Other-media and text-only cached pages keep their entries.
+`MappedMediaCacheInvalidator` invalidates the corresponding per-media tags for media and media-translation writes/deletions, including direct translation operations identified by their composite primary keys. It also listens to `MediaIndexerEvent` for index-time updates. DAL handling works when remote thumbnails skip indexing and does not depend on the cache-rework flags. It uses the normal immediate/delayed invalidation policy. A render records the tag of a media only when its layout maps that media, so this invalidator evicts no page that does not map it.
 
 Custom-field mapping metadata uses a separate dependency: `content-system-custom-field-mapping-metadata`. The provider attaches it only when a render attempts a mapping under a supported root's `customFields` path, including an unavailable field. Whole-field and inline mappings share this policy. Literal mapping-looking text outside supported positions creates no dependency.
 

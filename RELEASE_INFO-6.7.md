@@ -15,6 +15,13 @@ If you generate types from the schema, regenerate them and handle `null` for the
 
 The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
+## Core
+
+### System checks run every hour
+
+The new scheduled task `system_check.run` runs every system check that allows the `RECURRENT` execution context once an hour, and stores the results.
+Change its interval or deactivate it like any other scheduled task.
+
 # 6.7.17.0
 
 ## Critical Fixes

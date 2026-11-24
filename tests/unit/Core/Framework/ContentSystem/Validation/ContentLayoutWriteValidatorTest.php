@@ -84,9 +84,9 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $gate->method('wellFormedness')->willReturn(new DiagnosticsReport([]));
         $gate->method('resolvability')->willReturn(new DiagnosticsReport([]));
 
-        $registry = static::createStub(RootSourceRegistry::class);
+        $registry = $this->createMock(RootSourceRegistry::class);
         $registry->method('knownRootSources')->willReturn(['category', 'none']);
-        $registry->method('resolve')->willReturn([]);
+        $registry->expects($this->once())->method('resolve')->with('category')->willReturn([]);
 
         $validator = $this->validator($gate, $registry);
 

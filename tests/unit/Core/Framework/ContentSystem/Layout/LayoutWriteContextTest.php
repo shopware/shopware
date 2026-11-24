@@ -168,11 +168,18 @@ class LayoutWriteContextTest extends TestCase
      */
     public static function rootSourceProvider(): iterable
     {
+        yield 'null for a row nothing was remembered for' => [[], 'content_layout', 'layout-1', null];
         yield 'newest non-null root source when two differ' => [
             [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', 'category']],
             'content_layout',
             'layout-1',
             'category',
+        ];
+        yield 'the same root source remembered twice' => [
+            [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', 'product']],
+            'content_layout',
+            'layout-1',
+            'product',
         ];
         yield 'skips a leading tree without a root source' => [
             [['content_layout', 'layout-1', null], ['content_layout', 'layout-1', 'category']],
@@ -186,6 +193,35 @@ class LayoutWriteContextTest extends TestCase
             'layout-1',
             'product',
         ];
+        yield 'null when no remembered tree carries a root source' => [
+            [['content_layout', 'layout-1', null], ['content_layout', 'layout-1', null]],
+            'content_layout',
+            'layout-1',
+            null,
+        ];
+        yield 'matches an upper-case primary key against a lower-case one' => [
+            [['content_layout', 'AABBCCDD', 'product']],
+            'content_layout',
+            'aabbccdd',
+            'product',
+        ];
+        yield 'ignores a tree of another entity under the same primary key' => [
+            [['other_entity', 'shared-id', 'product']],
+            'content_layout',
+            'shared-id',
+            null,
+        ];
+    }
+
+    #[TestDox('reads the root source without consuming the tree it comes from')]
+    public function testRootSourceDoesNotConsume(): void
+    {
+        $tree = new StoredTree([], 'product');
+        $memo = $this->memo();
+        $memo->remember('content_layout', 'layout-1', $tree);
+
+        static::assertSame('product', $memo->rootSource('content_layout', 'layout-1'));
+        static::assertSame($tree, $memo->consume('content_layout', 'layout-1'));
     }
 
     private function memo(): LayoutWriteContext

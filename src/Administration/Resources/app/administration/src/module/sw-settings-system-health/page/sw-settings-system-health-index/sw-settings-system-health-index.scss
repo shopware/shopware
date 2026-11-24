@@ -1,0 +1,33 @@
+.sw-settings-system-health-index {
+    &__group + &__group {
+        margin-top: var(--scale-size-32);
+    }
+
+    // clickable like a check row; an empty group has nothing to open
+    &__group-header {
+        padding: var(--scale-size-12) 0;
+        border-bottom: 1px solid var(--color-border-secondary-default);
+        cursor: pointer;
+
+        &.is--empty {
+            cursor: default;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: var(--font-size-s);
+            font-weight: var(--font-weight-semibold);
+        }
+    }
+
+    &__group-count {
+        margin-left: var(--scale-size-4);
+        color: var(--color-text-secondary-default);
+        font-weight: var(--font-weight-regular);
+    }
+
+    &__group-empty {
+        padding: var(--scale-size-20) 0;
+        color: var(--color-text-secondary-default);
+    }
+}

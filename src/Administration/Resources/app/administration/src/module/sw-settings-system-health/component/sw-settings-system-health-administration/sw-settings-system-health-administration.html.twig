@@ -1,0 +1,13 @@
+{% block sw_settings_system_health_administration %}
+<sw-settings-system-health-check-details
+    :check="check"
+    :summary="summary"
+>
+    <sw-settings-system-health-request
+        :url="url"
+        :successful="check.result?.status === 'OK'"
+        :duration-ms="durationMs"
+        :error="error"
+    />
+</sw-settings-system-health-check-details>
+{% endblock %}

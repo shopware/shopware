@@ -1,0 +1,84 @@
+{% block sw_settings_system_health_index %}
+<sw-page class="sw-settings-system-health-index">
+    {% block sw_settings_system_health_index_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>
+            <span>{{ $t('sw-settings.index.title') }}</span>
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            <span>{{ $t('sw-settings-system-health.general.title') }}</span>
+        </h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_system_health_index_content %}
+    <template #content>
+        <sw-card-view>
+            {% block sw_settings_system_health_index_checks %}
+            <mt-card
+                class="sw-settings-system-health-index__checks"
+                position-identifier="sw-settings-system-health-checks"
+                :title="$t('sw-settings-system-health.index.checks-title')"
+                :subtitle="$t('sw-settings-system-health.index.checks-subtitle')"
+                :is-loading="isLoading"
+                large
+            >
+                <template #headerRight>
+                    <mt-button
+                        variant="secondary"
+                        size="small"
+                        :is-loading="isRunning"
+                        @click="run()"
+                    >
+                        {{ $t('sw-settings-system-health.index.run-all') }}
+                    </mt-button>
+                </template>
+
+                <section
+                    v-for="group in groups"
+                    :key="group.key"
+                    class="sw-settings-system-health-index__group"
+                >
+                    <div
+                        class="sw-settings-system-health-index__group-header"
+                        :class="{ 'is--empty': group.checks.length === 0 }"
+                        role="button"
+                        tabindex="0"
+                        :aria-expanded="openGroups.includes(group.key)"
+                        @click="toggleGroup(group.key)"
+                        @keydown.enter="toggleGroup(group.key)"
+                    >
+                        <h3>
+                            {{ $t(`sw-settings-system-health.group.${group.key}`) }}
+                            <span class="sw-settings-system-health-index__group-count">{{ group.checks.length }}</span>
+                        </h3>
+                    </div>
+
+                    <p
+                        v-if="group.key === 'attention' && group.checks.length === 0"
+                        class="sw-settings-system-health-index__group-empty"
+                    >
+                        {{ $t('sw-settings-system-health.group.attention-empty') }}
+                    </p>
+
+                    <template v-if="openGroups.includes(group.key)">
+                        <sw-settings-system-health-check-row
+                            v-for="check in group.checks"
+                            :key="check.name"
+                            :check="check"
+                            :is-running="check.name in running"
+                            :is-open="openCheck === check.name"
+                            @run="run"
+                            @toggle="toggleCheck"
+                        />
+                    </template>
+                </section>
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

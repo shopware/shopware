@@ -1,0 +1,163 @@
+{
+    "sw-settings-system-health": {
+        "general": {
+            "title": "System health",
+            "description": "Results of the system checks"
+        },
+        "index": {
+            "loading-error": "The system checks could not be loaded.",
+            "checks-title": "Checks",
+            "checks-subtitle": "The last result of each check.",
+            "run-all": "Run all"
+        },
+        "status": {
+            "OK": "OK",
+            "UNKNOWN": "Unknown",
+            "SKIPPED": "Skipped",
+            "FAILURE": "Failed",
+            "NOT_RUN": "Not run",
+            "RUNNING": "Running"
+        },
+        "category": {
+            "SYSTEM": {
+                "name": "System",
+                "description": "Checks the backbone of the shop, for example the database connection. If a system check fails, the checks after it are not run."
+            },
+            "FEATURE": {
+                "name": "Feature",
+                "description": "Checks that a specific feature works, for example payments."
+            },
+            "EXTERNAL": {
+                "name": "External",
+                "description": "Checks that external services respond, for example the SMTP server."
+            },
+            "AUXILIARY": {
+                "name": "Auxiliary",
+                "description": "Checks supporting services, for example that background tasks run."
+            }
+        },
+        "check-row": {
+            "run": "Run check",
+            "not-run": "This check has not run yet.",
+            "category-line": "{category} check",
+            "checked-at": "Last run {date}"
+        },
+        "check": {
+            "LocalesReadiness": "Languages and locales",
+            "AdministrationReadiness": "Administration",
+            "SalesChannelsReadiness": "Sales channels",
+            "ProductDetailReadiness": "Product pages",
+            "ProductListingReadiness": "Category pages",
+            "AppUrlVerification": "App URL"
+        },
+        "storefront-pages": {
+            "summary": "{failed} of {total} pages did not load."
+        },
+        "extra": {
+            "AppUrlVerification": {
+                "appUrl": "App URL",
+                "statusCode": "Response code"
+            },
+            "LocalesReadiness": {
+                "invalidLocales": "Invalid locale codes"
+            }
+        },
+        "resolution": {
+            "resolve": "Resolve",
+            "LocalesReadiness": {
+                "impact": "Texts in these languages may be missing or show up wrong. Fix the locale codes in the language settings.",
+                "action": "Open languages"
+            },
+            "AdministrationReadiness": {
+                "impact": "Users may not be able to log in or work in the Administration. Rebuild the Administration and clear the cache.",
+                "action": "Open caches"
+            },
+            "SalesChannelsReadiness": {
+                "impact": "Customers may not reach your storefront. Clearing the cache or compiling the theme often helps.",
+                "action": "Open caches"
+            },
+            "ProductDetailReadiness": {
+                "impact": "Customers may not see your product pages. Clearing the cache or updating the indexes often helps.",
+                "action": "Open caches"
+            },
+            "ProductListingReadiness": {
+                "impact": "Customers may not see your category pages. Clearing the cache or updating the indexes often helps.",
+                "action": "Open caches"
+            },
+            "AppUrlVerification": {
+                "impact": "Apps can only be installed and receive data when this shop is reachable at APP_URL. Check the APP_URL environment variable and that the shop is reachable from the internet."
+            }
+        },
+        "section": {
+            "what-happened": "What happened",
+            "what-to-do": "What to do",
+            "details": "Details"
+        },
+        "group": {
+            "attention": "Needs attention",
+            "passed": "Passed",
+            "not-run": "Not run",
+            "attention-empty": "Nothing needs your attention."
+        },
+        "message": {
+            "LocalesReadiness": {
+                "OK": "All locales valid",
+                "WARNING": "Invalid locales"
+            },
+            "AdministrationReadiness": {
+                "OK": "Administration loads",
+                "FAILURE": "Administration not loading"
+            },
+            "SalesChannelsReadiness": {
+                "OK": "Storefront home pages load",
+                "ERROR": "Some home pages failing",
+                "FAILURE": "Storefront home pages failing",
+                "SKIPPED": "No storefront pages to check"
+            },
+            "ProductDetailReadiness": {
+                "OK": "Product pages load",
+                "ERROR": "Some product pages failing",
+                "FAILURE": "Product pages failing",
+                "SKIPPED": "No product pages to check"
+            },
+            "ProductListingReadiness": {
+                "OK": "Category pages load",
+                "ERROR": "Some category pages failing",
+                "FAILURE": "Category pages failing",
+                "SKIPPED": "No category pages to check"
+            },
+            "AppUrlVerification": {
+                "OK": "APP_URL reachable",
+                "WARNING": "APP_URL not verified",
+                "ERROR": "APP_URL not reachable"
+            }
+        },
+        "presenter": {
+            "LocalesReadiness": {
+                "summary": "{count} locale code is not valid. | {count} locale codes are not valid."
+            },
+            "AdministrationReadiness": {
+                "missing": "Build files are missing for {bundles}.",
+                "noScripts": "The Administration page loaded without its scripts.",
+                "notLoading": "The Administration page did not load."
+            },
+            "AppUrlVerification": {
+                "WARNING": "APP_URL {appUrl} could not be verified. This is usually temporary.",
+                "ERROR": "APP_URL {appUrl} does not point to this shop or is blocked, so apps cannot be installed."
+            }
+        },
+        "request": {
+            "no-response": "No response",
+            "duration": "{ms} ms",
+            "ok": "OK",
+            "failed": "Failed"
+        }
+    },
+    "sw-privileges": {
+        "additional_permissions": {
+            "system": {
+                "system_health": "System health"
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+{% block sw_settings_system_health_section %}
+<section class="sw-settings-system-health-section">
+    <div class="sw-settings-system-health-section__header">
+        <h4 class="sw-settings-system-health-section__title">
+            {{ title }}
+        </h4>
+
+        <slot name="action"></slot>
+    </div>
+
+    <slot></slot>
+</section>
+{% endblock %}

@@ -276,6 +276,7 @@ class McpListenStreamTest extends TestCase
             'data_lock_waits' => 'SELECT * FROM performance_schema.data_lock_waits',
             'data_locks mcp_list_version' => 'SELECT l.ENGINE_TRANSACTION_ID, t.PROCESSLIST_ID, l.LOCK_TYPE, l.LOCK_MODE, l.LOCK_STATUS, l.LOCK_DATA FROM performance_schema.data_locks l LEFT JOIN performance_schema.threads t ON t.THREAD_ID = l.THREAD_ID WHERE l.OBJECT_NAME = \'mcp_list_version\'',
             'metadata_locks mcp_list_version' => 'SELECT m.LOCK_TYPE, m.LOCK_DURATION, m.LOCK_STATUS, t.PROCESSLIST_ID FROM performance_schema.metadata_locks m LEFT JOIN performance_schema.threads t ON t.THREAD_ID = m.OWNER_THREAD_ID WHERE m.OBJECT_NAME = \'mcp_list_version\'',
+            'global and pending metadata locks' => 'SELECT m.OBJECT_TYPE, m.OBJECT_SCHEMA, m.OBJECT_NAME, m.LOCK_TYPE, m.LOCK_STATUS, t.PROCESSLIST_ID FROM performance_schema.metadata_locks m LEFT JOIN performance_schema.threads t ON t.THREAD_ID = m.OWNER_THREAD_ID WHERE m.OBJECT_TYPE IN (\'GLOBAL\', \'COMMIT\', \'BACKUP LOCK\') OR m.LOCK_STATUS = \'PENDING\'',
             'processlist' => 'SELECT ID, COMMAND, TIME, STATE, INFO FROM information_schema.processlist WHERE COMMAND != \'Sleep\' OR TIME > 5',
         ];
 

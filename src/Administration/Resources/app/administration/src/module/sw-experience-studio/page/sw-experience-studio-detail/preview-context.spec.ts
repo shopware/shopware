@@ -5,6 +5,7 @@ import '../../store/experience-studio-workspace.store';
 
 type PreviewEntitySelectProps = {
     entity: string | null;
+    value: string | null;
     disabled: boolean;
 };
 
@@ -145,6 +146,26 @@ describe('Experience Studio frame preview context', () => {
         expect(picker.props('entity')).toBeNull();
         expect(picker.props('disabled')).toBe(true);
         expect(preview.props('entityType')).toBeNull();
+    });
+
+    it('hides saved preview entities after the entity type request fails', async () => {
+        const layouts = await openFrames(['product', 'category']);
+        await wrapper.setData({
+            activeLayoutId: layouts[0].id,
+            previewEntityId: 'preview-entity',
+            availableLayoutTypes: [],
+            layoutTypeLoadError: 'Failed to load layout types.',
+        });
+        await showPreview(layouts[0].id);
+
+        const pickers = wrapper.findAllComponents<ComponentPublicInstance<PreviewEntitySelectProps>>({
+            name: 'test-preview-entity-select',
+        });
+
+        expect(pickers).toHaveLength(2);
+        expect(pickers.map((picker) => picker.props('value'))).toEqual([null, null]);
+        expect(pickers.map((picker) => picker.props('entity'))).toEqual([null, null]);
+        expect(pickers.map((picker) => picker.props('disabled'))).toEqual([true, true]);
     });
 
     // Regression guard: an entity root source keeps its preview entity type and an enabled picker.

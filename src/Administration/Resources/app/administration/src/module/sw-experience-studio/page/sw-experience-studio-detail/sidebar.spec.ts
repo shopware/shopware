@@ -93,7 +93,9 @@ describe('Experience Studio sidebar navigation', () => {
                 layout: [{ id: 'element-b', component: 'Sw:Content:Text', properties: { text: 'Summer' } }],
             },
         ];
+        layouts.forEach((layout) => Object.assign(layout, { rootSource: 'product' }));
         await wrapper.setData({
+            availableLayoutTypes: ['product'],
             activeLayoutId: 'layout-a',
             layout: layouts[0],
             openLayouts: layouts.map((layout) => ({

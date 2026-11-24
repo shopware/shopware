@@ -29,6 +29,7 @@ function createRestore() {
             activeWorkspace: current as typeof current | null,
             get: jest.fn().mockResolvedValue(target),
             activate: jest.fn(),
+            schedule: jest.fn(),
         },
         repositoryFactory: { create: jest.fn(() => entityRepository) },
         layoutRepository: {
@@ -60,6 +61,15 @@ function createRestore() {
         isWorkspacePickerOpen: false,
         isLoading: false,
         isRestoringWorkspace: false,
+        allowSave: true,
+        activeLayoutId: 'layout-a',
+        currentViewport: 'desktop',
+        previewEntityId: 'saved-entity',
+        $refs: {
+            experienceStudioCanvas: {
+                getWorkspaceConfiguration: jest.fn(() => Shopware.Utils.object.cloneDeep(configuration)),
+            },
+        },
         $nextTick: jest.fn().mockResolvedValue(undefined),
         $router: { replace: jest.fn().mockResolvedValue(undefined) },
         createNotificationWarning: jest.fn(),
@@ -194,6 +204,22 @@ describe('Experience Studio workspace preview reference restoration', () => {
         expect(editor.createNotificationWarning).not.toHaveBeenCalled();
         expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
         expect(entityRepository.searchIds).not.toHaveBeenCalled();
+    });
+
+    it('schedules the saved preview entity after the entity type request fails', async () => {
+        const { editor, target } = createRestore();
+        editor.availableLayoutTypes = [];
+        editor.layoutTypeLoadError = 'Failed to load layout types.';
+
+        await methods.openWorkspace.call(editor, target.id);
+        editor.workspaceStore.activeWorkspace = target;
+        await methods.scheduleWorkspaceSetup.call(editor);
+
+        expect(editor.workspaceStore.schedule).toHaveBeenCalledWith(
+            expect.objectContaining({
+                frames: [expect.objectContaining({ layoutId: 'layout-a', previewEntityId: 'saved-entity' })],
+            }),
+        );
     });
 
     it('waits for the entity type request before loading the workspace', async () => {

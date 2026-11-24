@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPage;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedEvent;
@@ -134,6 +135,32 @@ class LandingPageLoaderTest extends TestCase
         $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
 
         static::assertSame('/myUrl', $seoUrl);
+    }
+
+    public function testItDoesHaveGenericMetaInformation(): void
+    {
+        $locale = 'en-GB';
+
+        $this->ids = new IdsCollection();
+
+        $request = new Request([], [], [
+            'landingPageId' => $this->ids->get('landing-page'),
+            SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => $locale,
+        ]);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+        $this->ids->set('sales-channel', $context->getSalesChannelId());
+        $this->createData();
+
+        $event = null;
+        $this->catchEvent(LandingPageLoadedEvent::class, $event);
+
+        $metaInformation = $this->getPageLoader()->load($request, $context)->getMetaInformation();
+
+        static::assertNotNull($metaInformation);
+        static::assertSame('15 days', $metaInformation->getRevisit());
+        static::assertSame('index,follow', $metaInformation->getRobots());
+        static::assertSame($locale, $metaInformation->getXmlLang());
     }
 
     /**

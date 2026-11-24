@@ -8,6 +8,9 @@ on:
       profile:
         description: "Run profile: '' (PR), 'nightly' or 'release' (patch release gate)"
         default: ""
+      seed:
+        description: "DEBUG: PHPUnit random order seed for the update-66-67 job"
+        default: ""
   workflow_call:
     inputs:
       profile:
@@ -421,7 +424,9 @@ jobs:
         run: bin/console dal:refresh:index
 
       - name: Run integration tests
-        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure
+        env:
+          SEED: ${{ inputs.seed }}
+        run: php -d memory_limit=-1 vendor/bin/phpunit --log-junit junit.xml --testsuite "integration" --stop-on-error --stop-on-failure ${SEED:+--order-by=random --random-order-seed=$SEED}
 
       - name: Upload junit report for the failure tracking issue
         if: failure() && github.event_name != 'pull_request' && github.event_name != 'merge_group'
@@ -438,7 +443,9 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: mcpbump-diag
-          path: /tmp/mcpbump.*
+          path: |
+            /tmp/mcpbump.*
+            junit.xml
           if-no-files-found: warn
 
   # this allows us to specify just one required job/check

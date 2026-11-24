@@ -76,6 +76,10 @@ class UserRepository implements UserRepositoryInterface
 
     /**
      * Replaces an outdated hash after a successful login. Failing to do so must never prevent the login.
+     *
+     * Written without the DAL on purpose: the password did not change, so no user written event may be dispatched.
+     * The `UserCredentialsChangedSubscriber` would revoke all tokens of the user and update `last_updated_password_at` for it.
+     * The hash is still created by the configured admin password hasher, the same one the `PasswordFieldSerializer` uses.
      */
     private function rehashPassword(#[\SensitiveParameter] string $password, string $userId): void
     {

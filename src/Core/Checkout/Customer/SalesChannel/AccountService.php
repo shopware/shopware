@@ -272,8 +272,11 @@ class AccountService
     /**
      * Replaces an outdated hash after a successful login. Failing to do so must never prevent the login.
      *
-     * Written without the DAL on purpose: the password did not change, so no customer written event may be dispatched,
-     * which would e.g. revoke all other sessions of the customer.
+     * Written without the DAL on purpose: the password did not change, so no customer written event may be dispatched.
+     * The `CustomerTokenSubscriber` would revoke all context tokens of the customer for it,
+     * which logs out other devices and, as this method also confirms the password of logged-in customers
+     * (see `CustomerPasswordMatchesValidator`, e.g. when changing the email), the current Store API client.
+     * The hash is still created by the configured customer password hasher, the same one the `PasswordFieldSerializer` uses.
      */
     private function rehashPassword(#[\SensitiveParameter] string $password, CustomerEntity $customer): void
     {

@@ -12,6 +12,7 @@ use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\Enti
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
+use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -1061,6 +1062,87 @@ class ContentLayoutMutationControllerTest extends TestCase
         static::assertEquals($map, $stored->jsonSerialize());
     }
 
+    #[TestDox('a mutation on a branch route appends a revision to the branch and leaves the live layout alone')]
+    public function testBranchInsertAppendsARevision(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $branch = $this->revisions()->createBranch($layoutId);
+
+        $body = $this->mutate('branches/' . $branch->id . '/insert-element', $layoutId, [
+            'type' => TestElementTypeLoader::RESOLVABLE,
+            'expectedHead' => $branch->head,
+        ]);
+
+        static::assertCount(2, $body['layout']);
+        static::assertSame($branch->head, $body['revision']['parent']);
+        static::assertSame($body['revision']['id'], $body['branch']['head']);
+        static::assertCount(2, $this->revisions()->getBranch($layoutId, $branch->id)['layout']);
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
+    #[TestDox('a branch mutation against a stale head is a 409 and appends nothing')]
+    public function testBranchMutationWithStaleHeadIs409(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $branch = $this->revisions()->createBranch($layoutId);
+        $this->mutate('branches/' . $branch->id . '/insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
+
+        $this->request('branches/' . $branch->id . '/insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedHead' => $branch->head]);
+
+        $this->assertErrorCode(Response::HTTP_CONFLICT, ContentSystemException::LAYOUT_VERSION_CONFLICT);
+        static::assertCount(2, $this->revisions()->getBranch($layoutId, $branch->id)['layout']);
+    }
+
+    #[TestDox('a mutation on an unknown branch is a 404')]
+    public function testBranchMutationOnUnknownBranchIs404(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('branches/' . $this->ids->get('missing-branch') . '/remove-element', $layoutId, ['elementId' => 'block-a', 'expectedHead' => $this->ids->get('head')]);
+
+        $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::CONTENT_LAYOUT_BRANCH_NOT_FOUND);
+    }
+
+    #[TestDox('the branch translate route keeps the translate ACL: a translator may translate a draft but not restructure it')]
+    public function testBranchTranslateKeepsTheTranslateAcl(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+        $branch = $this->revisions()->createBranch($layoutId);
+        $this->actAs(['content_layout:read', 'content_layout:translate']);
+
+        $body = $this->mutate('branches/' . $branch->id . '/translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedHead' => $branch->head,
+        ]);
+
+        $this->request('branches/' . $branch->id . '/remove-element', $layoutId, ['elementId' => 'block-a', 'expectedHead' => $body['branch']['head']]);
+
+        $this->assertMissingPrivilege('content_layout:update');
+    }
+
+    #[TestDox('a branch route refuses the live version token, so a timestamp cannot be sent where a revision id is expected')]
+    public function testBranchRouteRejectsExpectedVersion(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+        $branch = $this->revisions()->createBranch($layoutId);
+
+        $this->request('branches/' . $branch->id . '/remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => '2026-01-01T00:00:00.000+00:00', 'expectedHead' => $branch->head]);
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
+    }
+
+    #[TestDox('a live route refuses the branch head token')]
+    public function testLiveRouteRejectsExpectedHead(): void
+    {
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)]);
+
+        $this->request('remove-element', $layoutId, ['elementId' => 'block-a', 'expectedVersion' => null, 'expectedHead' => $this->ids->get('head')]);
+
+        $this->assertErrorCode(Response::HTTP_BAD_REQUEST, ContentSystemException::UNKNOWN_REQUEST_FIELD);
+        static::assertSame(['block-a'], $this->layoutIds($layoutId));
+    }
+
     /**
      * Replaces the default admin browser with one authenticated as a non-admin user holding exactly $privileges, so
      * every later request in the test runs through the route ACL.
@@ -1071,6 +1153,20 @@ class ContentLayoutMutationControllerTest extends TestCase
     {
         $this->resetBrowser();
         $this->getBrowser(true, [], $privileges);
+    }
+
+    private function assertErrorCode(int $status, string $errorCode): void
+    {
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame($status, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame($errorCode, $body['errors'][0]['code']);
+    }
+
+    private function revisions(): LayoutRevisionService
+    {
+        return static::getContainer()->get(LayoutRevisionService::class);
     }
 
     private function assertMissingPrivilege(string $privilege): void

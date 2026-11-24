@@ -17,6 +17,7 @@ final class ContentLayoutReplaceRequest
         public readonly string $elementId,
         public readonly string $newType,
         public readonly ?string $expectedVersion,
+        public readonly ?string $expectedHead = null,
     ) {
     }
 }

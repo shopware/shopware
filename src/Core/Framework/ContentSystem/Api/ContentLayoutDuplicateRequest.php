@@ -17,6 +17,7 @@ final class ContentLayoutDuplicateRequest
         public readonly string $elementId,
         public readonly ?string $expectedVersion,
         public readonly ?int $index = null,
+        public readonly ?string $expectedHead = null,
     ) {
     }
 }

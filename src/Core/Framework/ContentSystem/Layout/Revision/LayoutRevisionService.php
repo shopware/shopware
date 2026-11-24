@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Layout\Revision;
 
-use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeConstraints;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutRowLock;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
@@ -27,9 +27,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Drafts of a content layout are branches of its revision graph. Saving appends a revision to a branch,
  * publishing moves the published pointer and writes the revision's tree to the `layout` column through the
- * DAL, which runs the full write gate including resolvability. Every operation, reads included, locks the
- * layout row for its transaction and first reconciles the published pointer with the `layout` column, see
- * {@see reconcile()}; concurrent saves on one layout therefore serialize and the stale one fails its head check.
+ * DAL, which runs the full write gate including resolvability. Every operation, reads included, runs under the
+ * {@see LayoutRowLock} that persisted mutations take too, and first reconciles the published pointer with the
+ * `layout` column, see {@see reconcile()}; concurrent writers of one layout therefore serialize and the stale one
+ * fails its head or version check.
  *
  * @internal
  *
@@ -44,7 +45,7 @@ class LayoutRevisionService
      * @param EntityRepository<ContentLayoutCollection> $contentLayoutRepository
      */
     public function __construct(
-        private readonly Connection $connection,
+        private readonly LayoutRowLock $rowLock,
         private readonly LayoutRevisionStore $store,
         private readonly DraftLayoutDecoder $decoder,
         private readonly LayoutWriteBoundary $writeBoundary,
@@ -119,25 +120,33 @@ class LayoutRevisionService
         $tree = $this->admit($layout);
 
         return $this->locked($layoutId, function () use ($layoutId, $branchId, $tree, $expectedHead, $name, $context): array {
-            $branch = $this->branch($layoutId, $branchId);
-
-            if ($branch->head !== $expectedHead) {
-                throw ContentSystemException::layoutVersionConflict($layoutId);
-            }
-
-            $now = $this->now();
-            $revision = new LayoutRevision(Uuid::randomHex(), $branch->head, $now, $this->userId($context));
-            $branch = $branch->withHead($revision->id, $now);
-
-            $this->store->insertRevision($layoutId, $revision, $tree);
-            $this->store->saveBranch($layoutId, $branch);
+            $saved = $this->append($layoutId, $branchId, $expectedHead, static fn (): array => $tree, $context);
 
             if ($name !== null) {
                 $this->rename($layoutId, $name, $context);
             }
 
-            return ['revision' => $revision, 'branch' => $branch, 'layout' => $tree];
+            return $saved;
         });
+    }
+
+    /**
+     * Appends the tree `$derive` makes from the branch head, admitted like a saved tree. The head is checked before
+     * `$derive` runs, so a derivation never works on a head its caller has not seen.
+     *
+     * @param \Closure(list<StoredElement>): StoredTree $derive
+     *
+     * @return array{revision: LayoutRevision, branch: LayoutBranch, layout: list<StoredElement>}
+     */
+    public function appendRevision(string $layoutId, string $branchId, string $expectedHead, \Closure $derive, Context $context): array
+    {
+        return $this->locked($layoutId, fn (): array => $this->append(
+            $layoutId,
+            $branchId,
+            $expectedHead,
+            fn (array $head): array => $this->admitTree($derive($head)),
+            $context,
+        ));
     }
 
     /**
@@ -181,6 +190,31 @@ class LayoutRevisionService
     }
 
     /**
+     * @param \Closure(list<StoredElement>): list<StoredElement> $admitted
+     *
+     * @return array{revision: LayoutRevision, branch: LayoutBranch, layout: list<StoredElement>}
+     */
+    private function append(string $layoutId, string $branchId, string $expectedHead, \Closure $admitted, Context $context): array
+    {
+        $branch = $this->branch($layoutId, $branchId);
+
+        if ($branch->head !== $expectedHead) {
+            throw ContentSystemException::layoutVersionConflict($layoutId);
+        }
+
+        $tree = $admitted($this->tree($layoutId, $branch->head));
+
+        $now = $this->now();
+        $revision = new LayoutRevision(Uuid::randomHex(), $branch->head, $now, $this->userId($context));
+        $branch = $branch->withHead($revision->id, $now);
+
+        $this->store->insertRevision($layoutId, $revision, $tree);
+        $this->store->saveBranch($layoutId, $branch);
+
+        return ['revision' => $revision, 'branch' => $branch, 'layout' => $tree];
+    }
+
+    /**
      * The layout write's well-formedness admission without its resolvability step, which only publishing
      * enforces: decode, the write boundary, the stored-tree constraints plus the `NotBlank` the required
      * layout field adds, and the gate's intrinsic errors.
@@ -191,12 +225,18 @@ class LayoutRevisionService
      */
     private function admit(array $layout): array
     {
-        $tree = new StoredTree($this->decoder->decode($layout));
+        return $this->admitTree(new StoredTree($this->decoder->decode($layout)));
+    }
 
+    /**
+     * @return list<StoredElement>
+     */
+    private function admitTree(StoredTree $tree): array
+    {
         try {
             $tree = $this->writeBoundary->apply($tree);
         } catch (ContentSystemException $exception) {
-            throw ContentSystemException::layoutWriteRejection($exception, 'layout', $layout, '');
+            throw ContentSystemException::layoutWriteRejection($exception, 'layout', $this->treeCodec->encode($tree), '');
         }
 
         $violations = new ConstraintViolationList();
@@ -232,7 +272,7 @@ class LayoutRevisionService
      */
     private function locked(string $layoutId, \Closure $operation): mixed
     {
-        return $this->connection->transactional(fn (): mixed => $operation($this->reconcile($layoutId)));
+        return $this->rowLock->run($layoutId, fn (): mixed => $operation($this->reconcile($layoutId)));
     }
 
     /**

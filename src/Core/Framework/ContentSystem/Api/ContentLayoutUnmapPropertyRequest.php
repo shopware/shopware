@@ -14,6 +14,7 @@ final class ContentLayoutUnmapPropertyRequest
         public readonly string $elementId,
         public readonly string $propertyKey,
         public readonly ?string $expectedVersion,
+        public readonly ?string $expectedHead = null,
     ) {
     }
 }

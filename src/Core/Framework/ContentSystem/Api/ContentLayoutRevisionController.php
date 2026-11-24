@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\ContentSystem\Api;
 
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredTreeCodec;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutBranch;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevision;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -44,7 +43,7 @@ class ContentLayoutRevisionController
     public function listBranches(string $layoutId): JsonResponse
     {
         return new JsonResponse([
-            'branches' => array_map($this->branch(...), $this->revisionService->listBranches($layoutId)),
+            'branches' => array_map(LayoutRevisionNormalizer::branch(...), $this->revisionService->listBranches($layoutId)),
         ]);
     }
 
@@ -57,7 +56,7 @@ class ContentLayoutRevisionController
             $this->string($data, 'fromRevisionId'),
         );
 
-        return new JsonResponse(['branch' => $this->branch($branch)]);
+        return new JsonResponse(['branch' => LayoutRevisionNormalizer::branch($branch)]);
     }
 
     #[Route(path: '/api/_action/content-system/layout/{layoutId}/branches/{branchId}', name: 'api.action.content_system.layout.branch.detail', requirements: ['layoutId' => self::ID_PATTERN, 'branchId' => self::ID_PATTERN], defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_GET])]
@@ -66,7 +65,7 @@ class ContentLayoutRevisionController
         $result = $this->revisionService->getBranch($layoutId, $branchId);
 
         return new JsonResponse([
-            'branch' => $this->branch($result['branch']),
+            'branch' => LayoutRevisionNormalizer::branch($result['branch']),
             'layout' => $this->tree($result['layout']),
         ]);
     }
@@ -92,8 +91,8 @@ class ContentLayoutRevisionController
         );
 
         return new JsonResponse([
-            'revision' => $this->revisionSummary($result['revision'], [$result['branch']->id], false),
-            'branch' => $this->branch($result['branch']),
+            'revision' => LayoutRevisionNormalizer::revision($result['revision'], [$result['branch']->id], false),
+            'branch' => LayoutRevisionNormalizer::branch($result['branch']),
             'layout' => $this->tree($result['layout']),
         ]);
     }
@@ -106,7 +105,7 @@ class ContentLayoutRevisionController
         return new JsonResponse([
             'published' => $graph->published,
             'revisions' => array_map(
-                fn (LayoutRevision $revision): array => $this->revisionSummary(
+                fn (LayoutRevision $revision): array => LayoutRevisionNormalizer::revision(
                     $revision,
                     $graph->branchIdsAt($revision->id),
                     $revision->id === $graph->published,
@@ -128,38 +127,6 @@ class ContentLayoutRevisionController
         );
 
         return new Response(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @return array{id: string, name: string, base: string, head: string, createdAt: string, updatedAt: string}
-     */
-    private function branch(LayoutBranch $branch): array
-    {
-        return [
-            'id' => $branch->id,
-            'name' => $branch->name,
-            'base' => $branch->base,
-            'head' => $branch->head,
-            'createdAt' => $branch->createdAt->format(\DATE_ATOM),
-            'updatedAt' => $branch->updatedAt->format(\DATE_ATOM),
-        ];
-    }
-
-    /**
-     * @param list<string> $branchIds
-     *
-     * @return array{id: string, parent: string|null, createdAt: string, createdBy: string|null, branches: list<string>, published: bool}
-     */
-    private function revisionSummary(LayoutRevision $revision, array $branchIds, bool $published): array
-    {
-        return [
-            'id' => $revision->id,
-            'parent' => $revision->parent,
-            'createdAt' => $revision->createdAt->format(\DATE_ATOM),
-            'createdBy' => $revision->createdBy,
-            'branches' => $branchIds,
-            'published' => $published,
-        ];
     }
 
     /**

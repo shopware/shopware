@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Layout\Revision;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
@@ -11,7 +10,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutCollection;
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutEntity;
 use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionService;
-use Shopware\Core\Framework\ContentSystem\Layout\Revision\LayoutRevisionStore;
+use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -24,8 +23,6 @@ use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(LayoutRevisionService::class)]
-#[CoversClass(LayoutRevisionStore::class)]
 class LayoutRevisionServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -197,6 +194,74 @@ class LayoutRevisionServiceTest extends TestCase
         }
     }
 
+    #[TestDox('appending a revision derives the new tree from the branch head and moves the head onto it')]
+    public function testAppendRevisionDerivesFromTheHead(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $branch = $this->service->createBranch($layoutId);
+        $saved = $this->service->saveRevision($layoutId, $branch->id, $this->tree(['draft-a']), $branch->head, null, $this->context);
+        $seen = null;
+
+        $appended = $this->service->appendRevision(
+            $layoutId,
+            $branch->id,
+            $saved['branch']->head,
+            function (array $head) use (&$seen): StoredTree {
+                $seen = array_map(static fn (StoredElement $element): string => $element->id, $head);
+
+                return new StoredTree($this->storedTree(['draft-a', 'draft-b']));
+            },
+            $this->context,
+        );
+
+        static::assertSame(['draft-a'], $seen);
+        static::assertSame($saved['branch']->head, $appended['revision']->parent);
+        static::assertSame($appended['revision']->id, $appended['branch']->head);
+        static::assertSame(['draft-a', 'draft-b'], array_map(static fn (StoredElement $element): string => $element->id, $appended['layout']));
+        static::assertSame(['live-a'], $this->liveIds($layoutId));
+    }
+
+    #[TestDox('a stale head is rejected before the new tree is derived')]
+    public function testAppendRevisionWithStaleHeadNeverDerives(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $branch = $this->service->createBranch($layoutId);
+        $this->service->saveRevision($layoutId, $branch->id, $this->tree(['draft-a']), $branch->head, null, $this->context);
+
+        $this->assertConflict(
+            ContentSystemException::LAYOUT_VERSION_CONFLICT,
+            fn () => $this->service->appendRevision(
+                $layoutId,
+                $branch->id,
+                $branch->head,
+                static fn (): StoredTree => static::fail('A stale head must not reach the derivation.'),
+                $this->context,
+            ),
+        );
+    }
+
+    #[TestDox('the derived tree passes the same admission as a saved one and a rejected tree leaves the head where it was')]
+    public function testAppendRevisionAdmitsTheDerivedTree(): void
+    {
+        $layoutId = $this->createLayout(['live-a']);
+        $branch = $this->service->createBranch($layoutId);
+
+        try {
+            $this->service->appendRevision(
+                $layoutId,
+                $branch->id,
+                $branch->head,
+                fn (): StoredTree => new StoredTree($this->storedTree(['twin', 'twin'])),
+                $this->context,
+            );
+            static::fail('Expected the duplicate element id to be rejected.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::INVALID_LAYOUT_STRUCTURE, $exception->getErrorCode());
+        }
+
+        static::assertSame($branch->head, $this->service->getBranch($layoutId, $branch->id)['branch']->head);
+    }
+
     /**
      * @param \Closure(): mixed $operation
      */
@@ -240,6 +305,19 @@ class LayoutRevisionServiceTest extends TestCase
     {
         return array_map(
             static fn (string $id): array => ['id' => $id, 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []],
+            $elementIds,
+        );
+    }
+
+    /**
+     * @param list<string> $elementIds
+     *
+     * @return list<StoredElement>
+     */
+    private function storedTree(array $elementIds): array
+    {
+        return array_map(
+            static fn (string $id): StoredElement => new StoredElement($id, TestElementTypeLoader::RESOLVABLE),
             $elementIds,
         );
     }

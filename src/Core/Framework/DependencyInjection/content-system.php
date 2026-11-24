@@ -71,6 +71,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Validation\StyleO
 use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
+use Shopware\Core\Framework\ContentSystem\Layout\LayoutRowLock;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\ContentSystemLayoutProvisioner;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
@@ -966,13 +967,20 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)
+    $services->set(LayoutRowLock::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
     $services->set(PersistedLayoutMutator::class)
         ->args([
-            service('lock.factory'),
+            service(LayoutRowLock::class),
             service('content_layout.repository'),
             service(RootSourceRegistry::class),
             service(LayoutDiagnostics::class),
             service(DefaultMappingSeeder::class),
+            service(MutationPipeline::class),
+            service(LayoutRevisionService::class),
         ]);
 
     // Layout provisioning from presets (default layouts on install and update)
@@ -1013,7 +1021,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(LayoutRevisionService::class)
         ->args([
-            service(Connection::class),
+            service(LayoutRowLock::class),
             service(LayoutRevisionStore::class),
             service(DraftLayoutDecoder::class),
             service(LayoutWriteBoundary::class),

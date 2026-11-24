@@ -16,6 +16,7 @@ final class ContentLayoutUnwrapRequest
     public function __construct(
         public readonly string $containerElementId,
         public readonly ?string $expectedVersion,
+        public readonly ?string $expectedHead = null,
     ) {
     }
 }

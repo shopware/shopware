@@ -29,7 +29,8 @@ class FeatureFlagGuardTest extends TestCase
                 $include = json_encode($fixtures . '/' . $name . '.neon', \JSON_THROW_ON_ERROR);
                 $cache = json_encode($directory . '/cache-' . $name, \JSON_THROW_ON_ERROR);
                 $filesystem->dumpFile($config, "includes:\n    - $include\nparameters:\n    tmpDir: $cache\n");
-                $process = new Process([\PHP_BINARY, $root . '/vendor/bin/phpstan', 'analyse', '--autoload-file=' . $root . '/vendor/autoload.php', '--configuration=' . $config, '--no-progress', '--error-format=json'], $root, timeout: 120);
+                // The project bootstrap can leave Symfony's inherited console verbosity in quiet mode.
+                $process = new Process([\PHP_BINARY, $root . '/vendor/bin/phpstan', 'analyse', '--autoload-file=' . $root . '/vendor/autoload.php', '--configuration=' . $config, '--no-progress', '--error-format=json'], $root, env: ['SHELL_VERBOSITY' => '0'], timeout: 120);
                 $process->run();
                 static::assertSame(1, $process->getExitCode(), $process->getErrorOutput() . $process->getOutput());
                 static::assertJson($process->getOutput(), $process->getErrorOutput() . $process->getOutput());

@@ -10,6 +10,29 @@ component sw-product-measurement-form  public  js
   source src/module/sw-product/component/sw-product-measurement-form/index.js
   template src/module/sw-product/component/sw-product-measurement-form/sw-product-measurement-form.html.twig
 
+mixins
+  placeholder
+
+props
+  allowEdit: boolean
+
+computed
+  lengthUnit: any
+  parentProduct: any
+  product: any
+  productHeightError: any
+  productLengthError: any
+  productWeightError: any
+  productWidthError: any
+  weightUnit: any
+
+methods
+  convertHeight(unit: any): any
+  convertLength(unit: any): any
+  convertWidth(unit: any): any
+  onUpdateLengthUnit(unit: any, type: any): any
+  onUpdateWeightUnit(unit: any): any
+
 blocks
   sw_product_measurement_form
     sw_product_measurement_form_extra_field_after

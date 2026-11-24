@@ -10,6 +10,42 @@ component sw-media-sidebar  public  js
   source src/module/sw-media/component/sidebar/sw-media-sidebar/index.js
   template src/module/sw-media/component/sidebar/sw-media-sidebar/sw-media-sidebar.html.twig
 
+mixins
+  notification
+
+inject
+  repositoryFactory
+
+props
+  currentFolderId?: string  default=null
+  editable?: boolean  default=false
+  items: any[]
+
+emits
+  media-sidebar-folder-renamed(...args: any[])
+
+data
+  currentFolder: any
+
+computed
+  assetFilter: any
+  filteredAttributes: any
+  firstEntity: any
+  getSelectedFilesCount: any
+  headLine: any
+  isMultipleFile: any
+  isSingleFile: any
+  mediaFolderRepository: any
+  mediaNameFilter: any
+  mediaRepository: any
+  mediaSidebarClasses: any
+
+methods
+  createdComponent(): any
+  fetchCurrentFolder(): Promise<any>
+  onFirstItemUpdated(newItem: any): Promise<any>
+  onMediaFolderRenamed(): any
+
 blocks
   sw_media_sidebar
     sw_media_sidebar_headline

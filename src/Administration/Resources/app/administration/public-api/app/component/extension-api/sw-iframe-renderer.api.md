@@ -11,6 +11,42 @@ component sw-iframe-renderer  private  ts  [private]
   template src/app/component/extension-api/sw-iframe-renderer/sw-iframe-renderer.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  extensionSdkService  [private]
+
+props
+  fullScreen?: boolean  default=false  [private]
+  locationId: string  [private]
+  src: string  [private]
+
+data
+  colorScheme: any  [private]
+  heightHandler: any  [private]
+  isFirstLoad: any  [private]
+  locationHeight: any  [private]
+  signedIframeSrc: any  [private]
+  urlHandler: any  [private]
+
+computed
+  classes: { [key: string]: boolean }  [private]
+  componentName: string | undefined  [private]
+  extension: Extension | undefined  [private]
+  extensionIsApp: boolean  [private]
+  iFrameHeight: string  [private]
+  iFrameSrc: string  [private]
+  locationIdHashQueryKey: string  [private]
+  locationIdPathnameQueryKey: string  [private]
+  locationIdSearchParamsQueryKey: string  [private]
+
+methods
+  _getLocationOrigin(): any  [private]
+  _reloadPage(): any  [private]
+  onIframeLoad(): any  [private]
+  signIframeSrc(): any  [private]
+
 blocks
   sw_iframe_renderer  [private]
+
+refs
+  iframe  -> iframe  block=sw_iframe_renderer  [private]
 ```

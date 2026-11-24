@@ -9,4 +9,20 @@ component sw-boolean-radio-group  private  js  [private]
   registered src/app/component/index.ts  [private]
   source src/app/component/form/sw-boolean-radio-group/index.js  [private]
   visibility-source export  [private]
+
+inject
+  feature  [private]
+
+props
+  bordered?: boolean  default=false  [private]
+  labelOptionFalse: string  [private]
+  labelOptionTrue: string  [private]
+  value?: boolean  default=true  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  castedValue: any  [private]
+  options: any  [private]
 ```

@@ -2,10 +2,23 @@
 
 ## API
 
+### Store API media schema allows `null` where responses send it
+
+The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.
+`MediaThumbnail` also allows `null` for `mediaThumbnailSizeId` and `path`.
+The responses are unchanged.
+If you generate types from the schema, regenerate them and handle `null` for these fields.
+
 ### Legal guarantee notice text in the Store API
 
 `GET /store-api/legal-guarantee-notice` also returns `text`, the notice as HTML in the language of `svg`.
 The SVG is now `aria-hidden`, so headless frontends should render `text` as its text alternative.
+
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
 ## Storefront
 

@@ -11,6 +11,29 @@ component sw-flow-index  private  ts  [private]
   template src/module/sw-flow/page/sw-flow-index/sw-flow-index.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  feature  [private]
+  repositoryFactory  [private]
+
+data
+  isLoading: any  [private]
+  showUploadModal: any  [private]
+  term: any  [private]
+  total: any  [private]
+
+computed
+  flowCriteria: CriteriaType  [private]
+  flowRepository: Repository<'flow'>  [private]
+  flowTabs: Array<{ label: string; name: string; onClick: () => void }>  [private]
+  searchType: string  [private]
+
+methods
+  createComponent(): void  [private]
+  getTotal(): Promise<void>  [private]
+  onSearch(term: string): void  [private]
+  onUpdateTotalFlow(total: number): void  [private]
+
 blocks
   sw_flow_index_modal_content_custom  [private]
   sw_flow_index_smart_bar_actions_extension  [private]

@@ -15,7 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Re-derives each element's {@see StoredElement::$attributedSpecifications} at the DAL write boundary.
- * A dropped attribution (diverged wiring, missing specification, or missing binding) is never an error.
+ * A dropped attribution (diverged wiring, missing specification, missing binding, or a scoped binding config
+ * without an entry for the layout's root source) is never an error.
  *
  * Honesty comparison correctness depends on every config serializer honoring its round-trip contract
  * ({@see AbstractContentDataLoaderConfigSerializer}): `encode(decode($x))` must be stable and equal to

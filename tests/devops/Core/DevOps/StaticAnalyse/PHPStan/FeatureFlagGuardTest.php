@@ -40,7 +40,7 @@ class FeatureFlagGuardTest extends TestCase
             }
 
             static::assertCount(10, $results['before']);
-            static::assertSame([38 => 'method.deprecated', 41 => 'method.deprecated', 43 => 'method.deprecated', 45 => 'method.deprecated', 51 => 'method.deprecated', 64 => 'method.deprecated', 66 => 'method.deprecated'], $results['after']);
+            static::assertSame([38 => 'method.deprecated', 41 => 'method.deprecated', 43 => 'method.deprecated', 45 => 'method.deprecated', 48 => 'method.deprecated', 51 => 'method.deprecated', 64 => 'method.deprecated', 66 => 'method.deprecated'], $results['after']);
             static::assertCount(4, $legacyCalls['before']);
             static::assertSame([28 => 'staticMethod.deprecatedClass', 30 => 'new.deprecatedClass'], $legacyCalls['after']);
         } finally {

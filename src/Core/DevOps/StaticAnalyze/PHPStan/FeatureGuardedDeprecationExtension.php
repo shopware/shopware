@@ -39,6 +39,6 @@ final class FeatureGuardedDeprecationExtension implements IgnoreErrorExtension
         $file = $scope->getFile();
         $nodes = $this->files[$file] ??= $this->parser->parseFile($file);
 
-        return (new FeatureFlagGuard($node, Feature::normalizeName($version), Feature::getRegisteredFeatures()))->matches($nodes);
+        return (new FeatureFlagGuard($node, Feature::normalizeName($version)))->matches($nodes);
     }
 }

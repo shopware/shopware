@@ -74,7 +74,7 @@ class FeatureGuardedDeprecationExtensionTest extends TestCase
         yield 'deprecated constructor' => ['new.deprecatedClass', 'v6.8.0', 'if (!Feature::isActive("v6.8.0.0")) { $api->old(); }', true];
         yield 'enabled feature branch' => ['method.deprecated', 'v6.8.0', 'if (Feature::isActive("v6.8.0.0")) { $api->old(); }', false];
         yield 'wrong major' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("v6.9.0.0")) { $api->old(); }', false];
-        yield 'registered feature major' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("TWIGSTAN_LEGACY_TEST")) { $api->old(); }', true];
+        yield 'named feature can override its major' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("TWIGSTAN_LEGACY_TEST")) { $api->old(); }', false];
         yield 'registered feature of another major' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("TWIGSTAN_FUTURE_TEST")) { $api->old(); }', false];
         yield 'unknown feature' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("TWIGSTAN_UNKNOWN_TEST")) { $api->old(); }', false];
         yield 'unguarded call' => ['method.deprecated', 'v6.8.0', '$api->old();', false];
@@ -89,6 +89,13 @@ class FeatureGuardedDeprecationExtensionTest extends TestCase
         yield 'alias removed' => ['method.deprecated', 'v6.8.0', '$context["new"] = Feature::isActive("v6.8.0.0"); unset($context["new"]); if (!$context["new"]) { $api->old(); }', false];
         yield 'alias changed through compound assignment' => ['method.deprecated', 'v6.8.0', '$new = Feature::isActive("v6.8.0.0"); $new &= $enabled; if (!$new) { $api->old(); }', false];
         yield 'alias exposed by reference' => ['method.deprecated', 'v6.8.0', '$new = Feature::isActive("v6.8.0.0"); $ref = &$new; $ref = false; if (!$new) { $api->old(); }', false];
+        yield 'reference exists before alias assignment' => ['method.deprecated', 'v6.8.0', '$ref = &$new; $new = Feature::isActive("v6.8.0.0"); $ref = false; if (!$new) { $api->old(); }', false];
+        yield 'array reference exists before alias assignment' => ['method.deprecated', 'v6.8.0', '$refs = [&$new]; $new = Feature::isActive("v6.8.0.0"); $refs[0] = false; if (!$new) { $api->old(); }', false];
+        yield 'reference to context exists before alias assignment' => ['method.deprecated', 'v6.8.0', '$ref = &$context; $context["new"] = Feature::isActive("v6.8.0.0"); $ref["new"] = false; if (!$context["new"]) { $api->old(); }', false];
+        yield 'alias is captured by reference' => ['method.deprecated', 'v6.8.0', '$callback = function () use (&$new) { $new = false; }; $new = Feature::isActive("v6.8.0.0"); $callback(); if (!$new) { $api->old(); }', false];
+        yield 'context is iterated by reference' => ['method.deprecated', 'v6.8.0', 'foreach ($context as &$ref) {} $context["new"] = Feature::isActive("v6.8.0.0"); $ref = false; if (!$context["new"]) { $api->old(); }', false];
+        yield 'alias is overwritten inside condition' => ['method.deprecated', 'v6.8.0', '$new = Feature::isActive("v6.8.0.0"); if (($new = false) || $new) {} else { $api->old(); }', false];
+        yield 'alias is mutated inside another alias RHS' => ['method.deprecated', 'v6.8.0', '$new = Feature::isActive("v6.8.0.0"); $copy = mutate($new) || $new; if (!$copy) { $api->old(); }', false];
         yield 'alias may be changed by a call' => ['method.deprecated', 'v6.8.0', '$new = Feature::isActive("v6.8.0.0"); mutate($new); if (!$new) { $api->old(); }', false];
         yield 'alias decremented' => ['method.deprecated', 'v6.8.0', '$new = Feature::isActive("v6.8.0.0"); --$new; if (!$new) { $api->old(); }', false];
         yield 'dynamic context write invalidates aliases' => ['method.deprecated', 'v6.8.0', '$context["new"] = Feature::isActive("v6.8.0.0"); $context[$key] = false; if (!$context["new"]) { $api->old(); }', false];
@@ -97,6 +104,6 @@ class FeatureGuardedDeprecationExtensionTest extends TestCase
         yield 'legacy ternary' => ['method.deprecated', 'v6.8.0', '$value = Feature::isActive("v6.8.0.0") ? "new" : $api->old();', true];
         yield 'short-circuit legacy call' => ['method.deprecated', 'v6.8.0', '!Feature::isActive("v6.8.0.0") && $api->old();', true];
         yield 'closure has its own scope' => ['method.deprecated', 'v6.8.0', 'if (!Feature::isActive("v6.8.0.0")) { $callback = function () { $api->old(); }; }', false];
-        yield 'compiled Twig feature guard' => ['method.deprecated', 'v6.8.0', 'if (!$this->getExtension(\'' . FeatureFlagExtension::class . '\')->feature("TWIGSTAN_LEGACY_TEST")) { $api->old(); }', true];
+        yield 'compiled Twig major feature guard' => ['method.deprecated', 'v6.8.0', 'if (!$this->getExtension(\'' . FeatureFlagExtension::class . '\')->feature("v6.8.0.0")) { $api->old(); }', true];
     }
 }

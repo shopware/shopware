@@ -352,7 +352,7 @@ class ProductPageTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array<string, mixed>>
+     * @return iterable<string, array<array<string, mixed>>>
      */
     public static function productMetaProvider(): iterable
     {

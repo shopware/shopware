@@ -25,7 +25,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service(ClockInterface::class),
-            service('logger'),
         ]);
 
     $services->set(SystemChecker::class)

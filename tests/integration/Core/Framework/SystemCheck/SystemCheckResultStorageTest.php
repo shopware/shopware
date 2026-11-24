@@ -4,7 +4,6 @@ namespace Shopware\Tests\Integration\Core\Framework\SystemCheck;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
@@ -35,7 +34,7 @@ class SystemCheckResultStorageTest extends TestCase
         $this->connection->executeStatement('DELETE FROM system_check_result');
 
         $this->clock = new MockClock('2026-11-24 10:00:00', 'UTC');
-        $this->storage = new SystemCheckResultStorage($this->connection, $this->clock, new NullLogger());
+        $this->storage = new SystemCheckResultStorage($this->connection, $this->clock);
     }
 
     public function testSavesOneRowPerCheck(): void

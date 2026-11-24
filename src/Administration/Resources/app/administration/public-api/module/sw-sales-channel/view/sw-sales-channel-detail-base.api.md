@@ -84,6 +84,7 @@ computed
   helpTextTaxCalculation: any
   invalidFileNameError: any
   isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  isAgenticCommerceDeprecated: any  [deprecated tag:v6.8.0] [private]
   isDomainAware: any
   isGoogleProductSearchTemplate: any
   isHeadlessSalesChannel: any
@@ -109,6 +110,7 @@ computed
   productExportStorefrontSalesChannelIdError: any
   productStreamCriteria: any
   resolvedAgenticCommerceExportConfig: any  [deprecated tag:v6.8.0]
+  resolvedAgenticCommerceExportConfigDeprecated: any  [deprecated tag:v6.8.0] [private]
   salesChannelCustomerGroupIdError: any
   salesChannelFavoritesService: any
   salesChannelNameError: any
@@ -140,10 +142,13 @@ methods
   extractFkInfo(detail?: any = ''): any
   getAgenticCommerceExportCardPositionIdentifier(configEntry: any): any  [deprecated tag:v6.8.0]
   getAgenticCommerceExportCardTitle(configEntry: any): any  [deprecated tag:v6.8.0]
+  getAgenticCommerceExportCardTitleDeprecated(configEntry: any): any  [deprecated tag:v6.8.0] [private]
   getAgenticCommerceExportElementBind(element: any): any  [deprecated tag:v6.8.0]
+  getAgenticCommerceExportElementBindDeprecated(element: any): any  [deprecated tag:v6.8.0] [private]
   isFavorite(): any
   loadStorefrontDomains(storefrontSalesChannelId: any): any
   onAgenticCommerceExportFieldUpdate(configEntry: any, fieldName: any, value: any): any  [deprecated tag:v6.8.0]
+  onAgenticCommerceExportFieldUpdateDeprecated(configEntry: any, fieldName: any, value: any): any  [deprecated tag:v6.8.0] [private]
   onChangeFileName(): any
   onChangeFileNameDebounce(): any
   onClickCreateDomainForUnservedLanguage(): any

@@ -42,6 +42,7 @@ computed
   domainRepository: any
   editorConfig: any
   isAgenticCommerce: any  [deprecated tag:v6.8.0]
+  isAgenticCommerceDeprecated: any  [deprecated tag:v6.8.0] [private]
   mainNavigationCriteria: any
   outerCompleterFunctionBody: any
   outerCompleterFunctionFooter: any

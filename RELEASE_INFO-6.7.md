@@ -4,41 +4,7 @@
 
 ### Overrides of deprecated component members report a deprecation
 
-A `Component.override()` of a deprecated `computed` or method now triggers a deprecation when the component is built in a development build of the Administration, whether it calls `this.$super()` or not.
-Before, only the deprecated member itself reported its use when it was called.
-An override without `this.$super()` never calls it, and with `this.$super()` it was only reported once its code path ran, for example after a click.
-Either way the override stops working once the member is removed.
-
-```js
-Shopware.Component.override('sw-promotion-v2-conditions', {
-    computed: {
-        // Reports: Component.override('sw-promotion-v2-conditions') overrides the deprecated computed "personaRuleFilter", …
-        personaRuleFilter() {
-            return customCriteria;
-        },
-    },
-});
-```
-
-An override that calls `this.$super()` additionally reports through the deprecated member itself once that runs, as before.
-Once the major flag is active, building the component throws there.
-Production builds skip the check.
-Move the override to the replacement the deprecation names.
-
-To keep an override for older Shopware versions next to the new one, register it inside `Feature.silence()` of the major, which skips the report for it.
-`Feature.silence()` exists since 6.7.17.0, so fall back to a plain call before that:
-
-```js
-const registerLegacyOverride = () => Shopware.Component.override('sw-promotion-v2-conditions', legacyOverride);
-
-if (Shopware.Feature.isActive('v6.8.0.0')) {
-    Shopware.Component.override('sw-promotion-v2-conditions', override);
-} else if (Shopware.Feature.silence) {
-    Shopware.Feature.silence('v6.8.0.0', registerLegacyOverride);
-} else {
-    registerLegacyOverride();
-}
-```
+A `Component.override()` of a deprecated `computed` or method now triggers a deprecation itself, when the component is built in a development build of the Administration.
 
 ## API
 

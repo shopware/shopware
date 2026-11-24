@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiUpdateQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -52,24 +53,11 @@ class RatingAverageUpdater
         $query->setParameter('ids', Uuid::fromHexToBytesList($ids), ArrayParameterType::BINARY);
         $query->addGroupBy('IFNULL(product.parent_id, product.id)');
 
-        $averages = $query->executeQuery()->fetchAllAssociative();
-
-        foreach (array_chunk($averages, 500) as $batch) {
-            $cases = [];
-            $params = ['ids' => array_column($batch, 'id'), 'version' => $versionId];
-            foreach ($batch as $index => $average) {
-                $cases[] = 'WHEN :id' . $index . ' THEN :average' . $index;
-                $params['id' . $index] = $average['id'];
-                $params['average' . $index] = $average['average'];
-            }
-
-            RetryableQuery::retryable($this->connection, function () use ($cases, $params): void {
-                $this->connection->executeStatement(
-                    'UPDATE product SET rating_average = CASE id ' . implode(' ', $cases) . ' END WHERE id IN (:ids) AND version_id = :version',
-                    $params,
-                    ['ids' => ArrayParameterType::BINARY]
-                );
-            });
+        $updates = new MultiUpdateQueryQueue($this->connection, 'product', chunkSize: 500);
+        foreach ($query->executeQuery()->iterateAssociative() as $average) {
+            $updates->addUpdate($average['id'], ['rating_average' => $average['average']]);
         }
+
+        $updates->execute(['version_id' => $versionId]);
     }
 }

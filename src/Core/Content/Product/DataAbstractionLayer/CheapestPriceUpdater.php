@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPri
 use Shopware\Core\Content\Product\Events\ProductIndexerEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiUpdateQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -42,15 +42,7 @@ class CheapestPriceUpdater
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        $cheapestPrice = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version')
-        );
-
-        $accessorQuery = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE product SET cheapest_price_accessor = :accessor WHERE id = :id AND version_id = :version')
-        );
+        $updateQueue = new MultiUpdateQueryQueue($this->connection, 'product');
 
         // Pre-load the existing cheapest-price accessors of all variants for every parent in a single
         // query, keyed by parent id, instead of issuing one SELECT per parent inside the loop below.
@@ -74,11 +66,7 @@ class CheapestPriceUpdater
         foreach ($all as $productId => $prices) {
             $container = new CheapestPriceContainer($prices);
 
-            $cheapestPrice->execute([
-                'price' => serialize($container),
-                'id' => Uuid::fromHexToBytes($productId),
-                'version' => $versionId,
-            ]);
+            $updateQueue->addUpdate(Uuid::fromHexToBytes($productId), ['cheapest_price' => serialize($container)]);
 
             $variantIds = $container->getVariantIds();
 
@@ -99,13 +87,11 @@ class CheapestPriceUpdater
                     $variantIdsUpdated[] = $variantId;
                 }
 
-                $accessorQuery->execute([
-                    'accessor' => $accessor,
-                    'id' => Uuid::fromHexToBytes($variantId),
-                    'version' => $versionId,
-                ]);
+                $updateQueue->addUpdate(Uuid::fromHexToBytes($variantId), ['cheapest_price_accessor' => $accessor]);
             }
         }
+
+        $updateQueue->execute(['version_id' => $versionId]);
 
         if ($variantIdsUpdated !== []) {
             $this->dispatcher->dispatch(new ProductIndexerEvent($variantIdsUpdated, $context, ['product.seo-url']));

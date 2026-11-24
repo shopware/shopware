@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Reads the immutable root source of content layouts at write time: a layout the batch writes from its state after
- * the batch (so an atomic create-and-bind sees the inserted value), any other layout from the stored row.
+ * the batch (so an atomic create-and-assign sees the inserted value), any other layout from the stored row.
  *
  * @internal
  *

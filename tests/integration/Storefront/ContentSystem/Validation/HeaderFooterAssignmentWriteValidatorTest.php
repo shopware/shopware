@@ -87,8 +87,8 @@ class HeaderFooterAssignmentWriteValidatorTest extends TestCase
         static::assertNull($this->footerRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('persists a header assignment the batch binds to a footer layout and then rebinds to a header layout')]
-    public function testAcceptsHeaderAssignmentWhoseLastBindingMatchesRootSource(): void
+    #[TestDox('persists a header assignment the batch assigns to a footer layout and then reassigns to a header layout')]
+    public function testAcceptsHeaderAssignmentWhoseLastAssignmentMatchesRootSource(): void
     {
         $context = Context::createDefaultContext();
         $footerLayoutId = $this->createLayout('footer', $context);

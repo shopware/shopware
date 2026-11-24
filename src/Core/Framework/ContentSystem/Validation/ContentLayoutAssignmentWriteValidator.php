@@ -16,8 +16,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The entity-assignment gate: a tree-blind type-match of the bound layout's immutable root source against the
- * assignment definition's entity type, once per assignment record on the layout it binds after the batch. Do not
+ * The entity-assignment gate: a tree-blind type-match of the assigned layout's immutable root source against the
+ * assignment definition's entity type, once per assignment record on the layout it is assigned after the batch. Do not
  * add a tree re-check here: it would be an opportunistic write-time check at the wrong layer.
  *
  * @internal
@@ -50,28 +50,28 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
             return;
         }
 
-        $bindings = [];
+        $assignments = [];
         foreach ($this->assignmentDefinitions($event->getCommands()) as $entityName => $definition) {
             foreach ($this->writeOutcome->resultingRows($event->getCommandsForEntity($entityName), [self::CONTENT_LAYOUT_ID]) as $row) {
                 $layoutId = $row->getResultingValue(self::CONTENT_LAYOUT_ID);
 
                 if (\is_string($layoutId)) {
-                    $bindings[] = ['row' => $row, 'layoutId' => $layoutId, 'expected' => $definition->getContentLayoutEntityType()];
+                    $assignments[] = ['row' => $row, 'layoutId' => $layoutId, 'expected' => $definition->getContentLayoutEntityType()];
                 }
             }
         }
 
-        if ($bindings === []) {
+        if ($assignments === []) {
             return;
         }
 
         $rootSources = $this->rootSourceReader->rootSources(
-            array_column($bindings, 'layoutId'),
+            array_column($assignments, 'layoutId'),
             $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME),
         );
 
-        foreach ($bindings as $binding) {
-            $this->validateBinding($event, $binding['row'], $rootSources[$binding['layoutId']] ?? null, $binding['expected']);
+        foreach ($assignments as $assignment) {
+            $this->validateAssignment($event, $assignment['row'], $rootSources[$assignment['layoutId']] ?? null, $assignment['expected']);
         }
     }
 
@@ -94,7 +94,7 @@ class ContentLayoutAssignmentWriteValidator implements EventSubscriberInterface
         return $definitions;
     }
 
-    private function validateBinding(PreWriteValidationEvent $event, OutcomeRow $row, ?string $rootSource, string $expected): void
+    private function validateAssignment(PreWriteValidationEvent $event, OutcomeRow $row, ?string $rootSource, string $expected): void
     {
         // A null root source means the layout is not loadable (a non-existent id the FK constraint rejects anyway);
         // a match is the served-implies-resolvable case. Only a real mismatch is rejected.

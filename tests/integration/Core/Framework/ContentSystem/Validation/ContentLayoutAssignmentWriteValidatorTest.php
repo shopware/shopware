@@ -71,8 +71,8 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         static::assertNull($this->assignmentRepository()->searchIds(new Criteria([$assignmentId]), $context)->firstId());
     }
 
-    #[TestDox('persists a category assignment the batch binds to a product layout and then rebinds to a category layout')]
-    public function testAcceptsAssignmentWhoseLastBindingMatchesRootSource(): void
+    #[TestDox('persists a category assignment the batch assigns to a product layout and then reassigns to a category layout')]
+    public function testAcceptsAssignmentWhoseLastAssignmentMatchesRootSource(): void
     {
         $context = Context::createDefaultContext();
         $categoryId = $this->createCategory($context);
@@ -181,7 +181,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $id = $this->ids->get($key);
         $this->layoutRepository()->create([[
             'id' => $id,
-            'name' => 'binding-gate-' . $key,
+            'name' => 'assignment-gate-' . $key,
             'version' => '1.0.0',
             'rootSource' => $rootSource,
             'layout' => [

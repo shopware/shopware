@@ -38,10 +38,10 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $this->ids = new IdsCollection();
     }
 
-    #[TestDox('adds no violation when the bound layout is not loadable (no root source), deferring to the FK')]
+    #[TestDox('adds no violation when the assigned layout is not loadable (no root source), deferring to the FK')]
     public function testUnloadableLayoutAddsNoViolation(): void
     {
-        $event = $this->validate([], [$this->bind('/0', 'layout')]);
+        $event = $this->validate([], [$this->assign('/0', 'layout')]);
 
         static::assertSame([], $event->getExceptions()->getExceptions());
     }
@@ -49,7 +49,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     #[TestDox('adds no violation when the layout root source matches the assignment type')]
     public function testMatchingRootSourceAddsNoViolation(): void
     {
-        $event = $this->validate(['layout' => 'category'], [$this->bind('/0', 'layout')]);
+        $event = $this->validate(['layout' => 'category'], [$this->assign('/0', 'layout')]);
 
         static::assertSame([], $event->getExceptions()->getExceptions());
     }
@@ -57,7 +57,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     #[TestDox('adds a rootSourceAssignmentMismatch violation at the assignment path when the root source differs from the assignment type')]
     public function testMismatchingRootSourceAddsViolation(): void
     {
-        $event = $this->validate(['layout' => 'product'], [$this->bind('/0', 'layout')]);
+        $event = $this->validate(['layout' => 'product'], [$this->assign('/0', 'layout')]);
 
         $collected = $event->getExceptions()->getExceptions();
         static::assertCount(1, $collected);
@@ -69,12 +69,12 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         static::assertSame(ContentSystemException::ROOT_SOURCE_ASSIGNMENT_MISMATCH, $violations->get(0)->getCode());
     }
 
-    #[TestDox('judges an assignment the batch binds twice on the layout it binds last')]
-    public function testAssignmentBoundTwiceIsJudgedOnItsLastBinding(): void
+    #[TestDox('judges an assignment the batch writes twice on the layout it assigns last')]
+    public function testAssignmentWrittenTwiceIsJudgedOnItsLastAssignment(): void
     {
         $event = $this->validate(
             ['product-layout' => 'product', 'category-layout' => 'category'],
-            [$this->bind('/0', 'product-layout'), $this->bind('/1', 'category-layout', UpdateCommand::class)],
+            [$this->assign('/0', 'product-layout'), $this->assign('/1', 'category-layout', UpdateCommand::class)],
         );
 
         static::assertSame([], $event->getExceptions()->getExceptions());
@@ -89,7 +89,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
         $reader = $this->createMock(LayoutRootSourceReader::class);
         $reader->expects($this->never())->method('rootSources');
 
-        $event = $this->event([$this->bind('/0', 'layout')]);
+        $event = $this->event([$this->assign('/0', 'layout')]);
         $this->validator($registry, $reader)->preValidate($event);
 
         static::assertSame([], $event->getExceptions()->getExceptions());
@@ -146,7 +146,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
     /**
      * @param class-string<InsertCommand|UpdateCommand> $commandClass
      */
-    private function bind(string $path, string $layoutKey, string $commandClass = InsertCommand::class): WriteCommand
+    private function assign(string $path, string $layoutKey, string $commandClass = InsertCommand::class): WriteCommand
     {
         return $this->command($commandClass, $path, ['content_layout_id' => $this->ids->get($layoutKey)]);
     }

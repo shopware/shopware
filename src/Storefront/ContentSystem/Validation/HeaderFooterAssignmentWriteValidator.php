@@ -17,9 +17,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * The Storefront header/footer assignment gate: a tree-blind type-match of the bound layout's immutable root
- * source against the section id (header / footer), once per assignment record on the layout it binds after the
- * batch.
+ * The Storefront header/footer assignment gate: a tree-blind type-match of the assigned layout's immutable root
+ * source against the section id (header / footer), once per assignment record on the layout it is assigned after
+ * the batch.
  *
  * @internal
  */
@@ -53,27 +53,27 @@ class HeaderFooterAssignmentWriteValidator implements EventSubscriberInterface
             return;
         }
 
-        $bindings = [];
+        $assignments = [];
         foreach (self::SECTION_BY_ENTITY as $entityName => $section) {
             foreach ($this->writeOutcome->resultingRows($event->getCommandsForEntity($entityName), [self::CONTENT_LAYOUT_ID]) as $row) {
                 $layoutId = $row->getResultingValue(self::CONTENT_LAYOUT_ID);
 
                 if (\is_string($layoutId)) {
-                    $bindings[] = ['row' => $row, 'layoutId' => $layoutId, 'section' => $section];
+                    $assignments[] = ['row' => $row, 'layoutId' => $layoutId, 'section' => $section];
                 }
             }
         }
 
-        if ($bindings === []) {
+        if ($assignments === []) {
             return;
         }
 
         $rootSources = $this->rootSourceReader->rootSources(
-            array_column($bindings, 'layoutId'),
+            array_column($assignments, 'layoutId'),
             $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME),
         );
 
-        foreach ($bindings as ['row' => $row, 'layoutId' => $layoutId, 'section' => $section]) {
+        foreach ($assignments as ['row' => $row, 'layoutId' => $layoutId, 'section' => $section]) {
             $rootSource = $rootSources[$layoutId] ?? null;
 
             // A null root source means the layout is not loadable, which the FK constraint rejects anyway.

@@ -231,6 +231,41 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
         });
     });
 
+    it('includes the entire nested subtree in drag data in layout order', () => {
+        const dragConfig = methods.dragConfig.call({
+            $options: { constants: { DRAG_GROUP: 'experience-studio-sidebar-tree' } },
+            allowDragAndDrop: true,
+            contentElement: {
+                id: 'parent',
+                component: 'Plugin:Container',
+                slots: {
+                    main: [
+                        {
+                            id: 'child',
+                            component: 'Plugin:Container',
+                            slots: { content: [{ id: 'grandchild', component: 'content:text' }] },
+                        },
+                    ],
+                    empty: [],
+                    aside: [{ id: 'aside', component: 'content:text' }],
+                },
+            },
+            collectSubtreeIds: methods.collectSubtreeIds,
+            onDropElement: jest.fn(),
+        }) as { data: { elementId: string; elementComponent: string; subtreeIds: string[] } };
+
+        expect(dragConfig.data).toEqual({
+            elementId: 'parent',
+            elementComponent: 'Plugin:Container',
+            subtreeIds: [
+                'parent',
+                'child',
+                'grandchild',
+                'aside',
+            ],
+        });
+    });
+
     it('marks dropping into dragged subtree as invalid', () => {
         const vm = {
             allowDragAndDrop: true,

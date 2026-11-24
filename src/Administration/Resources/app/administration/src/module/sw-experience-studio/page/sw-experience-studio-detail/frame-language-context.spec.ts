@@ -24,6 +24,7 @@ async function createWrapper() {
     const search = jest.fn((_criteria: unknown, context: apiContext) =>
         Promise.resolve(new EntityCollection('/product', 'product', context, null, [])),
     );
+    const createRepository = jest.fn(() => ({ get, search }));
     const wrapper = shallowMount({ ...detailComponent, created() {}, mounted() {}, beforeUnmount() {} } as Component, {
         data: () => ({
             layout,
@@ -50,14 +51,7 @@ async function createWrapper() {
         global: {
             provide: {
                 acl: { can: () => false },
-                repositoryFactory: {
-                    create: (entity: string) =>
-                        entity === 'product'
-                            ? { get, search }
-                            : {
-                                  get: (id: string) => Promise.resolve({ id, name: names[id] }),
-                              },
-                },
+                repositoryFactory: { create: createRepository },
             },
             stubs: {
                 'sw-page': { template: '<div><slot name="content" /></div>' },
@@ -81,7 +75,7 @@ async function createWrapper() {
     });
     await flushPromises();
 
-    return { wrapper, get, search };
+    return { wrapper, get, search, createRepository };
 }
 
 describe('frame language contexts', () => {
@@ -103,14 +97,20 @@ describe('frame language contexts', () => {
         Shopware.Store.get('context').api.language = originalLanguage;
     });
 
-    function selectors(frameId: string) {
-        return view.wrapper.findAllComponents<ComponentPublicInstance<{ context: apiContext }>>(
+    function entitySelector(frameId: string) {
+        return view.wrapper.getComponent<ComponentPublicInstance<{ context: apiContext }>>(
             `[data-frame-id="${frameId}"] .sw-entity-single-select`,
         );
     }
 
+    function languageSelector(frameId: string) {
+        return view.wrapper.getComponent<ComponentPublicInstance<{ modelValue: string }>>(
+            `[data-frame-id="${frameId}"] .sw-experience-studio-frame-menu__language`,
+        );
+    }
+
     function productLabel(frameId: string) {
-        return selectors(frameId)[0].get('.sw-entity-single-select__selection-text').text();
+        return entitySelector(frameId).get('.sw-entity-single-select__selection-text').text();
     }
 
     it('loads the same preview entity in each frame language despite the global Admin language', async () => {
@@ -130,16 +130,18 @@ describe('frame language contexts', () => {
             expect.anything(),
             undefined,
         );
-        expect(selectors('english-frame')[1].props('context')).toEqual(
+        expect(entitySelector('english-frame').props('context')).toEqual(
             expect.objectContaining({ languageId: english, language: { name: 'English', parentId: undefined } }),
         );
+        expect(languageSelector('english-frame').props('modelValue')).toBe(english);
+        expect(view.createRepository).not.toHaveBeenCalledWith('language');
         expect(Shopware.Context.api.languageId).toBe(german);
     });
 
     it('reloads the selected entity label when its frame language changes without reopening the menu', async () => {
         view = await createWrapper();
         // Keep the frame active so the test only changes its language.
-        selectors('english-frame')[1].vm.$emit('update:value', german, { parentId: null });
+        languageSelector('english-frame').vm.$emit('update:modelValue', german);
         await flushPromises();
 
         expect(productLabel('english-frame')).toBe('Blaues Hemd');
@@ -149,6 +151,7 @@ describe('frame language contexts', () => {
         >({ ref: 'experienceStudioCanvas' });
         expect(canvas.props('frames').map((frame) => frame.languageLabel)).toEqual(['German', 'German']);
         expect(canvas.props('frames')[0].ariaLabel).toContain('German');
+        expect(view.createRepository).not.toHaveBeenCalledWith('language');
         expect(Shopware.Context.api.languageId).toBe(german);
     });
 
@@ -162,7 +165,7 @@ describe('frame language contexts', () => {
             ['english-frame', english],
             ['german-frame', german],
         ]) {
-            const selector = selectors(frameId)[0];
+            const selector = entitySelector(frameId);
             selector.getComponent<ComponentPublicInstance>('.test-select-base').vm.$emit('select-expanded');
             await flushPromises();
             expect(view.search).toHaveBeenLastCalledWith(

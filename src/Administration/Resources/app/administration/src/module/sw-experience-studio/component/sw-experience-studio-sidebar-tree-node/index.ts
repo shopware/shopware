@@ -2,6 +2,7 @@ import type { ContentElementNode } from 'src/core/service/content-element.types'
 import { anchorLanguageId } from '../../util/element-settings.util';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 import { translateContentSystemText } from '../../util/content-system-translation.util';
+import { walkContentElements } from '../../util/content-element.util';
 import type { ExperienceStudioElementTypeStore } from '../../store/experience-studio-element-type.store';
 
 import template from './sw-experience-studio-sidebar-tree-node.html.twig';
@@ -183,13 +184,12 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         collectSubtreeIds(element: ContentElementNode): string[] {
-            const nestedSlotElements = Object.values(element.slots ?? {}).flatMap((slotElements) => slotElements);
-            const nestedIds = nestedSlotElements.flatMap((childElement) => this.collectSubtreeIds(childElement));
+            const ids: string[] = [];
+            walkContentElements([element], (node) => {
+                ids.push(node.id);
+            });
 
-            return [
-                element.id,
-                ...nestedIds,
-            ];
+            return ids;
         },
 
         dragConfig() {

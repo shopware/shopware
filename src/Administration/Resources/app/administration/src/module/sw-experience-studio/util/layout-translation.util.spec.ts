@@ -18,7 +18,15 @@ describe('layout translation fields', () => {
                 id: 'unknown',
                 component: 'Plugin:Container',
                 slots: {
-                    content: [{ id: 'nested', component: type.name }],
+                    content: [
+                        {
+                            id: 'nested',
+                            component: type.name,
+                            slots: { content: [{ id: 'deeply-nested', component: type.name }] },
+                        },
+                    ],
+                    empty: [],
+                    footer: [{ id: 'footer', component: type.name }],
                 },
             },
             { id: 'last', component: type.name },
@@ -29,6 +37,10 @@ describe('layout translation fields', () => {
         expect(fields.map((entry) => [entry.element.id, entry.field.key])).toEqual([
             ['nested', 'title'],
             ['nested', 'count'],
+            ['deeply-nested', 'title'],
+            ['deeply-nested', 'count'],
+            ['footer', 'title'],
+            ['footer', 'count'],
             ['last', 'title'],
             ['last', 'count'],
         ]);

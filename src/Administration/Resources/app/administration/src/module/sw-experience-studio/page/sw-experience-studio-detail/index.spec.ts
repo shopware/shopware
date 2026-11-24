@@ -297,7 +297,7 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
-    it('rejects invalid move targets from subtree cycles', () => {
+    it.each(['parent', 'child', 'grandchild'])('rejects moving a subtree into its own %s element', (targetId) => {
         const vm = {
             layout: {
                 layout: [
@@ -309,23 +309,46 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                                 {
                                     id: 'child',
                                     component: 'Sw:Content:Text',
+                                    slots: {
+                                        main: [{ id: 'grandchild', component: 'Sw:Content:Text' }],
+                                    },
                                 },
                             ],
                         },
                     },
                 ],
             },
-            isElementInSubtree: methods.isElementInSubtree,
         };
 
         expect(
             methods.validateMoveTarget.call(vm, {
                 elementId: 'parent',
-                newParentElementId: 'child',
+                newParentElementId: targetId,
                 newSlotName: 'main',
                 newIndex: 0,
             }),
         ).toBe(false);
+    });
+
+    it('allows moving an element into a separate subtree', () => {
+        const vm = {
+            layout: {
+                layout: [
+                    { id: 'source', component: 'Sw:Content:Text' },
+                    { id: 'target', component: 'Sw:Layout:Container', slots: { main: [] } },
+                ],
+            },
+            canInsertIntoSlot: () => true,
+        };
+
+        expect(
+            methods.validateMoveTarget.call(vm, {
+                elementId: 'source',
+                newParentElementId: 'target',
+                newSlotName: 'main',
+                newIndex: 0,
+            }),
+        ).toBe(true);
     });
 
     it('adjusts move index when reordering in same slot', () => {

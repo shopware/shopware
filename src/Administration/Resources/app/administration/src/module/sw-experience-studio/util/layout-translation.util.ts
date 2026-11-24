@@ -3,6 +3,7 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type { SettingsFieldDefinition } from '../component/sw-experience-studio-settings-fields';
 import { getPropertyControlType } from './element-settings.util';
 import { findPropertyMapping } from './element-mapping.util';
+import { walkContentElements } from './content-element.util';
 
 /** @private @sw-package discovery */
 export type LayoutTranslationField = {
@@ -19,24 +20,20 @@ export function getLayoutTranslationFields(
 ): LayoutTranslationField[] {
     const fields: LayoutTranslationField[] = [];
 
-    function visit(nodes: ContentElementNode[]): void {
-        for (const element of nodes) {
-            const elementType = getType(element.component);
-            for (const [key, property] of Object.entries(elementType?.properties ?? {})) {
-                if (!elementType || !property.translatable || getPropertyControlType(property) === null) {
-                    continue;
-                }
-                fields.push({
-                    element,
-                    elementType,
-                    field: { key, property },
-                    mappingPath: findPropertyMapping(element, key)?.path ?? null,
-                });
+    walkContentElements(elements, (element) => {
+        const elementType = getType(element.component);
+        for (const [key, property] of Object.entries(elementType?.properties ?? {})) {
+            if (!elementType || !property.translatable || getPropertyControlType(property) === null) {
+                continue;
             }
-            Object.values(element.slots ?? {}).forEach(visit);
+            fields.push({
+                element,
+                elementType,
+                field: { key, property },
+                mappingPath: findPropertyMapping(element, key)?.path ?? null,
+            });
         }
-    }
+    });
 
-    visit(elements);
     return fields;
 }

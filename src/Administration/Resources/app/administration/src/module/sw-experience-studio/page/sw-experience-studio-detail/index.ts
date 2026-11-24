@@ -2268,7 +2268,7 @@ export default Shopware.Component.wrapComponentConfig({
                 return false;
             }
 
-            if (this.isElementInSubtree(draggedElement, payload.newParentElementId)) {
+            if (findElementLocation([draggedElement], payload.newParentElementId) !== null) {
                 return false;
             }
 
@@ -2679,22 +2679,6 @@ export default Shopware.Component.wrapComponentConfig({
             }
 
             return slotDefinition.allowList.includes(childComponent);
-        },
-
-        isElementInSubtree(element: ContentElementNode, soughtElementId: string): boolean {
-            if (element.id === soughtElementId) {
-                return true;
-            }
-
-            for (const slotElements of Object.values(element.slots ?? {})) {
-                for (const childElement of slotElements) {
-                    if (this.isElementInSubtree(childElement, soughtElementId)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         },
 
         findElementById(elementId: string): ContentElementNode | null {

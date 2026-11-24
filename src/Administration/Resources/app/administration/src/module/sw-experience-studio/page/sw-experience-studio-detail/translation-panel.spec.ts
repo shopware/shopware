@@ -26,21 +26,22 @@ describe('frame layout translation panel', () => {
         await flushPromises();
     }
 
-    function languageSwitch() {
+    function languageSwitch(selector = '.sw-experience-studio-detail__translation-language') {
         return view.wrapper.getComponent<
             ComponentPublicInstance<{
                 modelValue: string;
                 options: Array<{ value: string; label: string }>;
                 disabled: boolean;
             }>
-        >('.sw-experience-studio-detail__translation-language');
+        >(selector);
     }
 
-    async function selectLanguage(label: string) {
-        await languageSwitch().get('.mt-select__selection').trigger('click');
+    async function selectLanguage(label: string, selector = languageSwitch()) {
+        await selector.get('.mt-select__selection').trigger('click');
         await flushPromises();
         const option = new DOMWrapper(document.body).findAll('.mt-select-result').find((result) => result.text() === label);
         expect(option).toBeDefined();
+        await option!.trigger('pointerdown', { button: 0 });
         await option!.trigger('click');
         await flushPromises();
     }
@@ -127,6 +128,13 @@ describe('frame layout translation panel', () => {
         view = await createWrapper();
         await openTranslations();
         expect(languageSwitch().props('modelValue')).toBe(german);
+        expect(languageSwitch('.sw-experience-studio-frame-menu__language').props('options')).toEqual([
+            { value: english, label: 'English' },
+            { value: german, label: 'German' },
+        ]);
+        expect(languageSwitch().props('options')).toEqual(
+            languageSwitch('.sw-experience-studio-frame-menu__language').props('options'),
+        );
         await view.wrapper.get('[data-frame-id="english-frame"]').trigger('click');
         expect(view.wrapper.find('.sw-experience-studio-canvas__panel--settings').exists()).toBe(false);
         await openTranslations('english-frame');
@@ -135,12 +143,10 @@ describe('frame layout translation panel', () => {
         expect(languageSwitch().props('modelValue')).toBe(english);
 
         await activateFrameToolbar('english-frame');
-        view.wrapper
-            .getComponent<ComponentPublicInstance>('.test-entity-select[data-entity="language"]')
-            .vm.$emit('update:value', german, { parentId: null });
-        await flushPromises();
+        await selectLanguage('German', languageSwitch('.sw-experience-studio-frame-menu__language'));
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('Erster');
         expect(languageSwitch().props('modelValue')).toBe(german);
+        expect(view.wrapper.findAll('.sw-experience-studio-canvas__frame-toolbar')).toHaveLength(1);
     });
 
     it('switches the frame and fields from a toolbar outside the scrolling list without changing the draft', async () => {
@@ -162,11 +168,7 @@ describe('frame layout translation panel', () => {
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('First');
         expect(view.wrapper.findAll('.test-preview-title').map((preview) => preview.text())).toEqual(['First', 'First']);
         await activateFrameToolbar('german-frame');
-        expect(
-            view.wrapper
-                .getComponent<ComponentPublicInstance<{ value: string }>>('.test-entity-select[data-entity="language"]')
-                .props('value'),
-        ).toBe(english);
+        expect(languageSwitch('.sw-experience-studio-frame-menu__language').props('modelValue')).toBe(english);
 
         await selectLanguage('German');
         expect(view.wrapper.findAll<HTMLInputElement>('input[aria-label="Title"]')[0].element.value).toBe('Erster');
@@ -182,17 +184,25 @@ describe('frame layout translation panel', () => {
         view = await createWrapper();
         await view.wrapper.setData({ previewLanguageContext: { languageIds: [english] } });
         await openTranslations('english-frame');
-        expect(languageSwitch().props('options')).toEqual([{ value: english, label: 'English' }]);
-        languageSwitch().vm.$emit('update:modelValue', german);
-        await flushPromises();
-        expect(languageSwitch().props('modelValue')).toBe(english);
+        const selectors = [
+            '.sw-experience-studio-detail__translation-language',
+            '.sw-experience-studio-frame-menu__language',
+        ];
+        for (const selector of selectors) {
+            expect(languageSwitch(selector).props('options')).toEqual([{ value: english, label: 'English' }]);
+            languageSwitch(selector).vm.$emit('update:modelValue', german);
+            await flushPromises();
+            expect(languageSwitch(selector).props('modelValue')).toBe(english);
+        }
 
         await view.wrapper.setData({ previewLanguageContext: { salesChannelId: 'previous-channel' } });
-        expect(languageSwitch().props('disabled')).toBe(true);
-        expect(languageSwitch().props('options')).toEqual([]);
-        languageSwitch().vm.$emit('update:modelValue', german);
-        await flushPromises();
-        expect(languageSwitch().props('modelValue')).toBe(english);
+        for (const selector of selectors) {
+            expect(languageSwitch(selector).props('disabled')).toBe(true);
+            expect(languageSwitch(selector).props('options')).toEqual([]);
+            languageSwitch(selector).vm.$emit('update:modelValue', german);
+            await flushPromises();
+            expect(languageSwitch(selector).props('modelValue')).toBe(english);
+        }
         expect(view.editor.canUndo).toBe(false);
     });
 

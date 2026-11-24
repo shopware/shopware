@@ -130,19 +130,17 @@
                             @pointerdown.stop
                             @update:value="onFramePreviewEntityChange(frame.id, $event)"
                         />
-                        <sw-entity-single-select
-                            :key="`${previewSalesChannelId}-${frame.languageId}`"
-                            entity="language"
-                            size="small"
-                            :value="frame.languageId"
-                            :context="frameContexts[frame.id]"
+                        <mt-select
+                            :key="`${previewSalesChannelId}-${frame.id}-${frame.languageId}`"
+                            class="sw-experience-studio-frame-menu__language"
+                            :model-value="frame.languageId"
+                            :options="previewLanguageOptions"
                             :label="$t('sw-experience-studio.detail.toolbar.previewLanguage')"
-                            :criteria="languageCriteria[frame.id]"
-                            :popover-classes="[popoverClass]"
-                            :show-clearable-button="false"
-                            :disabled="isLoading || !isPreviewLanguageContextReady || undefined"
+                            :disabled="isLoading || !isPreviewLanguageContextReady"
+                            small
+                            hide-clearable-button
                             @pointerdown.stop
-                            @update:value="(languageId, language) => onFrameLanguageChange(frame.id, languageId, language)"
+                            @update:model-value="onFrameLanguageChange(frame.id, $event)"
                         />
                     </template>
 

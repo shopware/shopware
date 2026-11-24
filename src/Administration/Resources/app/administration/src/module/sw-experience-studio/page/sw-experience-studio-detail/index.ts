@@ -383,19 +383,6 @@ export default Shopware.Component.wrapComponentConfig({
                 .sort((first, second) => first.label.localeCompare(second.label));
         },
 
-        languageCriteria(): Record<string, InstanceType<typeof Criteria>> {
-            const salesChannelId = this.previewSalesChannelId;
-            return Object.fromEntries(
-                this.frames.map((frame) => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.addFilter(Criteria.equals('active', true));
-                    criteria.addFilter(Criteria.equals('salesChannels.id', salesChannelId ?? ''));
-                    criteria.addSorting(Criteria.sort('name', 'ASC'));
-                    return [frame.id, criteria] as const;
-                }),
-            );
-        },
-
         isPreviewLanguageContextReady(): boolean {
             return (
                 this.previewLanguageContext !== null &&
@@ -1966,11 +1953,7 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        onFrameLanguageChange(
-            frameId: string,
-            languageId: string | null,
-            language?: Pick<Entity<'language'>, 'parentId'>,
-        ): void {
+        onFrameLanguageChange(frameId: string, languageId: string | null): void {
             const frame = this.frames.find((item) => item.id === frameId);
             if (
                 !frame ||
@@ -1979,9 +1962,6 @@ export default Shopware.Component.wrapComponentConfig({
                 !this.previewLanguageContext?.languageIds.includes(languageId)
             ) {
                 return;
-            }
-            if (language) {
-                this.languageParents[languageId] = language.parentId ?? null;
             }
             frame.languageId = languageId;
             this.activateFrame(frameId);

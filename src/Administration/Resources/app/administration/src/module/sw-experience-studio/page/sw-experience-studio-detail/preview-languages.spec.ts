@@ -1,5 +1,4 @@
 import detailComponent from './index';
-import type Criteria from 'src/core/data/criteria.data';
 
 const component = detailComponent as unknown as {
     methods: Record<string, (...args: unknown[]) => unknown>;
@@ -34,20 +33,20 @@ function createEditor() {
 }
 
 describe('preview languages in the selected sales channel', () => {
-    it('filters every frame selector by the preview sales channel and active languages', () => {
-        const criteria = component.computed.languageCriteria.call({
-            previewSalesChannelId: 'selected-channel',
-            frames: [{ id: 'desktop' }, { id: 'mobile' }],
-        }) as Record<string, Criteria>;
+    it('provides sorted language options from the loaded preview context', () => {
+        const options = component.computed.previewLanguageOptions.call({
+            isPreviewLanguageContextReady: true,
+            previewLanguageContext: {
+                ...languageContext('selected-channel', 'german'),
+                languageIds: ['german', 'english'],
+                languageNames: { german: 'German', english: 'English' },
+            },
+        });
 
-        for (const frameCriteria of Object.values(criteria)) {
-            expect(frameCriteria.parse().filter).toEqual(
-                expect.arrayContaining([
-                    { type: 'equals', field: 'active', value: true },
-                    { type: 'equals', field: 'salesChannels.id', value: 'selected-channel' },
-                ]),
-            );
-        }
+        expect(options).toEqual([
+            { value: 'english', label: 'English' },
+            { value: 'german', label: 'German' },
+        ]);
     });
 
     it('loads assigned active languages and uses the channel default instead of an unavailable system language', async () => {

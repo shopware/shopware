@@ -11,6 +11,7 @@ use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\SystemCheck\SystemCheckResultStore;
 
 /**
  * @internal
@@ -92,5 +93,43 @@ class SystemCheckerTest extends TestCase
         static::assertCount(2, $results);
         static::assertSame($result, $results[0]);
         static::assertEquals($skippedResult, $results[1]);
+    }
+
+    public function testStoresTheResultsOfTheChecksThatRan(): void
+    {
+        $ran = new Result('ran', Status::OK, 'fine', true);
+        $notAllowed = static::createStub(BaseCheck::class);
+        $notAllowed->method('allowedToRunIn')->willReturn(false);
+        $notAllowed->method('name')->willReturn('notAllowed');
+
+        $allowed = static::createStub(BaseCheck::class);
+        $allowed->method('allowedToRunIn')->willReturn(true);
+        $allowed->method('category')->willReturn(Category::EXTERNAL);
+        $allowed->method('run')->willReturn($ran);
+
+        $store = $this->createMock(SystemCheckResultStore::class);
+        $store->expects($this->once())->method('save')->with([$ran], SystemCheckExecutionContext::CLI);
+
+        (new SystemChecker([$notAllowed, $allowed], $store))->check(SystemCheckExecutionContext::CLI);
+    }
+
+    public function testDoesNotStoreChecksSkippedAfterAFailedSystemCheck(): void
+    {
+        $failed = new Result('database', Status::FAILURE, 'down', false);
+        $systemCheck = static::createStub(BaseCheck::class);
+        $systemCheck->method('allowedToRunIn')->willReturn(true);
+        $systemCheck->method('category')->willReturn(Category::SYSTEM);
+        $systemCheck->method('run')->willReturn($failed);
+
+        $featureCheck = $this->createMock(BaseCheck::class);
+        $featureCheck->method('allowedToRunIn')->willReturn(true);
+        $featureCheck->method('category')->willReturn(Category::FEATURE);
+        $featureCheck->method('name')->willReturn('feature');
+        $featureCheck->expects($this->never())->method('run');
+
+        $store = $this->createMock(SystemCheckResultStore::class);
+        $store->expects($this->once())->method('save')->with([$failed], SystemCheckExecutionContext::CLI);
+
+        (new SystemChecker([$systemCheck, $featureCheck], $store))->check(SystemCheckExecutionContext::CLI);
     }
 }

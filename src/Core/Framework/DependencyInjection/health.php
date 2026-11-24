@@ -2,8 +2,11 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
+use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\SystemCheck\Command\SystemCheckCommand;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
+use Shopware\Core\Framework\SystemCheck\SystemCheckResultStore;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -18,8 +21,16 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('console.command');
 
+    $services->set(SystemCheckResultStore::class)
+        ->args([
+            service(Connection::class),
+            service(ClockInterface::class),
+            service('logger'),
+        ]);
+
     $services->set(SystemChecker::class)
         ->args([
             tagged_iterator('shopware.system_check'),
+            service(SystemCheckResultStore::class),
         ]);
 };

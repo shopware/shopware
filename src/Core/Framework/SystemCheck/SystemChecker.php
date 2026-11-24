@@ -19,8 +19,10 @@ class SystemChecker
      *
      * @internal
      */
-    public function __construct(private readonly iterable $checks)
-    {
+    public function __construct(
+        private readonly iterable $checks,
+        private readonly ?SystemCheckResultStore $resultStore = null,
+    ) {
     }
 
     /**
@@ -30,8 +32,11 @@ class SystemChecker
     {
         [$allowedChecks, $disallowedChecks] = $this->groupByPermissionToRun($context);
 
-        $results = $this->runChecksByCategory($this->groupByCategory($allowedChecks));
+        [$results, $executedResults] = $this->runChecksByCategory($this->groupByCategory($allowedChecks));
         $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name));
+
+        // only checks that ran are stored: a skip says nothing about the check and would overwrite its last real result
+        $this->resultStore?->save($executedResults, $context);
 
         return array_merge($results, $skippedChecksResults);
     }
@@ -39,11 +44,12 @@ class SystemChecker
     /**
      * @param array<int, array<BaseCheck>> $categoryCheckCluster
      *
-     * @return array<Result>
+     * @return array{array<Result>, array<Result>} all results, and the results of the checks that ran
      */
     private function runChecksByCategory(array $categoryCheckCluster): array
     {
         $results = [];
+        $executedResults = [];
         $shouldStop = false;
 
         foreach ($categoryCheckCluster as $category => $checks) {
@@ -54,12 +60,13 @@ class SystemChecker
 
             $checksResult = $this->runChecks($checks);
             $results = array_merge($results, $checksResult);
+            $executedResults = array_merge($executedResults, $checksResult);
             if ($this->shouldStopRunning($checksResult, $category)) {
                 $shouldStop = true;
             }
         }
 
-        return $results;
+        return [$results, $executedResults];
     }
 
     /**

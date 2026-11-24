@@ -6,7 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/service/sales-channel-favorites.service';
-import { allowDeprecation } from 'test/_helper_/deprecations';
+import { allowDeprecation, deprecations } from 'test/_helper_/deprecations';
 
 const PRODUCT_COMPARISON_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 const STOREFRONT_SALES_CHANNEL_TYPE_ID = '8a243080f92e4c719546314b577cf82b';
@@ -1638,8 +1638,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
             },
         });
 
-        expect(wrapper.vm.isAgenticCommerce).toBe(true);
-        expect(wrapper.vm.resolvedAgenticCommerceExportConfig).toHaveLength(1);
+        expect(wrapper.vm.isAgenticCommerceSalesChannel).toBe(true);
+        expect(wrapper.vm.activeAgenticCommerceExportConfig).toHaveLength(1);
 
         const card = wrapper.get(
             'div.mt-card[position-identifier="sw-sales-channel-detail-base-agentic-commerce-export-config-provider"]',
@@ -1861,5 +1861,27 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
 
         expect(wrapper.vm.productExport.salesChannelDomainId).toBeNull();
         expect(wrapper.vm.productExport.salesChannelDomain).toBeNull();
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['isAgenticCommerce', (vm) => vm.isAgenticCommerce],
+        ['resolvedAgenticCommerceExportConfig', (vm) => vm.resolvedAgenticCommerceExportConfig],
+        ['getAgenticCommerceExportCardTitle()', (vm) => vm.getAgenticCommerceExportCardTitle({ provider: 'open-ai' })],
+        [
+            'getAgenticCommerceExportElementBind()',
+            (vm) => vm.getAgenticCommerceExportElementBind({ type: 'text', config: {} }),
+        ],
+        [
+            'onAgenticCommerceExportFieldUpdate()',
+            (vm) => vm.onAgenticCommerceExportFieldUpdate({ values: {} }, 'field', 'value'),
+        ],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-detail-base.${member} is deprecated.`);
     });
 });

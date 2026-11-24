@@ -62,6 +62,17 @@ export default {
                 'sw-sales-channel-detail-product-comparison.isAgenticCommerce is deprecated. Will be removed.',
             );
 
+            return this.isAgenticCommerceSalesChannel;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of isAgenticCommerce, so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        isAgenticCommerceSalesChannel() {
             return this.salesChannel?.typeId === Defaults.agenticCommerceTypeId;
         },
 

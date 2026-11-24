@@ -3,6 +3,7 @@
  */
 
 import { mount } from '@vue/test-utils';
+import { deprecations } from 'test/_helper_/deprecations';
 
 async function createWrapper(props = {}) {
     return mount(
@@ -99,5 +100,17 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-product-compa
         actions.forEach((action) => {
             expect(action.attributes('disabled')).toBeUndefined();
         });
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['isAgenticCommerce', (vm) => vm.isAgenticCommerce],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-detail-product-comparison.${member} is deprecated.`);
     });
 });

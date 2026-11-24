@@ -130,6 +130,17 @@ export default {
                 'sw-sales-channel-detail.isAgenticCommerce is deprecated. Will be removed.',
             );
 
+            return this.isAgenticCommerceSalesChannel;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of isAgenticCommerce, so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        isAgenticCommerceSalesChannel() {
             if (!this.salesChannel) {
                 return this.$route.params.typeId === Defaults.agenticCommerceTypeId;
             }
@@ -144,6 +155,16 @@ export default {
                 'sw-sales-channel-detail.hasSwagAgenticCommercePlugin is deprecated. Will be removed.',
             );
 
+            return this._hasSwagAgenticCommercePlugin;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of hasSwagAgenticCommercePlugin, so core's own uses do not report the deprecation.
+         */
+        _hasSwagAgenticCommercePlugin() {
             return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
         },
 
@@ -154,11 +175,22 @@ export default {
                 'sw-sales-channel-detail.showAgenticCommerceDeprecationBanner is deprecated. Will be removed.',
             );
 
-            return this.isAgenticCommerce && !this.hasSwagAgenticCommercePlugin;
+            return this.shouldShowAgenticCommerceDeprecationBanner;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of showAgenticCommerceDeprecationBanner, so core's template does not report the
+         * deprecation. Has no `_` prefix because Vue does not resolve `_` members in templates.
+         */
+        shouldShowAgenticCommerceDeprecationBanner() {
+            return this.isAgenticCommerceSalesChannel && !this._hasSwagAgenticCommercePlugin;
         },
 
         isProductExportChannel() {
-            return this.isProductComparison || this.isAgenticCommerce;
+            return this.isProductComparison || this.isAgenticCommerceSalesChannel;
         },
 
         salesChannelDetailTabs() {
@@ -180,7 +212,7 @@ export default {
 
             const tabs = [createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base')];
 
-            if (this.isAgenticCommerce && !this.isLoading) {
+            if (this.isAgenticCommerceSalesChannel && !this.isLoading) {
                 tabs.push(
                     createRouteTab(
                         'sw-sales-channel.detail.productExport.tabInsights',
@@ -201,7 +233,7 @@ export default {
                 );
             }
 
-            if (this.isAgenticCommerce && !this.isLoading) {
+            if (this.isAgenticCommerceSalesChannel && !this.isLoading) {
                 tabs.push(
                     createRouteTab(
                         'sw-sales-channel.detail.agenticCommerce.tabIntegration',
@@ -291,6 +323,17 @@ export default {
                 'sw-sales-channel-detail.defaultAgenticCommerceExportConfig is deprecated. Will be removed.',
             );
 
+            return this._defaultAgenticCommerceExportConfig;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of defaultAgenticCommerceExportConfig, so core's own uses do not report the
+         * deprecation.
+         */
+        _defaultAgenticCommerceExportConfig() {
             return [
                 {
                     provider: 'open-ai',
@@ -333,6 +376,17 @@ export default {
                 'sw-sales-channel-detail.onClickInstallAgenticCommercePlugin() is deprecated. Will be removed.',
             );
 
+            this.openAgenticCommercePluginInStore();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of onClickInstallAgenticCommercePlugin(), so core's template does not report the
+         * deprecation. Has no `_` prefix because Vue does not resolve `_` members in templates.
+         */
+        openAgenticCommercePluginInStore() {
             if (this.$router.hasRoute('sw.extension.store.detail')) {
                 this.$router.push({ name: 'sw.extension.store.detail', params: { id: '21761' } });
                 return;
@@ -356,7 +410,7 @@ export default {
             const hasRouteTypeId = Boolean(this.$route.params.typeId);
 
             if (!hasRouteId && hasRouteTypeId && this.salesChannel?.id) {
-                this.loadAgenticCommerceExportConfig();
+                this._loadAgenticCommerceExportConfig();
                 return;
             }
 
@@ -365,7 +419,7 @@ export default {
             }
 
             if (hasRouteTypeId) {
-                this.loadAgenticCommerceExportConfig();
+                this._loadAgenticCommerceExportConfig();
                 return;
             }
 
@@ -389,7 +443,7 @@ export default {
                     }
 
                     this.generateAccessUrl();
-                    this.loadAgenticCommerceExportConfig();
+                    this._loadAgenticCommerceExportConfig();
                     this.detectCurrentTemplate();
 
                     this.isLoading = false;
@@ -566,7 +620,7 @@ export default {
                 return;
             }
 
-            if (!this.validateAgenticCommerceExportConfig()) {
+            if (!this._validateAgenticCommerceExportConfig()) {
                 this.isLoading = false;
                 return;
             }
@@ -577,7 +631,7 @@ export default {
                 return;
             }
 
-            const configSaveSuccessful = await this.saveAgenticCommerceExportConfig();
+            const configSaveSuccessful = await this._saveAgenticCommerceExportConfig();
 
             if (!configSaveSuccessful) {
                 return;
@@ -593,8 +647,19 @@ export default {
                 'sw-sales-channel-detail.validateAgenticCommerceExportConfig() is deprecated. Will be removed.',
             );
 
+            return this._validateAgenticCommerceExportConfig();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of validateAgenticCommerceExportConfig(),
+         * so core's own calls do not report the deprecation.
+         */
+        _validateAgenticCommerceExportConfig() {
             const requiredError = new ShopwareError({ code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3' });
-            const activeProvider = this.productExport?.provider ?? this.defaultAgenticCommerceExportConfig[0]?.provider;
+            const activeProvider = this.productExport?.provider ?? this._defaultAgenticCommerceExportConfig[0]?.provider;
             let isValid = true;
 
             const activeEntries = this.agenticCommerceExportConfig.filter((entry) => {
@@ -618,7 +683,18 @@ export default {
                 'sw-sales-channel-detail.loadAgenticCommerceExportConfig() is deprecated. Will be removed.',
             );
 
-            this.agenticCommerceExportConfig = this.defaultAgenticCommerceExportConfig.map((configEntry) => {
+            return this._loadAgenticCommerceExportConfig();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of loadAgenticCommerceExportConfig(),
+         * so core's own calls do not report the deprecation.
+         */
+        async _loadAgenticCommerceExportConfig() {
+            this.agenticCommerceExportConfig = this._defaultAgenticCommerceExportConfig.map((configEntry) => {
                 return {
                     ...configEntry,
                     elements: [],
@@ -629,7 +705,7 @@ export default {
                 };
             });
 
-            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+            if (!this.isAgenticCommerceSalesChannel || !this.salesChannel?.id) {
                 return;
             }
 
@@ -664,7 +740,18 @@ export default {
                 'sw-sales-channel-detail.saveAgenticCommerceExportConfig() is deprecated. Will be removed.',
             );
 
-            if (!this.isAgenticCommerce || !this.salesChannel?.id) {
+            return this._saveAgenticCommerceExportConfig();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of saveAgenticCommerceExportConfig(),
+         * so core's own calls do not report the deprecation.
+         */
+        async _saveAgenticCommerceExportConfig() {
+            if (!this.isAgenticCommerceSalesChannel || !this.salesChannel?.id) {
                 return true;
             }
 

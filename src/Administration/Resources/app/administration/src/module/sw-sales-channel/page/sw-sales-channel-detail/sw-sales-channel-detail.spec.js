@@ -6,6 +6,7 @@
 
 import { mount } from '@vue/test-utils';
 import SystemConfigApiService from 'src/core/service/api/system-config.api.service';
+import { deprecations } from 'test/_helper_/deprecations';
 
 const mockSave = jest.fn(() => Promise.resolve());
 const mockGet = jest.fn();
@@ -731,7 +732,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             ],
         });
 
-        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm._validateAgenticCommerceExportConfig()).toBe(true);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
     });
 
@@ -757,7 +758,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
             ],
         });
 
-        const result = wrapper.vm.validateAgenticCommerceExportConfig();
+        const result = wrapper.vm._validateAgenticCommerceExportConfig();
 
         expect(result).toBe(false);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors['core.openAiProductExport.returnPolicyUrl']).toBeDefined();
@@ -824,8 +825,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(false);
-            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(true);
+            expect(wrapper.vm._hasSwagAgenticCommercePlugin).toBe(false);
+            expect(wrapper.vm.shouldShowAgenticCommerceDeprecationBanner).toBe(true);
             expect(wrapper.find('.mt-banner').exists()).toBe(true);
         });
 
@@ -840,8 +841,8 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            expect(wrapper.vm.hasSwagAgenticCommercePlugin).toBe(true);
-            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.vm._hasSwagAgenticCommercePlugin).toBe(true);
+            expect(wrapper.vm.shouldShowAgenticCommerceDeprecationBanner).toBe(false);
             expect(wrapper.find('.mt-banner').exists()).toBe(false);
         });
 
@@ -856,7 +857,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            expect(wrapper.vm.showAgenticCommerceDeprecationBanner).toBe(false);
+            expect(wrapper.vm.shouldShowAgenticCommerceDeprecationBanner).toBe(false);
             expect(wrapper.find('.mt-banner').exists()).toBe(false);
         });
 
@@ -877,7 +878,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            wrapper.vm.openAgenticCommercePluginInStore();
             await flushPromises();
 
             expect(mockPush).toHaveBeenCalledWith({ name: 'sw.extension.store.landing-page' });
@@ -900,7 +901,7 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
 
             await flushPromises();
 
-            wrapper.vm.onClickInstallAgenticCommercePlugin();
+            wrapper.vm.openAgenticCommercePluginInStore();
             await flushPromises();
 
             expect(mockPush).toHaveBeenCalledWith({
@@ -948,7 +949,33 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         });
 
         expect(wrapper.vm.productExport.provider).toBe('google');
-        expect(wrapper.vm.validateAgenticCommerceExportConfig()).toBe(true);
+        expect(wrapper.vm._validateAgenticCommerceExportConfig()).toBe(true);
         expect(wrapper.vm.agenticCommerceExportConfig[0].errors).toEqual({});
+    });
+
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0').each([
+        ['isAgenticCommerce', (vm) => vm.isAgenticCommerce],
+        ['hasSwagAgenticCommercePlugin', (vm) => vm.hasSwagAgenticCommercePlugin],
+        ['showAgenticCommerceDeprecationBanner', (vm) => vm.showAgenticCommerceDeprecationBanner],
+        ['defaultAgenticCommerceExportConfig', (vm) => vm.defaultAgenticCommerceExportConfig],
+        [
+            'onClickInstallAgenticCommercePlugin()',
+            (vm) => {
+                vm.$router = { hasRoute: () => false, push: jest.fn() };
+                vm.onClickInstallAgenticCommercePlugin();
+            },
+        ],
+        ['validateAgenticCommerceExportConfig()', (vm) => vm.validateAgenticCommerceExportConfig()],
+        ['loadAgenticCommerceExportConfig()', (vm) => vm.loadAgenticCommerceExportConfig()],
+        ['saveAgenticCommerceExportConfig()', (vm) => vm.saveAgenticCommerceExportConfig()],
+    ])('should report the use of the deprecated member %s', async (member, use) => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        // eslint-disable-next-line sw-test-rules/no-vm-access -- extensions reach the deprecated member on the instance
+        await use(wrapper.vm);
+
+        expect(deprecations).toHaveTriggered(`sw-sales-channel-detail.${member} is deprecated.`);
     });
 });

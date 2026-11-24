@@ -24,11 +24,11 @@ export default {
     methods: {
         createdComponent() {
             this.onGenerateKeys();
-            if (this.isProductComparison || this.isAgenticCommerce) {
+            if (this.isProductComparison || this.isAgenticCommerceSalesChannel) {
                 this.onGenerateProductExportKey(false);
             }
-            if (this.isAgenticCommerce) {
-                this.prefillAgenticCommerceDefaults();
+            if (this.isAgenticCommerceSalesChannel) {
+                this._prefillAgenticCommerceDefaults();
             }
         },
 
@@ -39,6 +39,17 @@ export default {
                 'sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.',
             );
 
+            this._prefillAgenticCommerceDefaults();
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of prefillAgenticCommerceDefaults(),
+         * so core's own uses do not report the deprecation.
+         */
+        _prefillAgenticCommerceDefaults() {
             this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },
     },

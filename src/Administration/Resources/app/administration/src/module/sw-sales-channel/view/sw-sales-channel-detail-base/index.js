@@ -148,11 +148,22 @@ export default {
                 'sw-sales-channel-detail-base.isAgenticCommerce is deprecated. Will be removed.',
             );
 
+            return this.isAgenticCommerceSalesChannel;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of isAgenticCommerce, so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        isAgenticCommerceSalesChannel() {
             return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
 
         isProductExportChannel() {
-            return this.isProductComparison || this.isAgenticCommerce;
+            return this.isProductComparison || this.isAgenticCommerceSalesChannel;
         },
 
         isGoogleProductSearchTemplate() {
@@ -166,6 +177,18 @@ export default {
                 'sw-sales-channel-detail-base.resolvedAgenticCommerceExportConfig is deprecated. Will be removed.',
             );
 
+            return this.activeAgenticCommerceExportConfig;
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of resolvedAgenticCommerceExportConfig,
+         * so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        activeAgenticCommerceExportConfig() {
             let entries = [];
 
             if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
@@ -594,7 +617,7 @@ export default {
         templateSelectOptions() {
             return this.templateOptions
                 .filter((exportTemplate) => {
-                    if (this.isAgenticCommerce) {
+                    if (this.isAgenticCommerceSalesChannel) {
                         return exportTemplate.salesChannelTypeId === Defaults.agenticCommerceTypeId;
                     }
 
@@ -980,6 +1003,18 @@ export default {
                 'sw-sales-channel-detail-base.getAgenticCommerceExportElementBind() is deprecated. Will be removed.',
             );
 
+            return this.resolveAgenticCommerceExportElementBind(element);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of getAgenticCommerceExportElementBind(),
+         * so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        resolveAgenticCommerceExportElementBind(element) {
             const bind = objectHelper.deepCopyObject(element);
 
             if (['single-select', 'multi-select'].includes(bind.type)) {
@@ -1001,6 +1036,18 @@ export default {
                 'sw-sales-channel-detail-base.getAgenticCommerceExportCardTitle() is deprecated. Will be removed.',
             );
 
+            return this.resolveAgenticCommerceExportCardTitle(configEntry);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of getAgenticCommerceExportCardTitle(),
+         * so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        resolveAgenticCommerceExportCardTitle(configEntry) {
             if (configEntry?.titleSnippet) {
                 return this.$t(configEntry.titleSnippet);
             }
@@ -1028,6 +1075,18 @@ export default {
                 'sw-sales-channel-detail-base.onAgenticCommerceExportFieldUpdate() is deprecated. Will be removed.',
             );
 
+            this.updateAgenticCommerceExportField(configEntry, fieldName, value);
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed
+         *
+         * Unguarded implementation of onAgenticCommerceExportFieldUpdate(),
+         * so core's own uses do not report the deprecation.
+         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         */
+        updateAgenticCommerceExportField(configEntry, fieldName, value) {
             configEntry.values[fieldName] = value;
 
             if (configEntry.errors?.[fieldName]) {

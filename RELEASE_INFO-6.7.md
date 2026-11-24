@@ -9,6 +9,20 @@ Before, `product.categoryTree` and `product.categoriesRo` kept the old parents, 
 Integrations that called `POST /api/_action/index-products` after moving a category no longer need to.
 The Administration category tree no longer sends these requests after a drag and drop.
 Its `syncProducts()` and `indexProducts()` methods and its `productRepository` computed property are deprecated and will be removed in 6.8.
+## API
+
+### Store API media schema allows `null` where responses send it
+
+The `Media` and `MediaThumbnail` schemas of the Store API now allow `null` for the fields that the responses already send as `null`: `alt`, `title`, `config`, `customFields` and `updatedAt`, and for media without an uploaded file also `mimeType`, `fileExtension`, `fileName`, `path`, `uploadedAt`, `fileSize` and `metaData`.
+`MediaThumbnail` also allows `null` for `mediaThumbnailSizeId` and `path`.
+The responses are unchanged.
+If you generate types from the schema, regenerate them and handle `null` for these fields.
+
+## App System
+
+### Deprecated the old shop ID format
+
+The system config key `core.app.shopId` is deprecated, read the shop ID from `core.app.shopIdV2` instead.
 
 # 6.7.17.0
 

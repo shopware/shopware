@@ -352,20 +352,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         canvasFrames(): ExperienceStudioCanvasFrame[] {
             return this.openLayouts.map((openLayout) => {
-                const previewContext = this.resolvePreviewContext(openLayout.layout);
+                const isActive = openLayout.id === this.activeLayoutId;
+                const previewEntityId = isActive ? this.previewEntityId : openLayout.previewEntityId;
 
                 return {
                     id: openLayout.id,
                     layout: openLayout.layout,
-                    selectedElementId:
-                        openLayout.id === this.activeLayoutId ? this.selectedElementId : openLayout.selectedElementId,
-                    viewport: openLayout.id === this.activeLayoutId ? this.currentViewport : openLayout.viewport,
-                    previewEntityId: previewContext
-                        ? openLayout.id === this.activeLayoutId
-                            ? this.previewEntityId
-                            : openLayout.previewEntityId
-                        : null,
-                    isActive: openLayout.id === this.activeLayoutId,
+                    selectedElementId: isActive ? this.selectedElementId : openLayout.selectedElementId,
+                    viewport: isActive ? this.currentViewport : openLayout.viewport,
+                    previewEntityId: this.resolvePreviewContext(openLayout.layout) ? previewEntityId : null,
+                    isActive,
                 };
             });
         },

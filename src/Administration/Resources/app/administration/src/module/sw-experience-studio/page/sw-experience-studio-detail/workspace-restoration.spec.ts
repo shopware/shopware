@@ -1,4 +1,5 @@
 import type CriteriaType from 'src/core/data/criteria.data';
+import type { WorkspaceConfiguration, WorkspaceFrame } from '../../types/workspace.types';
 import detailComponent from './index';
 import { getStorefrontSalesChannelCriteria } from '../../util/sales-channel-criteria.util';
 import { createWorkspaceConfiguration } from '../../util/workspace-configuration.util';
@@ -7,23 +8,23 @@ const methods = (detailComponent as unknown as { methods: Record<string, (...arg
 
 function createRestore() {
     const configuration = createWorkspaceConfiguration();
-    configuration.frames = [
-        {
-            layoutId: 'layout-a',
-            x: 0,
-            y: 0,
-            width: 1480,
-            height: 900,
-            viewport: 'desktop',
-            previewEntityId: 'saved-entity',
-        },
-    ];
+    const frame: WorkspaceFrame = {
+        layoutId: 'layout-a',
+        x: 0,
+        y: 0,
+        width: 1480,
+        height: 900,
+        viewport: 'desktop',
+        previewEntityId: 'saved-entity',
+    };
+    configuration.frames = [frame];
     const target = { id: 'target', configuration };
     const current = { id: 'current', configuration: createWorkspaceConfiguration() };
     const entityRepository = {
         searchIds: jest.fn().mockResolvedValue({ data: ['saved-entity'] }),
         search: jest.fn().mockResolvedValue({ first: () => ({ id: 'default-entity' }) }),
     };
+    const previewEntityId = frame.previewEntityId;
     const editor = {
         workspaceStore: {
             activeWorkspace: current as typeof current | null,
@@ -64,10 +65,12 @@ function createRestore() {
         allowSave: true,
         activeLayoutId: 'layout-a',
         currentViewport: 'desktop',
-        previewEntityId: 'saved-entity',
+        previewEntityId,
         $refs: {
             experienceStudioCanvas: {
-                getWorkspaceConfiguration: jest.fn(() => Shopware.Utils.object.cloneDeep(configuration)),
+                getWorkspaceConfiguration: jest.fn<WorkspaceConfiguration, []>(() =>
+                    Shopware.Utils.object.cloneDeep(configuration),
+                ),
             },
         },
         $nextTick: jest.fn().mockResolvedValue(undefined),
@@ -210,6 +213,13 @@ describe('Experience Studio workspace preview reference restoration', () => {
         const { editor, target } = createRestore();
         editor.availableLayoutTypes = [];
         editor.layoutTypeLoadError = 'Failed to load layout types.';
+        editor.activeLayoutId = 'different-layout';
+        editor.previewEntityId = null;
+        const scheduledConfiguration: WorkspaceConfiguration = {
+            ...Shopware.Utils.object.cloneDeep(target.configuration),
+            frames: [{ ...target.configuration.frames[0], previewEntityId: null }],
+        };
+        editor.$refs.experienceStudioCanvas.getWorkspaceConfiguration.mockReturnValue(scheduledConfiguration);
 
         await methods.openWorkspace.call(editor, target.id);
         editor.workspaceStore.activeWorkspace = target;

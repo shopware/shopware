@@ -46,10 +46,15 @@ describe('Experience Studio workspace entry', () => {
     it('starts loading entity types before opening a workspace from the route', () => {
         const editor = createEditor({ workspaceId: 'workspace-1' });
         const layoutTypesRequest = new Promise<void>(() => undefined);
+        let layoutTypesRequestAtOpen: Promise<void> | null = null;
         editor.loadLayoutTypes.mockReturnValue(layoutTypesRequest);
+        editor.openWorkspace.mockImplementation(() => {
+            layoutTypesRequestAtOpen = editor.layoutTypesRequest;
+        });
 
         component.created.call(editor);
 
+        expect(layoutTypesRequestAtOpen).toBe(layoutTypesRequest);
         expect(editor.layoutTypesRequest).toBe(layoutTypesRequest);
         expect(editor.openWorkspace).toHaveBeenCalledWith('workspace-1');
         expect(editor.workspaceStore.activate).not.toHaveBeenCalled();

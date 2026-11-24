@@ -31,7 +31,7 @@ jobs:
   phpunit-matrix:
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: false # DEBUG mcp listen stream hang
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -127,7 +127,7 @@ jobs:
     runs-on: windows-latest
     needs:
       - markdown-only-changes
-    if: ${{ github.event_name != 'pull_request' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: false # DEBUG mcp listen stream hang
     name: "Windows check"
 
     steps:
@@ -139,7 +139,7 @@ jobs:
   php-security:
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: false # DEBUG mcp listen stream hang
     runs-on: ubuntu-24.04
     name: "Composer dependencies"
     env:
@@ -162,7 +162,7 @@ jobs:
     name: Analyze
     needs:
       - markdown-only-changes
-    if: ${{ github.repository == 'shopware/shopware' && needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: false # DEBUG mcp listen stream hang
     runs-on: ubuntu-24.04
 
     strategy:
@@ -194,7 +194,7 @@ jobs:
     name: "PHP blue green 6.7 -> 6.8 -> 6.7"
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: false # DEBUG mcp listen stream hang
     runs-on: ubuntu-24.04
     env:
       APP_ENV: test
@@ -265,7 +265,7 @@ jobs:
     name: "PHP blue green 6.6 -> 6.7 -> 6.6"
     needs:
       - markdown-only-changes
-    if: ${{ needs.markdown-only-changes.outputs.docs_only != 'true' }}
+    if: false # DEBUG mcp listen stream hang
     runs-on: ubuntu-24.04
     env:
       APP_ENV: test
@@ -357,7 +357,7 @@ jobs:
   update-66-67:
     name: "PHP update 6.6 -> 6.7"
     runs-on: ubuntu-24.04
-    if: inputs.profile == 'nightly' || inputs.profile == 'release'
+    if: true # DEBUG mcp listen stream hang
     env:
       APP_ENV: test
       APP_URL: http://localhost:8000
@@ -432,6 +432,14 @@ jobs:
           # a job that fails before PHPUnit reports (setup, crash) has no junit.xml
           if-no-files-found: ignore
           overwrite: true
+
+      - name: Upload MCP bump diagnostics
+        if: always() # DEBUG: keep the diagnostics of a hang
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: mcpbump-diag
+          path: /tmp/mcpbump.*
+          if-no-files-found: warn
 
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations

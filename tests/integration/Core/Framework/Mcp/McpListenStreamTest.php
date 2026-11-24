@@ -134,7 +134,21 @@ class McpListenStreamTest extends TestCase
             static::assertSame('no', $response->headers->get('X-Accel-Buffering'));
 
             $frames = self::sendAndTimeFrames($response, $bumper->start(...));
-            $bumper->wait();
+            $bumper->setTimeout(20);
+            try {
+                $bumper->wait();
+            } catch (\Throwable $e) {
+                $diag = "=== TIMEOUT pid=" . $bumper->getPid() . "\n";
+                $diag .= (string) @file_get_contents('/tmp/mcpbump.log');
+                $diag .= "--- stdout: " . $bumper->getOutput() . "\n--- stderr: " . $bumper->getErrorOutput() . "\n";
+                $diag .= (string) shell_exec('ps -eo pid,ppid,stat,wchan:32,etime,args | head -40; for p in $(pgrep -P ' . getmypid() . '); do echo "child $p"; cat /proc/$p/status | head -12; cat /proc/$p/wchan; echo; ls -l /proc/$p/fd; cat /proc/$p/stack 2>&1; done');
+                foreach (['SHOW FULL PROCESSLIST', 'SELECT * FROM information_schema.INNODB_TRX', 'SELECT * FROM performance_schema.data_lock_waits', 'SELECT OBJECT_TYPE,OBJECT_SCHEMA,OBJECT_NAME,LOCK_TYPE,LOCK_DURATION,LOCK_STATUS,OWNER_THREAD_ID FROM performance_schema.metadata_locks WHERE OBJECT_SCHEMA NOT IN (\'performance_schema\',\'mysql\')', 'SELECT @@innodb_lock_wait_timeout, @@lock_wait_timeout, @@max_connections, @@autocommit', 'SELECT CONNECTION_ID()'] as $q) {
+                    try { $diag .= "--- $q\n" . json_encode($connection->fetchAllAssociative($q), \JSON_PRETTY_PRINT) . "\n"; } catch (\Throwable $qe) { $diag .= "--- $q failed: " . $qe->getMessage() . "\n"; }
+                }
+                $diag .= "--- tx nesting: " . $connection->getTransactionNestingLevel() . " listen-kernel conn same? " . var_export(self::kernel()->getContainer()->get(Connection::class) === $connection, true) . " lk nesting " . self::kernel()->getContainer()->get(Connection::class)->getTransactionNestingLevel() . "\n";
+                file_put_contents('/tmp/mcpbump.diag', $diag);
+                throw $e;
+            }
             static::assertTrue($bumper->isSuccessful(), $bumper->getErrorOutput());
             $bumpedAt = (float) trim($bumper->getOutput());
         } finally {
@@ -240,7 +254,7 @@ class McpListenStreamTest extends TestCase
         $dsn = \sprintf('mysql:host=%s;port=%d;dbname=%s', $params['host'] ?? '127.0.0.1', $params['port'] ?? 3306, $params['dbname'] ?? '');
 
         return new PhpProcess(\sprintf(
-            '<?php usleep(%d); $pdo = new PDO(%s, %s, %s); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); echo microtime(true);',
+            '<?php file_put_contents("/tmp/mcpbump.log", "start ".microtime(true)."\n", FILE_APPEND); usleep(%d); $pdo = new PDO(%s, %s, %s); file_put_contents("/tmp/mcpbump.log", "connected ".$pdo->query("SELECT CONNECTION_ID()")->fetchColumn()." ".microtime(true)."\n", FILE_APPEND); $pdo->exec("INSERT INTO `mcp_list_version` (`list`, `version`, `updated_at`) VALUES (\'tools\', 1, NOW(3)) ON DUPLICATE KEY UPDATE `version` = `version` + 1, `updated_at` = NOW(3)"); file_put_contents("/tmp/mcpbump.log", "inserted ".microtime(true)."\n", FILE_APPEND); echo microtime(true);',
             (int) (self::BUMP_AFTER * 1_000_000),
             var_export($dsn, true),
             var_export($params['user'] ?? 'root', true),

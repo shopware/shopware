@@ -252,6 +252,41 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame(['product' => 'spec-1'], $reconciled->attributedSpecifications);
     }
 
+    #[TestDox('throws bindingSpecificationCanonicalizationFailed when the attributed binding\'s scoped config values name different root-source sets: $_dataName')]
+    #[DataProvider('mismatchedRootSourceSetsProvider')]
+    public function testThrowsWhenScopedConfigNamesDifferentRootSourceSets(?string $rootSource): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', [
+                'entity' => 'media',
+                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+                'type' => [RootSourceConfigMap::MARKER => ['product' => 'product']],
+            ]),
+        ]);
+
+        $config = new StubArrayLoaderConfig(['entity' => 'media', 'property' => 'productId', 'type' => 'product']);
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', $config)
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationCanonicalizationFailed(
+            'spec-1',
+            'the scoped config values of key "product" name different root-source sets.',
+        ));
+
+        $this->reconciler(['spec-1' => $specification], $this->provider())->reconcile([$element], $rootSource);
+    }
+
+    /**
+     * @return iterable<string, array{string|null}>
+     */
+    public static function mismatchedRootSourceSetsProvider(): iterable
+    {
+        yield 'root source both scoped values name' => ['product'];
+        yield 'no root source' => [null];
+    }
+
     #[TestDox('rejects the write when the element wiring source has no registered config serializer, instead of dropping the attribution')]
     public function testThrowsWhenElementSourceUnregistered(): void
     {

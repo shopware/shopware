@@ -17,6 +17,9 @@ So `configSerializerNotRegistered` escapes the reconciler and refuses the write.
 Because that code is explicitly classified as a client-repairable layout defect, `Layout/Field/StoredElementListFieldSerializer::normalize` remaps it to a `WriteConstraintViolationException` (HTTP 400) whose violation code is the defect's own `CONTENT_SYSTEM__*` code.
 `INVALID_LAYOUT_STRUCTURE` is also wrapped as a structural write rejection.
 Other `ContentSystemException`s propagate unchanged, preserving their status and code: server-side registry load failures remain 500, while collisions remain 409.
+The configs of an attributed binding whose `!scoped` config values name different root-source sets cannot be enumerated either.
+Only a specification that bypassed validation carries one, so the reconciler throws `bindingSpecificationCanonicalizationFailed`, which propagates as an internal fault (500).
+It throws before collapsing, so the fault surfaces for every root source, a missing one included.
 
 Box-spacing input and engine failures are described in [client-defect-codes.md](../../docs/client-defect-codes.md#box-spacing-failures).
 

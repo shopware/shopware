@@ -156,7 +156,8 @@ class AttributionReconciler
     /**
      * The specification side of the honesty comparison: the binding's source plus its canonicalized encoded
      * config for the layout's root source, or null when the specification or its binding for $key no longer
-     * exists, or when a scoped config value has no entry for that root source.
+     * exists, or when a scoped config value has no entry for that root source. A binding whose scoped config
+     * values name different root-source sets throws as an internal fault, whatever the root source.
      *
      * Null is an answer, not a missing collaborator: an attribution names a specification the registry
      * assembles at runtime from element-type directories and active app rows, and no write gate checks that
@@ -186,6 +187,13 @@ class AttributionReconciler
 
         if ($binding === null) {
             return $this->specWiringCache[$cacheKey] = null;
+        }
+
+        if (RootSourceConfigMap::branches($binding->config) === null) {
+            throw ContentSystemException::bindingSpecificationCanonicalizationFailed(
+                $specificationId,
+                \sprintf('the scoped config values of key "%s" name different root-source sets.', $key),
+            );
         }
 
         $config = RootSourceConfigMap::collapse($binding->config, $rootSource);

@@ -6,7 +6,7 @@ $root = dirname(__DIR__, 5);
 
 return TwigStanConfig::configure($root)
     ->phpstanBinPath($root . '/vendor-bin/twigstan/bin/phpstan')
-    ->phpstanConfigurationFile(__DIR__ . '/phpstan.neon')
+    ->phpstanConfigurationFile(__DIR__ . '/analysis.neon')
     ->twigEnvironmentLoader(__DIR__ . '/loader.php')
     ->twigPaths(__DIR__)
     ->phpPaths(__DIR__ . '/Controller.php')

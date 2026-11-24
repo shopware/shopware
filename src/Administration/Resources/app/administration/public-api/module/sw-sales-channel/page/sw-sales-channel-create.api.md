@@ -11,6 +11,21 @@ component sw-sales-channel-create  public  js
   source src/module/sw-sales-channel/page/sw-sales-channel-create/index.js
   template src/module/sw-sales-channel/page/sw-sales-channel-create/sw-sales-channel-create.html.twig
 
+inject
+  systemConfigApiService
+
+computed
+  allowSaving: any
+
+methods
+  createEmptyMeasurementUnits(): any
+  createdComponent(): any
+  ensureDefaultLanguageInCollection(languageId: any): any
+  getMeasurementUnits(): any
+  onSave(): any
+  saveFinish(): any
+  setMeasurementUnits(): Promise<any>
+
 blocks
   sw_sales_channel_detail  [inherited]
     sw_sales_channel_detail_actions  [inherited]

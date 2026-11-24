@@ -11,6 +11,42 @@ component sw-license-violation  private  js  [private]
   template src/app/component/utils/sw-license-violation/sw-license-violation.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  cacheApiService  [private]
+  extensionStoreActionService  [private]
+  licenseViolationService  [private]
+  loginService  [private]
+
+data
+  deletePluginItem: any  [private]
+  licenseSubscription: any  [private]
+  loading: any  [private]
+  readNotice: any  [private]
+  showDeleteModal: any  [private]
+  showViolation: any  [private]
+
+computed
+  isLoading: any  [private]
+  pluginCriteria: any  [private]
+  violations: any  [private]
+  visible: any  [private]
+  warnings: any  [private]
+
+methods
+  addLoading(key: any): any  [private]
+  deactivateTemporary(): any  [private]
+  deletePlugin(violation: any): any  [private]
+  fetchPlugins(): any  [private]
+  finishLoading(key: any): any  [private]
+  getPluginForViolation(violation: any): any  [private]
+  getPluginViolation(): Promise<any>  [private]
+  onCloseDeleteModal(): any  [private]
+  onConfirmDelete(): Promise<any>  [private]
+  reloadViolations(): any  [private]
+
 blocks
   sw_license_violation  [private]
 ```

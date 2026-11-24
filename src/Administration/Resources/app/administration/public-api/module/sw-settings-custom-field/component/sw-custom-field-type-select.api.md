@@ -11,6 +11,25 @@ component sw-custom-field-type-select  public  js
   source src/module/sw-settings-custom-field/component/sw-custom-field-type-select/index.js
   template src/module/sw-settings-custom-field/component/sw-custom-field-type-select/sw-custom-field-type-select.html.twig
 
+data
+  multiSelectSwitch: any
+  multiSelectSwitchDisabled: any
+  propertyNames: object
+    helpText: any
+    label: any
+    placeholder: any
+
+computed
+  isOptionAddable: any
+
+methods
+  addOption(): any
+  createdComponent(): any
+  getLabel(locale: any): any
+  onChangeMultiSelectSwitch(state: any): any
+  onClickAddOption(): any
+  onDeleteOption(index: any): any
+
 blocks
   sw_custom_field_type_base  [inherited]
     sw_custom_field_type_base_content  [keepsParent]

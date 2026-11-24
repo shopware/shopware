@@ -10,6 +10,24 @@ component sw-bulk-edit-order-documents-generate-invoice  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents-generate-invoice/sw-bulk-edit-order-documents-generate-invoice.html.twig
 
+mixins
+  notification
+
+inject
+  documentV2Service
+  feature
+
+data
+  supportedDocumentTypes: any
+
+computed
+  documentTypeTechnicalName: any
+  fileFormatOptions: any
+  generateData: any
+
+methods
+  createdComponent(): Promise<any>
+
 blocks
   sw_bulk_edit_order_documents_generate_invoice
     sw_bulk_edit_order_documents_generate_invoice_datepicker  [after v-if]

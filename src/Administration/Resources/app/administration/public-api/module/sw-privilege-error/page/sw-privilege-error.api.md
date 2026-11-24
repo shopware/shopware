@@ -10,6 +10,12 @@ component sw-privilege-error  public  js
   source src/module/sw-privilege-error/page/sw-privilege-error/index.js
   template src/module/sw-privilege-error/page/sw-privilege-error/sw-privilege-error.html.twig
 
+computed
+  assetFilter: any
+
+methods
+  routerGoBack(): any
+
 blocks
   sw_privilege_error
     sw_privilege_error_inner

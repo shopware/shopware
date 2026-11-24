@@ -10,6 +10,58 @@ component sw-settings-search  public  js
   source src/module/sw-settings-search/page/sw-settings-search/index.js
   template src/module/sw-settings-search/page/sw-settings-search/sw-settings-search.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+data
+  currentSalesChannelId: any
+  defaultConfig: any
+  isDisplayingLeavePageWarning: any
+  isEditing: any
+  isLoading: any
+  isSaveSuccessful: any
+  leaveConfirmation: any
+  nextRoute: any
+  productSearchConfigs: object
+    andLogic: any
+    minSearchLength: any
+  searchResults: any
+  searchTerms: any
+
+computed
+  allowSave: any
+  productDefaultConfigsCriteria: any
+  productSearchConfigsCriteria: any
+  productSearchFieldRepository: any
+  productSearchRepository: any
+  settingsSearchTabs: any
+  tooltipSave: any
+
+methods
+  createConfigFields(): any
+  createDefaultSearchConfig(): any
+  createdComponent(): any
+  fetchSalesChannels(): any
+  getDefaultSearchConfig(): any
+  getProductSearchConfigs(): any
+  onCancelLeaveModal(): any
+  onChangeLanguage(): any
+  onCloseLeaveModal(): any
+  onConfirmLeave(): any
+  onEditChanged(isEditing: any): any
+  onLiveSearchResultsChanged(arg0: any): any
+  onSalesChannelChanged(salesChannelId: any): any
+  onSaveDefaultSearchConfig(): any
+  onSaveSearchSettings(): any
+  onTabChange(): any
+  saveFinish(): any
+  unsavedDataLeaveHandler(to: any, from: any, next: any): any
+
 blocks
   sw_settings_search_index
     sw_settings_search_content

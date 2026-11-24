@@ -11,6 +11,18 @@ component sw-condition-value-between-date  private  js  [private]
   template src/app/component/rule/sw-condition-value-between-date/sw-condition-value-between-date.html.twig  [private]
   visibility-source export  [private]
 
+props
+  dateType?: string  default='date'  [private]
+  disabled?: boolean  default=false  [private]
+  value?: object  default=null  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+computed
+  from: any  [private]
+  to: any  [private]
+
 blocks
   sw_condition_value_between_date  [private]
 ```

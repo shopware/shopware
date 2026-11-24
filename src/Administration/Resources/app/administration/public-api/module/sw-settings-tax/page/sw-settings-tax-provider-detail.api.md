@@ -11,6 +11,37 @@ component sw-settings-tax-provider-detail  private  ts  [private]
   template src/module/sw-settings-tax/page/sw-settings-tax-provider-detail/sw-settings-tax-provider-detail.html.twig  [private]
   visibility-source export  [private]
 
+mixins
+  notification  [private]
+
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  taxProviderId?: EntityKey<'tax_provider'>  default=''  [private]
+
+data
+  isLoading: any  [private]
+  isSaveSuccessful: any  [private]
+  taxProvider: any  [private]
+
+computed
+  allowSave: boolean  [private]
+  hasIdentifier: boolean  [private]
+  label: string  [private]
+  positionIdentifier: string | undefined  [private]
+  ruleFilter: CriteriaType  [private]
+  taxProviderRepository: Repository<'tax_provider'>  [private]
+
+methods
+  createdComponent(): void  [private]
+  loadTaxProvider(): Promise<void>  [private]
+  onCancel(): void  [private]
+  onDismissRule(): void  [private]
+  onSave(): Promise<void>  [private]
+  onSaveRule(ruleId: EntityKey<'rule'>): void  [private]
+
 blocks
   sw_settings_tax_provider  [private]
 ```

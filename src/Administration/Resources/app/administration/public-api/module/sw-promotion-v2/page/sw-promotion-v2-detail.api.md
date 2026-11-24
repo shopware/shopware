@@ -10,6 +10,52 @@ component sw-promotion-v2-detail  public  js
   source src/module/sw-promotion-v2/page/sw-promotion-v2-detail/index.js
   template src/module/sw-promotion-v2/page/sw-promotion-v2-detail/sw-promotion-v2-detail.html.twig
 
+mixins
+  notification, placeholder, discard-detail-page-changes
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  promotionId?: string  default=factory
+
+data
+  cleanUpFixedCode: any
+  cleanUpIndividualCodes: any
+  isLoading: any
+  isSaveSuccessful: any
+  promotion: any
+  saveCallbacks: any
+  showCodeTypeChangeModal: any
+
+computed
+  identifier: any
+  isCreateMode: any
+  promotionCriteria: any
+  promotionDetailTabs: any
+  promotionGroupRepository: any
+  promotionRepository: any
+  tooltipCancel: any
+  tooltipSave: any
+
+methods
+  cleanUpCodes(cleanUpIndividual: any, cleanUpFixed: any): any
+  createdComponent(): any
+  loadEntityData(): Promise<any>
+  onCancel(): any
+  onChangeLanguage(): any
+  onCleanUpCodes(cleanUpIndividual: any, cleanUpFixed: any): any
+  onCloseCodeTypeChangeModal(): any
+  onConfirmSave(): any
+  onDeleteIndividualCodesFinish(): any
+  onGenerateIndividualCodesFinish(): any
+  onSave(): any
+  saveFinish(): any
+  savePromotion(): Promise<any>
+  savePromotionSetGroups(): Promise<any>
+
 blocks
   sw_promotion_v2_detail
     sw_promotion_v2_detail_actions
@@ -29,4 +75,7 @@ blocks
       sw_promotion_v2_detail_content_view
     sw_promotion_v2_detail_header
     sw_promotion_v2_detail_language_switch
+
+notes
+  unresolved computed ...mapPageErrors(errorConfig)
 ```

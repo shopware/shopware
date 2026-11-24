@@ -10,6 +10,40 @@ component sw-review-list  public  js
   source src/module/sw-review/page/sw-review-list/index.js
   template src/module/sw-review/page/sw-review-list/sw-review-list.html.twig
 
+mixins
+  listing
+
+inject
+  acl
+  filterFactory
+  repositoryFactory
+
+data
+  activeFilterNumber: any
+  defaultFilters: any
+  isLoading: any
+  items: any
+  sortBy: any
+  storeKey: any
+
+computed
+  columns: any
+  criteria: any
+  customerCriteria: any
+  dateFilter: any  [deprecated tag:v6.8.0]
+  languageCriteria: any
+  listFilterOptions: any
+  listFilters: any
+  productCriteria: any
+  repository: any
+  salesChannelCriteria: any
+
+methods
+  createdComponent(): any
+  getList(): Promise<any>
+  onDelete(option: any): any
+  updateCriteria(criteria: any): any
+
 blocks
   sw_review_list
     sw_review_list_content
@@ -34,4 +68,7 @@ blocks
 
 crossings
   v-if  sw_review_list_empty_state -> sw_review_list_content_list
+
+refs
+  listing  -> sw-entity-listing  block=sw_review_list_content_list
 ```

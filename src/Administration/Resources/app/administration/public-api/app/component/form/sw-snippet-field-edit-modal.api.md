@@ -11,6 +11,37 @@ component sw-snippet-field-edit-modal  private  js  [private]
   template src/app/component/form/sw-snippet-field-edit-modal/sw-snippet-field-edit-modal.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+  repositoryFactory  [private]
+
+props
+  fieldType: string  [private]
+  snippetSets: any[]  [private]
+  snippets: any[]  [private]
+  translationKey: string  [private]
+
+emits
+  modal-close(...args: any[])  [private]
+  save(...args: any[])  [private]
+
+data
+  editableSnippets: any  [private]
+  isLoading: any  [private]
+
+computed
+  currentAuthor: any  [private]
+  modalTitle: any  [private]
+  snippetRepository: any  [private]
+  textArea: any  [private]
+  textField: any  [private]
+
+methods
+  closeModal(): any  [private]
+  createdComponent(): any  [private]
+  getNoPermissionsTooltip(role: any): any  [private]
+  onSave(): any  [private]
+
 blocks
   sw_snippet_field_edit_modal  [private]
     sw_snippet_field_edit_modal_body  [private]

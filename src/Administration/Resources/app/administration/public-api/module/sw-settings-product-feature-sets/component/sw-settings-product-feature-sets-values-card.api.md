@@ -10,11 +10,55 @@ component sw-settings-product-feature-sets-values-card  public  js
   source src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card/index.js
   template src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card/sw-settings-product-feature-sets-values-card.html.twig
 
+inject
+  repositoryFactory
+
+props
+  allowEdit?: boolean  default=true
+  disabled?: boolean  default=false
+  isLoading: boolean
+  productFeatureSet: object
+
+data
+  cardLoading: any
+  currentValue: any
+  deleteButtonDisabled: any
+  selection: any
+  showModal: any
+  term: any
+  translationService: any
+  values: any
+  valuesLoading: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  customFieldRepository: any
+  featureGridTranslationService: any
+  productFeatureSetCriteria: any
+  productFeatureSetRepository: any
+  propertyGroupRepository: any
+  valuesCardClasses: any
+  valuesEmpty: any
+
+methods
+  createdComponent(): any
+  doSearch(): any
+  getColumns(): any
+  getList(): any
+  onAddField(): any
+  onDeleteFields(): any
+  onGridSelectionChanged(selection: any, selectionCount: any): any
+  onModalClose(): any
+  onPositionChange(features: any): any
+  onSearch(): any
+  onShowFeatureModal(): any
+  resetPositions(): any
+
 blocks
   sw_product_feature_set_card
     sw_product_feature_set_card_empty_state
       sw_product_feature_set_card_empty_state_button
-    sw_product_feature_set_card_empty_state_image  [after v-if]
+    sw_product_feature_set_card_empty_state_image  [after v-if] [deprecated tag:v6.8.0]
     sw_product_feature_set_card_empty_state_label  [after v-if]
     sw_product_feature_set_card_grid
       sw_settings_product_feature_set_card_grid_column_name
@@ -26,4 +70,7 @@ blocks
         sw_product_feature_set_toolbar_add
         sw_product_feature_set_toolbar_delete
         sw_product_feature_set_toolbar_search
+
+refs
+  columnPosition  -> sw-data-grid-column-position  block=sw_settings_product_feature_set_card_grid_column_position
 ```

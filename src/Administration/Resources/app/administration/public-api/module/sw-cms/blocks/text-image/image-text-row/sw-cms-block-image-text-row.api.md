@@ -11,6 +11,14 @@ component sw-cms-block-image-text-row  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-row/component/sw-cms-block-image-text-row.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center-image  {}  block=sw_cms_block_image_text_row  [private]
+  center-text  {}  block=sw_cms_block_image_text_row  [private]
+  left-image  {}  block=sw_cms_block_image_text_row  [private]
+  left-text  {}  block=sw_cms_block_image_text_row  [private]
+  right-image  {}  block=sw_cms_block_image_text_row  [private]
+  right-text  {}  block=sw_cms_block_image_text_row  [private]
+
 blocks
   sw_cms_block_image_text_row  [private]
 ```

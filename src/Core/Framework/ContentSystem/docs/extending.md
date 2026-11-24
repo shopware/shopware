@@ -78,4 +78,5 @@ Use gaps such as `100`, `200`, and `300` to leave space for other presets.
 
 Both YAML declarations and app declarations persisted as JSON preserve these fields.
 `GET /api/_info/content-system-layout-presets.json` always returns `category`, `priority`, and `illustration` alongside each preset's metadata and compiled `payload`.
+Each preset also carries `defaultBindingRootSources`, described under [`defaultBindingRootSources`](../Layout/Type/docs/introspection.md#defaultbindingrootsources).
 Existing declarations can omit these optional authoring fields.

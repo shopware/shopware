@@ -22,6 +22,7 @@ module.exports = tseslint.config(
         files: ['**/*.{js,ts}'],
         plugins: {
             jest: jestPlugin,
+            'sw-core-rules': swCoreRules,
         },
         languageOptions: {
             ecmaVersion: 2020,
@@ -40,6 +41,7 @@ module.exports = tseslint.config(
             },
         },
         rules: {
+            'sw-core-rules/require-deprecation-guard': 'error',
             'comma-dangle': ['error', 'always-multiline'],
             'one-var': ['error', 'never'],
             'no-console': ['error', { allow: ['warn', 'error'] }],

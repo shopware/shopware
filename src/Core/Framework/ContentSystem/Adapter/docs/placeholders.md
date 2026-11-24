@@ -9,32 +9,41 @@ Use these in element properties and data requirements. See [Product Detail Page 
 
 ## Additional Parameters
 
-Beyond URL path segments, you can pass additional parameters to your layouts via query string. These parameters become available as placeholders throughout your layout.
+A query parameter becomes a placeholder only when the specification source that renders the page declares it in `placeholderQueryParameters()`.
+The product source declares `referrerCategoryId`, which the breadcrumb uses to build its path through the category the visitor came from.
+The category, landing page, header and footer sources declare none.
 
+`RenderingSpecificationFactory` adds the declared parameters for every source, so a source derives its own placeholder values from the route alone.
 Only scalar query values become placeholders.
-Parameters listed in `shopware.http_cache.ignored_url_parameters`, such as `utm_source`, never become placeholders, because they do not distinguish HTTP cache entries.
-The original request keeps these parameters for analytics and other request consumers.
+A query parameter never replaces a placeholder the source derived, such as the entity id.
+Parameters listed in `shopware.http_cache.ignored_url_parameters`, such as `utm_source`, never become placeholders, even when declared, because they do not distinguish HTTP cache entries.
+The original request keeps every parameter for analytics and other request consumers.
 
 **Query string example:**
+
 ```
-/store-api/content/product/abc123?page=2&limit=24
+/store-api/content/product/abc123?referrerCategoryId=def456
 ```
 
-Makes `{{page}}` and `{{limit}}` available as placeholders:
+Makes `{{referrerCategoryId}}` available as a placeholder, for example in the breadcrumb's loader config:
 
-```json
+```yaml
+resolvedBy:
+  breadcrumb:
+    referrerCategoryProperty: "{{referrerCategoryId}}"
+```
+
+**Declaring a parameter in your own source:**
+
+```php
+final class BlogPostSpecificationSource extends AbstractSpecificationSource
 {
-  "id": "product-listing",
-  "component": "Sw:Product:Listing",
-  "properties": {
-    "page": "{{page}}",
-    "limit": "{{limit}}"
-  }
+    public function placeholderQueryParameters(): array
+    {
+        return ['commentPage'];
+    }
 }
 ```
 
-**Common use cases:**
-- Pagination parameters (`page`, `limit`)
-- Filter values (`category`, `brand`, `priceRange`)
-- Display preferences (`view`, `sort`)
-- Feature flags (`showReviews`, `hidePrice`)
+A placeholder value is inserted as the request sent it, without escaping.
+Declare only the parameters a layout needs, and prefer passing them to a loader that validates them over placing them in element text.

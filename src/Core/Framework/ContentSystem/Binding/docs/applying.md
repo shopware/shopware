@@ -5,10 +5,8 @@
 - **`apply()` (overwrite)**: each `resolves` entry becomes a concrete `DataRequirement`, merged into the element's existing data requirements and **overwriting** the same keys. Re-applying a specification over an already-bound key replaces its wiring. Every wired key's attribution is recorded into the element's `attributedSpecifications` map (also merged, overwriting), so a client can later ask "which specification wired this key". Used for explicit application: `bind-element`, and an `insert-element` request's explicit `bindingSpecificationId`.
 - **`applyFillOnly()` (fill-only)**: a `resolves` entry is wired only into a key the element carries no data requirement for yet. Only those wired keys receive attribution. Carried or already-bound wiring, and its attribution, is left untouched. The same existing-wins idiom `Layout/LayoutDefaultSeeder` uses for property seeding. Used for a type's auto-applied default (see [default-specification.md](default-specification.md)).
 
-Both modes collapse a `!scoped` config value to its entry for the layout's root source.
-A key they wire whose scoped value has no entry for that root source, or a layout without a root source, is rejected with `400` (`CONTENT_SYSTEM__SCOPED_BINDING_CONFIG_UNRESOLVED`).
-`applyFillOnly()` checks only the keys it wires, so an element that already carries a key is never rejected for it.
-A breadcrumb, for example, can only be wired in a `product` or `category` layout.
+Application picks the value for the layout's root source from each `!scoped` config value of a key it writes, and throws `bindingRootSourceNotScoped` (`400`) when the map has no entry for it or the layout has no root source.
+`applyFillOnly()` resolves only the keys it writes, so a `!scoped` config value of a key the element already wires is never resolved against the root source.
 
 Both modes seed `inputs` defaults the same way. Each entry with a default seeds that primitive property only when the element does not already carry the key. The test is a `StoredElement::property()` presence check, not a value check: an authored explicit `null` is a present `StoredValue`.
 
@@ -17,8 +15,12 @@ A seeded `inputs` default takes the stored shape of its target property. `Bindin
 These mutation operations drive the applicator, all through the same draft/persisted mutation machinery as every other structural edit:
 
 - `Mutation/Op/BindElement` applies a specification onto an existing element via `apply()`.
-- `Mutation/Op/InsertElement` fill-applies the type's default (when it has exactly one) onto every freshly scaffolded element via `applyFillOnly()`. An explicit `bindingSpecificationId` on the same request is applied first via `apply()`, and the default then fills only the keys it leaves unset, atomically in the same edit. The specification is resolved first, before any tree change, so nothing is inserted (or, on the persisted route, persisted) when it fails. Shared keys belong to the explicit choice, and a scoped default key the explicit specification resolves is never checked against the root source.
+- `Mutation/Op/InsertElement` fill-applies the type's default (when it has exactly one) onto every freshly scaffolded element via `applyFillOnly()`.
+  With an explicit `bindingSpecificationId` on the same request, `InsertElement` applies the named specification first via `apply()` and fill-applies the default after it, atomically in the same edit.
+  The specification is resolved first, before any tree change, so nothing is inserted (or, on the persisted route, persisted) when it fails.
+  Default underneath, explicit on top: shared keys belong to the explicit choice, for data requirements, attribution and `inputs` defaults alike.
 - `Mutation/Op/ReplaceElement` fill-applies the new type's default (when it has exactly one) after carrying the old element's wiring over (`carryWiring()`), via `applyFillOnly()`. Carried wiring is never overwritten by the default, even when the default would correct a renamed storage key. `ReplaceElement` carries a stored value under one of the new type's `resolvedBy` storage keys forward when the value's shape matches the loader branch: a string for `entity`, a list of strings for `entity_collection`. Otherwise the value is dropped and reported via `droppedProperties`. That per-branch shape check (`ResolvedByLoaderBranch::matchesStoredValueShape()`) is deliberately stricter than the tolerant list-filtering the `entity_collection` loader applies at serve time.
-- `Mutation/Op/AttachElement` fill-applies each element's type default (when it has exactly one, found through `AbstractLayoutMutation::resolveDefaultSpecification()`) to every element of the attached, re-id'd subtree via `applyFillOnly()`. Wiring the subtree already carries wins.
+- `Mutation/Op/AttachElement` fill-applies each element's type default (when it has exactly one, found through `AbstractLayoutMutation::resolveDefaultSpecification()`) to every element of the attached subtree via `applyFillOnly()`.
+  Wiring the subtree already carries wins.
 
 `BindElement` and `InsertElement`'s explicit path perform the specification lookup and the type check themselves (they differ per op). An unregistered `bindingSpecificationId` (`bindingSpecificationNotFound`) or a specification whose declared `type` does not match the target element's `component` (`bindingTypeMismatch`) is rejected with `400`. `BindingApplicator` is the apply-side of that decision, extracted so the ops share one merge (naming rationale in [NAMING.md](../../NAMING.md)).

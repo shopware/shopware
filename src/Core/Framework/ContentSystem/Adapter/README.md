@@ -6,7 +6,7 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 
 - [docs/entity-rendering.md](docs/entity-rendering.md) - The main-section endpoints, the assignment record, the sales channel fallback between assignments, and the default layout.
 - [docs/automatic-data-loading.md](docs/automatic-data-loading.md) - The entity an entity-based render loads before the layout runs, and how a layout receives it.
-- [docs/placeholders.md](docs/placeholders.md) - The placeholders entity-based rendering provides, and passing more via the query string.
+- [docs/placeholders.md](docs/placeholders.md) - The placeholders entity-based rendering provides, and the query parameters a specification source declares as placeholders.
 - [docs/custom-sources.md](docs/custom-sources.md) - The plugin-facing guide to authoring and registering a specification source.
 - [docs/introspection.md](docs/introspection.md) - The Admin API endpoint listing the entity types a layout can be assigned to.
 
@@ -23,8 +23,8 @@ Header and footer sources are not in the tagged iterator. Each is injected into 
 - `RootSourceRegistry` - The single authority over the valid root-source set (entity types, section keys and `none`, excluding `main`) and their resolution. `resolve()` fails hard on an unknown id, so callers gate membership first. The entity-type id list is baked in at build time by `ContentLayoutAssignableCompilerPass`
 - `NoneSpecificationSource` - The `none` root source for a context-free layout. It keeps `content_layout.root_source` total
 - `RenderingSpecificationResolver` - Iterates sources via `supports()` (path-based, returns a `ResolvedContentLayout`) or `supportsEntityType()` (assignment-free, returns a bare `RenderingSpecification` for the preview action), delegating to `RenderingSpecificationFactory`
-- `RenderingSpecificationFactory` - Assembles a `ResolvedContentLayout` from the source's discrete resolution steps, or a `RenderingSpecification` with no layout id (no assignment lookup)
-- `AbstractSpecificationSource` - Base class of specification sources. Entity sources override the assignment-free `supportsEntityType()` and `resolveSpecificationDataForEntity()`, and `providedRootContext()` to expose root-ambient context, reached via `RootSourceRegistry::resolve()`
+- `RenderingSpecificationFactory` - Assembles a `ResolvedContentLayout` from the source's discrete resolution steps, or a `RenderingSpecification` with no layout id (no assignment lookup). It adds the query parameters the source declares to the placeholder values the source derived, see [docs/placeholders.md](docs/placeholders.md#additional-parameters)
+- `AbstractSpecificationSource` - Base class of specification sources. Entity sources override the assignment-free `supportsEntityType()` and `resolveSpecificationDataForEntity()`, and `providedRootContext()` to expose root-ambient context, reached via `RootSourceRegistry::resolve()`. A source declares the query parameters it accepts as placeholders in `placeholderQueryParameters()`
 - Entity sources moved to domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
 - Domain-aware sources moved to Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
 

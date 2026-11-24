@@ -36,7 +36,8 @@
                           "illustration",
                           "category",
                           "priority",
-                          "payload"
+                          "payload",
+                          "defaultBindingRootSources"
                         ],
                         "properties": {
                           "id": {
@@ -93,6 +94,16 @@
                             "items": {
                               "type": "object"
                             }
+                          },
+                          "defaultBindingRootSources": {
+                            "type": [
+                              "array",
+                              "null"
+                            ],
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "The root-source ids on which the default binding specifications applied automatically to the preset's elements on insert all resolve, nested presets included and keys a preset element already wires excluded. `null` when none of them places a root-source restriction. An empty array when no root source satisfies them all or an element's type has more than one default binding specification."
                           }
                         }
                       }

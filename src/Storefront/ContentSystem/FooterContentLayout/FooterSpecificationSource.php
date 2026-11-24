@@ -50,11 +50,9 @@ class FooterSpecificationSource extends AbstractSpecificationSource
 
     public function resolveSpecificationData(string $path, Request $request, SalesChannelContext $context): SpecificationData
     {
-        $scalarParameters = array_filter($request->query->all(), '\is_scalar');
-
         return new SpecificationData(
             dataRequirements: [],
-            placeholderValues: PlaceholderValues::from($scalarParameters),
+            placeholderValues: PlaceholderValues::from([]),
         );
     }
 

@@ -1061,7 +1061,9 @@
         "missingEntityContext": "Dieses Layout ist noch keinem Produkt, keiner Kategorie und keiner Landingpage zugewiesen.",
         "noElements": "Die Vorschau wurde geladen, aber es wurden keine Root-Elemente zurückgegeben.",
         "emptySlot": "Dieser Slot enthält keine Elemente.",
-        "errorLoad": "Die Vorschau konnte nicht geladen werden."
+        "errorLoad": "Die Vorschau konnte nicht geladen werden.",
+        "errorUpdate": "Die Vorschau konnte nicht aktualisiert werden. Sie zeigt noch einen älteren Stand.",
+        "retry": "Erneut versuchen"
       },
       "elementSettings": {
         "title": "Element-Einstellungen",
@@ -1140,6 +1142,7 @@
         "targetNotFound": "Das gewählte Element ist nicht mehr verfügbar. Wähle ein vorhandenes Element, bevor Du es bearbeitest.",
         "unknownElementType": "Dieser Elementtyp ist nicht mehr verfügbar. Wähle einen verfügbaren Elementtyp.",
         "invalidStructure": "Diese Änderung ist für die aktuelle Layout-Struktur nicht gültig. Prüfe die gewählten Elemente und ihre Positionen.",
+        "bindingRootSourceNotScoped": "Dieses Element ist für diesen Layout-Typ nicht verfügbar. Wähle ein anderes Element oder eine andere Vorlage.",
         "generic": "Die Layout-Änderung konnte nicht angewendet werden. Prüfe Deine Änderungen oder wende Dich an Deine Administration."
       },
       "messageSaved": "Inhaltslayout erfolgreich gespeichert.",

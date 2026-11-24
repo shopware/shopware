@@ -23,8 +23,21 @@ async function createWrapper(methods: Record<string, jest.Mock> = {}) {
                 entityType: 'product',
                 entityId: 'product',
             },
+            global: { renderStubDefaultSlot: true },
         },
     );
+}
+
+async function showLoadedPreview(wrapper: Awaited<ReturnType<typeof createWrapper>>) {
+    jest.advanceTimersByTime(800);
+    await flushPromises();
+    await wrapper.get('iframe').trigger('load');
+}
+
+async function changeLayout(wrapper: Awaited<ReturnType<typeof createWrapper>>) {
+    await wrapper.setProps({ layout: { id: 'layout-a', name: 'Layout', layout: [{ id: 'element-1' }] } });
+    jest.advanceTimersByTime(800);
+    await flushPromises();
 }
 
 describe('Experience Studio preview request lifecycle', () => {
@@ -98,5 +111,92 @@ describe('Experience Studio preview request lifecycle', () => {
         await flushPromises();
 
         expect(assignLoadingFrame).not.toHaveBeenCalled();
+    });
+
+    it('shows an error instead of the preview when the first request fails', async () => {
+        request.mockRejectedValue(new Error('HTTP 400'));
+        wrapper = await createWrapper();
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+
+        expect(wrapper.find('iframe').exists()).toBe(false);
+        expect(wrapper.find('.sw-experience-studio-preview__outdated-banner').exists()).toBe(false);
+        expect(wrapper.html()).toContain('sw-experience-studio.detail.preview.errorLoad');
+    });
+
+    it('keeps the earlier preview and marks it as outdated when an update fails', async () => {
+        wrapper = await createWrapper();
+        await showLoadedPreview(wrapper);
+        expect(wrapper.find('.sw-experience-studio-preview__outdated-banner').exists()).toBe(false);
+
+        request.mockRejectedValue(new Error('HTTP 500'));
+        await changeLayout(wrapper);
+
+        expect(request).toHaveBeenCalledTimes(2);
+        expect(wrapper.get('iframe').attributes('src')).toBe('https://storefront.local/preview');
+        expect(wrapper.get('.sw-experience-studio-preview__outdated-banner').text()).toContain(
+            'sw-experience-studio.detail.preview.errorUpdate',
+        );
+    });
+
+    it('keeps the outdated hint while the next request runs and removes it once a request succeeds', async () => {
+        wrapper = await createWrapper();
+        await showLoadedPreview(wrapper);
+        request.mockRejectedValue(new Error('HTTP 500'));
+        await changeLayout(wrapper);
+
+        const pending = deferred<string>();
+        request.mockReturnValue(pending.promise);
+        await wrapper.get('.sw-experience-studio-preview__retry').trigger('click');
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(3);
+        expect(wrapper.find('.sw-experience-studio-preview__outdated-banner').exists()).toBe(true);
+
+        pending.resolve('https://storefront.local/updated-preview');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-experience-studio-preview__outdated-banner').exists()).toBe(false);
+        expect(wrapper.findAll('iframe').map((frame) => frame.attributes('src'))).toContain(
+            'https://storefront.local/updated-preview',
+        );
+    });
+
+    it('does not mark a current preview as outdated when an older request fails late', async () => {
+        wrapper = await createWrapper();
+        await showLoadedPreview(wrapper);
+
+        let rejectOlderRequest!: (error: Error) => void;
+        request.mockReturnValueOnce(
+            new Promise<string>((_resolve, reject) => {
+                rejectOlderRequest = reject;
+            }),
+        );
+        await changeLayout(wrapper);
+
+        request.mockResolvedValue('https://storefront.local/updated-preview');
+        await wrapper.setProps({ entityId: 'other-product' });
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+        expect(request).toHaveBeenCalledTimes(3);
+
+        rejectOlderRequest(new Error('HTTP 500'));
+        await flushPromises();
+
+        expect(wrapper.find('.sw-experience-studio-preview__outdated-banner').exists()).toBe(false);
+    });
+
+    it('drops a queued reload when the user retries', async () => {
+        wrapper = await createWrapper();
+        await showLoadedPreview(wrapper);
+        request.mockRejectedValue(new Error('HTTP 500'));
+        await changeLayout(wrapper);
+
+        await wrapper.setProps({ entityId: 'other-product' });
+        await wrapper.get('.sw-experience-studio-preview__retry').trigger('click');
+        jest.advanceTimersByTime(800);
+        await flushPromises();
+
+        expect(request).toHaveBeenCalledTimes(3);
     });
 });

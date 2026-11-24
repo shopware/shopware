@@ -37,6 +37,7 @@ describe('contentSystemLayoutPresetService', () => {
                 category: 'content',
                 priority: 100,
                 payload: [],
+                defaultBindingRootSources: null,
             },
         ];
 

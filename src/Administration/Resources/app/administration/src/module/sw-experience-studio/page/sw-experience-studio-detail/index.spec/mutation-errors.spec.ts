@@ -1,58 +1,82 @@
 import detailComponent from '../index';
+import enSnippets from '../../../snippet/en.json';
+import deSnippets from '../../../snippet/de.json';
+
+const mutationErrorCases: [string, string][] = [
+    [
+        'CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE',
+        'sw-experience-studio.detail.mappingMutationErrors.propertyNotMappable',
+    ],
+    [
+        'CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH',
+        'sw-experience-studio.detail.mappingMutationErrors.unknownMappingPath',
+    ],
+    [
+        'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH',
+        'sw-experience-studio.detail.mappingMutationErrors.mappingTypeMismatch',
+    ],
+    [
+        'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
+        'sw-experience-studio.detail.mappingMutationErrors.propertyAliasCollision',
+    ],
+    [
+        'CONTENT_SYSTEM__INVALID_MAPPING_SOURCE',
+        'sw-experience-studio.detail.mappingMutationErrors.invalidMappingSource',
+    ],
+    [
+        'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
+        'sw-experience-studio.detail.mutationErrors.unknownRootSource',
+    ],
+    [
+        'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND',
+        'sw-experience-studio.detail.mutationErrors.targetNotFound',
+    ],
+    [
+        'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE',
+        'sw-experience-studio.detail.mutationErrors.unknownElementType',
+    ],
+    [
+        'CONTENT_SYSTEM__MUTATION_CYCLE',
+        'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    ],
+    [
+        'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED',
+        'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    ],
+    [
+        'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS',
+        'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    ],
+    [
+        'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
+        'sw-experience-studio.detail.mutationErrors.invalidStructure',
+    ],
+    [
+        'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+        'sw-experience-studio.detail.mutationErrors.bindingRootSourceNotScoped',
+    ],
+];
+
+function hasSnippet(snippets: object, key: string): boolean {
+    const value = key
+        .split('.')
+        .reduce<unknown>((node, segment) => (node as Record<string, unknown> | undefined)?.[segment], snippets);
+
+    return typeof value === 'string' && value !== '';
+}
 
 describe('Experience Studio detail mutation errors', () => {
     const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
 
-    it.each([
-        [
-            'CONTENT_SYSTEM__PROPERTY_NOT_MAPPABLE',
-            'sw-experience-studio.detail.mappingMutationErrors.propertyNotMappable',
-        ],
-        [
-            'CONTENT_SYSTEM__UNKNOWN_MAPPING_PATH',
-            'sw-experience-studio.detail.mappingMutationErrors.unknownMappingPath',
-        ],
-        [
-            'CONTENT_SYSTEM__MAPPING_TYPE_MISMATCH',
-            'sw-experience-studio.detail.mappingMutationErrors.mappingTypeMismatch',
-        ],
-        [
-            'CONTENT_SYSTEM__PROPERTY_ALIAS_COLLISION',
-            'sw-experience-studio.detail.mappingMutationErrors.propertyAliasCollision',
-        ],
-        [
-            'CONTENT_SYSTEM__INVALID_MAPPING_SOURCE',
-            'sw-experience-studio.detail.mappingMutationErrors.invalidMappingSource',
-        ],
-        [
-            'CONTENT_SYSTEM__UNKNOWN_ROOT_SOURCE',
-            'sw-experience-studio.detail.mutationErrors.unknownRootSource',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_TARGET_NOT_FOUND',
-            'sw-experience-studio.detail.mutationErrors.targetNotFound',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_UNKNOWN_TYPE',
-            'sw-experience-studio.detail.mutationErrors.unknownElementType',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_CYCLE',
-            'sw-experience-studio.detail.mutationErrors.invalidStructure',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_SLOT_REQUIRED',
-            'sw-experience-studio.detail.mutationErrors.invalidStructure',
-        ],
-        [
-            'CONTENT_SYSTEM__MUTATION_INVALID_WRAP_TARGETS',
-            'sw-experience-studio.detail.mutationErrors.invalidStructure',
-        ],
-        [
-            'CONTENT_SYSTEM__INVALID_LAYOUT_STRUCTURE',
-            'sw-experience-studio.detail.mutationErrors.invalidStructure',
-        ],
-    ])('shows translated mutation guidance for %s', (code, snippetKey) => {
+    it.each(mutationErrorCases)('has an English and a German snippet for %s', (_code, snippetKey) => {
+        expect({ key: snippetKey, en: hasSnippet(enSnippets, snippetKey), de: hasSnippet(deSnippets, snippetKey) }).toEqual({
+            key: snippetKey,
+            en: true,
+            de: true,
+        });
+    });
+
+    it.each(mutationErrorCases)('shows translated mutation guidance for %s', (code, snippetKey) => {
         const createNotificationError = jest.fn();
         const vm = {
             createNotificationError,

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\ContentSystem\Api\LayoutMutationController;
 use Shopware\Core\Framework\ContentSystem\Api\UnknownRequestFieldExceptionListener;
 use Shopware\Core\Framework\ContentSystem\Binding\AttributionReconciler;
 use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingSpecificationSynthesizer;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\DatabaseBindingSpecificationLoader;
 use Shopware\Core\Framework\ContentSystem\Binding\Loader\YamlBindingSpecificationLoader;
@@ -396,10 +397,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(SubTreeExtractor::class);
 
     // Entity Layout Services
-    $services->set(EntityLayoutResolver::class)
-        ->args([
-            param('shopware.http_cache.ignored_url_parameters'),
-        ]);
+    $services->set(EntityLayoutResolver::class);
     $services->set(EntityLayoutContextFactory::class)
         ->args([
             service(EntityLayoutResolver::class),
@@ -430,7 +428,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Rendering Specification Factory
-    $services->set(RenderingSpecificationFactory::class);
+    $services->set(RenderingSpecificationFactory::class)
+        ->args([
+            param('shopware.http_cache.ignored_url_parameters'),
+        ]);
 
     // Section Resolvers
     $services->set(RenderingSpecificationResolver::class)
@@ -709,6 +710,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ContentSystemBindingSpecificationRegistry::class),
             service(DataLoaderProvider::class),
+        ]);
+
+    // Default binding root sources: the picker introspection fold
+    $services->set(DefaultBindingRootSources::class)
+        ->args([
+            service(ContentSystemBindingSpecificationRegistry::class),
+            service(RootSourceRegistry::class),
         ]);
 
     // Root-source authority: the valid set of root sources (entity types + sections + none) and their resolution

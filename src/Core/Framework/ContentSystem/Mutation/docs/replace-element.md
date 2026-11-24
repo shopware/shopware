@@ -36,10 +36,11 @@ Mapping cleanup applies only to the replaced element. Carried descendants keep t
 
 ## The default overlay
 
-After the rebuild, the new type's default binding specification is fill-applied after the
-wiring carry-over when it has exactly one. Zero is a no-op. More than one throws `bindingSpecificationDefaultAmbiguous` `409`.
-Carried wiring is therefore never overwritten by the default even when the default would correct a
-renamed storage key.
+After the rebuild, the new type's default binding specification is fill-applied after the wiring carry-over when it has exactly one.
+Zero is a no-op.
+More than one throws `bindingSpecificationDefaultAmbiguous` `409`.
+A `!scoped` config value of a default key the replacement does not wire yet, with no entry for the tree's root source or with no root source, throws `bindingRootSourceNotScoped` `400` naming the replaced element's id, which the replacement keeps.
+Carried wiring is therefore never overwritten by the default even when the default would correct a renamed storage key.
 
 ## Result channels
 

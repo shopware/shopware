@@ -756,7 +756,6 @@ class ContentLayoutMutationControllerTest extends TestCase
         // bump updated_at with a successful op so the before/after comparison is a real timestamp, not null == null
         $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
         $before = $this->reload($layoutId)->getUpdatedAt();
-        static::assertInstanceOf(\DateTimeInterface::class, $before);
 
         $this->request('insert-element', $layoutId, [
             'type' => 'Sw:Content:Text',
@@ -765,6 +764,7 @@ class ContentLayoutMutationControllerTest extends TestCase
         ]);
         $response = $this->getBrowser()->getResponse();
 
+        static::assertInstanceOf(\DateTimeInterface::class, $before);
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -773,6 +773,37 @@ class ContentLayoutMutationControllerTest extends TestCase
         // the op throws before PersistedLayoutMutator reaches update(): the stored tree keeps the two elements from
         // the bump and its updated_at is unchanged, so the mismatched insert persisted nothing
         static::assertCount(2, $this->layoutIds($layoutId));
+        static::assertEquals($before, $this->reload($layoutId)->getUpdatedAt());
+    }
+
+    #[TestDox('rejects a persisted insert whose type default is scoped by root sources that do not include the layout root source with a 400, leaving the stored tree and updated_at untouched')]
+    public function testInsertElementWithScopedDefaultAndUnnamedRootSourceIsRejectedWithoutWriting(): void
+    {
+        // The core breadcrumb wires its `breadcrumb` key with values scoped over product and category only, and the
+        // layout is bound to the "none" root source.
+        $layoutId = $this->createLayout([$this->element('block-a', TestElementTypeLoader::RESOLVABLE)], 'none');
+
+        // bump updated_at with a successful op so the before/after comparison is a real timestamp, not null == null
+        $this->mutate('insert-element', $layoutId, ['type' => TestElementTypeLoader::RESOLVABLE, 'expectedVersion' => null]);
+        $before = $this->reload($layoutId)->getUpdatedAt();
+        $idsBefore = $this->layoutIds($layoutId);
+
+        $this->request('insert-element', $layoutId, [
+            'type' => 'Sw:Navigation:Breadcrumb',
+            'expectedVersion' => $this->apiUpdatedAt($layoutId),
+        ]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertInstanceOf(\DateTimeInterface::class, $before);
+        static::assertCount(2, $idsBefore);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
+
+        // the op throws before PersistedLayoutMutator reaches update(): the stored tree keeps exactly the two elements
+        // from the bump and its updated_at is unchanged, so the rejected insert persisted nothing
+        static::assertSame($idsBefore, $this->layoutIds($layoutId));
         static::assertEquals($before, $this->reload($layoutId)->getUpdatedAt());
     }
 
@@ -1109,14 +1140,14 @@ class ContentLayoutMutationControllerTest extends TestCase
     /**
      * @param list<array<string, mixed>> $tree
      */
-    private function createLayout(array $tree): string
+    private function createLayout(array $tree, string $rootSource = 'category'): string
     {
         $id = $this->ids->get('layout');
         $this->repository()->create([[
             'id' => $id,
             'name' => 'mutation-' . $id,
             'version' => '1.0.0',
-            'rootSource' => 'category',
+            'rootSource' => $rootSource,
             'layout' => $tree,
         ]], Context::createDefaultContext());
 

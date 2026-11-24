@@ -7,48 +7,18 @@ on:
 jobs:
   add-label:
     runs-on: ubuntu-24.04
-    env:
-      CONTRIBUTOR_LABEL: "external-contribution"
     permissions:
       contents: read
       pull-requests: write
     steps:
+      # The base branch's packages only; nothing from the pull request is checked out.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/bin/js
+      - run: npm ci --ignore-scripts --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            const pullRequestNumber = context.payload.pull_request.number;
-            const contribLabel = process.env.CONTRIBUTOR_LABEL;
-            const allowedBotUsers = [
-                "BOT_kgDOCV3tAw", // octo-sts
-                "BOT_kgDODjoiJw", // shopware-octo-sts-app
-                "BOT_kgDODoqSag"  // shopware-octo-sts-app-2
-            ];
-
-            let hasWriteAccess = false;
-
-            const permissionLevel = await github.rest.repos.getCollaboratorPermissionLevel({
-              ...context.repo,
-              username: context.actor,
-            });
-
-            if (permissionLevel.status !== 200) {
-              core.info(`Failed to get permission level for "${context.actor}", assuming no write access.`);
-            } else {
-              hasWriteAccess = ['admin', 'write'].includes(permissionLevel?.data?.permission) || allowedBotUsers.includes(permissionLevel?.data?.user.node_id);
-            }
-
-            if (hasWriteAccess) {
-              core.info(`User "${context.actor}" has write access, skipping label addition.`);
-            } else {
-              await github.rest.issues.addLabels({
-                ...context.repo,
-                issue_number: pullRequestNumber,
-                labels: [contribLabel],
-              }).then(res => {
-                if (res.status !== 200) {
-                  throw new Error(`Failed to add label "${contribLabel}" to pull request #${pullRequestNumber}`);
-                } else {
-                  core.info(`Label "${contribLabel}" added to pull request #${pullRequestNumber}`);
-                }
-              });
-            }
+            const { labelExternalContribution } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+            await labelExternalContribution({ github, core, context })

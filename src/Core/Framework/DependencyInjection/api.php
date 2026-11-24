@@ -87,6 +87,8 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\App\Url\AppUrlVerifier;
 use Shopware\Core\Framework\ContentSystem\Adapter\RootSourceRegistry;
+use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
+use Shopware\Core\Framework\ContentSystem\Binding\DefaultBindingRootSources;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\ContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\ContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
@@ -101,6 +103,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Feature\FeatureFlagRegistry;
+use Shopware\Core\Framework\Mcp\Authentication\McpOAuthMetadata;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\Migration\MigrationInfo;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
@@ -360,6 +363,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PresignedMediaUploadService::class)->nullOnInvalid(),
             service(MediaFileExtensionListProvider::class),
             service(VersionHistory::class),
+            service(DefaultBindingRootSources::class),
+            service(DraftLayoutDecoder::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -382,6 +387,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PublicClientRegistry::class),
             service('shopware.rate_limiter'),
             service('router'),
+            service(McpOAuthMetadata::class),
         ])
         ->call('setContainer', [service('service_container')]);
 
@@ -403,6 +409,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PublicClientRegistry::class)
         ->args([
             param('shopware.api.oauth_clients'),
+            param('kernel.environment'),
         ]);
 
     $services->set(ClientRepository::class)
@@ -503,6 +510,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(UserService::class),
             service(ExternalTokenService::class),
             service(ClockInterface::class),
+            service(PublicClientRegistry::class),
             param('shopware.api.refresh_token_ttl'),
             param('shopware.api.auth_code_ttl'),
         ]);

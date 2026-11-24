@@ -41,12 +41,7 @@ Example: A shop with domains `shop.com` and `shop.de` can have different headers
 
 ## Header/Footer Placeholders
 
-Header and footer layouts do not have entity-based placeholders. Query parameters passed to the endpoint become available as placeholders.
-
-```
-/store-api/content-header?activeCategoryId=abc123
-```
-
-Makes `{{activeCategoryId}}` available in the header layout.
+Header and footer layouts have no entity-based placeholders.
+Query parameters passed to the endpoint never become placeholders either, see [placeholders.md](../../../Core/Framework/ContentSystem/Adapter/docs/placeholders.md#additional-parameters).
 
 Header and footer sections do not support partial rendering (`elementId` parameter).

@@ -882,6 +882,70 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::BINDING_TYPE_MISMATCH, array_column($body['errors'], 'code'));
     }
 
+    /**
+     * @param array<string, mixed> $rootSourcePayload
+     */
+    #[TestDox('rejects an insert whose type default is scoped by root sources that do not include the request root source with a 400 bindingRootSourceNotScoped naming that root source and no element')]
+    #[DataProvider('unscopedInsertRootSources')]
+    public function testInsertElementRejectsScopedDefaultWithUnscopedRootSource(array $rootSourcePayload, ?string $expectedRootSource): void
+    {
+        // The core breadcrumb wires its `breadcrumb` key with values scoped over product and category only.
+        $parameters = $this->rootSourceNotScopedParameters('insert-element', [
+            'layout' => [],
+            'type' => 'Sw:Navigation:Breadcrumb',
+            ...$rootSourcePayload,
+        ]);
+
+        static::assertSame($expectedRootSource, $parameters['rootSource']);
+        static::assertNull($parameters['elementId']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string|null}>
+     */
+    public static function unscopedInsertRootSources(): iterable
+    {
+        yield 'none root source is reported as none' => [['rootSource' => 'none'], 'none'];
+        yield 'empty root source is read as no root source' => [['rootSource' => ''], null];
+        yield 'null root source is no root source' => [['rootSource' => null], null];
+        yield 'omitted root source is no root source' => [[], null];
+        yield 'registered root source outside the scope is reported by name' => [['rootSource' => 'landing_page'], 'landing_page'];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    #[TestDox('rejects $operation with a scoped type default and no root source with a 400 bindingRootSourceNotScoped naming the client element')]
+    #[DataProvider('scopedDefaultRoutes')]
+    public function testBindingRoutesRejectScopedDefaultWithoutRootSource(string $operation, array $payload): void
+    {
+        $parameters = $this->rootSourceNotScopedParameters($operation, $payload);
+
+        static::assertSame('crumb-1', $parameters['elementId']);
+        static::assertNull($parameters['rootSource']);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, mixed>}>
+     */
+    public static function scopedDefaultRoutes(): iterable
+    {
+        yield 'bind-element names the bound element' => ['bind-element', [
+            'layout' => [['id' => 'crumb-1', 'component' => 'Sw:Navigation:Breadcrumb', 'properties' => []]],
+            'elementId' => 'crumb-1',
+            'bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb',
+        ]];
+        yield 'replace-element names the replaced element' => ['replace-element', [
+            'layout' => [['id' => 'crumb-1', 'component' => TestElementTypeLoader::RESOLVABLE, 'properties' => []]],
+            'elementId' => 'crumb-1',
+            'newType' => 'Sw:Navigation:Breadcrumb',
+        ]];
+        yield 'attach-element names the incoming element' => ['attach-element', [
+            'layout' => [],
+            'element' => ['id' => 'crumb-1', 'component' => 'Sw:Navigation:Breadcrumb', 'properties' => []],
+        ]];
+    }
+
     #[TestDox('rejects an update-element-properties request that writes nothing and removes nothing with a 400')]
     public function testUpdatePropertiesRejectsAnEmptyRequest(): void
     {
@@ -1085,6 +1149,29 @@ class LayoutMutationControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
 
         return json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     *
+     * @return array<string, mixed> the `meta.parameters` of the first error
+     */
+    private function rootSourceNotScopedParameters(string $operation, array $payload): array
+    {
+        $this->getBrowser()->jsonRequest('POST', self::BASE_URL . $operation, $payload);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_ROOT_SOURCE_NOT_SCOPED, $body['errors'][0]['code'] ?? null, (string) $response->getContent());
+
+        $parameters = $body['errors'][0]['meta']['parameters'] ?? [];
+        static::assertIsArray($parameters);
+        static::assertArrayHasKey('rootSource', $parameters, (string) $response->getContent());
+        static::assertArrayHasKey('elementId', $parameters, (string) $response->getContent());
+
+        return $parameters;
     }
 
     private function secondLanguageId(): string

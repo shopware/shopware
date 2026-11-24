@@ -27,6 +27,9 @@ The specifications are filtered to the entry's type, backed by the binding speci
 
 The server derives storage keys and publishes them on the same entry as [`storageSchema`](../../Layout/Type/docs/introspection.md#storageschema), so a client never parses `resolves` config ([data-loading.md](../../docs/principles/data-loading.md#an-authoring-client-reads-loader-configuration-through-introspection-and-never-parses-it)). The storage key of a `resolvedBy` reference property appears there with `kind: "resolvedByStorage"`, every other reference token a wired loader names with `kind: "config"`.
 
+The server derives [`defaultBindingRootSources`](../../Layout/Type/docs/introspection.md#defaultbindingrootsources) from the default's scoped config through `Binding/DefaultBindingRootSources`, so a client never parses `resolves` config to find where the default resolves.
+The request-time `400` `CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED` and `409` `CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS` apply to every insert regardless of the published list.
+
 `default: true` marks a type's synthesized default (`id === type`), derived and never authored: [default-specification.md](default-specification.md). `InsertElement` and `ReplaceElement` fill-apply it at scaffold and replace time with no client action, see [Api/docs/mutation-binding.md](../../Api/docs/mutation-binding.md) ("Automatic default application").
 
 Full field-level schema: [content-system-element-types.json](../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).

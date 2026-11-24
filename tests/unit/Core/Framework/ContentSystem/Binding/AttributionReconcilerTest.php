@@ -89,6 +89,56 @@ class AttributionReconcilerTest extends TestCase
         static::assertSame('edited-after-binding', $reconciled->property('mediaId')?->jsonSerialize());
     }
 
+    /**
+     * @param array<string, mixed> $elementConfig
+     * @param array<string, string> $expectedAttributions
+     */
+    #[DataProvider('scopedConfigWiringProvider')]
+    #[TestDox('judges attribution only against the root-source branch of a scoped binding config: $_dataName')]
+    public function testReconcilesAttributionAgainstTheRootSourceBranchOfScopedConfig(?string $rootSource, array $elementConfig, array $expectedAttributions): void
+    {
+        $specification = $this->specification('spec-1', [
+            'product' => new LoaderBinding('entity', [
+                'entity' => 'media',
+                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
+                'type' => [RootSourceConfigMap::MARKER => ['product' => 'product', 'category' => 'category']],
+            ]),
+        ]);
+
+        $element = StoredElementBuilder::create('card', 'elem-1')
+            ->withDataRequirement('product', 'entity', new StubArrayLoaderConfig($elementConfig))
+            ->withAttributedSpecification('product', 'spec-1')
+            ->build();
+
+        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
+            ->reconcile([$element], $rootSource);
+
+        $reconciled = $result[0];
+        static::assertInstanceOf(StoredElement::class, $reconciled);
+        static::assertSame($expectedAttributions, $reconciled->attributedSpecifications);
+    }
+
+    /**
+     * @return \Generator<string, array{string|null, array<string, mixed>, array<string, string>}>
+     */
+    public static function scopedConfigWiringProvider(): \Generator
+    {
+        $productConfig = ['entity' => 'media', 'property' => 'productId', 'type' => 'product'];
+        $categoryConfig = ['entity' => 'media', 'property' => 'categoryId', 'type' => 'category'];
+
+        yield 'product layout keeps the product branch' => ['product', $productConfig, ['product' => 'spec-1']];
+        yield 'category layout keeps the category branch' => ['category', $categoryConfig, ['product' => 'spec-1']];
+        yield 'product layout drops the category branch' => ['product', $categoryConfig, []];
+        yield 'category layout drops the product branch' => ['category', $productConfig, []];
+        yield 'product layout drops a config mixing both branches' => [
+            'product',
+            ['entity' => 'media', 'property' => 'productId', 'type' => 'category'],
+            [],
+        ];
+        yield 'layout without a root source drops every branch' => [null, $productConfig, []];
+        yield 'layout whose root source has no entry drops every branch' => ['landing_page', $productConfig, []];
+    }
+
     #[TestDox('recurses into slot children, dropping a nested element\'s stale attribution too')]
     public function testRecursesIntoSlotsAndDropsStaleAttributionOnChild(): void
     {
@@ -259,43 +309,6 @@ class AttributionReconcilerTest extends TestCase
         $this->expectExceptionObject($internalFault);
 
         $reconciler->reconcile([$element], null);
-    }
-
-    /**
-     * @param array<string, string> $expected
-     */
-    #[TestDox('compares a scoped binding only with the branch for the layout\'s root source, dropping the attribution without an entry for it')]
-    #[DataProvider('scopedRootSources')]
-    public function testComparesScopedBindingWithRootSourceBranch(?string $rootSource, array $expected): void
-    {
-        $specification = $this->specification('spec-1', [
-            'product' => new LoaderBinding('entity', [
-                'property' => [RootSourceConfigMap::MARKER => ['product' => 'productId', 'category' => 'categoryId']],
-            ]),
-        ]);
-
-        $element = StoredElementBuilder::create('card', 'elem-1')
-            ->withDataRequirement('product', 'entity', new StubArrayLoaderConfig(['property' => 'productId']))
-            ->withAttributedSpecification('product', 'spec-1')
-            ->build();
-
-        $result = $this->reconciler(['spec-1' => $specification], $this->provider())
-            ->reconcile([$element], $rootSource);
-
-        $reconciled = $result[0];
-        static::assertInstanceOf(StoredElement::class, $reconciled);
-        static::assertSame($expected, $reconciled->attributedSpecifications);
-    }
-
-    /**
-     * @return iterable<string, array{string|null, array<string, string>}>
-     */
-    public static function scopedRootSources(): iterable
-    {
-        yield 'matching root source' => ['product', ['product' => 'spec-1']];
-        yield 'root source wired differently' => ['category', []];
-        yield 'root source without an entry' => ['landing_page', []];
-        yield 'no root source' => [null, []];
     }
 
     /**

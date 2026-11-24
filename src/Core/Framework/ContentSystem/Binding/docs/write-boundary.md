@@ -4,13 +4,19 @@
 
 `AttributionReconciler` re-derives every element's `attributedSpecifications` inside the [write boundary](../../docs/principles/README.md#terms-that-are-easy-to-confuse) (where `Layout/LayoutDefaultSeeder` also runs). A persisted attribution is therefore always accurate. An entry survives a write only while the element's current wiring for that key still equals what the attributed specification's binding for that key produces (compared via `Hydration/DataLoader/ConfigCanonicalizer`, the canonicalized encoded config). It takes a stored element [forest](../../docs/principles/README.md#glossary) only, recursing every slot's children. Where that forest comes from depends on the payload shape: `Layout/Field/StoredElementListFieldSerializer::tree()` runs `Layout/Codec/StoredTreeCodec::decode()` over raw element arrays, but takes a payload whose every entry is already a `StoredElement` as it is, skipping the codec. A caller that hands the DAL a built forest therefore reaches the boundary without the codec ever having seen it. A key whose wiring has since diverged, or whose specification or binding no longer exists, is silently dropped. A user who hand-edits a key's wiring away from the specification simply loses that key's attribution, and every other key keeps its own independently. Attribution is a record only, so a comparison that returns "no longer accurate" drops the entry rather than failing the write.
 
-A binding config with `!scoped` values is compared only with its branch for the layout's root source.
-An attribution is dropped when that branch wires the key differently, or when a scoped value has no entry for the root source.
+A binding config with `!scoped` values is compared only with its collapse for the layout's root source (`RootSourceConfigMap::collapse()`).
+An attribution is dropped when that collapse wires the key differently, or when it returns null because a scoped value has no entry for the root source.
+A layout without a root source therefore keeps no attribution to a binding with a `!scoped` value.
 `Layout/Field/StoredElementListFieldSerializer` resolves the root source once per written row:
 the payload's `rootSource`, then a row of the same layout written earlier in the same write, then the stored layout through `Validation/LayoutRootSourceReader`.
-`Validation/ContentLayoutWriteValidator` judges the row against the root source on that tree.
+On a layout-only edit, `Validation/ContentLayoutWriteValidator` judges the row against the root source on that tree.
 
-A comparison that cannot be made at all is a different answer, and the reconciler catches nothing to hide it. An element whose requirement source has no registered config serializer cannot be encoded, so its wiring cannot be judged accurate or not. So `configSerializerNotRegistered` escapes the reconciler and refuses the write. Because that code is explicitly classified as a client-repairable layout defect, `Layout/Field/StoredElementListFieldSerializer::normalize` remaps it to a `WriteConstraintViolationException` (HTTP 400) whose violation code is the defect's own `CONTENT_SYSTEM__*` code. `INVALID_LAYOUT_STRUCTURE` is also wrapped as a structural write rejection. Other `ContentSystemException`s propagate unchanged, preserving their status and code: server-side registry load failures remain 500, while collisions remain 409.
+A comparison that cannot be made at all is a different answer, and the reconciler catches nothing to hide it.
+An element whose requirement source has no registered config serializer cannot be encoded, so its wiring cannot be judged accurate or not.
+So `configSerializerNotRegistered` escapes the reconciler and refuses the write.
+Because that code is explicitly classified as a client-repairable layout defect, `Layout/Field/StoredElementListFieldSerializer::normalize` remaps it to a `WriteConstraintViolationException` (HTTP 400) whose violation code is the defect's own `CONTENT_SYSTEM__*` code.
+`INVALID_LAYOUT_STRUCTURE` is also wrapped as a structural write rejection.
+Other `ContentSystemException`s propagate unchanged, preserving their status and code: server-side registry load failures remain 500, while collisions remain 409.
 
 Box-spacing input and engine failures are described in [client-defect-codes.md](../../docs/client-defect-codes.md#box-spacing-failures).
 

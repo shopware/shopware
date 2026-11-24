@@ -139,6 +139,28 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame($expected, $actual);
     }
 
+    #[DataProvider('bindingRootSourceNotScopedParametersProvider')]
+    #[TestDox('carries $_dataName in the binding-root-source-not-scoped parameters')]
+    public function testBindingRootSourceNotScopedCarriesItsArgumentsAsParameters(?string $elementId, ?string $rootSource): void
+    {
+        $exception = ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', $elementId, $rootSource);
+
+        static::assertSame(
+            ['bindingSpecificationId' => 'core:Sw:Navigation:Breadcrumb', 'key' => 'breadcrumb', 'elementId' => $elementId, 'rootSource' => $rootSource],
+            $exception->getParameters()
+        );
+    }
+
+    /**
+     * @return iterable<string, array{?string, ?string}>
+     */
+    public static function bindingRootSourceNotScopedParametersProvider(): iterable
+    {
+        yield 'an absent root source as null' => ['crumb-1', null];
+        yield 'a named root source verbatim' => ['crumb-1', 'none'];
+        yield 'an absent element as null' => [null, 'none'];
+    }
+
     #[DataProvider('configSerializerMessageFormProvider')]
     #[TestDox('formats the message for $_dataName')]
     public function testConfigSerializerNotRegisteredMessageForm(string $source, ?string $elementId, string $expectedMessage): void
@@ -310,6 +332,7 @@ class ContentSystemExceptionTest extends TestCase
         // stored-column read keeps the fault status.
         yield 'an invalid element id as a client defect despite its 500' => [ContentSystemException::invalidElementId('12', 'reads as an integer'), true];
         yield 'a box-spacing input failure as a client defect' => [ContentSystemException::boxSpacingInvalidValue('trim', 'x'), true];
+        yield 'a binding root source not scoped as an internal fault' => [ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none'), false];
         // Only a content-system exception can be a client defect, whatever its message says.
         yield 'a non content-system throwable as an internal fault' => [new \RuntimeException('boom'), false];
     }
@@ -852,6 +875,41 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_CONFLICT,
             'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS',
             'core:a, core:b',
+        ];
+
+        yield 'binding root source not scoped' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'landing_page'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but carries no value for root source "landing_page".',
+        ];
+
+        yield 'binding root source not scoped, without a root source' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but the layout has no root source.',
+        ];
+
+        yield 'binding root source not scoped, for the root source named none' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', 'crumb-1', 'none'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb" of element "crumb-1": its config is scoped by root source, but carries no value for root source "none".',
+        ];
+
+        yield 'binding root source not scoped, without an element' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, 'landing_page'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb": its config is scoped by root source, but carries no value for root source "landing_page".',
+        ];
+
+        yield 'binding root source not scoped, without an element and without a root source' => [
+            ContentSystemException::bindingRootSourceNotScoped('core:Sw:Navigation:Breadcrumb', 'breadcrumb', null, null),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__BINDING_ROOT_SOURCE_NOT_SCOPED',
+            'Binding specification "core:Sw:Navigation:Breadcrumb" cannot wire key "breadcrumb": its config is scoped by root source, but the layout has no root source.',
         ];
     }
 

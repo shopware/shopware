@@ -155,8 +155,10 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         });
     });
 
+    // Regression guard: an available entity root source continues to provide a preview context.
     it('derives preview entity type from layout rootSource', () => {
         const vm = {
+            availableLayoutTypes: ['product'],
             getLayoutRootSource: methods.getLayoutRootSource,
             resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
         };
@@ -170,6 +172,125 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
             entityId: null,
             salesChannelId: null,
         });
+    });
+
+    it.each([
+        'header',
+        'footer',
+        'none',
+        'swag-sidebar',
+    ])('returns no preview context for the non-entity root source %s', (rootSource) => {
+        const vm = {
+            availableLayoutTypes: ['product'],
+            getLayoutRootSource: methods.getLayoutRootSource,
+            resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
+        };
+
+        expect(methods.resolvePreviewContext.call(vm, { rootSource })).toBeNull();
+    });
+
+    // Regression guard: an entity root source keeps the preview context it had before root-source filtering.
+    it('keeps the preview context for an available entity root source', () => {
+        const vm = {
+            availableLayoutTypes: ['product'],
+            getLayoutRootSource: methods.getLayoutRootSource,
+            resolveAssignedPreviewContext: jest.fn().mockReturnValue(null),
+        };
+
+        expect(methods.resolvePreviewContext.call(vm, { rootSource: 'product' })).toEqual({
+            entityType: 'product',
+            entityId: null,
+            salesChannelId: null,
+        });
+    });
+
+    it('does not create a repository while loading the default preview entity for a non-entity root source', async () => {
+        const repositoryFactory = { create: jest.fn() };
+        const vm = {
+            availableLayoutTypes: ['product'],
+            previewEntityId: null,
+            layout: { id: 'layout-header', rootSource: 'header' },
+            workspaceStore: { activeWorkspace: { id: 'workspace' } },
+            repositoryFactory,
+            defaultPreviewEntityCriteria: {},
+            getLayoutRootSource: methods.getLayoutRootSource,
+            getFirstAssociationEntry: methods.getFirstAssociationEntry,
+            resolveAssignedPreviewContext: methods.resolveAssignedPreviewContext,
+            resolvePreviewContext: methods.resolvePreviewContext,
+        };
+        Object.defineProperties(vm, {
+            resolvedPreviewContext: {
+                get: () => methods.resolvePreviewContext.call(vm, vm.layout),
+            },
+            previewEntityType: {
+                get: () => {
+                    const previewContext = methods.resolvePreviewContext.call(vm, vm.layout) as {
+                        entityType: string;
+                    } | null;
+
+                    return previewContext?.entityType ?? null;
+                },
+            },
+        });
+
+        await methods.loadDefaultPreviewEntity.call(vm);
+
+        expect(repositoryFactory.create).not.toHaveBeenCalled();
+    });
+
+    it('waits for the entity type request before opening a layout and applies its assigned preview context', async () => {
+        let resolveLayoutTypes: () => void;
+        const layoutTypesRequest = new Promise<void>((resolve) => {
+            resolveLayoutTypes = resolve;
+        });
+        const layout = {
+            id: 'layout-product',
+            rootSource: 'product',
+            productContentLayouts: [{ productId: 'product-id', salesChannelId: 'sales-channel-id' }],
+        };
+        const vm = {
+            layoutTypesRequest,
+            availableLayoutTypes: [] as string[],
+            openLayouts: [] as unknown[],
+            activeLayoutId: null,
+            isLoading: false,
+            isLayoutPickerOpen: true,
+            layoutRepository: { get: jest.fn().mockResolvedValue(layout) },
+            layoutLoadCriteria: {},
+            createOpenLayoutState: jest.fn().mockReturnValue({ id: layout.id, layout }),
+            activateLayout: jest.fn(),
+            applyPreviewContextDefaults: methods.applyPreviewContextDefaults,
+            loadDefaultPreviewEntity: jest.fn().mockResolvedValue(undefined),
+            syncActiveLayoutState: jest.fn(),
+            diagnoseLayout: jest.fn(),
+            $nextTick: jest.fn().mockResolvedValue(undefined),
+            $refs: { experienceStudioCanvas: { fitCanvasToFrame: jest.fn(), fitCanvasToFrames: jest.fn() } },
+            createNotificationError: jest.fn(),
+            $t: (key: string) => key,
+            previewEntityId: null as string | null,
+            previewSalesChannelId: null as string | null,
+            getLayoutRootSource: methods.getLayoutRootSource,
+            getFirstAssociationEntry: methods.getFirstAssociationEntry,
+            resolveAssignedPreviewContext: methods.resolveAssignedPreviewContext,
+            resolvePreviewContext: methods.resolvePreviewContext,
+        };
+        Object.defineProperties(vm, {
+            resolvedPreviewContext: {
+                get: () => methods.resolvePreviewContext.call(vm, layout),
+            },
+        });
+
+        const open = methods.openLayoutById.call(vm, layout.id);
+        await Promise.resolve();
+        expect(vm.layoutRepository.get).not.toHaveBeenCalled();
+
+        vm.availableLayoutTypes = ['product'];
+        resolveLayoutTypes!();
+        await open;
+
+        expect(vm.layoutRepository.get).toHaveBeenCalledWith(layout.id, Shopware.Context.api, vm.layoutLoadCriteria);
+        expect(vm.previewEntityId).toBe('product-id');
+        expect(vm.previewSalesChannelId).toBe('sales-channel-id');
     });
 
     it('loads first preview entity when assignment does not provide one', async () => {

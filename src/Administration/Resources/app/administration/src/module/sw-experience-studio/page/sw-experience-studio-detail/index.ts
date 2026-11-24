@@ -217,6 +217,7 @@ type ExperienceStudioDetailState = {
     latestDiagnoseRequestId: number;
     diagnoseTimeoutId: number | null;
     availableLayoutTypes: string[];
+    layoutTypesRequest: Promise<void> | null;
     isLoadingLayoutTypes: boolean;
     layoutTypeLoadError: string | null;
     createWizardName: string;
@@ -290,6 +291,7 @@ export default Shopware.Component.wrapComponentConfig({
             latestDiagnoseRequestId: 0,
             diagnoseTimeoutId: null,
             availableLayoutTypes: [],
+            layoutTypesRequest: null,
             isLoadingLayoutTypes: false,
             layoutTypeLoadError: null,
             createWizardName: '',
@@ -567,6 +569,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.onHistoryKeydown(event);
         };
         this.pendingLinkedLayoutId = (this.$route.params.id as string | undefined) ?? null;
+        this.layoutTypesRequest = this.loadLayoutTypes();
         const workspaceId = this.$route.params.workspaceId as string | undefined;
         if (workspaceId) {
             void this.openWorkspace(workspaceId);
@@ -577,7 +580,6 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadElementTypes();
         void this.loadStyleOptions();
         void this.loadLayoutPresets();
-        void this.loadLayoutTypes();
         void this.loadMappingCandidates();
     },
 
@@ -660,6 +662,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async openWorkspace(id: string): Promise<void> {
+            await this.layoutTypesRequest;
             this.isLoading = true;
             this.workspaceError = false;
             try {
@@ -743,15 +746,11 @@ export default Shopware.Component.wrapComponentConfig({
         async restoreFramePreviewEntity(item: ExperienceStudioOpenLayout): Promise<boolean> {
             let missingReference = false;
             const entityType = this.resolvePreviewContext(item.layout)?.entityType;
-            if (
-                !entityType ||
-                [
-                    'none',
-                    'header',
-                    'footer',
-                ].includes(entityType)
-            ) {
-                item.previewEntityId = null;
+            if (!entityType) {
+                if (this.layoutTypeLoadError === null) {
+                    item.previewEntityId = null;
+                }
+
                 return false;
             }
             const entityRepository = this.repositoryFactory.create(entityType as keyof EntitySchema.EntityKeys);
@@ -1047,6 +1046,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async openLayoutById(layoutId: string): Promise<void> {
+            await this.layoutTypesRequest;
             const existingLayout = this.openLayouts.find((item) => item.id === layoutId);
 
             if (existingLayout) {
@@ -1497,6 +1497,10 @@ export default Shopware.Component.wrapComponentConfig({
 
             if (!rootSource) {
                 return assignedContext;
+            }
+
+            if (!this.availableLayoutTypes.includes(rootSource)) {
+                return null;
             }
 
             if (assignedContext?.entityType === rootSource) {

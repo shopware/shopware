@@ -44,8 +44,13 @@ function createRestore() {
         salesChannelRepository: { search: jest.fn().mockResolvedValue({ first: () => ({ id: 'channel' }) }) },
         createOpenLayoutState: methods.createOpenLayoutState,
         serializeLayoutState: methods.serializeLayoutState,
+        availableLayoutTypes: ['product'],
+        layoutTypeLoadError: null as string | null,
+        layoutTypesRequest: Promise.resolve(),
         getLayoutRootSource: methods.getLayoutRootSource,
-        resolvePreviewContext: (layout: { rootSource: string }) => ({ entityType: layout.rootSource }),
+        getFirstAssociationEntry: methods.getFirstAssociationEntry,
+        resolveAssignedPreviewContext: methods.resolveAssignedPreviewContext,
+        resolvePreviewContext: methods.resolvePreviewContext,
         resetWorkspaceEditor: jest.fn(),
         activateLayout: jest.fn(),
         openLayouts: [{ id: 'current-layout', previewEntityId: 'current-entity' }],
@@ -137,6 +142,54 @@ describe('Experience Studio workspace preview reference restoration', () => {
         },
     );
 
+    it('clears a saved preview entity without a missing-reference warning for a non-entity frame', async () => {
+        const { editor, target, entityRepository } = createRestore();
+        editor.layoutRepository.search.mockResolvedValue([
+            { id: 'layout-a', name: 'Sidebar', rootSource: 'swag-sidebar', layout: [] },
+        ]);
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.openLayouts[0].previewEntityId).toBeNull();
+        expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+        expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
+        expect(entityRepository.searchIds).not.toHaveBeenCalled();
+    });
+
+    it('keeps a saved preview entity after the entity type request failed without a missing-reference warning', async () => {
+        const { editor, target, entityRepository } = createRestore();
+        editor.availableLayoutTypes = [];
+        editor.layoutTypeLoadError = 'Failed to load layout types.';
+
+        await methods.openWorkspace.call(editor, target.id);
+
+        expect(editor.openLayouts[0].previewEntityId).toBe('saved-entity');
+        expect(editor.createNotificationWarning).not.toHaveBeenCalled();
+        expect(editor.repositoryFactory.create).not.toHaveBeenCalled();
+        expect(entityRepository.searchIds).not.toHaveBeenCalled();
+    });
+
+    it('waits for the entity type request before loading the workspace', async () => {
+        const { editor, target } = createRestore();
+        let resolveLayoutTypes: () => void;
+        editor.layoutTypesRequest = new Promise<void>((resolve) => {
+            resolveLayoutTypes = () => {
+                editor.availableLayoutTypes = ['product'];
+                resolve();
+            };
+        });
+
+        const open = methods.openWorkspace.call(editor, target.id);
+        await Promise.resolve();
+        expect(editor.workspaceStore.get).not.toHaveBeenCalled();
+
+        resolveLayoutTypes!();
+        await open;
+
+        expect(editor.openLayouts[0].previewEntityId).toBe('saved-entity');
+    });
+
+    // Regression guard: a product frame keeps a saved preview entity when the entity exists.
     it('preserves a saved reference confirmed by a successful lookup', async () => {
         const { editor, target, entityRepository } = createRestore();
 

@@ -49,14 +49,14 @@ async function createWrapper(renderMenus = false, role: 'viewer' | 'editor' | 'c
                     'sw-experience-studio-toolbar': true,
                     'sw-entity-single-select': {
                         name: 'test-preview-entity-select',
-                        props: ['entity', 'value'],
+                        props: ['entity', 'value', 'disabled'],
                         template: '<div class="test-preview-entity-select" />',
                     },
                     'sw-experience-studio-sidebar-tree': treeComponent,
                     'sw-experience-studio-sidebar-tree-node': treeNodeComponent,
                     'sw-experience-studio-preview': {
                         name: 'test-preview',
-                        props: ['layout', 'entityId'],
+                        props: ['layout', 'entityId', 'entityType'],
                         template: `<button class="test-preview" :data-layout-id="layout.id" :data-entity-id="entityId" @click="$emit('select-element', layout.layout[0]?.id ?? null)">Select element</button>`,
                     },
                     'sw-experience-studio-element-settings': true,

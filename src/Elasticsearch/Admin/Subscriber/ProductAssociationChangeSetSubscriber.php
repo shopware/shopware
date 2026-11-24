@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Subscriber;
 
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Feature;
@@ -43,6 +44,11 @@ final readonly class ProductAssociationChangeSetSubscriber implements EventSubsc
         }
 
         foreach ($event->getCommands() as $command) {
+            // cascade deletes (e.g. of a sales channel) can remove thousands of rows, their products are not reindexed in the request
+            if ($command instanceof CascadeDeleteCommand) {
+                continue;
+            }
+
             if ($command instanceof ChangeSetAware && \in_array($command->getEntityName(), self::ENTITY_NAMES, true)) {
                 $command->requestChangeSet();
             }

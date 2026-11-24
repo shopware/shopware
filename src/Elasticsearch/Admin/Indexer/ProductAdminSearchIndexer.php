@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
@@ -42,15 +41,13 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
      * @internal
      *
      * @param EntityRepository<ProductCollection> $repository
-     * @param \Closure(): AdminSearchRegistry $adminSearchRegistry lazy, because the registry is built from the admin indexers
      */
     public function __construct(
         private readonly Connection $connection,
         private readonly IteratorFactory $factory,
         private readonly EntityRepository $repository,
         private readonly ElasticsearchFieldBuilder $fieldBuilder,
-        private readonly int $indexingBatchSize,
-        private readonly \Closure $adminSearchRegistry,
+        private readonly int $indexingBatchSize
     ) {
     }
 
@@ -110,7 +107,7 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
         ]));
 
         // variants index the values they inherit from their parent, e.g. price, active, visibilities, cover and documents
-        return $this->addVariantIds($productIds, $event);
+        return $this->addVariantIds($productIds);
     }
 
     public function getName(): string
@@ -557,11 +554,12 @@ SQL,
         $productIds = [];
 
         foreach ($event->getResults($entityName) as $result) {
-            if ($result->getOperation() !== EntityWriteResult::OPERATION_DELETE && !\array_key_exists($property, $result->getPayload())) {
+            $payload = $result->getPayload();
+            if ($result->getOperation() !== EntityWriteResult::OPERATION_DELETE && !\array_key_exists($property, $payload) && !\array_key_exists('productId', $payload)) {
                 continue;
             }
 
-            $productIds[] = $result->getPayload()['productId'] ?? null;
+            $productIds[] = $payload['productId'] ?? null;
 
             $previousProductId = $result->getChangeSet()?->getBefore('product_id');
             if (\is_string($previousProductId)) {
@@ -778,47 +776,34 @@ SQL,
     }
 
     /**
-     * The variants of large families are indexed through the queue, so the request does not index all of them.
-     * For written products the queued inheritance update of the product indexer reindexes them,
-     * see ProductInheritanceSubscriber; written associations alone do not start that update.
+     * The variants of large families are left to the queued inheritance update of the product indexer,
+     * the ProductInheritanceSubscriber reindexes them from there.
      *
      * @param list<string> $productIds
      *
      * @return list<string>
      */
-    private function addVariantIds(array $productIds, EntityWrittenContainerEvent $event): array
+    private function addVariantIds(array $productIds): array
     {
         if ($productIds === []) {
             return [];
         }
 
-        /** @var array<string, string> $parentIdsByVariantId */
-        $parentIdsByVariantId = $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(id)), LOWER(HEX(parent_id)) FROM product WHERE parent_id IN (:ids) AND parent_version_id = :versionId AND version_id = :versionId',
+        $variantIds = $this->connection->fetchFirstColumn(
+            'SELECT LOWER(HEX(id)) FROM product WHERE parent_id IN (:ids) AND parent_version_id = :versionId AND version_id = :versionId LIMIT ' . ProductIndexer::UPDATE_IDS_CHUNK_SIZE,
             [
                 'ids' => Uuid::fromHexToBytesList($productIds),
                 'versionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
             ],
             ['ids' => ArrayParameterType::BINARY]
         );
+        $variantIds = array_values(array_filter($variantIds, '\is_string'));
 
-        $familyIds = array_values(array_unique([...$productIds, ...array_map('strval', array_keys($parentIdsByVariantId))]));
-        if (\count($familyIds) < ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
-            return $familyIds;
+        $familyIds = array_values(array_unique([...$productIds, ...$variantIds]));
+        if (\count($familyIds) >= ProductIndexer::UPDATE_IDS_CHUNK_SIZE) {
+            return $productIds;
         }
 
-        $writtenProductIds = array_flip($event->getPrimaryKeys(ProductDefinition::ENTITY_NAME));
-        $queuedVariantIds = [];
-        foreach ($parentIdsByVariantId as $variantId => $parentId) {
-            if (!isset($writtenProductIds[$parentId])) {
-                $queuedVariantIds[] = (string) $variantId;
-            }
-        }
-
-        if ($queuedVariantIds !== []) {
-            ($this->adminSearchRegistry)()->updateIds(ProductDefinition::ENTITY_NAME, $queuedVariantIds, $event->getContext());
-        }
-
-        return $productIds;
+        return $familyIds;
     }
 }

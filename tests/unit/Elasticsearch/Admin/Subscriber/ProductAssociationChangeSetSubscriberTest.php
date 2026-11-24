@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
@@ -82,6 +83,17 @@ class ProductAssociationChangeSetSubscriberTest extends TestCase
     public function testDoesNotRequestTheChangeSetOfOtherEntities(): void
     {
         $command = $this->createDeleteCommand($this->tagDefinition);
+
+        Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($command): void {
+            $this->dispatch(true, [$command]);
+        });
+
+        static::assertFalse($command->requiresChangeSet());
+    }
+
+    public function testDoesNotRequestTheChangeSetOfCascadeDeletes(): void
+    {
+        $command = new CascadeDeleteCommand($this->visibilityDefinition, ['id' => Uuid::randomBytes()], static::createStub(EntityExistence::class));
 
         Feature::fake(['ENABLE_OPENSEARCH_FOR_ADMIN_API'], function () use ($command): void {
             $this->dispatch(true, [$command]);

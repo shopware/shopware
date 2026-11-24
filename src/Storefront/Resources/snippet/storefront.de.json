@@ -18,7 +18,6 @@
   "general": {
     "homeLink": "Home",
     "menuLink": "Menü",
-    "breadcrumbPlaceholder": "Breadcrumb nicht verfügbar",
     "breadcrumbLabel": "Navigationspfad",
     "star": "*",
     "grossTaxInformation": "Preise inkl. MwSt. zzgl. Versandkosten",

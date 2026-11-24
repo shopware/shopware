@@ -84,15 +84,23 @@ class EntityDefinitionQueryHelperTest extends TestCase
     #[DataProvider('provideRemoveExtensionPathSegments')]
     public function testRemoveExtensionPathSegments(string $accessor, string $expected): void
     {
-        static::assertSame($expected, EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor));
+        $definition = $this->getRegistry()->getByEntityName('product');
+
+        static::assertSame($expected, EntityDefinitionQueryHelper::removeExtensionPathSegments($accessor, $definition));
     }
 
     public static function provideRemoveExtensionPathSegments(): \Generator
     {
-        yield 'leading extensions segment is removed' => ['extensions.foo.id', 'foo.id'];
-        yield 'nested extensions segment is removed' => ['media.extensions.foo.id', 'media.foo.id'];
-        yield 'multiple extensions segments are removed' => ['extensions.a.extensions.b', 'a.b'];
-        yield 'substring is kept' => ['foo.barextensions.baz.id', 'foo.barextensions.baz.id'];
+        yield 'leading extensions segment is removed' => ['extensions.manufacturer.id', 'manufacturer.id'];
+        yield 'nested extensions segment is removed' => ['categories.extensions.name', 'categories.name'];
+        yield 'multiple entity extensions segments are removed' => ['extensions.manufacturer.extensions.name', 'manufacturer.name'];
+        yield 'substring is kept' => ['customFields.barextensions.id', 'customFields.barextensions.id'];
+        yield 'trailing JSON key is kept' => ['product.customFields.extensions', 'product.customFields.extensions'];
+        yield 'JSON path is kept after an extension association' => [
+            'product.extensions.categories.extensions.customFields.extensions.id',
+            'product.categories.customFields.extensions.id',
+        ];
+        yield 'leading extensions segment before the entity name is removed' => ['extensions.product.customFields.extensions', 'product.customFields.extensions'];
         yield 'accessor without extensions is unchanged' => ['product.name', 'product.name'];
     }
 

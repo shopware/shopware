@@ -202,6 +202,18 @@ export default {
             return criteria;
         },
 
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - will be removed with `shippingRuleFilterCriteria`, bind `ruleFilterCriteria` instead
+         */
+        shippingRuleFilterCriteriaDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return this.ruleFilterCriteria;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.shippingRuleFilterCriteria);
+        },
+
         isRuleMatrix() {
             return !this.priceGroup.calculation;
         },

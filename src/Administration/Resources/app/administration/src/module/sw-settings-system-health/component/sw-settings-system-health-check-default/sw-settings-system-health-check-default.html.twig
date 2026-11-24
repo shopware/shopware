@@ -1,8 +1,5 @@
 {% block sw_settings_system_health_check_default %}
-<sw-settings-system-health-check-details
-    :check="check"
-    :summary="summary"
->
+<sw-settings-system-health-check-details :check="check">
     <sw-settings-system-health-values
         v-if="values.length > 0"
         :items="values"

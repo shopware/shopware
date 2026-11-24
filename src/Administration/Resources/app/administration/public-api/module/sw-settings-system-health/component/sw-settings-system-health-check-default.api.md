@@ -15,7 +15,6 @@ props
   check: SystemHealthCheck  [private]
 
 computed
-  summary: string | null  [private]
   values: SystemHealthValue[]  [private]
 
 methods

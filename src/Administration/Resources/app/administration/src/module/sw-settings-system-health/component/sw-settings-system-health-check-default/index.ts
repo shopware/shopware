@@ -2,7 +2,6 @@ import template from './sw-settings-system-health-check-default.html.twig';
 import type { SystemHealthCheck } from '../../types';
 import type { SystemHealthValue } from '../sw-settings-system-health-values';
 import shortDate from '../../short-date';
-import { presentedExtra, presentedSummary } from '../../presenters';
 
 // RFC 3339 / ISO 8601 date-time, as checks return timestamps
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
@@ -26,12 +25,8 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     computed: {
-        summary(): string | null {
-            return presentedSummary(this.check, this.$t.bind(this) as Parameters<typeof presentedSummary>[1]);
-        },
-
         values(): SystemHealthValue[] {
-            return Object.entries(presentedExtra(this.check))
+            return Object.entries(this.check.result?.extra ?? {})
                 .filter(([, value]) => value !== null && value !== '')
                 .map(([key, value]) => ({ key, label: this.label(key), value: this.format(value) }));
         },

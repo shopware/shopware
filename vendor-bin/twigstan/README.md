@@ -51,10 +51,11 @@ This declaration only provides type information and does not change the runtime 
 `GuardedAttributeIgnoreExtension` permits safe attribute probes even when the current context type cannot provide that attribute.
 It filters `getAttribute.notFound` only for existence checks, lookups with strict checks disabled by Twig, and reads already narrowed by a guard.
 Unguarded reads and other diagnostic identifiers remain checked.
-Core's `FeatureGuardedDeprecationExtension` is shared with PHPStan and recognises deprecated calls in legacy feature-flag branches of the generated PHP.
+Core's `FeatureGuardedDeprecationExtension` is shared with PHPStan and recognises deprecated API uses in legacy feature-flag branches of the generated PHP.
 The API's removal version must match the major feature flag proven inactive by the guard.
 Named flags can be combined with that major check, but do not prove it inactive on their own.
 Direct conditions and dominating boolean aliases are recognised; aliases are invalidated when overwritten, unset or changed conditionally.
+Literal PHP callbacks passed to `Feature::callSilentIfInactive()` and `Feature::ifNotActive()` also qualify for the matching removal version.
 Enabled branches, unrelated versions, unknown or dynamic flags, and unguarded calls retain their deprecation diagnostics.
 The adapter uses PHPStan's cached parser and does not change template execution or select a runtime flag configuration for analysis.
 Findings require triage before becoming blocking checks.

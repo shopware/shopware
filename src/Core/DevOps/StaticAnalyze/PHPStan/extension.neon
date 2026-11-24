@@ -3,6 +3,12 @@ includes:
 
 services:
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\FeatureGuardedDeprecationExtension
+        arguments:
+            parser: @defaultAnalysisParser
+        tags:
+            - phpstan.ignoreErrorExtension
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Type\CollectionHasSpecifyingExtension
         tags:
             - phpstan.typeSpecifier.methodTypeSpecifyingExtension

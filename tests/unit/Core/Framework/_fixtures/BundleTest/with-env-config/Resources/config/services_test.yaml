@@ -1,0 +1,2 @@
+parameters:
+    unit_test.bundle.services.test_file: true

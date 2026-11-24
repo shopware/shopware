@@ -22,7 +22,7 @@ export function getContentElementLabel(
     for (const key of nameKeys) {
         const value = properties[key];
         const candidate =
-            declaredProperties?.[key]?.translatable === true ? resolveTranslatableEntry(value, [languageId]) : value;
+            declaredProperties?.[key]?.translatable === true ? resolveTranslatableEntry(value, languageId) : value;
 
         if (typeof candidate === 'string' && candidate.trim() !== '') {
             return candidate;

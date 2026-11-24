@@ -21,7 +21,6 @@ function createEditor() {
         previewSalesChannelId: 'next-channel',
         previewLanguageRequestSequence: 0,
         previewLanguageContext: languageContext('previous-channel', 'english'),
-        languageParents: {} as Record<string, string | null>,
         frames: [{ id: 'frame', languageId: 'english' }],
         loadPreviewLanguageContext: jest.fn(),
         applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
@@ -101,7 +100,7 @@ describe('preview languages in the selected sales channel', () => {
             { id: 'unavailable', languageId: 'german' },
             { id: 'legacy', languageId: 'german' },
         ]);
-        expect(editor.languageParents.german).toBe('parent');
+        expect(editor.previewLanguageContext.languageParents.german).toBe('parent');
     });
 
     it('ignores a delayed language response for a previously selected sales channel', async () => {

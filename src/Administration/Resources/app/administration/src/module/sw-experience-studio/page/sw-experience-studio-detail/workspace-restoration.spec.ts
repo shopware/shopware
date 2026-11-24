@@ -43,7 +43,6 @@ function createRestore() {
         restoreWorkspaceSalesChannel: methods.restoreWorkspaceSalesChannel,
         loadPreviewLanguageContext: methods.loadPreviewLanguageContext,
         applyPreviewLanguageContext: methods.applyPreviewLanguageContext,
-        languageParents: {},
         previewLanguageContext: null,
         defaultSalesChannelCriteria: getStorefrontSalesChannelCriteria(1),
         salesChannelRepository: {

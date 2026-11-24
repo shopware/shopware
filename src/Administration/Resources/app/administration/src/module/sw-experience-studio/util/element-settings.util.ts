@@ -94,8 +94,7 @@ export function getElementPropertyStorageKey(
 export type LanguageMap = Record<string, string | number | boolean>;
 
 /**
- * Resolves a translatable property value along a language chain in serving order,
- * returning the first chain language carrying an entry, or `undefined` when none does.
+ * Returns only the selected language's stored entry, or `undefined` when it is missing.
  *
  * A value that is neither `undefined` nor a non-empty map of string, number or
  * boolean entries throws: neither the server nor the write gate produces such a
@@ -105,7 +104,7 @@ export type LanguageMap = Record<string, string | number | boolean>;
  * @private
  * @sw-package discovery
  */
-export function resolveTranslatableEntry(value: unknown, chain: readonly string[]): string | number | boolean | undefined {
+export function resolveTranslatableEntry(value: unknown, languageId: string): string | number | boolean | undefined {
     if (value === undefined) {
         return undefined;
     }
@@ -116,15 +115,7 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
         );
     }
 
-    for (const languageId of chain) {
-        const entry = value[languageId];
-
-        if (entry !== undefined) {
-            return entry;
-        }
-    }
-
-    return undefined;
+    return value[languageId];
 }
 
 /**
@@ -140,53 +131,29 @@ export function resolveTranslatableFieldValue(
     value: unknown,
     languageId = anchorLanguageId(),
 ): string | number | boolean | null {
-    const entry = resolveTranslatableEntry(value, [languageId]);
+    const entry = resolveTranslatableEntry(value, languageId);
 
     return getInitialPropertyValue({ ...property, default: null }, entry);
 }
 
 /**
- * Sets the entry of one language, or removes it when `entry` is `null`.
+ * Sets one language's explicit primitive value, preserving every other entry.
  *
- * Every other entry travels verbatim; the write route judges whether an entry
- * matches the declared property type. Removing the anchor entry throws, since no
- * studio action offers it. A `current` that is neither `undefined` nor a
- * non-empty map of string, number or boolean entries throws, the strictness the
- * reader already holds.
+ * The write route judges whether an entry matches the declared property type.
+ * A `current` that is neither `undefined` nor a non-empty map of string, number
+ * or boolean entries throws, matching the reader's validation.
  *
  * @private
  * @sw-package discovery
  */
-export function withLanguageEntry(
-    current: unknown,
-    languageId: string,
-    entry: string | number | boolean | null,
-): LanguageMap {
-    if (entry === null && languageId === anchorLanguageId()) {
-        throw new Error('The anchor language entry of a translatable property cannot be removed.');
+export function withLanguageEntry(current: unknown, languageId: string, entry: string | number | boolean): LanguageMap {
+    if (current !== undefined && !isLanguageMap(current)) {
+        throw new Error(
+            `A translatable property value must be undefined or a non-empty language map of primitive values, received ${describeTranslatableValue(current)}.`,
+        );
     }
 
-    let languageMap: LanguageMap = {};
-
-    if (current !== undefined) {
-        if (!isLanguageMap(current)) {
-            throw new Error(
-                `A translatable property value must be undefined or a non-empty language map of primitive values, received ${describeTranslatableValue(current)}.`,
-            );
-        }
-
-        languageMap = { ...current };
-    }
-
-    if (entry === null) {
-        delete languageMap[languageId];
-
-        return languageMap;
-    }
-
-    languageMap[languageId] = entry;
-
-    return languageMap;
+    return { ...current, [languageId]: entry };
 }
 
 /**

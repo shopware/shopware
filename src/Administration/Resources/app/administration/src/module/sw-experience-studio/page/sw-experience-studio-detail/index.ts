@@ -207,7 +207,6 @@ type ExperienceStudioDetailState = {
     openLayouts: ExperienceStudioOpenLayout[];
     frames: ExperienceStudioPreviewFrame[];
     activeFrameId: string | null;
-    languageParents: Record<string, string | null>;
     previewLanguageContext: {
         salesChannelId: string;
         defaultLanguageId: string;
@@ -291,7 +290,6 @@ export default Shopware.Component.wrapComponentConfig({
             openLayouts: [],
             frames: [],
             activeFrameId: null,
-            languageParents: {},
             previewLanguageContext: null,
             previewLanguageRequestSequence: 0,
             isLayoutPickerOpen: false,
@@ -395,7 +393,7 @@ export default Shopware.Component.wrapComponentConfig({
                 this.frames.map((frame) => {
                     const languageId = frame.languageId ?? anchorLanguageId();
                     const name = this.previewLanguageContext?.languageNames[languageId];
-                    const parentId = this.languageParents[languageId];
+                    const parentId = this.previewLanguageContext?.languageParents[languageId];
                     return [
                         frame.id,
                         {
@@ -943,7 +941,6 @@ export default Shopware.Component.wrapComponentConfig({
             if (!context) {
                 return false;
             }
-            Object.assign(this.languageParents, context.languageParents);
             let missingReference = false;
             (frames ?? this.frames).forEach((frame) => {
                 if (!frame.languageId) {

@@ -41,7 +41,6 @@ async function createWrapper(role: 'viewer' | 'editor' = 'editor') {
                 layout,
                 activeFrameId: 'first-preview',
                 previewSalesChannelId: 'preview-channel',
-                languageParents: { ['a'.repeat(32)]: 'b'.repeat(32) },
                 previewLanguageContext: {
                     salesChannelId: 'preview-channel',
                     defaultLanguageId: Shopware.Defaults.systemLanguageId,

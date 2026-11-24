@@ -296,6 +296,8 @@ class GenerateDocumentActionTest extends TestCase
                 $documentTypeRegistry,
                 static::createStub(FileNameProvider::class),
                 static::createStub(EventDispatcherInterface::class),
+                $orderRepository,
+                DocumentConfigLoaderFactory::create($documentTypeRegistry, static::createStub(SystemConfigService::class)),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(

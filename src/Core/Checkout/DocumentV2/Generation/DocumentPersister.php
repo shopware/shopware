@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\DocumentV2\Generation;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -16,6 +17,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\ReferencedDocument;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Media\File\FileNameProvider;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -48,6 +50,7 @@ final readonly class DocumentPersister
      * @param EntityRepository<DocumentCollection> $documentRepository
      * @param EntityRepository<DocumentFileCollection> $documentFileRepository
      * @param EntityRepository<DocumentTypeCollection> $documentTypeRepository
+     * @param EntityRepository<OrderCollection> $orderRepository
      */
     public function __construct(
         private EntityRepository $documentRepository,
@@ -57,6 +60,8 @@ final readonly class DocumentPersister
         private DocumentTypeRegistry $documentTypeRegistry,
         private FileNameProvider $fileNameProvider,
         private EventDispatcherInterface $eventDispatcher,
+        private EntityRepository $orderRepository,
+        private DocumentConfigLoader $documentConfigLoader,
     ) {
     }
 
@@ -137,6 +142,25 @@ final readonly class DocumentPersister
     ): DocumentEntity {
         $documentId = Uuid::randomHex();
 
+        $salesChannelId = $this->orderRepository->search(
+            (new Criteria([$orderId]))->addFields(['salesChannelId']),
+            $context->createWithVersionId($orderVersionId),
+        )->getEntities()->first()?->get('salesChannelId');
+
+        if (!\is_string($salesChannelId)) {
+            throw DocumentV2Exception::orderNotFound($orderId);
+        }
+
+        $config = $this->documentConfigLoader->loadLegacyConfig($documentType, $salesChannelId, $context);
+        $documentConfig = [
+            'displayInCustomerAccount' => (bool) ($config['displayInCustomerAccount'] ?? false),
+        ];
+
+        // Omit an empty document number so the generated document_number column stays NULL.
+        if ($documentNumber !== '') {
+            $documentConfig['documentNumber'] = $documentNumber;
+        }
+
         return $this->writeDocument(
             [
                 'id' => $documentId,
@@ -147,8 +171,7 @@ final readonly class DocumentPersister
                 'referencedDocumentId' => $referencedDocumentId,
                 'static' => true,
                 'deepLinkCode' => Random::getAlphanumericString(32),
-                // Omit an empty document number so the generated document_number column stays NULL
-                'config' => $documentNumber === '' ? [] : ['documentNumber' => $documentNumber],
+                'config' => $documentConfig,
             ],
             [
                 [

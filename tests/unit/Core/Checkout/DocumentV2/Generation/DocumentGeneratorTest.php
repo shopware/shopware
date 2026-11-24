@@ -672,6 +672,8 @@ class DocumentGeneratorTest extends TestCase
                 $documentTypeRegistry,
                 $fileNameProvider,
                 static::createStub(EventDispatcherInterface::class),
+                $orderRepository,
+                DocumentConfigLoaderFactory::create($documentTypeRegistry, static::createStub(SystemConfigService::class)),
             ),
             new DocumentDependencyResolver($rendererRegistry),
             new ReferencedDocumentResolver(new ReferenceInvoiceLoader($connection), $connection),

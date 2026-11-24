@@ -154,6 +154,27 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function loadLegacyConfig(string $documentType, string $salesChannelId, Context $context): array
+    {
+        $criteria = (new Criteria())
+            ->addFilter(
+                new EqualsFilter('typeName', $documentType),
+                new OrFilter([
+                    new EqualsFilter('global', true),
+                    new EqualsFilter('salesChannels.salesChannelId', $salesChannelId),
+                ]),
+            );
+
+        $rows = $this->documentConfigRepository->search($criteria, $context)->getEntities();
+        $globalRow = $rows->filterByProperty('global', true)->first();
+        $salesChannelRow = $rows->filterByProperty('global', false)->first();
+
+        return $this->mergeJsonConfig($globalRow, $salesChannelRow);
+    }
+
+    /**
      * @param array<string, mixed> $global
      * @param array<string, mixed> $salesChannel
      *

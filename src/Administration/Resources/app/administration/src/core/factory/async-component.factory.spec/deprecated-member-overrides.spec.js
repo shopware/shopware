@@ -70,7 +70,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         });
     }
 
-    it('reports an override that replaces a deprecated computed without $super', async () => {
+    it('reports an override of a deprecated computed without $super', async () => {
         registerComponentWithDeprecatedMembers('sw-replaced-computed');
         ComponentFactory.override('sw-replaced-computed', {
             computed: {
@@ -83,11 +83,11 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         await ComponentFactory.build('sw-replaced-computed');
 
         expect(deprecations).toHaveTriggered(
-            'Component.override(\'sw-replaced-computed\') replaces the deprecated computed "oldFilter" without calling this.$super(), so the override stops working once "oldFilter" is removed with V6_8_0_0.',
+            'Component.override(\'sw-replaced-computed\') overrides the deprecated computed "oldFilter", so the override stops working once "oldFilter" is removed with V6_8_0_0.',
         );
     });
 
-    it('reports an override that replaces a deprecated method without $super, with the message of its guard', async () => {
+    it('reports an override of a deprecated method without $super, with the message of its guard', async () => {
         registerComponentWithDeprecatedMembers('sw-replaced-method');
         ComponentFactory.override('sw-replaced-method', {
             methods: {
@@ -100,7 +100,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         await ComponentFactory.build('sw-replaced-method');
 
         expect(deprecations).toHaveTriggered(
-            'replaces the deprecated method "oldMethod" without calling this.$super(), so the override stops working once "oldMethod" is removed with V6_8_0_0. The method is deprecated with: oldMethod is deprecated, use newMethod.',
+            'overrides the deprecated method "oldMethod", so the override stops working once "oldMethod" is removed with V6_8_0_0. The method is deprecated with: oldMethod is deprecated, use newMethod.',
         );
     });
 
@@ -119,7 +119,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         expect(deprecations).toHaveTriggered(/removed with V6_8_0_0\.$/);
     });
 
-    it('reports only the guard of the member for an override that calls $super', async () => {
+    it('reports an override that calls $super at build, and the guard of the member once it runs', async () => {
         registerComponentWithDeprecatedMembers('sw-super-computed');
         ComponentFactory.override('sw-super-computed', {
             computed: {
@@ -132,8 +132,10 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         const wrapper = mount(await ComponentFactory.build('sw-super-computed'));
 
         expect(wrapper.text()).toBe('oldFilter!');
+        expect(deprecations).toHaveTriggered(
+            'Component.override(\'sw-super-computed\') overrides the deprecated computed "oldFilter", so the override stops working once "oldFilter" is removed with V6_8_0_0.',
+        );
         expect(deprecations).toHaveTriggered('sw-super-computed.oldFilter is deprecated, use filter instead.');
-        expect(deprecations).not.toHaveTriggered('Component.override');
     });
 
     it('does not report an override of a member that is not deprecated', async () => {
@@ -193,7 +195,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
                 return 'overridden';
             },
         ],
-    ])('reports an override that replaces the %s of a deprecated getter/setter computed', async (_, oldValue) => {
+    ])('reports an override of the %s of a deprecated getter/setter computed', async (_, oldValue) => {
         registerComponentWithDeprecatedMembers('sw-replaced-accessor');
         ComponentFactory.override('sw-replaced-accessor', {
             computed: { oldValue },
@@ -202,11 +204,11 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         await ComponentFactory.build('sw-replaced-accessor');
 
         expect(deprecations).toHaveTriggered(
-            'replaces the deprecated computed "oldValue" without calling this.$super(), so the override stops working once "oldValue" is removed with V6_8_0_0. The computed is deprecated with: oldValue is deprecated.',
+            'overrides the deprecated computed "oldValue", so the override stops working once "oldValue" is removed with V6_8_0_0. The computed is deprecated with: oldValue is deprecated.',
         );
     });
 
-    it('does not report an override that calls $super in the getter and the setter', async () => {
+    it('reports an override that calls $super in the getter and the setter', async () => {
         registerComponentWithDeprecatedMembers('sw-super-accessor');
         ComponentFactory.override('sw-super-accessor', {
             computed: {
@@ -223,10 +225,12 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
 
         await ComponentFactory.build('sw-super-accessor');
 
-        expect(deprecations.entries).toHaveLength(0);
+        expect(deprecations).toHaveTriggered(
+            'Component.override(\'sw-super-accessor\') overrides the deprecated computed "oldValue", so the override stops working once "oldValue" is removed with V6_8_0_0.',
+        );
     });
 
-    it('reports an override that replaces a deprecated member its component inherits', async () => {
+    it('reports an override of a deprecated member its component inherits', async () => {
         registerComponentWithDeprecatedMembers('sw-deprecated-parent');
         ComponentFactory.extend('sw-child', 'sw-deprecated-parent', {
             methods: {
@@ -245,9 +249,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
 
         await ComponentFactory.build('sw-child');
 
-        expect(deprecations).toHaveTriggered(
-            'Component.override(\'sw-child\') replaces the deprecated method "oldMethod" without calling this.$super()',
-        );
+        expect(deprecations).toHaveTriggered('Component.override(\'sw-child\') overrides the deprecated method "oldMethod"');
     });
 
     it('does not take a guard behind a condition for the deprecation of the member', async () => {
@@ -333,7 +335,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         await ComponentFactory.build('sw-other-major-silenced');
 
         expect(deprecations).toHaveTriggered(
-            'Component.override(\'sw-other-major-silenced\') replaces the deprecated method "oldMethod"',
+            'Component.override(\'sw-other-major-silenced\') overrides the deprecated method "oldMethod"',
         );
     });
 
@@ -353,7 +355,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
             });
 
             await expect(ComponentFactory.build('sw-silenced-active-major')).rejects.toThrow(
-                'Tried to access deprecated functionality: Component.override(\'sw-silenced-active-major\') replaces the deprecated method "oldMethod"',
+                'Tried to access deprecated functionality: Component.override(\'sw-silenced-active-major\') overrides the deprecated method "oldMethod"',
             );
         },
     );
@@ -370,7 +372,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         });
 
         await expect(ComponentFactory.build('sw-active-major')).rejects.toThrow(
-            'Tried to access deprecated functionality: Component.override(\'sw-active-major\') replaces the deprecated method "oldMethod"',
+            'Tried to access deprecated functionality: Component.override(\'sw-active-major\') overrides the deprecated method "oldMethod"',
         );
     });
 
@@ -378,7 +380,7 @@ describe('core/factory/async-component.factory.ts - overrides of deprecated memb
         useProductionDeprecationGuard();
         const error = jest.spyOn(console, 'error').mockImplementation(() => {});
         const message =
-            'Component.override(\'sw-baselined-major\') replaces the deprecated method "oldMethod" without calling this.$super(), so the override stops working once "oldMethod" is removed with V6_8_0_0. The method is deprecated with: oldMethod is deprecated, use newMethod.';
+            'Component.override(\'sw-baselined-major\') overrides the deprecated method "oldMethod", so the override stops working once "oldMethod" is removed with V6_8_0_0. The method is deprecated with: oldMethod is deprecated, use newMethod.';
         deprecationBaseline[message] = { 'sw-baselined-major': ['major'] };
         listedBaselineKeys.push(message);
 

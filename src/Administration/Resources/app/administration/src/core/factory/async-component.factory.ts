@@ -802,7 +802,7 @@ async function build(componentName: string, skipTemplate = false): Promise<Compo
         const overrideEntries = overrideRegistry.get(componentName)!;
         const resolvedEntries = await Promise.all(overrideEntries.map((overrideEntry) => overrideEntry.config()));
 
-        reportReplacedDeprecatedMembers(componentName, config, overrideEntries, resolvedEntries);
+        reportOverriddenDeprecatedMembers(componentName, config, overrideEntries, resolvedEntries);
 
         const standardOverrideConfigs: AwaitedComponentConfig[] = resolvedEntries.map(
             (resolvedConfig) => () =>
@@ -1263,14 +1263,15 @@ const LEADING_GUARD_PATTERN =
     /^\s*[\w$.]+\.triggerDeprecationOrThrow\(\s*(['"`])(\w+)\1\s*(?:,\s*(['"`])((?:\\.|(?!\3)[^\\])*)\3\s*[,)])?/;
 
 /**
- * Reports every override of `componentName` that replaces a deprecated `computed` or method of `baseConfig` without
- * calling `this.$super()`. Only `$super` runs the member's own guard, so without this the extension never learns that
- * its override stops working once the member is removed. An override registered inside `Feature.silence()` of the
- * member's major is not reported, so an extension can keep a backward compatible override for older versions.
+ * Reports every override of `componentName` that overrides a deprecated `computed` or method of `baseConfig`, with
+ * or without `this.$super()`. The member's own guard only runs when the member is called, which can be behind a
+ * click, while the override stops working once the member is removed either way. An override registered inside
+ * `Feature.silence()` of the member's major is not reported, so an extension can keep a backward compatible override
+ * for older versions.
  * Development only: production builds drop it, and a throwing guard there would break the whole component.
  * `overrideConfigs` are the resolved configs of `overrideEntries`, in the same order.
  */
-function reportReplacedDeprecatedMembers(
+function reportOverriddenDeprecatedMembers(
     componentName: string,
     baseConfig: ComponentConfig,
     overrideEntries: IndexedAwaitedComponentConfig[],
@@ -1291,7 +1292,7 @@ function reportReplacedDeprecatedMembers(
             const members = (overrideConfig[section] ?? {}) as Record<string, unknown>;
 
             Object.entries(members).forEach(([name, member]) => {
-                const guard = replacedDeprecationGuard(baseConfig, section, name, member);
+                const guard = overriddenDeprecationGuard(baseConfig, section, name, member);
 
                 if (!guard || silencedMajors.includes(silenceKey(guard.flag))) {
                     return;
@@ -1302,7 +1303,7 @@ function reportReplacedDeprecatedMembers(
 
                 Shopware.Feature.triggerDeprecationOrThrow(
                     guard.flag,
-                    `Component.override('${componentName}') replaces the deprecated ${kind} "${name}" without calling this.$super(), so the override stops working once "${name}" is removed with ${guard.flag}.${memberDeprecation}`,
+                    `Component.override('${componentName}') overrides the deprecated ${kind} "${name}", so the override stops working once "${name}" is removed with ${guard.flag}.${memberDeprecation}`,
                 );
             });
         });
@@ -1310,16 +1311,16 @@ function reportReplacedDeprecatedMembers(
 }
 
 /**
- * The guard of the deprecated base implementation that `member` replaces without calling `$super`, or `null`.
+ * The guard of the deprecated base implementation that `member` overrides, or `null`.
  */
-function replacedDeprecationGuard(
+function overriddenDeprecationGuard(
     baseConfig: ComponentConfig,
     section: 'computed' | 'methods',
     name: string,
     member: unknown,
 ): DeprecationGuard | null {
     for (const [accessor, func] of memberAccessors(section, member)) {
-        if (isMemberFunction(func) && !callsSuper(func)) {
+        if (isMemberFunction(func)) {
             const guard = inheritedDeprecationGuard(baseConfig, section, name, accessor);
 
             if (guard) {

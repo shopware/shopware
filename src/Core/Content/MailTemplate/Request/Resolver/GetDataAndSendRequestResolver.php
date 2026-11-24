@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\MailTemplate\Request\Resolver;
 
 use Shopware\Core\Content\Mail\Payload\MailPayloadFactory;
+use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Request\GetDataAndSendRequest;
 use Shopware\Core\Content\MailTemplate\Service\MailTemplateService;
 use Shopware\Core\Framework\Context;
@@ -59,12 +60,22 @@ readonly class GetDataAndSendRequestResolver extends AbstractMailTemplateRequest
             mailPayload: $this->mailPayloadFactory->make(
                 $request,
                 [
-                    'contentHtml' => $mailTemplate->getContentHtml(),
-                    'contentPlain' => $mailTemplate->getContentPlain(),
-                    'subject' => $mailTemplate->getSubject(),
-                    'senderName' => $mailTemplate->getSenderName(),
+                    'contentHtml' => $this->getTranslatedString($mailTemplate, 'contentHtml'),
+                    'contentPlain' => $this->getTranslatedString($mailTemplate, 'contentPlain'),
+                    'subject' => $this->getTranslatedString($mailTemplate, 'subject'),
+                    'senderName' => $this->getTranslatedString($mailTemplate, 'senderName'),
                 ],
             ),
         );
+    }
+
+    /**
+     * Uses the translated value, so content inherited from a parent or the system language is taken into account.
+     */
+    private function getTranslatedString(MailTemplateEntity $mailTemplate, string $field): ?string
+    {
+        $value = $mailTemplate->getTranslation($field);
+
+        return \is_string($value) ? $value : null;
     }
 }

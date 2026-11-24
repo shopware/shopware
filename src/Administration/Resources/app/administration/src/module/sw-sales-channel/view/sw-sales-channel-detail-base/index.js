@@ -3,6 +3,7 @@
  */
 
 import template from './sw-sales-channel-detail-base.html.twig';
+import readDeprecatedComputed from '../../helper/read-deprecated-computed';
 import './sw-sales-channel-detail-base.scss';
 
 const { Component, Mixin, Context, Defaults } = Shopware;
@@ -148,22 +149,27 @@ export default {
                 'sw-sales-channel-detail-base.isAgenticCommerce is deprecated. Will be removed.',
             );
 
-            return this.isAgenticCommerceSalesChannel;
+            return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
         },
 
         /**
          * @private
-         * @deprecated tag:v6.8.0 - Will be removed
+         * @deprecated tag:v6.8.0 - Will be removed with `isAgenticCommerce`
          *
-         * Unguarded implementation of isAgenticCommerce, so core's own uses do not report the deprecation.
-         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         * Reads `isAgenticCommerce` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
          */
-        isAgenticCommerceSalesChannel() {
-            return this.salesChannel && this.salesChannel.typeId === Defaults.agenticCommerceTypeId;
+        isAgenticCommerceDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return readDeprecatedComputed(this, 'isAgenticCommerce');
         },
 
         isProductExportChannel() {
-            return this.isProductComparison || this.isAgenticCommerceSalesChannel;
+            return this.isProductComparison || this.isAgenticCommerceDeprecated;
         },
 
         isGoogleProductSearchTemplate() {
@@ -177,18 +183,6 @@ export default {
                 'sw-sales-channel-detail-base.resolvedAgenticCommerceExportConfig is deprecated. Will be removed.',
             );
 
-            return this.activeAgenticCommerceExportConfig;
-        },
-
-        /**
-         * @private
-         * @deprecated tag:v6.8.0 - Will be removed
-         *
-         * Unguarded implementation of resolvedAgenticCommerceExportConfig,
-         * so core's own uses do not report the deprecation.
-         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
-         */
-        activeAgenticCommerceExportConfig() {
             let entries = [];
 
             if (Array.isArray(this.agenticCommerceExportConfig) && this.agenticCommerceExportConfig.length > 0) {
@@ -205,6 +199,22 @@ export default {
             const filtered = entries.filter((entry) => entry.provider === activeProvider);
 
             return filtered.length > 0 ? filtered : [entries[0]];
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `resolvedAgenticCommerceExportConfig`
+         *
+         * Reads `resolvedAgenticCommerceExportConfig` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns no entries with the 6.8 flag, as if the member were removed.
+         */
+        resolvedAgenticCommerceExportConfigDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return [];
+            }
+
+            return readDeprecatedComputed(this, 'resolvedAgenticCommerceExportConfig');
         },
 
         isHeadlessSalesChannel() {
@@ -617,7 +627,7 @@ export default {
         templateSelectOptions() {
             return this.templateOptions
                 .filter((exportTemplate) => {
-                    if (this.isAgenticCommerceSalesChannel) {
+                    if (this.isAgenticCommerceDeprecated) {
                         return exportTemplate.salesChannelTypeId === Defaults.agenticCommerceTypeId;
                     }
 
@@ -1003,18 +1013,6 @@ export default {
                 'sw-sales-channel-detail-base.getAgenticCommerceExportElementBind() is deprecated. Will be removed.',
             );
 
-            return this.resolveAgenticCommerceExportElementBind(element);
-        },
-
-        /**
-         * @private
-         * @deprecated tag:v6.8.0 - Will be removed
-         *
-         * Unguarded implementation of getAgenticCommerceExportElementBind(),
-         * so core's own uses do not report the deprecation.
-         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
-         */
-        resolveAgenticCommerceExportElementBind(element) {
             const bind = objectHelper.deepCopyObject(element);
 
             if (['single-select', 'multi-select'].includes(bind.type)) {
@@ -1036,18 +1034,6 @@ export default {
                 'sw-sales-channel-detail-base.getAgenticCommerceExportCardTitle() is deprecated. Will be removed.',
             );
 
-            return this.resolveAgenticCommerceExportCardTitle(configEntry);
-        },
-
-        /**
-         * @private
-         * @deprecated tag:v6.8.0 - Will be removed
-         *
-         * Unguarded implementation of getAgenticCommerceExportCardTitle(),
-         * so core's own uses do not report the deprecation.
-         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
-         */
-        resolveAgenticCommerceExportCardTitle(configEntry) {
             if (configEntry?.titleSnippet) {
                 return this.$t(configEntry.titleSnippet);
             }
@@ -1075,23 +1061,61 @@ export default {
                 'sw-sales-channel-detail-base.onAgenticCommerceExportFieldUpdate() is deprecated. Will be removed.',
             );
 
-            this.updateAgenticCommerceExportField(configEntry, fieldName, value);
-        },
-
-        /**
-         * @private
-         * @deprecated tag:v6.8.0 - Will be removed
-         *
-         * Unguarded implementation of onAgenticCommerceExportFieldUpdate(),
-         * so core's own uses do not report the deprecation.
-         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
-         */
-        updateAgenticCommerceExportField(configEntry, fieldName, value) {
             configEntry.values[fieldName] = value;
 
             if (configEntry.errors?.[fieldName]) {
                 delete configEntry.errors[fieldName];
             }
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `getAgenticCommerceExportElementBind`
+         *
+         * Calls `getAgenticCommerceExportElementBind` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns no bind with the 6.8 flag, as if the member were removed.
+         */
+        getAgenticCommerceExportElementBindDeprecated(element) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return {};
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.getAgenticCommerceExportElementBind(element));
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `getAgenticCommerceExportCardTitle`
+         *
+         * Calls `getAgenticCommerceExportCardTitle` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns no title with the 6.8 flag, as if the member were removed.
+         */
+        getAgenticCommerceExportCardTitleDeprecated(configEntry) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return '';
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.getAgenticCommerceExportCardTitle(configEntry));
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `onAgenticCommerceExportFieldUpdate`
+         *
+         * Calls `onAgenticCommerceExportFieldUpdate` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Does nothing with the 6.8 flag, as if the member were removed.
+         */
+        onAgenticCommerceExportFieldUpdateDeprecated(configEntry, fieldName, value) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return;
+            }
+
+            Shopware.Feature.silence('V6_8_0_0', () =>
+                this.onAgenticCommerceExportFieldUpdate(configEntry, fieldName, value),
+            );
         },
 
         onTrackingConfigChange(config) {

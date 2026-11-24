@@ -72,7 +72,8 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-create-base', () => 
         }));
     });
 
-    it('should prefill the feed file name of a new agentic commerce sales channel', async () => {
+    // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+    it.deprecated('v6.8.0.0')('should prefill the feed file name of a new agentic commerce sales channel', async () => {
         const productExport = {};
         await createWrapper(
             {
@@ -98,5 +99,43 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-create-base', () => 
         await use(wrapper.vm);
 
         expect(deprecations).toHaveTriggered(`sw-sales-channel-create-base.${member} is deprecated.`);
+    });
+
+    describe('core use of the deprecated Agentic Commerce members', () => {
+        afterEach(() => {
+            Shopware.Component.getOverrideRegistry().delete('sw-sales-channel-create-base');
+        });
+
+        // @deprecated tag:v6.8.0 - Test will be removed together with the Agentic Commerce members.
+        it.deprecated('v6.8.0.0')(
+            'applies an override of prefillAgenticCommerceDefaults() without reporting it',
+            async () => {
+                const prefillOverride = jest.fn();
+                Shopware.Component.override('sw-sales-channel-create-base', {
+                    methods: {
+                        prefillAgenticCommerceDefaults: prefillOverride,
+                    },
+                });
+
+                await createWrapper({ typeId: Shopware.Defaults.agenticCommerceTypeId, configuration: {} }, {});
+                await flushPromises();
+
+                expect(prefillOverride).toHaveBeenCalled();
+                expect(deprecations).not.toHaveTriggered(
+                    'sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated',
+                );
+            },
+        );
+
+        it.activeFeatureFlags(['v6.8.0.0'])(
+            'treats an agentic commerce channel as if the deprecated members were removed',
+            async () => {
+                const productExport = {};
+                await createWrapper({ typeId: Shopware.Defaults.agenticCommerceTypeId, configuration: {} }, productExport);
+                await flushPromises();
+
+                expect(productExport.fileName).toBeUndefined();
+            },
+        );
     });
 });

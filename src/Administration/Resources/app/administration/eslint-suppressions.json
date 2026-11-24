@@ -10371,7 +10371,7 @@
       "count": 1
     },
     "sw-test-rules/no-vm-access": {
-      "count": 100
+      "count": 98
     }
   },
   "src/module/sw-sales-channel/page/sw-sales-channel-list/index.js": {

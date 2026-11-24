@@ -24,12 +24,28 @@ export default {
     methods: {
         createdComponent() {
             this.onGenerateKeys();
-            if (this.isProductComparison || this.isAgenticCommerceSalesChannel) {
+            if (this.isProductComparison || this.isAgenticCommerceDeprecated) {
                 this.onGenerateProductExportKey(false);
             }
-            if (this.isAgenticCommerceSalesChannel) {
-                this._prefillAgenticCommerceDefaults();
+            if (this.isAgenticCommerceDeprecated) {
+                this.prefillAgenticCommerceDefaultsDeprecated();
             }
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `prefillAgenticCommerceDefaults`
+         *
+         * Calls `prefillAgenticCommerceDefaults` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Does nothing with the 6.8 flag, as if the member were removed.
+         */
+        prefillAgenticCommerceDefaultsDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return;
+            }
+
+            Shopware.Feature.silence('V6_8_0_0', () => this.prefillAgenticCommerceDefaults());
         },
 
         /** @deprecated tag:v6.8.0 - Will be removed */
@@ -39,17 +55,6 @@ export default {
                 'sw-sales-channel-create-base.prefillAgenticCommerceDefaults() is deprecated. Will be removed.',
             );
 
-            this._prefillAgenticCommerceDefaults();
-        },
-
-        /**
-         * @private
-         * @deprecated tag:v6.8.0 - Will be removed
-         *
-         * Unguarded implementation of prefillAgenticCommerceDefaults(),
-         * so core's own uses do not report the deprecation.
-         */
-        _prefillAgenticCommerceDefaults() {
             this.productExport.fileName = `agentic-commerce-${utils.createId()}.jsonl`;
         },
     },

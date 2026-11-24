@@ -85,19 +85,39 @@ export default {
                 'sw-sales-channel-modal-grid.isAgenticCommerceSalesChannelType() is deprecated. Will be removed.',
             );
 
-            return this.isAgenticCommerceType(salesChannelTypeId);
+            return salesChannelTypeId === Defaults.agenticCommerceTypeId;
         },
 
         /**
          * @private
-         * @deprecated tag:v6.8.0 - Will be removed
+         * @deprecated tag:v6.8.0 - Will be removed with `isAgenticCommerceSalesChannelType`
          *
-         * Unguarded implementation of isAgenticCommerceSalesChannelType(),
-         * so core's own uses do not report the deprecation.
-         * Has no `_` prefix because the template reads it, and Vue does not resolve `_` members in templates.
+         * Calls `isAgenticCommerceSalesChannelType` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
          */
-        isAgenticCommerceType(salesChannelTypeId) {
-            return salesChannelTypeId === Defaults.agenticCommerceTypeId;
+        isAgenticCommerceSalesChannelTypeDeprecated(salesChannelTypeId) {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.isAgenticCommerceSalesChannelType(salesChannelTypeId));
+        },
+
+        /**
+         * @private
+         * @deprecated tag:v6.8.0 - Will be removed with `showAgenticCommerceType`
+         *
+         * Calls `showAgenticCommerceType` for core with its deprecation silenced,
+         * so an override of it keeps working.
+         * Returns `false` with the 6.8 flag, as if the member were removed.
+         */
+        showAgenticCommerceTypeDeprecated() {
+            if (Shopware.Feature.isActive('V6_8_0_0')) {
+                return false;
+            }
+
+            return Shopware.Feature.silence('V6_8_0_0', () => this.showAgenticCommerceType());
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
@@ -105,7 +125,8 @@ export default {
         },
 
         getTooltip(item) {
-            const isDisabledAgenticCommerceType = !this._showAgenticCommerceType() && this.isAgenticCommerceType(item.id);
+            const isDisabledAgenticCommerceType =
+                !this.showAgenticCommerceTypeDeprecated() && this.isAgenticCommerceSalesChannelTypeDeprecated(item.id);
             const messageKey = isDisabledAgenticCommerceType
                 ? 'sw-sales-channel.modal.messageAgenticCommerce'
                 : 'sw-sales-channel.modal.messageNoProductStreams';
@@ -120,7 +141,7 @@ export default {
         isDisabled(item) {
             return (
                 this.addChannelAction.disabled(item.id) ||
-                (!this._showAgenticCommerceType() && this.isAgenticCommerceType(item.id))
+                (!this.showAgenticCommerceTypeDeprecated() && this.isAgenticCommerceSalesChannelTypeDeprecated(item.id))
             );
         },
 
@@ -131,16 +152,6 @@ export default {
                 'sw-sales-channel-modal-grid.showAgenticCommerceType() is deprecated. Will be removed.',
             );
 
-            return this._showAgenticCommerceType();
-        },
-
-        /**
-         * @private
-         * @deprecated tag:v6.8.0 - Will be removed
-         *
-         * Unguarded implementation of showAgenticCommerceType(), so core's own uses do not report the deprecation.
-         */
-        _showAgenticCommerceType() {
             return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
         },
     },

@@ -140,12 +140,8 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
     {
         $encoded = $row->getPayloadValue(ContentLayoutDefinition::LAYOUT_FIELD);
 
-        if ($encoded === null) {
-            return null;
-        }
-
         if (!\is_string($encoded)) {
-            throw ContentSystemException::invalidFieldValueType(ContentLayoutDefinition::LAYOUT_FIELD, 'string', \get_debug_type($encoded));
+            return null;
         }
 
         return $memo?->treeFor($write, $encoded)

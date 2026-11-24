@@ -27,10 +27,10 @@ use Shopware\Core\Framework\Struct\Struct;
  * Entries belong to their write. The `Context` is the caller's and outlives any single write, while the
  * `WriteContext` is minted per repository call, so that instance identifies the write. A second write on the same
  * `Context`, such as one a listener starts while the first write is still between command extraction and its
- * validation event, keeps its entries apart and never touches the first write's. The entries are held weakly by
- * their `WriteContext`, so they go away with it and do not accumulate over the `Context`'s lifetime. Nothing
- * leaves the process either way: `Context::__serialize()` enumerates its fields explicitly and omits extensions,
- * so a memo never rides a serialized `Context` into a queued message.
+ * validation event, keeps its entries apart and never touches the first write's. The `WeakMap` holds its
+ * `WriteContext` keys weakly, so an entry is released with its `WriteContext` and does not accumulate over the
+ * `Context`'s lifetime. Nothing leaves the process either way: `Context::__serialize()` enumerates its fields
+ * explicitly and omits extensions, so a memo never rides a serialized `Context` into a queued message.
  *
  * @internal
  */

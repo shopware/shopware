@@ -10,12 +10,18 @@ service salesChannelProductAssignmentApiService  public  js  untyped  provider
   source src/module/sw-sales-channel/service/sales-channel-product-assignment.api.service.js
 
 properties
+  apiEndpoint: string
+  client: HttpClient
+  contentType: string
+  endpoint: any
+  httpClient: HttpClient
+  loginService: LoginService
   name: any
+  type: any
 
 methods
   assign(salesChannelId: any, arg1?: any = {}): Promise<any>
+  getApiBasePath(id?: string | number, prefix?: any = ''): string
+  getBasicHeaders(additionalHeaders?: any = {}): BasicHeaders
   request(salesChannelId: any, payload: any): Promise<any>
-
-notes
-  unresolved parent ApiService
 ```

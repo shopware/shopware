@@ -10,11 +10,17 @@ service liveSearchService  public  js  untyped  provider
   source src/module/sw-settings-search/service/livesearch.api.service.js
 
 properties
+  apiEndpoint: string
+  client: HttpClient
+  contentType: string
+  endpoint: any
+  httpClient: HttpClient
+  loginService: LoginService
   name: any
+  type: any
 
 methods
+  getApiBasePath(id?: string | number, prefix?: any = ''): string
+  getBasicHeaders(additionalHeaders?: any = {}): BasicHeaders
   search(arg0: any, contextToken: any, additionalParams?: any = {}, additionalHeaders?: any = {}): any
-
-notes
-  unresolved parent ApiService
 ```

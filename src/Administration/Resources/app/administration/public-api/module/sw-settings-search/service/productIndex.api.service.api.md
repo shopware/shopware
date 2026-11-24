@@ -10,12 +10,18 @@ service productIndexService  public  js  untyped  provider
   source src/module/sw-settings-search/service/productIndex.api.service.js
 
 properties
+  apiEndpoint: string
+  client: HttpClient
+  contentType: string
+  endpoint: any
+  httpClient: HttpClient
+  loginService: LoginService
   name: any
+  type: any
 
 methods
+  getApiBasePath(id?: string | number, prefix?: any = ''): string
+  getBasicHeaders(additionalHeaders?: any = {}): BasicHeaders
   getHeaders(): any
   index(offset: any): any
-
-notes
-  unresolved parent ApiService
 ```

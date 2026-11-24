@@ -10,13 +10,19 @@ service salesChannelFileApiService  public  js  untyped  provider
   source src/module/sw-sales-channel/service/sales-channel-file.api.service.js
 
 properties
+  apiEndpoint: string
+  client: HttpClient
+  contentType: string
+  endpoint: any
+  httpClient: HttpClient
+  loginService: LoginService
   name: any
+  type: any
 
 methods
   detail(fileFamily: any, salesChannelId: any, fileName: any): Promise<any>
+  getApiBasePath(id?: string | number, prefix?: any = ''): string
+  getBasicHeaders(additionalHeaders?: any = {}): BasicHeaders
   list(fileFamily: any, salesChannelId: any): Promise<any>
   preview(fileFamily: any, salesChannelId: any, fileName: any, templateOverrides: any): Promise<any>
-
-notes
-  unresolved parent ApiService
 ```

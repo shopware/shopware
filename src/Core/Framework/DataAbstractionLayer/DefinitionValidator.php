@@ -134,6 +134,7 @@ class DefinitionValidator
         'landing_page_translation_media_usage',
         'webhook_delivery',
         'webhook_stream',
+        'system_check_result',
     ];
 
     /**

@@ -41,4 +41,4 @@ In code:
 
 ## Also true by construction
 
-- The [write gate](README.md#terms-that-are-easy-to-confuse) checks the tree behind the layout value each record stores after the write, whatever order the DAL runs writes in: [Layout/Field/README.md](../../Layout/Field/README.md)
+- The [write gate](README.md#terms-that-are-easy-to-confuse) checks the tree behind the layout value each record stores after the write, whatever order the DAL runs writes in: [LayoutWriteContext.php](../../Layout/LayoutWriteContext.php)

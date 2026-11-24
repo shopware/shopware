@@ -30,13 +30,18 @@
                     {{ $t('sw-settings-system-health.check-row.category-line', { category: categoryName }) }}
                 </span>
 
-                <span v-if="checkedAt">
-                    · {{ $t('sw-settings-system-health.check-row.checked-at', { date: checkedAt }) }}
-                </span>
             </span>
         </span>
 
-        <span class="sw-settings-system-health-check-row__message">{{ message }}</span>
+        <span class="sw-settings-system-health-check-row__message">
+            <span>{{ message }}</span>
+            <span
+                v-if="checkedAt"
+                class="sw-settings-system-health-check-row__checked-at"
+            >
+                {{ $t('sw-settings-system-health.check-row.checked-at', { date: checkedAt }) }}
+            </span>
+        </span>
 
         <!-- the menu sits in the clickable header; stop its clicks from toggling the row -->
         <span @click.stop>

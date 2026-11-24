@@ -36,9 +36,11 @@
     }
 
     // styled like the old panel footer: small, grey, the category explained on hover
+    // the items wrap as a whole, never inside one
     &__meta {
         display: flex;
-        gap: var(--scale-size-4);
+        flex-wrap: wrap;
+        column-gap: var(--scale-size-4);
         font-size: var(--font-size-2xs);
         line-height: var(--font-line-height-2xs, 1.4);
         color: var(--color-text-secondary-default);
@@ -49,8 +51,19 @@
         cursor: help;
     }
 
+    &__meta > span {
+        white-space: nowrap;
+    }
+
+    // the message, with when the check last ran underneath
     &__message {
+        display: grid;
+        gap: var(--scale-size-2);
         color: var(--color-text-secondary-default);
+    }
+
+    &__checked-at {
+        font-size: var(--font-size-2xs);
     }
 
     // the details read as their own area: indented under the name, on a sunken background

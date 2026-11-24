@@ -26,14 +26,22 @@ class SystemChecker
     }
 
     /**
+     * Runs every check that is allowed in at least one of the given contexts, or only the check with the given name.
+     *
+     * @param SystemCheckExecutionContext|list<SystemCheckExecutionContext> $contexts
+     *
      * @return array<Result>
      */
-    public function check(SystemCheckExecutionContext $context): array
+    public function check(SystemCheckExecutionContext|array $contexts, ?string $name = null): array
     {
-        [$allowedChecks, $disallowedChecks] = $this->groupByPermissionToRun($context);
+        $contexts = \is_array($contexts) ? $contexts : [$contexts];
+        [$allowedChecks, $disallowedChecks] = $this->groupByPermissionToRun($contexts, $name);
 
         $results = $this->runChecksByCategory($this->groupByCategory($allowedChecks));
-        $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name));
+        $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf(
+            'Check not allowed to run in this execution context: %s',
+            implode(', ', array_map(static fn (SystemCheckExecutionContext $context) => $context->name, $contexts))
+        ));
 
         $this->resultStorage->save($results);
 
@@ -132,14 +140,20 @@ class SystemChecker
     }
 
     /**
+     * @param list<SystemCheckExecutionContext> $contexts
+     *
      * @return array{array<BaseCheck>, array<BaseCheck>} segregated checks by permission to run
      */
-    private function groupByPermissionToRun(SystemCheckExecutionContext $context): array
+    private function groupByPermissionToRun(array $contexts, ?string $name): array
     {
         $allowedChecks = [];
         $disallowedChecks = [];
         foreach ($this->checks as $check) {
-            if ($check->allowedToRunIn($context)) {
+            if ($name !== null && $check->name() !== $name) {
+                continue;
+            }
+
+            if ($this->allowedToRunInAny($check, $contexts)) {
                 $allowedChecks[] = $check;
             } else {
                 $disallowedChecks[] = $check;
@@ -147,5 +161,19 @@ class SystemChecker
         }
 
         return [$allowedChecks, $disallowedChecks];
+    }
+
+    /**
+     * @param list<SystemCheckExecutionContext> $contexts
+     */
+    private function allowedToRunInAny(BaseCheck $check, array $contexts): bool
+    {
+        foreach ($contexts as $context) {
+            if ($check->allowedToRunIn($context)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

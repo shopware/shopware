@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\SystemCheck\Command\SystemCheckCommand;
+use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecksHandler;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -32,4 +33,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.system_check'),
             service(SystemCheckResultStorage::class),
         ]);
+
+    $services->set(RunSystemChecksHandler::class)
+        ->args([
+            service(SystemChecker::class),
+        ])
+        ->tag('messenger.message_handler');
 };

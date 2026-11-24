@@ -77,6 +77,31 @@ class SystemCheckResultStorageTest extends TestCase
         static::assertSame('2026-11-24 11:00:00.000', $rows[0]['checked_at']);
     }
 
+    public function testReadsBackTheStoredResults(): void
+    {
+        $this->storage->save([
+            new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true, ['statusCode' => 204]),
+            new Result('LocalesReadiness', Status::SKIPPED, 'Check is not run due to previous failed checks.'),
+        ]);
+
+        static::assertSame([
+            'AppUrlVerification' => [
+                'status' => 'OK',
+                'healthy' => true,
+                'message' => 'APP_URL points to this shop',
+                'extra' => ['statusCode' => 204],
+                'checkedAt' => '2026-11-24T10:00:00+00:00',
+            ],
+            'LocalesReadiness' => [
+                'status' => 'SKIPPED',
+                'healthy' => null,
+                'message' => 'Check is not run due to previous failed checks.',
+                'extra' => [],
+                'checkedAt' => '2026-11-24T10:00:00+00:00',
+            ],
+        ], $this->storage->all());
+    }
+
     /**
      * @return list<array<string, mixed>>
      */

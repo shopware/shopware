@@ -17,6 +17,7 @@ use Shopware\Administration\Controller\AdminProductStreamController;
 use Shopware\Administration\Controller\AdminSearchController;
 use Shopware\Administration\Controller\AdminTagController;
 use Shopware\Administration\Controller\DashboardController;
+use Shopware\Administration\Controller\SystemHealthController;
 use Shopware\Administration\Controller\UserConfigController;
 use Shopware\Administration\Dashboard\OrderAmountService;
 use Shopware\Administration\Framework\Adapter\Cache\Http\AdministrationCacheControlListener;
@@ -48,6 +49,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Notification\Api\NotificationController;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
@@ -59,6 +61,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_iterator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
@@ -261,6 +264,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(OrderAmountService::class),
+        ])
+        ->call('setContainer', [service('service_container')]);
+
+    $services->set(SystemHealthController::class)
+        ->public()
+        ->args([
+            tagged_iterator('shopware.system_check'),
+            service(SystemCheckResultStorage::class),
+            service('messenger.default_bus'),
         ])
         ->call('setContainer', [service('service_container')]);
 

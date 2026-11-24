@@ -68,12 +68,11 @@ class LandingPageLoader
     private function loadMetaData(LandingPage $page): void
     {
         $metaInformation = $page->getMetaInformation();
+        $landingPage = $page->getLandingPage();
 
-        if ($metaInformation === null) {
+        if ($metaInformation === null || $landingPage === null) {
             return;
         }
-
-        $landingPage = $page->getLandingPage();
 
         $metaTitle = $landingPage->getTranslation('metaTitle') ?? $landingPage->getTranslation('name');
         $metaDescription = $landingPage->getTranslation('metaDescription');

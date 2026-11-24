@@ -24,7 +24,8 @@ Previously, these paths could silently read a different JSON key.
 ### Password hashing of customers and administration users is configurable
 
 Customer and administration user passwords are hashed by the new services `shopware.password_hasher.customer` and `shopware.password_hasher.admin`, both extending `Shopware\Core\Framework\PasswordHasher\AbstractPasswordHasher`.
-Configure the algorithm and its `password_hash()` options per scope:
+Both scopes default to `algorithm: default` (PHP's `PASSWORD_DEFAULT`) without options.
+Configure the algorithm and its `password_hash()` options per scope in your project's `config/packages/shopware.yaml`:
 
 ```yaml
 shopware:

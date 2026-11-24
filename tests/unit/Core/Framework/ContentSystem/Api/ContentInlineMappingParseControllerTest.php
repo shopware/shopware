@@ -5,12 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseBatchRequest;
 use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseController;
 use Shopware\Core\Framework\ContentSystem\Api\ContentInlineMappingParseRequest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Mapping\Inline\InlineMappingTokenParser;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -23,46 +23,43 @@ class ContentInlineMappingParseControllerTest extends TestCase
      * @param array<string, mixed> $expected
      */
     #[DataProvider('parseResponseProvider')]
-    public function testBatchPreservesTokenSpansRevisionsAndDuplicateEntries(string $text, int $revision, array $expected): void
+    public function testReturnsTokenSpansAndEchoesTheRevision(string $text, int $revision, array $expected): void
     {
         $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-        $request = new ContentInlineMappingParseRequest($text, $revision);
 
-        $response = $controller->parseBatch(new ContentInlineMappingParseBatchRequest([
-            $request,
-            new ContentInlineMappingParseRequest('Plain text', 0),
-            $request,
-        ]));
+        $response = $controller->parse(new ContentInlineMappingParseRequest($text, $revision));
 
-        static::assertSame(200, $response->getStatusCode());
-        static::assertSame(['results' => [$expected, ['revision' => 0, 'tokens' => []], $expected]], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame($expected, json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
     }
 
-    public function testBatchReportsOversizedTextWithoutRejectingOtherFields(): void
+    public function testRejectsOversizedTokenText(): void
     {
         $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-        $exception = ContentSystemException::inlineMappingInputTooLarge(InlineMappingTokenParser::MAX_INPUT_BYTES);
+        $request = new ContentInlineMappingParseRequest('{{map:product.name}}' . str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES), revision: 0);
+        $this->expectExceptionObject(ContentSystemException::inlineMappingInputTooLarge(InlineMappingTokenParser::MAX_INPUT_BYTES));
 
-        $response = $controller->parseBatch(new ContentInlineMappingParseBatchRequest([
-            new ContentInlineMappingParseRequest('Before', 1),
-            new ContentInlineMappingParseRequest('{{map:product.name}}' . str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES), 2),
-            new ContentInlineMappingParseRequest('After', 3),
-        ]));
-
-        static::assertSame(['results' => [
-            ['revision' => 1, 'tokens' => []],
-            ['revision' => 2, 'error' => ['code' => $exception->getErrorCode(), 'message' => $exception->getMessage()]],
-            ['revision' => 3, 'tokens' => []],
-        ]], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
+        $controller->parse($request);
     }
 
-    public function testBatchPropagatesEngineFailuresInsteadOfReturningPartialResults(): void
+    public function testParsesTokenDenseTextWithinTheExistingInputLimit(): void
     {
         $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
-        $payload = new ContentInlineMappingParseBatchRequest([
-            new ContentInlineMappingParseRequest('Before', 1),
-            new ContentInlineMappingParseRequest('{{map:product.name}} {{map:' . str_repeat('x', 500) . '}}', 18),
-        ]);
+        $token = '{{map:a.b}}';
+        $count = intdiv(InlineMappingTokenParser::MAX_INPUT_BYTES, \strlen($token));
+        $request = new ContentInlineMappingParseRequest(str_repeat($token, $count), revision: 0);
+
+        $response = $controller->parse($request);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertCount($count, $body['tokens']);
+    }
+
+    public function testPropagatesEngineFailuresInsteadOfReturningPartialTokens(): void
+    {
+        $controller = new ContentInlineMappingParseController(new InlineMappingTokenParser());
+        $request = new ContentInlineMappingParseRequest('{{map:product.name}} {{map:' . str_repeat('x', 500) . '}}', revision: 18);
         $previousLimit = ini_get('pcre.backtrack_limit');
         static::assertNotFalse($previousLimit);
         static::assertNotFalse(ini_set('pcre.backtrack_limit', '100'));
@@ -70,7 +67,7 @@ class ContentInlineMappingParseControllerTest extends TestCase
         try {
             $this->expectExceptionObject(ContentSystemException::inlineMappingParsingFailed('scan tokens in', 'Backtrack limit exhausted'));
 
-            $controller->parseBatch($payload);
+            $controller->parse($request);
         } finally {
             static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
         }

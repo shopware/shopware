@@ -22,14 +22,14 @@ class ContentInlineMappingParseControllerTest extends TestCase
 
     public function testParsesAnInlineMappingToken(): void
     {
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', [
-            'requests' => [['text' => '{{map:category.description}}', 'revision' => 7]],
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
+            'text' => '{{map:category.description}}', 'revision' => 7,
         ]);
 
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame(['results' => [[
+        static::assertSame([
             'revision' => 7,
             'tokens' => [[
                 'path' => 'category.description',
@@ -39,20 +39,20 @@ class ContentInlineMappingParseControllerTest extends TestCase
                 'insideMarkup' => false,
                 'malformed' => false,
             ]],
-        ]]], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testOnlyMalformedTokensHaveNoCanonicalText(): void
     {
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', ['requests' => [[
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
             'text' => '🙂 {{ map:product }} / {{map:AcmePlugin:unknown.title}} <a title="{{map:product.name}}">link</a>',
             'revision' => 8,
-        ]]]);
+        ]);
 
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame(['results' => [[
+        static::assertSame([
             'revision' => 8,
             'tokens' => [
                 [
@@ -80,88 +80,67 @@ class ContentInlineMappingParseControllerTest extends TestCase
                     'malformed' => false,
                 ],
             ],
-        ]]], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        ], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
     }
 
-    public function testBatchPreservesIndependentResultsAndMatchesItsResponseSchema(): void
+    public function testResponseMatchesItsSchema(): void
     {
         $browser = $this->getBrowser(permissions: ['content_layout:read']);
-        $request = ['text' => '🙂 {{ map:product.name }}', 'revision' => 7];
-        $browser->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', [
-            'requests' => [
-                $request,
-                ['text' => '{{map:product.name}}' . str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES), 'revision' => 7],
-                ['text' => '{{map:product}}', 'revision' => 0],
-                $request,
-            ],
+        $browser->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
+            'text' => '🙂 {{ map:product.name }}', 'revision' => 7,
         ]);
 
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        $parsed = [
-            'revision' => 7,
-            'tokens' => [[
-                'path' => 'product.name',
-                'match' => '{{ map:product.name }}',
-                'canonicalToken' => '{{map:product.name}}',
-                'offset' => 5,
-                'insideMarkup' => false,
-                'malformed' => false,
-            ]],
-        ];
-        $exception = ContentSystemException::inlineMappingInputTooLarge(InlineMappingTokenParser::MAX_INPUT_BYTES);
-        static::assertSame(['results' => [
-            $parsed,
-            ['revision' => 7, 'error' => ['code' => $exception->getErrorCode(), 'message' => $exception->getMessage()]],
-            ['revision' => 0, 'tokens' => [[
-                'path' => 'product',
-                'match' => '{{map:product}}',
-                'canonicalToken' => null,
-                'offset' => 0,
-                'insideMarkup' => false,
-                'malformed' => true,
-            ]]],
-            $parsed,
-        ]], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
-
-        $schemaFile = file_get_contents(__DIR__ . '/../../../../../../src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-inline-mapping-parse-batch.json');
+        $schemaFile = file_get_contents(__DIR__ . '/../../../../../../src/Core/Framework/Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-inline-mapping-parse.json');
         static::assertNotFalse($schemaFile);
-        $document = json_decode($schemaFile, true, 512, \JSON_THROW_ON_ERROR);
-        $schema = Helper::toJSON($document['paths']['/_action/content-system/inline-mapping/parse-batch']['post']['responses']['200']['content']['application/json']['schema']);
+        $document = json_decode($schemaFile, true, flags: \JSON_THROW_ON_ERROR);
+        $schema = Helper::toJSON($document['paths']['/_action/content-system/inline-mapping/parse']['post']['responses']['200']['content']['application/json']['schema']);
         static::assertIsObject($schema);
-        $result = (new Validator())->validate(json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR), $schema);
+        $result = (new Validator())->validate(json_decode((string) $response->getContent(), false, flags: \JSON_THROW_ON_ERROR), $schema);
         static::assertNull($result->error());
     }
 
-    public function testBatchAcceptsFiftyEntries(): void
+    public function testRejectsOversizedTokenText(): void
     {
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', [
-            'requests' => array_fill(0, 50, ['text' => 'Plain text', 'revision' => 0]),
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
+            'text' => '{{map:product.name}}' . str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES),
+            'revision' => 0,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+        $body = json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::INLINE_MAPPING_INPUT_TOO_LARGE, $body['errors'][0]['code']);
+    }
+
+    public function testAcceptsLongPlainTextWithoutMappingSyntax(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', [
+            'text' => str_repeat('x', InlineMappingTokenParser::MAX_INPUT_BYTES + 1), 'revision' => 2,
         ]);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertSame(['results' => array_fill(0, 50, ['revision' => 0, 'tokens' => []])], json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR));
+        static::assertSame(['revision' => 2, 'tokens' => []], json_decode((string) $response->getContent(), true, flags: \JSON_THROW_ON_ERROR));
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    #[DataProvider('invalidBatchProvider')]
-    public function testBatchRejectsInvalidRequests(array $payload): void
+    #[DataProvider('invalidRequestProvider')]
+    public function testRejectsInvalidRequests(array $payload): void
     {
-        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', $payload);
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', $payload);
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
     }
 
-    public function testBatchRequiresTheLayoutReadPrivilege(): void
+    public function testRequiresTheLayoutReadPrivilege(): void
     {
         $browser = $this->getBrowser(permissions: []);
-        $browser->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse-batch', [
-            'requests' => [['text' => 'Plain text', 'revision' => 0]],
-        ]);
+        $browser->jsonRequest('POST', '/api/_action/content-system/inline-mapping/parse', ['text' => 'Plain text', 'revision' => 0]);
 
         static::assertSame(Response::HTTP_FORBIDDEN, $browser->getResponse()->getStatusCode());
     }
@@ -169,16 +148,13 @@ class ContentInlineMappingParseControllerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>}>
      */
-    public static function invalidBatchProvider(): iterable
+    public static function invalidRequestProvider(): iterable
     {
-        yield 'requests are required' => [[]];
-        yield 'an empty batch is rejected' => [['requests' => []]];
-        yield 'more than fifty fields are rejected' => [['requests' => array_fill(0, 51, ['text' => 'Text', 'revision' => 0])]];
-        yield 'entries must form a list' => [['requests' => ['field' => ['text' => 'Text', 'revision' => 0]]]];
-        yield 'unknown envelope attributes are rejected' => [['requests' => [['text' => 'Text', 'revision' => 0]], 'extra' => true]];
-        yield 'unknown entry attributes are rejected' => [['requests' => [['text' => 'Text', 'revision' => 0, 'extra' => true]]]];
-        yield 'negative nested revisions are rejected' => [['requests' => [['text' => 'Text', 'revision' => -1]]]];
-        yield 'nested text is required' => [['requests' => [['revision' => 0]]]];
-        yield 'null entries are rejected' => [['requests' => [null]]];
+        yield 'text is required' => [['revision' => 0]];
+        yield 'revision is required' => [['text' => 'Plain text']];
+        yield 'negative revisions are rejected' => [['text' => 'Plain text', 'revision' => -1]];
+        yield 'null text is rejected' => [['text' => null, 'revision' => 0]];
+        yield 'structured text is rejected' => [['text' => ['nested' => 'Plain text'], 'revision' => 0]];
+        yield 'unknown attributes are rejected' => [['text' => 'Plain text', 'revision' => 0, 'extra' => true]];
     }
 }

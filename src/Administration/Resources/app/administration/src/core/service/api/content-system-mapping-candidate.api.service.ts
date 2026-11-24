@@ -62,10 +62,6 @@ export interface ContentSystemInlineMappingParseResponse {
     tokens: ContentSystemInlineMappingToken[];
 }
 
-type InlineMappingParseResult =
-    | ContentSystemInlineMappingParseResponse
-    | { revision: number; error: { code: string; message: string } };
-
 interface PendingInlineMappingParse {
     text: string;
     revision: number;
@@ -73,13 +69,15 @@ interface PendingInlineMappingParse {
     reject: (error: unknown) => void;
 }
 
-const INLINE_MAPPING_PARSE_BATCH_SIZE = 50;
+const MAX_CONCURRENT_INLINE_MAPPING_PARSES = 3;
 
 /**
  * Gateway for the content system mapping candidate catalogue, keyed by root source.
  */
 class ContentSystemMappingCandidateApiService extends ApiService {
     private pendingInlineMappingParses: PendingInlineMappingParse[] = [];
+
+    private activeInlineMappingParses = 0;
 
     constructor(httpClient: HttpClient, loginService: LoginService, apiEndpoint = 'content-system-mapping-candidates') {
         super(httpClient, loginService, apiEndpoint);
@@ -114,43 +112,41 @@ class ContentSystemMappingCandidateApiService extends ApiService {
         return new Promise((resolve, reject) => {
             this.pendingInlineMappingParses.push({ text, revision, resolve, reject });
 
-            if (this.pendingInlineMappingParses.length === 1) {
-                void Promise.resolve().then(() => this.flushInlineMappingParses());
-            }
+            this.processInlineMappingQueue();
         });
     }
 
-    private flushInlineMappingParses(): void {
-        const pending = this.pendingInlineMappingParses;
-        this.pendingInlineMappingParses = [];
+    private processInlineMappingQueue(): void {
+        while (this.activeInlineMappingParses < MAX_CONCURRENT_INLINE_MAPPING_PARSES) {
+            const request = this.pendingInlineMappingParses.shift();
+            if (!request) {
+                return;
+            }
 
-        for (let offset = 0; offset < pending.length; offset += INLINE_MAPPING_PARSE_BATCH_SIZE) {
-            void this.parseInlineMappingBatch(pending.slice(offset, offset + INLINE_MAPPING_PARSE_BATCH_SIZE));
+            this.activeInlineMappingParses += 1;
+            void this.parseInlineMappingRequest(request);
         }
     }
 
-    private async parseInlineMappingBatch(pending: PendingInlineMappingParse[]): Promise<void> {
+    private async parseInlineMappingRequest(request: PendingInlineMappingParse): Promise<void> {
         try {
-            const response = await this.httpClient.post<{ results: InlineMappingParseResult[] }>(
-                '/_action/content-system/inline-mapping/parse-batch',
-                { requests: pending.map(({ text, revision }) => ({ text, revision })) },
+            const response = await this.httpClient.post<ContentSystemInlineMappingParseResponse>(
+                '/_action/content-system/inline-mapping/parse',
+                { text: request.text, revision: request.revision },
                 { headers: this.getBasicHeaders() },
             );
-            const payload = ApiService.handleResponse<{ results: InlineMappingParseResult[] }>(response);
+            const payload = ApiService.handleResponse<ContentSystemInlineMappingParseResponse>(response);
 
-            if (!Array.isArray(payload?.results) || payload.results.length !== pending.length) {
-                throw new Error('Invalid inline mapping parse batch response.');
+            if (typeof payload?.revision !== 'number' || !Array.isArray(payload.tokens)) {
+                throw new Error('Invalid inline mapping parse response.');
             }
 
-            payload.results.forEach((result, index) => {
-                if ('error' in result) {
-                    pending[index].reject(new Error(result.error.message));
-                } else {
-                    pending[index].resolve(result);
-                }
-            });
+            request.resolve(payload);
         } catch (error) {
-            pending.forEach((request) => request.reject(error));
+            request.reject(error);
+        } finally {
+            this.activeInlineMappingParses -= 1;
+            this.processInlineMappingQueue();
         }
     }
 }

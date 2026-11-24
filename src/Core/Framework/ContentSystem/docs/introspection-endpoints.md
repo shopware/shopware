@@ -25,7 +25,7 @@
 
 - `GET /api/_info/content-system-mapping-candidates.json`: `content_layout:read`; candidate identity, effective type, cardinality, labels, and inline eligibility. [Mapping/README.md](../Mapping/README.md).
 
-`POST /api/_action/content-system/inline-mapping/parse-batch` parses 1 to 50 independent texts and returns server-owned token spans/canonical text with ordered per-field results and revisions.
+`POST /api/_action/content-system/inline-mapping/parse` parses one text and returns server-owned token spans/canonical text with the caller's revision.
 It is not a catalogue lookup.
 See the [parser API reference](../Api/docs/inline-mapping-parse.md).
 

@@ -134,20 +134,37 @@ class McpListenStreamTest extends TestCase
             static::assertSame('no', $response->headers->get('X-Accel-Buffering'));
 
             $frames = self::sendAndTimeFrames($response, $bumper->start(...));
-            $bumper->setTimeout(20);
-            try {
-                $bumper->wait();
-            } catch (\Throwable $e) {
-                $diag = "=== TIMEOUT pid=" . $bumper->getPid() . "\n";
-                $diag .= (string) @file_get_contents('/tmp/mcpbump.log');
-                $diag .= "--- stdout: " . $bumper->getOutput() . "\n--- stderr: " . $bumper->getErrorOutput() . "\n";
-                $diag .= (string) shell_exec('ps -eo pid,ppid,stat,wchan:32,etime,args | head -40; for p in $(pgrep -P ' . getmypid() . '); do echo "child $p"; cat /proc/$p/status | head -12; cat /proc/$p/wchan; echo; ls -l /proc/$p/fd; cat /proc/$p/stack 2>&1; done');
-                foreach (['SHOW FULL PROCESSLIST', 'SELECT * FROM information_schema.INNODB_TRX', 'SELECT * FROM performance_schema.data_lock_waits', 'SELECT OBJECT_TYPE,OBJECT_SCHEMA,OBJECT_NAME,LOCK_TYPE,LOCK_DURATION,LOCK_STATUS,OWNER_THREAD_ID FROM performance_schema.metadata_locks WHERE OBJECT_SCHEMA NOT IN (\'performance_schema\',\'mysql\')', 'SELECT @@innodb_lock_wait_timeout, @@lock_wait_timeout, @@max_connections, @@autocommit', 'SELECT CONNECTION_ID()'] as $q) {
-                    try { $diag .= "--- $q\n" . json_encode($connection->fetchAllAssociative($q), \JSON_PRETTY_PRINT) . "\n"; } catch (\Throwable $qe) { $diag .= "--- $q failed: " . $qe->getMessage() . "\n"; }
-                }
-                $diag .= "--- tx nesting: " . $connection->getTransactionNestingLevel() . " listen-kernel conn same? " . var_export(self::kernel()->getContainer()->get(Connection::class) === $connection, true) . " lk nesting " . self::kernel()->getContainer()->get(Connection::class)->getTransactionNestingLevel() . "\n";
+            $deadline = microtime(true) + 20;
+            while ($bumper->isRunning() && microtime(true) < $deadline) {
+                usleep(100_000);
+            }
+            if ($bumper->isRunning()) {
+                $pid = (int) $bumper->getPid();
+                $sh = <<<'SH'
+                    p=__PID__; me=__ME__
+                    echo "=== HUNG child $p (phpunit $me) at $(date +%s.%N)"
+                    ps -o pid,ppid,stat,wchan:32,etime,args -p $p
+                    echo "--- descendants"; ps -eo pid,ppid,stat,wchan:32,etime,args --forest | awk -v p=$p '$2==p'
+                    echo "--- status"; head -12 /proc/$p/status
+                    echo "--- wchan $(cat /proc/$p/wchan)"
+                    echo "--- syscall"; sudo cat /proc/$p/syscall
+                    echo "--- stack"; sudo cat /proc/$p/stack
+                    echo "--- cmdline"; tr '\0' ' ' < /proc/$p/cmdline; echo
+                    echo "--- fds"; ls -l /proc/$p/fd
+                    for fd in 0 1 2; do
+                      l=$(readlink /proc/$p/fd/$fd); echo "--- holders of fd$fd $l"
+                      sudo find /proc/[0-9]*/fd -lname "$l" 2>/dev/null | while read f; do q=$(echo $f | cut -d/ -f3); echo "$f $(sudo cat /proc/$f/../../fdinfo/$(basename $f) 2>/dev/null | grep flags) $(tr '\0' ' ' < /proc/$q/cmdline | cut -c1-150)"; done
+                    done
+                    echo "--- strace"; sudo timeout 3 strace -f -tt -s 200 -p $p 2>&1 | head -40
+                    echo "--- gdb"; sudo timeout 20 gdb -p $p -batch -ex 'thread apply all bt' 2>&1 | tail -40
+                    echo "--- all non-kernel processes"; ps -eo pid,ppid,stat,wchan:32,etime,args | grep -v ' \[' | cut -c1-220
+                    SH;
+                $diag = (string) shell_exec(str_replace(['__PID__', '__ME__'], [(string) $pid, (string) getmypid()], $sh) . ' 2>&1');
+                $diag .= "--- log\n" . @file_get_contents('/tmp/mcpbump.log');
+                $diag .= "--- processlist\n" . json_encode($connection->fetchAllAssociative('SHOW FULL PROCESSLIST'), \JSON_PRETTY_PRINT) . "\n";
                 file_put_contents('/tmp/mcpbump.diag', $diag);
-                throw $e;
+                $bumper->stop(0);
+                static::fail('bump child hung, see /tmp/mcpbump.diag');
             }
             static::assertTrue($bumper->isSuccessful(), $bumper->getErrorOutput());
             $bumpedAt = (float) trim($bumper->getOutput());

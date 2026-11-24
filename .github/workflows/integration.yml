@@ -423,6 +423,9 @@ jobs:
           DATABASE_URL: "mysql://root@127.0.0.1:3306/shopware_test"
         run: bin/console dal:refresh:index
 
+      - name: DEBUG install strace and gdb
+        run: sudo apt-get install -y --no-install-recommends strace gdb
+
       - name: Run integration tests
         env:
           SEED: ${{ inputs.seed }}

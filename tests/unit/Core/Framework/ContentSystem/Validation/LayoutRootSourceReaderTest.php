@@ -145,6 +145,17 @@ class LayoutRootSourceReaderTest extends TestCase
         static::assertSame([], $reader->rootSources([$this->ids->get('missing')], []));
     }
 
+    #[TestDox('leaves out a stored layout passed as an uppercase hex id, the DAL storing the lowercase form only')]
+    public function testLeavesOutAStoredLayoutPassedAsUppercaseHex(): void
+    {
+        $layoutId = $this->ids->get('layout');
+
+        $reader = new LayoutRootSourceReader($this->outcome(), $this->rowLoaderReturning([$this->storedRow($layoutId, 'category')]));
+
+        static::assertSame([$layoutId => 'category'], $reader->rootSources([$layoutId], []));
+        static::assertSame([], $reader->rootSources([strtoupper($layoutId)], []));
+    }
+
     /**
      * @param list<array<string, mixed>> $storedRows the rows the write outcome loads for the batch's stored layouts
      */

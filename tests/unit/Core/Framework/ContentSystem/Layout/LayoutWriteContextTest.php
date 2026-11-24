@@ -19,18 +19,6 @@ use Shopware\Core\Framework\Log\Package;
 #[CoversClass(LayoutWriteContext::class)]
 class LayoutWriteContextTest extends TestCase
 {
-    #[TestDox('hands back the tree remembered for the same encoded value')]
-    public function testTreeForReturnsTheTreeRememberedForTheSameBytes(): void
-    {
-        $tree = $this->tree('el-1');
-        $write = $this->write();
-        $memo = new LayoutWriteContext();
-
-        $memo->remember($write, '[{"id":"el-1"}]', $tree);
-
-        static::assertSame($tree, $memo->treeFor($write, '[{"id":"el-1"}]'));
-    }
-
     #[TestDox('keeps the trees of different encoded values apart')]
     public function testTreeForKeepsDifferentBytesApart(): void
     {
@@ -43,16 +31,6 @@ class LayoutWriteContextTest extends TestCase
         $memo->remember($write, '[{"id":"el-2"}]', $second);
 
         static::assertSame([$first, $second], [$memo->treeFor($write, '[{"id":"el-1"}]'), $memo->treeFor($write, '[{"id":"el-2"}]')]);
-    }
-
-    #[TestDox('reports an encoded value no row yielded as null')]
-    public function testTreeForUnknownBytesReturnsNull(): void
-    {
-        $write = $this->write();
-        $memo = new LayoutWriteContext();
-        $memo->remember($write, '[{"id":"el-1"}]', $this->tree('el-1'));
-
-        static::assertNull($memo->treeFor($write, '[{"id":"el-2"}]'));
     }
 
     /**
@@ -114,6 +92,16 @@ class LayoutWriteContextTest extends TestCase
         gc_collect_cycles();
 
         static::assertNull($remembered->get());
+    }
+
+    #[TestDox('reports an encoded value no row yielded as null')]
+    public function testTreeForUnknownBytesReturnsNull(): void
+    {
+        $write = $this->write();
+        $memo = new LayoutWriteContext();
+        $memo->remember($write, '[{"id":"el-1"}]', $this->tree('el-1'));
+
+        static::assertNull($memo->treeFor($write, '[{"id":"el-2"}]'));
     }
 
     private function write(): WriteContext

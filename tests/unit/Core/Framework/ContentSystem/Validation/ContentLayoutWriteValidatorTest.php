@@ -244,6 +244,21 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
+    #[TestDox('rejects an unregistered root source on a root-source-only command with unknownRootSource and never reaches resolve')]
+    public function testRootSourceOnlyCommandWithUnregisteredRootSourceIsRejected(): void
+    {
+        $validator = $this->validatorRejectingBeforeResolvability();
+
+        $write = WriteContext::createFromContext(Context::createDefaultContext());
+        $write->getContext()->addExtension(LayoutWriteContext::EXTENSION_NAME, new LayoutWriteContext());
+
+        $event = new PreWriteValidationEvent($write, [$this->layoutCreate(['root_source' => 'bogus'])]);
+        $validator->preValidate($event);
+
+        $violation = $this->onlyViolation($event);
+        static::assertSame(ContentSystemException::UNKNOWN_ROOT_SOURCE, $violation->getCode());
+    }
+
     #[TestDox('runs resolvability against the declared root source on creation and records a binding error')]
     public function testKnownRootSourceRunsResolvabilityOnCreation(): void
     {

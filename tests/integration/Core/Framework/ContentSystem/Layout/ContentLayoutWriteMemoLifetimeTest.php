@@ -118,9 +118,20 @@ class ContentLayoutWriteMemoLifetimeTest extends TestCase
         $context->addState(LayoutGate::SKIP_VALIDATION_STATE);
         $write = WriteContext::createFromContext($context);
 
-        $this->writer()->upsert($this->definition(), [$this->layout('layout')], $write);
+        $layout = $this->layout('layout');
+        $layout['layout'][0]['component'] = TestElementTypeLoader::DEFAULTED_PRIMITIVE;
 
-        static::assertSame([$this->ids->get('layout-element')], $this->memoizedRootIds($this->memoOf($context), $write));
+        $this->writer()->upsert($this->definition(), [$layout], $write);
+
+        $memo = $this->memoOf($context);
+        static::assertSame([$this->ids->get('layout-element')], $this->memoizedRootIds($memo, $write));
+
+        // The memo is written while encoding, so a memoized tree alone does not prove the write boundary ran; the
+        // default it seeds into the absent property does.
+        static::assertIsString($this->encodedLayouts[0]);
+        $headline = $memo->treeFor($write, $this->encodedLayouts[0])?->roots[0]->property('headline');
+        static::assertNotNull($headline);
+        static::assertSame('Seeded headline', $headline->asString());
     }
 
     /**

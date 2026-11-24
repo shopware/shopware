@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\Aggregate\CategoryContentLayout\CategoryContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
@@ -16,12 +17,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteOutcome;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -32,10 +38,17 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
 {
     private IdsCollection $ids;
 
+    private EntityDefinition $definition;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->ids = new IdsCollection();
+        $this->definition = (new StaticDefinitionInstanceRegistry(
+            [CategoryContentLayoutDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        ))->getByEntityName(CategoryContentLayoutDefinition::ENTITY_NAME);
     }
 
     #[TestDox('adds no violation when the assigned layout is not loadable (no root source), deferring to the FK')]
@@ -157,16 +170,7 @@ class ContentLayoutAssignmentWriteValidatorTest extends TestCase
      */
     private function command(string $commandClass, string $path, array $payload): WriteCommand
     {
-        $command = static::createStub($commandClass);
-        $command->method('getEntityName')->willReturn('category_content_layout');
-        $command->method('getPrimaryKey')->willReturn(['id' => 'assignment-1']);
-        $command->method('getPayload')->willReturn($payload);
-        $command->method('getPath')->willReturn($path);
-        $command->method('hasAnyField')->willReturnCallback(
-            static fn (string ...$storageNames): bool => array_intersect($storageNames, array_keys($payload)) !== []
-        );
-
-        return $command;
+        return new $commandClass($this->definition, $payload, ['id' => Uuid::fromHexToBytes($this->ids->get('assignment'))], static::createStub(EntityExistence::class), $path);
     }
 
     /**

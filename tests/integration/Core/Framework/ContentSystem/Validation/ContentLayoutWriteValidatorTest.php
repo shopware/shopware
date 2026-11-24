@@ -379,7 +379,13 @@ class ContentLayoutWriteValidatorTest extends TestCase
 
         $this->syncUpdateDeleteReinsert($layoutId, TestElementTypeLoader::RESOLVABLE, TestElementTypeLoader::RESOLVABLE, $context);
 
-        static::assertSame($layoutId, $this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+        $stored = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $stored);
+        // The DAL's command order decides which of the two valid trees the batch leaves stored.
+        static::assertContains(
+            array_map(static fn (StoredElement $element): string => $element->id, $stored->getLayout()),
+            [[$this->ids->get('update-element')], [$this->ids->get('reinsert-element')]]
+        );
     }
 
     #[TestDox('reports the violation of a saved layout at the operation that saved it, not at a later rename')]

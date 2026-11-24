@@ -34,6 +34,11 @@ class LayoutRootSourceReaderTest extends TestCase
 
     private EntityDefinition $definition;
 
+    /**
+     * @var list<array<string, string>>
+     */
+    private array $loadedPrimaryKeys = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -50,7 +55,7 @@ class LayoutRootSourceReaderTest extends TestCase
     {
         $layoutId = $this->ids->get('layout');
 
-        $rowLoader = $this->rowLoaderQueryingNoId();
+        $rowLoader = $this->rowLoaderRecordingPrimaryKeys();
 
         $reader = new LayoutRootSourceReader($this->outcome(), $rowLoader);
 
@@ -58,6 +63,7 @@ class LayoutRootSourceReaderTest extends TestCase
             [$layoutId => 'product'],
             $reader->rootSources([$layoutId], [$this->create($layoutId, 'product')])
         );
+        static::assertSame([], $this->loadedPrimaryKeys);
     }
 
     #[TestDox('reads the root source of a layout the batch edits without setting it from the stored row')]
@@ -65,7 +71,7 @@ class LayoutRootSourceReaderTest extends TestCase
     {
         $layoutId = $this->ids->get('layout');
 
-        $rowLoader = $this->rowLoaderQueryingNoId();
+        $rowLoader = $this->rowLoaderRecordingPrimaryKeys();
 
         $reader = new LayoutRootSourceReader($this->outcome([$this->storedRow($layoutId, 'category')]), $rowLoader);
 
@@ -73,6 +79,7 @@ class LayoutRootSourceReaderTest extends TestCase
             [$layoutId => 'category'],
             $reader->rootSources([$layoutId], [$this->update($layoutId)])
         );
+        static::assertSame([], $this->loadedPrimaryKeys);
     }
 
     #[TestDox('reads the root source of a layout outside the batch from its stored row')]
@@ -109,11 +116,12 @@ class LayoutRootSourceReaderTest extends TestCase
     {
         $layoutId = $this->ids->get('layout');
 
-        $rowLoader = $this->rowLoaderQueryingNoId();
+        $rowLoader = $this->rowLoaderRecordingPrimaryKeys();
 
         $reader = new LayoutRootSourceReader($this->outcome([$this->storedRow($layoutId, 'category')]), $rowLoader);
 
         static::assertSame([], $reader->rootSources([$layoutId], [$this->delete($layoutId)]));
+        static::assertSame([], $this->loadedPrimaryKeys);
     }
 
     #[TestDox('keys the root source by the binary id a foreign-key payload passes')]
@@ -146,13 +154,14 @@ class LayoutRootSourceReaderTest extends TestCase
     }
 
     /**
-     * A row loader that fails the test when asked for any stored row; RowLoader runs no query for no ids.
+     * A row loader that returns no row and records the primary keys it is asked for, so a test asserts after the
+     * call that no stored row was requested; RowLoader runs no query for no ids.
      */
-    private function rowLoaderQueryingNoId(): RowLoader
+    private function rowLoaderRecordingPrimaryKeys(): RowLoader
     {
         $rowLoader = static::createStub(RowLoader::class);
-        $rowLoader->method('load')->willReturnCallback(static function (string $entity, array $primaryKeys): array {
-            static::assertSame([], $primaryKeys, 'Expected no stored row to be loaded.');
+        $rowLoader->method('load')->willReturnCallback(function (string $entity, array $primaryKeys): array {
+            array_push($this->loadedPrimaryKeys, ...$primaryKeys);
 
             return [];
         });

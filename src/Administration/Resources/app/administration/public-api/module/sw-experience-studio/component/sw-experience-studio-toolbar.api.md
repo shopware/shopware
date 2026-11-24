@@ -11,9 +11,42 @@ component sw-experience-studio-toolbar  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-toolbar/sw-experience-studio-toolbar.html.twig  [private]
   visibility-source export  [private]
 
+props
+  allowSave?: boolean  default=false  [private]
+  changedLayouts?: Array<{ id: string; name: string }>  default=factory  [private]
+  isLoading?: boolean  default=false  [private]
+  isSavingAll?: boolean  default=false  [private]
+  previewSalesChannelId?: string  default=null  [private]
+
+emits
+  discard-layout(...args: any[])  [private]
+  preview-sales-channel-change(...args: any[])  [private]
+  save(...args: any[])  [private]
+
+slots
+  workspace-switcher  {}  block=sw_experience_studio_toolbar_left  [private]
+
+data
+  isReviewOpen: any  [private]
+  reviewKeydownHandler: any  [private]
+
+computed
+  reviewActionsDisabled: boolean  [private]
+  salesChannelCriteria: CriteriaType  [private]
+
+methods
+  closeReview(): void  [private]
+  onPreviewSalesChannelChange(salesChannelId: string | null): void  [private]
+  onSave(): void  [private]
+  toggleReview(): void  [private]
+
 blocks
   sw_experience_studio_toolbar  [private]
     sw_experience_studio_toolbar_left  [private]
     sw_experience_studio_toolbar_right  [private]
       sw_experience_studio_toolbar_sales_channel_select  [private]
+
+refs
+  reviewPanel  -> div  block=sw_experience_studio_toolbar_right  [private]
+  reviewTrigger  -> mt-button  block=sw_experience_studio_toolbar_right  [private]
 ```

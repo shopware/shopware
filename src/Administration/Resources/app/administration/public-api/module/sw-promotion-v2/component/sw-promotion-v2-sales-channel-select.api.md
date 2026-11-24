@@ -10,6 +10,29 @@ component sw-promotion-v2-sales-channel-select  public  js
   source src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/index.js
   template src/module/sw-promotion-v2/component/sw-promotion-v2-sales-channel-select/sw-promotion-v2-sales-channel-select.html.twig
 
+inject
+  repositoryFactory
+
+props
+  promotion?: object  default=null
+
+data
+  salesChannels: any
+  sortBy: any
+
+computed
+  promotionSalesChannelRepository: any
+  salesChannelCriteria: any
+  salesChannelIds: any
+  salesChannelRepository: any
+
+methods
+  createdComponent(): any
+  getAssociationBySalesChannelId(salesChannelId: any): any
+  getChangeset(salesChannelsIds: any): any
+  handleLocalMode(deleted: any, added: any): any
+  handleWithRepository(deleted: any, added: any): any
+
 blocks
   sw_promotion_v2_sales_channel_selection
     sw_promotion_v2_sales_channel_selection_label

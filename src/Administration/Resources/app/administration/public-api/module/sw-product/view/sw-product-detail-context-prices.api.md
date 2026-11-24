@@ -10,6 +10,72 @@ component sw-product-detail-context-prices  public  js
   source src/module/sw-product/view/sw-product-detail-context-prices/index.js
   template src/module/sw-product/view/sw-product-detail-context-prices/sw-product-detail-context-prices.html.twig
 
+mixins
+  notification
+
+inject
+  acl
+  feature
+  repositoryFactory
+
+props
+  canSetLoadingRules?: boolean  default=true
+  isSetDefaultPrice?: boolean  default=false
+
+data
+  isInherited: any
+  rules: any
+  showListPrices: any
+  totalRules: any
+
+computed
+  assetFilter: any  [deprecated tag:v6.8.0]
+  canAddPriceRule: any
+  currencies: any
+  currencyColumns: any
+  defaultCurrency: any
+  defaultPrice: any
+  emptyPriceRuleExists: any
+  emptyStateDescription: any
+  isChild: any
+  isLoaded: any
+  isLoading: any
+  parentPricesHref: any
+  parentProduct: any
+  priceRepository: any
+  priceRuleGroups: any
+  priceRuleGroupsExists: any
+  pricesColumns: any
+  product: any
+  productTaxRate: any
+  ruleRepository: any
+  taxes: any
+
+methods
+  canCreatePriceRule(priceGroup: any): any
+  convertPrice(value: any, currency: any): any
+  createPriceRule(priceGroup: any): any
+  duplicatePriceRule(referencePrice: any, ruleId?: any = null): any
+  findDefaultPriceOfRule(rule: any): any
+  findPricesByRuleId(ruleId: any): any
+  findRuleById(ruleId: any): any
+  getPriceRuleGroupClass(number: any): any
+  getStartQuantityTooltip(itemIndex: any, quantity: any): any
+  isPriceFieldInherited(rule: any, currency: any): any
+  mountedComponent(): any
+  onAddNewPriceGroup(ruleId?: any = null): Promise<any>
+  onChangeShowListPrices(value: any, ruleId: any): any
+  onInheritanceRemove(rule: any, currency: any): any
+  onInheritanceRestore(rule: any, currency: any): any
+  onPriceGroupDelete(ruleId: any): any
+  onPriceGroupDuplicate(priceGroup: any): any
+  onPriceRuleDelete(priceRule: any): any
+  onQuantityEndChange(price: any, priceGroup: any): any
+  onRuleChange(value: any, ruleId: any): any
+  removeInheritance(): any
+  restoreInheritance(): any
+  sortCurrencies(): any
+
 blocks
   sw_product_detail_prices
     sw_product_detail_prices_price_card
@@ -35,7 +101,7 @@ blocks
         sw_product_detail_prices_price_card_toolbar_rule_delete  [after v-if] [scope: index, key, priceGroup]
         sw_product_detail_prices_price_card_toolbar_rule_selection  [scope: index, key, priceGroup]
       sw_product_detail_prices_price_empty_state
-        sw_product_detail_prices_empty_state_image
+        sw_product_detail_prices_empty_state_image  [deprecated tag:v6.8.0]
         sw_product_detail_prices_price_empty_state__inherit_switch
         sw_product_detail_prices_price_empty_state_select_rule  [after v-if]
         sw_product_detail_prices_price_empty_state_text

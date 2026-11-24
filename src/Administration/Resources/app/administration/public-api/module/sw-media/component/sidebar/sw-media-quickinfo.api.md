@@ -10,6 +10,80 @@ component sw-media-quickinfo  public  js
   source src/module/sw-media/component/sidebar/sw-media-quickinfo/index.js
   template src/module/sw-media/component/sidebar/sw-media-quickinfo/sw-media-quickinfo.html.twig
 
+mixins
+  notification, media-sidebar-modal-mixin, video-cover, placeholder
+
+inject
+  acl
+  customFieldDataProviderService
+  mediaService
+  repositoryFactory
+  systemConfigApiService
+
+props
+  editable?: boolean  default=false
+  item: object
+
+emits
+  media-item-rename-success(...args: any[])
+  media-item-replaced(...args: any[])
+  update:item(...args: any[])
+
+data
+  arPlacement: any
+  arPlacementOptions: any
+  arReady: any
+  customFieldSets: any
+  defaultArPlacement: any
+  defaultArReady: any
+  fileNameError: any
+  isLoading: any
+  isSaveSuccessful: any
+  showCoverSelectionModal: any
+  showModalReplace: any
+  showModelEditorModal: any
+
+computed
+  canManageVideoCover: any
+  createdAt: any
+  deleterTooltip: any
+  editorTooltip: any
+  extensionSdkButtons: any
+  fileName: any
+  fileNameClasses: any
+  fileSize: any
+  isMediaObject: any
+  isPlayable: any
+  isSpatial: any
+  mediaRepository: any
+  showUnsupportedFormatWarning: any
+
+methods
+  buildAugmentedRealityTooltip(snippet: any): any
+  changeARPlacement(newPlacement: any): any
+  closeModalReplace(): any
+  closeModelEditorModal(): any
+  copyLinkToClipboard(): Promise<any>
+  createdComponent(): any
+  downloadMedia(): any
+  emitRefreshMediaLibrary(): any
+  fetchSpatialItemConfig(): any
+  handleErrorMessage(error: any): any
+  loadCustomFieldSets(): Promise<any>
+  onChangeFileName(value: any): Promise<any>
+  onRemoveFileNameError(): any
+  onSave(): Promise<any>
+  onSaveCustomFields(item: any): Promise<any>  [deprecated tag:v6.8.0]
+  onSubmitAltText(value: any): any
+  onSubmitTitle(value: any): any
+  openModalReplace(): any
+  openModelEditorModal(): any
+  quickActionClasses(disabled: any): any
+  runAppAction(action: any): any
+  saveFinish(): any
+  toggleAR(newValue: any): any
+  triggerDownload(url: any, fileName?: any = null): any
+
 blocks
   sw_media_quickinfo
     sw_media_quickinfo_broken_file
@@ -42,4 +116,10 @@ blocks
     sw_media_quickinfo_spatial_configuration  [after v-if]
     sw_media_quickinfo_tags  [after v-if]
     sw_media_quickinfo_usage
+
+refs
+  inlineEditFieldAlt  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  inlineEditFieldName  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  inlineEditFieldTitle  -> sw-confirm-field  block=sw_media_quickinfo_metadata_content_base
+  modelEditorRef  -> sw-model-editor  block=sw_model_editor_modal
 ```

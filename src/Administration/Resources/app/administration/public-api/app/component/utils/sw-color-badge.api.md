@@ -11,6 +11,18 @@ component sw-color-badge  private  js  [private]
   template src/app/component/utils/sw-color-badge/sw-color-badge.html.twig  [private]
   visibility-source export  [private]
 
+props
+  color?: string  default=''  [private]
+  rounded?: boolean  default=false  [private]
+  variant?: string  default='default'  [private]
+
+slots
+  default  {}  block=sw_color_badge  [private]
+
+computed
+  colorStyle: any  [private]
+  variantClass: any  [private]
+
 blocks
   sw_color_badge  [private]
     sw_color_badfge_slot_default  [private]

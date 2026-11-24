@@ -10,6 +10,73 @@ component sw-model-editor  public  ts
   source src/app/component/media/sw-model-editor/index.ts
   template src/app/component/media/sw-model-editor/sw-model-editor.html.twig
 
+inject
+  mediaService
+  repositoryFactory
+
+props
+  source: object
+
+data
+  canvas: any
+  currentEditMode: any
+  currentProperties: object
+    position: object
+      x: any
+      y: any
+      z: any
+    rotation: object
+      x: any
+      y: any
+      z: any
+    scale: object
+      x: any
+      y: any
+      z: any
+  diveModel: any
+  initialProperties: object
+    position: object
+      x: any
+      y: any
+      z: any
+    rotation: object
+      x: any
+      y: any
+      z: any
+    scale: object
+      x: any
+      y: any
+      z: any
+  isLoading: any
+  isRotatable: any
+  isScalable: any
+  isTranslatable: any
+  modelEntity: any
+  objectChangeHandler: any
+  quickView: any
+  toolbox: any
+
+computed
+  mediaRepository: Repository<'media'>
+
+methods
+  beforeUnmountedComponent(): void
+  changeModelPosition(position: { x: number; y: number; z: number }): void
+  changeModelRotation(rotation: { x: number; y: number; z: number }): void
+  changeModelScale(scale: { x: number; y: number; z: number }): void
+  changeModelScaleLinked(value: boolean): void
+  compareInitialProperties(model: DIVENode): boolean
+  createdComponent(): void
+  disposeQuickView(): Promise<void>
+  initializeQuickView(): Promise<void>
+  mountedComponent(): void
+  onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void
+  onObjectChange(event: { object: unknown }): void
+  save(): Promise<void>
+  saveInitialProperties(model: DIVENode): void
+  setGizmoMode(mode: 'translate' | 'rotate' | 'scale'): void
+  syncProperties(model: DIVENode): void
+
 blocks
   sw_model_editor
 ```

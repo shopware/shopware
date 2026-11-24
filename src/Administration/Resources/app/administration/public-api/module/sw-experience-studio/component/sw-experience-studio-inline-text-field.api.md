@@ -11,6 +11,47 @@ component sw-experience-studio-inline-text-field  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-inline-text-field/sw-experience-studio-inline-text-field.html.twig  [private]
   visibility-source export  [private]
 
+props
+  candidates?: ContentSystemMappingCandidate[]  default=factory  [private]
+  disabled?: boolean  default=false  [private]
+  helpText?: string  default=null  [private]
+  label?: string  default=null  [private]
+  value?: string  default=''  [private]
+
+emits
+  update:value(...args: any[])  [private]
+
+data
+  activeEditor: any  [private]
+  customButtons: any  [private]
+  editorHtml: any  [private]
+  hasAddedParagraph: any  [private]
+  hasParseError: any  [private]
+  isEditorReady: any  [private]
+  isMappingModalOpen: any  [private]
+  isParsing: any  [private]
+  lastEmittedValue: any  [private]
+  parseRevision: any  [private]
+  parseTimeoutId: any  [private]
+  parsedTokens: any  [private]
+  tipTapConfig: any  [private]
+
+computed
+  editorBindings: object  [private]
+  knownTokenTexts: Map<string, string>  [private]
+
+methods
+  createEditorConfig(): void  [private]
+  getCandidateLabel(path: string): string  [private]
+  onCloseMappingModal(): void  [private]
+  onOpenMappingModal(editor: MinimalEditor): void  [private]
+  onRetryParse(): void  [private]
+  onSelectMapping(candidate: ContentSystemMappingCandidate): void  [private]
+  onUpdateEditorHtml(html: string): void  [private]
+  refreshEditorValue(value: string, updateEditorMarkup?: any = true, requestRevision?: number): Promise<void>  [private]
+  scheduleEditorValueParse(value: string): void  [private]
+  toEditorHtml(value: string): string  [private]
+
 blocks
   sw_experience_studio_inline_text_field  [private]
     sw_experience_studio_inline_text_field_editor  [after v-if] [private]

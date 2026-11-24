@@ -11,6 +11,53 @@ component sw-experience-studio-sidebar-tree-node  private  ts  [private]
   template src/module/sw-experience-studio/component/sw-experience-studio-sidebar-tree-node/sw-experience-studio-sidebar-tree-node.html.twig  [private]
   visibility-source export  [private]
 
+inject
+  acl  [private]
+
+props
+  allowDragAndDrop?: boolean  default=false  [private]
+  depth?: number  default=0  [private]
+  element: ContentElementNode  [private]
+  indexInParent?: number  default=null  [private]
+  parentElementId?: string  default=null  [private]
+  parentSlotName?: string  default=null  [private]
+  selectedElementId?: string  default=null  [private]
+  validateMoveTarget?: ((payload: MoveElementPayload) => boolean) | null  default=null  [private]
+
+emits
+  add-element(...args: any[])  [private]
+  delete-element(...args: any[])  [private]
+  duplicate-element(...args: any[])  [private]
+  move-element(...args: any[])  [private]
+  select-element(...args: any[])  [private]
+
+data
+  isExpanded: any  [private]
+
+computed
+  allowEdit: boolean  [private]
+  contentElement: ContentElementNode  [private]
+  elementTypeStore: any  [private]
+  hasSlots: boolean  [private]
+  isSelected: boolean  [private]
+  label: string  [private]
+  slotEntries: Array<{ name: string; elements: ContentElementNode[] }>  [private]
+  typeIcon: string  [private]
+
+methods
+  collectSubtreeIds(element: ContentElementNode): string[]  [private]
+  dragConfig(): any  [private]
+  dropConfigForElement(): any  [private]
+  dropConfigForSlot(slotName: string): any  [private]
+  onAddElement(slotName: string, event: MouseEvent): void  [private]
+  onDeleteElement(): void  [private]
+  onDropElement(dragData: { elementId: string } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): void  [private]
+  onDuplicateElement(): void  [private]
+  onSelectElement(): void  [private]
+  onToggleExpand(): void  [private]
+  preventDrag(event: Event): void  [private]
+  validateMoveDrop(dragData: { elementId: string; subtreeIds: string[] } | null, dropData: Omit<MoveElementPayload, 'elementId'> | null): boolean  [private]
+
 blocks
   sw_experience_studio_sidebar_tree_node  [private]
     sw_experience_studio_sidebar_tree_node_children  [private]

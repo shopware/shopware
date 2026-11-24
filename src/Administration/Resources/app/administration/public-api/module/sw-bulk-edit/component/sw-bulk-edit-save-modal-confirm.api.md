@@ -10,6 +10,24 @@ component sw-bulk-edit-save-modal-confirm  public  js
   source src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/index.js
   template src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm/sw-bulk-edit-save-modal-confirm.html.twig
 
+props
+  bulkEditData?: object  default=factory
+  itemTotal: number
+
+emits
+  buttons-update(...args: any[])
+  title-set(...args: any[])
+
+computed
+  hasDocumentDeletionSelected: any
+  isFlowTriggered: any
+  triggeredFlows: any
+
+methods
+  createdComponent(): any
+  setTitle(): any
+  updateButtons(): any
+
 blocks
   sw_bulk_edit_save_modal_confirm
     sw_bulk_edit_save_modal_confirm_trigger_flows

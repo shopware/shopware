@@ -11,6 +11,14 @@ component sw-cms-block-image-text-gallery  private  js  [private]
   template src/module/sw-cms/blocks/text-image/image-text-gallery/component/sw-cms-block-image-text-gallery.html.twig  [private]
   visibility-source export  [private]
 
+slots
+  center-image  {}  block=sw_cms_block_image_text_gallery  [private]
+  center-text  {}  block=sw_cms_block_image_text_gallery  [private]
+  left-image  {}  block=sw_cms_block_image_text_gallery  [private]
+  left-text  {}  block=sw_cms_block_image_text_gallery  [private]
+  right-image  {}  block=sw_cms_block_image_text_gallery  [private]
+  right-text  {}  block=sw_cms_block_image_text_gallery  [private]
+
 blocks
   sw_cms_block_image_text_gallery  [private]
 ```

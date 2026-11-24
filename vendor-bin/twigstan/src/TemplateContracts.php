@@ -2,7 +2,10 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\TwigStan;
 
+use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;
+use PhpParser\Node\Expr\Ternary;
+use PhpParser\Node\Name\FullyQualified;
 use PHPStan\Analyser\DependencyTracker;
 use PHPStan\Analyser\Scope;
 use PHPStan\PhpDoc\TypeStringResolver;
@@ -57,7 +60,7 @@ final class TemplateContracts implements DynamicStaticMethodReturnTypeExtension
      *
      * @return array<string, mixed>
      */
-    public static function context(Environment $env, array $context, array $variables, bool $withContext, string $template, string $type): array
+    public static function context(Environment $env, array $context, array $variables, bool $withContext, string $template, string $type, bool $project = true): array
     {
         return $withContext ? array_merge($context, $variables) : $variables;
     }
@@ -75,6 +78,13 @@ final class TemplateContracts implements DynamicStaticMethodReturnTypeExtension
     public function getTypeFromStaticMethodCall(MethodReflection $methodReflection, StaticCall $methodCall, Scope $scope): ?Type
     {
         $args = $methodCall->getArgs();
+        if (isset($args[6]) && $scope->getType($args[6]->value)->isFalse()->yes()) {
+            return $scope->getType(new Ternary(
+                $args[3]->value,
+                new FuncCall(new FullyQualified('array_merge'), [$args[1], $args[2]]),
+                $args[2]->value,
+            ));
+        }
         $types = isset($args[5]) ? $scope->getType($args[5]->value)->getConstantStrings() : [];
 
         return \count($types) === 1 ? $this->types->resolve($types[0]->getValue()) : null;
@@ -150,24 +160,25 @@ final class TemplateContracts implements DynamicStaticMethodReturnTypeExtension
     }
 
     /**
-     * @return array<string, array{type: string, optional: bool}>|null
+     * @return array{fields: array<string, array{type: string, optional: bool}>, project: bool}|null
      */
     public static function declaration(Environment $twig, Source $source): ?array
     {
-        if (!str_contains($source->getCode(), 'template-contract')) {
+        if (!str_contains($source->getCode(), 'template-contract') && !str_contains($source->getCode(), 'external-interface')) {
             return null;
         }
 
         $stream = $twig->tokenize($source);
         $contract = null;
+        $project = true;
         while (!$stream->isEOF()) {
             $token = $stream->next();
-            if (!$token->test(Token::BLOCK_START_TYPE) || preg_match('/^\h*template-contract\h*$/m', $token->getDocumentation() ?? '') !== 1) {
+            if (!$token->test(Token::BLOCK_START_TYPE) || preg_match('/^\h*(template-contract|external-interface)\h*$/m', $token->getDocumentation() ?? '', $marker) !== 1) {
                 continue;
             }
 
             if (!$stream->test(Token::NAME_TYPE, 'types') || $contract !== null) {
-                throw new SyntaxError('The template-contract marker must precede a single types declaration.', $token->getLine(), $source);
+                throw new SyntaxError(\sprintf('The %s marker must precede a single types declaration.', $marker[1]), $token->getLine(), $source);
             }
 
             $tokens = [$token];
@@ -178,6 +189,7 @@ final class TemplateContracts implements DynamicStaticMethodReturnTypeExtension
             $tokens[] = new Token(Token::EOF_TYPE, '', $token->getLine());
             $module = (new Environment(new ArrayLoader()))->parse(new TokenStream($tokens, $source));
             $contract = [];
+            $project = $marker[1] === 'template-contract';
             foreach ((new NodeFinder())->findInstanceOf($module, TypesNode::class) as $node) {
                 foreach ($node->getAttribute('mapping') as $name => $field) {
                     $contract[$name] = $field;
@@ -185,7 +197,7 @@ final class TemplateContracts implements DynamicStaticMethodReturnTypeExtension
             }
         }
 
-        return $contract;
+        return $contract === null ? null : ['fields' => $contract, 'project' => $project];
     }
 
     /**
@@ -212,7 +224,7 @@ final class TemplateContracts implements DynamicStaticMethodReturnTypeExtension
             return $this->contracts[$template] = null;
         }
         $contract = [];
-        foreach ($declaration as $name => $field) {
+        foreach ($declaration['fields'] as $name => $field) {
             $contract[$name] = ['type' => $this->types->resolve($field['type']), 'optional' => $field['optional']];
         }
 

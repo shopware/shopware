@@ -12,9 +12,9 @@ use Twig\Node\Expression\AbstractExpression;
 #[Package('framework')]
 final class TemplateContractContextExpression extends AbstractExpression
 {
-    public function __construct(AbstractExpression $variables, bool $withContext, string $template, string $type, int $line)
+    public function __construct(AbstractExpression $variables, bool $withContext, string $template, string $type, int $line, bool $project = true)
     {
-        parent::__construct(['variables' => $variables], ['withContext' => $withContext, 'template' => $template, 'type' => $type], $line);
+        parent::__construct(['variables' => $variables], ['withContext' => $withContext, 'template' => $template, 'type' => $type, 'project' => $project], $line);
     }
 
     public function compile(Compiler $compiler): void
@@ -23,6 +23,7 @@ final class TemplateContractContextExpression extends AbstractExpression
             ->subcompile($this->getNode('variables'))->raw(', ')
             ->repr($this->getAttribute('withContext'))->raw(', ')
             ->string($this->getAttribute('template'))->raw(', ')
-            ->string($this->getAttribute('type'))->raw(')');
+            ->string($this->getAttribute('type'))->raw(', ')
+            ->repr($this->getAttribute('project'))->raw(')');
     }
 }

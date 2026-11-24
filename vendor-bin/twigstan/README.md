@@ -63,6 +63,22 @@ Extra caller variables remain available at runtime but are excluded from the con
 Templates without the marker retain ordinary inference.
 This validation currently applies to Twig include calls; PHP render entrypoints retain their existing inference.
 
+Use `{## external-interface ##}` before a `types` declaration for a partial interface that checks its declared inputs while preserving the other inferred caller fields.
+This marker uses the same caller validation and accepts extra variables in analysis as well as at runtime.
+The ordinary `{## template-contract ##}` marker continues to project the analysis context to its declaration when a complete interface is needed to prevent context-shape degradation.
+
+```twig
+{## external-interface ##}
+{% types {
+    listSearchTerm?: 'string|null'
+} %}
+```
+
+Declare supported optional interface inputs with `?` in the `types` mapping, including inputs that no current core caller supplies.
+Caller inference alone cannot describe extension-facing inputs that core does not exercise, and analysis may otherwise treat their guarded branches as unreachable or report missing variables inside them.
+Use a caller-validated interface declaration for these inputs so concrete supplied values are checked against their declared types.
+Keep computed local variables inferred from their assignments; optional input declarations must not mask lost block context.
+
 ## Analyzer versions
 
 - [TwigStan 0.2.8](https://github.com/twigstan/twigstan/releases/tag/0.2.8) is installed from upstream and pinned in `composer.lock`.

@@ -26,7 +26,7 @@ use Twig\NodeVisitor\NodeVisitorInterface;
 final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
 {
     /**
-     * @var array<string, string|null>
+     * @var array<string, array{type: string, project: bool}|null>
      */
     private array $contracts = [];
 
@@ -50,11 +50,11 @@ final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
         if ($templates === []) {
             if ($expression instanceof ConstantExpression && \is_string($expression->getAttribute('value'))) {
                 $template = $expression->getAttribute('value');
-                $type = $this->getContract($env, $template);
-                if ($type !== null) {
+                $contract = $this->getContract($env, $template);
+                if ($contract !== null) {
                     $variables = $node->hasNode('variables') ? $node->getNode('variables') : new ArrayExpression([], $node->getTemplateLine());
                     \assert($variables instanceof AbstractExpression);
-                    $node->setNode('variables', new TemplateContractContextExpression($variables, !$node->getAttribute('only'), $template, $type, $node->getTemplateLine()));
+                    $node->setNode('variables', new TemplateContractContextExpression($variables, !$node->getAttribute('only'), $template, $contract['type'], $node->getTemplateLine(), $contract['project']));
                     $node->setAttribute('only', true);
                 }
             }
@@ -75,7 +75,10 @@ final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
         return -10;
     }
 
-    private function getContract(Environment $twig, string $template): ?string
+    /**
+     * @return array{type: string, project: bool}|null
+     */
+    private function getContract(Environment $twig, string $template): ?array
     {
         if (\array_key_exists($template, $this->contracts)) {
             return $this->contracts[$template];
@@ -89,11 +92,11 @@ final class StorefrontIncludeNodeVisitor implements NodeVisitorInterface
             return $this->contracts[$template] = null;
         }
         $fields = [];
-        foreach ($declaration as $name => $field) {
+        foreach ($declaration['fields'] as $name => $field) {
             $fields[] = $name . ($field['optional'] ? '?' : '') . ': ' . $field['type'];
         }
 
-        return $this->contracts[$template] = 'array{' . implode(', ', $fields) . '}';
+        return $this->contracts[$template] = ['type' => 'array{' . implode(', ', $fields) . '}', 'project' => $declaration['project']];
     }
 
     /**

@@ -35,6 +35,7 @@ class TemplateContractRuleTest extends RuleTestCase
             ['Template "template-contract.twig" requires variable "name" to be defined.', 12],
             ['Template "template-contract.twig" requires variable "name" to be defined.', 13],
             ['Template "template-contract.twig" expects "size" to be string|null, 42 given.', 16],
+            ['Template "template-interface.twig" expects "term" to be string|null, 42 given.', 20],
         ]);
     }
 

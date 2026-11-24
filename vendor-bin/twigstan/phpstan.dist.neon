@@ -10,8 +10,9 @@ parameters:
         - ../../twigstan-loader.php
     excludePaths:
         analyse:
-            # Checked by its type-inference test with an isolated Twig environment.
+            # Checked by their type-inference tests with isolated Twig environments.
             - tests/fixtures/storefront-globals.php
+            - tests/fixtures/template-interface-types.php
     bootstrapFiles:
         - bootstrap.php
     symfony:

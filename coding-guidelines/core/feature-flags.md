@@ -77,7 +77,8 @@ Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument i
 ### Using flags in methods
 
 PHPStan's feature-guard extension permits deprecated calls inside a legacy branch guarded by the matching removal-version feature flag.
-A named flag also qualifies when its registered `major` matches the API's deprecation tag.
+A named flag alone does not prove the major is inactive: an explicit configuration can override the named flag's `major` inheritance.
+Check the removal-version flag as well when keeping a legacy path behind a named flag.
 This applies to direct conditions and boolean aliases that have not been overwritten.
 Unguarded calls and calls guarded by a different removal version remain reported.
 

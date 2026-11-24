@@ -21,15 +21,12 @@
     gap: 0.5rem;
 }
 
+.sw-filter-panel__expand.btn-filter,
+.sw-filter-panel__offcanvas-toggle.btn-filter {
+    --sw-btn-filter-icon-size: 1.03125rem;
+}
+
 .sw-filter-panel__expand {
-    padding-right: 2.2rem;
-
-    .sw-icon {
-        position: absolute;
-        right: 0.5rem;
-        top: 0.7rem;
-    }
-
     // The open offcanvas shows every filter, so there is nothing to expand
     .sw-offcanvas.show & {
         display: none;
@@ -37,8 +34,17 @@
 }
 
 .sw-filter-panel__offcanvas-toggle.btn-filter {
+    padding-right: var(--bs-btn-padding-x);
     text-align: center;
     width: 100%;
+
+    .sw-icon {
+        position: static;
+
+        > svg {
+            vertical-align: -0.125em;
+        }
+    }
 }
 
 .sw-filter-panel.is--vertical {

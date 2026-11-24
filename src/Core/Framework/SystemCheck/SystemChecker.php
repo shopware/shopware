@@ -35,10 +35,7 @@ class SystemChecker
         $results = $this->runChecksByCategory($this->groupByCategory($allowedChecks));
         $skippedChecksResults = $this->skipChecks($disallowedChecks, \sprintf('Check not allowed to run in this execution context: %s', $context->name));
 
-        // a skip says nothing about the check and would overwrite its last real result
-        $this->resultStorage->save(
-            array_filter($results, static fn (Result $result) => $result->status !== Status::SKIPPED)
-        );
+        $this->resultStorage->save($results);
 
         return array_merge($results, $skippedChecksResults);
     }

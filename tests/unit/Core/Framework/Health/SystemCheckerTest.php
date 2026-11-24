@@ -95,7 +95,7 @@ class SystemCheckerTest extends TestCase
         static::assertEquals($skippedResult, $results[1]);
     }
 
-    public function testStoresTheResultsOfTheChecksThatRan(): void
+    public function testDoesNotStoreChecksNotAllowedInTheContext(): void
     {
         $ran = new Result('ran', Status::OK, 'fine', true);
         $notAllowed = static::createStub(BaseCheck::class);
@@ -113,7 +113,7 @@ class SystemCheckerTest extends TestCase
         (new SystemChecker([$notAllowed, $allowed], $storage))->check(SystemCheckExecutionContext::CLI);
     }
 
-    public function testDoesNotStoreChecksSkippedAfterAFailedSystemCheck(): void
+    public function testStoresChecksSkippedAfterAFailedSystemCheck(): void
     {
         $failed = new Result('database', Status::FAILURE, 'down', false);
         $systemCheck = static::createStub(BaseCheck::class);
@@ -128,7 +128,7 @@ class SystemCheckerTest extends TestCase
         $featureCheck->expects($this->never())->method('run');
 
         $storage = $this->createMock(SystemCheckResultStorage::class);
-        $storage->expects($this->once())->method('save')->with([$failed]);
+        $storage->expects($this->once())->method('save')->with([$failed, new Result('feature', Status::SKIPPED, 'Check is not run due to previous failed checks.')]);
 
         (new SystemChecker([$systemCheck, $featureCheck], $storage))->check(SystemCheckExecutionContext::CLI);
     }

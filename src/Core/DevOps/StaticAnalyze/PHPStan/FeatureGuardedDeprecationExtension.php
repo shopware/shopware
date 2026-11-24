@@ -27,7 +27,21 @@ final class FeatureGuardedDeprecationExtension implements IgnoreErrorExtension
 
     public function shouldIgnore(Error $error, Node $node, Scope $scope): bool
     {
-        if (!\in_array($error->getIdentifier(), ['method.deprecated', 'method.deprecatedClass', 'staticMethod.deprecated', 'staticMethod.deprecatedClass', 'new.deprecatedClass'], true)
+        if (!\in_array($error->getIdentifier(), [
+            'method.deprecated',
+            'method.deprecatedClass',
+            'method.deprecatedInterface',
+            'staticMethod.deprecated',
+            'staticMethod.deprecatedClass',
+            'new.deprecatedClass',
+            'classConstant.deprecated',
+            'classConstant.deprecatedClass',
+            'classConstant.deprecatedInterface',
+            'property.deprecated',
+            'property.deprecatedClass',
+            'catch.deprecatedClass',
+            'instanceof.deprecatedClass',
+        ], true)
             || preg_match('/\btag:(v\d+\.\d+\.\d+(?:\.\d+)?)\b/', $error->getMessage(), $match) !== 1
         ) {
             return false;

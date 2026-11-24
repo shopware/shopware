@@ -43,6 +43,7 @@ use Shopware\Elasticsearch\Admin\Indexer\PromotionAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\PropertyGroupAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\SalesChannelAdminSearchIndexer;
 use Shopware\Elasticsearch\Admin\Indexer\ShippingMethodAdminSearchIndexer;
+use Shopware\Elasticsearch\Admin\Subscriber\ProductAssociationChangeSetSubscriber;
 use Shopware\Elasticsearch\Admin\Subscriber\ProductInheritanceSubscriber;
 use Shopware\Elasticsearch\Admin\Subscriber\RefreshIndexSubscriber;
 use Shopware\Elasticsearch\ExplainFieldQueryBuilder;
@@ -573,6 +574,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(RefreshIndexSubscriber::class)
         ->args([
             service(AdminSearchRegistry::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(ProductAssociationChangeSetSubscriber::class)
+        ->args([
+            service(AdminElasticsearchHelper::class),
         ])
         ->tag('kernel.event_subscriber');
 

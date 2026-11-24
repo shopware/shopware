@@ -86,19 +86,11 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             'categoryId',
         ]) : [];
 
-        $visibilities = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductVisibilityDefinition::ENTITY_NAME, [
-            'salesChannelId',
-        ]) : [];
-
-        $media = Feature::isActive('ENABLE_OPENSEARCH_FOR_ADMIN_API') ? $event->getPrimaryKeysWithPropertyChange(ProductMediaDefinition::ENTITY_NAME, [
-            'mediaId',
-        ]) : [];
-
         $tags = $event->getPrimaryKeysWithPropertyChange(ProductTagDefinition::ENTITY_NAME, [
             'tagId',
         ]);
 
-        foreach (array_merge($translations, $tags, $visibilities, $categories, $media) as $pks) {
+        foreach (array_merge($translations, $tags, $categories) as $pks) {
             if (isset($pks['productId'])) {
                 $productIds[] = $pks['productId'];
             }
@@ -110,7 +102,12 @@ final class ProductAdminSearchIndexer extends AbstractAdminIndexer
             return $productIds;
         }
 
-        $productIds = array_values(array_unique([...$productIds, ...$this->getProductIdsWithChangedDocuments($event)]));
+        $productIds = array_values(array_unique([
+            ...$productIds,
+            ...$this->getProductIdsOfChangedAssociation($event, ProductVisibilityDefinition::ENTITY_NAME, 'salesChannelId'),
+            ...$this->getProductIdsOfChangedAssociation($event, ProductMediaDefinition::ENTITY_NAME, 'mediaId'),
+            ...$this->getProductIdsWithChangedDocuments($event),
+        ]));
 
         // variants index the values they inherit from their parent, e.g. price, active, visibilities, cover and documents
         return $this->addVariantIds($productIds, $event);
@@ -547,6 +544,32 @@ SQL,
         );
 
         return $this->indexRowsById($rows);
+    }
+
+    /**
+     * The primary key of the association is only its own id, so the product comes from the payload of inserts
+     * and from the change set of updates and deletes, see ProductAssociationChangeSetSubscriber.
+     *
+     * @return list<string>
+     */
+    private function getProductIdsOfChangedAssociation(EntityWrittenContainerEvent $event, string $entityName, string $property): array
+    {
+        $productIds = [];
+
+        foreach ($event->getResults($entityName) as $result) {
+            if ($result->getOperation() !== EntityWriteResult::OPERATION_DELETE && !\array_key_exists($property, $result->getPayload())) {
+                continue;
+            }
+
+            $productIds[] = $result->getPayload()['productId'] ?? null;
+
+            $previousProductId = $result->getChangeSet()?->getBefore('product_id');
+            if (\is_string($previousProductId)) {
+                $productIds[] = Uuid::fromBytesToHex($previousProductId);
+            }
+        }
+
+        return array_values(array_filter($productIds, '\is_string'));
     }
 
     /**

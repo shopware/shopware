@@ -313,6 +313,7 @@ class StoredElementListFieldSerializerTest extends TestCase
     {
         yield 'payload' => [[], ['rootSource' => 'product'], 'product'];
         yield 'earlier row of the same write' => [[['rootSource' => 'product']], [], 'product'];
+        yield 'payload over an earlier row of the same write' => [[['rootSource' => 'product']], ['rootSource' => 'landing_page'], 'landing_page'];
         yield 'stored layout' => [[], [], 'category'];
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -144,6 +145,47 @@ class LayoutWriteContextTest extends TestCase
 
         static::assertTrue($memo->ownedBy($write));
         static::assertFalse($memo->ownedBy($laterWrite));
+    }
+
+    /**
+     * @param list<array{string, string, string|null}> $remembered entity name, primary key and root source per remembered tree
+     */
+    #[DataProvider('rootSourceProvider')]
+    #[TestDox('peeks the root source of the trees remembered for a row: $_dataName')]
+    public function testRootSourceReturnsTheNewestNonNullRootSourceOfTheRow(array $remembered, string $entityName, string $primaryKey, ?string $expected): void
+    {
+        $memo = $this->memo();
+
+        foreach ($remembered as [$rememberedEntity, $rememberedKey, $rootSource]) {
+            $memo->remember($rememberedEntity, $rememberedKey, new StoredTree([], $rootSource));
+        }
+
+        static::assertSame($expected, $memo->rootSource($entityName, $primaryKey));
+    }
+
+    /**
+     * @return iterable<string, array{list<array{string, string, string|null}>, string, string, string|null}>
+     */
+    public static function rootSourceProvider(): iterable
+    {
+        yield 'newest non-null root source when two differ' => [
+            [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', 'category']],
+            'content_layout',
+            'layout-1',
+            'category',
+        ];
+        yield 'skips a leading tree without a root source' => [
+            [['content_layout', 'layout-1', null], ['content_layout', 'layout-1', 'category']],
+            'content_layout',
+            'layout-1',
+            'category',
+        ];
+        yield 'a trailing tree without a root source does not hide an earlier one' => [
+            [['content_layout', 'layout-1', 'product'], ['content_layout', 'layout-1', null]],
+            'content_layout',
+            'layout-1',
+            'product',
+        ];
     }
 
     private function memo(): LayoutWriteContext

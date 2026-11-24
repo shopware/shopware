@@ -91,8 +91,10 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
             throw ContentSystemException::layoutWriteRejection($exception, $key, $value, $parameters->getPath());
         }
 
+        $rootSource = $this->rootSource($data, $parameters);
+
         try {
-            $tree = $this->writeBoundary->apply(new StoredTree($tree->roots, $this->rootSource($data, $parameters)));
+            $tree = $this->writeBoundary->apply(new StoredTree($tree->roots, $rootSource));
         } catch (ContentSystemException $exception) {
             if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;
@@ -222,6 +224,12 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     }
 
     /**
+     * The root source of the layout this row writes: the payload's own value, else the root source of a row of the
+     * same layout written earlier in this write ({@see LayoutWriteContext::rootSource()}, newest remembered value
+     * wins), else the stored layout's.
+     * The reader receives no commands because the memo already answers for an earlier row of the same layout in
+     * this write, and the reader only has to serve the committed row.
+     *
      * @param array<string, mixed> $data
      */
     private function rootSource(array $data, WriteParameterBag $parameters): ?string

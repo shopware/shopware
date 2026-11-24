@@ -27,9 +27,12 @@ use Shopware\Core\Framework\Struct\Struct;
  * remaining one. One batch may legitimately carry the same layout id twice — two Sync operations on it, or
  * two rows of one upsert array — and the DAL keeps a command per row rather than collapsing them
  * (`WriteCommandQueue::add()` appends), so both commands reach the validator and both need their own tree.
- * The pairing is sound because the two sides agree on the order: the extractor normalizes the rows of a
- * batch in payload order and then extracts them in that same order, appending one command per row, so the
- * nth command under a key reads the nth tree remembered under it.
+ * The pairing holds while the validator receives the commands of a key in the order the extractor appended
+ * them: the extractor normalizes the rows of a batch in payload order and then extracts them in that same
+ * order, appending one command per row, so the nth command under a key reads the nth tree remembered under it.
+ * `WriteCommandQueue::getCommandsInOrder()` breaks that order for one case: it holds back an update command
+ * while an insert command of the same primary key is still pending and emits it after that insert. A batch that
+ * updates a layout and then creates it therefore pairs the trees crosswise.
  *
  * That one-remember-per-command correspondence is what the pairing rests on, and one extractor path can break
  * it: `WriteCommandExtractor::createDataStack()` re-normalizes a whole created row under a *cloned*
@@ -39,7 +42,8 @@ use Shopware\Core\Framework\Struct\Struct;
  * nothing takes that path today; giving `content_layout` a default means revisiting the pairing first.
  *
  * Reads consume: an entry is removed as it is handed out, so a write that reaches the validator leaves
- * nothing behind by construction rather than by a cleanup pass.
+ * nothing behind by construction rather than by a cleanup pass. {@see rootSource()} is the one read that
+ * peeks instead.
  *
  * A memo belongs to the one write that opened it, which is what keeps the positional pairing from spanning
  * writes. The `Context` is the caller's and outlives any single write, while the `WriteContext` is minted per
@@ -101,9 +105,15 @@ final class LayoutWriteContext extends Struct
         return $tree;
     }
 
+    /**
+     * The newest non-null root source among the trees memoized for this row. A stored layout's root source cannot
+     * change, so the values of one write agree; they differ only when a Sync request deletes a layout and
+     * recreates it under another root source, and the newest value is the one the row ends with. It peeks
+     * without consuming, so the validator still receives every tree; `null` means no remembered tree carries one.
+     */
     public function rootSource(string $entityName, string $primaryKey): ?string
     {
-        foreach ($this->trees[$this->key($entityName, $primaryKey)] ?? [] as $tree) {
+        foreach (array_reverse($this->trees[$this->key($entityName, $primaryKey)] ?? []) as $tree) {
             if ($tree->rootSource !== null) {
                 return $tree->rootSource;
             }

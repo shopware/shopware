@@ -52,8 +52,8 @@ class UserRepository implements UserRepositoryInterface
             ->fetchAssociative();
 
         if (!$user) {
-            // Prevent user enumeration via timing attacks: hashing costs as much as verifying against a stored hash.
-            $this->passwordHasher->hash($password);
+            // Prevent user enumeration via timing attacks
+            $this->passwordHasher->verifyPlaceholder($password);
 
             return null;
         }

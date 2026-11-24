@@ -128,7 +128,7 @@ class AccountService
         try {
             $customer = $this->getCustomerByEmail($email, $context);
         } catch (CustomerNotFoundException) {
-            $this->equalizeTiming($password);
+            $this->passwordHasher->verifyPlaceholder($password);
 
             throw CustomerException::badCredentials();
         }
@@ -136,7 +136,7 @@ class AccountService
         if ($customer->hasLegacyPassword()) {
             if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
                 // Legacy md5/sha256 verification is far cheaper than the password hasher; match its cost so a wrong password does not reveal migrated accounts.
-                $this->equalizeTiming($password);
+                $this->passwordHasher->verifyPlaceholder($password);
 
                 throw CustomerException::badCredentials();
             }
@@ -148,7 +148,7 @@ class AccountService
 
         $passwordHash = $customer->getPassword();
         if ($passwordHash === null) {
-            $this->equalizeTiming($password);
+            $this->passwordHasher->verifyPlaceholder($password);
 
             throw CustomerException::badCredentials();
         }
@@ -267,14 +267,6 @@ class AccountService
         }
 
         return $result->first();
-    }
-
-    /**
-     * Prevents customer enumeration via timing attacks: hashing costs as much as verifying against a stored hash.
-     */
-    private function equalizeTiming(#[\SensitiveParameter] string $password): void
-    {
-        $this->passwordHasher->hash($password);
     }
 
     /**

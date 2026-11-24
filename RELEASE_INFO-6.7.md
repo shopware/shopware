@@ -49,6 +49,7 @@ As PHP 8.4 raised the default bcrypt cost from 10 to 12, existing hashes are als
 
 For a custom hash format, decorate one of the services.
 Keep verifying the previous format, for example by delegating to the decorated hasher, and return `true` from `needsRehash()` for it.
+`verifyPlaceholder()` runs instead of `verify()` when there is no stored hash, for example for an unknown email, and must take as long as verifying a stored hash.
 `isHashed()` decides whether a value written to a `PasswordField` with `for: customer` or `for: admin` is stored as it is, for example when importing customers with existing hashes.
 The `algorithm` and `hashOptions` arguments of those fields are ignored in favour of the configured hasher; other `PasswordField` instances are unchanged.
 `Shopware\Core\Framework\PasswordHasher\PasswordHasherRegistry` returns the hasher of a scope.

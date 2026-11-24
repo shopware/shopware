@@ -21,6 +21,13 @@ abstract class AbstractPasswordHasher
     abstract public function verify(string $hashedPassword, #[\SensitiveParameter] string $plainPassword): bool;
 
     /**
+     * Takes as long as verifying a stored hash, but never succeeds.
+     * Called when there is no stored hash to verify against, e.g. for an unknown email,
+     * so the response time does not reveal whether an account exists.
+     */
+    abstract public function verifyPlaceholder(#[\SensitiveParameter] string $plainPassword): void;
+
+    /**
      * Returns true if the hash was created with outdated settings or by another algorithm and should be replaced.
      */
     abstract public function needsRehash(string $hashedPassword): bool;

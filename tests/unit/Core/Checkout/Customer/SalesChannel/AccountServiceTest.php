@@ -279,6 +279,9 @@ class AccountServiceTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
+        $passwordHasher = $this->createMock(AbstractPasswordHasher::class);
+        $passwordHasher->expects($this->once())->method('verifyPlaceholder')->with('any-password');
+
         $accountService = new AccountService(
             $customerRepository,
             new EventDispatcher(),
@@ -288,7 +291,7 @@ class AccountServiceTest extends TestCase
             static::createStub(DoubleOptInService::class),
             new NativeClock(),
             new ExtensionDispatcher(new EventDispatcher()),
-            new NativePasswordHasher(options: ['cost' => 10]),
+            $passwordHasher,
             new NullLogger(),
             static::createStub(Connection::class),
         );

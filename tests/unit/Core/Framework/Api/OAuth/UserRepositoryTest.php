@@ -83,7 +83,10 @@ class UserRepositoryTest extends TestCase
         $username = 'my_username';
         $password = 'secure-test';
 
-        $userRepository = $this->createUserRepository(null);
+        $passwordHasher = $this->createMock(AbstractPasswordHasher::class);
+        $passwordHasher->expects($this->once())->method('verifyPlaceholder')->with($password);
+
+        $userRepository = $this->createUserRepository(null, passwordHasher: $passwordHasher);
 
         $clientEntity = static::createStub(ClientEntityInterface::class);
         $response = $userRepository->getUserEntityByUserCredentials(

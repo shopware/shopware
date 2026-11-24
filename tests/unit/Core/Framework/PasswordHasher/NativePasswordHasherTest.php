@@ -55,6 +55,29 @@ class NativePasswordHasherTest extends TestCase
         static::assertFalse($hasher->needsRehash($hasher->hash('shopware')));
     }
 
+    public function testVerifyPlaceholderVerifiesTheGivenPlaceholderHash(): void
+    {
+        // The invalid cost would make hash() throw, so passing proves that only the placeholder hash is verified
+        $hasher = new NativePasswordHasher(
+            NativePasswordHasher::ALGORITHM_BCRYPT,
+            ['cost' => 99],
+            password_hash('placeholder', \PASSWORD_BCRYPT, ['cost' => 4]),
+        );
+
+        $hasher->verifyPlaceholder('shopware');
+
+        $this->expectException(\ValueError::class);
+        $hasher->hash('shopware');
+    }
+
+    public function testVerifyPlaceholderHashesWithoutPlaceholderHash(): void
+    {
+        $hasher = new NativePasswordHasher(NativePasswordHasher::ALGORITHM_BCRYPT, ['cost' => 99]);
+
+        $this->expectException(\ValueError::class);
+        $hasher->verifyPlaceholder('shopware');
+    }
+
     public function testNeedsRehashWhenOptionsChanged(): void
     {
         $hash = password_hash('shopware', \PASSWORD_BCRYPT, ['cost' => 5]);

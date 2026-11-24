@@ -341,6 +341,10 @@ class PrefixPasswordHasher extends AbstractPasswordHasher
         return $hashedPassword === $this->hash($plainPassword);
     }
 
+    public function verifyPlaceholder(string $plainPassword): void
+    {
+    }
+
     public function needsRehash(string $hashedPassword): bool
     {
         return false;

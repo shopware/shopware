@@ -28,10 +28,12 @@ class NativePasswordHasher extends AbstractPasswordHasher
 
     /**
      * @param array<string, int> $options options passed to `password_hash()`, e.g. `cost` for bcrypt or `memory_cost`, `time_cost` and `threads` for argon2
+     * @param string|null $placeholderHash a hash created with the same algorithm and options, verified by `verifyPlaceholder()`
      */
     public function __construct(
         string $algorithm = self::ALGORITHM_DEFAULT,
         private readonly array $options = [],
+        private readonly ?string $placeholderHash = null,
     ) {
         $this->algorithm = match ($algorithm) {
             self::ALGORITHM_DEFAULT => \PASSWORD_DEFAULT,
@@ -57,6 +59,18 @@ class NativePasswordHasher extends AbstractPasswordHasher
     public function verify(string $hashedPassword, #[\SensitiveParameter] string $plainPassword): bool
     {
         return password_verify($plainPassword, $hashedPassword);
+    }
+
+    public function verifyPlaceholder(#[\SensitiveParameter] string $plainPassword): void
+    {
+        if ($this->placeholderHash === null) {
+            // Hashing with the configured settings costs as much as verifying a hash that was created with them.
+            $this->hash($plainPassword);
+
+            return;
+        }
+
+        password_verify($plainPassword, $this->placeholderHash);
     }
 
     public function needsRehash(string $hashedPassword): bool

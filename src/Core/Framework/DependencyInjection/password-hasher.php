@@ -17,12 +17,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('shopware.password_hasher.customer.algorithm'),
             param('shopware.password_hasher.customer.options'),
+            param('shopware.password_hasher.customer.placeholder_hash'),
         ]);
 
     $services->set('shopware.password_hasher.admin', NativePasswordHasher::class)
         ->args([
             param('shopware.password_hasher.admin.algorithm'),
             param('shopware.password_hasher.admin.options'),
+            param('shopware.password_hasher.admin.placeholder_hash'),
         ]);
 
     $services->set(PasswordHasherRegistry::class)

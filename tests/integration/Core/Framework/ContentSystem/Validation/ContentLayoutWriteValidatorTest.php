@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Validation;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeLoader;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
@@ -378,6 +380,50 @@ class ContentLayoutWriteValidatorTest extends TestCase
         $this->syncUpdateDeleteReinsert($layoutId, TestElementTypeLoader::RESOLVABLE, TestElementTypeLoader::RESOLVABLE, $context);
 
         static::assertSame($layoutId, $this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
+    }
+
+    #[TestDox('reports the violation of a saved layout at the operation that saved it, not at a later rename')]
+    public function testReportsTheViolationAtTheOperationThatWroteTheLayout(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+
+        try {
+            $this->writer()->sync(
+                [
+                    new SyncOperation('save', ContentLayoutDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [
+                        ['id' => $layoutId, 'layout' => $this->tree(self::UNREGISTERED_COMPONENT)],
+                    ]),
+                    new SyncOperation('rename', ContentLayoutDefinition::ENTITY_NAME, SyncOperation::ACTION_UPSERT, [
+                        ['id' => $layoutId, 'name' => 'renamed'],
+                    ]),
+                ],
+                WriteContext::createFromContext($context)
+            );
+            static::fail('Expected the gate to reject the saved layout.');
+        } catch (WriteException $exception) {
+            $errors = iterator_to_array($exception->getErrors(), false);
+            static::assertStringStartsWith('/save/0/', $errors[0]['source']['pointer']);
+        }
+    }
+
+    #[TestDox('accepts a rename of a layout whose stored root source is not registered')]
+    public function testAcceptsARenameOfALayoutWithAnUnregisteredStoredRootSource(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+        $this->repository()->create([$this->layout('none', TestElementTypeLoader::RESOLVABLE, $layoutId)], $context);
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `content_layout` SET `root_source` = \'unregistered-source\' WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($layoutId)]
+        );
+
+        $this->repository()->update([['id' => $layoutId, 'name' => 'renamed']], $context);
+
+        $stored = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $stored);
+        static::assertSame('renamed', $stored->getName());
     }
 
     /**

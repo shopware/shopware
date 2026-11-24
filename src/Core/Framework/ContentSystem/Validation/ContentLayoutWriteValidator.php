@@ -69,7 +69,7 @@ class ContentLayoutWriteValidator implements EventSubscriberInterface
         $extension = $context->getExtension(LayoutWriteContext::EXTENSION_NAME);
         $memo = $extension instanceof LayoutWriteContext ? $extension : null;
 
-        $rows = $this->writeOutcome->touchedRows(
+        $rows = $this->writeOutcome->resultingRows(
             $event->getCommandsForEntity(ContentLayoutDefinition::ENTITY_NAME),
             [ContentLayoutDefinition::ROOT_SOURCE_FIELD, ContentLayoutDefinition::LAYOUT_FIELD]
         );

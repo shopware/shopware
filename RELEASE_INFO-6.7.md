@@ -114,6 +114,7 @@ Orders with one shipment render as before.
 `es:index` and automatic reindexing after updates now dispatch batches while scanning the catalog, reducing PHP memory usage for large catalogs.
 This also applies when running `es:index --no-queue`.
 Queued indexing still requires sufficient message transport capacity.
+
 ### Environment-specific bundle and plugin configuration
 
 Inline `when@prod` and `when@test` blocks in bundle and plugin configuration now apply in the matching environment.

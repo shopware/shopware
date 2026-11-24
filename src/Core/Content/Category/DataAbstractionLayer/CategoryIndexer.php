@@ -37,6 +37,11 @@ class CategoryIndexer extends EntityIndexer
     final public const TREE_UPDATER = 'category.tree';
     final public const BREADCRUMB_UPDATER = 'category.breadcrumb';
     private const UPDATE_IDS_CHUNK_SIZE = 50;
+    private const PRODUCT_UPDATERS_AFTER_MOVE = [
+        ProductIndexer::CATEGORY_DENORMALIZER_UPDATER,
+        ProductIndexer::STREAM_UPDATER,
+        ProductIndexer::MANY_TO_MANY_ID_FIELD_UPDATER,
+    ];
 
     /**
      * @internal
@@ -52,6 +57,7 @@ class CategoryIndexer extends EntityIndexer
         private readonly CategoryBreadcrumbUpdater $breadcrumbUpdater,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly MessageBusInterface $messageBus,
+        private readonly EntityIndexer $productIndexer,
     ) {
     }
 
@@ -285,18 +291,12 @@ SQL;
             return;
         }
 
+        $skips = array_values(array_diff($this->productIndexer->getOptions(), self::PRODUCT_UPDATERS_AFTER_MOVE));
+
         foreach (\array_chunk($this->fetchProductIds($movedCategoryIds), self::UPDATE_IDS_CHUNK_SIZE) as $chunk) {
             $message = new ProductIndexingMessage($chunk, null, $context);
             $message->setIndexer('product.indexer');
-            $message->addSkip(
-                ProductIndexer::INHERITANCE_UPDATER,
-                ProductIndexer::STOCK_UPDATER,
-                ProductIndexer::VARIANT_LISTING_UPDATER,
-                ProductIndexer::CHILD_COUNT_UPDATER,
-                ProductIndexer::CHEAPEST_PRICE_UPDATER,
-                ProductIndexer::RATING_AVERAGE_UPDATER,
-                ProductIndexer::SEARCH_KEYWORD_UPDATER,
-            );
+            $message->addSkip(...$skips);
             EntityIndexerRegistry::addSkips($message, $context);
 
             $this->messageBus->dispatch($message);

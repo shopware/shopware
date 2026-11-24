@@ -15,16 +15,16 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @phpstan-type Proof array{truthy: bool, falsey: bool}
  * @phpstan-type Aliases array<string, Proof>
- *
- * @phpstan-import-type FeatureFlagConfig from Feature
  */
 #[Package('framework')]
 final class FeatureFlagGuard
 {
     /**
-     * @param array<string, FeatureFlagConfig> $features
+     * @var list<Expr>
      */
-    public function __construct(private readonly Node $target, private readonly string $major, private readonly array $features)
+    private array $references = [];
+
+    public function __construct(private readonly Node $target, private readonly string $major)
     {
     }
 
@@ -40,7 +40,30 @@ final class FeatureFlagGuard
             }
         }
 
-        return $this->statements($function?->getStmts() ?? [], [], false);
+        $statements = $function?->getStmts() ?? [];
+        $finder = new NodeFinder();
+        foreach ($finder->findInstanceOf($statements, Expr\AssignRef::class) as $reference) {
+            $this->references[] = $reference->var;
+            $this->references[] = $reference->expr;
+        }
+        foreach ($finder->findInstanceOf($statements, Node\ArrayItem::class) as $item) {
+            if ($item->byRef) {
+                $this->references[] = $item->value;
+            }
+        }
+        foreach ($finder->findInstanceOf($statements, Expr\ClosureUse::class) as $capture) {
+            if ($capture->byRef) {
+                $this->references[] = $capture->var;
+            }
+        }
+        foreach ($finder->findInstanceOf($statements, Stmt\Foreach_::class) as $loop) {
+            if ($loop->byRef) {
+                $this->references[] = $loop->expr;
+                $this->references[] = $loop->valueVar;
+            }
+        }
+
+        return $this->statements($statements, [], false);
     }
 
     /**
@@ -57,29 +80,15 @@ final class FeatureFlagGuard
                 break;
             }
             $before = $aliases;
-            if ($aliases !== []) {
-                foreach ([Expr\Assign::class, Expr\AssignRef::class, Expr\AssignOp::class, Expr\PreInc::class, Expr\PostInc::class, Expr\PreDec::class, Expr\PostDec::class] as $type) {
-                    foreach ((new NodeFinder())->findInstanceOf($node, $type) as $assignment) {
-                        $aliases = $this->forget($aliases, $assignment->var);
-                        if ($assignment instanceof Expr\AssignRef) {
-                            $aliases = $this->forget($aliases, $assignment->expr);
-                        }
-                    }
-                }
-                foreach ((new NodeFinder())->findInstanceOf($node, Stmt\Unset_::class) as $unset) {
-                    foreach ($unset->vars as $variable) {
-                        $aliases = $this->forget($aliases, $variable);
-                    }
-                }
-                foreach ((new NodeFinder())->findInstanceOf($node, Node\Arg::class) as $argument) {
-                    // A called function may accept this value by reference.
-                    $aliases = $this->forget($aliases, $argument->value);
-                }
-            }
+            $aliases = $this->invalidate($aliases, $node);
             if ($node instanceof Stmt\Expression && $node->expr instanceof Expr\Assign && ($key = $this->key($node->expr->var)) !== null) {
                 $proof = $this->proof($node->expr->expr, $before);
                 if ($proof['truthy'] || $proof['falsey']) {
-                    $aliases[$key] = $proof;
+                    $candidate = [$key => $proof];
+                    foreach ($this->references as $reference) {
+                        $candidate = $this->forget($candidate, $reference);
+                    }
+                    $aliases += $candidate;
                 }
             }
         }
@@ -100,6 +109,7 @@ final class FeatureFlagGuard
                 if ($this->contains($branch->cond)) {
                     return $this->trace($branch->cond, $aliases, $guarded);
                 }
+                $aliases = $this->invalidate($aliases, $branch->cond);
                 $proof = $this->proof($branch->cond, $aliases);
                 foreach ($branch->stmts as $statement) {
                     if ($this->contains($statement)) {
@@ -112,12 +122,17 @@ final class FeatureFlagGuard
             return $node->else !== null && $this->statements($node->else->stmts, $aliases, $guarded);
         }
         if ($node instanceof Expr\BinaryOp\BooleanAnd && $this->contains($node->right)) {
+            $aliases = $this->invalidate($aliases, $node->left);
+
             return $this->trace($node->right, $aliases, $this->proof($node->left, $aliases)['truthy']);
         }
         if ($node instanceof Expr\BinaryOp\BooleanOr && $this->contains($node->right)) {
+            $aliases = $this->invalidate($aliases, $node->left);
+
             return $this->trace($node->right, $aliases, $this->proof($node->left, $aliases)['falsey']);
         }
         if ($node instanceof Expr\Ternary) {
+            $aliases = $this->invalidate($aliases, $node->cond);
             $proof = $this->proof($node->cond, $aliases);
             if ($node->if !== null && $this->contains($node->if)) {
                 return $this->trace($node->if, $aliases, $proof['truthy']);
@@ -145,6 +160,7 @@ final class FeatureFlagGuard
      */
     private function proof(Expr $expression, array $aliases): array
     {
+        $aliases = $this->invalidate($aliases, $expression);
         $unknown = ['truthy' => false, 'falsey' => false];
         if (($key = $this->key($expression)) !== null) {
             return $aliases[$key] ?? $unknown;
@@ -176,9 +192,40 @@ final class FeatureFlagGuard
             return $unknown;
         }
         $flag = Feature::normalizeName($expression->getArgs()[0]->value->value);
-        $version = Feature::isMajorVersionFlag($flag) ? $flag : ($this->features[$flag]['major'] ?? null);
 
-        return ['truthy' => false, 'falsey' => \is_string($version) && Feature::normalizeName($version) === $this->major];
+        return ['truthy' => false, 'falsey' => $flag === $this->major];
+    }
+
+    /**
+     * @param Aliases $aliases
+     *
+     * @return Aliases
+     */
+    private function invalidate(array $aliases, Node $node): array
+    {
+        if ($aliases === []) {
+            return [];
+        }
+        $finder = new NodeFinder();
+        foreach ([Expr\Assign::class, Expr\AssignRef::class, Expr\AssignOp::class, Expr\PreInc::class, Expr\PostInc::class, Expr\PreDec::class, Expr\PostDec::class] as $type) {
+            foreach ($finder->findInstanceOf($node, $type) as $assignment) {
+                $aliases = $this->forget($aliases, $assignment->var);
+                if ($assignment instanceof Expr\AssignRef) {
+                    $aliases = $this->forget($aliases, $assignment->expr);
+                }
+            }
+        }
+        foreach ($finder->findInstanceOf($node, Stmt\Unset_::class) as $unset) {
+            foreach ($unset->vars as $variable) {
+                $aliases = $this->forget($aliases, $variable);
+            }
+        }
+        foreach ($finder->findInstanceOf($node, Node\Arg::class) as $argument) {
+            // A called function may accept this value by reference.
+            $aliases = $this->forget($aliases, $argument->value);
+        }
+
+        return $aliases;
     }
 
     private function contains(Node $node): bool

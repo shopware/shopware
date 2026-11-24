@@ -1,0 +1,3 @@
+includes:
+    - before.neon
+    - ../../../../../../../../../src/Core/DevOps/StaticAnalyze/PHPStan/extension.neon

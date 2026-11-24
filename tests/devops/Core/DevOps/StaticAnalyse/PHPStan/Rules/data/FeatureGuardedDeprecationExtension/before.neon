@@ -1,0 +1,10 @@
+parameters:
+    level: 5
+    paths:
+        - Api.php
+        - LegacyApi.php
+    bootstrapFiles:
+        - bootstrap.php
+    treatPhpDocTypesAsCertain: false
+    parallel:
+        maximumNumberOfProcesses: 1

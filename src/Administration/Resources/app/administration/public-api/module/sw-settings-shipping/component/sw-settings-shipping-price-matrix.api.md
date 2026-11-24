@@ -51,6 +51,7 @@ computed
   shippingMethod: any
   shippingPriceRepository: any
   shippingRuleFilterCriteria: any  [deprecated tag:v6.8.0]
+  shippingRuleFilterCriteriaDeprecated: any  [deprecated tag:v6.8.0] [private]
   showDataGrid: any
   taxRateId: any
   unrestrictedPriceMatrixExists: any

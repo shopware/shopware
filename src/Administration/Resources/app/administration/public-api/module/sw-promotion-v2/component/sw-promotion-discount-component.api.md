@@ -69,6 +69,7 @@ computed
   promotionDiscountSnippet: any  [private]
   repositoryGroups: any  [private]
   ruleFilter: any  [deprecated tag:v6.8.0] [private]
+  ruleFilterDeprecated: any  [deprecated tag:v6.8.0] [private] [private]
   scopes: any  [private]
   showAbsoluteAdvancedPricesSettings: any  [private]
   showMaxValueAdvancedPrices: any  [private]

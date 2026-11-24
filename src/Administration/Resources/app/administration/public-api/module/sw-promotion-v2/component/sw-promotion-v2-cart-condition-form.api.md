@@ -29,6 +29,7 @@ computed
   packagers: any
   promotionGroupRepository: any
   ruleFilter: any  [deprecated tag:v6.8.0]
+  ruleFilterDeprecated: any  [deprecated tag:v6.8.0] [private]
   setGroupCriteria: any
   sorterOptions: any
   sorters: any

@@ -39,6 +39,7 @@ computed
 methods
   closeVariantModal(): any
   getCurrencyPriceByCurrencyId(currencyId: any, prices: any): any
+  getExistenceFilterTexts(snippetKey: any): any
   getList(): Promise<any>
   getProductColumns(): any
   normalizeCategoryFilters(filters: any): any

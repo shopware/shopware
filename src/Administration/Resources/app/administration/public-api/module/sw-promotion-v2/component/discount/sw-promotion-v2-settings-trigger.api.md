@@ -22,6 +22,7 @@ data
 
 computed
   ruleCriteria: any  [deprecated tag:v6.8.0]
+  ruleCriteriaDeprecated: any  [deprecated tag:v6.8.0] [private]
   triggerOptions: any
 
 methods

@@ -18,6 +18,7 @@ props
 
 computed
   ruleCriteria: any  [deprecated tag:v6.8.0]
+  ruleCriteriaDeprecated: any  [deprecated tag:v6.8.0] [private]
 
 blocks
   sw_promotion_v2_settings_rule_selection

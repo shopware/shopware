@@ -54,6 +54,7 @@ computed
   currentUser: any
   defaultCurrency: any
   defaultFeatureSetCriteria: any
+  documentVariantOperations: any  [private]
   featureSetRepository: any
   getDefaultFeatureSet: any
   getModeSettingGeneralTab: any  [deprecated tag:v6.8.0]
@@ -64,6 +65,7 @@ computed
   isLoading: any
   isUploadedFileRequired: any
   language: any
+  languageCriteria: any
   languageRepository: any
   lengthUnit: any
   localMode: any
@@ -75,6 +77,7 @@ computed
   productApiContext: any
   productCriteria: any
   productDetailTabs: any
+  productDocumentVariantService: any  [private]
   productRepository: any
   productStates: any  [deprecated tag:v6.8.0]
   productTitle: any
@@ -109,6 +112,7 @@ methods
   getDefaultPurchasePrices(): any
   getDefaultSalesChannels(): Promise<any>
   getDefaultTaxRate(): any
+  getDocumentVariantsSaver(): any  [private]
   getInheritTitle(): any
   getPreferredMeasurementUnits(): Promise<any>
   initAdvancedModeSettings(): any  [deprecated tag:v6.8.0]
@@ -129,7 +133,7 @@ methods
   onChangeSettingItem(): any  [deprecated tag:v6.8.0]
   onCloseOpenInStorefrontModal(): any
   onCoverChange(mediaId: any): any
-  onDuplicate(): any
+  onDuplicate(): Promise<any>
   onDuplicateFinish(duplicate: any): any
   onOpenInStorefront(): any
   onProductNotFound(): Promise<any>

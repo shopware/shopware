@@ -29,6 +29,7 @@ data
   paymentMethods: any
   products: any
   shippingMethods: any
+  usageRequestId: any
 
 computed
   categoryRepository: any
@@ -39,6 +40,7 @@ computed
   landingPageRepository: any
   moduleFactory: any
   productRepository: any
+  productUsageCriteria: any
   slotConfigCriteria: any
 
 methods

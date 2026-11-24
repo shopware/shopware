@@ -28,7 +28,9 @@ computed
   cartConditionsRuleFilter: any  [deprecated tag:v6.8.0]
   exclusionCriteria: any
   orderConditionsFilter: any  [deprecated tag:v6.8.0]
+  orderConditionsFilterDeprecated: any  [deprecated tag:v6.8.0] [private]
   personaRuleFilter: any  [deprecated tag:v6.8.0]
+  personaRuleFilterDeprecated: any  [deprecated tag:v6.8.0] [private]
 
 methods
   createPromotionCollection(): any

@@ -157,14 +157,14 @@ class AccountService
             throw CustomerException::badCredentials();
         }
 
-        if ($this->passwordHasher->needsRehash($passwordHash)) {
-            $this->rehashPassword($password, $customer);
-        }
-
         if (!$this->isCustomerConfirmed($customer)) {
             // Make sure to only resend after it has been verified it was a valid login
             $this->doubleOptInService->resendDoubleOptInMail($customer, $context);
             throw CustomerException::customerOptinNotCompleted($customer->getId());
+        }
+
+        if ($this->passwordHasher->needsRehash($passwordHash)) {
+            $this->rehashPassword($password, $customer);
         }
 
         return $customer;

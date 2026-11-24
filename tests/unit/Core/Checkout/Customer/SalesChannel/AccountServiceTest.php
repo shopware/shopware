@@ -223,6 +223,28 @@ class AccountServiceTest extends TestCase
         static::assertSame(TestDefaults::HASHED_PASSWORD, $customer->getPassword());
     }
 
+    public function testGetCustomerByLoginDoesNotRehashForUnconfirmedDoubleOptIn(): void
+    {
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $customer = $this->createLoginableCustomer($salesChannelContext);
+        $customer->setDoubleOptInRegistration(true);
+        $customerRepository = $this->createCustomerRepository($customer, $salesChannelContext);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('update');
+
+        // TestDefaults::HASHED_PASSWORD uses cost 10
+        $accountService = $this->createAccountServiceForLogin($customerRepository, new NativePasswordHasher(options: ['cost' => 11]), $connection);
+
+        try {
+            $accountService->getCustomerByLogin('foo@bar.de', 'shopware', $salesChannelContext);
+            static::fail('Expected the login of an unconfirmed customer to fail');
+        } catch (CustomerOptinNotCompletedException) {
+        }
+
+        static::assertSame(TestDefaults::HASHED_PASSWORD, $customer->getPassword());
+    }
+
     public function testGetCustomerByLoginSucceedsWhenRehashingFails(): void
     {
         $salesChannelContext = Generator::generateSalesChannelContext();

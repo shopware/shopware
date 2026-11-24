@@ -19,7 +19,6 @@ class Migration1795518429AddSystemCheckResultTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // the last result of every system check, one row per check, overwritten by every run
         $connection->executeStatement('
             CREATE TABLE IF NOT EXISTS `system_check_result` (
                 `name`              VARCHAR(255) NOT NULL,

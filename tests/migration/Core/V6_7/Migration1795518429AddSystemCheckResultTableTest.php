@@ -35,7 +35,7 @@ class Migration1795518429AddSystemCheckResultTableTest extends TestCase
         static::assertSame(1795518429, (new Migration1795518429AddSystemCheckResultTable())->getCreationTimestamp());
     }
 
-    public function testCreatesTheTableAndIsIdempotent(): void
+    public function testMigration(): void
     {
         $migration = new Migration1795518429AddSystemCheckResultTable();
         $migration->update($this->connection);

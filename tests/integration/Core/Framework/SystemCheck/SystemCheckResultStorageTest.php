@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\Framework\SystemCheck\Check\StoredResult;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -84,21 +85,11 @@ class SystemCheckResultStorageTest extends TestCase
             new Result('LocalesReadiness', Status::SKIPPED, 'Check is not run due to previous failed checks.'),
         ]);
 
-        static::assertSame([
-            'AppUrlVerification' => [
-                'status' => 'OK',
-                'healthy' => true,
-                'message' => 'APP_URL points to this shop',
-                'extra' => ['statusCode' => 204],
-                'checkedAt' => '2026-11-24T10:00:00+00:00',
-            ],
-            'LocalesReadiness' => [
-                'status' => 'SKIPPED',
-                'healthy' => null,
-                'message' => 'Check is not run due to previous failed checks.',
-                'extra' => [],
-                'checkedAt' => '2026-11-24T10:00:00+00:00',
-            ],
+        $checkedAt = new \DateTimeImmutable('2026-11-24 10:00:00', new \DateTimeZone('UTC'));
+
+        static::assertEquals([
+            'AppUrlVerification' => new StoredResult(new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true, ['statusCode' => 204]), $checkedAt),
+            'LocalesReadiness' => new StoredResult(new Result('LocalesReadiness', Status::SKIPPED, 'Check is not run due to previous failed checks.'), $checkedAt),
         ], $this->storage->all());
     }
 

@@ -10,8 +10,10 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecks;
 use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
+use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 
 /**
  * @internal
@@ -26,7 +28,7 @@ class SystemCheckerTest extends TestCase
         $secondCheck = $this->createMock(BaseCheck::class);
         $checks = [$firstCheck, $secondCheck];
 
-        $checker = new SystemChecker($checks, static::createStub(SystemCheckResultStorage::class));
+        $checker = new SystemChecker($checks, static::createStub(SystemCheckResultStorage::class), new CollectingMessageBus());
         $context = SystemCheckExecutionContext::WEB;
         $result = new Result('test', Status::OK, 'test', true, []);
 
@@ -51,7 +53,7 @@ class SystemCheckerTest extends TestCase
         $secondCheck = $this->createMock(BaseCheck::class);
         $checks = [$firstCheck, $secondCheck];
 
-        $checker = new SystemChecker($checks, static::createStub(SystemCheckResultStorage::class));
+        $checker = new SystemChecker($checks, static::createStub(SystemCheckResultStorage::class), new CollectingMessageBus());
         $context = SystemCheckExecutionContext::WEB;
         $resultForRunningTest = new Result('test', Status::OK, 'test', true, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check not allowed to run in this execution context: WEB', null, []);
@@ -75,7 +77,7 @@ class SystemCheckerTest extends TestCase
         $highPriorityCheck = $this->createMock(BaseCheck::class);
         $lowPriorityCheck = $this->createMock(BaseCheck::class);
 
-        $checker = new SystemChecker([$highPriorityCheck, $lowPriorityCheck], static::createStub(SystemCheckResultStorage::class));
+        $checker = new SystemChecker([$highPriorityCheck, $lowPriorityCheck], static::createStub(SystemCheckResultStorage::class), new CollectingMessageBus());
         $context = SystemCheckExecutionContext::WEB;
         $result = new Result('test', Status::ERROR, 'test', false, []);
         $skippedResult = new Result('test', Status::SKIPPED, 'Check is not run due to previous failed checks.', null, []);
@@ -101,7 +103,7 @@ class SystemCheckerTest extends TestCase
         $preRolloutCheck = $this->check('preRollout', SystemCheckExecutionContext::PRE_ROLLOUT);
         $webCheck = $this->check('web', SystemCheckExecutionContext::WEB);
 
-        $checker = new SystemChecker([$cliCheck, $preRolloutCheck, $webCheck], static::createStub(SystemCheckResultStorage::class));
+        $checker = new SystemChecker([$cliCheck, $preRolloutCheck, $webCheck], static::createStub(SystemCheckResultStorage::class), new CollectingMessageBus());
         $results = $checker->check([SystemCheckExecutionContext::CLI, SystemCheckExecutionContext::PRE_ROLLOUT]);
 
         static::assertEquals([
@@ -115,10 +117,22 @@ class SystemCheckerTest extends TestCase
     {
         $checker = new SystemChecker(
             [$this->check('first', SystemCheckExecutionContext::CLI), $this->check('second', SystemCheckExecutionContext::CLI)],
-            static::createStub(SystemCheckResultStorage::class)
+            static::createStub(SystemCheckResultStorage::class),
+            new CollectingMessageBus(),
         );
 
         static::assertEquals([new Result('second', Status::OK, 'fine', true)], $checker->check(SystemCheckExecutionContext::CLI, 'second'));
+    }
+
+    public function testQueuesACheck(): void
+    {
+        $messageBus = new CollectingMessageBus();
+        $checker = new SystemChecker([], static::createStub(SystemCheckResultStorage::class), $messageBus);
+
+        $checker->queueCheck('AppUrlVerification');
+
+        static::assertCount(1, $messageBus->getMessages());
+        static::assertEquals(new RunSystemChecks('AppUrlVerification'), $messageBus->getMessages()[0]->getMessage());
     }
 
     public function testDoesNotStoreChecksNotAllowedInTheContext(): void
@@ -136,7 +150,7 @@ class SystemCheckerTest extends TestCase
         $storage = $this->createMock(SystemCheckResultStorage::class);
         $storage->expects($this->once())->method('save')->with([$ran]);
 
-        (new SystemChecker([$notAllowed, $allowed], $storage))->check(SystemCheckExecutionContext::CLI);
+        (new SystemChecker([$notAllowed, $allowed], $storage, new CollectingMessageBus()))->check(SystemCheckExecutionContext::CLI);
     }
 
     public function testStoresChecksSkippedAfterAFailedSystemCheck(): void
@@ -156,7 +170,7 @@ class SystemCheckerTest extends TestCase
         $storage = $this->createMock(SystemCheckResultStorage::class);
         $storage->expects($this->once())->method('save')->with([$failed, new Result('feature', Status::SKIPPED, 'Check is not run due to previous failed checks.')]);
 
-        (new SystemChecker([$systemCheck, $featureCheck], $storage))->check(SystemCheckExecutionContext::CLI);
+        (new SystemChecker([$systemCheck, $featureCheck], $storage, new CollectingMessageBus()))->check(SystemCheckExecutionContext::CLI);
     }
 
     private function check(string $name, SystemCheckExecutionContext $allowedContext): BaseCheck

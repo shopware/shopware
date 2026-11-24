@@ -3,15 +3,18 @@
 namespace Shopware\Tests\Unit\Administration\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Controller\SystemHealthController;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
 use Shopware\Core\Framework\SystemCheck\Check\Category;
-use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecks;
+use Shopware\Core\Framework\SystemCheck\Check\Result;
+use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\Framework\SystemCheck\Check\StoredResult;
+use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
-use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,27 +25,32 @@ use Symfony\Component\HttpFoundation\Response;
 #[CoversClass(SystemHealthController::class)]
 class SystemHealthControllerTest extends TestCase
 {
-    private CollectingMessageBus $messageBus;
+    private SystemChecker&MockObject $systemChecker;
 
     private SystemHealthController $controller;
 
     protected function setUp(): void
     {
-        $storedResult = ['status' => 'OK', 'healthy' => true, 'message' => 'APP_URL points to this shop', 'extra' => [], 'checkedAt' => '2026-11-24T10:00:00+00:00'];
+        $storedResult = new StoredResult(
+            new Result('AppUrlVerification', Status::OK, 'APP_URL points to this shop', true),
+            new \DateTimeImmutable('2026-11-24 10:00:00', new \DateTimeZone('UTC')),
+        );
 
         $storage = static::createStub(SystemCheckResultStorage::class);
         $storage->method('all')->willReturn(['AppUrlVerification' => $storedResult]);
 
-        $this->messageBus = new CollectingMessageBus();
+        $this->systemChecker = $this->createMock(SystemChecker::class);
         $this->controller = new SystemHealthController(
             [$this->check('AppUrlVerification', Category::EXTERNAL), $this->check('LocalesReadiness', Category::FEATURE)],
             $storage,
-            $this->messageBus,
+            $this->systemChecker,
         );
     }
 
     public function testListsEveryCheckWithItsLastResult(): void
     {
+        $this->systemChecker->expects($this->never())->method('check');
+
         $response = $this->controller->list();
 
         static::assertSame([
@@ -59,32 +67,26 @@ class SystemHealthControllerTest extends TestCase
 
     public function testQueuesAllChecks(): void
     {
+        $this->systemChecker->expects($this->once())->method('queueCheck')->with(null);
+
         $response = $this->controller->run(new Request());
 
         static::assertSame(Response::HTTP_ACCEPTED, $response->getStatusCode());
-        static::assertEquals([new RunSystemChecks()], $this->messages());
     }
 
     public function testQueuesOneCheck(): void
     {
-        $this->controller->run(new Request(['check' => 'LocalesReadiness']));
+        $this->systemChecker->expects($this->once())->method('queueCheck')->with('LocalesReadiness');
 
-        static::assertEquals([new RunSystemChecks('LocalesReadiness')], $this->messages());
+        $this->controller->run(new Request(['check' => 'LocalesReadiness']));
     }
 
     public function testRejectsAnUnknownCheck(): void
     {
+        $this->systemChecker->expects($this->never())->method('queueCheck');
         $this->expectExceptionObject(RoutingException::invalidRequestParameter('check'));
 
         $this->controller->run(new Request(['check' => 'Unknown']));
-    }
-
-    /**
-     * @return list<object>
-     */
-    private function messages(): array
-    {
-        return array_values(array_map(static fn ($envelope) => $envelope->getMessage(), $this->messageBus->getMessages()));
     }
 
     private function check(string $name, Category $category): BaseCheck

@@ -8,6 +8,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
+use Shopware\Core\Framework\SystemCheck\Check\Status;
+use Shopware\Core\Framework\SystemCheck\Check\StoredResult;
 
 /**
  * @internal
@@ -47,7 +49,7 @@ class SystemCheckResultStorage
     }
 
     /**
-     * @return array<string, array{status: string, healthy: bool|null, message: string, extra: array<mixed>, checkedAt: string}> keyed by check name
+     * @return array<string, StoredResult> keyed by check name
      */
     public function all(): array
     {
@@ -55,15 +57,34 @@ class SystemCheckResultStorage
 
         $results = [];
         foreach ($rows as $row) {
-            $results[(string) $row['name']] = [
-                'status' => (string) $row['status'],
-                'healthy' => $row['healthy'] === null ? null : (bool) $row['healthy'],
-                'message' => (string) $row['message'],
-                'extra' => (array) json_decode((string) $row['extra'], true, flags: \JSON_THROW_ON_ERROR),
-                'checkedAt' => (new \DateTimeImmutable((string) $row['checked_at'], new \DateTimeZone('UTC')))->format(\DATE_ATOM),
-            ];
+            $status = self::status((string) $row['status']);
+            if ($status === null) {
+                continue;
+            }
+
+            $results[(string) $row['name']] = new StoredResult(
+                new Result(
+                    name: (string) $row['name'],
+                    status: $status,
+                    message: (string) $row['message'],
+                    healthy: $row['healthy'] === null ? null : (bool) $row['healthy'],
+                    extra: (array) json_decode((string) $row['extra'], true, flags: \JSON_THROW_ON_ERROR),
+                ),
+                new \DateTimeImmutable((string) $row['checked_at'], new \DateTimeZone('UTC')),
+            );
         }
 
         return $results;
+    }
+
+    private static function status(string $name): ?Status
+    {
+        foreach (Status::cases() as $status) {
+            if ($status->name === $name) {
+                return $status;
+            }
+        }
+
+        return null;
     }
 }

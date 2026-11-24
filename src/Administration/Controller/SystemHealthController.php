@@ -6,14 +6,13 @@ use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\SystemCheck\BaseCheck;
-use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecks;
+use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -29,7 +28,7 @@ class SystemHealthController extends AbstractController
     public function __construct(
         private readonly iterable $checks,
         private readonly SystemCheckResultStorage $resultStorage,
-        private readonly MessageBusInterface $messageBus,
+        private readonly SystemChecker $systemChecker,
     ) {
     }
 
@@ -40,10 +39,18 @@ class SystemHealthController extends AbstractController
 
         $checks = [];
         foreach ($this->checks as $check) {
+            $stored = $results[$check->name()] ?? null;
+
             $checks[] = [
                 'name' => $check->name(),
                 'category' => $check->category()->name,
-                'result' => $results[$check->name()] ?? null,
+                'result' => $stored === null ? null : [
+                    'status' => $stored->result->status->name,
+                    'healthy' => $stored->result->healthy,
+                    'message' => $stored->result->message,
+                    'extra' => $stored->result->extra,
+                    'checkedAt' => $stored->checkedAt->format(\DATE_ATOM),
+                ],
             ];
         }
 
@@ -59,7 +66,7 @@ class SystemHealthController extends AbstractController
             throw RoutingException::invalidRequestParameter('check');
         }
 
-        $this->messageBus->dispatch(new RunSystemChecks($name));
+        $this->systemChecker->queueCheck($name);
 
         return new Response(null, Response::HTTP_ACCEPTED);
     }

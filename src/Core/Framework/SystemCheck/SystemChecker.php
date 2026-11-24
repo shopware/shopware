@@ -7,6 +7,8 @@ use Shopware\Core\Framework\SystemCheck\Check\Category;
 use Shopware\Core\Framework\SystemCheck\Check\Result;
 use Shopware\Core\Framework\SystemCheck\Check\Status;
 use Shopware\Core\Framework\SystemCheck\Check\SystemCheckExecutionContext;
+use Shopware\Core\Framework\SystemCheck\Message\RunSystemChecks;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -22,7 +24,16 @@ class SystemChecker
     public function __construct(
         private readonly iterable $checks,
         private readonly SystemCheckResultStorage $resultStorage,
+        private readonly MessageBusInterface $messageBus,
     ) {
+    }
+
+    /**
+     * Runs all checks, or only the check with the given name, in the background.
+     */
+    public function queueCheck(?string $name = null): void
+    {
+        $this->messageBus->dispatch(new RunSystemChecks($name));
     }
 
     /**

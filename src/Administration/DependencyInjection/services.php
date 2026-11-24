@@ -49,6 +49,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Notification\Api\NotificationController;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardService;
+use Shopware\Core\Framework\SystemCheck\SystemChecker;
 use Shopware\Core\Framework\SystemCheck\SystemCheckResultStorage;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -272,7 +273,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             tagged_iterator('shopware.system_check'),
             service(SystemCheckResultStorage::class),
-            service('messenger.default_bus'),
+            service(SystemChecker::class),
         ])
         ->call('setContainer', [service('service_container')]);
 

@@ -32,6 +32,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             tagged_iterator('shopware.system_check'),
             service(SystemCheckResultStorage::class),
+            service('messenger.default_bus'),
         ]);
 
     $services->set(RunSystemChecksHandler::class)

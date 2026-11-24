@@ -7,7 +7,7 @@ import type { HttpError } from 'src/core/factory/http-client.types';
 import template from './sw-settings-webhook-roles-modal.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -36,12 +36,14 @@ export default Component.wrapComponentConfig({
         isLoading: boolean;
         isSaving: boolean;
         editableWebhook: Entity<'webhook'> | null;
+        selectedRoles: EntityCollection<'acl_role'> | null;
     } {
         return {
             isOpen: true,
             isLoading: true,
             isSaving: false,
             editableWebhook: null,
+            selectedRoles: null,
         };
     },
 
@@ -81,6 +83,17 @@ export default Component.wrapComponentConfig({
         isRoleSelectDisabled(): boolean {
             return !this.isOwnerAdmin && this.ownerRoleIds.length === 0;
         },
+
+        unheldRoleNames(): string {
+            if (this.isOwnerAdmin) {
+                return '';
+            }
+
+            return (this.selectedRoles ?? [])
+                .filter((role) => !this.ownerRoleIds.includes(role.id))
+                .map((role) => role.name)
+                .join(', ');
+        },
     },
 
     created() {
@@ -95,6 +108,7 @@ export default Component.wrapComponentConfig({
 
             try {
                 this.editableWebhook = await this.webhookRepository.get(this.webhook.id, Shopware.Context.api, criteria);
+                this.selectedRoles = await this.loadSelectedRoles((this.editableWebhook?.aclRoleIds ?? []) as string[]);
             } finally {
                 this.isLoading = false;
             }
@@ -106,12 +120,13 @@ export default Component.wrapComponentConfig({
             }
         },
 
-        onChangeRoleIds(roleIds: string[]): void {
+        onChangeRoles(roles: EntityCollection<'acl_role'>): void {
             if (!this.editableWebhook) {
                 return;
             }
 
-            this.editableWebhook.aclRoleIds = roleIds.length > 0 ? roleIds : undefined;
+            this.selectedRoles = roles;
+            this.editableWebhook.aclRoleIds = roles.length > 0 ? Array.from(roles, (role) => role.id) : undefined;
         },
 
         async onSave(): Promise<void> {
@@ -140,6 +155,17 @@ export default Component.wrapComponentConfig({
             } finally {
                 this.isSaving = false;
             }
+        },
+
+        async loadSelectedRoles(roleIds: string[]): Promise<EntityCollection<'acl_role'>> {
+            if (roleIds.length === 0) {
+                return new EntityCollection(this.aclRoleRepository.route, 'acl_role', Shopware.Context.api);
+            }
+
+            const criteria = new Criteria(1, roleIds.length);
+            criteria.setIds(roleIds);
+
+            return this.aclRoleRepository.search(criteria);
         },
     },
 });

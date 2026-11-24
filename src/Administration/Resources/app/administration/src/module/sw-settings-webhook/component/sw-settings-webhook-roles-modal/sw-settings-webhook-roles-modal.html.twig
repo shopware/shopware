@@ -10,18 +10,25 @@
         <template #default>
             <sw-loader v-if="isLoading" />
 
-            <template v-else-if="editableWebhook">
-                <sw-entity-multi-id-select
+            <template v-else-if="editableWebhook && selectedRoles">
+                <sw-entity-multi-select
                     class="sw-settings-webhook-roles-modal__select"
-                    :repository="aclRoleRepository"
+                    :entity-collection="selectedRoles"
                     :criteria="roleCriteria"
-                    :value="editableWebhook.aclRoleIds"
                     :disabled="isRoleSelectDisabled"
                     :label="$t('sw-settings-webhook.roles.label')"
                     :placeholder="$t('sw-settings-webhook.roles.placeholder')"
                     :help-text="$t('sw-settings-webhook.roles.helpText')"
-                    @update:value="onChangeRoleIds"
+                    @update:entity-collection="onChangeRoles"
                 />
+
+                <mt-banner
+                    v-if="unheldRoleNames"
+                    class="sw-settings-webhook-roles-modal__unheld-roles"
+                    variant="attention"
+                >
+                    {{ $t('sw-settings-webhook.roles.hintUnheldRoles', { roles: unheldRoleNames }) }}
+                </mt-banner>
             </template>
         </template>
 

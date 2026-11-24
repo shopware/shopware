@@ -44,7 +44,8 @@
       "label": "Rollen",
       "placeholder": "Alle Rollen des Eigentümers",
       "helpText": "Der Webhook sendet nur Ereignisse, die diese Rollen sehen dürfen. Lass das Feld leer, um alle Rollen des Eigentümers zu verwenden.",
-      "messageEventNotCovered": "Diese Rollen erlauben das Ereignis von \"{name}\" nicht. Wähle Rollen, die es sehen dürfen."
+      "messageEventNotCovered": "Diese Rollen erlauben das Ereignis von \"{name}\" nicht. Wähle Rollen, die es sehen dürfen.",
+      "hintUnheldRoles": "Der Eigentümer hat diese Rollen nicht mehr, daher kann der Webhook sie nicht verwenden: {roles}"
     },
     "secret": {
       "title": "Signatur-Secret von \"{name}\"",
